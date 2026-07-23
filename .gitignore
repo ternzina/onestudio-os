@@ -1,0 +1,15 @@
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+.vercel
+.env*
+.DS_Store
+.next/
+node_modules/
+supabase/.temp/
+.vercel/
+.vercel-backup-before-relink/
+*.tsbuildinfo
+*.zip
