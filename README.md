@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OneStudio OS · Core Foundation 1.0
 
-## Getting Started
+A brand-neutral foundation for studio and appointment-based business systems. This repository is no longer a copy of a specific client website. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
-First, run the development server:
+## Included in this foundation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 and React 19 application shell
+- Supabase authentication and role-based admin access
+- Clean, locale-neutral Supabase schema
+- Admin overview and global settings
+- Cloudflare R2 media library
+- Portfolio categories and reusable portfolio projects
+- Private client-gallery redirect page
+- Password recovery through Resend
+- Generic SEO, manifest, robots and sitemap
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deliberately not included yet
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Client-specific public storefront pages
+- Service and resource booking interfaces
+- CRM, payment and analytics interfaces
+- Stripe checkout and webhooks
+- Business-specific legal documents
+- Hardcoded languages, routes, prices, addresses or media
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The database already contains the neutral service-booking and resource-booking primitives. Their interfaces will be rebuilt as independent core modules instead of carrying forward the previous client implementation.
 
-## Learn More
+## Local setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Copy `.env.example` to `.env.local` and fill the required values.
+2. Install dependencies with `npm ci`.
+3. Run `npm run dev`.
+4. Validate changes with `npm run lint` and `npm run build`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Database
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The canonical clean migration is:
 
-## Deploy on Vercel
+`supabase/migrations/20260722000000_onestudio_clean_base.sql`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Security regression tests are stored in:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`supabase/tests/onestudio-clean-base-security-tests.sql`
+
+## Git checkpoints
+
+- `clean-shell-1.0` preserves the pre-cleanup source snapshot.
+- `core-foundation-1.0` is the working branch for the universal foundation.
+
+Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.

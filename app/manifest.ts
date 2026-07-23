@@ -2,21 +2,17 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Sisters Photo Studio Warszawa",
-    short_name: "Sisters Studio",
-    description:
-      "Studio fotograficzne w Warszawie: wynajem, sesje zdjęciowe i szkolenia.",
+    name: "OneStudio OS",
+    short_name: "OneStudio OS",
+    description: "A digital operating system for service businesses.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0B0908",
-    theme_color: "#0B0908",
-    lang: "pl",
+    background_color: "#0b0d12",
+    theme_color: "#0b0d12",
+    lang: "en",
     icons: [
-      {
-        src: "/images/brand/sisters-logo-icon.webp",
-        sizes: "any",
-        type: "image/webp",
-      },
+      { src: "/icon.png", sizes: "512x512", type: "image/png" },
+      { src: "/favicon.ico", sizes: "any", type: "image/x-icon" },
     ],
   };
 }

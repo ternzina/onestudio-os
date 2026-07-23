@@ -1,65 +1,33 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import AdminHeader from "@/components/admin/AdminHeader";
 
-const modules = [
+const readyModules = [
   {
-    title: "Медиатека",
-    label: "Media Library",
-    icon: "📷",
-    description:
-      "Загрузка фото, Cloudflare R2, категории, избранное, скрытие и удаление.",
+    title: "Media library",
+    label: "Cloud assets",
+    description: "Upload, organize and remove images or video stored in Cloudflare R2.",
     href: "/admin/media",
-    action: "Открыть медиатеку →",
+    icon: "◫",
   },
   {
-    title: "Брони",
-    label: "CRM",
-    icon: "📅",
-    description:
-      "Фотосессии, аренда студии, статусы, фильтры и контакт с клиентом.",
-    href: "/admin/bookings",
-    action: "Открыть брони →",
-  },
-  {
-    title: "Оплата",
-    label: "Stripe",
-    icon: "💳",
-    description:
-      "Оплаченные брони, ожидающие платежи, предоплаты и история операций.",
-    href: "/admin/payments",
-    action: "Открыть оплату →",
-  },
-  {
-    title: "Аналитика",
-    label: "Business",
-    icon: "📊",
-    description:
-      "Выручка, средний чек, бронирования, часы аренды и ближайшая загрузка.",
-    href: "/admin/analytics",
-    action: "Открыть аналитику →",
-  },
-  {
-    title: "Настройки сайта",
-    label: "Website",
-    icon: "⚙️",
-    description:
-      "Контакты, тексты, пакеты, интерьеры, команда, отзывы и портфолио.",
-    href: "/admin/settings",
-    action: "Редактировать →",
-  },
-  {
-    title: "Портфолио",
-    label: "Portfolio",
-    icon: "🖼️",
-    description:
-      "Вход в управление портфолио: категории, выбранные фото и порядок показа.",
+    title: "Portfolio",
+    label: "Published work",
+    description: "Manage portfolio categories, selected media and display order.",
     href: "/admin/portfolio",
-    action: "Открыть портфолио →",
+    icon: "◇",
+  },
+  {
+    title: "Foundation settings",
+    label: "Business identity",
+    description: "Edit the neutral global, contact and booking settings defined in the clean database.",
+    href: "/admin/settings",
+    icon: "⚙",
   },
 ];
+
+const nextModules = ["Universal service booking", "Bookable resources", "Clients and CRM", "Payments", "Analytics"];
 
 export default function AdminPage() {
   const router = useRouter();
@@ -67,66 +35,46 @@ export default function AdminPage() {
   return (
     <>
       <AdminHeader />
-      <main className="min-h-screen bg-[#F7F1EA] px-5 pb-24 pt-36 text-[#2B1A12]">
+      <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-10 overflow-hidden rounded-[42px] border border-[#E5D5C8] bg-[#2B1A12] p-7 text-[#F7F1EA] shadow-[0_28px_90px_rgba(43,26,18,0.22)] sm:p-10"
-          >
-            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+          <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">Core Foundation 1.0</p>
+            <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <p className="mb-3 text-xs uppercase tracking-[0.32em] text-[#D9B98F]">
-                  Sisters Studio OS
-                </p>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">
-                  Центр управления студией
-                </h1>
-                <p className="mt-5 max-w-2xl text-sm leading-7 text-[#E8D8CC] sm:text-base">
-                  Брони, медиатека, сайт, пакеты, команда, отзывы и портфолио теперь разнесены по разделам. Главная админка стала чистой дверью в Studio OS.
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">A clean control center.</h1>
+                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
+                  This branch contains the universal system shell. Business-specific storefronts and old locale assumptions have been removed before the next modules are rebuilt.
                 </p>
               </div>
-
-              <div className="rounded-[30px] border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-                <p className="text-xs uppercase tracking-[0.24em] text-[#D9B98F]">
-                  Архитектура
-                </p>
-                <p className="mt-3 text-3xl font-semibold tracking-[-0.05em]">
-                  Легче. Чище. Без комбайна.
-                </p>
-                <p className="mt-3 text-sm leading-6 text-[#E8D8CC]">
-                  Тяжёлые функции живут на отдельных страницах, а здесь остаётся навигационный центр.
-                </p>
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">Current rule</p>
+                <p className="mt-3 text-2xl font-semibold">No client-specific defaults.</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">Each future edition must receive its identity and content through configuration.</p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {modules.map((module) => (
-              <button
-                key={module.title}
-                type="button"
-                onClick={() => router.push(module.href)}
-                className="group rounded-[32px] border border-[#E5D5C8] bg-white/75 p-6 text-left shadow-[0_18px_60px_rgba(83,54,37,0.10)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_24px_80px_rgba(83,54,37,0.16)]"
-              >
-                <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2B1A12] text-2xl text-[#F7F1EA]">
-                  {module.icon}
-                </span>
-                <span className="block text-xs font-semibold uppercase tracking-[0.22em] text-[#A67C52]">
-                  {module.label}
-                </span>
-                <span className="mt-2 block text-2xl font-semibold tracking-[-0.04em] text-[#2B1A12]">
-                  {module.title}
-                </span>
-                <span className="mt-3 block text-sm leading-6 text-[#7A6252]">
-                  {module.description}
-                </span>
-                <span className="mt-5 inline-flex text-sm font-semibold text-[#2B1A12]">
-                  {module.action}
-                </span>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {readyModules.map((module) => (
+              <button key={module.href} type="button" onClick={() => router.push(module.href)} className="rounded-[28px] border border-black/8 bg-white p-6 text-left shadow-[0_18px_55px_rgba(20,20,20,0.07)] transition hover:-translate-y-1">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#17191f] text-xl text-white">{module.icon}</span>
+                <span className="mt-5 block text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{module.label}</span>
+                <span className="mt-2 block text-2xl font-semibold tracking-[-0.04em]">{module.title}</span>
+                <span className="mt-3 block text-sm leading-6 text-[#6f6c65]">{module.description}</span>
               </button>
             ))}
+          </div>
+
+          <div className="mt-8 rounded-[30px] border border-black/8 bg-[#eeebe3] p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Planned foundation layers</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {nextModules.map((module, index) => (
+                <div key={module} className="rounded-2xl bg-white/80 p-4">
+                  <p className="text-xs text-[#9a742e]">0{index + 1}</p>
+                  <p className="mt-2 text-sm font-semibold">{module}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>

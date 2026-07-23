@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
 
     const { data: category, error: categoryError } = await supabase
       .from("portfolio_categories")
-      .select("id, slug, name_uk, name_pl")
+      .select("id, slug, name")
       .eq("id", categoryId)
       .single();
 
@@ -292,7 +292,7 @@ export async function POST(request: NextRequest) {
     const { data: existingMedia } = await supabase
       .from("media_library")
       .select(
-        "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_uk, alt_pl, is_active, is_favorite, source, created_at",
+        "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_text, is_active, is_favorite, source, created_at",
       )
       .eq("r2_key", r2Key)
       .maybeSingle();
@@ -340,14 +340,13 @@ export async function POST(request: NextRequest) {
         size_bytes: Number(head.ContentLength || sizeBytes),
         width,
         height,
-        alt_uk: title,
-        alt_pl: title,
+        alt_text: title,
         is_active: true,
         is_favorite: false,
         source: "portfolio_video_upload",
       })
       .select(
-        "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_uk, alt_pl, is_active, is_favorite, source, created_at",
+        "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_text, is_active, is_favorite, source, created_at",
       )
       .single();
 

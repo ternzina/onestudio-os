@@ -6,17 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/admin",
-        "/dashboard",
-        "/api",
-        "/login",
-        "/register",
-        "/reset-password",
-        "/booking",
-        "/booking-public",
-        "/wynajem-studia/rezerwacja",
-      ],
+      disallow: ["/admin", "/dashboard", "/api", "/login", "/register", "/reset-password", "/gallery"],
     },
     sitemap: new URL("/sitemap.xml", SITE_URL).toString(),
     host: SITE_URL.origin,

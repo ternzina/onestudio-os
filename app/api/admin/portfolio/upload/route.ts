@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const { data: category, error: categoryError } = await supabase
       .from("portfolio_categories")
-      .select("id, slug, name_uk, name_pl")
+      .select("id, slug, name")
       .eq("id", categoryId)
       .single();
 
@@ -163,8 +163,7 @@ export async function POST(request: NextRequest) {
         contentType: "image/webp",
       });
 
-      const altUk = `${category.name_uk} — портфоліо Sisters Photo Studio`;
-      const altPl = `${category.name_pl} — portfolio Sisters Photo Studio`;
+      const altText = `${category.name} portfolio`;
 
       const { data: mediaItem, error: mediaError } = await supabase
         .from("media_library")
@@ -176,14 +175,13 @@ export async function POST(request: NextRequest) {
           size_bytes: webpBuffer.length,
           width,
           height,
-          alt_uk: altUk,
-          alt_pl: altPl,
+          alt_text: altText,
           is_active: true,
           is_favorite: false,
           source: "portfolio_upload",
         })
         .select(
-          "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_uk, alt_pl, is_active, is_favorite, source, created_at",
+          "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_text, is_active, is_favorite, source, created_at",
         )
         .single();
 
@@ -218,8 +216,7 @@ export async function POST(request: NextRequest) {
         media_id: mediaItem.id,
         image_url: mediaItem.image_url,
         r2_key: mediaItem.r2_key,
-        alt_uk: mediaItem.alt_uk,
-        alt_pl: mediaItem.alt_pl,
+        alt_text: mediaItem.alt_text,
         is_active: categoryLink.is_active && mediaItem.is_active,
         sort_order: categoryLink.sort_order,
         created_at: categoryLink.created_at || mediaItem.created_at,

@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "Sisters Photo Studio";
-export const SITE_URL = new URL("https://sistersstudio.pl");
+export const SITE_NAME = "OneStudio OS";
+export const SITE_URL = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://onestudioos.com");
 export const DEFAULT_DESCRIPTION =
-  "Sisters Photo Studio w Warszawie: wynajem studia fotograficznego, profesjonalne sesje zdjęciowe, portfolio i szkolenia. Taśmowa 1, lokal 202.";
+  "OneStudio OS combines a website, online booking, CRM, payments, media and analytics for service businesses.";
 
 export const DEFAULT_KEYWORDS = [
-  "studio fotograficzne Warszawa",
-  "wynajem studia fotograficznego Warszawa",
-  "sesja zdjęciowa Warszawa",
-  "fotograf Warszawa",
-  "cyklorama Warszawa",
-  "studio do wynajęcia Warszawa",
-  "Sisters Studio Warszawa",
+  "service business software",
+  "online booking system",
+  "CRM for small business",
+  "business website",
+  "OneStudio OS",
 ];
 
 type PageMetadataOptions = {
@@ -30,18 +28,16 @@ export function createPageMetadata({
   keywords = [],
   noIndex = false,
 }: PageMetadataOptions): Metadata {
-  const fullTitle = `${title} | Sisters Studio Warszawa`;
+  const fullTitle = `${title} | ${SITE_NAME}`;
 
   return {
     title,
     description,
     keywords: [...DEFAULT_KEYWORDS, ...keywords],
-    alternates: {
-      canonical: path,
-    },
+    alternates: { canonical: path },
     openGraph: {
       type: "website",
-      locale: "pl_PL",
+      locale: "en_US",
       url: path,
       siteName: SITE_NAME,
       title: fullTitle,
@@ -57,44 +53,21 @@ export function createPageMetadata({
           index: false,
           follow: false,
           nocache: true,
-          googleBot: {
-            index: false,
-            follow: false,
-            noimageindex: true,
-          },
+          googleBot: { index: false, follow: false, noimageindex: true },
         }
-      : {
-          index: true,
-          follow: true,
-          googleBot: {
-            index: true,
-            follow: true,
-            "max-image-preview": "large",
-            "max-snippet": -1,
-            "max-video-preview": -1,
-          },
-        },
+      : { index: true, follow: true },
   };
 }
 
-export function createPrivatePageMetadata(
-  path: string,
-  title = "Panel prywatny"
-): Metadata {
+export function createPrivatePageMetadata(path: string, title = "Private area"): Metadata {
   return {
     title,
-    alternates: {
-      canonical: path,
-    },
+    alternates: { canonical: path },
     robots: {
       index: false,
       follow: false,
       nocache: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-      },
+      googleBot: { index: false, follow: false, noimageindex: true },
     },
   };
 }

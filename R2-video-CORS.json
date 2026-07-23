@@ -1,6 +1,9 @@
 [
   {
-    "AllowedOrigins": ["*"],
+    "AllowedOrigins": [
+      "https://onestudioos.com",
+      "http://localhost:3000"
+    ],
     "AllowedMethods": ["GET", "HEAD", "PUT"],
     "AllowedHeaders": ["*"],
     "ExposeHeaders": ["etag"],

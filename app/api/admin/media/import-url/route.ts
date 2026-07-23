@@ -83,7 +83,7 @@ const fetchImage = async (rawUrl: string) => {
       redirect: "manual",
       headers: {
         Accept: "image/avif,image/webp,image/jpeg,image/png,image/*",
-        "User-Agent": "SistersStudio-Media-Importer/1.0",
+        "User-Agent": "OneStudioOS-Media-Importer/1.0",
       },
       signal: AbortSignal.timeout(20_000),
     });
@@ -247,8 +247,7 @@ export async function POST(request: NextRequest) {
             size_bytes: output.length,
             width: metadata.width || null,
             height: metadata.height || null,
-            alt_uk: null,
-            alt_pl: null,
+            alt_text: null,
             is_active: true,
             is_favorite: false,
             source: "url-import",

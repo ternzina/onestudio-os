@@ -1,10 +1,9 @@
-
-# Local environment files
+# Local secrets and generated output
 .env
 .env.local
 .env.*.local
-.vercel
 .env*
+!.env.example
 .DS_Store
 .next/
 node_modules/
