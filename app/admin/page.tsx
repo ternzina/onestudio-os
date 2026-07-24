@@ -37,6 +37,13 @@ export default function AdminPage() {
       icon: "▣",
     },
     {
+      title: t("Calendar"),
+      label: t("Day and week timeline"),
+      description: t("See occupied time, working windows and blocked intervals across every bookable resource."),
+      href: "/admin/calendar",
+      icon: "▤",
+    },
+    {
       title: t("Public booking"),
       label: t("Client booking flow"),
       description: t("Open the public service, date, slot and contact flow that writes into the canonical booking record."),
@@ -80,18 +87,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Public Booking UI 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Booking Calendar 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The client booking door is open.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The schedule at a glance.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Clients can now choose a public service, date and conflict-safe slot without signing in. The same canonical booking and resource locks remain underneath.")}
+                  {t("Bookings, working windows and blocked intervals now share one operational timeline without changing the canonical booking engine.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Public booking boundary")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("One public request, one booking.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("The browser sends an idempotency key, then the database locks resources and checks the slot again before saving.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Calendar rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("Read here, change through Booking Core.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("The calendar is a projection. Creation, rescheduling and status transitions remain protected booking operations.")}</p>
               </div>
             </div>
           </div>

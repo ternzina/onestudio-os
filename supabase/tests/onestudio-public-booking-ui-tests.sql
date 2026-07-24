@@ -90,8 +90,8 @@ insert into public.availability_rules (
 
 select is(
   (select version from public.business_modules where business_id = '71000000-0000-4000-8000-000000000001' and module_key = 'scheduling'),
-  '1.2.0',
-  'scheduling records the public booking UI version'
+  '1.3.0',
+  'scheduling records the booking calendar version'
 );
 select is(
   (select config->>'public_booking_ui' from public.business_modules where business_id = '71000000-0000-4000-8000-000000000001' and module_key = 'scheduling'),

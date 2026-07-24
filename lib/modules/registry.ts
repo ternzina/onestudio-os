@@ -45,9 +45,9 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
   {
     key: "scheduling",
     title: "Scheduling",
-    description: "Availability, public and administrative booking flows, resource allocation and operational status changes.",
+    description: "Availability, public and administrative booking flows, calendar views, resource allocation and operational status changes.",
     stage: "enabled",
-    version: "1.2.0",
+    version: "1.3.0",
     dependsOn: ["core", "catalog"],
   },
   {

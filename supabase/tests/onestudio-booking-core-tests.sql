@@ -95,7 +95,7 @@ insert into public.availability_rules (business_id, resource_id, day_of_week, st
   ('62000000-0000-4000-8000-000000000002', '64000000-0000-4000-8000-000000000002', extract(dow from current_date + 1)::smallint, '09:00', '17:00');
 
 select is((select enabled from public.business_modules where business_id='62000000-0000-4000-8000-000000000001' and module_key='scheduling'), true, 'new workspaces enable scheduling with booking core');
-select is((select version from public.business_modules where business_id='62000000-0000-4000-8000-000000000001' and module_key='scheduling'), '1.2.0', 'scheduling records public booking UI version');
+select is((select version from public.business_modules where business_id='62000000-0000-4000-8000-000000000001' and module_key='scheduling'), '1.3.0', 'scheduling records booking calendar version');
 select is((select enabled from public.business_modules where business_id='62000000-0000-4000-8000-000000000001' and module_key='crm'), true, 'new workspaces enable booking client records');
 select is((select version from public.business_modules where business_id='62000000-0000-4000-8000-000000000001' and module_key='crm'), '1.0.0', 'CRM records booking client version');
 select is(public.calculate_booking_subtotal('63000000-0000-4000-8000-000000000001', 60, 1), 5000, 'fixed price is copied to the booking');

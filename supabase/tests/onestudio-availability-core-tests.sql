@@ -89,8 +89,8 @@ select is(
 );
 select is(
   (select version from public.business_modules where business_id = '52000000-0000-4000-8000-000000000001' and module_key = 'scheduling'),
-  '1.2.0',
-  'scheduling module records the public-booking version'
+  '1.3.0',
+  'scheduling module records the booking-calendar version'
 );
 
 select set_config('request.jwt.claim.sub', '51000000-0000-4000-8000-000000000001', true);

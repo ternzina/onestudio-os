@@ -257,3 +257,73 @@ export type PublicBookingConfirmation = {
   currency: string;
   timezone: string;
 };
+
+export type BookingCalendarResource = {
+  id: string;
+  name: string;
+  kind: ResourceKind;
+  timezone: string;
+};
+
+export type BookingCalendarWindow = {
+  resource_id: string;
+  resource_name: string;
+  local_date: string;
+  start_minute: number;
+  end_minute: number;
+  source?: "weekly" | "available";
+  reason: string;
+};
+
+export type BookingCalendarAllocation = {
+  id: string;
+  name: string;
+  status: "held" | "confirmed" | "released";
+};
+
+export type BookingCalendarEntry = {
+  id: string;
+  reference: string;
+  status: BookingStatus;
+  source: BookingSource;
+  starts_at: string;
+  ends_at: string;
+  local_date: string;
+  start_minute: number;
+  end_minute: number;
+  timezone: string;
+  party_size: number;
+  total_minor: number;
+  currency: string;
+  payment_status: PaymentStatus;
+  client_name: string;
+  client_email: string | null;
+  client_phone: string | null;
+  service_title: string;
+  occupies_resource: boolean;
+  resources: BookingCalendarAllocation[];
+};
+
+export type BookingCalendarContext = {
+  business: Pick<
+    BusinessRecord,
+    "id" | "name" | "slug" | "timezone" | "default_locale" | "default_currency"
+  >;
+  range: {
+    start_date: string;
+    end_date: string;
+    days: number;
+  };
+  resources: BookingCalendarResource[];
+  working_windows: BookingCalendarWindow[];
+  blocked_windows: BookingCalendarWindow[];
+  bookings: BookingCalendarEntry[];
+  summary: {
+    total: number;
+    occupying: number;
+    pending: number;
+    confirmed: number;
+    completed: number;
+    cancelled: number;
+  };
+};

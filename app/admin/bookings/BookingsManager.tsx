@@ -233,6 +233,7 @@ export default function BookingsManager() {
   const [resources, setResources] = useState<ResourceRow[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [requestedBookingId, setRequestedBookingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BookingDraft>(emptyDraft());
   const [slots, setSlots] = useState<SlotRow[]>([]);
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
@@ -362,6 +363,10 @@ export default function BookingsManager() {
   }, [loadWorkspaceData, t]);
 
   useEffect(() => {
+    setRequestedBookingId(new URLSearchParams(window.location.search).get("booking"));
+  }, []);
+
+  useEffect(() => {
     void load();
   }, [load]);
 
@@ -393,8 +398,9 @@ export default function BookingsManager() {
     setSlots([]);
   };
 
-  const selectBooking = (booking: BookingRow) => {
-    resetMessages();
+  const selectBooking = useCallback((booking: BookingRow) => {
+    setNotice("");
+    setError("");
     setSelectedBookingId(booking.id);
     const client = clientMap.get(booking.client_id);
     const local = localParts(booking.starts_at, workspace?.timezone ?? booking.timezone);
@@ -413,7 +419,15 @@ export default function BookingsManager() {
       internal_notes: booking.internal_notes,
     });
     setSlots([]);
-  };
+  }, [clientMap, workspace]);
+
+  useEffect(() => {
+    if (!requestedBookingId || !workspace) return;
+    const requested = bookings.find((booking) => booking.id === requestedBookingId);
+    if (!requested) return;
+    selectBooking(requested);
+    setRequestedBookingId(null);
+  }, [bookings, requestedBookingId, selectBooking, workspace]);
 
   const checkSlots = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
