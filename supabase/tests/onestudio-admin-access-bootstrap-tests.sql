@@ -4,6 +4,17 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
+-- Keep this bootstrap test deterministic even when the local installation
+-- has already been configured through the live admin UI. The enclosing
+-- transaction is rolled back at the end of the test file, restoring the
+-- real installation state and all existing workspace data.
+update public.system_installation
+set bootstrapped_at = null,
+    owner_user_id = null,
+    business_id = null,
+    updated_at = now()
+where id = 1;
+
 select plan(38);
 
 select has_table('public', 'system_installation', 'single-row installation state table exists');

@@ -217,3 +217,43 @@ export type BookingEventRecord = {
   changes: Record<string, unknown>;
   created_at: string;
 };
+
+export type PublicBookingService = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  kind: ServiceKind;
+  category_name: string | null;
+  pricing_model: PricingModel;
+  price_minor: number | null;
+  currency: string;
+  duration_min_minutes: number;
+  duration_max_minutes: number | null;
+  duration_step_minutes: number | null;
+  capacity: number;
+  requires_confirmation: boolean;
+};
+
+export type PublicBookingContext = {
+  business: Pick<
+    BusinessRecord,
+    "id" | "slug" | "name" | "timezone" | "default_locale" | "default_currency"
+  >;
+  date_bounds: {
+    minimum_date: string;
+    maximum_date: string;
+  };
+  services: PublicBookingService[];
+};
+
+export type PublicBookingConfirmation = {
+  booking_id: string;
+  reference: string;
+  status: "pending" | "confirmed";
+  starts_at: string;
+  ends_at: string;
+  total_minor: number;
+  currency: string;
+  timezone: string;
+};

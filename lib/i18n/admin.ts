@@ -4,6 +4,18 @@ export type AdminLocale = (typeof ADMIN_LOCALES)[number];
 export const DEFAULT_ADMIN_LOCALE: AdminLocale = "ru";
 
 const ruMessages = {
+  "Public Booking UI 1.0": "Public Booking UI 1.0",
+  "Public booking": "Публичное бронирование",
+  "Client booking flow": "Клиентский путь бронирования",
+  "Open the public service, date, slot and contact flow that writes into the canonical booking record.": "Откройте публичный путь выбора услуги, даты, слота и контактов, который создаёт каноническую запись бронирования.",
+  "The client booking door is open.": "Клиентская дверь бронирования открыта.",
+  "Clients can now choose a public service, date and conflict-safe slot without signing in. The same canonical booking and resource locks remain underneath.": "Клиенты теперь могут без входа выбрать публичную услугу, дату и безопасный слот. В основе остаются та же каноническая бронь и блокировка ресурсов.",
+  "Public booking boundary": "Граница публичного бронирования",
+  "One public request, one booking.": "Один публичный запрос, одна бронь.",
+  "The browser sends an idempotency key, then the database locks resources and checks the slot again before saving.": "Браузер отправляет ключ идемпотентности, затем база блокирует ресурсы и повторно проверяет слот перед сохранением.",
+  "Open booking form": "Открыть форму бронирования",
+  "Public Booking UI": "Публичное бронирование",
+  "Business · Booking · Public flow": "Бизнес · Бронирование · Публичный путь",
   "Language": "Язык",
   "Russian": "Русский",
   "English": "English",
