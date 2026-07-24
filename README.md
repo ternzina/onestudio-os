@@ -1,6 +1,6 @@
-# OneStudio OS · Workspace Context 1.0
+# OneStudio OS · Catalog Core 1.0
 
-A brand-neutral foundation for studio and appointment-based business systems. This repository is no longer a copy of a specific client website. Client storefronts, languages, booking rules and visual themes are added as separate layers.
+A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
 ## Foundation layers
 
@@ -8,66 +8,57 @@ A brand-neutral foundation for studio and appointment-based business systems. Th
 2. **Clean Shell 1.0** preserves a generic application and admin shell.
 3. **Core Modules 1.0** defines businesses, clients, services, resources, schedules and bookings.
 4. **Workspace Context 1.0** selects the active business and enforces role-aware tenant boundaries.
+5. **Admin Access & Bootstrap 1.0** creates the first owner and protects the administration area.
+6. **Catalog Core 1.0** activates universal categories, services, resources, pricing and duration controls.
 
-## Added in Workspace Context 1.0
+## Added in Catalog Core 1.0
 
-- one preferred workspace per authenticated user;
-- deterministic `current_business_id()` resolution;
-- owner, admin, manager, staff and viewer roles;
-- separate view, operate, configure and manage permission tiers;
-- tenant-safe RLS policies across CRM, catalog, scheduling and bookings;
-- `/admin/workspace` for workspace selection and neutral identity settings;
-- regression tests for workspace switching and cross-workspace access.
+- workspace-scoped service and resource categories;
+- category links on canonical `services` and `resources`;
+- database protection against cross-workspace and wrong-scope category links;
+- atomic `replace_service_resources()` assignment;
+- automatic module registry rows for future workspaces;
+- `/admin/catalog` with working category, service and resource management;
+- pricing models, duration ranges, capacity, visibility, active state and ordering;
+- manager-level configuration with staff/viewer read-only access;
+- regression tests for catalog security and tenant isolation.
 
 ## Current module contract
 
 - business workspaces and memberships;
+- first-owner bootstrap and protected administration;
 - canonical clients and CRM records;
+- categories for services and resources;
 - one service catalog for appointments, rentals, classes and events;
 - bookable resources for staff, spaces, equipment and capacity units;
+- service-to-resource requirements;
 - weekly availability and date-specific exceptions;
 - one canonical booking table with conflict-safe resource allocations;
 - per-business module registry.
 
 ## Deliberately not included yet
 
-- client-specific public storefront pages;
-- member invitations and ownership transfer UI;
-- service and resource admin interfaces;
-- public booking and admin booking interfaces;
-- Stripe checkout and webhooks for the canonical booking table;
-- business-specific legal documents;
+- public storefront catalog layouts;
+- weekly schedules and availability administration;
+- public booking and manual admin booking interfaces;
+- Stripe checkout and payment records for canonical bookings;
+- discounts, reminders and analytics;
 - hardcoded languages, routes, prices, addresses or media.
 
 ## Database migrations
 
-The canonical clean migration is:
-
-`supabase/migrations/20260722000000_onestudio_clean_base.sql`
-
-The core module contract is:
-
-`supabase/migrations/20260724000000_core_modules_contract.sql`
-
-The workspace context layer is:
-
-`supabase/migrations/20260724010000_workspace_context.sql`
+- `supabase/migrations/20260722000000_onestudio_clean_base.sql`
+- `supabase/migrations/20260724000000_core_modules_contract.sql`
+- `supabase/migrations/20260724010000_workspace_context.sql`
+- `supabase/migrations/20260724020000_admin_access_bootstrap.sql`
+- `supabase/migrations/20260724030000_catalog_core.sql`
 
 ## Validation
-
-Run locally:
 
 ```bash
 npx supabase@beta db reset
 npx supabase@beta test db
 npm run build
 ```
-
-## Git checkpoints
-
-- `clean-shell-1.0` preserves the pre-cleanup source snapshot.
-- `core-foundation-v1.0` preserves the clean universal foundation.
-- `core-modules-1.0` adds the universal module contract.
-- `workspace-context-1.0` should be created only after database tests and the Next.js build pass.
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.

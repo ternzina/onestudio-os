@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 const links = [
   ["Overview", "/admin"],
+  ["Catalog", "/admin/catalog"],
   ["Media", "/admin/media"],
   ["Portfolio", "/admin/portfolio"],
   ["Settings", "/admin/settings"],

@@ -38,7 +38,7 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
     key: "catalog",
     title: "Services and resources",
     description: "One catalog for appointments, rentals, classes and other bookable offers.",
-    stage: "contract-ready",
+    stage: "enabled",
     version: "1.0.0",
     dependsOn: ["core"],
   },

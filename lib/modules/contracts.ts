@@ -28,6 +28,20 @@ export type PricingModel = "fixed" | "per_hour" | "per_person" | "free" | "quote
 
 export type ResourceKind = "staff" | "space" | "equipment" | "seat" | "asset" | "other";
 
+export type CatalogCategoryKind = "service" | "resource";
+
+export type CatalogCategoryRecord = {
+  id: string;
+  business_id: string;
+  kind: CatalogCategoryKind;
+  slug: string;
+  name: string;
+  description: string;
+  is_public: boolean;
+  is_active: boolean;
+  sort_order: number;
+};
+
 export type BookingStatus =
   | "draft"
   | "hold"
@@ -80,6 +94,7 @@ export type ClientRecord = {
 export type ServiceRecord = {
   id: string;
   business_id: string;
+  category_id: string | null;
   slug: string;
   kind: ServiceKind;
   title: string;
@@ -90,20 +105,29 @@ export type ServiceRecord = {
   duration_min_minutes: number | null;
   duration_max_minutes: number | null;
   duration_step_minutes: number | null;
+  buffer_before_minutes: number;
+  buffer_after_minutes: number;
   capacity: number;
+  requires_confirmation: boolean;
   is_public: boolean;
   is_active: boolean;
+  sort_order: number;
 };
 
 export type ResourceRecord = {
   id: string;
   business_id: string;
+  category_id: string | null;
   slug: string;
   kind: ResourceKind;
   name: string;
+  description: string;
   capacity: number;
+  timezone: string | null;
   is_bookable: boolean;
+  is_public: boolean;
   is_active: boolean;
+  sort_order: number;
 };
 
 export type BookingRecord = {
