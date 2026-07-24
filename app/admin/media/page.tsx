@@ -5,6 +5,7 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { supabase } from "@/lib/supabase";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 type Category = {
   id: string;
@@ -53,6 +54,7 @@ async function getAccessToken() {
 }
 
 export default function AdminMediaPage() {
+  const { t } = useAdminI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<MediaItem[]>([]);
   const [links, setLinks] = useState<CategoryLink[]>([]);
@@ -134,7 +136,7 @@ export default function AdminMediaPage() {
   };
 
   const createCategory = async () => {
-    const name = window.prompt("Category name");
+    const name = window.prompt(t("Category name"));
     if (!name?.trim()) return;
 
     clearNotices();
@@ -150,11 +152,11 @@ export default function AdminMediaPage() {
         body: JSON.stringify({ name: name.trim() }),
       });
       const payload = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(payload.error || "Could not create category");
-      setMessage("Category created.");
+      if (!response.ok) throw new Error(payload.error || t("Could not create category"));
+      setMessage(t("Category created."));
       await loadData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not create category");
+      setError(caught instanceof Error ? caught.message : t("Could not create category"));
     } finally {
       setWorking(false);
     }
@@ -167,7 +169,7 @@ export default function AdminMediaPage() {
 
     const targetCategory = categoryId === "all" ? categories[0]?.id : categoryId;
     if (!targetCategory) {
-      setError("Create a portfolio category before uploading media.");
+      setError(t("Create a portfolio category before uploading media."));
       return;
     }
 
@@ -185,11 +187,11 @@ export default function AdminMediaPage() {
         body: formData,
       });
       const payload = (await response.json()) as { error?: string; images?: unknown[] };
-      if (!response.ok) throw new Error(payload.error || "Upload failed");
-      setMessage(`${payload.images?.length || files.length} file(s) uploaded.`);
+      if (!response.ok) throw new Error(payload.error || t("Upload failed"));
+      setMessage(t("Files uploaded: {count}.", { count: payload.images?.length || files.length }));
       await loadData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Upload failed");
+      setError(caught instanceof Error ? caught.message : t("Upload failed"));
     } finally {
       setUploading(false);
     }
@@ -205,11 +207,11 @@ export default function AdminMediaPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const payload = (await response.json()) as { error?: string; addedCount?: number; skippedCount?: number };
-      if (!response.ok) throw new Error(payload.error || "R2 sync failed");
-      setMessage(`R2 synced. Added: ${payload.addedCount || 0}. Already present: ${payload.skippedCount || 0}.`);
+      if (!response.ok) throw new Error(payload.error || t("R2 sync failed"));
+      setMessage(t("R2 synced. Added: {added}. Already present: {skipped}.", { added: payload.addedCount || 0, skipped: payload.skippedCount || 0 }));
       await loadData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "R2 sync failed");
+      setError(caught instanceof Error ? caught.message : t("R2 sync failed"));
     } finally {
       setSyncing(false);
     }
@@ -227,16 +229,16 @@ export default function AdminMediaPage() {
   };
 
   const editAltText = async (item: MediaItem) => {
-    const value = window.prompt("Alternative text", item.alt_text || "");
+    const value = window.prompt(t("Alternative text"), item.alt_text || "");
     if (value === null) return;
-    await patchMedia(item.id, { alt_text: value.trim() || null }, "Alternative text saved.");
+    await patchMedia(item.id, { alt_text: value.trim() || null }, t("Alternative text saved."));
   };
 
   const assignSelectedToCategory = async () => {
     if (selectedIds.length === 0) return;
     const targetCategory = categoryId === "all" ? categories[0]?.id : categoryId;
     if (!targetCategory) {
-      setError("Select or create a category first.");
+      setError(t("Select or create a category first."));
       return;
     }
 
@@ -248,7 +250,7 @@ export default function AdminMediaPage() {
       );
       const missingIds = selectedIds.filter((id) => !existing.has(id));
       if (missingIds.length === 0) {
-        setMessage("Selected media is already assigned to this category.");
+        setMessage(t("Selected media is already assigned to this category."));
         return;
       }
       const lastSortOrder = Math.max(
@@ -264,10 +266,10 @@ export default function AdminMediaPage() {
         })),
       );
       if (insertError) throw insertError;
-      setMessage(`${missingIds.length} item(s) assigned to the category.`);
+      setMessage(t("Items assigned: {count}.", { count: missingIds.length }));
       await loadData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not assign media");
+      setError(caught instanceof Error ? caught.message : t("Could not assign media"));
     } finally {
       setWorking(false);
     }
@@ -284,7 +286,7 @@ export default function AdminMediaPage() {
       .in("media_id", selectedIds);
     if (deleteError) setError(deleteError.message);
     else {
-      setMessage("Selected media removed from this category. Files remain in the library and R2.");
+      setMessage(t("Selected media removed from this category. Files remain in the library and R2."));
       await loadData();
     }
     setWorking(false);
@@ -292,7 +294,7 @@ export default function AdminMediaPage() {
 
   const deleteSelected = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Delete ${selectedIds.length} selected file(s) from R2 and the database?`)) return;
+    if (!window.confirm(t("Delete {count} selected file(s) from R2 and the database?", { count: selectedIds.length }))) return;
 
     clearNotices();
     setWorking(true);
@@ -307,11 +309,11 @@ export default function AdminMediaPage() {
         body: JSON.stringify({ mediaIds: selectedIds }),
       });
       const payload = (await response.json()) as { error?: string; deletedCount?: number; failedCount?: number };
-      if (!response.ok && response.status !== 207) throw new Error(payload.error || "Delete failed");
-      setMessage(`Deleted: ${payload.deletedCount || 0}. Failed: ${payload.failedCount || 0}.`);
+      if (!response.ok && response.status !== 207) throw new Error(payload.error || t("Delete failed"));
+      setMessage(t("Deleted: {deleted}. Failed: {failed}.", { deleted: payload.deletedCount || 0, failed: payload.failedCount || 0 }));
       await loadData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Delete failed");
+      setError(caught instanceof Error ? caught.message : t("Delete failed"));
     } finally {
       setWorking(false);
     }
@@ -329,17 +331,17 @@ export default function AdminMediaPage() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">Core module</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">Media library</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">{t("Core module")}</p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">{t("Media library")}</h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[#6f6c65]">
-              Brand-neutral storage for images and videos. Categories, file metadata and R2 links use the clean OneStudio schema.
+              {t("Brand-neutral storage for images and videos. Categories, file metadata and R2 links use the clean OneStudio schema.")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={createCategory} disabled={working} className="rounded-full border border-black/10 bg-white px-4 py-3 text-xs font-semibold">+ Category</button>
-            <button type="button" onClick={syncR2} disabled={syncing} className="rounded-full border border-black/10 bg-white px-4 py-3 text-xs font-semibold">{syncing ? "Syncing…" : "Sync R2"}</button>
+            <button type="button" onClick={createCategory} disabled={working} className="rounded-full border border-black/10 bg-white px-4 py-3 text-xs font-semibold">{t("+ Category")}</button>
+            <button type="button" onClick={syncR2} disabled={syncing} className="rounded-full border border-black/10 bg-white px-4 py-3 text-xs font-semibold">{syncing ? t("Syncing…") : t("Sync R2")}</button>
             <label className="cursor-pointer rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white">
-              {uploading ? "Uploading…" : "Upload images"}
+              {uploading ? t("Uploading…") : t("Upload images")}
               <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple disabled={uploading} onChange={uploadFiles} className="hidden" />
             </label>
           </div>
@@ -347,9 +349,9 @@ export default function AdminMediaPage() {
 
         <section className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
-            ["Files", String(items.length)],
-            ["Categories", String(categories.length)],
-            ["Storage", formatBytes(totalStorage)],
+            [t("Files"), String(items.length)],
+            [t("Categories"), String(categories.length)],
+            [t("Storage"), formatBytes(totalStorage)],
           ].map(([label, value]) => (
             <div key={label} className="rounded-[24px] border border-black/8 bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-[#8b877e]">{label}</p>
@@ -366,31 +368,31 @@ export default function AdminMediaPage() {
 
         <section className="mt-6 rounded-[28px] border border-black/8 bg-white/75 p-4 sm:p-5">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px_auto]">
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search filename, R2 key or alt text" className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-[#9a742e]" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Search filename, R2 key or alt text")} className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-[#9a742e]" />
             <select value={categoryId} onChange={(event) => { setCategoryId(event.target.value); setSelectedIds([]); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none">
-              <option value="all">All categories</option>
+              <option value="all">{t("All categories")}</option>
               {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
             </select>
-            <button type="button" onClick={() => void loadData()} className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold">Refresh</button>
+            <button type="button" onClick={() => void loadData()} className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold">{t("Refresh")}</button>
           </div>
 
           {selectedIds.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-[#17191f] p-3 text-white">
-              <span className="px-2 text-xs font-semibold">Selected: {selectedIds.length}</span>
-              <button type="button" onClick={assignSelectedToCategory} disabled={working} className="rounded-full bg-white/12 px-4 py-2 text-xs font-semibold">Assign to category</button>
-              {categoryId !== "all" && <button type="button" onClick={removeSelectedFromCategory} disabled={working} className="rounded-full bg-white/12 px-4 py-2 text-xs font-semibold">Remove from category</button>}
-              <button type="button" onClick={deleteSelected} disabled={working} className="rounded-full bg-red-400/20 px-4 py-2 text-xs font-semibold text-red-100">Delete files</button>
-              <button type="button" onClick={() => setSelectedIds([])} className="ml-auto rounded-full px-4 py-2 text-xs font-semibold text-white/70">Clear</button>
+              <span className="px-2 text-xs font-semibold">{t("Selected: {count}", { count: selectedIds.length })}</span>
+              <button type="button" onClick={assignSelectedToCategory} disabled={working} className="rounded-full bg-white/12 px-4 py-2 text-xs font-semibold">{t("Assign to category")}</button>
+              {categoryId !== "all" && <button type="button" onClick={removeSelectedFromCategory} disabled={working} className="rounded-full bg-white/12 px-4 py-2 text-xs font-semibold">{t("Remove from category")}</button>}
+              <button type="button" onClick={deleteSelected} disabled={working} className="rounded-full bg-red-400/20 px-4 py-2 text-xs font-semibold text-red-100">{t("Delete files")}</button>
+              <button type="button" onClick={() => setSelectedIds([])} className="ml-auto rounded-full px-4 py-2 text-xs font-semibold text-white/70">{t("Clear")}</button>
             </div>
           )}
         </section>
 
         {loading ? (
-          <p className="mt-8 text-sm text-[#6f6c65]">Loading media…</p>
+          <p className="mt-8 text-sm text-[#6f6c65]">{t("Loading media…")}</p>
         ) : filteredItems.length === 0 ? (
           <div className="mt-8 rounded-[28px] border border-dashed border-black/15 bg-white/55 p-10 text-center">
-            <h2 className="text-xl font-semibold">No media yet</h2>
-            <p className="mt-2 text-sm text-[#6f6c65]">Create a category and upload the first images, or sync an existing R2 bucket.</p>
+            <h2 className="text-xl font-semibold">{t("No media yet")}</h2>
+            <p className="mt-2 text-sm text-[#6f6c65]">{t("Create a category and upload the first images, or sync an existing R2 bucket.")}</p>
           </div>
         ) : (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -406,19 +408,19 @@ export default function AdminMediaPage() {
                       <img src={item.image_url} alt={item.alt_text || item.original_filename || "Media"} className="h-full w-full object-cover" loading="lazy" />
                     )}
                     <span className={`absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold ${selected ? "border-[#9a742e] bg-[#9a742e] text-white" : "border-white/70 bg-black/30 text-white"}`}>{selected ? "✓" : ""}</span>
-                    {!item.is_active && <span className="absolute right-3 top-3 rounded-full bg-black/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">Hidden</span>}
+                    {!item.is_active && <span className="absolute right-3 top-3 rounded-full bg-black/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">{t("Hidden")}</span>}
                   </button>
                   <div className="p-4">
                     <p className="truncate text-sm font-semibold" title={item.original_filename || item.r2_key}>{item.original_filename || item.r2_key}</p>
                     <p className="mt-1 text-xs text-[#8b877e]">{formatBytes(item.size_bytes)} · {item.width && item.height ? `${item.width}×${item.height}` : item.mime_type || "file"}</p>
-                    <p className="mt-3 min-h-10 text-xs leading-5 text-[#6f6c65]">{item.alt_text || "No alternative text"}</p>
+                    <p className="mt-3 min-h-10 text-xs leading-5 text-[#6f6c65]">{item.alt_text || t("No alternative text")}</p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      {itemCategories.length > 0 ? itemCategories.map((category) => <span key={category.id} className="rounded-full bg-[#eeebe3] px-2.5 py-1 text-[10px] font-semibold">{category.name}</span>) : <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Uncategorized</span>}
+                      {itemCategories.length > 0 ? itemCategories.map((category) => <span key={category.id} className="rounded-full bg-[#eeebe3] px-2.5 py-1 text-[10px] font-semibold">{category.name}</span>) : <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">{t("Uncategorized")}</span>}
                     </div>
                     <div className="mt-4 grid grid-cols-3 gap-2">
-                      <button type="button" onClick={() => void patchMedia(item.id, { is_favorite: !item.is_favorite }, item.is_favorite ? "Removed from favorites." : "Added to favorites.")} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">{item.is_favorite ? "★" : "☆"}</button>
-                      <button type="button" onClick={() => void patchMedia(item.id, { is_active: !item.is_active }, item.is_active ? "Media hidden." : "Media visible.")} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">{item.is_active ? "Hide" : "Show"}</button>
-                      <button type="button" onClick={() => void editAltText(item)} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">Alt</button>
+                      <button type="button" onClick={() => void patchMedia(item.id, { is_favorite: !item.is_favorite }, item.is_favorite ? t("Removed from favorites.") : t("Added to favorites."))} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">{item.is_favorite ? "★" : "☆"}</button>
+                      <button type="button" onClick={() => void patchMedia(item.id, { is_active: !item.is_active }, item.is_active ? t("Media hidden.") : t("Media visible."))} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">{item.is_active ? t("Hide") : t("Show")}</button>
+                      <button type="button" onClick={() => void editAltText(item)} className="rounded-xl border border-black/8 px-2 py-2 text-xs font-semibold">{t("Alt")}</button>
                     </div>
                   </div>
                 </article>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   BusinessRole,
   PricingModel,
@@ -170,13 +171,19 @@ function moneyToMinor(value: string) {
   return Number.isFinite(parsed) && parsed >= 0 ? Math.round(parsed * 100) : Number.NaN;
 }
 
-function formatMoney(priceMinor: number | null, currency: string, pricingModel: PricingModel) {
-  if (pricingModel === "free") return "Free";
-  if (pricingModel === "quote") return "On request";
-  if (priceMinor === null) return "No price";
+function formatMoney(
+  priceMinor: number | null,
+  currency: string,
+  pricingModel: PricingModel,
+  locale: "ru" | "en",
+  labels: { free: string; quote: string; noPrice: string },
+) {
+  if (pricingModel === "free") return labels.free;
+  if (pricingModel === "quote") return labels.quote;
+  if (priceMinor === null) return labels.noPrice;
 
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale === "ru" ? "ru-RU" : "en-US", {
       style: "currency",
       currency,
     }).format(priceMinor / 100);
@@ -253,6 +260,32 @@ const inputClass = "w-full rounded-2xl border border-black/10 bg-[#fffdfa] px-4 
 const checkboxClass = "h-4 w-4 rounded border-black/20 accent-[#17191f]";
 
 export default function CatalogManager() {
+  const { t, locale } = useAdminI18n();
+  const serviceKindLabels: Record<ServiceKind, string> = {
+    appointment: t("Appointment"),
+    rental: t("Rental"),
+    class: t("Class"),
+    event: t("Event"),
+    membership: t("Membership"),
+    other: t("Other"),
+  };
+  const resourceKindLabels: Record<ResourceKind, string> = {
+    staff: t("Staff resource"),
+    space: t("Space"),
+    equipment: t("Equipment"),
+    seat: t("Seat"),
+    asset: t("Asset"),
+    other: t("Other"),
+  };
+  const tabLabels: Record<CatalogTab, string> = { services: t("Services"), resources: t("Resources"), categories: t("Categories") };
+  const categoryKindLabels: Record<CategoryKind, string> = { service: t("service category"), resource: t("resource category") };
+  const pricingModelLabels: Record<PricingModel, string> = {
+    fixed: t("Fixed"),
+    per_hour: t("Per hour"),
+    per_person: t("Per person"),
+    free: t("Free"),
+    quote: t("Quote"),
+  };
   const [tab, setTab] = useState<CatalogTab>("services");
   const [workspace, setWorkspace] = useState<WorkspaceRow | null>(null);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
@@ -357,11 +390,11 @@ export default function CatalogManager() {
     try {
       await loadCatalog(current.business_id);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Catalog could not be loaded.");
+      setError(loadError instanceof Error ? loadError.message : t("Catalog could not be loaded."));
     }
 
     setLoading(false);
-  }, [loadCatalog]);
+  }, [loadCatalog, t]);
 
   useEffect(() => {
     void load();
@@ -438,12 +471,12 @@ export default function CatalogManager() {
   const saveCategory = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     resetMessages();
-    if (!workspace || !canConfigure) return setError("This role cannot configure the catalog.");
+    if (!workspace || !canConfigure) return setError(t("This role cannot configure the catalog."));
 
     const name = categoryDraft.name.trim();
     const slug = (categoryDraft.slug.trim() || makeSlug(name)).toLowerCase();
     if (!name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-      return setError("Enter a category name and a stable Latin slug.");
+      return setError(t("Enter a category name and a stable Latin slug."));
     }
 
     setSaving(true);
@@ -470,14 +503,14 @@ export default function CatalogManager() {
 
     await reloadCatalog();
     setCategoryDraft(categoryForm(categoryDraft.kind));
-    setNotice(categoryDraft.id ? "Category updated." : "Category created.");
+    setNotice(categoryDraft.id ? t("Category updated.") : t("Category created."));
     setSaving(false);
   };
 
   const saveService = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     resetMessages();
-    if (!workspace || !canConfigure) return setError("This role cannot configure the catalog.");
+    if (!workspace || !canConfigure) return setError(t("This role cannot configure the catalog."));
 
     const title = serviceDraft.title.trim();
     const slug = (serviceDraft.slug.trim() || makeSlug(title)).toLowerCase();
@@ -489,17 +522,17 @@ export default function CatalogManager() {
     const currency = serviceDraft.currency.trim().toUpperCase();
 
     if (!title || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-      return setError("Enter a service title and a stable Latin slug.");
+      return setError(t("Enter a service title and a stable Latin slug."));
     }
-    if (!/^[A-Z]{3}$/.test(currency)) return setError("Currency must use a three-letter code.");
+    if (!/^[A-Z]{3}$/.test(currency)) return setError(t("Currency must use a three-letter code."));
     if (![durationMin, durationMax, durationStep, capacity].every((value) => value === null || !Number.isNaN(value))) {
-      return setError("Duration and capacity fields must contain positive whole numbers.");
+      return setError(t("Duration and capacity fields must contain positive whole numbers."));
     }
     if (durationMin !== null && durationMax !== null && durationMax < durationMin) {
-      return setError("Maximum duration cannot be shorter than minimum duration.");
+      return setError(t("Maximum duration cannot be shorter than minimum duration."));
     }
     if (serviceDraft.pricing_model !== "free" && serviceDraft.pricing_model !== "quote" && (priceMinor === null || Number.isNaN(priceMinor))) {
-      return setError("This pricing model requires a valid non-negative price.");
+      return setError(t("This pricing model requires a valid non-negative price."));
     }
 
     setSaving(true);
@@ -536,7 +569,7 @@ export default function CatalogManager() {
     } else {
       const { data: inserted, error: insertError } = await supabase.from("services").insert(payload).select("id").single();
       if (insertError || !inserted) {
-        setError(insertError?.message ?? "Service could not be created.");
+        setError(insertError?.message ?? t("Service could not be created."));
         setSaving(false);
         return;
       }
@@ -548,29 +581,29 @@ export default function CatalogManager() {
       p_resource_ids: serviceDraft.resource_ids,
     });
     if (linkError) {
-      setError(`Service saved, but resource assignment failed: ${linkError.message}`);
+      setError(t("Service saved, but resource assignment failed: {error}", { error: linkError.message }));
       setSaving(false);
       return;
     }
 
     await reloadCatalog();
     setServiceDraft(serviceForm(workspace.default_currency));
-    setNotice(serviceDraft.id ? "Service updated." : "Service created.");
+    setNotice(serviceDraft.id ? t("Service updated.") : t("Service created."));
     setSaving(false);
   };
 
   const saveResource = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     resetMessages();
-    if (!workspace || !canConfigure) return setError("This role cannot configure the catalog.");
+    if (!workspace || !canConfigure) return setError(t("This role cannot configure the catalog."));
 
     const name = resourceDraft.name.trim();
     const slug = (resourceDraft.slug.trim() || makeSlug(name)).toLowerCase();
     const capacity = optionalPositiveInteger(resourceDraft.capacity);
     if (!name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-      return setError("Enter a resource name and a stable Latin slug.");
+      return setError(t("Enter a resource name and a stable Latin slug."));
     }
-    if (capacity === null || Number.isNaN(capacity)) return setError("Capacity must be a positive whole number.");
+    if (capacity === null || Number.isNaN(capacity)) return setError(t("Capacity must be a positive whole number."));
 
     setSaving(true);
     const payload = {
@@ -600,55 +633,55 @@ export default function CatalogManager() {
 
     await reloadCatalog();
     setResourceDraft(resourceForm(workspace.timezone));
-    setNotice(resourceDraft.id ? "Resource updated." : "Resource created.");
+    setNotice(resourceDraft.id ? t("Resource updated.") : t("Resource created."));
     setSaving(false);
   };
 
   const removeCategory = async (category: CategoryRow) => {
-    if (!canConfigure || !window.confirm(`Delete category “${category.name}”? Services and resources will remain uncategorized.`)) return;
+    if (!canConfigure || !window.confirm(t("Delete category “{name}”? Services and resources will remain uncategorized.", { name: category.name }))) return;
     resetMessages();
     const { error: removeError } = await supabase.from("catalog_categories").delete().eq("id", category.id);
     if (removeError) return setError(removeError.message);
     await reloadCatalog();
     if (categoryDraft.id === category.id) setCategoryDraft(categoryForm(category.kind));
-    setNotice("Category deleted.");
+    setNotice(t("Category deleted."));
   };
 
   const removeService = async (service: ServiceRow) => {
-    if (!canConfigure || !window.confirm(`Delete service “${service.title}”?`)) return;
+    if (!canConfigure || !window.confirm(t("Delete service “{name}”?", { name: service.title }))) return;
     resetMessages();
     const { error: removeError } = await supabase.from("services").delete().eq("id", service.id);
     if (removeError) return setError(removeError.message);
     await reloadCatalog();
     if (serviceDraft.id === service.id && workspace) setServiceDraft(serviceForm(workspace.default_currency));
-    setNotice("Service deleted.");
+    setNotice(t("Service deleted."));
   };
 
   const removeResource = async (resource: ResourceRow) => {
-    if (!canConfigure || !window.confirm(`Delete resource “${resource.name}”? Assigned service links will be removed.`)) return;
+    if (!canConfigure || !window.confirm(t("Delete resource “{name}”? Assigned service links will be removed.", { name: resource.name }))) return;
     resetMessages();
     const { error: removeError } = await supabase.from("resources").delete().eq("id", resource.id);
     if (removeError) return setError(removeError.message);
     await reloadCatalog();
     if (resourceDraft.id === resource.id && workspace) setResourceDraft(resourceForm(workspace.timezone));
-    setNotice("Resource deleted.");
+    setNotice(t("Resource deleted."));
   };
 
   if (loading) {
-    return <div className="mt-8 rounded-[28px] border border-black/8 bg-white p-8 text-sm text-[#6f6c65]">Loading catalog…</div>;
+    return <div className="mt-8 rounded-[28px] border border-black/8 bg-white p-8 text-sm text-[#6f6c65]">{t("Loading catalog…")}</div>;
   }
 
   if (!workspace) {
-    return <div className="mt-8 rounded-[28px] border border-amber-900/10 bg-amber-50 p-8 text-sm text-amber-900">No active workspace is assigned to this account.</div>;
+    return <div className="mt-8 rounded-[28px] border border-amber-900/10 bg-amber-50 p-8 text-sm text-amber-900">{t("No active workspace is assigned to this account.")}</div>;
   }
 
   return (
     <div className="mt-8">
       <div className="flex flex-col gap-4 rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_18px_55px_rgba(20,20,20,0.06)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Current workspace</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Current workspace")}</p>
           <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">{workspace.name}</h2>
-          <p className="mt-1 text-sm text-[#77736a]">Role: {workspace.role} · {canConfigure ? "Catalog configuration allowed" : "Read-only catalog access"}</p>
+          <p className="mt-1 text-sm text-[#77736a]">{t("Role: {role} · {access}", { role: workspace.role, access: canConfigure ? t("Catalog configuration allowed") : t("Read-only catalog access") })}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {(["services", "resources", "categories"] as const).map((item) => (
@@ -658,7 +691,7 @@ export default function CatalogManager() {
               onClick={() => { setTab(item); resetMessages(); }}
               className={`rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] ${tab === item ? "bg-[#17191f] text-white" : "border border-black/10 bg-[#fffdfa] text-[#66645f]"}`}
             >
-              {item}
+              {tabLabels[item]}
             </button>
           ))}
         </div>
@@ -675,13 +708,13 @@ export default function CatalogManager() {
           <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Services</p>
-                <p className="mt-1 text-sm text-[#77736a]">{services.length} catalog item{services.length === 1 ? "" : "s"}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Services")}</p>
+                <p className="mt-1 text-sm text-[#77736a]">{t("Catalog items: {count}", { count: services.length })}</p>
               </div>
-              <button type="button" disabled={!canConfigure} onClick={() => setServiceDraft(serviceForm(workspace.default_currency))} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">New service</button>
+              <button type="button" disabled={!canConfigure} onClick={() => setServiceDraft(serviceForm(workspace.default_currency))} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">{t("New service")}</button>
             </div>
             <div className="mt-5 grid gap-3">
-              {services.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">No services yet.</p> : services.map((service) => {
+              {services.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">{t("No services yet.")}</p> : services.map((service) => {
                 const category = serviceCategories.find((item) => item.id === service.category_id);
                 const assigned = linkedResourcesByService.get(service.id) ?? [];
                 return (
@@ -689,15 +722,15 @@ export default function CatalogManager() {
                     <button type="button" onClick={() => chooseService(service)} className="w-full text-left">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{service.kind}{category ? ` · ${category.name}` : ""}</p>
+                          <p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{serviceKindLabels[service.kind]}{category ? ` · ${category.name}` : ""}</p>
                           <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{service.title}</h3>
                         </div>
-                        <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${service.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{service.is_active ? "Active" : "Inactive"}</span>
+                        <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${service.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{service.is_active ? t("Active") : t("Inactive")}</span>
                       </div>
-                      <p className="mt-3 text-sm text-[#66645f]">{formatMoney(service.price_minor, service.currency, service.pricing_model)}</p>
-                      <p className="mt-2 text-xs text-[#8a867d]">Resources: {assigned.length ? assigned.map((id) => resourceNames.get(id) ?? "Unknown").join(", ") : "none"}</p>
+                      <p className="mt-3 text-sm text-[#66645f]">{formatMoney(service.price_minor, service.currency, service.pricing_model, locale, { free: t("Free"), quote: t("On request"), noPrice: t("No price") })}</p>
+                      <p className="mt-2 text-xs text-[#8a867d]">{t("Resources: {resources}", { resources: assigned.length ? assigned.map((id) => resourceNames.get(id) ?? t("Unknown")).join(", ") : t("none") })}</p>
                     </button>
-                    {canConfigure ? <button type="button" onClick={() => void removeService(service)} className="mt-4 text-xs font-semibold text-red-700">Delete</button> : null}
+                    {canConfigure ? <button type="button" onClick={() => void removeService(service)} className="mt-4 text-xs font-semibold text-red-700">{t("Delete")}</button> : null}
                   </article>
                 );
               })}
@@ -707,41 +740,41 @@ export default function CatalogManager() {
           <form onSubmit={saveService} className="rounded-[30px] border border-black/8 bg-white p-6 shadow-[0_18px_55px_rgba(20,20,20,0.06)]">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{serviceDraft.id ? "Edit service" : "New service"}</p>
-                <h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">Offer definition</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{serviceDraft.id ? t("Edit service") : t("New service")}</p>
+                <h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">{t("Offer definition")}</h3>
               </div>
-              {serviceDraft.id ? <button type="button" onClick={() => setServiceDraft(serviceForm(workspace.default_currency))} className="text-xs font-semibold text-[#77736a]">Cancel edit</button> : null}
+              {serviceDraft.id ? <button type="button" onClick={() => setServiceDraft(serviceForm(workspace.default_currency))} className="text-xs font-semibold text-[#77736a]">{t("Cancel edit")}</button> : null}
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label="Title"><input className={inputClass} value={serviceDraft.title} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, title: event.target.value }))} /></Field>
-              <Field label="Stable slug">
-                <div className="flex gap-2"><input className={inputClass} value={serviceDraft.slug} disabled={!canConfigure} placeholder={makeSlug(serviceDraft.title) || "service-slug"} onChange={(event) => setServiceDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setServiceDraft((current) => ({ ...current, slug: makeSlug(current.title) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">Generate</button></div>
+              <Field label={t("Title")}><input className={inputClass} value={serviceDraft.title} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, title: event.target.value }))} /></Field>
+              <Field label={t("Stable slug")}>
+                <div className="flex gap-2"><input className={inputClass} value={serviceDraft.slug} disabled={!canConfigure} placeholder={makeSlug(serviceDraft.title) || "service-slug"} onChange={(event) => setServiceDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setServiceDraft((current) => ({ ...current, slug: makeSlug(current.title) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">{t("Generate")}</button></div>
               </Field>
-              <Field label="Category"><select className={inputClass} value={serviceDraft.category_id} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, category_id: event.target.value }))}><option value="">Uncategorized</option>{serviceCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></Field>
-              <Field label="Service kind"><select className={inputClass} value={serviceDraft.kind} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, kind: event.target.value as ServiceKind }))}>{serviceKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></Field>
-              <div className="sm:col-span-2"><Field label="Description"><textarea className={`${inputClass} min-h-28 resize-y`} value={serviceDraft.description} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
-              <Field label="Pricing model"><select className={inputClass} value={serviceDraft.pricing_model} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, pricing_model: event.target.value as PricingModel }))}>{pricingModels.map((model) => <option key={model} value={model}>{model.replace("_", " ")}</option>)}</select></Field>
-              <Field label="Price"><input className={inputClass} inputMode="decimal" value={serviceDraft.price_major} disabled={!canConfigure || serviceDraft.pricing_model === "free" || serviceDraft.pricing_model === "quote"} placeholder="50.00" onChange={(event) => setServiceDraft((current) => ({ ...current, price_major: event.target.value }))} /></Field>
-              <Field label="Currency"><input className={`${inputClass} uppercase`} maxLength={3} value={serviceDraft.currency} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, currency: event.target.value }))} /></Field>
-              <Field label="Capacity"><input className={inputClass} type="number" min="1" value={serviceDraft.capacity} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, capacity: event.target.value }))} /></Field>
-              <Field label="Minimum duration, min"><input className={inputClass} type="number" min="1" value={serviceDraft.duration_min_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_min_minutes: event.target.value }))} /></Field>
-              <Field label="Maximum duration, min"><input className={inputClass} type="number" min="1" value={serviceDraft.duration_max_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_max_minutes: event.target.value }))} /></Field>
-              <Field label="Duration step, min"><input className={inputClass} type="number" min="1" value={serviceDraft.duration_step_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_step_minutes: event.target.value }))} /></Field>
-              <Field label="Buffer before, min"><input className={inputClass} type="number" min="0" value={serviceDraft.buffer_before_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, buffer_before_minutes: event.target.value }))} /></Field>
-              <Field label="Buffer after, min"><input className={inputClass} type="number" min="0" value={serviceDraft.buffer_after_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, buffer_after_minutes: event.target.value }))} /></Field>
-              <Field label="Sort order"><input className={inputClass} type="number" min="0" value={serviceDraft.sort_order} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
+              <Field label={t("Category")}><select className={inputClass} value={serviceDraft.category_id} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, category_id: event.target.value }))}><option value="">{t("Uncategorized")}</option>{serviceCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></Field>
+              <Field label={t("Service kind")}><select className={inputClass} value={serviceDraft.kind} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, kind: event.target.value as ServiceKind }))}>{serviceKinds.map((kind) => <option key={kind} value={kind}>{serviceKindLabels[kind]}</option>)}</select></Field>
+              <div className="sm:col-span-2"><Field label={t("Description")}><textarea className={`${inputClass} min-h-28 resize-y`} value={serviceDraft.description} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
+              <Field label={t("Pricing model")}><select className={inputClass} value={serviceDraft.pricing_model} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, pricing_model: event.target.value as PricingModel }))}>{pricingModels.map((model) => <option key={model} value={model}>{pricingModelLabels[model]}</option>)}</select></Field>
+              <Field label={t("Price")}><input className={inputClass} inputMode="decimal" value={serviceDraft.price_major} disabled={!canConfigure || serviceDraft.pricing_model === "free" || serviceDraft.pricing_model === "quote"} placeholder="50.00" onChange={(event) => setServiceDraft((current) => ({ ...current, price_major: event.target.value }))} /></Field>
+              <Field label={t("Currency")}><input className={`${inputClass} uppercase`} maxLength={3} value={serviceDraft.currency} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, currency: event.target.value }))} /></Field>
+              <Field label={t("Capacity")}><input className={inputClass} type="number" min="1" value={serviceDraft.capacity} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, capacity: event.target.value }))} /></Field>
+              <Field label={t("Minimum duration, min")}><input className={inputClass} type="number" min="1" value={serviceDraft.duration_min_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_min_minutes: event.target.value }))} /></Field>
+              <Field label={t("Maximum duration, min")}><input className={inputClass} type="number" min="1" value={serviceDraft.duration_max_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_max_minutes: event.target.value }))} /></Field>
+              <Field label={t("Duration step, min")}><input className={inputClass} type="number" min="1" value={serviceDraft.duration_step_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, duration_step_minutes: event.target.value }))} /></Field>
+              <Field label={t("Buffer before, min")}><input className={inputClass} type="number" min="0" value={serviceDraft.buffer_before_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, buffer_before_minutes: event.target.value }))} /></Field>
+              <Field label={t("Buffer after, min")}><input className={inputClass} type="number" min="0" value={serviceDraft.buffer_after_minutes} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, buffer_after_minutes: event.target.value }))} /></Field>
+              <Field label={t("Sort order")}><input className={inputClass} type="number" min="0" value={serviceDraft.sort_order} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
             </div>
 
             <div className="mt-6 rounded-[22px] border border-black/8 bg-[#eeebe3] p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Required resources</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Required resources")}</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {resources.length === 0 ? <p className="text-sm text-[#77736a]">Create resources first, or save the service without assignments.</p> : resources.map((resource) => {
+                {resources.length === 0 ? <p className="text-sm text-[#77736a]">{t("Create resources first, or save the service without assignments.")}</p> : resources.map((resource) => {
                   const checked = serviceDraft.resource_ids.includes(resource.id);
                   return (
                     <label key={resource.id} className="flex items-center gap-3 rounded-2xl bg-white/75 px-4 py-3 text-sm">
                       <input type="checkbox" className={checkboxClass} checked={checked} disabled={!canConfigure} onChange={() => setServiceDraft((current) => ({ ...current, resource_ids: checked ? current.resource_ids.filter((id) => id !== resource.id) : [...current.resource_ids, resource.id] }))} />
-                      <span>{resource.name} <span className="text-[#8a867d]">· {resource.kind}</span></span>
+                      <span>{resource.name} <span className="text-[#8a867d]">· {resourceKindLabels[resource.kind]}</span></span>
                     </label>
                   );
                 })}
@@ -750,11 +783,11 @@ export default function CatalogManager() {
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-black/8 pt-6">
               <div className="flex flex-wrap gap-4 text-sm text-[#66645f]">
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.is_active} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, is_active: event.target.checked }))} />Active</label>
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.is_public} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, is_public: event.target.checked }))} />Public</label>
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.requires_confirmation} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, requires_confirmation: event.target.checked }))} />Requires confirmation</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.is_active} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, is_active: event.target.checked }))} />{t("Active")}</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.is_public} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, is_public: event.target.checked }))} />{t("Public")}</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={serviceDraft.requires_confirmation} disabled={!canConfigure} onChange={(event) => setServiceDraft((current) => ({ ...current, requires_confirmation: event.target.checked }))} />{t("Requires confirmation")}</label>
               </div>
-              <button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? "Saving…" : "Save service"}</button>
+              <button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? t("Saving…") : t("Save service")}</button>
             </div>
           </form>
         </div>
@@ -763,34 +796,34 @@ export default function CatalogManager() {
       {tab === "resources" ? (
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6">
-            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Resources</p><p className="mt-1 text-sm text-[#77736a]">{resources.length} resource{resources.length === 1 ? "" : "s"}</p></div><button type="button" disabled={!canConfigure} onClick={() => setResourceDraft(resourceForm(workspace.timezone))} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">New resource</button></div>
+            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Resources")}</p><p className="mt-1 text-sm text-[#77736a]">{t("Catalog resources: {count}", { count: resources.length })}</p></div><button type="button" disabled={!canConfigure} onClick={() => setResourceDraft(resourceForm(workspace.timezone))} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">{t("New resource")}</button></div>
             <div className="mt-5 grid gap-3">
-              {resources.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">No resources yet.</p> : resources.map((resource) => {
+              {resources.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">{t("No resources yet.")}</p> : resources.map((resource) => {
                 const category = resourceCategories.find((item) => item.id === resource.category_id);
-                return <article key={resource.id} className={`rounded-[22px] border p-5 ${resourceDraft.id === resource.id ? "border-[#17191f] bg-white" : "border-black/8 bg-white/75"}`}><button type="button" onClick={() => chooseResource(resource)} className="w-full text-left"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{resource.kind}{category ? ` · ${category.name}` : ""}</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{resource.name}</h3></div><span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${resource.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{resource.is_active ? "Active" : "Inactive"}</span></div><p className="mt-3 text-sm text-[#66645f]">Capacity {resource.capacity} · {resource.is_bookable ? "Bookable" : "Not bookable"}</p></button>{canConfigure ? <button type="button" onClick={() => void removeResource(resource)} className="mt-4 text-xs font-semibold text-red-700">Delete</button> : null}</article>;
+                return <article key={resource.id} className={`rounded-[22px] border p-5 ${resourceDraft.id === resource.id ? "border-[#17191f] bg-white" : "border-black/8 bg-white/75"}`}><button type="button" onClick={() => chooseResource(resource)} className="w-full text-left"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{resourceKindLabels[resource.kind]}{category ? ` · ${category.name}` : ""}</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{resource.name}</h3></div><span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${resource.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{resource.is_active ? t("Active") : t("Inactive")}</span></div><p className="mt-3 text-sm text-[#66645f]">{t("Capacity {capacity} · {status}", { capacity: resource.capacity, status: resource.is_bookable ? t("Bookable") : t("Not bookable") })}</p></button>{canConfigure ? <button type="button" onClick={() => void removeResource(resource)} className="mt-4 text-xs font-semibold text-red-700">{t("Delete")}</button> : null}</article>;
               })}
             </div>
           </section>
 
           <form onSubmit={saveResource} className="rounded-[30px] border border-black/8 bg-white p-6 shadow-[0_18px_55px_rgba(20,20,20,0.06)]">
-            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{resourceDraft.id ? "Edit resource" : "New resource"}</p><h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">Capacity definition</h3></div>{resourceDraft.id ? <button type="button" onClick={() => setResourceDraft(resourceForm(workspace.timezone))} className="text-xs font-semibold text-[#77736a]">Cancel edit</button> : null}</div>
+            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{resourceDraft.id ? t("Edit resource") : t("New resource")}</p><h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">{t("Capacity definition")}</h3></div>{resourceDraft.id ? <button type="button" onClick={() => setResourceDraft(resourceForm(workspace.timezone))} className="text-xs font-semibold text-[#77736a]">{t("Cancel edit")}</button> : null}</div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label="Name"><input className={inputClass} value={resourceDraft.name} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
-              <Field label="Stable slug"><div className="flex gap-2"><input className={inputClass} value={resourceDraft.slug} disabled={!canConfigure} placeholder={makeSlug(resourceDraft.name) || "resource-slug"} onChange={(event) => setResourceDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setResourceDraft((current) => ({ ...current, slug: makeSlug(current.name) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">Generate</button></div></Field>
-              <Field label="Category"><select className={inputClass} value={resourceDraft.category_id} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, category_id: event.target.value }))}><option value="">Uncategorized</option>{resourceCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></Field>
-              <Field label="Resource kind"><select className={inputClass} value={resourceDraft.kind} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, kind: event.target.value as ResourceKind }))}>{resourceKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></Field>
-              <div className="sm:col-span-2"><Field label="Description"><textarea className={`${inputClass} min-h-28 resize-y`} value={resourceDraft.description} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
-              <Field label="Capacity"><input className={inputClass} type="number" min="1" value={resourceDraft.capacity} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, capacity: event.target.value }))} /></Field>
-              <Field label="Timezone"><input className={inputClass} value={resourceDraft.timezone} disabled={!canConfigure} placeholder={workspace.timezone} onChange={(event) => setResourceDraft((current) => ({ ...current, timezone: event.target.value }))} /></Field>
-              <Field label="Sort order"><input className={inputClass} type="number" min="0" value={resourceDraft.sort_order} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
+              <Field label={t("Name")}><input className={inputClass} value={resourceDraft.name} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
+              <Field label={t("Stable slug")}><div className="flex gap-2"><input className={inputClass} value={resourceDraft.slug} disabled={!canConfigure} placeholder={makeSlug(resourceDraft.name) || "resource-slug"} onChange={(event) => setResourceDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setResourceDraft((current) => ({ ...current, slug: makeSlug(current.name) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">{t("Generate")}</button></div></Field>
+              <Field label={t("Category")}><select className={inputClass} value={resourceDraft.category_id} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, category_id: event.target.value }))}><option value="">{t("Uncategorized")}</option>{resourceCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></Field>
+              <Field label={t("Resource kind")}><select className={inputClass} value={resourceDraft.kind} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, kind: event.target.value as ResourceKind }))}>{resourceKinds.map((kind) => <option key={kind} value={kind}>{resourceKindLabels[kind]}</option>)}</select></Field>
+              <div className="sm:col-span-2"><Field label={t("Description")}><textarea className={`${inputClass} min-h-28 resize-y`} value={resourceDraft.description} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
+              <Field label={t("Capacity")}><input className={inputClass} type="number" min="1" value={resourceDraft.capacity} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, capacity: event.target.value }))} /></Field>
+              <Field label={t("Timezone")}><input className={inputClass} value={resourceDraft.timezone} disabled={!canConfigure} placeholder={workspace.timezone} onChange={(event) => setResourceDraft((current) => ({ ...current, timezone: event.target.value }))} /></Field>
+              <Field label={t("Sort order")}><input className={inputClass} type="number" min="0" value={resourceDraft.sort_order} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-black/8 pt-6">
               <div className="flex flex-wrap gap-4 text-sm text-[#66645f]">
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_active} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_active: event.target.checked }))} />Active</label>
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_public} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_public: event.target.checked }))} />Public</label>
-                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_bookable} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_bookable: event.target.checked }))} />Bookable</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_active} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_active: event.target.checked }))} />{t("Active")}</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_public} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_public: event.target.checked }))} />{t("Public")}</label>
+                <label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={resourceDraft.is_bookable} disabled={!canConfigure} onChange={(event) => setResourceDraft((current) => ({ ...current, is_bookable: event.target.checked }))} />{t("Bookable")}</label>
               </div>
-              <button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? "Saving…" : "Save resource"}</button>
+              <button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? t("Saving…") : t("Save resource")}</button>
             </div>
           </form>
         </div>
@@ -799,22 +832,22 @@ export default function CatalogManager() {
       {tab === "categories" ? (
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6">
-            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Categories</p><p className="mt-1 text-sm text-[#77736a]">Separate presentation groups for services and resources</p></div><button type="button" disabled={!canConfigure} onClick={() => setCategoryDraft(categoryForm())} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">New category</button></div>
+            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Categories")}</p><p className="mt-1 text-sm text-[#77736a]">{t("Separate presentation groups for services and resources")}</p></div><button type="button" disabled={!canConfigure} onClick={() => setCategoryDraft(categoryForm())} className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">{t("New category")}</button></div>
             <div className="mt-5 grid gap-3">
-              {categories.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">No categories yet.</p> : categories.map((category) => <article key={category.id} className={`rounded-[22px] border p-5 ${categoryDraft.id === category.id ? "border-[#17191f] bg-white" : "border-black/8 bg-white/75"}`}><button type="button" onClick={() => chooseCategory(category)} className="w-full text-left"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{category.kind} category</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{category.name}</h3></div><span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${category.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{category.is_active ? "Active" : "Inactive"}</span></div><p className="mt-3 text-xs text-[#8a867d]">/{category.slug} · order {category.sort_order}</p></button>{canConfigure ? <button type="button" onClick={() => void removeCategory(category)} className="mt-4 text-xs font-semibold text-red-700">Delete</button> : null}</article>)}
+              {categories.length === 0 ? <p className="rounded-2xl bg-white/70 p-5 text-sm text-[#77736a]">{t("No categories yet.")}</p> : categories.map((category) => <article key={category.id} className={`rounded-[22px] border p-5 ${categoryDraft.id === category.id ? "border-[#17191f] bg-white" : "border-black/8 bg-white/75"}`}><button type="button" onClick={() => chooseCategory(category)} className="w-full text-left"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.14em] text-[#9a742e]">{categoryKindLabels[category.kind]}</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{category.name}</h3></div><span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${category.is_active ? "bg-emerald-50 text-emerald-800" : "bg-black/5 text-[#77736a]"}`}>{category.is_active ? t("Active") : t("Inactive")}</span></div><p className="mt-3 text-xs text-[#8a867d]">/{category.slug} · {t("order {order}", { order: category.sort_order })}</p></button>{canConfigure ? <button type="button" onClick={() => void removeCategory(category)} className="mt-4 text-xs font-semibold text-red-700">{t("Delete")}</button> : null}</article>)}
             </div>
           </section>
 
           <form onSubmit={saveCategory} className="rounded-[30px] border border-black/8 bg-white p-6 shadow-[0_18px_55px_rgba(20,20,20,0.06)]">
-            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{categoryDraft.id ? "Edit category" : "New category"}</p><h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">Catalog grouping</h3></div>{categoryDraft.id ? <button type="button" onClick={() => setCategoryDraft(categoryForm(categoryDraft.kind))} className="text-xs font-semibold text-[#77736a]">Cancel edit</button> : null}</div>
+            <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{categoryDraft.id ? t("Edit category") : t("New category")}</p><h3 className="mt-1 text-2xl font-semibold tracking-[-0.04em]">{t("Catalog grouping")}</h3></div>{categoryDraft.id ? <button type="button" onClick={() => setCategoryDraft(categoryForm(categoryDraft.kind))} className="text-xs font-semibold text-[#77736a]">{t("Cancel edit")}</button> : null}</div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label="Name"><input className={inputClass} value={categoryDraft.name} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
-              <Field label="Stable slug"><div className="flex gap-2"><input className={inputClass} value={categoryDraft.slug} disabled={!canConfigure} placeholder={makeSlug(categoryDraft.name) || "category-slug"} onChange={(event) => setCategoryDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setCategoryDraft((current) => ({ ...current, slug: makeSlug(current.name) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">Generate</button></div></Field>
-              <Field label="Scope"><select className={inputClass} value={categoryDraft.kind} disabled={!canConfigure || Boolean(categoryDraft.id)} onChange={(event) => setCategoryDraft((current) => ({ ...current, kind: event.target.value as CategoryKind }))}><option value="service">Services</option><option value="resource">Resources</option></select></Field>
-              <Field label="Sort order"><input className={inputClass} type="number" min="0" value={categoryDraft.sort_order} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
-              <div className="sm:col-span-2"><Field label="Description"><textarea className={`${inputClass} min-h-28 resize-y`} value={categoryDraft.description} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
+              <Field label={t("Name")}><input className={inputClass} value={categoryDraft.name} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
+              <Field label={t("Stable slug")}><div className="flex gap-2"><input className={inputClass} value={categoryDraft.slug} disabled={!canConfigure} placeholder={makeSlug(categoryDraft.name) || "category-slug"} onChange={(event) => setCategoryDraft((current) => ({ ...current, slug: event.target.value }))} /><button type="button" disabled={!canConfigure} onClick={() => setCategoryDraft((current) => ({ ...current, slug: makeSlug(current.name) }))} className="rounded-2xl border border-black/10 px-3 text-xs font-semibold disabled:opacity-40">{t("Generate")}</button></div></Field>
+              <Field label={t("Scope")}><select className={inputClass} value={categoryDraft.kind} disabled={!canConfigure || Boolean(categoryDraft.id)} onChange={(event) => setCategoryDraft((current) => ({ ...current, kind: event.target.value as CategoryKind }))}><option value="service">{t("Services")}</option><option value="resource">{t("Resources")}</option></select></Field>
+              <Field label={t("Sort order")}><input className={inputClass} type="number" min="0" value={categoryDraft.sort_order} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, sort_order: event.target.value }))} /></Field>
+              <div className="sm:col-span-2"><Field label={t("Description")}><textarea className={`${inputClass} min-h-28 resize-y`} value={categoryDraft.description} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, description: event.target.value }))} /></Field></div>
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-black/8 pt-6"><div className="flex flex-wrap gap-4 text-sm text-[#66645f]"><label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={categoryDraft.is_active} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, is_active: event.target.checked }))} />Active</label><label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={categoryDraft.is_public} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, is_public: event.target.checked }))} />Public</label></div><button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? "Saving…" : "Save category"}</button></div>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-black/8 pt-6"><div className="flex flex-wrap gap-4 text-sm text-[#66645f]"><label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={categoryDraft.is_active} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, is_active: event.target.checked }))} />{t("Active")}</label><label className="flex items-center gap-2"><input className={checkboxClass} type="checkbox" checked={categoryDraft.is_public} disabled={!canConfigure} onChange={(event) => setCategoryDraft((current) => ({ ...current, is_public: event.target.checked }))} />{t("Public")}</label></div><button type="submit" disabled={saving || !canConfigure} className="rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white disabled:opacity-40">{saving ? t("Saving…") : t("Save category")}</button></div>
           </form>
         </div>
       ) : null}

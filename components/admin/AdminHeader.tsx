@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
-const links = [
-  ["Overview", "/admin"],
-  ["Catalog", "/admin/catalog"],
-  ["Media", "/admin/media"],
-  ["Portfolio", "/admin/portfolio"],
-  ["Settings", "/admin/settings"],
-] as const;
+import AdminLanguageSwitcher from "@/components/i18n/AdminLanguageSwitcher";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 export default function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useAdminI18n();
+  const links = [
+    [t("Overview"), "/admin"],
+    [t("Catalog"), "/admin/catalog"],
+    [t("Media"), "/admin/media"],
+    [t("Portfolio"), "/admin/portfolio"],
+    [t("Settings"), "/admin/settings"],
+  ] as const;
 
   async function logout() {
     await supabase.auth.signOut();
@@ -36,8 +38,9 @@ export default function AdminHeader() {
           })}
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/" target="_blank" className="hidden rounded-full px-3 py-2 text-xs font-semibold text-[#6f6c65] sm:inline-flex">Site</Link>
-          <button type="button" onClick={logout} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Sign out</button>
+          <AdminLanguageSwitcher />
+          <Link href="/" target="_blank" className="hidden rounded-full px-3 py-2 text-xs font-semibold text-[#6f6c65] xl:inline-flex">{t("Site")}</Link>
+          <button type="button" onClick={logout} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">{t("Sign out")}</button>
         </div>
       </div>
     </header>

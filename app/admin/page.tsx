@@ -2,49 +2,49 @@
 
 import { useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
-
-const readyModules = [
-  {
-    title: "Workspace",
-    label: "Business context",
-    description: "Select the current business and manage its neutral name, timezone, locale and currency.",
-    href: "/admin/workspace",
-    icon: "◎",
-  },
-  {
-    title: "Media library",
-    label: "Cloud assets",
-    description: "Upload, organize and remove images or video stored in Cloudflare R2.",
-    href: "/admin/media",
-    icon: "◫",
-  },
-  {
-    title: "Portfolio",
-    label: "Published work",
-    description: "Manage portfolio categories, selected media and display order.",
-    href: "/admin/portfolio",
-    icon: "◇",
-  },
-  {
-    title: "Foundation settings",
-    label: "Public configuration",
-    description: "Edit the neutral global, contact and booking settings defined in the clean database.",
-    href: "/admin/settings",
-    icon: "⚙",
-  },
-  {
-    title: "Module map",
-    label: "System architecture",
-    description: "See which modules are enabled, contract-ready or still planned.",
-    href: "/admin/modules",
-    icon: "⌘",
-  },
-];
-
-const nextModules = ["Catalog admin UI", "Booking UI", "Payments", "Notifications", "Analytics"];
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 export default function AdminPage() {
   const router = useRouter();
+  const { t } = useAdminI18n();
+  const readyModules = [
+    {
+      title: t("Workspace"),
+      label: t("Business context"),
+      description: t("Select the current business and manage its neutral name, timezone, locale and currency."),
+      href: "/admin/workspace",
+      icon: "◎",
+    },
+    {
+      title: t("Media library"),
+      label: t("Cloud assets"),
+      description: t("Upload, organize and remove images or video stored in Cloudflare R2."),
+      href: "/admin/media",
+      icon: "◫",
+    },
+    {
+      title: t("Portfolio"),
+      label: t("Published work"),
+      description: t("Manage portfolio categories, selected media and display order."),
+      href: "/admin/portfolio",
+      icon: "◇",
+    },
+    {
+      title: t("Foundation settings"),
+      label: t("Public configuration"),
+      description: t("Edit the neutral global, contact and booking settings defined in the clean database."),
+      href: "/admin/settings",
+      icon: "⚙",
+    },
+    {
+      title: t("Module map"),
+      label: t("System architecture"),
+      description: t("See which modules are enabled, contract-ready or still planned."),
+      href: "/admin/modules",
+      icon: "⌘",
+    },
+  ];
+  const nextModules = [t("Catalog admin UI"), t("Booking UI"), t("Payments"), t("Notifications"), t("Analytics")];
 
   return (
     <>
@@ -52,18 +52,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">Workspace Context 1.0</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Workspace Context 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">A control center with boundaries.</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("A control center with boundaries.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  Core Modules now has an explicit current workspace and role-aware permissions. Every next interface can read and write inside one business without leaking into another.
+                  {t("Core Modules now has an explicit current workspace and role-aware permissions. Every next interface can read and write inside one business without leaking into another.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">Current rule</p>
-                <p className="mt-3 text-2xl font-semibold">No data without a workspace.</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">Catalog, CRM, scheduling and payments must all resolve the active business context first.</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Current rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("No data without a workspace.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Catalog, CRM, scheduling and payments must all resolve the active business context first.")}</p>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function AdminPage() {
           </div>
 
           <div className="mt-8 rounded-[30px] border border-black/8 bg-[#eeebe3] p-6 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Next product layers</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">{t("Next product layers")}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {nextModules.map((module, index) => (
                 <div key={module} className="rounded-2xl bg-white/80 p-4">

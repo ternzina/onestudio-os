@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 type Category = {
   id: string;
@@ -80,6 +81,7 @@ const slugify = (value: string) =>
     .slice(0, 90);
 
 export default function PortfolioProjectsManager() {
+  const { t } = useAdminI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [media, setMedia] = useState<Media[]>([]);
   const [categoryLinks, setCategoryLinks] = useState<CategoryLink[]>([]);
@@ -215,11 +217,11 @@ export default function PortfolioProjectsManager() {
     const title = form.title.trim();
     const slug = slugify(form.slug || title);
     if (!form.categoryId || !title || !slug) {
-      setError("Complete category, project title and URL slug.");
+      setError(t("Complete category, project title and URL slug."));
       return;
     }
     if (selectedMediaIds.length === 0) {
-      setError("Choose at least one image.");
+      setError(t("Choose at least one image."));
       return;
     }
 
@@ -248,11 +250,11 @@ export default function PortfolioProjectsManager() {
           .insert({ ...payload, sort_order: nextOrder })
           .select("id")
           .single();
-        if (insertError || !data) throw insertError || new Error("Could not create project");
+        if (insertError || !data) throw insertError || new Error(t("Could not create project"));
         projectId = data.id;
       }
 
-      if (!projectId) throw new Error("Project ID was not created");
+      if (!projectId) throw new Error(t("Project ID was not created"));
       const { error: linksError } = await supabase.from("portfolio_project_images").insert(
         selectedMediaIds.map((mediaId, index) => ({
           project_id: projectId,
@@ -263,26 +265,26 @@ export default function PortfolioProjectsManager() {
       );
       if (linksError) throw linksError;
 
-      setMessage(form.id ? "Project updated." : "Project created.");
+      setMessage(form.id ? t("Project updated.") : t("Project created."));
       setEditorOpen(false);
       await loadData();
     } catch (caught) {
-      const text = caught instanceof Error ? caught.message : "Could not save project";
-      setError(text.includes("duplicate key") ? "This URL slug is already in use." : text);
+      const text = caught instanceof Error ? caught.message : t("Could not save project");
+      setError(text.includes("duplicate key") ? t("This URL slug is already in use.") : text);
     } finally {
       setSaving(false);
     }
   };
 
   const deleteProject = async (project: Project) => {
-    if (!window.confirm(`Delete project “${project.title}”? Media files will remain in the library and R2.`)) return;
+    if (!window.confirm(t("Delete project “{name}”? Media files will remain in the library and R2.", { name: project.title }))) return;
     setError("");
     const { error: deleteError } = await supabase.from("portfolio_projects").delete().eq("id", project.id);
     if (deleteError) {
       setError(deleteError.message);
       return;
     }
-    setMessage("Project deleted. Media files were preserved.");
+    setMessage(t("Project deleted. Media files were preserved."));
     await loadData();
   };
 
@@ -306,32 +308,32 @@ export default function PortfolioProjectsManager() {
         return;
       }
     }
-    setMessage("Project order saved.");
+    setMessage(t("Project order saved."));
   };
 
   return (
     <section className="rounded-[30px] border border-black/8 bg-white/75 p-5 shadow-[0_22px_75px_rgba(30,30,30,0.08)] sm:p-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em]">Reusable project records</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6f6c65]">Each project has one neutral title and description. Translation belongs to a future locale layer, not to the database column names.</p>
+          <h2 className="text-2xl font-semibold tracking-[-0.04em]">{t("Reusable project records")}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6f6c65]">{t("Each project has one neutral title and description. Translation belongs to a future locale layer, not to the database column names.")}</p>
         </div>
-        <button type="button" onClick={openCreate} disabled={loading || categories.length === 0} className="rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-45">+ New project</button>
+        <button type="button" onClick={openCreate} disabled={loading || categories.length === 0} className="rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-45">{t("+ New project")}</button>
       </div>
 
       {categories.length === 0 && !loading && (
-        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">Create at least one category in Media before adding a project.</div>
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">{t("Create at least one category in Media before adding a project.")}</div>
       )}
       {(message || error) && (
         <div className={`mt-5 rounded-2xl border px-5 py-4 text-sm ${error ? "border-red-200 bg-red-50 text-red-700" : "border-green-200 bg-green-50 text-green-800"}`}>{error || message}</div>
       )}
 
       {loading ? (
-        <p className="mt-7 text-sm text-[#6f6c65]">Loading projects…</p>
+        <p className="mt-7 text-sm text-[#6f6c65]">{t("Loading projects…")}</p>
       ) : projects.length === 0 ? (
         <div className="mt-7 rounded-[24px] border border-dashed border-black/15 bg-[#f3f1eb]/70 p-8 text-center">
-          <p className="text-lg font-semibold">No projects yet</p>
-          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#6f6c65]">The clean foundation is ready for the first neutral portfolio collection.</p>
+          <p className="text-lg font-semibold">{t("No projects yet")}</p>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#6f6c65]">{t("The clean foundation is ready for the first neutral portfolio collection.")}</p>
         </div>
       ) : (
         <div className="mt-7 grid gap-4 lg:grid-cols-2">
@@ -341,20 +343,20 @@ export default function PortfolioProjectsManager() {
             return (
               <article key={project.id} className="flex gap-4 rounded-[24px] border border-black/8 bg-white p-4">
                 <div className="h-32 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#e8e4dc]">
-                  {cover ? <img src={cover.image_url} alt={cover.alt_text || project.title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-xs text-[#8b877e]">No cover</div>}
+                  {cover ? <img src={cover.image_url} alt={cover.alt_text || project.title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-xs text-[#8b877e]">{t("No cover")}</div>}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{categoryMap.get(project.category_id)?.name || "Category"}</span>
-                    <span className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase ${project.is_active ? "bg-green-50 text-green-700" : "bg-[#eeebe3] text-[#6f6c65]"}`}>{project.is_active ? "Active" : "Hidden"}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{categoryMap.get(project.category_id)?.name || t("Category")}</span>
+                    <span className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase ${project.is_active ? "bg-green-50 text-green-700" : "bg-[#eeebe3] text-[#6f6c65]"}`}>{project.is_active ? t("Active") : t("Hidden")}</span>
                   </div>
                   <h3 className="mt-2 truncate text-xl font-semibold">{project.title}</h3>
-                  <p className="mt-1 text-xs text-[#6f6c65]">{count} image(s) · {project.slug}</p>
+                  <p className="mt-1 text-xs text-[#6f6c65]">{t("Images: {count}", { count })} · {project.slug}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => openEdit(project)} className="rounded-full bg-[#17191f] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">Edit</button>
+                    <button type="button" onClick={() => openEdit(project)} className="rounded-full bg-[#17191f] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">{t("Edit")}</button>
                     <button type="button" onClick={() => void moveProject(project, "up")} disabled={index === 0} className="rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold disabled:opacity-30">↑</button>
                     <button type="button" onClick={() => void moveProject(project, "down")} disabled={index === projects.length - 1} className="rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold disabled:opacity-30">↓</button>
-                    <button type="button" onClick={() => void deleteProject(project)} className="rounded-full border border-red-200 px-3 py-2 text-[10px] font-semibold text-red-600">Delete</button>
+                    <button type="button" onClick={() => void deleteProject(project)} className="rounded-full border border-red-200 px-3 py-2 text-[10px] font-semibold text-red-600">{t("Delete")}</button>
                   </div>
                 </div>
               </article>
@@ -368,48 +370,48 @@ export default function PortfolioProjectsManager() {
           <div className="mx-auto my-8 max-w-6xl rounded-[30px] bg-[#f8f6f1] p-5 shadow-2xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">{form.id ? "Edit project" : "New project"}</p>
-                <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">Project details</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">{form.id ? t("Edit project") : t("New project")}</p>
+                <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{t("Project details")}</h3>
               </div>
-              <button type="button" onClick={() => setEditorOpen(false)} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Close</button>
+              <button type="button" onClick={() => setEditorOpen(false)} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">{t("Close")}</button>
             </div>
 
             <div className="mt-6 grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
               <div className="space-y-4 rounded-[24px] border border-black/8 bg-white p-5">
-                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">Category
+                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">{t("Category")}
                   <select value={form.categoryId} onChange={(event) => { setForm((value) => ({ ...value, categoryId: event.target.value })); setSelectedMediaIds([]); }} className="mt-2 w-full rounded-2xl border border-black/10 px-4 py-3 text-sm font-normal normal-case tracking-normal outline-none">
-                    <option value="">Select category</option>
+                    <option value="">{t("Select category")}</option>
                     {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
                   </select>
                 </label>
-                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">Title
+                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">{t("Title")}
                   <input value={form.title} onChange={(event) => setForm((value) => ({ ...value, title: event.target.value }))} className="mt-2 w-full rounded-2xl border border-black/10 px-4 py-3 text-sm font-normal normal-case tracking-normal outline-none" />
                 </label>
-                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">URL slug
+                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">{t("URL slug")}
                   <input value={form.slug} onChange={(event) => setForm((value) => ({ ...value, slug: event.target.value }))} placeholder={slugify(form.title) || "project-name"} className="mt-2 w-full rounded-2xl border border-black/10 px-4 py-3 text-sm font-normal normal-case tracking-normal outline-none" />
                 </label>
-                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">Description
+                <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65]">{t("Description")}
                   <textarea value={form.description} onChange={(event) => setForm((value) => ({ ...value, description: event.target.value }))} rows={6} className="mt-2 w-full resize-y rounded-2xl border border-black/10 px-4 py-3 text-sm font-normal normal-case tracking-normal outline-none" />
                 </label>
                 <label className="flex items-center gap-3 rounded-2xl bg-[#f3f1eb] px-4 py-3 text-sm font-semibold">
                   <input type="checkbox" checked={form.isActive} onChange={(event) => setForm((value) => ({ ...value, isActive: event.target.checked }))} />
-                  Active project
+                  {t("Active project")}
                 </label>
-                <button type="button" onClick={() => void saveProject()} disabled={saving} className="w-full rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-50">{saving ? "Saving…" : "Save project"}</button>
+                <button type="button" onClick={() => void saveProject()} disabled={saving} className="w-full rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-50">{saving ? t("Saving…") : t("Save project")}</button>
               </div>
 
               <div className="rounded-[24px] border border-black/8 bg-white p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h4 className="text-lg font-semibold">Project images</h4>
-                    <p className="mt-1 text-xs text-[#6f6c65]">Selected: {selectedMediaIds.length}. Click an image to add or remove it.</p>
+                    <h4 className="text-lg font-semibold">{t("Project images")}</h4>
+                    <p className="mt-1 text-xs text-[#6f6c65]">{t("Selected: {count}. Click an image to add or remove it.", { count: selectedMediaIds.length })}</p>
                   </div>
-                  <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search media" className="rounded-2xl border border-black/10 px-4 py-2.5 text-sm outline-none" />
+                  <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search media")} className="rounded-2xl border border-black/10 px-4 py-2.5 text-sm outline-none" />
                 </div>
 
                 {selectedMediaIds.length > 0 && (
                   <div className="mt-4 rounded-2xl bg-[#f3f1eb] p-3">
-                    <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6c65]">Selected order and cover</p>
+                    <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6c65]">{t("Selected order and cover")}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {selectedMediaIds.map((mediaId, index) => {
                         const item = mediaMap.get(mediaId);
@@ -418,7 +420,7 @@ export default function PortfolioProjectsManager() {
                           <div key={mediaId} className={`flex items-center gap-2 rounded-xl border bg-white p-2 ${form.coverMediaId === mediaId ? "border-[#9a742e]" : "border-black/8"}`}>
                             <img src={item.image_url} alt="" className="h-10 w-10 rounded-lg object-cover" />
                             <span className="text-xs font-semibold">{index + 1}</span>
-                            <button type="button" onClick={() => setForm((value) => ({ ...value, coverMediaId: mediaId }))} className="rounded-lg px-2 py-1 text-[10px] font-semibold">{form.coverMediaId === mediaId ? "Cover" : "Set cover"}</button>
+                            <button type="button" onClick={() => setForm((value) => ({ ...value, coverMediaId: mediaId }))} className="rounded-lg px-2 py-1 text-[10px] font-semibold">{form.coverMediaId === mediaId ? t("Cover") : t("Set cover")}</button>
                             <button type="button" onClick={() => moveSelected(mediaId, "up")} disabled={index === 0} className="text-xs disabled:opacity-25">↑</button>
                             <button type="button" onClick={() => moveSelected(mediaId, "down")} disabled={index === selectedMediaIds.length - 1} className="text-xs disabled:opacity-25">↓</button>
                           </div>
@@ -442,7 +444,7 @@ export default function PortfolioProjectsManager() {
                     );
                   })}
                 </div>
-                {availableMedia.length === 0 && <p className="mt-8 text-center text-sm text-[#6f6c65]">No active images are assigned to this category.</p>}
+                {availableMedia.length === 0 && <p className="mt-8 text-center text-sm text-[#6f6c65]">{t("No active images are assigned to this category.")}</p>}
               </div>
             </div>
           </div>

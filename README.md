@@ -1,4 +1,4 @@
-# OneStudio OS · Catalog Core 1.0
+# OneStudio OS · Admin i18n 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -10,6 +10,18 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 4. **Workspace Context 1.0** selects the active business and enforces role-aware tenant boundaries.
 5. **Admin Access & Bootstrap 1.0** creates the first owner and protects the administration area.
 6. **Catalog Core 1.0** activates universal categories, services, resources, pricing and duration controls.
+7. **Admin i18n 1.0** adds an independent Russian and English administration interface.
+
+## Added in Admin i18n 1.0
+
+- independent `RU / EN` administration preference;
+- Russian administration interface by default;
+- typed shared message catalog and placeholder interpolation;
+- translated sign-in, owner registration and first-workspace bootstrap;
+- translated admin shell, workspace, module map and Catalog Core;
+- translated media, portfolio and foundation settings screens;
+- locale-aware catalog prices;
+- no coupling to the public website locale or workspace content language.
 
 ## Added in Catalog Core 1.0
 

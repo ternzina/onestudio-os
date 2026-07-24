@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import AdminLanguageSwitcher from "@/components/i18n/AdminLanguageSwitcher";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 type AccessState = "bootstrap_required" | "ready" | "denied" | "signed_out";
 
@@ -19,6 +21,7 @@ function readSafeNextPath() {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useAdminI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -29,13 +32,13 @@ export default function LoginPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("error") === "admin_access") {
-      setMessage("This account has no workspace access yet.");
+      setMessage(t("This account has no workspace access yet."));
     }
 
     void supabase
       .rpc("admin_bootstrap_available")
       .then(({ data }) => setBootstrapOpen(data === true));
-  }, []);
+  }, [t]);
 
   async function routeAfterSignIn() {
     const { data, error } = await supabase.rpc("get_admin_access_state");
@@ -55,7 +58,7 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage("This account has no workspace access yet.");
+    setMessage(t("This account has no workspace access yet."));
     setIsSubmitting(false);
   }
 
@@ -70,7 +73,7 @@ export default function LoginPage() {
     });
 
     if (error || !data.user) {
-      setMessage(error?.message || "Could not sign in.");
+      setMessage(error?.message || t("Could not sign in."));
       setIsSubmitting(false);
       return;
     }
@@ -81,7 +84,7 @@ export default function LoginPage() {
   async function handlePasswordReset() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
-      setMessage("Enter your email first.");
+      setMessage(t("Enter your email first."));
       return;
     }
 
@@ -95,9 +98,9 @@ export default function LoginPage() {
         body: JSON.stringify({ email: normalizedEmail }),
       });
       const result = (await response.json()) as { message?: string };
-      setMessage(result.message || "Check your inbox.");
+      setMessage(result.message || t("Check your inbox."));
     } catch {
-      setMessage("Password recovery is temporarily unavailable.");
+      setMessage(t("Password recovery is temporarily unavailable."));
     } finally {
       setIsResetting(false);
     }
@@ -105,18 +108,19 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-5 py-12 text-[#f7f5ef]">
-      <section className="w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl sm:p-9">
+      <section className="relative w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl sm:p-9">
+        <div className="absolute right-6 top-6"><AdminLanguageSwitcher theme="dark" /></div>
         <Link href="/" className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">
           OneStudio OS
         </Link>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">Sign in</h1>
+        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">{t("Sign in")}</h1>
         <p className="mt-3 text-sm leading-6 text-[#b9b5ab]">
-          Enter the protected administration area for your workspace.
+          {t("Enter the protected administration area for your workspace.")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <label className="block">
-            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Email</span>
+            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">{t("Email")}</span>
             <input
               type="email"
               required
@@ -127,7 +131,7 @@ export default function LoginPage() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Password</span>
+            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">{t("Password")}</span>
             <input
               type="password"
               required
@@ -150,7 +154,7 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="w-full rounded-full bg-[#f7f5ef] px-5 py-3.5 text-sm font-semibold text-[#0b0d12] transition hover:bg-white disabled:opacity-60"
           >
-            {isSubmitting ? "Signing in..." : "Sign in"}
+            {isSubmitting ? t("Signing in...") : t("Sign in")}
           </button>
         </form>
 
@@ -160,14 +164,14 @@ export default function LoginPage() {
           disabled={isResetting}
           className="mt-4 w-full text-sm text-[#d8b36a] disabled:opacity-60"
         >
-          {isResetting ? "Sending..." : "Forgot password?"}
+          {isResetting ? t("Sending...") : t("Forgot password?")}
         </button>
 
         {bootstrapOpen ? (
           <p className="mt-7 text-center text-sm text-[#b9b5ab]">
-            First installation?{" "}
+            {t("First installation?")} {" "}
             <Link href="/register" className="font-semibold text-[#f7f5ef]">
-              Create the owner account
+              {t("Create the owner account")}
             </Link>
           </p>
         ) : null}

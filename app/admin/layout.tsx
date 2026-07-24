@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createPrivatePageMetadata } from "../_seo/site";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import AdminLayoutClient from "./AdminLayoutClient";
+import AdminI18nBoundary from "@/components/i18n/AdminI18nBoundary";
 
 export const metadata = createPrivatePageMetadata("/admin", "Administration");
 
@@ -23,5 +24,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect("/login?error=admin_access");
   }
 
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  return (
+    <AdminI18nBoundary>
+      <AdminLayoutClient>{children}</AdminLayoutClient>
+    </AdminI18nBoundary>
+  );
 }
