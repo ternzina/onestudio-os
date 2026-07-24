@@ -8,9 +8,10 @@ const activeItems = [
   { href: "/admin/media", label: "Media", icon: "◫" },
   { href: "/admin/portfolio", label: "Portfolio", icon: "◇" },
   { href: "/admin/settings", label: "Settings", icon: "⚙" },
+  { href: "/admin/modules", label: "Modules", icon: "⌘" },
 ] as const;
 
-const plannedItems = ["Bookings", "Clients", "Payments", "Analytics"];
+const plannedItems = ["Booking UI", "Payments", "Notifications", "Analytics"];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export default function AdminSidebar() {
         <Link href="/admin" className="rounded-[26px] border border-black/8 bg-[#17191f] p-5 text-white">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#d8b36a]">Core Foundation</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em]">OneStudio OS</h2>
-          <p className="mt-2 text-xs leading-5 text-white/65">Admin · Media · Content</p>
+          <p className="mt-2 text-xs leading-5 text-white/65">Admin · Content · Modules</p>
         </Link>
 
         <nav className="mt-6 space-y-2">

@@ -12,3 +12,6 @@ supabase/.temp/
 .vercel-backup-before-relink/
 *.tsbuildinfo
 *.zip
+
+# Supabase local branch metadata
+supabase/.branches/

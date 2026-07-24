@@ -1,4 +1,4 @@
-# OneStudio OS · Core Foundation 1.0
+# OneStudio OS · Core Modules Contract 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. This repository is no longer a copy of a specific client website. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -13,6 +13,18 @@ A brand-neutral foundation for studio and appointment-based business systems. Th
 - Private client-gallery redirect page
 - Password recovery through Resend
 - Generic SEO, manifest, robots and sitemap
+
+## Added in the Core Modules contract
+
+- Business workspaces and memberships
+- Canonical clients and CRM records
+- One service catalog for appointments, rentals, classes and events
+- Bookable resources for staff, spaces, equipment and capacity units
+- Weekly availability and date-specific exceptions
+- One canonical booking table with conflict-safe resource allocations
+- Per-business module registry
+
+The database contract is installed before the public booking and admin interfaces. This prevents UI decisions from dictating the data model.
 
 ## Deliberately not included yet
 
@@ -38,6 +50,10 @@ The canonical clean migration is:
 
 `supabase/migrations/20260722000000_onestudio_clean_base.sql`
 
+The additive core modules contract is:
+
+`supabase/migrations/20260724000000_core_modules_contract.sql`
+
 Security regression tests are stored in:
 
 `supabase/tests/onestudio-clean-base-security-tests.sql`
@@ -45,6 +61,7 @@ Security regression tests are stored in:
 ## Git checkpoints
 
 - `clean-shell-1.0` preserves the pre-cleanup source snapshot.
-- `core-foundation-1.0` is the working branch for the universal foundation.
+- `core-foundation-v1.0` preserves the clean universal foundation.
+- `core-modules-1.0` adds the universal module contract without changing that checkpoint.
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.

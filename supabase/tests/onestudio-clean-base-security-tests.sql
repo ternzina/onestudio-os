@@ -53,8 +53,11 @@ select ok(
 );
 select has_table('public', 'service_bookings',
   'canonical service booking table exists');
-select hasnt_table('public', 'bookings',
-  'legacy generic booking table is absent');
+select has_table(
+  'public',
+  'bookings',
+  'core bookings table exists'
+);
 select has_column('public', 'service_bookings', 'specialist_id',
   'service bookings reference an optional specialist');
 select has_column('public', 'service_bookings', 'service_option_id',
