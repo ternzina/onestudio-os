@@ -13,9 +13,9 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
   {
     key: "core",
     title: "Core foundation",
-    description: "Authentication, business identity, permissions and shared configuration.",
+    description: "Authentication, workspace selection, role tiers, business identity and shared configuration.",
     stage: "enabled",
-    version: "1.0.0",
+    version: "1.1.0",
     dependsOn: [],
   },
   {

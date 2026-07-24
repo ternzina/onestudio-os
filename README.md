@@ -1,67 +1,73 @@
-# OneStudio OS · Core Modules Contract 1.0
+# OneStudio OS · Workspace Context 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. This repository is no longer a copy of a specific client website. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
-## Included in this foundation
+## Foundation layers
 
-- Next.js 16 and React 19 application shell
-- Supabase authentication and role-based admin access
-- Clean, locale-neutral Supabase schema
-- Admin overview and global settings
-- Cloudflare R2 media library
-- Portfolio categories and reusable portfolio projects
-- Private client-gallery redirect page
-- Password recovery through Resend
-- Generic SEO, manifest, robots and sitemap
+1. **Clean Base 2.0** removes client identity and secures the neutral schema.
+2. **Clean Shell 1.0** preserves a generic application and admin shell.
+3. **Core Modules 1.0** defines businesses, clients, services, resources, schedules and bookings.
+4. **Workspace Context 1.0** selects the active business and enforces role-aware tenant boundaries.
 
-## Added in the Core Modules contract
+## Added in Workspace Context 1.0
 
-- Business workspaces and memberships
-- Canonical clients and CRM records
-- One service catalog for appointments, rentals, classes and events
-- Bookable resources for staff, spaces, equipment and capacity units
-- Weekly availability and date-specific exceptions
-- One canonical booking table with conflict-safe resource allocations
-- Per-business module registry
+- one preferred workspace per authenticated user;
+- deterministic `current_business_id()` resolution;
+- owner, admin, manager, staff and viewer roles;
+- separate view, operate, configure and manage permission tiers;
+- tenant-safe RLS policies across CRM, catalog, scheduling and bookings;
+- `/admin/workspace` for workspace selection and neutral identity settings;
+- regression tests for workspace switching and cross-workspace access.
 
-The database contract is installed before the public booking and admin interfaces. This prevents UI decisions from dictating the data model.
+## Current module contract
+
+- business workspaces and memberships;
+- canonical clients and CRM records;
+- one service catalog for appointments, rentals, classes and events;
+- bookable resources for staff, spaces, equipment and capacity units;
+- weekly availability and date-specific exceptions;
+- one canonical booking table with conflict-safe resource allocations;
+- per-business module registry.
 
 ## Deliberately not included yet
 
-- Client-specific public storefront pages
-- Service and resource booking interfaces
-- CRM, payment and analytics interfaces
-- Stripe checkout and webhooks
-- Business-specific legal documents
-- Hardcoded languages, routes, prices, addresses or media
+- client-specific public storefront pages;
+- member invitations and ownership transfer UI;
+- service and resource admin interfaces;
+- public booking and admin booking interfaces;
+- Stripe checkout and webhooks for the canonical booking table;
+- business-specific legal documents;
+- hardcoded languages, routes, prices, addresses or media.
 
-The database already contains the neutral service-booking and resource-booking primitives. Their interfaces will be rebuilt as independent core modules instead of carrying forward the previous client implementation.
-
-## Local setup
-
-1. Copy `.env.example` to `.env.local` and fill the required values.
-2. Install dependencies with `npm ci`.
-3. Run `npm run dev`.
-4. Validate changes with `npm run lint` and `npm run build`.
-
-## Database
+## Database migrations
 
 The canonical clean migration is:
 
 `supabase/migrations/20260722000000_onestudio_clean_base.sql`
 
-The additive core modules contract is:
+The core module contract is:
 
 `supabase/migrations/20260724000000_core_modules_contract.sql`
 
-Security regression tests are stored in:
+The workspace context layer is:
 
-`supabase/tests/onestudio-clean-base-security-tests.sql`
+`supabase/migrations/20260724010000_workspace_context.sql`
+
+## Validation
+
+Run locally:
+
+```bash
+npx supabase@beta db reset
+npx supabase@beta test db
+npm run build
+```
 
 ## Git checkpoints
 
 - `clean-shell-1.0` preserves the pre-cleanup source snapshot.
 - `core-foundation-v1.0` preserves the clean universal foundation.
-- `core-modules-1.0` adds the universal module contract without changing that checkpoint.
+- `core-modules-1.0` adds the universal module contract.
+- `workspace-context-1.0` should be created only after database tests and the Next.js build pass.
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.

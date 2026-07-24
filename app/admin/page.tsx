@@ -5,6 +5,13 @@ import AdminHeader from "@/components/admin/AdminHeader";
 
 const readyModules = [
   {
+    title: "Workspace",
+    label: "Business context",
+    description: "Select the current business and manage its neutral name, timezone, locale and currency.",
+    href: "/admin/workspace",
+    icon: "◎",
+  },
+  {
     title: "Media library",
     label: "Cloud assets",
     description: "Upload, organize and remove images or video stored in Cloudflare R2.",
@@ -20,7 +27,7 @@ const readyModules = [
   },
   {
     title: "Foundation settings",
-    label: "Business identity",
+    label: "Public configuration",
     description: "Edit the neutral global, contact and booking settings defined in the clean database.",
     href: "/admin/settings",
     icon: "⚙",
@@ -45,23 +52,23 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">Core Modules 1.0</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">Workspace Context 1.0</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">A clean control center.</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">A control center with boundaries.</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  This branch adds one universal contract for businesses, services, resources, clients and bookings. Interfaces can now be built without splitting appointments and rentals into separate systems.
+                  Core Modules now has an explicit current workspace and role-aware permissions. Every next interface can read and write inside one business without leaking into another.
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">Current rule</p>
-                <p className="mt-3 text-2xl font-semibold">No client-specific defaults.</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">Each future edition must receive its identity and content through configuration.</p>
+                <p className="mt-3 text-2xl font-semibold">No data without a workspace.</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">Catalog, CRM, scheduling and payments must all resolve the active business context first.</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {readyModules.map((module) => (
               <button key={module.href} type="button" onClick={() => router.push(module.href)} className="rounded-[28px] border border-black/8 bg-white p-6 text-left shadow-[0_18px_55px_rgba(20,20,20,0.07)] transition hover:-translate-y-1">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#17191f] text-xl text-white">{module.icon}</span>
@@ -73,7 +80,7 @@ export default function AdminPage() {
           </div>
 
           <div className="mt-8 rounded-[30px] border border-black/8 bg-[#eeebe3] p-6 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Planned foundation layers</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Next product layers</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {nextModules.map((module, index) => (
                 <div key={module} className="rounded-2xl bg-white/80 p-4">

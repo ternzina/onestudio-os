@@ -1,62 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const isBootstrap = pathname === "/admin/bootstrap";
 
   useEffect(() => {
-    let active = true;
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        if (!session) {
+          router.replace("/login");
+          router.refresh();
+        }
+      },
+    );
 
-    const checkAccess = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData.session?.user;
-
-      if (!user) {
-        router.replace("/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (profile?.role !== "admin") {
-        router.replace("/dashboard");
-        return;
-      }
-
-      if (active) setIsChecking(false);
-    };
-
-    void checkAccess();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) router.replace("/login");
-    });
-
-    return () => {
-      active = false;
-      listener.subscription.unsubscribe();
-    };
+    return () => listener.subscription.unsubscribe();
   }, [router]);
 
-  if (isChecking) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f3f1eb] text-[#17191f]">
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#9a742e]">OneStudio OS</p>
-          <p className="mt-3 text-sm text-[#6c6a64]">Checking administrator access...</p>
-        </div>
-      </main>
-    );
-  }
+  if (isBootstrap) return children;
 
   return (
     <div className="min-h-screen bg-[#f3f1eb] text-[#17191f]">

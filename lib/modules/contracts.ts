@@ -13,7 +13,7 @@ export const CORE_MODULE_KEYS = [
 export type CoreModuleKey = (typeof CORE_MODULE_KEYS)[number];
 export type CoreModuleStage = "enabled" | "contract-ready" | "planned";
 
-export type BusinessRole = "owner" | "admin" | "staff" | "viewer";
+export type BusinessRole = "owner" | "admin" | "manager" | "staff" | "viewer";
 export type BusinessStatus = "active" | "suspended" | "archived";
 
 export type ServiceKind =
@@ -48,6 +48,21 @@ export type BusinessRecord = {
   default_locale: string;
   default_currency: string;
   status: BusinessStatus;
+};
+
+export type BusinessMembershipRecord = {
+  business_id: string;
+  user_id: string;
+  role: BusinessRole;
+  is_active: boolean;
+  is_default: boolean;
+};
+
+export type BusinessWorkspaceSummary = Omit<BusinessRecord, "id"> & {
+  business_id: string;
+  role: BusinessRole;
+  is_default: boolean;
+  member_since: string;
 };
 
 export type ClientRecord = {

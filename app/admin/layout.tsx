@@ -1,8 +1,27 @@
 import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
 import { createPrivatePageMetadata } from "../_seo/site";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import AdminLayoutClient from "./AdminLayoutClient";
 
 export const metadata = createPrivatePageMetadata("/admin", "Administration");
-export default function AdminLayout({ children }: { children: ReactNode }) {
+
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data, error } = await supabase.rpc("get_admin_access_state");
+  const state = !error && Array.isArray(data)
+    ? (data[0] as { access_state?: string } | undefined)?.access_state
+    : undefined;
+
+  if (state !== "ready" && state !== "bootstrap_required") {
+    redirect("/login?error=admin_access");
+  }
+
   return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

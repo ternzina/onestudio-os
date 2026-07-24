@@ -1,85 +1,115 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [bootstrapOpen, setBootstrapOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    void supabase.rpc("admin_bootstrap_available").then(({ data, error }) => {
+      setBootstrapOpen(!error && data === true);
+      setChecking(false);
+    });
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
-    setIsSubmitting(true);
+
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
+      return;
+    }
+
+    setSubmitting(true);
 
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: {
         data: {
-          name: name.trim(),
           full_name: name.trim(),
-          phone: phone.trim(),
         },
       },
     });
 
     if (error) {
       setMessage(error.message);
-      setIsSubmitting(false);
+      setSubmitting(false);
       return;
     }
 
     if (data.session) {
-      router.replace("/dashboard");
+      router.replace("/admin/bootstrap");
+      router.refresh();
       return;
     }
 
-    setMessage("Account created. Check your email to confirm registration.");
-    setIsSubmitting(false);
+    setMessage("Confirm your email, then sign in to finish the first workspace setup.");
+    setSubmitting(false);
+  }
+
+  if (checking) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] text-[#f7f5ef]">
+        <p className="text-sm text-white/60">Checking installation status...</p>
+      </main>
+    );
+  }
+
+  if (!bootstrapOpen) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-5 text-[#f7f5ef]">
+        <section className="w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] p-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">OneStudio OS</p>
+          <h1 className="mt-5 text-3xl font-semibold tracking-[-0.05em]">Owner account already exists</h1>
+          <p className="mt-4 text-sm leading-6 text-white/60">
+            Public first-owner registration closes automatically after installation setup.
+          </p>
+          <Link href="/login" className="mt-7 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0b0d12]">
+            Go to sign in
+          </Link>
+        </section>
+      </main>
+    );
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-5 py-12 text-[#f7f5ef]">
-      <section className="w-full max-w-lg rounded-[32px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl sm:p-9">
+      <section className="w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl sm:p-9">
         <Link href="/" className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">
-          OneStudio OS
+          Admin Access 1.0
         </Link>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">Create account</h1>
+        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">Create the first owner</h1>
         <p className="mt-3 text-sm leading-6 text-[#b9b5ab]">
-          This neutral account flow can be adapted for every future business edition.
+          This one-time account becomes the installation owner. The setup door closes after the workspace is created.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-4 sm:grid-cols-2">
-          <label className="block sm:col-span-2">
-            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Name</span>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <label className="block">
+            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Your name</span>
             <input
               required
               minLength={2}
+              maxLength={100}
+              autoComplete="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none transition focus:border-[#d8b36a]"
+              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none focus:border-[#d8b36a]"
             />
           </label>
-          <label className="block sm:col-span-2">
-            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Phone</span>
-            <input
-              required
-              minLength={5}
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none transition focus:border-[#d8b36a]"
-            />
-          </label>
-          <label className="block sm:col-span-2">
+          <label className="block">
             <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Email</span>
             <input
               type="email"
@@ -87,10 +117,10 @@ export default function RegisterPage() {
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none transition focus:border-[#d8b36a]"
+              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none focus:border-[#d8b36a]"
             />
           </label>
-          <label className="block sm:col-span-2">
+          <label className="block">
             <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Password</span>
             <input
               type="password"
@@ -99,27 +129,40 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none transition focus:border-[#d8b36a]"
+              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none focus:border-[#d8b36a]"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">Repeat password</span>
+            <input
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 outline-none focus:border-[#d8b36a]"
             />
           </label>
 
-          {message && (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-[#e7e2d7] sm:col-span-2">
+          {message ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-[#e7e2d7]">
               {message}
             </div>
-          )}
+          ) : null}
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="rounded-full bg-[#f7f5ef] px-5 py-3.5 text-sm font-semibold text-[#0b0d12] transition hover:bg-white disabled:opacity-60 sm:col-span-2"
+            disabled={submitting}
+            className="w-full rounded-full bg-[#f7f5ef] px-5 py-3.5 text-sm font-semibold text-[#0b0d12] disabled:opacity-60"
           >
-            {isSubmitting ? "Creating..." : "Create account"}
+            {submitting ? "Creating account..." : "Create owner account"}
           </button>
         </form>
 
         <p className="mt-7 text-center text-sm text-[#b9b5ab]">
-          Already registered? <Link href="/login" className="font-semibold text-[#f7f5ef]">Sign in</Link>
+          Already created it?{" "}
+          <Link href="/login" className="font-semibold text-white">Sign in</Link>
         </p>
       </section>
     </main>

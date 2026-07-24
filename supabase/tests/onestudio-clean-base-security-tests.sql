@@ -19,7 +19,11 @@ insert into auth.users (id, email) values
 insert into public.profiles (id, name, email, role) values
   ('10000000-0000-0000-0000-000000000001', 'Test Client One', 'client1@example.test', 'client'),
   ('10000000-0000-0000-0000-000000000002', 'Test Client Two', 'client2@example.test', 'client'),
-  ('10000000-0000-0000-0000-000000000099', 'Test Admin', 'admin@example.test', 'admin');
+  ('10000000-0000-0000-0000-000000000099', 'Test Admin', 'admin@example.test', 'admin')
+on conflict (id) do update set
+  name = excluded.name,
+  email = excluded.email,
+  role = excluded.role;
 
 insert into public.booking_page_settings (
   id, resource_booking_enabled

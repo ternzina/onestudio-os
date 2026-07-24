@@ -1,14 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-if (!supabaseUrl) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
-}
-
-if (!supabaseKey) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Backward-compatible export for existing client components.
+// The underlying @supabase/ssr client stores the session in cookies so
+// Next.js Proxy and Server Components can verify the same authenticated user.
+export const supabase = getSupabaseBrowserClient();
+export { getSupabaseBrowserClient };

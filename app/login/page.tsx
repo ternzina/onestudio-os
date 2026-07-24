@@ -1,9 +1,21 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+
+type AccessState = "bootstrap_required" | "ready" | "denied" | "signed_out";
+
+type AccessRow = {
+  access_state: AccessState;
+};
+
+function readSafeNextPath() {
+  if (typeof window === "undefined") return "/admin";
+  const value = new URLSearchParams(window.location.search).get("next");
+  return value?.startsWith("/admin") ? value : "/admin";
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +24,40 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [bootstrapOpen, setBootstrapOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "admin_access") {
+      setMessage("This account has no workspace access yet.");
+    }
+
+    void supabase
+      .rpc("admin_bootstrap_available")
+      .then(({ data }) => setBootstrapOpen(data === true));
+  }, []);
+
+  async function routeAfterSignIn() {
+    const { data, error } = await supabase.rpc("get_admin_access_state");
+    const access = !error && Array.isArray(data)
+      ? (data[0] as AccessRow | undefined)
+      : undefined;
+
+    if (access?.access_state === "bootstrap_required") {
+      router.replace("/admin/bootstrap");
+      router.refresh();
+      return;
+    }
+
+    if (access?.access_state === "ready") {
+      router.replace(readSafeNextPath());
+      router.refresh();
+      return;
+    }
+
+    setMessage("This account has no workspace access yet.");
+    setIsSubmitting(false);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,13 +75,7 @@ export default function LoginPage() {
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .maybeSingle();
-
-    router.replace(profile?.role === "admin" ? "/admin" : "/dashboard");
+    await routeAfterSignIn();
   }
 
   async function handlePasswordReset() {
@@ -71,7 +111,7 @@ export default function LoginPage() {
         </Link>
         <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">Sign in</h1>
         <p className="mt-3 text-sm leading-6 text-[#b9b5ab]">
-          Access the administration area or your account.
+          Enter the protected administration area for your workspace.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -99,11 +139,11 @@ export default function LoginPage() {
             />
           </label>
 
-          {message && (
+          {message ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-[#e7e2d7]">
               {message}
             </div>
-          )}
+          ) : null}
 
           <button
             type="submit"
@@ -123,9 +163,14 @@ export default function LoginPage() {
           {isResetting ? "Sending..." : "Forgot password?"}
         </button>
 
-        <p className="mt-7 text-center text-sm text-[#b9b5ab]">
-          No account yet? <Link href="/register" className="font-semibold text-[#f7f5ef]">Create one</Link>
-        </p>
+        {bootstrapOpen ? (
+          <p className="mt-7 text-center text-sm text-[#b9b5ab]">
+            First installation?{" "}
+            <Link href="/register" className="font-semibold text-[#f7f5ef]">
+              Create the owner account
+            </Link>
+          </p>
+        ) : null}
       </section>
     </main>
   );
