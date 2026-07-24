@@ -13,6 +13,7 @@ export default function AdminHeader() {
   const links = [
     [t("Overview"), "/admin"],
     [t("Catalog"), "/admin/catalog"],
+    [t("Availability"), "/admin/availability"],
     [t("Media"), "/admin/media"],
     [t("Portfolio"), "/admin/portfolio"],
     [t("Settings"), "/admin/settings"],

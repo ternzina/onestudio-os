@@ -1,4 +1,4 @@
-# OneStudio OS · Admin i18n 1.0
+# OneStudio OS · Availability Core 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -11,49 +11,41 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 5. **Admin Access & Bootstrap 1.0** creates the first owner and protects the administration area.
 6. **Catalog Core 1.0** activates universal categories, services, resources, pricing and duration controls.
 7. **Admin i18n 1.0** adds an independent Russian and English administration interface.
+8. **Availability Core 1.0** activates weekly resource hours, date exceptions and conflict-aware service slots.
 
-## Added in Admin i18n 1.0
+## Added in Availability Core 1.0
 
-- independent `RU / EN` administration preference;
-- Russian administration interface by default;
-- typed shared message catalog and placeholder interpolation;
-- translated sign-in, owner registration and first-workspace bootstrap;
-- translated admin shell, workspace, module map and Catalog Core;
-- translated media, portfolio and foundation settings screens;
-- locale-aware catalog prices;
-- no coupling to the public website locale or workspace content language.
-
-## Added in Catalog Core 1.0
-
-- workspace-scoped service and resource categories;
-- category links on canonical `services` and `resources`;
-- database protection against cross-workspace and wrong-scope category links;
-- atomic `replace_service_resources()` assignment;
-- automatic module registry rows for future workspaces;
-- `/admin/catalog` with working category, service and resource management;
-- pricing models, duration ranges, capacity, visibility, active state and ordering;
-- manager-level configuration with staff/viewer read-only access;
-- regression tests for catalog security and tenant isolation.
+- workspace booking notice, calendar horizon and slot cadence;
+- weekly schedules per bookable resource;
+- multiple intervals per day for breaks and split shifts;
+- blocked and extra-availability exceptions for specific dates;
+- timezone-safe exception creation from local dates and times;
+- service slot calculation across required resources;
+- service duration, step, capacity and before/after buffer validation;
+- booking allocation conflict checks;
+- public-safe slot RPC without exposing raw schedules or private resource names;
+- `/admin/availability` with RU/EN settings, weekly hours, exceptions and slot preview;
+- manager configuration with staff/viewer read-only access;
+- regression tests for role boundaries, tenant isolation and scheduling logic.
 
 ## Current module contract
 
 - business workspaces and memberships;
 - first-owner bootstrap and protected administration;
-- canonical clients and CRM records;
-- categories for services and resources;
-- one service catalog for appointments, rentals, classes and events;
-- bookable resources for staff, spaces, equipment and capacity units;
+- independent RU/EN administration locale;
+- categories, services, prices, duration ranges and resources;
 - service-to-resource requirements;
-- weekly availability and date-specific exceptions;
+- weekly resource availability and date-specific exceptions;
+- booking notice, horizon and slot cadence;
+- calculated service slots with buffers and conflict detection;
 - one canonical booking table with conflict-safe resource allocations;
 - per-business module registry.
 
 ## Deliberately not included yet
 
-- public storefront catalog layouts;
-- weekly schedules and availability administration;
-- public booking and manual admin booking interfaces;
-- Stripe checkout and payment records for canonical bookings;
+- public booking form and manual admin booking creation;
+- booking holds and final allocation workflow;
+- Stripe checkout and canonical payment records;
 - discounts, reminders and analytics;
 - hardcoded languages, routes, prices, addresses or media.
 
@@ -64,6 +56,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - `supabase/migrations/20260724010000_workspace_context.sql`
 - `supabase/migrations/20260724020000_admin_access_bootstrap.sql`
 - `supabase/migrations/20260724030000_catalog_core.sql`
+- `supabase/migrations/20260724040000_availability_core.sql`
 
 ## Validation
 

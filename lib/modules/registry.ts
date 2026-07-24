@@ -46,7 +46,7 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
     key: "scheduling",
     title: "Scheduling",
     description: "Availability rules, exceptions and conflict-safe resource allocation.",
-    stage: "contract-ready",
+    stage: "enabled",
     version: "1.0.0",
     dependsOn: ["core", "catalog"],
   },

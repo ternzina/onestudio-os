@@ -16,6 +16,20 @@ export default function AdminPage() {
       icon: "◎",
     },
     {
+      title: t("Catalog"),
+      label: t("Services and resources"),
+      description: t("Define offers, prices, durations, categories and the resources each service requires."),
+      href: "/admin/catalog",
+      icon: "▦",
+    },
+    {
+      title: t("Availability"),
+      label: t("Rules and slots"),
+      description: t("Set weekly resource hours, date exceptions and preview conflict-safe service times."),
+      href: "/admin/availability",
+      icon: "◷",
+    },
+    {
       title: t("Media library"),
       label: t("Cloud assets"),
       description: t("Upload, organize and remove images or video stored in Cloudflare R2."),
@@ -44,7 +58,7 @@ export default function AdminPage() {
       icon: "⌘",
     },
   ];
-  const nextModules = [t("Catalog admin UI"), t("Booking UI"), t("Payments"), t("Notifications"), t("Analytics")];
+  const nextModules = [t("Booking UI"), t("Clients and CRM"), t("Payments"), t("Notifications"), t("Analytics")];
 
   return (
     <>
@@ -52,23 +66,23 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Workspace Context 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Availability Core 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("A control center with boundaries.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Catalog meets the clock.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Core Modules now has an explicit current workspace and role-aware permissions. Every next interface can read and write inside one business without leaking into another.")}
+                  {t("Services and resources now have weekly hours, date exceptions and calculated start times. The admin can test the scheduling engine before any booking interface is connected.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Current rule")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("No data without a workspace.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("Catalog, CRM, scheduling and payments must all resolve the active business context first.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Scheduling rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("No slot without every required resource.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Duration, buffers, notice, horizon, exceptions and allocation conflicts all participate in one result.")}</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {readyModules.map((module) => (
               <button key={module.href} type="button" onClick={() => router.push(module.href)} className="rounded-[28px] border border-black/8 bg-white p-6 text-left shadow-[0_18px_55px_rgba(20,20,20,0.07)] transition hover:-translate-y-1">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#17191f] text-xl text-white">{module.icon}</span>

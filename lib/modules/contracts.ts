@@ -42,6 +42,45 @@ export type CatalogCategoryRecord = {
   sort_order: number;
 };
 
+export type AvailabilityExceptionKind = "available" | "blocked";
+
+export type BusinessAvailabilitySettingsRecord = {
+  business_id: string;
+  minimum_notice_minutes: number;
+  booking_horizon_days: number;
+  slot_interval_minutes: number;
+};
+
+export type AvailabilityRuleRecord = {
+  id: string;
+  business_id: string;
+  resource_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  effective_from: string | null;
+  effective_until: string | null;
+  is_active: boolean;
+};
+
+export type AvailabilityExceptionRecord = {
+  id: string;
+  business_id: string;
+  resource_id: string;
+  kind: AvailabilityExceptionKind;
+  starts_at: string;
+  ends_at: string;
+  reason: string;
+};
+
+export type AvailableSlotRecord = {
+  starts_at: string;
+  ends_at: string;
+  local_start_time: string;
+  local_end_time: string;
+  timezone: string;
+};
+
 export type BookingStatus =
   | "draft"
   | "hold"
