@@ -183,7 +183,7 @@ reset role;
 select is((select count(*) from public.bookings where business_id = '71000000-0000-4000-8000-000000000001'), 1::bigint, 'public booking is stored once');
 select is((select source from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'public', 'public booking source is preserved');
 select is((select status from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'confirmed', 'service without confirmation creates a confirmed booking');
-select is((select payment_status from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'not_required', 'public booking does not invent a payment state');
+select is((select payment_status from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'pending', 'priced public booking starts with a pending payment state');
 select is((select total_minor from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 5000, 'public booking stores calculated price');
 select ok((select reference <> '' from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'public booking receives a reference');
 select is((select count(*) from public.clients where business_id = '71000000-0000-4000-8000-000000000001'), 1::bigint, 'public booking creates one client');

@@ -782,11 +782,9 @@ export default function ClientsManager() {
                   )}
 
                   {history.map((booking) => (
-                    <button
+                    <article
                       key={booking.id}
-                      type="button"
-                      onClick={() => router.push(`/admin/bookings?booking=${booking.id}`)}
-                      className="rounded-2xl border border-black/8 bg-white p-4 text-left transition hover:-translate-y-0.5"
+                      className="rounded-2xl border border-black/8 bg-white p-4 transition hover:-translate-y-0.5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -806,7 +804,11 @@ export default function ClientsManager() {
                         <span>{t("{count} people", { count: booking.party_size })}</span>
                         <span>{formatMoney(booking.total_minor, booking.currency, adminLocale)}</span>
                       </div>
-                    </button>
+                      <div className="mt-4 flex flex-wrap gap-2 border-t border-black/8 pt-3">
+                        <button type="button" className={secondaryButtonClass} onClick={() => router.push(`/admin/bookings?booking=${booking.id}`)}>{t("Open booking")}</button>
+                        <button type="button" className={secondaryButtonClass} onClick={() => router.push(`/admin/payments?booking=${booking.id}`)}>{t("Open payments")}</button>
+                      </div>
+                    </article>
                   ))}
                 </div>
               </section>

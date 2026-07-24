@@ -1,4 +1,4 @@
-# OneStudio OS · Clients CRM 1.0
+# OneStudio OS · Payments Core 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -16,18 +16,17 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 10. **Public Booking UI 1.0** lets guests choose a service, date and slot without signing in.
 11. **Booking Calendar 1.0** projects working hours, blocked intervals and bookings onto a day or week timeline.
 12. **Clients CRM 1.0** adds canonical client cards, notes, tags, booking history, archive rules and protected duplicate merges.
+13. **Payments Core 1.0** adds a provider-neutral immutable payment and refund ledger linked to bookings and clients.
 
-## Added in Clients CRM 1.0
+## Added in Payments Core 1.0
 
-- `/admin/clients` authenticated client workspace;
-- canonical client cards reused by public and administrative bookings;
-- searchable contacts, language, tags and internal notes;
-- booking counts, upcoming appointments, booked value and full booking history;
-- direct navigation between a client and an exact booking;
-- protected client creation and editing with duplicate identity checks;
-- archive and restore operations that protect active future bookings;
-- duplicate review and transactional merge without losing reservations;
-- append-only client activity events;
+- `/admin/payments` authenticated balance and transaction workspace;
+- payment-required, unpaid, partially paid, paid and refunded booking states;
+- immutable payment and refund ledger entries in minor currency units;
+- manual cash, card, bank transfer, online, gift-card and other methods;
+- provider references and idempotency protection for future adapters;
+- overpayment, over-refund, currency and paid-balance invariants;
+- direct navigation between payments, bookings and CRM clients;
 - viewer read-only access and strict anonymous denial.
 
 ## Current module contract
@@ -45,11 +44,13 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - authenticated day/week booking calendar projection;
 - working, available and blocked operational windows;
 - canonical CRM clients with notes, tags, history, archive and merge operations;
+- provider-neutral immutable payment and refund ledger;
+- derived booking payment balances with protected manual operations;
 - per-business module registry.
 
 ## Deliberately not included yet
 
-- payment checkout, deposits and canonical payment records;
+- hosted payment checkout, deposits and provider webhooks;
 - booking confirmation and reminder emails;
 - public cancellation and rescheduling links;
 - CAPTCHA and configurable public rate limits;
@@ -71,6 +72,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - `supabase/migrations/20260724060000_public_booking_ui.sql`
 - `supabase/migrations/20260724070000_booking_calendar.sql`
 - `supabase/migrations/20260725000000_clients_crm.sql`
+- `supabase/migrations/20260725010000_payments_core.sql`
 
 ## Validation
 
@@ -82,6 +84,6 @@ npm run build
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.
 
-## Clients CRM 1.0
+## Payments Core 1.0
 
-Clients CRM reads and updates the same canonical client records already created by Booking Core and Public Booking UI. It adds a protected administrative workspace, booking history and duplicate cleanup without introducing a second customer table.
+Payments Core stores final money movements as immutable payment and refund entries. Booking totals are derived from that ledger, while provider-specific checkout and secret keys remain separate adapters.

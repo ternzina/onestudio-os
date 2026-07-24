@@ -17,6 +17,7 @@ export default function AdminHeader() {
     [t("Bookings"), "/admin/bookings"],
     [t("Clients"), "/admin/clients"],
     [t("Calendar"), "/admin/calendar"],
+    [t("Payments"), "/admin/payments"],
     [t("Media"), "/admin/media"],
     [t("Portfolio"), "/admin/portfolio"],
     [t("Settings"), "/admin/settings"],

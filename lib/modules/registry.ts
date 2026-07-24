@@ -61,9 +61,9 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
   {
     key: "payments",
     title: "Payments",
-    description: "Provider-neutral payment records, checkout and refunds.",
-    stage: "planned",
-    version: "0.0.0",
+    description: "Provider-neutral immutable payment and refund ledger linked to canonical bookings and clients.",
+    stage: "enabled",
+    version: "1.0.0",
     dependsOn: ["core", "scheduling", "crm"],
   },
   {

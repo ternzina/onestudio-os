@@ -652,6 +652,12 @@ export default function BookingsManager() {
                     {t("Open client")}
                   </Link>
                 )}
+                <Link
+                  href={`/admin/payments?booking=${selectedBooking.id}`}
+                  className={secondaryButtonClass}
+                >
+                  {t("Open payments")}
+                </Link>
                 {nextActions.map((status) => (
                   <button
                     key={status}

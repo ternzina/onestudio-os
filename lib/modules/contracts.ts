@@ -92,6 +92,8 @@ export type BookingStatus =
 
 export type BookingSource = "public" | "admin" | "import" | "api";
 export type PaymentStatus = "not_required" | "pending" | "partially_paid" | "paid" | "refunded" | "failed";
+export type PaymentTransactionKind = "payment" | "refund";
+export type PaymentMethod = "cash" | "card" | "bank_transfer" | "online" | "gift_card" | "other";
 export type BookingEventType = "created" | "updated" | "status_changed" | "cancelled";
 
 export type BusinessRecord = {
@@ -188,6 +190,9 @@ export type BookingRecord = {
   total_minor: number;
   currency: string;
   payment_status: PaymentStatus;
+  payment_required: boolean;
+  paid_minor: number;
+  refunded_minor: number;
   customer_notes: string;
   internal_notes: string;
   cancelled_at: string | null;
@@ -364,5 +369,48 @@ export type ClientEventRecord = {
   event_type: "created" | "updated" | "archived" | "restored" | "merged";
   actor_user_id: string | null;
   changes: Record<string, unknown>;
+  created_at: string;
+};
+
+export type PaymentSummaryRecord = {
+  booking_id: string;
+  reference: string;
+  booking_status: BookingStatus;
+  booking_source: BookingSource;
+  starts_at: string;
+  timezone: string;
+  client_id: string;
+  client_name: string;
+  client_email: string | null;
+  client_phone: string | null;
+  service_id: string;
+  service_title: string;
+  total_minor: number;
+  paid_minor: number;
+  refunded_minor: number;
+  due_minor: number;
+  currency: string;
+  payment_required: boolean;
+  payment_status: PaymentStatus;
+  transaction_count: number;
+  last_transaction_at: string | null;
+};
+
+export type PaymentTransactionRecord = {
+  id: string;
+  business_id: string;
+  booking_id: string;
+  client_id: string;
+  kind: PaymentTransactionKind;
+  amount_minor: number;
+  currency: string;
+  provider: string;
+  method: PaymentMethod;
+  provider_reference: string | null;
+  idempotency_key: string | null;
+  note: string;
+  metadata: Record<string, unknown>;
+  occurred_at: string;
+  created_by: string | null;
   created_at: string;
 };

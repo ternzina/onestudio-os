@@ -51,6 +51,13 @@ export default function AdminPage() {
       icon: "▤",
     },
     {
+      title: t("Payments"),
+      label: t("Ledger and balances"),
+      description: t("Track required, unpaid, partial, paid and refunded booking balances with an immutable provider-neutral ledger."),
+      href: "/admin/payments",
+      icon: "¤",
+    },
+    {
       title: t("Public booking"),
       label: t("Client booking flow"),
       description: t("Open the public service, date, slot and contact flow that writes into the canonical booking record."),
@@ -86,7 +93,7 @@ export default function AdminPage() {
       icon: "⌘",
     },
   ];
-  const nextModules = [t("Payments"), t("Notifications"), t("Analytics")];
+  const nextModules = [t("Notifications"), t("Analytics")];
 
   return (
     <>
@@ -94,18 +101,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Clients CRM 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Payments Core 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every booking grows one client history.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every amount leaves a permanent trail.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Contacts, language, tags, notes and booking history now share one canonical client record without changing the booking engine.")}
+                  {t("Required balances, manual payments and refunds now share one immutable provider-neutral ledger without changing the booking engine.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("CRM rule")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("One identity, one history.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("Public and administrative bookings reuse the same client identity. Duplicate records can be reviewed and merged without losing reservations.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Payment rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("Append money, never rewrite it.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Payments and refunds are new ledger entries. Provider checkout adapters can attach later without replacing canonical bookings.")}</p>
               </div>
             </div>
           </div>
