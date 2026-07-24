@@ -30,6 +30,13 @@ export default function AdminPage() {
       icon: "◷",
     },
     {
+      title: t("Bookings"),
+      label: t("Clients and reservations"),
+      description: t("Create and reschedule conflict-safe bookings, manage status and keep an activity trail."),
+      href: "/admin/bookings",
+      icon: "▣",
+    },
+    {
       title: t("Media library"),
       label: t("Cloud assets"),
       description: t("Upload, organize and remove images or video stored in Cloudflare R2."),
@@ -58,7 +65,7 @@ export default function AdminPage() {
       icon: "⌘",
     },
   ];
-  const nextModules = [t("Booking UI"), t("Clients and CRM"), t("Payments"), t("Notifications"), t("Analytics")];
+  const nextModules = [t("Public booking UI"), t("Payments"), t("Notifications"), t("Analytics")];
 
   return (
     <>
@@ -66,18 +73,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Availability Core 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Booking Core 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Catalog meets the clock.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The clock accepts a reservation.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Services and resources now have weekly hours, date exceptions and calculated start times. The admin can test the scheduling engine before any booking interface is connected.")}
+                  {t("Calculated slots can now become durable bookings with clients, reserved resources, status transitions and a protected activity trail.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Scheduling rule")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("No slot without every required resource.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("Duration, buffers, notice, horizon, exceptions and allocation conflicts all participate in one result.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Booking rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("The database checks the slot twice.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Availability proposes the time; Booking Core checks it again inside the transaction before resources are reserved.")}</p>
               </div>
             </div>
           </div>

@@ -92,6 +92,7 @@ export type BookingStatus =
 
 export type BookingSource = "public" | "admin" | "import" | "api";
 export type PaymentStatus = "not_required" | "pending" | "partially_paid" | "paid" | "refunded" | "failed";
+export type BookingEventType = "created" | "updated" | "status_changed" | "cancelled";
 
 export type BusinessRecord = {
   id: string;
@@ -187,4 +188,32 @@ export type BookingRecord = {
   total_minor: number;
   currency: string;
   payment_status: PaymentStatus;
+  customer_notes: string;
+  internal_notes: string;
+  cancelled_at: string | null;
+  cancelled_by: string | null;
+  cancellation_reason: string;
+};
+
+export type BookingAllocationRecord = {
+  id: string;
+  business_id: string;
+  booking_id: string;
+  resource_id: string;
+  status: "held" | "confirmed" | "released";
+  starts_at: string;
+  ends_at: string;
+  quantity: number;
+};
+
+export type BookingEventRecord = {
+  id: string;
+  business_id: string;
+  booking_id: string;
+  event_type: BookingEventType;
+  actor_user_id: string | null;
+  previous_status: string | null;
+  new_status: string | null;
+  changes: Record<string, unknown>;
+  created_at: string;
 };

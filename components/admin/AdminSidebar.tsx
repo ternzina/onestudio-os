@@ -12,20 +12,21 @@ export default function AdminSidebar() {
     { href: "/admin/workspace", label: t("Workspace"), icon: "◎" },
     { href: "/admin/catalog", label: t("Catalog"), icon: "▦" },
     { href: "/admin/availability", label: t("Availability"), icon: "◷" },
+    { href: "/admin/bookings", label: t("Bookings"), icon: "▣" },
     { href: "/admin/media", label: t("Media"), icon: "◫" },
     { href: "/admin/portfolio", label: t("Portfolio"), icon: "◇" },
     { href: "/admin/settings", label: t("Settings"), icon: "⚙" },
     { href: "/admin/modules", label: t("Modules"), icon: "⌘" },
   ] as const;
-  const plannedItems = [t("Booking UI"), t("Payments"), t("Notifications"), t("Analytics")];
+  const plannedItems = [t("Public booking UI"), t("Payments"), t("Notifications"), t("Analytics")];
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[290px] overflow-y-auto border-r border-black/8 bg-[#fffdfa] px-5 py-6 shadow-[18px_0_70px_rgba(25,25,25,0.06)] lg:block">
       <div className="flex min-h-full flex-col">
         <Link href="/admin" className="rounded-[26px] border border-black/8 bg-[#17191f] p-5 text-white">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#d8b36a]">{t("Availability Core")}</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#d8b36a]">{t("Booking Core")}</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em]">OneStudio OS</h2>
-          <p className="mt-2 text-xs leading-5 text-white/65">{t("Business · Catalog · Availability")}</p>
+          <p className="mt-2 text-xs leading-5 text-white/65">{t("Business · Catalog · Bookings")}</p>
         </Link>
 
         <nav className="mt-6 space-y-2">

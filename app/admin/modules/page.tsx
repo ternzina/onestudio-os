@@ -26,18 +26,18 @@ export default function AdminModulesPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[36px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.18)] sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Availability Core 1.0")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Booking Core 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("One schedule, many resources.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("One booking, every required resource.")}</h1>
                 <p className="mt-5 max-w-3xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Scheduling is now active in the admin. Weekly hours, date exceptions and resource conflicts resolve into calculated service slots.")}
+                  {t("Scheduling now includes conflict-safe administrative bookings, reusable client records, resource allocations and a permanent activity trail.")}
                 </p>
               </div>
               <div className="rounded-[26px] border border-white/10 bg-white/[0.07] p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Stable boundary")}</p>
-                <p className="mt-3 text-lg font-semibold">{t("Availability does not create bookings.")}</p>
-                <p className="mt-2 text-sm leading-6 text-white/62">{t("The next booking layer will consume these slots without bypassing resource rules or conflict checks.")}</p>
+                <p className="mt-3 text-lg font-semibold">{t("Bookings preserve operational history.")}</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">{t("Public checkout, payments and notifications will attach later without replacing the canonical booking record.")}</p>
               </div>
             </div>
           </div>

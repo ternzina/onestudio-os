@@ -67,3 +67,7 @@ npm run build
 ```
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.
+
+## Booking Core 1.0
+
+Booking Core turns a calculated Availability slot into one canonical booking transaction. It creates or reuses the client, snapshots the price, reserves every required resource, rejects overlaps, supports status transitions and preserves an append-only activity trail. Public checkout, payments and notifications remain separate future layers.
