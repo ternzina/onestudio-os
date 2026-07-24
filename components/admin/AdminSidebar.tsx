@@ -13,6 +13,7 @@ export default function AdminSidebar() {
     { href: "/admin/catalog", label: t("Catalog"), icon: "▦" },
     { href: "/admin/availability", label: t("Availability"), icon: "◷" },
     { href: "/admin/bookings", label: t("Bookings"), icon: "▣" },
+    { href: "/admin/clients", label: t("Clients"), icon: "◉" },
     { href: "/admin/calendar", label: t("Calendar"), icon: "▤" },
     { href: "/admin/media", label: t("Media"), icon: "◫" },
     { href: "/admin/portfolio", label: t("Portfolio"), icon: "◇" },
@@ -25,9 +26,9 @@ export default function AdminSidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[290px] overflow-y-auto border-r border-black/8 bg-[#fffdfa] px-5 py-6 shadow-[18px_0_70px_rgba(25,25,25,0.06)] lg:block">
       <div className="flex min-h-full flex-col">
         <Link href="/admin" className="rounded-[26px] border border-black/8 bg-[#17191f] p-5 text-white">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#d8b36a]">{t("Booking Calendar 1.0")}</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#d8b36a]">{t("Clients CRM 1.0")}</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em]">OneStudio OS</h2>
-          <p className="mt-2 text-xs leading-5 text-white/65">{t("Business · Calendar · Operations")}</p>
+          <p className="mt-2 text-xs leading-5 text-white/65">{t("Business · Clients · History")}</p>
         </Link>
 
         <nav className="mt-6 space-y-2">

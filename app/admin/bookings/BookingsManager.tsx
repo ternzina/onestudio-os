@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -254,6 +255,7 @@ export default function BookingsManager() {
     [services, draft.service_id],
   );
   const clientMap = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
+  const selectedClient = selectedBooking ? clientMap.get(selectedBooking.client_id) ?? null : null;
   const serviceMap = useMemo(() => new Map(services.map((service) => [service.id, service])), [services]);
   const resourceMap = useMemo(() => new Map(resources.map((resource) => [resource.id, resource])), [resources]);
   const visibleBookings = useMemo(
@@ -642,6 +644,14 @@ export default function BookingsManager() {
             </div>
             {selectedBooking && (
               <div className="flex flex-wrap gap-2">
+                {selectedClient && (
+                  <Link
+                    href={`/admin/clients?client=${selectedClient.id}`}
+                    className={secondaryButtonClass}
+                  >
+                    {t("Open client")}
+                  </Link>
+                )}
                 {nextActions.map((status) => (
                   <button
                     key={status}

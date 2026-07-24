@@ -26,18 +26,18 @@ export default function AdminModulesPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[36px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.18)] sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Booking Calendar 1.0")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Clients CRM 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The schedule at a glance.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every booking grows one client history.")}</h1>
                 <p className="mt-5 max-w-3xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Bookings, working windows and blocked intervals now share one operational timeline without changing the canonical booking engine.")}
+                  {t("Canonical client cards now connect contacts, notes, tags and booking history across public and administrative flows.")}
                 </p>
               </div>
               <div className="rounded-[26px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Calendar rule")}</p>
-                <p className="mt-3 text-lg font-semibold">{t("Read here, change through Booking Core.")}</p>
-                <p className="mt-2 text-sm leading-6 text-white/62">{t("The calendar is a projection. Creation, rescheduling and status transitions remain protected booking operations.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("CRM rule")}</p>
+                <p className="mt-3 text-lg font-semibold">{t("One identity, one history.")}</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">{t("Client edits, archive rules and duplicate merges remain protected workspace operations.")}</p>
               </div>
             </div>
           </div>

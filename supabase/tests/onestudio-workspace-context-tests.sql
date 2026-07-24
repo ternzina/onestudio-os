@@ -122,10 +122,16 @@ set local role authenticated;
 select ok(public.can_operate_business('23000000-0000-4000-8000-000000000001'), 'staff may operate workspace');
 select isnt(public.can_configure_business('23000000-0000-4000-8000-000000000001'), true, 'staff cannot configure catalog');
 select lives_ok($sql$
-  update public.clients
-  set notes = 'Updated by staff'
-  where id = '24000000-0000-4000-8000-000000000001'
-$sql$, 'staff can update CRM records');
+  select public.update_admin_client(
+    '24000000-0000-4000-8000-000000000001',
+    'Workspace Client',
+    'client.workspace@example.test',
+    null,
+    'pl',
+    'Updated by staff',
+    '{}'::text[]
+  )
+$sql$, 'staff can update CRM records through guarded RPC');
 select throws_ok($sql$
   insert into public.services (
     business_id, slug, kind, title, pricing_model, price_minor, currency,

@@ -1,4 +1,4 @@
-# OneStudio OS · Booking Calendar 1.0
+# OneStudio OS · Clients CRM 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -15,19 +15,20 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 9. **Booking Core 1.0** turns free slots into conflict-safe bookings, clients, allocations and operational history.
 10. **Public Booking UI 1.0** lets guests choose a service, date and slot without signing in.
 11. **Booking Calendar 1.0** projects working hours, blocked intervals and bookings onto a day or week timeline.
+12. **Clients CRM 1.0** adds canonical client cards, notes, tags, booking history, archive rules and protected duplicate merges.
 
-## Added in Booking Calendar 1.0
+## Added in Clients CRM 1.0
 
-- `/admin/calendar` authenticated day and week timeline;
-- current-workspace calendar RPC with one-to-fourteen-day ranges;
-- all-resource and single-resource views;
-- concrete working windows expanded from weekly availability rules;
-- available and blocked date exceptions;
-- canonical bookings with client, service, resource and status presentation;
-- visible occupied labels without exposing a second booking engine;
-- summary counts for active, pending, confirmed, completed and cancelled bookings;
-- read-only viewer access and strict anonymous denial;
-- regression tests for timezone ranges, tenant isolation, filters and non-mutating reads.
+- `/admin/clients` authenticated client workspace;
+- canonical client cards reused by public and administrative bookings;
+- searchable contacts, language, tags and internal notes;
+- booking counts, upcoming appointments, booked value and full booking history;
+- direct navigation between a client and an exact booking;
+- protected client creation and editing with duplicate identity checks;
+- archive and restore operations that protect active future bookings;
+- duplicate review and transactional merge without losing reservations;
+- append-only client activity events;
+- viewer read-only access and strict anonymous denial.
 
 ## Current module contract
 
@@ -43,6 +44,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - public booking context and idempotent guest booking creation;
 - authenticated day/week booking calendar projection;
 - working, available and blocked operational windows;
+- canonical CRM clients with notes, tags, history, archive and merge operations;
 - per-business module registry.
 
 ## Deliberately not included yet
@@ -52,6 +54,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - public cancellation and rescheduling links;
 - CAPTCHA and configurable public rate limits;
 - drag-and-drop calendar rescheduling and external calendar sync;
+- automated marketing campaigns and consent management;
 - discounts and analytics;
 - hardcoded languages, routes, prices, addresses or media.
 
@@ -67,6 +70,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - `supabase/migrations/20260724051000_booking_conflict_hardening.sql`
 - `supabase/migrations/20260724060000_public_booking_ui.sql`
 - `supabase/migrations/20260724070000_booking_calendar.sql`
+- `supabase/migrations/20260725000000_clients_crm.sql`
 
 ## Validation
 
@@ -78,6 +82,6 @@ npm run build
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.
 
-## Booking Calendar 1.0
+## Clients CRM 1.0
 
-Booking Calendar reads the same canonical bookings, resource allocations, weekly availability and date exceptions already used by Booking Core. It adds an operational projection, not a second scheduling engine. All mutations remain inside the protected booking RPCs.
+Clients CRM reads and updates the same canonical client records already created by Booking Core and Public Booking UI. It adds a protected administrative workspace, booking history and duplicate cleanup without introducing a second customer table.

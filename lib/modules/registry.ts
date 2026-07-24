@@ -53,10 +53,10 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
   {
     key: "crm",
     title: "Clients and CRM",
-    description: "Guest and registered clients, notes, tags and booking history.",
+    description: "Canonical client cards, contact details, language, notes, tags, booking history, archive rules and protected duplicate merges.",
     stage: "enabled",
-    version: "1.0.0",
-    dependsOn: ["core"],
+    version: "1.1.0",
+    dependsOn: ["core", "scheduling"],
   },
   {
     key: "payments",

@@ -327,3 +327,42 @@ export type BookingCalendarContext = {
     cancelled: number;
   };
 };
+
+export type ClientCrmSummary = ClientRecord & {
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+  booking_count: number;
+  upcoming_count: number;
+  completed_count: number;
+  no_show_count: number;
+  cancelled_count: number;
+  next_booking_at: string | null;
+  last_booking_at: string | null;
+  booked_value_minor: number;
+  currency: string;
+};
+
+export type ClientBookingHistoryRecord = {
+  id: string;
+  reference: string;
+  service_id: string;
+  service_title: string;
+  status: BookingStatus;
+  source: BookingSource;
+  starts_at: string;
+  ends_at: string;
+  timezone: string;
+  party_size: number;
+  total_minor: number;
+  currency: string;
+  payment_status: PaymentStatus;
+};
+
+export type ClientEventRecord = {
+  id: string;
+  event_type: "created" | "updated" | "archived" | "restored" | "merged";
+  actor_user_id: string | null;
+  changes: Record<string, unknown>;
+  created_at: string;
+};
