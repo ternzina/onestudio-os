@@ -184,6 +184,7 @@ export default function PaymentsManager() {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [liqpayLoading, setLiqpayLoading] = useState(false);
   const saveInFlightRef = useRef(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -363,6 +364,45 @@ export default function PaymentsManager() {
     }
   };
 
+  const startLiqPayCheckout = async () => {
+    if (!selectedPayment || !canOperate || liqpayLoading) return;
+    resetMessages();
+    setLiqpayLoading(true);
+    try {
+      const response = await fetch("/api/admin/payments/liqpay/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ bookingId: selectedPayment.booking_id }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (
+        !response.ok ||
+        typeof payload.checkoutUrl !== "string" ||
+        typeof payload.data !== "string" ||
+        typeof payload.signature !== "string"
+      ) {
+        throw new Error(payload.error || "liqpay_checkout_failed");
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = payload.checkoutUrl;
+      form.acceptCharset = "utf-8";
+      for (const [name, value] of [["data", payload.data], ["signature", payload.signature]]) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+    } catch (checkoutError) {
+      setError(checkoutError instanceof Error ? checkoutError.message : "liqpay_checkout_failed");
+      setLiqpayLoading(false);
+    }
+  };
+
   const toggleRequired = async () => {
     if (!selectedPayment || !canOperate || saving) return;
     resetMessages();
@@ -462,6 +502,16 @@ export default function PaymentsManager() {
                   {stripeLoading
                     ? (adminLocale === "ru" ? "Открываем Stripe…" : "Opening Stripe…")
                     : (adminLocale === "ru" ? "Оплатить через Stripe" : "Pay with Stripe")}
+                </button>
+                <button
+                  type="button"
+                  className={buttonClass}
+                  onClick={() => void startLiqPayCheckout()}
+                  disabled={!canOperate || liqpayLoading || !selectedPayment.payment_required || selectedPayment.due_minor <= 0 || ["draft", "cancelled"].includes(selectedPayment.booking_status)}
+                >
+                  {liqpayLoading
+                    ? (adminLocale === "ru" ? "Открываем LiqPay…" : "Opening LiqPay…")
+                    : (adminLocale === "ru" ? "Оплатить через LiqPay" : "Pay with LiqPay")}
                 </button>
                 <Link className={secondaryButtonClass} href={`/admin/bookings?booking=${selectedPayment.booking_id}`}>{t("Open booking")}</Link>
                 <Link className={secondaryButtonClass} href={`/admin/clients?client=${selectedPayment.client_id}`}>{t("Open client")}</Link>
