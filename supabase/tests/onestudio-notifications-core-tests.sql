@@ -71,7 +71,7 @@ insert into public.services (
   ('b4000000-0000-4000-8000-000000000002', 'b2000000-0000-4000-8000-000000000002', 'other-service', 'appointment', 'Other Service', 'fixed', 9000, 'USD', 60, 60, 30, 2, true, true);
 
 select is((select enabled from public.business_modules where business_id='b2000000-0000-4000-8000-000000000001' and module_key='notifications'), true, 'new workspaces enable notifications');
-select is((select version from public.business_modules where business_id='b2000000-0000-4000-8000-000000000001' and module_key='notifications'), '1.0.0', 'new workspaces record Notifications Core version');
+select is((select version from public.business_modules where business_id='b2000000-0000-4000-8000-000000000001' and module_key='notifications'), '1.1.0', 'new workspaces record Notifications and Resend Adapter version');
 select is((select (config->>'provider_neutral_queue')::boolean from public.business_modules where business_id='b2000000-0000-4000-8000-000000000001' and module_key='notifications'), true, 'notifications config enables provider-neutral queue');
 select is((select count(*) from public.notification_templates where business_id='b2000000-0000-4000-8000-000000000001'), 12::bigint, 'new workspace receives English and Russian templates');
 select is((select reminder_minutes from public.business_notification_settings where business_id='b2000000-0000-4000-8000-000000000001'), 1440, 'new workspace receives one-day reminder default');

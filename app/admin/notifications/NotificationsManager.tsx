@@ -8,6 +8,7 @@ import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
   BusinessNotificationSettingsRecord,
   BusinessRole,
+  NotificationAdapterStatus,
   NotificationAttemptRecord,
   NotificationEventType,
   NotificationJobRecord,
@@ -26,6 +27,20 @@ type WorkspaceRow = {
 };
 
 type Tab = "queue" | "templates" | "settings";
+
+type AdapterResponse = {
+  ok: boolean;
+  canProcess?: boolean;
+  error?: string;
+  adapter?: NotificationAdapterStatus;
+  result?: {
+    claimed: number;
+    sent: number;
+    failed: number;
+    recovered: number;
+    disabled: boolean;
+  };
+};
 
 const inputClass =
   "w-full rounded-2xl border border-black/10 bg-[#fffdfa] px-4 py-3 text-sm outline-none transition focus:border-[#9a742e] disabled:cursor-not-allowed disabled:opacity-55";
@@ -85,6 +100,8 @@ export default function NotificationsManager() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [adapterStatus, setAdapterStatus] = useState<NotificationAdapterStatus | null>(null);
+  const [canProcessAdapter, setCanProcessAdapter] = useState(false);
 
   const selectedJob = jobs.find((job) => job.id === selectedJobId) ?? null;
   const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) ?? null;
@@ -104,6 +121,25 @@ export default function NotificationsManager() {
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderMinutes, setReminderMinutes] = useState("1440");
   const [maxAttempts, setMaxAttempts] = useState("3");
+
+  const loadAdapterStatus = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/notifications/adapter", {
+        method: "GET",
+        cache: "no-store",
+      });
+      const result = (await response.json()) as AdapterResponse;
+      if (!response.ok || !result.ok || !result.adapter) {
+        throw new Error(result.error || "notification_adapter_status_failed");
+      }
+      setAdapterStatus(result.adapter);
+      setCanProcessAdapter(result.canProcess === true);
+    } catch (caught) {
+      setAdapterStatus(null);
+      setCanProcessAdapter(false);
+      setError(caught instanceof Error ? caught.message : String(caught));
+    }
+  }, []);
 
   const loadWorkspace = useCallback(async () => {
     const { data, error: workspaceError } = await supabase.rpc("list_my_businesses");
@@ -169,7 +205,8 @@ export default function NotificationsManager() {
 
   useEffect(() => {
     void loadData(null);
-  }, [loadData]);
+    void loadAdapterStatus();
+  }, [loadAdapterStatus, loadData]);
 
   useEffect(() => {
     if (!selectedJobId) {
@@ -239,6 +276,35 @@ export default function NotificationsManager() {
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : String(caught);
       setError(notificationError(message, t));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function processDueNotifications() {
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch("/api/admin/notifications/adapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const result = (await response.json()) as AdapterResponse;
+      if (!response.ok || !result.ok || !result.result) {
+        throw new Error(result.error || "notification_adapter_run_failed");
+      }
+
+      setNotice(
+        t("Resend processed {claimed} jobs: {sent} sent, {failed} failed.", {
+          claimed: result.result.claimed,
+          sent: result.result.sent,
+          failed: result.result.failed,
+        }),
+      );
+      await Promise.all([loadData(workspace), loadAdapterStatus()]);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
       setBusy(false);
     }
@@ -351,6 +417,54 @@ export default function NotificationsManager() {
 
       {tab === "queue" ? (
         <>
+          <div className={`mt-6 rounded-[24px] border p-5 ${
+            adapterStatus?.configured
+              ? adapterStatus.mode === "live"
+                ? "border-emerald-900/10 bg-emerald-50"
+                : "border-amber-900/10 bg-amber-50"
+              : "border-black/8 bg-white"
+          }`}>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">
+                  {t("Resend Adapter 1.0")}
+                </p>
+                <p className="mt-2 text-lg font-semibold">
+                  {adapterStatus?.configured
+                    ? adapterStatus.mode === "live"
+                      ? t("Live delivery is enabled.")
+                      : t("Test delivery redirects every message to {email}.", {
+                          email: adapterStatus.testRecipient ?? "—",
+                        })
+                    : adapterStatus?.mode === "disabled"
+                      ? t("Delivery is safely disabled.")
+                      : t("The adapter is missing environment variables.")}
+                </p>
+                <p className="mt-2 text-sm text-[#6f6c65]">
+                  {adapterStatus?.fromEmail
+                    ? t("Sender: {email}. Batch size: {count}.", {
+                        email: adapterStatus.fromEmail,
+                        count: adapterStatus.batchSize,
+                      })
+                    : t("Configure the sender before processing the queue.")}
+                </p>
+                {adapterStatus?.missing.length ? (
+                  <p className="mt-2 text-xs text-red-700">
+                    {t("Missing: {values}", { values: adapterStatus.missing.join(", ") })}
+                  </p>
+                ) : null}
+              </div>
+              <button
+                className={buttonClass}
+                type="button"
+                onClick={() => void processDueNotifications()}
+                disabled={!canProcessAdapter || busy || !adapterStatus?.configured}
+              >
+                {busy ? t("Processing…") : t("Send due now")}
+              </button>
+            </div>
+          </div>
+
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               [t("Scheduled"), summary.scheduled],
@@ -491,7 +605,13 @@ export default function NotificationsManager() {
             <label><span className="text-xs font-semibold">{t("Maximum delivery attempts")}</span><input className={`${inputClass} mt-2`} value={maxAttempts} onChange={(event) => setMaxAttempts(event.target.value)} type="number" min={1} max={10} /></label>
           </div>
           <label className="mt-4 flex items-center gap-3 text-sm"><input type="checkbox" checked={reminderEnabled} onChange={(event) => setReminderEnabled(event.target.checked)} />{t("Automatic reminders enabled")}</label>
-          <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">{t("These settings prepare queue jobs. No external email is sent until a provider adapter is connected.")}</div>
+          <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+            {adapterStatus?.configured
+              ? adapterStatus.mode === "live"
+                ? t("Resend live delivery is connected. Due jobs are sent by the protected adapter endpoint.")
+                : t("Resend test delivery is connected. Every due job is redirected to the configured test recipient.")
+              : t("Delivery remains disabled until the Resend adapter environment is complete.")}
+          </div>
           <button className={`${buttonClass} mt-5`} type="submit" disabled={!canConfigure || busy}>{t("Save settings")}</button>
         </form>
       ) : null}

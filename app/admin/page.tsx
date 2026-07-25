@@ -59,8 +59,8 @@ export default function AdminPage() {
     },
     {
       title: t("Notifications"),
-      label: t("Queue and templates"),
-      description: t("Prepare language-aware confirmations, reminders, payment messages and provider delivery attempts."),
+      label: t("Resend email delivery"),
+      description: t("Deliver queued messages through Resend without changing bookings, templates or the provider-neutral notification ledger."),
       href: "/admin/notifications",
       icon: "✉",
     },
@@ -108,18 +108,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Notifications Core 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Resend Adapter 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every message has a durable place in line.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The queue now has a real postman.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Booking, reminder and payment events now become language-aware queue jobs without choosing an email provider.")}
+                  {t("Resend delivery, test redirection, protected cron processing and stale-job recovery now sit behind the provider-neutral notification queue.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Notification rule")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("Queue first, deliver through an adapter.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("Rendered messages stay durable while Resend, SMTP or another adapter can claim due jobs later.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Delivery rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("Disabled first, test next, live only when explicitly enabled.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("The adapter defaults to disabled and never exposes API keys in the browser.")}</p>
               </div>
             </div>
           </div>

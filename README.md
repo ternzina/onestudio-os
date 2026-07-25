@@ -1,4 +1,4 @@
-# OneStudio OS · Notifications Core 1.0
+# OneStudio OS · Resend Adapter 1.0
 
 A brand-neutral foundation for studio and appointment-based business systems. Client storefronts, languages, booking rules and visual themes are added as separate layers.
 
@@ -18,18 +18,20 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 12. **Clients CRM 1.0** adds canonical client cards, notes, tags, booking history, archive rules and protected duplicate merges.
 13. **Payments Core 1.0** adds a provider-neutral immutable payment and refund ledger linked to bookings and clients.
 14. **Notifications Core 1.0** adds language-aware templates, an idempotent queue, reminders and provider delivery attempts.
+15. **Resend Adapter 1.0** delivers due queue jobs through Resend with safe modes, stable idempotency and interrupted-run recovery.
 
-## Added in Notifications Core 1.0
+## Added in Resend Adapter 1.0
 
-- `/admin/notifications` authenticated queue, template and reminder workspace;
-- confirmation, pending, cancellation, reminder, payment and refund events;
-- booking-locale-first template resolution with business and English fallback;
-- durable rendered subjects and bodies that do not change after enqueueing;
-- automatic reminder jobs for new active bookings and an idempotent backfill action;
-- provider-neutral claiming, sent and failed seams for Resend, SMTP or another adapter;
-- append-only delivery attempts, retry limits and administrator retry or cancellation;
-- notification failures isolated from booking and payment transactions;
-- viewer read-only access and strict anonymous denial.
+- protected Resend delivery behind the existing provider-neutral queue;
+- delivery modes `disabled`, `test` and `live`, with `disabled` as the safe default;
+- test-recipient redirection before real client delivery is enabled;
+- stable Resend `Idempotency-Key` values based on notification job IDs;
+- service-role claiming with workspace sender name and reply-to data;
+- automatic exponential retries for transport, rate-limit and temporary provider errors;
+- recovery of stale `processing` jobs after an interrupted serverless run;
+- protected `/api/cron/notifications` endpoint using `CRON_SECRET`;
+- authenticated manual queue processing from `/admin/notifications`;
+- API keys and service-role credentials kept on the server only.
 
 ## Current module contract
 
@@ -50,12 +52,12 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - derived booking payment balances with protected manual operations;
 - language-aware notification templates and durable queue jobs;
 - reminder scheduling, retry policy and append-only delivery attempts;
+- Resend delivery with safe test mode, idempotent requests and stale-run recovery;
 - per-business module registry.
 
 ## Deliberately not included yet
 
 - hosted payment checkout, deposits and provider webhooks;
-- provider adapter that actually sends queued email through Resend, SMTP or another service;
 - public cancellation and rescheduling links;
 - CAPTCHA and configurable public rate limits;
 - drag-and-drop calendar rescheduling and external calendar sync;
@@ -78,6 +80,7 @@ A brand-neutral foundation for studio and appointment-based business systems. Cl
 - `supabase/migrations/20260725000000_clients_crm.sql`
 - `supabase/migrations/20260725010000_payments_core.sql`
 - `supabase/migrations/20260725020000_notifications_core.sql`
+- `supabase/migrations/20260725030000_resend_adapter.sql`
 
 ## Validation
 
@@ -89,6 +92,27 @@ npm run build
 
 Never commit `.env.local`, Vercel metadata, Supabase temporary files, build output or client secrets.
 
-## Notifications Core 1.0
+## Resend Adapter 1.0
 
-Notifications Core prepares durable language-aware email jobs and delivery attempts without choosing a provider. A later Resend or SMTP adapter will claim due jobs and report sent or failed results through the protected service-role seam.
+Resend Adapter claims only due queue jobs through the protected service-role seam. It is disabled unless `NOTIFICATION_DELIVERY_MODE` is explicitly set to `test` or `live`. Test mode redirects every message to `NOTIFICATION_TEST_RECIPIENT`; live mode preserves the real recipient.
+
+Required server variables for test or live delivery:
+
+```env
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+SUPABASE_SECRET_KEY=
+CRON_SECRET=
+NOTIFICATION_DELIVERY_MODE=disabled
+NOTIFICATION_TEST_RECIPIENT=
+```
+
+Optional controls:
+
+```env
+NOTIFICATION_BATCH_SIZE=25
+NOTIFICATION_RETRY_BASE_SECONDS=60
+NOTIFICATION_STALE_PROCESSING_MINUTES=15
+```
+
+The adapter exposes `/api/cron/notifications` for an external scheduler and `/api/admin/notifications/adapter` for authenticated status and manual processing. No scheduler cadence is hardcoded because Vercel plan limits differ.

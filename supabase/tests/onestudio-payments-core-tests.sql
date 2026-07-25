@@ -118,7 +118,7 @@ select is((select payment_status from public.bookings where id='a5000000-0000-40
 select throws_ok($sql$ select public.set_admin_booking_payment_required('a5000000-0000-4000-8000-000000000003', true) $sql$, '22023', 'payment_required_for_zero_total', 'free booking cannot require payment');
 
 select lives_ok($sql$
-  select public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 3000, 'cash', 'manual', 'CASH-001', 'Deposit', now(), 'pay-idem-0001')
+  select public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 3000, 'cash', 'manual', 'CASH-001', 'Deposit', now()-interval '4 minutes', 'pay-idem-0001')
 $sql$, 'owner records a manual deposit');
 select is((select paid_minor from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 3000, 'deposit refreshes gross paid amount');
 select is((select refunded_minor from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 0, 'deposit does not invent refunds');
@@ -127,7 +127,7 @@ select is((select due_minor from public.get_admin_payments('a2000000-0000-4000-8
 select is((select method from public.payment_transactions where provider_reference='CASH-001'), 'cash', 'ledger preserves manual payment method');
 select is((select client_id from public.payment_transactions where provider_reference='CASH-001'), 'a3000000-0000-4000-8000-000000000001'::uuid, 'ledger links payment to canonical client');
 select is(
-  public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 3000, 'cash', 'manual', 'CASH-001', 'Deposit', now(), 'pay-idem-0001'),
+  public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 3000, 'cash', 'manual', 'CASH-001', 'Deposit', now()-interval '4 minutes', 'pay-idem-0001'),
   (select id from public.payment_transactions where idempotency_key='pay-idem-0001'),
   'repeated idempotency key returns the original transaction'
 );
@@ -139,7 +139,7 @@ select throws_ok($sql$
   select public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 7001, 'card', 'manual', null, '', now(), 'pay-idem-overpay')
 $sql$, '22023', 'payment_exceeds_balance_due', 'payment cannot exceed remaining balance');
 select lives_ok($sql$
-  select public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 7000, 'card', 'manual', 'CARD-001', 'Balance', now(), 'pay-idem-0002')
+  select public.record_admin_payment('a5000000-0000-4000-8000-000000000001', 7000, 'card', 'manual', 'CARD-001', 'Balance', now()-interval '3 minutes', 'pay-idem-0002')
 $sql$, 'owner records the remaining balance');
 select is((select payment_status from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 'paid', 'full balance marks booking paid');
 select is((select due_minor from public.get_admin_payments('a2000000-0000-4000-8000-000000000001', true) where reference='BK-PAY-001'), 0, 'paid booking has no balance due');
@@ -150,7 +150,7 @@ select throws_ok($sql$
   select public.record_admin_payment('a5000000-0000-4000-8000-000000000004', 1000, 'cash', 'manual', null, '', now(), 'pay-cancelled')
 $sql$, '55000', 'booking_cannot_accept_payment', 'cancelled booking cannot accept new money');
 select lives_ok($sql$
-  select public.record_admin_refund('a5000000-0000-4000-8000-000000000001', 2500, 'card', 'manual', 'REFUND-001', 'Partial refund', now(), 'refund-idem-0001')
+  select public.record_admin_refund('a5000000-0000-4000-8000-000000000001', 2500, 'card', 'manual', 'REFUND-001', 'Partial refund', now()-interval '2 minutes', 'refund-idem-0001')
 $sql$, 'owner records a partial refund');
 select is((select refunded_minor from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 2500, 'partial refund refreshes refunded amount');
 select is((select payment_status from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 'partially_paid', 'partial refund reopens a balance');
@@ -158,7 +158,7 @@ select throws_ok($sql$
   select public.record_admin_refund('a5000000-0000-4000-8000-000000000001', 7501, 'card', 'manual', null, '', now(), 'refund-too-large')
 $sql$, '22023', 'refund_exceeds_available_balance', 'refund cannot exceed net received money');
 select lives_ok($sql$
-  select public.record_admin_refund('a5000000-0000-4000-8000-000000000001', 7500, 'card', 'manual', 'REFUND-002', 'Full refund', now(), 'refund-idem-0002')
+  select public.record_admin_refund('a5000000-0000-4000-8000-000000000001', 7500, 'card', 'manual', 'REFUND-002', 'Full refund', now()-interval '1 minute', 'refund-idem-0002')
 $sql$, 'owner completes a full refund');
 select is((select payment_status from public.bookings where id='a5000000-0000-4000-8000-000000000001'), 'refunded', 'full refund marks booking refunded');
 select is((select transaction_count from public.get_admin_payments('a2000000-0000-4000-8000-000000000001', true) where reference='BK-PAY-001'), 4::bigint, 'summary counts every immutable ledger entry');

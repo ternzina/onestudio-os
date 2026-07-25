@@ -431,6 +431,19 @@ export type NotificationJobStatus =
   | "failed"
   | "cancelled";
 
+export type NotificationDeliveryMode = "disabled" | "test" | "live";
+
+export type NotificationAdapterStatus = {
+  provider: "resend";
+  mode: NotificationDeliveryMode;
+  configured: boolean;
+  fromEmail: string | null;
+  testRecipient: string | null;
+  batchSize: number;
+  cronConfigured: boolean;
+  missing: string[];
+};
+
 export type NotificationTemplateRecord = {
   id: string;
   event_type: NotificationEventType;
