@@ -183,6 +183,7 @@ export default function PaymentsManager() {
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(false);
   const saveInFlightRef = useRef(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -341,6 +342,27 @@ export default function PaymentsManager() {
     saveInFlightRef.current = false;
   };
 
+  const startStripeCheckout = async () => {
+    if (!selectedPayment || !canOperate || stripeLoading) return;
+    resetMessages();
+    setStripeLoading(true);
+    try {
+      const response = await fetch("/api/admin/payments/stripe/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ bookingId: selectedPayment.booking_id }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || typeof payload.url !== "string") {
+        throw new Error(payload.error || "stripe_checkout_failed");
+      }
+      window.location.assign(payload.url);
+    } catch (checkoutError) {
+      setError(checkoutError instanceof Error ? checkoutError.message : "stripe_checkout_failed");
+      setStripeLoading(false);
+    }
+  };
+
   const toggleRequired = async () => {
     if (!selectedPayment || !canOperate || saving) return;
     resetMessages();
@@ -431,6 +453,16 @@ export default function PaymentsManager() {
                 <p className="mt-2 text-sm text-[#77736a]">{selectedPayment.client_name} · {selectedPayment.service_title}</p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className={buttonClass}
+                  onClick={() => void startStripeCheckout()}
+                  disabled={!canOperate || stripeLoading || !selectedPayment.payment_required || selectedPayment.due_minor <= 0 || ["draft", "cancelled"].includes(selectedPayment.booking_status)}
+                >
+                  {stripeLoading
+                    ? (adminLocale === "ru" ? "Открываем Stripe…" : "Opening Stripe…")
+                    : (adminLocale === "ru" ? "Оплатить через Stripe" : "Pay with Stripe")}
+                </button>
                 <Link className={secondaryButtonClass} href={`/admin/bookings?booking=${selectedPayment.booking_id}`}>{t("Open booking")}</Link>
                 <Link className={secondaryButtonClass} href={`/admin/clients?client=${selectedPayment.client_id}`}>{t("Open client")}</Link>
               </div>
