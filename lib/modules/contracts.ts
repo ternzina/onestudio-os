@@ -414,3 +414,73 @@ export type PaymentTransactionRecord = {
   created_by: string | null;
   created_at: string;
 };
+
+export type NotificationEventType =
+  | "booking_pending"
+  | "booking_confirmed"
+  | "booking_cancelled"
+  | "booking_reminder"
+  | "payment_received"
+  | "refund_issued";
+
+export type NotificationJobStatus =
+  | "scheduled"
+  | "pending"
+  | "processing"
+  | "sent"
+  | "failed"
+  | "cancelled";
+
+export type NotificationTemplateRecord = {
+  id: string;
+  event_type: NotificationEventType;
+  channel: "email";
+  locale: string;
+  subject_template: string;
+  body_template: string;
+  is_enabled: boolean;
+  updated_at: string;
+};
+
+export type NotificationJobRecord = {
+  id: string;
+  booking_id: string | null;
+  booking_reference: string | null;
+  client_id: string | null;
+  client_name: string | null;
+  event_type: NotificationEventType;
+  locale: string;
+  recipient_email: string;
+  subject: string;
+  body: string;
+  status: NotificationJobStatus;
+  scheduled_for: string;
+  attempt_count: number;
+  max_attempts: number;
+  provider: string | null;
+  provider_message_id: string | null;
+  last_error: string;
+  sent_at: string | null;
+  created_at: string;
+};
+
+export type NotificationAttemptRecord = {
+  id: string;
+  attempt_number: number;
+  provider: string;
+  status: "processing" | "sent" | "failed";
+  provider_message_id: string | null;
+  error_message: string;
+  started_at: string;
+  finished_at: string | null;
+  created_at: string;
+};
+
+export type BusinessNotificationSettingsRecord = {
+  business_id: string;
+  from_name: string;
+  reply_to_email: string | null;
+  reminder_enabled: boolean;
+  reminder_minutes: number;
+  max_attempts: number;
+};

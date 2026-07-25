@@ -26,18 +26,18 @@ export default function AdminModulesPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[36px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.18)] sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Payments Core 1.0")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">{t("Notifications Core 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every amount leaves a permanent trail.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("Every message has a durable place in line.")}</h1>
                 <p className="mt-5 max-w-3xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Canonical bookings now expose required, unpaid, partial, paid and refunded balances through one provider-neutral ledger.")}
+                  {t("Booking and payment events now produce language-aware queue jobs with reminders and provider-neutral delivery attempts.")}
                 </p>
               </div>
               <div className="rounded-[26px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Payment rule")}</p>
-                <p className="mt-3 text-lg font-semibold">{t("Append money, never rewrite it.")}</p>
-                <p className="mt-2 text-sm leading-6 text-white/62">{t("Posted transactions are immutable. Corrections are recorded as new payments or refunds.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Notification rule")}</p>
+                <p className="mt-3 text-lg font-semibold">{t("Queue first, deliver through an adapter.")}</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">{t("Rendered jobs stay durable. Provider attempts append delivery history instead of rewriting the event.")}</p>
               </div>
             </div>
           </div>

@@ -69,10 +69,10 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
   {
     key: "notifications",
     title: "Email and reminders",
-    description: "Confirmations, reminders and language-aware templates.",
-    stage: "planned",
-    version: "0.0.0",
-    dependsOn: ["core", "scheduling", "crm"],
+    description: "Language-aware templates, durable queue jobs, reminder scheduling and provider delivery attempts.",
+    stage: "enabled",
+    version: "1.0.0",
+    dependsOn: ["core", "scheduling", "crm", "payments"],
   },
   {
     key: "analytics",
