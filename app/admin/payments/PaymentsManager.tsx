@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -170,6 +171,8 @@ function paymentError(message: string, t: (message: AdminMessage) => string) {
 
 export default function PaymentsManager() {
   const { locale: adminLocale, t } = useAdminI18n();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [requestedBookingId, setRequestedBookingId] = useState<string | null>(null);
   const [requestedClientId, setRequestedClientId] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState<WorkspaceRow | null>(null);
@@ -257,10 +260,9 @@ export default function PaymentsManager() {
   }, [loadTransactions]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setRequestedBookingId(params.get("booking"));
-    setRequestedClientId(params.get("client"));
-  }, []);
+    setRequestedBookingId(searchParams.get("booking"));
+    setRequestedClientId(searchParams.get("client"));
+  }, [searchParams]);
 
   useEffect(() => {
     let active = true;
@@ -316,11 +318,10 @@ export default function PaymentsManager() {
   }, [loadTransactions, payments, requestedBookingId, requestedClientId, selectedBookingId]);
 
   const clearClientContext = () => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     params.delete("client");
     const query = params.toString();
-    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-    setRequestedClientId(null);
+    router.replace(`/admin/payments${query ? `?${query}` : ""}`);
   };
 
   const selectPayment = async (payment: PaymentSummaryRow) => {

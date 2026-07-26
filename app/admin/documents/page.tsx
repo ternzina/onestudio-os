@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { supabase } from "@/lib/supabase";
@@ -14,6 +15,7 @@ type Service = { id: string; title: string };
 type Profile = { display_name:string; legal_name:string; tax_id:string; email:string; website_url:string; bank_name:string; iban:string; address:string };
 
 export default function DocumentsPage() {
+  const searchParams = useSearchParams();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [generated, setGenerated] = useState<GeneratedDocument[]>([]);
@@ -65,17 +67,30 @@ export default function DocumentsPage() {
     if (profileResult.data) setProfile(profileResult.data as Profile);
     if (loadedTemplates[0]) setTemplateId((value)=>value || loadedTemplates[0].id);
 
-    const params = new URLSearchParams(window.location.search);
-    const requestedBookingId = params.get("booking");
-    const requestedClientId = params.get("client");
-    if (requestedBookingId && (bookingResult.data ?? []).some((item)=>item.id===requestedBookingId)) {
-      setBookingId(requestedBookingId);
-      setClientId("");
-    } else if (requestedClientId && (clientResult.data ?? []).some((item)=>item.id===requestedClientId)) {
-      setClientId(requestedClientId);
-      setRequestedClientId(requestedClientId);
-    }
   }
+
+  useEffect(() => {
+    const requestedBooking = searchParams.get("booking");
+    const requestedClient = searchParams.get("client");
+
+    if (requestedBooking && bookings.some((item) => item.id === requestedBooking)) {
+      setBookingId(requestedBooking);
+      setClientId("");
+      setRequestedClientId("");
+      return;
+    }
+
+    if (requestedClient && clients.some((item) => item.id === requestedClient)) {
+      setClientId(requestedClient);
+      setBookingId("");
+      setRequestedClientId(requestedClient);
+      return;
+    }
+
+    setRequestedClientId("");
+    setClientId("");
+    setBookingId("");
+  }, [searchParams, bookings, clients]);
 
   async function initializeTemplates() {
     if (!workspace) return; setBusy(true); setError(""); setNotice("");

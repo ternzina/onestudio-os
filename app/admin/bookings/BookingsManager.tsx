@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -228,6 +229,7 @@ function durationMinutes(startsAt: string, endsAt: string) {
 
 export default function BookingsManager() {
   const { locale: adminLocale, t } = useAdminI18n();
+  const searchParams = useSearchParams();
   const [workspace, setWorkspace] = useState<WorkspaceRow | null>(null);
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [clients, setClients] = useState<ClientRow[]>([]);
@@ -394,10 +396,9 @@ export default function BookingsManager() {
   }, [loadWorkspaceData, t]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setRequestedBookingId(params.get("booking"));
-    setRequestedClientId(params.get("client"));
-  }, []);
+    setRequestedBookingId(searchParams.get("booking"));
+    setRequestedClientId(searchParams.get("client"));
+  }, [searchParams]);
 
   useEffect(() => {
     void load();
