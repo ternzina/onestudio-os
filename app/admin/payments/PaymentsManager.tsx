@@ -171,6 +171,7 @@ function paymentError(message: string, t: (message: AdminMessage) => string) {
 export default function PaymentsManager() {
   const { locale: adminLocale, t } = useAdminI18n();
   const [requestedBookingId, setRequestedBookingId] = useState<string | null>(null);
+  const [requestedClientId, setRequestedClientId] = useState<string | null>(null);
   const [workspace, setWorkspace] = useState<WorkspaceRow | null>(null);
   const [payments, setPayments] = useState<PaymentSummaryRow[]>([]);
   const [transactions, setTransactions] = useState<TransactionRow[]>([]);
@@ -198,6 +199,7 @@ export default function PaymentsManager() {
   const visiblePayments = useMemo(() => {
     const query = search.trim().toLowerCase();
     return payments.filter((payment) => {
+      if (requestedClientId && payment.client_id !== requestedClientId) return false;
       if (statusFilter !== "all" && payment.payment_status !== statusFilter) return false;
       if (!query) return true;
       return [
@@ -208,7 +210,12 @@ export default function PaymentsManager() {
         payment.service_title,
       ].some((value) => value.toLowerCase().includes(query));
     });
-  }, [payments, search, statusFilter]);
+  }, [payments, requestedClientId, search, statusFilter]);
+
+  const requestedClient = useMemo(
+    () => payments.find((payment) => payment.client_id === requestedClientId) ?? null,
+    [payments, requestedClientId],
+  );
 
   const resetMessages = () => {
     setNotice("");
@@ -250,7 +257,9 @@ export default function PaymentsManager() {
   }, [loadTransactions]);
 
   useEffect(() => {
-    setRequestedBookingId(new URLSearchParams(window.location.search).get("booking"));
+    const params = new URLSearchParams(window.location.search);
+    setRequestedBookingId(params.get("booking"));
+    setRequestedClientId(params.get("client"));
   }, []);
 
   useEffect(() => {
@@ -292,6 +301,27 @@ export default function PaymentsManager() {
     void loadTransactions(requested.booking_id);
     setRequestedBookingId(null);
   }, [loadTransactions, payments, requestedBookingId]);
+
+  useEffect(() => {
+    if (!requestedClientId || payments.length === 0 || requestedBookingId) return;
+    const firstClientPayment = payments.find((payment) => payment.client_id === requestedClientId);
+    if (!firstClientPayment) {
+      setSelectedBookingId(null);
+      setTransactions([]);
+      return;
+    }
+    if (selectedBookingId && payments.some((payment) => payment.booking_id === selectedBookingId && payment.client_id === requestedClientId)) return;
+    setSelectedBookingId(firstClientPayment.booking_id);
+    void loadTransactions(firstClientPayment.booking_id);
+  }, [loadTransactions, payments, requestedBookingId, requestedClientId, selectedBookingId]);
+
+  const clearClientContext = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete("client");
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+    setRequestedClientId(null);
+  };
 
   const selectPayment = async (payment: PaymentSummaryRow) => {
     resetMessages();
@@ -437,6 +467,27 @@ export default function PaymentsManager() {
           </div>
           <span className="rounded-full bg-white px-3 py-2 text-xs font-semibold">{t("{count} bookings", { count: visiblePayments.length })}</span>
         </div>
+
+        {requestedClientId && (
+          <div className="mt-5 flex flex-col gap-3 rounded-[22px] border border-[#9a742e]/20 bg-[#fffdfa] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">
+                {adminLocale === "ru" ? "Платежи клиента" : "Client payments"}
+              </p>
+              <p className="mt-1 text-base font-semibold">
+                {requestedClient?.client_name ?? (adminLocale === "ru" ? "Выбранный клиент" : "Selected client")}
+              </p>
+              <p className="mt-1 text-xs text-[#77736a]">
+                {adminLocale === "ru"
+                  ? `Показано бронирований: ${visiblePayments.length}`
+                  : `Bookings shown: ${visiblePayments.length}`}
+              </p>
+            </div>
+            <button type="button" onClick={clearClientContext} className={secondaryButtonClass}>
+              {adminLocale === "ru" ? "Показать все платежи" : "Show all payments"}
+            </button>
+          </div>
+        )}
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <input className={inputClass} value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search booking, client or service")} />
