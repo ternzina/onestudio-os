@@ -1,0 +1,8 @@
+OneStudio OS Context Navigation 1.1
+
+Files:
+- app/admin/bookings/BookingsManager.tsx
+- app/admin/documents/page.tsx
+- docs/CONTEXT-NAVIGATION-1.1.md
+
+No database migration is required.

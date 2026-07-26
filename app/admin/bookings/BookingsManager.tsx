@@ -239,6 +239,7 @@ export default function BookingsManager() {
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [requestedBookingId, setRequestedBookingId] = useState<string | null>(null);
+  const [requestedClientId, setRequestedClientId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BookingDraft>(emptyDraft());
   const [slots, setSlots] = useState<SlotRow[]>([]);
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
@@ -262,9 +263,13 @@ export default function BookingsManager() {
   const selectedClient = selectedBooking ? clientMap.get(selectedBooking.client_id) ?? null : null;
   const serviceMap = useMemo(() => new Map(services.map((service) => [service.id, service])), [services]);
   const resourceMap = useMemo(() => new Map(resources.map((resource) => [resource.id, resource])), [resources]);
+  const contextClient = requestedClientId ? clientMap.get(requestedClientId) ?? null : null;
   const visibleBookings = useMemo(
-    () => bookings.filter((booking) => statusFilter === "all" || booking.status === statusFilter),
-    [bookings, statusFilter],
+    () => bookings.filter((booking) => {
+      if (requestedClientId && booking.client_id !== requestedClientId) return false;
+      return statusFilter === "all" || booking.status === statusFilter;
+    }),
+    [bookings, requestedClientId, statusFilter],
   );
   const selectedAllocations = useMemo(
     () => allocations.filter((allocation) => allocation.booking_id === selectedBookingId),
@@ -389,7 +394,9 @@ export default function BookingsManager() {
   }, [loadWorkspaceData, t]);
 
   useEffect(() => {
-    setRequestedBookingId(new URLSearchParams(window.location.search).get("booking"));
+    const params = new URLSearchParams(window.location.search);
+    setRequestedBookingId(params.get("booking"));
+    setRequestedClientId(params.get("client"));
   }, []);
 
   useEffect(() => {
@@ -416,10 +423,15 @@ export default function BookingsManager() {
     resetMessages();
     setSelectedBookingId(null);
     const service = services.find((item) => item.is_active) ?? services[0];
+    const context = requestedClientId ? clientMap.get(requestedClientId) ?? null : null;
     setDraft({
       ...emptyDraft(workspace?.default_locale || "ru"),
       service_id: service?.id ?? "",
       duration_minutes: String(service?.duration_min_minutes ?? 60),
+      client_name: context?.name ?? "",
+      client_email: context?.email ?? "",
+      client_phone: context?.phone ?? "",
+      locale: context?.locale ?? workspace?.default_locale ?? "ru",
     });
     setSlots([]);
   };
@@ -454,6 +466,19 @@ export default function BookingsManager() {
     selectBooking(requested);
     setRequestedBookingId(null);
   }, [bookings, requestedBookingId, selectBooking, workspace]);
+
+  useEffect(() => {
+    if (!requestedClientId || selectedBookingId || !workspace) return;
+    const client = clients.find((item) => item.id === requestedClientId);
+    if (!client) return;
+    setDraft((current) => ({
+      ...current,
+      client_name: client.name,
+      client_email: client.email ?? "",
+      client_phone: client.phone ?? "",
+      locale: client.locale || current.locale,
+    }));
+  }, [clients, requestedClientId, selectedBookingId, workspace]);
 
   const checkSlots = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
@@ -618,6 +643,20 @@ export default function BookingsManager() {
           </div>
         </div>
       </div>
+
+      {contextClient && (
+        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Client context</p>
+            <p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p>
+            <p className="mt-1 text-xs text-[#77736a]">{visibleBookings.length} bookings shown</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/admin/clients?client=${contextClient.id}`} className={secondaryButtonClass}>Open client</Link>
+            <Link href="/admin/bookings" className={buttonClass}>Show all bookings</Link>
+          </div>
+        </div>
+      )}
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
         <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-5 sm:p-6">

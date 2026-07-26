@@ -24,6 +24,7 @@ export default function DocumentsPage() {
   const [templateId, setTemplateId] = useState("");
   const [clientId, setClientId] = useState("");
   const [bookingId, setBookingId] = useState("");
+  const [requestedClientId, setRequestedClientId] = useState("");
   const [busy, setBusy] = useState(false);
   const [sendingId, setSendingId] = useState("");
   const [notice, setNotice] = useState("");
@@ -35,6 +36,8 @@ export default function DocumentsPage() {
   const selectedClient = clients.find((item)=>item.id===(clientId || selectedBooking?.client_id));
   const selectedService = services.find((item)=>item.id===selectedBooking?.service_id);
   const visibleBookings = clientId ? bookings.filter((item)=>item.client_id===clientId) : bookings;
+  const contextClient = clients.find((item)=>item.id===requestedClientId) ?? null;
+  const visibleGenerated = requestedClientId ? generated.filter((item)=>item.client_id===requestedClientId) : generated;
 
   useEffect(()=>{ void load(); },[]);
 
@@ -70,6 +73,7 @@ export default function DocumentsPage() {
       setClientId("");
     } else if (requestedClientId && (clientResult.data ?? []).some((item)=>item.id===requestedClientId)) {
       setClientId(requestedClientId);
+      setRequestedClientId(requestedClientId);
     }
   }
 
@@ -137,6 +141,7 @@ export default function DocumentsPage() {
   return <><AdminHeader/><main className="min-h-screen px-5 pb-24 pt-36"><section className="mx-auto max-w-7xl">
     <div className="rounded-[36px] bg-[#17191f] p-8 text-white sm:p-10"><p className="text-xs uppercase tracking-[0.28em] text-[#d8b36a]">DOCUMENT ENGINE 1.0</p><h1 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">Templates become records.</h1><p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">Generate contracts, invoices and service acts from Company Profile, CRM clients and real bookings. Open this screen from a client or booking and the source record is selected automatically.</p></div>
     {(notice||error)&&<div className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error?"border-red-200 bg-red-50 text-red-800":"border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{error||notice}</div>}
+    {contextClient&&<div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Client context</p><p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p><p className="mt-1 text-xs text-[#77736a]">{visibleGenerated.length} linked documents</p></div><div className="flex flex-wrap gap-2"><Link href={`/admin/clients?client=${contextClient.id}`} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Open client</Link><Link href="/admin/documents" className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Show all documents</Link></div></div>}
     {templates.length===0?<div className="mt-6 rounded-[30px] bg-white p-8"><h2 className="text-2xl font-semibold">Initialize document templates</h2><button onClick={initializeTemplates} disabled={busy||!canEdit} className="mt-5 rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white">Create default templates</button></div>:
     <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="grid gap-6 content-start">
@@ -154,7 +159,7 @@ export default function DocumentsPage() {
           {clientId&&visibleBookings.length===0&&<p className="rounded-2xl bg-[#eeebe3] px-4 py-3 text-xs leading-5 text-[#5f594f]">The selected client has no bookings. The document will use client and company data only.</p>}
           <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":"Generate final document"}</button>
         </div></section>
-        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated</p><div className="mt-4 grid gap-3">{generated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:generated.map((item)=><div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="text-xs uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>)}</div></section>
+        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=><div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="text-xs uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>)}</div></section>
       </div>
       {selectedTemplate&&<div className="grid gap-6">
         <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor</p><h2 className="mt-2 text-2xl font-semibold">{selectedTemplate.document_type}</h2></div><button onClick={saveTemplate} disabled={busy||!canEdit} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold">Save template</button></div>
