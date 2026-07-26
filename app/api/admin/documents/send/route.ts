@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
   const { data: document, error: documentError } = await access.supabase
     .from("generated_documents")
-    .select("id,business_id,client_id,document_number,title_snapshot,content_snapshot,status,clients(name,email),company_profiles(display_name,email)")
+    .select("id,business_id,client_id,document_number,title_snapshot,content_snapshot,status,clients(name,email)")
     .eq("id", body.documentId)
     .maybeSingle();
 
@@ -65,7 +65,20 @@ export async function POST(request: Request) {
   }
 
   const client = Array.isArray(document.clients) ? document.clients[0] : document.clients;
-  const company = Array.isArray(document.company_profiles) ? document.company_profiles[0] : document.company_profiles;
+
+  const { data: company, error: companyError } = await access.supabase
+    .from("company_profiles")
+    .select("display_name,email")
+    .eq("business_id", document.business_id)
+    .maybeSingle();
+
+  if (companyError) {
+    return NextResponse.json(
+      { ok: false, error: companyError.message },
+      { status: 500 },
+    );
+  }
+
   const recipient = client?.email?.trim() || "";
   if (!validEmail(recipient)) {
     return NextResponse.json({ ok: false, error: "client_email_missing" }, { status: 400 });
