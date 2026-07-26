@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import { supabase } from "@/lib/supabase";
@@ -624,18 +625,23 @@ export default function ClientsManager() {
             </div>
 
             {selectedClient && (
-              <button
-                type="button"
-                className={
-                  selectedClient.archived_at
-                    ? secondaryButtonClass
-                    : "rounded-full border border-red-200 px-4 py-2.5 text-xs font-semibold text-red-700 disabled:opacity-45"
-                }
-                onClick={() => void toggleArchive()}
-                disabled={!canOperate || saving}
-              >
-                {selectedClient.archived_at ? t("Restore client") : t("Archive client")}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <Link href={`/admin/documents?client=${selectedClient.id}`} className={secondaryButtonClass}>
+                  {t("Create document")}
+                </Link>
+                <button
+                  type="button"
+                  className={
+                    selectedClient.archived_at
+                      ? secondaryButtonClass
+                      : "rounded-full border border-red-200 px-4 py-2.5 text-xs font-semibold text-red-700 disabled:opacity-45"
+                  }
+                  onClick={() => void toggleArchive()}
+                  disabled={!canOperate || saving}
+                >
+                  {selectedClient.archived_at ? t("Restore client") : t("Archive client")}
+                </button>
+              </div>
             )}
           </div>
 

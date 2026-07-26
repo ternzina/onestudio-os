@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { supabase } from "@/lib/supabase";
@@ -33,6 +34,7 @@ export default function DocumentsPage() {
   const selectedBooking = bookings.find((item)=>item.id===bookingId);
   const selectedClient = clients.find((item)=>item.id===(clientId || selectedBooking?.client_id));
   const selectedService = services.find((item)=>item.id===selectedBooking?.service_id);
+  const visibleBookings = clientId ? bookings.filter((item)=>item.client_id===clientId) : bookings;
 
   useEffect(()=>{ void load(); },[]);
 
@@ -59,6 +61,16 @@ export default function DocumentsPage() {
     setClients((clientResult.data ?? []) as Client[]); setBookings((bookingResult.data ?? []) as Booking[]); setServices((serviceResult.data ?? []) as Service[]);
     if (profileResult.data) setProfile(profileResult.data as Profile);
     if (loadedTemplates[0]) setTemplateId((value)=>value || loadedTemplates[0].id);
+
+    const params = new URLSearchParams(window.location.search);
+    const requestedBookingId = params.get("booking");
+    const requestedClientId = params.get("client");
+    if (requestedBookingId && (bookingResult.data ?? []).some((item)=>item.id===requestedBookingId)) {
+      setBookingId(requestedBookingId);
+      setClientId("");
+    } else if (requestedClientId && (clientResult.data ?? []).some((item)=>item.id===requestedClientId)) {
+      setClientId(requestedClientId);
+    }
   }
 
   async function initializeTemplates() {
@@ -123,15 +135,23 @@ export default function DocumentsPage() {
   },[selectedTemplate,selectedClient,selectedBooking,selectedService,profile]);
 
   return <><AdminHeader/><main className="min-h-screen px-5 pb-24 pt-36"><section className="mx-auto max-w-7xl">
-    <div className="rounded-[36px] bg-[#17191f] p-8 text-white sm:p-10"><p className="text-xs uppercase tracking-[0.28em] text-[#d8b36a]">DOCUMENT ENGINE 1.0</p><h1 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">Templates become records.</h1><p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">Generate contracts, invoices and service acts from Company Profile, clients and bookings.</p></div>
+    <div className="rounded-[36px] bg-[#17191f] p-8 text-white sm:p-10"><p className="text-xs uppercase tracking-[0.28em] text-[#d8b36a]">DOCUMENT ENGINE 1.0</p><h1 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">Templates become records.</h1><p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">Generate contracts, invoices and service acts from Company Profile, CRM clients and real bookings. Open this screen from a client or booking and the source record is selected automatically.</p></div>
     {(notice||error)&&<div className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error?"border-red-200 bg-red-50 text-red-800":"border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{error||notice}</div>}
     {templates.length===0?<div className="mt-6 rounded-[30px] bg-white p-8"><h2 className="text-2xl font-semibold">Initialize document templates</h2><button onClick={initializeTemplates} disabled={busy||!canEdit} className="mt-5 rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white">Create default templates</button></div>:
     <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="grid gap-6 content-start">
         <section className="rounded-[30px] border border-black/8 bg-white p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Source data</p><div className="mt-4 grid gap-4">
           <Select label="Template" value={selectedTemplate?.id??""} onChange={setTemplateId} options={templates.map((item)=>[item.id,`${item.document_type} · ${item.locale} · v${item.version}`])}/>
-          <Select label="Booking (optional)" value={bookingId} onChange={(value)=>{setBookingId(value);if(value)setClientId("");}} options={[["","No booking"],...bookings.map((item)=>[item.id,item.reference])]}/>
-          <Select label="Client (optional)" value={clientId} onChange={setClientId} disabled={Boolean(bookingId)} options={[["","No client"],...clients.map((item)=>[item.id,item.name])]}/>
+          <Select label={`Booking (optional) · ${visibleBookings.length}`} value={bookingId} onChange={(value)=>{setBookingId(value);if(value)setClientId("");}} options={[["","No booking"],...visibleBookings.map((item)=>{
+            const client=clients.find((candidate)=>candidate.id===item.client_id);
+            const service=services.find((candidate)=>candidate.id===item.service_id);
+            const date=new Intl.DateTimeFormat("uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(item.starts_at));
+            return [item.id,`${item.reference} · ${date} · ${client?.name ?? "Client"} · ${service?.title ?? "Service"}`];
+          })]}/>
+          <Select label={`Client (optional) · ${clients.length}`} value={clientId} onChange={(value)=>{setClientId(value);setBookingId("");}} disabled={Boolean(bookingId)} options={[["","No client"],...clients.map((item)=>[item.id,`${item.name}${item.email?` · ${item.email}`:""}`])]}/>
+          {clients.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No clients exist in this workspace yet. <Link className="font-semibold underline" href="/admin/clients">Create a client in CRM</Link>, then return here.</p>}
+          {clients.length>0&&bookings.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No bookings exist in this workspace yet. You can generate a client-only document or <Link className="font-semibold underline" href="/admin/bookings">create a booking</Link>.</p>}
+          {clientId&&visibleBookings.length===0&&<p className="rounded-2xl bg-[#eeebe3] px-4 py-3 text-xs leading-5 text-[#5f594f]">The selected client has no bookings. The document will use client and company data only.</p>}
           <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":"Generate final document"}</button>
         </div></section>
         <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated</p><div className="mt-4 grid gap-3">{generated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:generated.map((item)=><div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="text-xs uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>)}</div></section>

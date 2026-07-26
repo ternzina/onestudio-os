@@ -653,6 +653,12 @@ export default function BookingsManager() {
                   </Link>
                 )}
                 <Link
+                  href={`/admin/documents?booking=${selectedBooking.id}`}
+                  className={secondaryButtonClass}
+                >
+                  {t("Create document")}
+                </Link>
+                <Link
                   href={`/admin/payments?booking=${selectedBooking.id}`}
                   className={secondaryButtonClass}
                 >

@@ -819,6 +819,7 @@ const ruMessages = {
   "Price is calculated when saved": "Цена рассчитается при сохранении",
   "Save booking": "Сохранить бронирование",
   "Create booking": "Создать бронирование",
+  "Create document": "Создать документ",
   "Clients and reservations": "Клиенты и брони",
   "Create and reschedule conflict-safe bookings, manage status and keep an activity trail.": "Создавайте и переносите бронирования без конфликтов, управляйте статусами и сохраняйте историю действий.",
   "The clock accepts a reservation.": "Расписание принимает бронь.",
