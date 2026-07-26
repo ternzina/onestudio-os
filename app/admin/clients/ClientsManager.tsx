@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import UnifiedTimeline, { type UnifiedTimelineRow } from "@/components/admin/UnifiedTimeline";
 import InlineDocuments from "@/components/admin/InlineDocuments";
+import SmartClientWorkspace from "@/components/admin/SmartClientWorkspace";
 import { supabase } from "@/lib/supabase";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
@@ -649,6 +650,21 @@ export default function ClientsManager() {
               </div>
             )}
           </div>
+
+          {selectedClient && (
+            <SmartClientWorkspace
+              businessId={workspace.business_id}
+              clientId={selectedClient.id}
+              clientName={selectedClient.name}
+              clientEmail={selectedClient.email}
+              clientPhone={selectedClient.phone}
+              bookedValueMinor={selectedClient.booked_value_minor}
+              currency={selectedClient.currency}
+              bookings={history}
+              locale={adminLocale}
+              timezone={workspace.timezone}
+            />
+          )}
 
           <form className="mt-6" onSubmit={saveClient}>
             <div className="grid gap-4 md:grid-cols-2">

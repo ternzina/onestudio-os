@@ -1,0 +1,9 @@
+OneStudio OS Smart Workspace 1.0
+
+Files:
+- components/admin/SmartClientWorkspace.tsx
+- app/admin/clients/ClientsManager.tsx
+- docs/SMART-WORKSPACE-1.0.md
+
+No database migration is required.
+Run npm build and database tests before deployment.
