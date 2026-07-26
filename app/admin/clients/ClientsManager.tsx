@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import UnifiedTimeline, { type UnifiedTimelineRow } from "@/components/admin/UnifiedTimeline";
+import InlineDocuments from "@/components/admin/InlineDocuments";
 import { supabase } from "@/lib/supabase";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
@@ -823,14 +824,23 @@ export default function ClientsManager() {
                 </div>
               </section>
 
-              <section className="rounded-[24px] border border-black/8 bg-[#eeebe3] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">
-                  {t("Client activity")}
-                </p>
-                <div className="mt-4">
-                  <UnifiedTimeline rows={timeline} loading={detailsLoading} timezone={workspace.timezone} />
-                </div>
-              </section>
+              <div className="grid gap-5">
+                <InlineDocuments
+                  businessId={workspace.business_id}
+                  clientId={selectedClient.id}
+                  locale={adminLocale}
+                  timezone={workspace.timezone}
+                  canOperate={canOperate}
+                />
+                <section className="rounded-[24px] border border-black/8 bg-[#eeebe3] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">
+                    {t("Client activity")}
+                  </p>
+                  <div className="mt-4">
+                    <UnifiedTimeline rows={timeline} loading={detailsLoading} timezone={workspace.timezone} />
+                  </div>
+                </section>
+              </div>
             </div>
           )}
         </section>

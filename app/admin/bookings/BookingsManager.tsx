@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import UnifiedTimeline, { type UnifiedTimelineRow } from "@/components/admin/UnifiedTimeline";
+import InlineDocuments from "@/components/admin/InlineDocuments";
 import { supabase } from "@/lib/supabase";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
@@ -768,13 +769,23 @@ export default function BookingsManager() {
             </div>
 
             {selectedBooking && (
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Reserved resources")}</p>
-                  <div className="mt-3 grid gap-2">
-                    {selectedAllocations.map((allocation) => <div key={allocation.id} className="flex items-center justify-between rounded-xl bg-[#eeebe3] px-3 py-2 text-sm"><span>{resourceMap.get(allocation.resource_id)?.name ?? t("Unknown resource")}</span><span className="text-xs text-[#77736a]">{allocation.status}</span></div>)}
-                    {selectedAllocations.length === 0 && <p className="text-sm text-[#77736a]">{t("No resource allocations.")}</p>}
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-4">
+                  <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Reserved resources")}</p>
+                    <div className="mt-3 grid gap-2">
+                      {selectedAllocations.map((allocation) => <div key={allocation.id} className="flex items-center justify-between rounded-xl bg-[#eeebe3] px-3 py-2 text-sm"><span>{resourceMap.get(allocation.resource_id)?.name ?? t("Unknown resource")}</span><span className="text-xs text-[#77736a]">{allocation.status}</span></div>)}
+                      {selectedAllocations.length === 0 && <p className="text-sm text-[#77736a]">{t("No resource allocations.")}</p>}
+                    </div>
                   </div>
+                  <InlineDocuments
+                    businessId={workspace.business_id}
+                    bookingId={selectedBooking.id}
+                    clientId={selectedBooking.client_id}
+                    locale={adminLocale}
+                    timezone={workspace.timezone}
+                    canOperate={canOperate}
+                  />
                 </div>
                 <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Activity")}</p>
