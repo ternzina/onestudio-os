@@ -1,0 +1,18 @@
+begin;
+select plan(14);
+select has_table('public','legal_company_profiles','legal company profiles exists');
+select has_table('public','legal_documents','legal documents exists');
+select has_table('public','legal_document_versions','legal versions exists');
+select has_column('public','legal_documents','document_type','document type exists');
+select has_column('public','legal_documents','locale','locale exists');
+select has_column('public','legal_documents','status','status exists');
+select has_column('public','legal_documents','version','version exists');
+select has_function('public','publish_legal_document',array['uuid'],'publish function exists');
+select col_is_pk('public','legal_company_profiles','business_id','company profile is one per business');
+select col_not_null('public','legal_documents','body_template','document body required');
+select col_not_null('public','legal_documents','business_id','workspace required');
+select has_index('public','legal_documents','legal_documents_business_id_document_type_locale_key','one document per locale and type');
+select has_index('public','legal_document_versions','legal_document_versions_document_id_version_key','version snapshot unique');
+select ok((select enabled from public.business_modules where business_id='00000000-0000-4000-8000-000000000001' and module_key='legal'),'legal module enabled');
+select * from finish();
+rollback;
