@@ -1,0 +1,133 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import AdminHeader from "@/components/admin/AdminHeader";
+import { supabase } from "@/lib/supabase";
+import { renderDocumentTemplate } from "@/lib/documents/render";
+import type { DocumentTemplate, GeneratedDocument } from "@/lib/documents/types";
+
+type Workspace = { business_id: string; name: string; role: string; is_default: boolean };
+type Client = { id: string; name: string; email: string | null; phone: string | null };
+type Booking = { id: string; reference: string; client_id: string; service_id: string; starts_at: string; timezone: string; total_minor: number; currency: string };
+type Service = { id: string; title: string };
+type Profile = { display_name:string; legal_name:string; tax_id:string; email:string; website_url:string; bank_name:string; iban:string; address:string };
+
+export default function DocumentsPage() {
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
+  const [generated, setGenerated] = useState<GeneratedDocument[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [profile, setProfile] = useState<Profile>({display_name:"",legal_name:"",tax_id:"",email:"",website_url:"",bank_name:"",iban:"",address:""});
+  const [templateId, setTemplateId] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [bookingId, setBookingId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
+
+  const canEdit = workspace ? ["owner","admin","manager"].includes(workspace.role) : false;
+  const selectedTemplate = templates.find((item)=>item.id===templateId) ?? templates[0];
+  const selectedBooking = bookings.find((item)=>item.id===bookingId);
+  const selectedClient = clients.find((item)=>item.id===(clientId || selectedBooking?.client_id));
+  const selectedService = services.find((item)=>item.id===selectedBooking?.service_id);
+
+  useEffect(()=>{ void load(); },[]);
+
+  async function load() {
+    setError("");
+    const { data: workspaces, error: workspaceError } = await supabase.rpc("list_my_businesses");
+    if (workspaceError) { setError(workspaceError.message); return; }
+    const rows = (workspaces ?? []) as Workspace[];
+    const current = rows.find((row)=>row.is_default) ?? rows[0];
+    if (!current) { setError("No active workspace."); return; }
+    setWorkspace(current);
+    const [templateResult, generatedResult, clientResult, bookingResult, serviceResult, profileResult] = await Promise.all([
+      supabase.from("document_templates").select("*").eq("business_id",current.business_id).order("document_type"),
+      supabase.from("generated_documents").select("id,business_id,document_type,document_number,title_snapshot,content_snapshot,status,issued_at,created_at").eq("business_id",current.business_id).order("created_at",{ascending:false}).limit(30),
+      supabase.from("clients").select("id,name,email,phone").eq("business_id",current.business_id).is("archived_at",null).order("name"),
+      supabase.from("bookings").select("id,reference,client_id,service_id,starts_at,timezone,total_minor,currency").eq("business_id",current.business_id).order("starts_at",{ascending:false}).limit(100),
+      supabase.from("services").select("id,title").eq("business_id",current.business_id),
+      supabase.from("company_profiles").select("display_name,legal_name,tax_id,email,website_url,bank_name,iban,address").eq("business_id",current.business_id).maybeSingle(),
+    ]);
+    const firstError = [templateResult.error,generatedResult.error,clientResult.error,bookingResult.error,serviceResult.error,profileResult.error].find(Boolean);
+    if (firstError) { setError(firstError.message); return; }
+    const loadedTemplates=(templateResult.data ?? []) as DocumentTemplate[];
+    setTemplates(loadedTemplates); setGenerated((generatedResult.data ?? []) as GeneratedDocument[]);
+    setClients((clientResult.data ?? []) as Client[]); setBookings((bookingResult.data ?? []) as Booking[]); setServices((serviceResult.data ?? []) as Service[]);
+    if (profileResult.data) setProfile(profileResult.data as Profile);
+    if (loadedTemplates[0]) setTemplateId((value)=>value || loadedTemplates[0].id);
+  }
+
+  async function initializeTemplates() {
+    if (!workspace) return; setBusy(true); setError(""); setNotice("");
+    const { error: seedError } = await supabase.rpc("seed_document_templates",{p_business_id:workspace.business_id});
+    if (seedError) setError(seedError.message); else { setNotice("Default document templates created."); await load(); }
+    setBusy(false);
+  }
+
+  async function saveTemplate() {
+    if (!selectedTemplate || !canEdit) return; setBusy(true); setError(""); setNotice("");
+    const { error: saveError } = await supabase.from("document_templates").update({title_template:selectedTemplate.title_template,body_template:selectedTemplate.body_template}).eq("id",selectedTemplate.id);
+    if (saveError) setError(saveError.message); else setNotice("Template saved."); setBusy(false);
+  }
+
+  async function generateDocument() {
+    if (!selectedTemplate) return; setBusy(true); setError(""); setNotice("");
+    const { error: generationError } = await supabase.rpc("create_generated_document",{
+      p_template_id:selectedTemplate.id,
+      p_client_id:clientId || null,
+      p_booking_id:bookingId || null,
+      p_status:"final",
+    });
+    if (generationError) setError(generationError.message); else { setNotice("Document generated as an immutable snapshot."); await load(); }
+    setBusy(false);
+  }
+
+  function patchTemplate(patch: Partial<DocumentTemplate>) {
+    if (!selectedTemplate) return;
+    setTemplates((current)=>current.map((item)=>item.id===selectedTemplate.id?{...item,...patch}:item));
+  }
+
+  const preview = useMemo(()=>{
+    if (!selectedTemplate) return "";
+    const vars:Record<string,string|number>={
+      "document.number":"PREVIEW-001","document.date":new Intl.DateTimeFormat("uk-UA").format(new Date()),
+      "company.display_name":profile.display_name,"company.legal_name":profile.legal_name,"company.tax_id":profile.tax_id,"company.email":profile.email,"company.website":profile.website_url,"company.bank_name":profile.bank_name,"company.iban":profile.iban,"company.address":profile.address,
+      "client.name":selectedClient?.name ?? "","client.email":selectedClient?.email ?? "","client.phone":selectedClient?.phone ?? "",
+      "booking.reference":selectedBooking?.reference ?? "","booking.date":selectedBooking?new Intl.DateTimeFormat("uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(selectedBooking.starts_at)):"",
+      "booking.total":selectedBooking?(selectedBooking.total_minor/100).toFixed(2):"","booking.currency":selectedBooking?.currency ?? "","service.title":selectedService?.title ?? "",
+    };
+    return renderDocumentTemplate(selectedTemplate.body_template,vars);
+  },[selectedTemplate,selectedClient,selectedBooking,selectedService,profile]);
+
+  return <><AdminHeader/><main className="min-h-screen px-5 pb-24 pt-36"><section className="mx-auto max-w-7xl">
+    <div className="rounded-[36px] bg-[#17191f] p-8 text-white sm:p-10"><p className="text-xs uppercase tracking-[0.28em] text-[#d8b36a]">DOCUMENT ENGINE 1.0</p><h1 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">Templates become records.</h1><p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">Generate contracts, invoices and service acts from Company Profile, clients and bookings.</p></div>
+    {(notice||error)&&<div className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error?"border-red-200 bg-red-50 text-red-800":"border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{error||notice}</div>}
+    {templates.length===0?<div className="mt-6 rounded-[30px] bg-white p-8"><h2 className="text-2xl font-semibold">Initialize document templates</h2><button onClick={initializeTemplates} disabled={busy||!canEdit} className="mt-5 rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white">Create default templates</button></div>:
+    <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
+      <div className="grid gap-6 content-start">
+        <section className="rounded-[30px] border border-black/8 bg-white p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Source data</p><div className="mt-4 grid gap-4">
+          <Select label="Template" value={selectedTemplate?.id??""} onChange={setTemplateId} options={templates.map((item)=>[item.id,`${item.document_type} · ${item.locale} · v${item.version}`])}/>
+          <Select label="Booking (optional)" value={bookingId} onChange={(value)=>{setBookingId(value);if(value)setClientId("");}} options={[["","No booking"],...bookings.map((item)=>[item.id,item.reference])]}/>
+          <Select label="Client (optional)" value={clientId} onChange={setClientId} disabled={Boolean(bookingId)} options={[["","No client"],...clients.map((item)=>[item.id,item.name])]}/>
+          <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":"Generate final document"}</button>
+        </div></section>
+        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated</p><div className="mt-4 grid gap-3">{generated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:generated.map((item)=><button key={item.id} onClick={()=>openPrint(item)} className="rounded-2xl bg-white p-4 text-left"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="text-xs uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p></button>)}</div></section>
+      </div>
+      {selectedTemplate&&<div className="grid gap-6">
+        <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor</p><h2 className="mt-2 text-2xl font-semibold">{selectedTemplate.document_type}</h2></div><button onClick={saveTemplate} disabled={busy||!canEdit} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold">Save template</button></div>
+          <label className="mt-5 grid gap-2 text-sm font-semibold">Title<input value={selectedTemplate.title_template} onChange={(e)=>patchTemplate({title_template:e.target.value})} className="rounded-2xl border border-black/10 px-4 py-3 font-normal"/></label>
+          <label className="mt-4 grid gap-2 text-sm font-semibold">Body<textarea value={selectedTemplate.body_template} onChange={(e)=>patchTemplate({body_template:e.target.value})} className="min-h-[420px] rounded-2xl border border-black/10 px-4 py-4 font-mono text-sm font-normal leading-6"/></label>
+          <p className="mt-3 text-xs text-[#77736a]">Variables use dotted names, for example {"{{company.legal_name}} {{client.name}} {{booking.total}}"}.</p>
+        </section>
+        <section className="rounded-[30px] border border-black/8 bg-[#fffdfa] p-6"><div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Live preview</p><button onClick={()=>window.print()} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Print / PDF</button></div><article className="mt-6 whitespace-pre-wrap text-[15px] leading-7">{preview}</article></section>
+      </div>}
+    </div>}
+  </section></main></>;
+}
+
+function Select({label,value,onChange,options,disabled=false}:{label:string;value:string;onChange:(value:string)=>void;options:string[][];disabled?:boolean}){return <label className="grid gap-2 text-sm font-semibold"><span>{label}</span><select disabled={disabled} value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl border border-black/10 bg-[#fffdfa] px-4 py-3 font-normal disabled:opacity-50">{options.map(([key,name])=><option key={key} value={key}>{name}</option>)}</select></label>}
+function openPrint(item:GeneratedDocument){const win=window.open("","_blank","noopener,noreferrer");if(!win)return;win.document.write(`<html><head><title>${escapeHtml(item.title_snapshot)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;white-space:pre-wrap;line-height:1.65;color:#222}h1{font-size:28px}</style></head><body><h1>${escapeHtml(item.title_snapshot)}</h1>${escapeHtml(item.content_snapshot)}</body></html>`);win.document.close();win.print()}
+function escapeHtml(value:string){return value.replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]??char))}

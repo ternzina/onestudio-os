@@ -22,6 +22,7 @@ export default function AdminSidebar() {
     { href: "/admin/settings", label: t("Settings"), icon: "⚙" },
     { href: "/admin/settings/company", label: "Company", icon: "◍" },
     { href: "/admin/legal", label: "Legal", icon: "§" },
+    { href: "/admin/documents", label: "Documents", icon: "▧" },
     { href: "/admin/modules", label: t("Modules"), icon: "⌘" },
   ] as const;
   const plannedItems = [t("Analytics")];
