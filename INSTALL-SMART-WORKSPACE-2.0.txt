@@ -1,0 +1,7 @@
+Smart Workspace 2.0
+
+Files:
+- components/admin/SmartClientWorkspace.tsx
+- docs/SMART-WORKSPACE-2.0.md
+
+No database migration is required.

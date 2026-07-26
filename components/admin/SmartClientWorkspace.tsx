@@ -43,7 +43,9 @@ const copy = {
     attention: "Требует внимания",
     allClear: "Сейчас ничего срочного",
     createBooking: "Создать бронирование",
+    openBookings: "Открыть бронирования",
     createDocument: "Создать документ",
+    openDocuments: "Открыть документы",
     openPayments: "Открыть платежи",
     sendEmail: "Написать письмо",
     refresh: "Обновить",
@@ -64,7 +66,9 @@ const copy = {
     attention: "Needs attention",
     allClear: "Nothing urgent right now",
     createBooking: "Create booking",
+    openBookings: "Open bookings",
     createDocument: "Create document",
+    openDocuments: "Open documents",
     openPayments: "Open payments",
     sendEmail: "Write email",
     refresh: "Refresh",
@@ -202,8 +206,10 @@ export default function SmartClientWorkspace({
           <strong>{text.attention}: </strong>{attention.length ? attention.join(" · ") : text.allClear}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={`/admin/bookings?client=${clientId}`} className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-[#17191f]">{text.createBooking}</Link>
-          <Link href={`/admin/documents?client=${clientId}`} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.createDocument}</Link>
+          <Link href={`/admin/bookings?client=${clientId}&action=create`} className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-[#17191f]">{text.createBooking}</Link>
+          <Link href={`/admin/bookings?client=${clientId}`} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.openBookings}</Link>
+          <Link href={`/admin/documents?client=${clientId}&action=create`} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.createDocument}</Link>
+          <Link href={`/admin/documents?client=${clientId}`} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.openDocuments}</Link>
           <Link href={`/admin/payments?client=${clientId}`} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.openPayments}</Link>
           {mailHref && <a href={mailHref} className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold">{text.sendEmail}</a>}
         </div>
