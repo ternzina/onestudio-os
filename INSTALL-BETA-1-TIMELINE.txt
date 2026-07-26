@@ -1,0 +1,8 @@
+OneStudio OS Beta 1 — Unified Activity Timeline
+
+1. Install this patch in feature/beta-1-timeline.
+2. Run: npx supabase@beta db reset
+3. Run: npx supabase@beta test db
+4. Run: rm -rf .next && npm run build
+5. Test a booking card and a client card with payments/documents/notifications.
+6. Commit, dry-run the remote migration, push it, and deploy.

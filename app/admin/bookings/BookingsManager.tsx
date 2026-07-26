@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import UnifiedTimeline, { type UnifiedTimelineRow } from "@/components/admin/UnifiedTimeline";
 import { supabase } from "@/lib/supabase";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
@@ -233,6 +234,8 @@ export default function BookingsManager() {
   const [allocations, setAllocations] = useState<AllocationRow[]>([]);
   const [resources, setResources] = useState<ResourceRow[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
+  const [timeline, setTimeline] = useState<UnifiedTimelineRow[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [requestedBookingId, setRequestedBookingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BookingDraft>(emptyDraft());
@@ -270,6 +273,26 @@ export default function BookingsManager() {
     () => events.filter((event) => event.booking_id === selectedBookingId),
     [events, selectedBookingId],
   );
+
+  useEffect(() => {
+    let active = true;
+    if (!selectedBookingId) {
+      setTimeline([]);
+      setTimelineLoading(false);
+      return () => { active = false; };
+    }
+
+    setTimelineLoading(true);
+    void supabase
+      .rpc("get_admin_booking_timeline", { p_booking_id: selectedBookingId })
+      .then(({ data, error }) => {
+        if (!active) return;
+        setTimeline(error ? [] : ((data ?? []) as UnifiedTimelineRow[]));
+        setTimelineLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [selectedBookingId]);
 
   const resetMessages = () => {
     setNotice("");
@@ -755,9 +778,8 @@ export default function BookingsManager() {
                 </div>
                 <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Activity")}</p>
-                  <div className="mt-3 grid max-h-44 gap-2 overflow-y-auto">
-                    {selectedEvents.map((event) => <div key={event.id} className="rounded-xl bg-[#eeebe3] px-3 py-2"><p className="text-sm font-semibold">{t(eventMessages[event.event_type])}</p><p className="mt-1 text-xs text-[#77736a]">{formatDateTime(event.created_at, workspace.timezone, adminLocale)}</p></div>)}
-                    {selectedEvents.length === 0 && <p className="text-sm text-[#77736a]">{t("No activity yet.")}</p>}
+                  <div className="mt-3">
+                    <UnifiedTimeline rows={timeline} loading={timelineLoading} timezone={workspace.timezone} />
                   </div>
                 </div>
               </div>

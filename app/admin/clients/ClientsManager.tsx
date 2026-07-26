@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNo
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import UnifiedTimeline, { type UnifiedTimelineRow } from "@/components/admin/UnifiedTimeline";
 import { supabase } from "@/lib/supabase";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type {
@@ -177,6 +178,7 @@ export default function ClientsManager() {
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [history, setHistory] = useState<ClientBookingRow[]>([]);
   const [events, setEvents] = useState<ClientEventRow[]>([]);
+  const [timeline, setTimeline] = useState<UnifiedTimelineRow[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [requestedClientId, setRequestedClientId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ClientDraft>(emptyDraft());
@@ -231,12 +233,13 @@ export default function ClientsManager() {
 
   const loadClientDetails = useCallback(async (clientId: string) => {
     setDetailsLoading(true);
-    const [historyResult, eventResult] = await Promise.all([
+    const [historyResult, eventResult, timelineResult] = await Promise.all([
       supabase.rpc("get_admin_client_bookings", { p_client_id: clientId }),
       supabase.rpc("get_admin_client_events", { p_client_id: clientId }),
+      supabase.rpc("get_admin_client_timeline", { p_client_id: clientId }),
     ]);
 
-    const firstError = historyResult.error ?? eventResult.error;
+    const firstError = historyResult.error ?? eventResult.error ?? timelineResult.error;
     if (firstError) {
       setError(firstError.message);
       setDetailsLoading(false);
@@ -245,6 +248,7 @@ export default function ClientsManager() {
 
     setHistory((historyResult.data ?? []) as ClientBookingRow[]);
     setEvents((eventResult.data ?? []) as ClientEventRow[]);
+    setTimeline((timelineResult.data ?? []) as UnifiedTimelineRow[]);
     setDetailsLoading(false);
   }, []);
 
@@ -823,21 +827,8 @@ export default function ClientsManager() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">
                   {t("Client activity")}
                 </p>
-                <div className="mt-4 grid max-h-[520px] gap-3 overflow-y-auto pr-1">
-                  {detailsLoading && <p className="text-sm text-[#77736a]">{t("Loading…")}</p>}
-                  {!detailsLoading && events.length === 0 && (
-                    <p className="rounded-2xl bg-white/75 p-4 text-sm text-[#77736a]">
-                      {t("No client activity yet.")}
-                    </p>
-                  )}
-                  {events.map((item) => (
-                    <div key={item.id} className="rounded-2xl bg-white/80 p-4">
-                      <p className="text-sm font-semibold">{t(eventMessages[item.event_type])}</p>
-                      <p className="mt-1 text-xs text-[#77736a]">
-                        {formatDateTime(item.created_at, workspace.timezone, adminLocale)}
-                      </p>
-                    </div>
-                  ))}
+                <div className="mt-4">
+                  <UnifiedTimeline rows={timeline} loading={detailsLoading} timezone={workspace.timezone} />
                 </div>
               </section>
             </div>
