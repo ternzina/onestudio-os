@@ -58,7 +58,7 @@ export default function LegalManager() {
     setWorkspace(current as Workspace);
 
     const [profileResult, docsResult] = await Promise.all([
-      supabase.from("legal_company_profiles").select("*").eq("business_id", (current as Workspace).business_id).maybeSingle(),
+      supabase.from("company_profiles").select("*").eq("business_id", (current as Workspace).business_id).maybeSingle(),
       supabase.from("legal_documents").select("id,business_id,document_type,locale,title,body_template,status,version,published_at").eq("business_id", (current as Workspace).business_id).order("locale").order("document_type"),
     ]);
     if (profileResult.error) setError(profileResult.error.message);
@@ -76,7 +76,7 @@ export default function LegalManager() {
   async function initialize() {
     if (!workspace || !canEdit) return;
     setBusy(true); setError(""); setNotice("");
-    const { error: profileError } = await supabase.from("legal_company_profiles").upsert({ business_id: workspace.business_id, ...profile });
+    const { error: profileError } = await supabase.from("company_profiles").upsert({ business_id: workspace.business_id, ...profile });
     if (profileError) { setError(profileError.message); setBusy(false); return; }
     const rows = (["uk", "en"] as LegalLocale[]).flatMap((docLocale) => legalTypes.map((item) => ({
       business_id: workspace.business_id,
@@ -94,7 +94,7 @@ export default function LegalManager() {
   async function saveProfile() {
     if (!workspace || !canEdit) return;
     setBusy(true); setError(""); setNotice("");
-    const { error: saveError } = await supabase.from("legal_company_profiles").upsert({ business_id: workspace.business_id, ...profile, updated_at: new Date().toISOString() });
+    const { error: saveError } = await supabase.from("company_profiles").upsert({ business_id: workspace.business_id, ...profile });
     if (saveError) setError(saveError.message); else setNotice("Company profile saved.");
     setBusy(false);
   }

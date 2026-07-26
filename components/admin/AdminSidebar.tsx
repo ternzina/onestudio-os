@@ -20,6 +20,7 @@ export default function AdminSidebar() {
     { href: "/admin/media", label: t("Media"), icon: "◫" },
     { href: "/admin/portfolio", label: t("Portfolio"), icon: "◇" },
     { href: "/admin/settings", label: t("Settings"), icon: "⚙" },
+    { href: "/admin/settings/company", label: "Company", icon: "◍" },
     { href: "/admin/legal", label: "Legal", icon: "§" },
     { href: "/admin/modules", label: t("Modules"), icon: "⌘" },
   ] as const;
