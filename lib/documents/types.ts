@@ -13,11 +13,18 @@ export type DocumentTemplate = {
 export type GeneratedDocument = {
   id: string;
   business_id: string;
+  client_id: string | null;
+  booking_id: string | null;
   document_type: DocumentType;
   document_number: string;
   title_snapshot: string;
   content_snapshot: string;
-  status: "draft" | "final" | "void";
+  status: "draft" | "final" | "sent" | "void";
+  recipient_email: string | null;
+  sent_at: string | null;
+  delivery_provider: string | null;
+  delivery_id: string | null;
+  delivery_error: string | null;
   issued_at: string;
   created_at: string;
 };
