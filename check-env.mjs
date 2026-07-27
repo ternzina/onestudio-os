@@ -75,12 +75,13 @@ function findUsedEnvNames(files) {
 
   const dotPattern = /process\.env\.([A-Z][A-Z0-9_]*)/g;
   const bracketPattern = /process\.env\[\s*["']([A-Z][A-Z0-9_]*)["']\s*\]/g;
+  const helperPattern = /\b(?:envText|text)\(\s*["']([A-Z][A-Z0-9_]*)["']\s*\)/g;
 
   for (const file of files) {
     const text = fs.readFileSync(file, "utf8");
     const relative = path.relative(ROOT, file);
 
-    for (const pattern of [dotPattern, bracketPattern]) {
+    for (const pattern of [dotPattern, bracketPattern, helperPattern]) {
       pattern.lastIndex = 0;
 
       let match;
