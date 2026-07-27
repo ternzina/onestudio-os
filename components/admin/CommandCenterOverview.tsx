@@ -57,7 +57,11 @@ export default function CommandCenterOverview({ t }: Props) {
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
-          <article key={item.href} className="rounded-[24px] border border-black/6 bg-white p-5 shadow-[0_14px_40px_rgba(20,20,20,0.06)]">
+          <Link
+            key={item.href}
+            href={item.href}
+            className="group rounded-[24px] border border-black/6 bg-white p-5 shadow-[0_14px_40px_rgba(20,20,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#9a742e]/35 hover:shadow-[0_18px_48px_rgba(20,20,20,0.1)] focus:outline-none focus:ring-2 focus:ring-[#9a742e]/35"
+          >
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">
               {t(item.description)}
             </p>
@@ -66,11 +70,11 @@ export default function CommandCenterOverview({ t }: Props) {
                 <p className="text-3xl font-semibold tracking-[-0.04em] text-[#17191f]">{item.value}</p>
                 <p className="mt-1 text-sm font-semibold text-[#17191f]">{t(item.title)}</p>
               </div>
-              <Link href={item.href} className="text-xs font-semibold text-[#9a742e]">
+              <span className="text-xs font-semibold text-[#9a742e] transition group-hover:translate-x-0.5">
                 {t(item.linkLabel)} →
-              </Link>
+              </span>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     </section>
