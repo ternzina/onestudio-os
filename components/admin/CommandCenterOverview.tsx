@@ -9,30 +9,30 @@ type Props = {
 
 const items = [
   {
-    title: "Bookings",
+    title: "Today",
     value: "—",
-    description: "Today",
+    description: "Bookings for today",
     href: "/admin/bookings",
     linkLabel: "Open bookings",
   },
   {
-    title: "Unpaid",
+    title: "Payments",
     value: "—",
-    description: "Payments",
+    description: "Unpaid orders",
     href: "/admin/payments",
     linkLabel: "Open payments",
   },
   {
-    title: "Document",
+    title: "Documents",
     value: "—",
-    description: "Today",
+    description: "Unsent documents",
     href: "/admin/documents",
-    linkLabel: "Document",
+    linkLabel: "Open documents",
   },
   {
-    title: "Notifications",
+    title: "Attention",
     value: "—",
-    description: "Today",
+    description: "Needs review",
     href: "/admin/notifications",
     linkLabel: "Notifications",
   },
@@ -40,24 +40,24 @@ const items = [
 
 export default function CommandCenterOverview({ t }: Props) {
   return (
-    <section className="mt-8 rounded-[32px] border border-black/8 bg-[#eeebe3] p-5 sm:p-7">
+    <section className="mt-8 rounded-[32px] border border-black/8 bg-[#eeebe3] p-5 shadow-[0_18px_55px_rgba(20,20,20,0.07)] sm:p-7">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
             Command Center 3.0
           </p>
           <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#17191f]">
-            {t("Today")}
+            {t("Operational overview")}
           </h2>
         </div>
         <p className="max-w-xl text-sm leading-6 text-[#6f6c65]">
-          {t("Bookings")}, {t("Unpaid")}, {t("Document")}, {t("Notifications")}.
+          {t("Today")}, {t("Payments")}, {t("Documents")}, {t("Attention")}.
         </p>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
-          <article key={item.href} className="rounded-[24px] bg-white p-5 shadow-[0_14px_40px_rgba(20,20,20,0.06)]">
+          <article key={item.href} className="rounded-[24px] border border-black/6 bg-white p-5 shadow-[0_14px_40px_rgba(20,20,20,0.06)]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">
               {t(item.description)}
             </p>
