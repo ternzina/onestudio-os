@@ -126,7 +126,8 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY
+    const supabaseSecretKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
     const resendApiKey = process.env.RESEND_API_KEY
     const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
     const siteOrigin = configuredSiteUrl
