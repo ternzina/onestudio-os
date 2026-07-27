@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
+import CommandCenterOverview from "@/components/admin/CommandCenterOverview";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 export default function AdminPage() {
@@ -123,6 +124,8 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+
+          <CommandCenterOverview t={t} />
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {readyModules.map((module) => (
