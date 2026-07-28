@@ -18,3 +18,13 @@ Document Engine turns workspace data into immutable document snapshots.
 ## Migration
 
 `20260726160000_document_engine.sql`
+
+## Document Templates 1.0
+
+`20260728120000_document_templates_1_0_defaults.sql` completes the default library for existing and future workspaces:
+
+- Contract
+- Invoice
+- Service act
+- Commercial offer
+- Privacy consent
