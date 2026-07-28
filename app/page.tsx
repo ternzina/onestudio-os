@@ -8,18 +8,18 @@ type Lang = "ru" | "en";
 const copy = {
   ru: {
     nav: [
+      ["Выбрать демо", "/demos"],
       ["Возможности", "#features"],
-      ["Для кого", "#businesses"],
-      ["Как запускаем", "#launch"],
+      ["Как это работает", "#launch"],
     ],
     login: "Войти в систему",
     eyebrow: "САЙТ · БРОНИРОВАНИЕ · CRM · ОПЛАТА",
     titleA: "Весь ваш бизнес —",
     titleB: "в одной системе.",
-    lead: "OneStudio OS объединяет красивый сайт, онлайн-запись, клиентов, платежи, контент и аналитику. Создаётся под ваш бизнес, бренд и язык.",
-    primary: "Обсудить проект",
-    secondary: "Посмотреть возможности",
-    heroNote: "Не шаблон. Готовая цифровая основа бизнеса.",
+    lead: "Выберите готовое демо, настройте бренд, языки и модули — OneStudio OS соберёт красивый сайт и рабочую панель вокруг вашего бизнеса.",
+    primary: "Выбрать демо",
+    secondary: "Как это работает",
+    heroNote: "Без заявки и ожидания. Начните с готовой системы.",
     screenLabel: "ПАНЕЛЬ УПРАВЛЕНИЯ",
     today: "Сегодня",
     revenue: "Выручка",
@@ -41,48 +41,48 @@ const copy = {
     businessesTitle: "Одна архитектура. Разные бизнесы.",
     businessesLead: "Система собирается вокруг реального процесса компании — на русском, английском или любом другом языке.",
     demos: [
-      ["01", "Lumière", "Салон красоты", "#e9b7a6", "#552c38"],
-      ["02", "North Flow", "Студия пилатеса", "#bad6e7", "#203c53"],
-      ["03", "Bloom Room", "Цветочная мастерская", "#d6c6a4", "#344333"],
-      ["04", "Little Orbit", "Детский центр", "#edc584", "#69493b"],
-      ["05", "Black Ink", "Тату-студия", "#b8b4ae", "#242424"],
-      ["06", "Vow Films", "Свадебная видеосъёмка", "#c4ccea", "#28344f"],
+      ["01", "Lumière", "Салон красоты", "#e9b7a6", "#552c38", "lumiere"],
+      ["02", "North Flow", "Студия пилатеса", "#bad6e7", "#203c53", "north-flow"],
+      ["03", "Bloom Room", "Цветочная мастерская", "#d6c6a4", "#344333", "bloom-room"],
+      ["04", "Little Orbit", "Детский центр", "#edc584", "#69493b", "little-orbit"],
+      ["05", "Black Ink", "Тату-студия", "#b8b4ae", "#242424", "black-ink"],
+      ["06", "Vow Films", "Свадебная видеосъёмка", "#c4ccea", "#28344f", "vow-films"],
     ],
-    launchEyebrow: "ЗАПУСК ПОД КЛЮЧ",
-    launchTitle: "Не архив с кодом, а работающая система.",
-    launchLead: "Мы адаптируем архитектуру, подключаем ваши сервисы, переносим контент, проверяем сценарии и запускаем проект на вашем домене.",
+    launchEyebrow: "САМОСТОЯТЕЛЬНАЯ НАСТРОЙКА",
+    launchTitle: "Вы выбираете. Система собирается вокруг бизнеса.",
+    launchLead: "Путь начинается с понятного демо и продолжается в живом настройщике. Никаких заявок, обязательной переписки и ожидания ответа.",
     steps: [
-      ["01", "Разбираем бизнес", "Услуги, роли, путь клиента, бронирование и то, что действительно нужно."],
-      ["02", "Собираем вашу версию", "Дизайн, языки, страницы, правила, письма, оплаты и панель управления."],
-      ["03", "Запускаем и сопровождаем", "Настройка домена и сервисов, проверка, обучение и дальнейшая поддержка."],
+      ["01", "Выберите близкое демо", "Фотостудия, салон, пилатес, детский центр и другие готовые процессы."],
+      ["02", "Настройте под себя", "Название, палитра, языки, модули, валюта, оплата и напоминания."],
+      ["03", "Сохраните конфигурацию", "Проверьте живой предпросмотр и подготовьте своё рабочее пространство."],
     ],
-    formatsTitle: "Выберите формат запуска",
+    formatsTitle: "Всё важное — под вашим контролем",
     formats: [
-      ["Индивидуальный запуск", "Полностью настроенная версия на вашем домене с дизайном и процессами вашего бизнеса.", "Рекомендуем"],
-      ["Система + самостоятельный запуск", "Подготовленная кодовая база, документация и техническая сессия для вашей команды.", "Для команд"],
-      ["Развитие и поддержка", "Новые модули, улучшения, контроль сервисов и помощь после запуска.", "После старта"],
+      ["Бренд и дизайн", "Название, главная фраза и готовые профессиональные палитры с живым предпросмотром.", "В настройщике"],
+      ["Модули и процессы", "Выберите сайт, запись, аренду, группы, оплату, CRM и другие функции вашего бизнеса.", "Гибкая система"],
+      ["Языки и сервисы", "Настройте языки, валюту, платежи и напоминания без отправки заявки менеджеру.", "Самостоятельно"],
     ],
-    ctaEyebrow: "ЕСТЬ ИДЕЯ?",
-    ctaTitle: "Давайте превратим её в систему, которая работает.",
-    ctaText: "Расскажите, чем занимается ваш бизнес. Мы спокойно разложим процесс и предложим правильную основу — без временных костылей.",
-    email: "Написать нам",
+    ctaEyebrow: "НАЧНИТЕ С РЕЗУЛЬТАТА",
+    ctaTitle: "Сначала посмотрите, каким может стать ваш бизнес.",
+    ctaText: "Откройте демо, переключитесь между сайтом, админкой и телефоном, а затем настройте выбранную систему под себя.",
+    email: "Выбрать демо",
     footerText: "Цифровая операционная система для сервисного бизнеса.",
     rights: "Все права защищены.",
   },
   en: {
     nav: [
+      ["Choose a demo", "/demos"],
       ["Features", "#features"],
-      ["Industries", "#businesses"],
-      ["Launch", "#launch"],
+      ["How it works", "#launch"],
     ],
     login: "System login",
     eyebrow: "WEBSITE · BOOKING · CRM · PAYMENTS",
     titleA: "Your entire business —",
     titleB: "in one system.",
-    lead: "OneStudio OS brings together a beautiful website, online booking, clients, payments, content and analytics — built around your brand, workflow and language.",
-    primary: "Discuss your project",
-    secondary: "Explore the system",
-    heroNote: "Not a template. A complete digital foundation.",
+    lead: "Choose a ready demo, customize the brand, languages and modules — OneStudio OS shapes a beautiful site and control center around your business.",
+    primary: "Choose a demo",
+    secondary: "How it works",
+    heroNote: "No inquiry and no waiting. Start with a working system.",
     screenLabel: "CONTROL CENTER",
     today: "Today",
     revenue: "Revenue",
@@ -104,31 +104,31 @@ const copy = {
     businessesTitle: "One architecture. Many businesses.",
     businessesLead: "The system is shaped around how your company actually works — in English, Russian or any other language.",
     demos: [
-      ["01", "Lumière", "Beauty salon", "#e9b7a6", "#552c38"],
-      ["02", "North Flow", "Pilates studio", "#bad6e7", "#203c53"],
-      ["03", "Bloom Room", "Flower atelier", "#d6c6a4", "#344333"],
-      ["04", "Little Orbit", "Children’s center", "#edc584", "#69493b"],
-      ["05", "Black Ink", "Tattoo studio", "#b8b4ae", "#242424"],
-      ["06", "Vow Films", "Wedding films", "#c4ccea", "#28344f"],
+      ["01", "Lumière", "Beauty salon", "#e9b7a6", "#552c38", "lumiere"],
+      ["02", "North Flow", "Pilates studio", "#bad6e7", "#203c53", "north-flow"],
+      ["03", "Bloom Room", "Flower atelier", "#d6c6a4", "#344333", "bloom-room"],
+      ["04", "Little Orbit", "Children’s center", "#edc584", "#69493b", "little-orbit"],
+      ["05", "Black Ink", "Tattoo studio", "#b8b4ae", "#242424", "black-ink"],
+      ["06", "Vow Films", "Wedding films", "#c4ccea", "#28344f", "vow-films"],
     ],
-    launchEyebrow: "DONE-FOR-YOU LAUNCH",
-    launchTitle: "Not a code archive. A working system.",
-    launchLead: "We adapt the architecture, connect your services, migrate content, test every flow and launch the project on your domain.",
+    launchEyebrow: "SELF-SERVICE SETUP",
+    launchTitle: "You choose. The system takes shape around the business.",
+    launchLead: "Start with a clear demo and continue in a live configurator. No inquiry forms, compulsory calls or waiting for a reply.",
     steps: [
-      ["01", "Map the business", "Services, roles, client journey, booking rules and what you truly need."],
-      ["02", "Build your edition", "Design, languages, pages, rules, emails, payments and control center."],
-      ["03", "Launch and support", "Domain and service setup, testing, training and ongoing support."],
+      ["01", "Choose a close match", "Photo studio, salon, Pilates, children’s center and other ready workflows."],
+      ["02", "Make it yours", "Name, palette, languages, modules, currency, payments and reminders."],
+      ["03", "Save the setup", "Review the live preview and prepare your own workspace."],
     ],
-    formatsTitle: "Choose your launch format",
+    formatsTitle: "The important choices stay yours",
     formats: [
-      ["Custom launch", "A fully configured edition on your domain, shaped around your brand and operations.", "Recommended"],
-      ["System + self-deployment", "A prepared codebase, documentation and a technical handover for your team.", "For teams"],
-      ["Growth & support", "New modules, improvements, service oversight and hands-on help after launch.", "After launch"],
+      ["Brand & design", "Business name, main message and professional color palettes with a live preview.", "In the builder"],
+      ["Modules & workflows", "Choose the website, booking, rentals, classes, payments, CRM and more.", "Flexible system"],
+      ["Languages & services", "Set languages, currency, payments and reminders without submitting an inquiry.", "Self-service"],
     ],
-    ctaEyebrow: "HAVE AN IDEA?",
-    ctaTitle: "Let’s turn it into a system that works.",
-    ctaText: "Tell us about your business. We’ll map the process carefully and propose a lasting foundation — without temporary fixes.",
-    email: "Write to us",
+    ctaEyebrow: "START WITH THE RESULT",
+    ctaTitle: "First, see what your business could become.",
+    ctaText: "Open a demo, switch between the website, admin and mobile views, then customize the system you choose.",
+    email: "Choose a demo",
     footerText: "The digital operating system for service businesses.",
     rights: "All rights reserved.",
   },
@@ -192,8 +192,8 @@ export default function Home() {
           <h1>{t.titleA}<br/><strong>{t.titleB}</strong></h1>
           <p className="os-lead">{t.lead}</p>
           <div className="os-buttons">
-            <a className="os-button primary" href="mailto:hello@onestudioos.com">{t.primary}<b>↗</b></a>
-            <a className="os-button ghost" href="#features">{t.secondary}<b>↓</b></a>
+            <Link className="os-button primary" href="/demos">{t.primary}<b>↗</b></Link>
+            <a className="os-button ghost" href="#launch">{t.secondary}<b>↓</b></a>
           </div>
           <p className="os-note"><i>✓</i>{t.heroNote}</p>
         </div>
@@ -241,10 +241,12 @@ export default function Home() {
           <p>{t.businessesLead}</p>
         </div>
         <div className="os-demo-grid">
-          {t.demos.map(([num, name, type, accent, dark]) => (
+          {t.demos.map(([num, name, type, accent, dark, slug]) => (
             <article key={name} style={{"--accent": accent, "--dark": dark} as CSSProperties}>
-              <div className="demo-art"><span>{name.slice(0,1)}</span><i/><i/></div>
-              <div className="demo-copy"><span>{num}</span><div><h3>{name}</h3><p>{type}</p></div><b>↗</b></div>
+              <Link href={`/demos/${slug}`}>
+                <div className="demo-art"><span>{name.slice(0,1)}</span><i/><i/></div>
+                <div className="demo-copy"><span>{num}</span><div><h3>{name}</h3><p>{type}</p></div><b>↗</b></div>
+              </Link>
             </article>
           ))}
         </div>
@@ -258,7 +260,7 @@ export default function Home() {
           </div>
           <h3 className="os-formats-title">{t.formatsTitle}</h3>
           <div className="os-formats">
-            {t.formats.map(([title,desc,badge], i) => <article className={i === 0 ? "featured" : ""} key={title}><span>{badge}</span><h3>{title}</h3><p>{desc}</p><a href="mailto:hello@onestudioos.com">{lang === "ru" ? "Узнать больше" : "Learn more"} ↗</a></article>)}
+            {t.formats.map(([title,desc,badge], i) => <article className={i === 0 ? "featured" : ""} key={title}><span>{badge}</span><h3>{title}</h3><p>{desc}</p><Link href="/demos">{lang === "ru" ? "Перейти к демо" : "Explore demos"} ↗</Link></article>)}
           </div>
         </div>
       </section>
@@ -266,7 +268,7 @@ export default function Home() {
       <section className="os-cta">
         <div className="os-cta-orbit"><i/><i/><i/></div>
         <p className="os-kicker">{t.ctaEyebrow}</p><h2>{t.ctaTitle}</h2><p>{t.ctaText}</p>
-        <a className="os-button primary" href="mailto:hello@onestudioos.com">{t.email}<b>↗</b></a>
+        <Link className="os-button primary" href="/demos">{t.email}<b>↗</b></Link>
       </section>
 
       <footer className="os-footer">

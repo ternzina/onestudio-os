@@ -19,6 +19,7 @@ export default function AdminHeader() {
     { label: t("Catalog"), href: "/admin/catalog", module: "catalog" },
     { label: t("Availability"), href: "/admin/availability", module: "scheduling" },
     { label: t("Bookings"), href: "/admin/bookings", module: "scheduling" },
+    { label: t("Requests"), href: "/admin/requests" },
     { label: t("Clients"), href: "/admin/clients", module: "crm" },
     { label: t("Calendar"), href: "/admin/calendar", module: "scheduling" },
     { label: t("Payments"), href: "/admin/payments", module: "payments" },

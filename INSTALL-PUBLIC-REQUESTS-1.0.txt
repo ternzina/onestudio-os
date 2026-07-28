@@ -1,0 +1,26 @@
+PUBLIC REQUESTS 1.0
+
+Что добавляет:
+- /request/[businessSlug] — письменная заявка без календаря
+- /admin/requests — список заявок, статусы и внутренние заметки
+- отдельная защищённая таблица public_requests
+- SQL-тесты и документацию
+
+После распаковки в корень проекта:
+
+1. Проверить миграцию:
+   npx supabase@beta db push --linked --dry-run
+
+2. Применить миграцию:
+   npx supabase@beta db push --linked
+
+3. Проверить проект:
+   npm run build
+
+4. Закоммитить только после успешной проверки.
+
+Публичный тест для основного рабочего пространства:
+https://onestudioos.com/request/main
+
+Админка:
+https://onestudioos.com/admin/requests

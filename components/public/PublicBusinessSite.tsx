@@ -43,6 +43,16 @@ function durationLabel(service: PublicSiteService) {
   return `${minimum} min`;
 }
 
+function requestLabels(locale: string) {
+  const language = locale.split("-")[0];
+  return {
+    ru: { general: "Обсудить проект", service: "Оставить заявку" },
+    uk: { general: "Обговорити проєкт", service: "Залишити заявку" },
+    pl: { general: "Omów projekt", service: "Wyślij zapytanie" },
+    en: { general: "Discuss your project", service: "Send request" },
+  }[language] ?? { general: "Discuss your project", service: "Send request" };
+}
+
 function ProjectCard({ project }: { project: PublicSiteProject }) {
   return (
     <article className="group overflow-hidden rounded-[28px] border border-black/8 bg-white">
@@ -92,6 +102,8 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
     available_locales: availableLocales,
   } = site;
   const bookingHref = `/book/${business.slug}`;
+  const requestHref = `/request/${business.slug}`;
+  const requestCopy = requestLabels(business.locale);
   const hasContact = Boolean(company.email || company.phone || company.address);
   const showServices = content.show_services && services.length > 0;
   const showPortfolio = content.show_portfolio && portfolio.length > 0;
@@ -159,11 +171,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             {capabilities.booking ? (
               <Link
                 href={bookingHref}
-                className="rounded-full bg-[#191b20] px-5 py-3 text-xs font-semibold text-white"
+                className="hidden rounded-full border border-black/15 px-5 py-3 text-xs font-semibold text-black/65 sm:inline-flex"
               >
                 {content.booking_label}
               </Link>
             ) : null}
+            <Link
+              href={requestHref}
+              className="rounded-full bg-[#191b20] px-5 py-3 text-xs font-semibold text-white"
+            >
+              {requestCopy.general}
+            </Link>
           </div>
         </div>
       </header>
@@ -184,15 +202,23 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <p className="text-base leading-8 text-[#656159] sm:text-lg">
               {content.hero_text}
             </p>
-            {capabilities.booking ? (
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={bookingHref}
-                className="mt-8 inline-flex min-h-14 items-center rounded-full bg-[#191b20] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]"
+                href={requestHref}
+                className="inline-flex min-h-14 items-center rounded-full bg-[#191b20] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]"
               >
-                {content.booking_label}
+                {requestCopy.general}
                 <span aria-hidden="true" className="ml-8 text-[#d8b36a]">→</span>
               </Link>
-            ) : null}
+              {capabilities.booking ? (
+                <Link
+                  href={bookingHref}
+                  className="inline-flex min-h-14 items-center rounded-full border border-black/15 px-7 text-sm font-semibold text-black/65"
+                >
+                  {content.booking_label}
+                </Link>
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
@@ -228,6 +254,16 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                       {durationLabel(service)}
                     </p>
                   ) : null}
+                  <Link
+                    href={{
+                      pathname: requestHref,
+                      query: { subject: service.title },
+                    }}
+                    className="mt-8 inline-flex items-center gap-4 text-sm font-semibold text-[#d8b36a]"
+                  >
+                    {requestCopy.service}
+                    <span aria-hidden="true">→</span>
+                  </Link>
                 </article>
               ))}
             </div>
