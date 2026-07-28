@@ -34,7 +34,9 @@ export default function DocumentsPage() {
   const [templateId, setTemplateId] = useState("");
   const [clientId, setClientId] = useState("");
   const [bookingId, setBookingId] = useState("");
+  const [documentStatus, setDocumentStatus] = useState<"draft" | "final">("final");
   const [requestedClientId, setRequestedClientId] = useState("");
+  const [requestedBookingId, setRequestedBookingId] = useState("");
   const [busy, setBusy] = useState(false);
   const [sendingId, setSendingId] = useState("");
   const [notice, setNotice] = useState("");
@@ -47,7 +49,12 @@ export default function DocumentsPage() {
   const selectedService = services.find((item)=>item.id===selectedBooking?.service_id);
   const visibleBookings = clientId ? bookings.filter((item)=>item.client_id===clientId) : bookings;
   const contextClient = clients.find((item)=>item.id===requestedClientId) ?? null;
-  const visibleGenerated = requestedClientId ? generated.filter((item)=>item.client_id===requestedClientId) : generated;
+  const contextBooking = bookings.find((item)=>item.id===requestedBookingId) ?? null;
+  const visibleGenerated = requestedBookingId
+    ? generated.filter((item)=>item.booking_id===requestedBookingId)
+    : requestedClientId
+      ? generated.filter((item)=>item.client_id===requestedClientId)
+      : generated;
   const activeTemplateTypes = new Set(templates.filter((item)=>item.status==="active").map((item)=>item.document_type)).size;
 
   useEffect(()=>{ void load(); },[]);
@@ -86,6 +93,7 @@ export default function DocumentsPage() {
       setBookingId(requestedBooking);
       setClientId("");
       setRequestedClientId("");
+      setRequestedBookingId(requestedBooking);
       return;
     }
 
@@ -93,10 +101,12 @@ export default function DocumentsPage() {
       setClientId(requestedClient);
       setBookingId("");
       setRequestedClientId(requestedClient);
+      setRequestedBookingId("");
       return;
     }
 
     setRequestedClientId("");
+    setRequestedBookingId("");
     setClientId("");
     setBookingId("");
   }, [searchParams, bookings, clients]);
@@ -120,9 +130,9 @@ export default function DocumentsPage() {
       p_template_id:selectedTemplate.id,
       p_client_id:clientId || null,
       p_booking_id:bookingId || null,
-      p_status:"final",
+      p_status:documentStatus,
     });
-    if (generationError) setError(generationError.message); else { setNotice("Document generated as an immutable snapshot."); await load(); }
+    if (generationError) setError(generationError.message); else { setNotice(`${documentStatus === "draft" ? "Draft" : "Final"} document generated as an immutable snapshot.`); await load(); }
     setBusy(false);
   }
 
@@ -182,7 +192,7 @@ export default function DocumentsPage() {
         <p className="mt-2 text-sm leading-6 text-[#6f6c65]">{templates.length} templates · {generated.length} generated · {generated.filter((item)=>item.sent_at || item.status==="sent").length} sent</p>
       </div>
     </div>
-    {contextClient&&<div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Client context</p><p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p><p className="mt-1 text-xs text-[#77736a]">{visibleGenerated.length} linked documents</p></div><div className="flex flex-wrap gap-2"><Link href={`/admin/clients?client=${contextClient.id}`} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Open client</Link><Link href="/admin/documents" className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Show all documents</Link></div></div>}
+    {(contextClient||contextBooking)&&<div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{contextBooking?"Booking context":"Client context"}</p><p className="mt-1 font-semibold text-[#332f29]">{contextBooking?.reference ?? contextClient?.name}</p><p className="mt-1 text-xs text-[#77736a]">{visibleGenerated.length} linked documents</p></div><div className="flex flex-wrap gap-2">{contextClient&&<Link href={`/admin/clients?client=${contextClient.id}`} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Open client</Link>}{contextBooking&&<Link href={`/admin/bookings?booking=${contextBooking.id}`} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Open booking</Link>}<Link href="/admin/documents" className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Show all documents</Link></div></div>}
     {templates.length===0?<div className="mt-6 rounded-[30px] bg-white p-8"><h2 className="text-2xl font-semibold">Initialize document templates</h2><button onClick={initializeTemplates} disabled={busy||!canEdit} className="mt-5 rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white">Create default templates</button></div>:
     <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="grid gap-6 content-start">
@@ -195,12 +205,13 @@ export default function DocumentsPage() {
             return [item.id,`${item.reference} · ${date} · ${client?.name ?? "Client"} · ${service?.title ?? "Service"}`];
           })]}/>
           <Select label={`Client (optional) · ${clients.length}`} value={clientId} onChange={(value)=>{setClientId(value);setBookingId("");}} disabled={Boolean(bookingId)} options={[["","No client"],...clients.map((item)=>[item.id,`${item.name}${item.email?` · ${item.email}`:""}`])]}/>
+          <Select label="Document status" value={documentStatus} onChange={(value)=>setDocumentStatus(value==="draft"?"draft":"final")} options={[["final","Final snapshot"],["draft","Draft snapshot"]]}/>
           {clients.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No clients exist in this workspace yet. <Link className="font-semibold underline" href="/admin/clients">Create a client in CRM</Link>, then return here.</p>}
           {clients.length>0&&bookings.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No bookings exist in this workspace yet. You can generate a client-only document or <Link className="font-semibold underline" href="/admin/bookings">create a booking</Link>.</p>}
           {clientId&&visibleBookings.length===0&&<p className="rounded-2xl bg-[#eeebe3] px-4 py-3 text-xs leading-5 text-[#5f594f]">The selected client has no bookings. The document will use client and company data only.</p>}
-          <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":"Generate final document"}</button>
+          <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":documentStatus==="draft"?"Generate draft document":"Generate final document"}</button>
         </div></section>
-        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=><div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="text-xs uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>)}</div></section>
+        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated documents</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=>{const linkedClient=clients.find((client)=>client.id===item.client_id);const linkedBooking=bookings.find((booking)=>booking.id===item.booking_id);return <div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="rounded-full bg-[#f4ead2] px-2.5 py-1 text-xs font-semibold uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p><div className="mt-3 flex flex-wrap gap-2 text-xs text-[#77736a]">{linkedClient&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedClient.name}</span>}{linkedBooking&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedBooking.reference}</span>}<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{new Intl.DateTimeFormat("uk-UA").format(new Date(item.created_at))}</span></div>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>})}</div></section>
       </div>
       {selectedTemplate&&<div className="grid gap-6">
         <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor</p><h2 className="mt-2 text-2xl font-semibold">{documentTypeLabels[selectedTemplate.document_type] ?? selectedTemplate.document_type}</h2><p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#8b7446]">{selectedTemplate.locale.toUpperCase()} · v{selectedTemplate.version} · {selectedTemplate.status}</p></div><button onClick={saveTemplate} disabled={busy||!canEdit} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold">Save template</button></div>
