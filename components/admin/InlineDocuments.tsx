@@ -84,21 +84,18 @@ function formatDateTime(iso: string, timezone: string, locale: "ru" | "en") {
 }
 
 function printDocument(document: DocumentRow) {
-  const popup = window.open("", "_blank");
-  if (!popup) return;
   const escape = (value: string) => value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escape(document.title_snapshot)}</title><style>body{font-family:Arial,sans-serif;color:#17191f;margin:48px;line-height:1.65}h1{font-size:28px;margin:0 0 28px}.meta{color:#77736a;font-size:12px;margin-bottom:30px}.body{white-space:pre-wrap;font-size:15px}@media print{body{margin:20mm}}</style></head><body><h1>${escape(document.title_snapshot)}</h1><div class="meta">${escape(document.document_number)}</div><div class="body">${escape(document.content_snapshot)}</div></body></html>`);
-  popup.document.close();
-
-  popup.focus();
-  setTimeout(() => {
-    popup.print();
-  }, 250);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(document.title_snapshot)}</title><style>body{font-family:Arial,sans-serif;color:#17191f;margin:48px;line-height:1.65}h1{font-size:28px;margin:0 0 28px}.meta{color:#77736a;font-size:12px;margin-bottom:30px}.body{white-space:pre-wrap;font-size:15px}@media print{body{margin:20mm}}</style></head><body><h1>${escape(document.title_snapshot)}</h1><div class="meta">${escape(document.document_number)}</div><div class="body">${escape(document.content_snapshot || "Document content is empty.")}</div><script>window.addEventListener("load",function(){setTimeout(function(){window.focus();window.print();},300);});<\/script></body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const popup = window.open(url, "_blank");
+  if (!popup) URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 export default function InlineDocuments({ businessId, clientId, bookingId, locale, timezone, canOperate }: Props) {

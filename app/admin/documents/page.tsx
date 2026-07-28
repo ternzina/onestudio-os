@@ -240,11 +240,14 @@ function eventLabel(type: DocumentEvent["event_type"]){return ({created:"Created
 function openPreviewPrint(title:string, content:string){openPrintableDocument(title, "Preview", content)}
 function openPrint(item:GeneratedDocument){openPrintableDocument(item.title_snapshot, item.document_number, item.content_snapshot)}
 function openPrintableDocument(title:string, meta:string, content:string){
-  const win=window.open("","_blank","noopener,noreferrer");
-  if(!win)return;
-  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;line-height:1.65;color:#222}.meta{margin:0 0 28px;color:#77736a;font-size:12px}.body{white-space:pre-wrap;font-size:15px}h1{font-size:28px;margin:0 0 10px}@media print{body{margin:20mm;max-width:none}}</style></head><body><h1>${escapeHtml(title)}</h1><div class="meta">${escapeHtml(meta)}</div><div class="body">${escapeHtml(content || "Document content is empty.")}</div></body></html>`);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>win.print(),250);
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;line-height:1.65;color:#222}.meta{margin:0 0 28px;color:#77736a;font-size:12px}.body{white-space:pre-wrap;font-size:15px}h1{font-size:28px;margin:0 0 10px}@media print{body{margin:20mm;max-width:none}}</style></head><body><h1>${escapeHtml(title)}</h1><div class="meta">${escapeHtml(meta)}</div><div class="body">${escapeHtml(content || "Document content is empty.")}</div><script>window.addEventListener("load",function(){setTimeout(function(){window.focus();window.print();},300);});<\/script></body></html>`;
+  openPrintableHtml(html);
+}
+function openPrintableHtml(html:string){
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,"_blank");
+  if(!win)URL.revokeObjectURL(url);
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 function escapeHtml(value:string){return value.replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]??char))}
