@@ -14,6 +14,7 @@ type Booking = { id: string; reference: string; client_id: string; service_id: s
 type Service = { id: string; title: string };
 type Profile = { display_name:string; legal_name:string; tax_id:string; email:string; website_url:string; bank_name:string; iban:string; address:string };
 type DocumentEvent = { id: string; document_id: string; event_type: "created" | "sent" | "send_failed" | "voided"; recipient_email: string | null; provider: string | null; provider_message_id: string | null; error_message: string | null; created_at: string };
+type TemplateContent = { title_template: string; body_template: string };
 const documentTypeLabels: Record<string, string> = {
   contract: "Contract",
   invoice: "Invoice",
@@ -22,11 +23,19 @@ const documentTypeLabels: Record<string, string> = {
   privacy_consent: "Privacy consent",
   other: "Other",
 };
+const templateVariables = [
+  "document.number", "document.date",
+  "company.display_name", "company.legal_name", "company.tax_id", "company.email", "company.website", "company.bank_name", "company.iban", "company.address",
+  "client.name", "client.email", "client.phone",
+  "booking.reference", "booking.date", "booking.total", "booking.currency",
+  "service.title",
+];
 
 export default function DocumentsPage() {
   const searchParams = useSearchParams();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
+  const [savedTemplateContent, setSavedTemplateContent] = useState<Record<string, TemplateContent>>({});
   const [generated, setGenerated] = useState<GeneratedDocument[]>([]);
   const [documentEvents, setDocumentEvents] = useState<DocumentEvent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -58,6 +67,11 @@ export default function DocumentsPage() {
       ? generated.filter((item)=>item.client_id===requestedClientId)
       : generated;
   const activeTemplateTypes = new Set(templates.filter((item)=>item.status==="active").map((item)=>item.document_type)).size;
+  const savedSelectedTemplate = selectedTemplate ? savedTemplateContent[selectedTemplate.id] : undefined;
+  const templateIsDirty = Boolean(selectedTemplate && savedSelectedTemplate && (
+    selectedTemplate.title_template !== savedSelectedTemplate.title_template ||
+    selectedTemplate.body_template !== savedSelectedTemplate.body_template
+  ));
   const eventsByDocument = useMemo(() => {
     return documentEvents.reduce<Record<string, DocumentEvent[]>>((acc, event) => {
       acc[event.document_id] = [...(acc[event.document_id] ?? []), event];
@@ -66,6 +80,18 @@ export default function DocumentsPage() {
   }, [documentEvents]);
 
   useEffect(()=>{ void load(); },[]);
+  useEffect(() => {
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      const hasUnsavedChanges = templates.some((template) => {
+        const saved = savedTemplateContent[template.id];
+        return saved && (template.title_template !== saved.title_template || template.body_template !== saved.body_template);
+      });
+      if (!hasUnsavedChanges) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [templates, savedTemplateContent]);
 
   async function load() {
     setError("");
@@ -87,7 +113,12 @@ export default function DocumentsPage() {
     const firstError = [templateResult.error,generatedResult.error,eventResult.error,clientResult.error,bookingResult.error,serviceResult.error,profileResult.error].find(Boolean);
     if (firstError) { setError(firstError.message); return; }
     const loadedTemplates=(templateResult.data ?? []) as DocumentTemplate[];
-    setTemplates(loadedTemplates); setGenerated((generatedResult.data ?? []) as GeneratedDocument[]);
+    setTemplates(loadedTemplates);
+    setSavedTemplateContent(Object.fromEntries(loadedTemplates.map((template) => [template.id, {
+      title_template: template.title_template,
+      body_template: template.body_template,
+    }])));
+    setGenerated((generatedResult.data ?? []) as GeneratedDocument[]);
     setDocumentEvents((eventResult.data ?? []) as DocumentEvent[]);
     setClients((clientResult.data ?? []) as Client[]); setBookings((bookingResult.data ?? []) as Booking[]); setServices((serviceResult.data ?? []) as Service[]);
     if (profileResult.data) setProfile(profileResult.data as Profile);
@@ -131,11 +162,23 @@ export default function DocumentsPage() {
   async function saveTemplate() {
     if (!selectedTemplate || !canEdit) return; setBusy(true); setError(""); setNotice("");
     const { error: saveError } = await supabase.from("document_templates").update({title_template:selectedTemplate.title_template,body_template:selectedTemplate.body_template}).eq("id",selectedTemplate.id);
-    if (saveError) setError(saveError.message); else setNotice("Template saved."); setBusy(false);
+    if (saveError) setError(saveError.message); else {
+      setSavedTemplateContent((current) => ({
+        ...current,
+        [selectedTemplate.id]: {
+          title_template: selectedTemplate.title_template,
+          body_template: selectedTemplate.body_template,
+        },
+      }));
+      setNotice("Template saved. New documents will use this text.");
+    }
+    setBusy(false);
   }
 
   async function generateDocument() {
-    if (!selectedTemplate) return; setBusy(true); setError(""); setNotice("");
+    if (!selectedTemplate) return;
+    if (templateIsDirty) { setError("Save the template before generating a document."); return; }
+    setBusy(true); setError(""); setNotice("");
     const { error: generationError } = await supabase.rpc("create_generated_document",{
       p_template_id:selectedTemplate.id,
       p_client_id:clientId || null,
@@ -168,6 +211,20 @@ export default function DocumentsPage() {
   function patchTemplate(patch: Partial<DocumentTemplate>) {
     if (!selectedTemplate) return;
     setTemplates((current)=>current.map((item)=>item.id===selectedTemplate.id?{...item,...patch}:item));
+  }
+
+  function resetTemplate() {
+    if (!selectedTemplate || !savedSelectedTemplate) return;
+    patchTemplate(savedSelectedTemplate);
+    setNotice("Unsaved changes discarded.");
+    setError("");
+  }
+
+  function insertTemplateVariable(variable: string) {
+    if (!selectedTemplate || !canEdit) return;
+    const token = `{{${variable}}}`;
+    const spacer = selectedTemplate.body_template.endsWith("\n") || selectedTemplate.body_template.length === 0 ? "" : " ";
+    patchTemplate({body_template: `${selectedTemplate.body_template}${spacer}${token}`});
   }
 
   const preview = useMemo(()=>{
@@ -219,15 +276,16 @@ export default function DocumentsPage() {
           {clients.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No clients exist in this workspace yet. <Link className="font-semibold underline" href="/admin/clients">Create a client in CRM</Link>, then return here.</p>}
           {clients.length>0&&bookings.length===0&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">No bookings exist in this workspace yet. You can generate a client-only document or <Link className="font-semibold underline" href="/admin/bookings">create a booking</Link>.</p>}
           {clientId&&visibleBookings.length===0&&<p className="rounded-2xl bg-[#eeebe3] px-4 py-3 text-xs leading-5 text-[#5f594f]">The selected client has no bookings. The document will use client and company data only.</p>}
-          <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":documentStatus==="draft"?"Generate draft document":"Generate final document"}</button>
+          {templateIsDirty&&<p className="rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">This template has unsaved changes. Save it before generating a document so the snapshot uses the text shown in the preview.</p>}
+          <button onClick={generateDocument} disabled={busy||!canEdit||templateIsDirty} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":documentStatus==="draft"?"Generate draft document":"Generate final document"}</button>
         </div></section>
         <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated documents</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=>{const linkedClient=clients.find((client)=>client.id===item.client_id);const linkedBooking=bookings.find((booking)=>booking.id===item.booking_id);const timeline=eventsByDocument[item.id] ?? [];return <div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="rounded-full bg-[#f4ead2] px-2.5 py-1 text-xs font-semibold uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p><div className="mt-3 flex flex-wrap gap-2 text-xs text-[#77736a]">{linkedClient&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedClient.name}</span>}{linkedBooking&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedBooking.reference}</span>}<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{new Intl.DateTimeFormat("uk-UA").format(new Date(item.created_at))}</span></div>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}{timeline.length>0&&<div className="mt-3 rounded-2xl bg-[#fbf8f1] px-4 py-3"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Timeline</p><div className="mt-2 grid gap-2">{timeline.slice(0,4).map((event)=><div key={event.id} className="text-xs leading-5 text-[#6f6c65]"><span className="font-semibold text-[#332f29]">{eventLabel(event.event_type)}</span><span> · {new Intl.DateTimeFormat("uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(event.created_at))}</span>{event.recipient_email&&<span> · {event.recipient_email}</span>}{event.provider&&<span> · {event.provider}</span>}{event.error_message&&<p className="mt-1 text-red-700">{event.error_message}</p>}</div>)}</div></div>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>})}</div></section>
       </div>
       {selectedTemplate&&<div className="grid gap-6">
-        <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor</p><h2 className="mt-2 text-2xl font-semibold">{documentTypeLabels[selectedTemplate.document_type] ?? selectedTemplate.document_type}</h2><p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#8b7446]">{selectedTemplate.locale.toUpperCase()} · v{selectedTemplate.version} · {selectedTemplate.status}</p></div><button onClick={saveTemplate} disabled={busy||!canEdit} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold">Save template</button></div>
-          <label className="mt-5 grid gap-2 text-sm font-semibold">Title<input value={selectedTemplate.title_template} onChange={(e)=>patchTemplate({title_template:e.target.value})} className="rounded-2xl border border-black/10 px-4 py-3 font-normal"/></label>
-          <label className="mt-4 grid gap-2 text-sm font-semibold">Body<textarea value={selectedTemplate.body_template} onChange={(e)=>patchTemplate({body_template:e.target.value})} className="min-h-[420px] rounded-2xl border border-black/10 px-4 py-4 font-mono text-sm font-normal leading-6"/></label>
-          <p className="mt-3 text-xs text-[#77736a]">Variables use dotted names, for example {"{{company.legal_name}} {{client.name}} {{booking.total}}"}.</p>
+        <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex flex-col justify-between gap-4 sm:flex-row"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor 1.0</p><h2 className="mt-2 text-2xl font-semibold">{documentTypeLabels[selectedTemplate.document_type] ?? selectedTemplate.document_type}</h2><div className="mt-2 flex flex-wrap items-center gap-2"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8b7446]">{selectedTemplate.locale.toUpperCase()} · v{selectedTemplate.version} · {selectedTemplate.status}</p><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${templateIsDirty?"bg-amber-100 text-amber-900":"bg-emerald-100 text-emerald-800"}`}>{templateIsDirty?"Unsaved changes":"Saved"}</span></div></div><div className="flex items-start gap-2"><button onClick={resetTemplate} disabled={busy||!canEdit||!templateIsDirty} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold disabled:opacity-40">Discard</button><button onClick={saveTemplate} disabled={busy||!canEdit||!templateIsDirty} className="rounded-full bg-[#17191f] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{busy?"Saving…":"Save template"}</button></div></div>
+          <label className="mt-5 grid gap-2 text-sm font-semibold">Title<input value={selectedTemplate.title_template} disabled={!canEdit} onChange={(e)=>patchTemplate({title_template:e.target.value})} className="rounded-2xl border border-black/10 px-4 py-3 font-normal disabled:bg-black/5"/></label>
+          <label className="mt-4 grid gap-2 text-sm font-semibold">Body<textarea value={selectedTemplate.body_template} disabled={!canEdit} onChange={(e)=>patchTemplate({body_template:e.target.value})} className="min-h-[420px] rounded-2xl border border-black/10 px-4 py-4 font-mono text-sm font-normal leading-6 disabled:bg-black/5"/></label>
+          <div className="mt-4 rounded-2xl bg-[#f7f3eb] p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8b7446]">Insert variable</p><div className="mt-3 flex flex-wrap gap-2">{templateVariables.map((variable)=><button key={variable} type="button" onClick={()=>insertTemplateVariable(variable)} disabled={!canEdit} className="rounded-full border border-black/10 bg-white px-3 py-1.5 font-mono text-[11px] text-[#5f594f] disabled:opacity-40">{`{{${variable}}}`}</button>)}</div><p className="mt-3 text-xs leading-5 text-[#77736a]">Clicking a variable adds it to the end of the template body. You can then move it to the required place.</p></div>
         </section>
         <section className="rounded-[30px] border border-black/8 bg-[#fffdfa] p-6"><div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Live preview</p><button onClick={()=>openPreviewPrint(selectedTemplate.title_template, preview)} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Print / PDF</button></div><article className="mt-6 whitespace-pre-wrap text-[15px] leading-7">{preview}</article></section>
       </div>}
