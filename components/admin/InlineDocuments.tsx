@@ -96,12 +96,9 @@ function printDocument(document: DocumentRow) {
   popup.document.close();
 
   popup.focus();
-
-  popup.addEventListener("load", () => {
-    setTimeout(() => {
-      popup.print();
-    }, 150);
-  });
+  setTimeout(() => {
+    popup.print();
+  }, 250);
 }
 
 export default function InlineDocuments({ businessId, clientId, bookingId, locale, timezone, canOperate }: Props) {

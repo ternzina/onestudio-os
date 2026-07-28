@@ -229,7 +229,7 @@ export default function DocumentsPage() {
           <label className="mt-4 grid gap-2 text-sm font-semibold">Body<textarea value={selectedTemplate.body_template} onChange={(e)=>patchTemplate({body_template:e.target.value})} className="min-h-[420px] rounded-2xl border border-black/10 px-4 py-4 font-mono text-sm font-normal leading-6"/></label>
           <p className="mt-3 text-xs text-[#77736a]">Variables use dotted names, for example {"{{company.legal_name}} {{client.name}} {{booking.total}}"}.</p>
         </section>
-        <section className="rounded-[30px] border border-black/8 bg-[#fffdfa] p-6"><div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Live preview</p><button onClick={()=>window.print()} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Print / PDF</button></div><article className="mt-6 whitespace-pre-wrap text-[15px] leading-7">{preview}</article></section>
+        <section className="rounded-[30px] border border-black/8 bg-[#fffdfa] p-6"><div className="flex items-center justify-between"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Live preview</p><button onClick={()=>openPreviewPrint(selectedTemplate.title_template, preview)} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">Print / PDF</button></div><article className="mt-6 whitespace-pre-wrap text-[15px] leading-7">{preview}</article></section>
       </div>}
     </div>}
   </section></main></>;
@@ -237,5 +237,14 @@ export default function DocumentsPage() {
 
 function Select({label,value,onChange,options,disabled=false}:{label:string;value:string;onChange:(value:string)=>void;options:string[][];disabled?:boolean}){return <label className="grid gap-2 text-sm font-semibold"><span>{label}</span><select disabled={disabled} value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl border border-black/10 bg-[#fffdfa] px-4 py-3 font-normal disabled:opacity-50">{options.map(([key,name])=><option key={key} value={key}>{name}</option>)}</select></label>}
 function eventLabel(type: DocumentEvent["event_type"]){return ({created:"Created",sent:"Sent",send_failed:"Send failed",voided:"Voided"} as Record<DocumentEvent["event_type"], string>)[type]}
-function openPrint(item:GeneratedDocument){const win=window.open("","_blank","noopener,noreferrer");if(!win)return;win.document.write(`<html><head><title>${escapeHtml(item.title_snapshot)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;white-space:pre-wrap;line-height:1.65;color:#222}h1{font-size:28px}</style></head><body><h1>${escapeHtml(item.title_snapshot)}</h1>${escapeHtml(item.content_snapshot)}</body></html>`);win.document.close();win.print()}
+function openPreviewPrint(title:string, content:string){openPrintableDocument(title, "Preview", content)}
+function openPrint(item:GeneratedDocument){openPrintableDocument(item.title_snapshot, item.document_number, item.content_snapshot)}
+function openPrintableDocument(title:string, meta:string, content:string){
+  const win=window.open("","_blank","noopener,noreferrer");
+  if(!win)return;
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;line-height:1.65;color:#222}.meta{margin:0 0 28px;color:#77736a;font-size:12px}.body{white-space:pre-wrap;font-size:15px}h1{font-size:28px;margin:0 0 10px}@media print{body{margin:20mm;max-width:none}}</style></head><body><h1>${escapeHtml(title)}</h1><div class="meta">${escapeHtml(meta)}</div><div class="body">${escapeHtml(content || "Document content is empty.")}</div></body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),250);
+}
 function escapeHtml(value:string){return value.replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]??char))}
