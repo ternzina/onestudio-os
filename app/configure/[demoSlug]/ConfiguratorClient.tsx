@@ -72,7 +72,7 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
   }
 
   function saveConfiguration() {
-    window.localStorage.setItem(storageKey, JSON.stringify({
+    const configuration = {
       demoSlug: demo.slug,
       businessName,
       tagline,
@@ -82,7 +82,9 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
       currency,
       onlinePayment,
       reminders,
-    }));
+    };
+    window.localStorage.setItem(storageKey, JSON.stringify(configuration));
+    window.localStorage.setItem("onestudio-config:pending", JSON.stringify(configuration));
     setSaved(true);
   }
 
@@ -198,7 +200,7 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
     },
     {
       title: "Конфигурация готова",
-      lead: "Проверьте выбранную основу. Сейчас её можно сохранить на этом устройстве; подключение автоматического создания нового workspace станет следующим слоем.",
+      lead: "Проверьте выбранную основу. После регистрации OneStudio создаст для вас отдельное рабочее пространство с выбранными модулями и языками.",
       body: (
         <>
           <div className={styles.summary}>
@@ -209,7 +211,11 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
             <div><span>Языки</span><b>{summary.languages}</b></div>
             <div><span>Оплата</span><b>{summary.payment}</b></div>
           </div>
-          {saved ? <p className={styles.saved}>Готово. Конфигурация сохранена в этом браузере и не отправлялась в раздел «Заявки».</p> : null}
+          {saved ? (
+            <p className={styles.saved}>
+              Готово. Конфигурация сохранена. Теперь можно создать своё рабочее пространство.
+            </p>
+          ) : null}
         </>
       ),
     },
@@ -248,7 +254,10 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
             {step < steps.length - 1 ? (
               <button type="button" onClick={() => setStep(step + 1)}>Продолжить →</button>
             ) : (
-              <button type="button" onClick={saveConfiguration}>Сохранить конфигурацию</button>
+              <>
+                <button type="button" onClick={saveConfiguration}>Сохранить конфигурацию</button>
+                {saved ? <Link href="/register?source=configurator">Создать рабочее пространство →</Link> : null}
+              </>
             )}
           </div>
         </section>

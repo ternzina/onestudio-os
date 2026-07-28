@@ -16,7 +16,7 @@ type AccessRow = {
 function readSafeNextPath() {
   if (typeof window === "undefined") return "/admin";
   const value = new URLSearchParams(window.location.search).get("next");
-  return value?.startsWith("/admin") ? value : "/admin";
+  return value?.startsWith("/admin") || value === "/launch" ? value : "/admin";
 }
 
 export default function LoginPage() {
@@ -54,6 +54,12 @@ export default function LoginPage() {
 
     if (access?.access_state === "ready") {
       router.replace(readSafeNextPath());
+      router.refresh();
+      return;
+    }
+
+    if (readSafeNextPath() === "/launch") {
+      router.replace("/launch");
       router.refresh();
       return;
     }

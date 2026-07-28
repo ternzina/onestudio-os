@@ -1,0 +1,13 @@
+OneStudio OS — Self-service Workspace 1.0 hotfix
+
+This patch adds a new migration. It does not rewrite the already applied
+20260729090000 migration.
+
+Install and verify:
+
+cd "/Users/zina/Desktop/onestudio-os-work" && \
+unzip -o "$HOME/Downloads/onestudio-self-service-workspace-hotfix-1.0.zip" -d . && \
+npx supabase@beta migration up && \
+npx supabase@beta test db && \
+rm -rf .next && \
+npm run build

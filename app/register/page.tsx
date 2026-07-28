@@ -17,9 +17,13 @@ export default function RegisterPage() {
   const [message, setMessage] = useState("");
   const [checking, setChecking] = useState(true);
   const [bootstrapOpen, setBootstrapOpen] = useState(false);
+  const [selfService, setSelfService] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const fromConfigurator = new URLSearchParams(window.location.search).get("source") === "configurator"
+      && Boolean(window.localStorage.getItem("onestudio-config:pending"));
+    setSelfService(fromConfigurator);
     void supabase.rpc("admin_bootstrap_available").then(({ data, error }) => {
       setBootstrapOpen(!error && data === true);
       setChecking(false);
@@ -54,12 +58,14 @@ export default function RegisterPage() {
     }
 
     if (data.session) {
-      router.replace("/admin/bootstrap");
+      router.replace(selfService ? "/launch" : "/admin/bootstrap");
       router.refresh();
       return;
     }
 
-    setMessage(t("Confirm your email, then sign in to finish the first workspace setup."));
+    setMessage(selfService
+      ? "Подтвердите email, затем войдите — ваша настройка сохранена в этом браузере."
+      : t("Confirm your email, then sign in to finish the first workspace setup."));
     setSubmitting(false);
   }
 
@@ -72,7 +78,7 @@ export default function RegisterPage() {
     );
   }
 
-  if (!bootstrapOpen) {
+  if (!bootstrapOpen && !selfService) {
     return (
       <main className="relative flex min-h-screen items-center justify-center bg-[#0b0d12] px-5 text-[#f7f5ef]">
         <div className="absolute right-6 top-6"><AdminLanguageSwitcher theme="dark" /></div>
@@ -95,11 +101,15 @@ export default function RegisterPage() {
       <section className="relative w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] p-7 shadow-2xl sm:p-9">
         <div className="absolute right-6 top-6"><AdminLanguageSwitcher theme="dark" /></div>
         <Link href="/" className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">
-          {t("Admin Access 1.0")}
+          OneStudio OS
         </Link>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">{t("Create the first owner")}</h1>
+        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">
+          {selfService ? "Создайте свой проект" : t("Create the first owner")}
+        </h1>
         <p className="mt-3 text-sm leading-6 text-[#b9b5ab]">
-          {t("This one-time account becomes the installation owner. The setup door closes after the workspace is created.")}
+          {selfService
+            ? "После регистрации мы создадим отдельный сайт и админку по выбранной конфигурации."
+            : t("This one-time account becomes the installation owner. The setup door closes after the workspace is created.")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -123,7 +133,7 @@ export default function RegisterPage() {
           {message ? <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-[#e7e2d7]">{message}</div> : null}
 
           <button type="submit" disabled={submitting} className="w-full rounded-full bg-[#f7f5ef] px-5 py-3.5 text-sm font-semibold text-[#0b0d12] disabled:opacity-60">
-            {submitting ? t("Creating account...") : t("Create owner account")}
+            {submitting ? t("Creating account...") : (selfService ? "Продолжить" : t("Create owner account"))}
           </button>
         </form>
 

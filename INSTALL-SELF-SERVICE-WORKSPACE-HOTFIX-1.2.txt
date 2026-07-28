@@ -1,0 +1,17 @@
+OneStudio OS — Self-service Workspace hotfix 1.2
+
+This patch adds a new migration. It does not modify either migration already
+recorded in the database.
+
+The create_configured_workspace RPC is replaced as a complete definition.
+Every table reference that can conflict with the RPC output column
+business_id is explicitly qualified.
+
+Run from the OneStudio OS project root:
+
+  npx supabase@beta migration up
+  npx supabase@beta test db
+  rm -rf .next
+  npm run build
+
+Do not deploy until all database tests and the production build pass.
