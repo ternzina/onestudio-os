@@ -13,6 +13,7 @@ type Client = { id: string; name: string; email: string | null; phone: string | 
 type Booking = { id: string; reference: string; client_id: string; service_id: string; starts_at: string; timezone: string; total_minor: number; currency: string };
 type Service = { id: string; title: string };
 type Profile = { display_name:string; legal_name:string; tax_id:string; email:string; website_url:string; bank_name:string; iban:string; address:string };
+type DocumentEvent = { id: string; document_id: string; event_type: "created" | "sent" | "send_failed" | "voided"; recipient_email: string | null; provider: string | null; provider_message_id: string | null; error_message: string | null; created_at: string };
 const documentTypeLabels: Record<string, string> = {
   contract: "Contract",
   invoice: "Invoice",
@@ -27,6 +28,7 @@ export default function DocumentsPage() {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [generated, setGenerated] = useState<GeneratedDocument[]>([]);
+  const [documentEvents, setDocumentEvents] = useState<DocumentEvent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -56,6 +58,12 @@ export default function DocumentsPage() {
       ? generated.filter((item)=>item.client_id===requestedClientId)
       : generated;
   const activeTemplateTypes = new Set(templates.filter((item)=>item.status==="active").map((item)=>item.document_type)).size;
+  const eventsByDocument = useMemo(() => {
+    return documentEvents.reduce<Record<string, DocumentEvent[]>>((acc, event) => {
+      acc[event.document_id] = [...(acc[event.document_id] ?? []), event];
+      return acc;
+    }, {});
+  }, [documentEvents]);
 
   useEffect(()=>{ void load(); },[]);
 
@@ -67,18 +75,20 @@ export default function DocumentsPage() {
     const current = rows.find((row)=>row.is_default) ?? rows[0];
     if (!current) { setError("No active workspace."); return; }
     setWorkspace(current);
-    const [templateResult, generatedResult, clientResult, bookingResult, serviceResult, profileResult] = await Promise.all([
+    const [templateResult, generatedResult, eventResult, clientResult, bookingResult, serviceResult, profileResult] = await Promise.all([
       supabase.from("document_templates").select("*").eq("business_id",current.business_id).order("document_type"),
       supabase.from("generated_documents").select("id,business_id,client_id,booking_id,document_type,document_number,title_snapshot,content_snapshot,status,recipient_email,sent_at,delivery_provider,delivery_id,delivery_error,issued_at,created_at").eq("business_id",current.business_id).order("created_at",{ascending:false}).limit(30),
+      supabase.from("document_events").select("id,document_id,event_type,recipient_email,provider,provider_message_id,error_message,created_at").eq("business_id",current.business_id).order("created_at",{ascending:false}).limit(120),
       supabase.from("clients").select("id,name,email,phone").eq("business_id",current.business_id).is("archived_at",null).order("name"),
       supabase.from("bookings").select("id,reference,client_id,service_id,starts_at,timezone,total_minor,currency").eq("business_id",current.business_id).order("starts_at",{ascending:false}).limit(100),
       supabase.from("services").select("id,title").eq("business_id",current.business_id),
       supabase.from("company_profiles").select("display_name,legal_name,tax_id,email,website_url,bank_name,iban,address").eq("business_id",current.business_id).maybeSingle(),
     ]);
-    const firstError = [templateResult.error,generatedResult.error,clientResult.error,bookingResult.error,serviceResult.error,profileResult.error].find(Boolean);
+    const firstError = [templateResult.error,generatedResult.error,eventResult.error,clientResult.error,bookingResult.error,serviceResult.error,profileResult.error].find(Boolean);
     if (firstError) { setError(firstError.message); return; }
     const loadedTemplates=(templateResult.data ?? []) as DocumentTemplate[];
     setTemplates(loadedTemplates); setGenerated((generatedResult.data ?? []) as GeneratedDocument[]);
+    setDocumentEvents((eventResult.data ?? []) as DocumentEvent[]);
     setClients((clientResult.data ?? []) as Client[]); setBookings((bookingResult.data ?? []) as Booking[]); setServices((serviceResult.data ?? []) as Service[]);
     if (profileResult.data) setProfile(profileResult.data as Profile);
     if (loadedTemplates[0]) setTemplateId((value)=>value || loadedTemplates[0].id);
@@ -211,7 +221,7 @@ export default function DocumentsPage() {
           {clientId&&visibleBookings.length===0&&<p className="rounded-2xl bg-[#eeebe3] px-4 py-3 text-xs leading-5 text-[#5f594f]">The selected client has no bookings. The document will use client and company data only.</p>}
           <button onClick={generateDocument} disabled={busy||!canEdit} className="rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy?"Working…":documentStatus==="draft"?"Generate draft document":"Generate final document"}</button>
         </div></section>
-        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated documents</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=>{const linkedClient=clients.find((client)=>client.id===item.client_id);const linkedBooking=bookings.find((booking)=>booking.id===item.booking_id);return <div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="rounded-full bg-[#f4ead2] px-2.5 py-1 text-xs font-semibold uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p><div className="mt-3 flex flex-wrap gap-2 text-xs text-[#77736a]">{linkedClient&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedClient.name}</span>}{linkedBooking&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedBooking.reference}</span>}<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{new Intl.DateTimeFormat("uk-UA").format(new Date(item.created_at))}</span></div>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>})}</div></section>
+        <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-6"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Generated documents</p><div className="mt-4 grid gap-3">{visibleGenerated.length===0?<p className="text-sm text-[#77736a]">No documents yet.</p>:visibleGenerated.map((item)=>{const linkedClient=clients.find((client)=>client.id===item.client_id);const linkedBooking=bookings.find((booking)=>booking.id===item.booking_id);const timeline=eventsByDocument[item.id] ?? [];return <div key={item.id} className="rounded-2xl bg-white p-4"><div className="flex justify-between gap-3"><strong>{item.document_number}</strong><span className="rounded-full bg-[#f4ead2] px-2.5 py-1 text-xs font-semibold uppercase text-[#8b7446]">{item.status}</span></div><p className="mt-1 text-sm text-[#77736a]">{item.title_snapshot}</p><div className="mt-3 flex flex-wrap gap-2 text-xs text-[#77736a]">{linkedClient&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedClient.name}</span>}{linkedBooking&&<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{linkedBooking.reference}</span>}<span className="rounded-full bg-[#f7f3eb] px-3 py-1">{new Intl.DateTimeFormat("uk-UA").format(new Date(item.created_at))}</span></div>{item.recipient_email&&<p className="mt-2 text-xs text-[#77736a]">{item.status==="sent"?"Sent to":"Recipient"}: {item.recipient_email}</p>}{item.delivery_error&&<p className="mt-2 text-xs text-red-700">{item.delivery_error}</p>}{timeline.length>0&&<div className="mt-3 rounded-2xl bg-[#fbf8f1] px-4 py-3"><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Timeline</p><div className="mt-2 grid gap-2">{timeline.slice(0,4).map((event)=><div key={event.id} className="text-xs leading-5 text-[#6f6c65]"><span className="font-semibold text-[#332f29]">{eventLabel(event.event_type)}</span><span> · {new Intl.DateTimeFormat("uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(event.created_at))}</span>{event.recipient_email&&<span> · {event.recipient_email}</span>}{event.provider&&<span> · {event.provider}</span>}{event.error_message&&<p className="mt-1 text-red-700">{event.error_message}</p>}</div>)}</div></div>}<div className="mt-3 flex flex-wrap gap-2"><button onClick={()=>openPrint(item)} className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">Print / PDF</button><button onClick={()=>sendDocument(item.id)} disabled={sendingId===item.id||!item.client_id||item.status==="void"} className="rounded-full bg-[#17191f] px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{sendingId===item.id?"Sending…":item.status==="sent"?"Send again":"Send email"}</button></div></div>})}</div></section>
       </div>
       {selectedTemplate&&<div className="grid gap-6">
         <section className="rounded-[30px] border border-black/8 bg-white p-6"><div className="flex justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">Template editor</p><h2 className="mt-2 text-2xl font-semibold">{documentTypeLabels[selectedTemplate.document_type] ?? selectedTemplate.document_type}</h2><p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#8b7446]">{selectedTemplate.locale.toUpperCase()} · v{selectedTemplate.version} · {selectedTemplate.status}</p></div><button onClick={saveTemplate} disabled={busy||!canEdit} className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold">Save template</button></div>
@@ -226,5 +236,6 @@ export default function DocumentsPage() {
 }
 
 function Select({label,value,onChange,options,disabled=false}:{label:string;value:string;onChange:(value:string)=>void;options:string[][];disabled?:boolean}){return <label className="grid gap-2 text-sm font-semibold"><span>{label}</span><select disabled={disabled} value={value} onChange={(e)=>onChange(e.target.value)} className="rounded-2xl border border-black/10 bg-[#fffdfa] px-4 py-3 font-normal disabled:opacity-50">{options.map(([key,name])=><option key={key} value={key}>{name}</option>)}</select></label>}
+function eventLabel(type: DocumentEvent["event_type"]){return ({created:"Created",sent:"Sent",send_failed:"Send failed",voided:"Voided"} as Record<DocumentEvent["event_type"], string>)[type]}
 function openPrint(item:GeneratedDocument){const win=window.open("","_blank","noopener,noreferrer");if(!win)return;win.document.write(`<html><head><title>${escapeHtml(item.title_snapshot)}</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;white-space:pre-wrap;line-height:1.65;color:#222}h1{font-size:28px}</style></head><body><h1>${escapeHtml(item.title_snapshot)}</h1>${escapeHtml(item.content_snapshot)}</body></html>`);win.document.close();win.print()}
 function escapeHtml(value:string){return value.replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]??char))}
