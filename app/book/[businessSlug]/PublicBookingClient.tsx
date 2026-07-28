@@ -208,7 +208,7 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
     setSlotsRequested(false);
     setSelectedSlot(null);
     setError("");
-  }, [service?.id]);
+  }, [service]);
 
   async function loadSlots() {
     if (!service || !date) return;

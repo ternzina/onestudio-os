@@ -13,6 +13,6 @@ select col_not_null('public','legal_documents','body_template','document body re
 select col_not_null('public','legal_documents','business_id','workspace required');
 select has_index('public','legal_documents','legal_documents_business_id_document_type_locale_key','one document per locale and type');
 select has_index('public','legal_document_versions','legal_document_versions_document_id_version_key','version snapshot unique');
-select ok((select enabled from public.business_modules where business_id='00000000-0000-4000-8000-000000000001' and module_key='legal'),'legal module enabled');
+select ok((select enabled from public.business_modules where business_id='00000000-0000-4000-8000-000000000001' and module_key='documents'),'documents module enabled');
 select * from finish();
 rollback;

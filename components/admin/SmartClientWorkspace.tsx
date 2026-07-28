@@ -110,12 +110,13 @@ export default function SmartClientWorkspace({
   const [sentDocumentCount, setSentDocumentCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [renderedAt] = useState(() => Date.now());
 
   const upcoming = useMemo(
     () => bookings
-      .filter((booking) => !["cancelled", "completed", "no_show"].includes(booking.status) && new Date(booking.starts_at).getTime() >= Date.now())
+      .filter((booking) => !["cancelled", "completed", "no_show"].includes(booking.status) && new Date(booking.starts_at).getTime() >= renderedAt)
       .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())[0] ?? null,
-    [bookings],
+    [bookings, renderedAt],
   );
 
   const unpaidCount = useMemo(

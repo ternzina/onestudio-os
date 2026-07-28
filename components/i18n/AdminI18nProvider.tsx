@@ -52,13 +52,13 @@ export default function AdminI18nProvider({
     } catch {
       stored = null;
     }
-    if (isAdminLocale(stored) && stored !== locale) {
+    if (isAdminLocale(stored) && stored !== initialLocale) {
       setLocaleState(stored);
       persistLocale(stored);
       return;
     }
-    persistLocale(locale);
-  }, []); // The cookie-provided locale is the hydration source; localStorage is only a fallback.
+    persistLocale(initialLocale);
+  }, [initialLocale]); // The cookie-provided locale is the hydration source; localStorage is only a fallback.
 
   useEffect(() => {
     persistLocale(locale);

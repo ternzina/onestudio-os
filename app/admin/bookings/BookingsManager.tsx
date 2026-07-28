@@ -100,16 +100,6 @@ type ResourceRow = {
   name: string;
 };
 
-type EventRow = {
-  id: string;
-  booking_id: string;
-  event_type: "created" | "updated" | "status_changed" | "cancelled";
-  previous_status: string | null;
-  new_status: string | null;
-  changes: Record<string, unknown>;
-  created_at: string;
-};
-
 type SlotRow = {
   starts_at: string;
   ends_at: string;
@@ -145,13 +135,6 @@ const statusMessages: Record<BookingStatus, AdminMessage> = {
   completed: "Completed",
   cancelled: "Cancelled",
   no_show: "No-show",
-};
-
-const eventMessages: Record<EventRow["event_type"], AdminMessage> = {
-  created: "Booking created",
-  updated: "Booking updated",
-  status_changed: "Booking status changed",
-  cancelled: "Booking cancelled",
 };
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -236,7 +219,6 @@ export default function BookingsManager() {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [allocations, setAllocations] = useState<AllocationRow[]>([]);
   const [resources, setResources] = useState<ResourceRow[]>([]);
-  const [events, setEvents] = useState<EventRow[]>([]);
   const [timeline, setTimeline] = useState<UnifiedTimelineRow[]>([]);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
@@ -277,11 +259,6 @@ export default function BookingsManager() {
     () => allocations.filter((allocation) => allocation.booking_id === selectedBookingId),
     [allocations, selectedBookingId],
   );
-  const selectedEvents = useMemo(
-    () => events.filter((event) => event.booking_id === selectedBookingId),
-    [events, selectedBookingId],
-  );
-
   useEffect(() => {
     let active = true;
     if (!selectedBookingId) {
@@ -308,7 +285,7 @@ export default function BookingsManager() {
   };
 
   const loadWorkspaceData = useCallback(async (businessId: string) => {
-    const [serviceResult, clientResult, bookingResult, allocationResult, resourceResult, eventResult] = await Promise.all([
+    const [serviceResult, clientResult, bookingResult, allocationResult, resourceResult] = await Promise.all([
       supabase
         .from("services")
         .select("id,business_id,title,kind,pricing_model,price_minor,currency,duration_min_minutes,duration_max_minutes,duration_step_minutes,capacity,is_active,sort_order")
@@ -334,20 +311,13 @@ export default function BookingsManager() {
         .from("resources")
         .select("id,name")
         .eq("business_id", businessId),
-      supabase
-        .from("booking_events")
-        .select("id,booking_id,event_type,previous_status,new_status,changes,created_at")
-        .eq("business_id", businessId)
-        .order("created_at", { ascending: false })
-        .limit(500),
     ]);
 
     const firstError = serviceResult.error
       ?? clientResult.error
       ?? bookingResult.error
       ?? allocationResult.error
-      ?? resourceResult.error
-      ?? eventResult.error;
+      ?? resourceResult.error;
     if (firstError) throw firstError;
 
     const nextServices = (serviceResult.data ?? []) as ServiceRow[];
@@ -358,7 +328,6 @@ export default function BookingsManager() {
     setBookings(nextBookings);
     setAllocations((allocationResult.data ?? []) as AllocationRow[]);
     setResources((resourceResult.data ?? []) as ResourceRow[]);
-    setEvents((eventResult.data ?? []) as EventRow[]);
     setSelectedBookingId((current) => current && nextBookings.some((booking) => booking.id === current) ? current : null);
     setDraft((current) => ({
       ...current,

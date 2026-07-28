@@ -4,6 +4,22 @@ export type AdminLocale = (typeof ADMIN_LOCALES)[number];
 export const DEFAULT_ADMIN_LOCALE: AdminLocale = "ru";
 
 const ruMessages = {
+  "Core Suite 1.0": "Core Suite 1.0",
+  "All core modules, one operating system.": "Все основные модули — одна операционная система.",
+  "Bookings, clients, payments, notifications, documents and analytics now share one protected workspace and one source of truth.": "Бронирования, клиенты, платежи, уведомления, документы и аналитика теперь работают в одном защищённом пространстве и используют единый источник данных.",
+  "Release rule": "Правило релиза",
+  "One source of truth across every module.": "Единый источник данных для всех модулей.",
+  "Core plus nine enabled product modules form the first integrated suite.": "Ядро и девять включённых рабочих модулей образуют первую целостную систему.",
+  "Release status": "Статус релиза",
+  "Core plus nine modules enabled.": "Ядро и девять модулей включены.",
+  "Dependencies are explicit and workspace isolation remains enforced.": "Зависимости указаны явно, изоляция рабочих пространств защищена.",
+  "The module registry now matches the database for every existing and future workspace.": "Реестр модулей теперь совпадает с базой для каждого существующего и будущего рабочего пространства.",
+  "See every Core Suite module, its version and its dependencies.": "Посмотрите каждый модуль Core Suite, его версию и зависимости.",
+  "Core · Nine modules · One workspace": "Ядро · Девять модулей · Одно пространство",
+  "Live workspace data: {workspace}": "Живые данные пространства: {workspace}",
+  "Loading workspace overview…": "Загрузка обзора пространства…",
+  "{count} of 10 modules enabled": "Включено модулей: {count} из 10",
+  "Command Center could not be loaded.": "Не удалось загрузить Command Center.",
   "Resend Adapter 1.0": "Resend Adapter 1.0",
   "Live delivery is enabled.": "Включена реальная отправка.",
   "Test delivery redirects every message to {email}.": "Тестовая отправка перенаправляет каждое письмо на {email}.",

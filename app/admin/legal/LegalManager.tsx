@@ -17,19 +17,19 @@ type DocumentRow = {
 };
 
 const initialProfile: Omit<Profile, "business_id"> = {
-  legal_name: "ФОП Тернавська Зінаїда Рахілівна",
-  display_name: "OneStudio OS",
+  legal_name: "",
+  display_name: "",
   entity_type: "sole_proprietor",
-  tax_id: "2011300180",
-  registration_id: "2011300180",
-  email: "hello@onestudioos.com",
+  tax_id: "",
+  registration_id: "",
+  email: "",
   phone: "",
-  website_url: "https://onestudioos.com",
+  website_url: "",
   country_code: "UA",
   address: "",
-  bank_name: "АТ КБ «ПРИВАТБАНК»",
-  iban: "UA663052990000026005016008890",
-  support_email: "hello@onestudioos.com",
+  bank_name: "",
+  iban: "",
+  support_email: "",
   governing_law: "Ukraine",
 };
 
@@ -64,8 +64,10 @@ export default function LegalManager() {
     if (profileResult.error) setError(profileResult.error.message);
     if (docsResult.error) setError(docsResult.error.message);
     if (profileResult.data) {
-      const { business_id: _businessId, updated_at: _updatedAt, ...rest } = profileResult.data as Profile & { updated_at?: string };
-      setProfile({ ...initialProfile, ...rest });
+      const editable = Object.fromEntries(
+        Object.entries(profileResult.data).filter(([key]) => !["business_id", "updated_at"].includes(key)),
+      ) as Omit<Profile, "business_id">;
+      setProfile({ ...initialProfile, ...editable });
     }
     setDocuments((docsResult.data ?? []) as DocumentRow[]);
     setLoading(false);

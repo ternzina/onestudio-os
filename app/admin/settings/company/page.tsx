@@ -37,7 +37,9 @@ export default function CompanyProfilePage() {
       if (!active) return;
       if (profileError) setError(profileError.message);
       if (data) {
-        const { business_id: _businessId, created_at: _createdAt, updated_at: _updatedAt, ...editable } = data as CompanyProfile & { created_at?: string; updated_at?: string };
+        const editable = Object.fromEntries(
+          Object.entries(data).filter(([key]) => !["business_id", "created_at", "updated_at"].includes(key)),
+        ) as EditableProfile;
         setProfile({ ...emptyCompanyProfile, ...editable });
       }
       setLoading(false);

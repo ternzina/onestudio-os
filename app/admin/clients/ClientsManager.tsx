@@ -66,14 +66,6 @@ type ClientBookingRow = {
   payment_status: PaymentStatus;
 };
 
-type ClientEventRow = {
-  id: string;
-  event_type: "created" | "updated" | "archived" | "restored" | "merged";
-  actor_user_id: string | null;
-  changes: Record<string, unknown>;
-  created_at: string;
-};
-
 type ClientDraft = {
   name: string;
   email: string;
@@ -98,14 +90,6 @@ const statusMessages: Record<BookingStatus, AdminMessage> = {
   completed: "Completed",
   cancelled: "Cancelled",
   no_show: "No-show",
-};
-
-const eventMessages: Record<ClientEventRow["event_type"], AdminMessage> = {
-  created: "Client created",
-  updated: "Client updated",
-  archived: "Client archived",
-  restored: "Client restored",
-  merged: "Clients merged",
 };
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -179,7 +163,6 @@ export default function ClientsManager() {
   const [workspace, setWorkspace] = useState<WorkspaceRow | null>(null);
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [history, setHistory] = useState<ClientBookingRow[]>([]);
-  const [events, setEvents] = useState<ClientEventRow[]>([]);
   const [timeline, setTimeline] = useState<UnifiedTimelineRow[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [requestedClientId, setRequestedClientId] = useState<string | null>(null);
@@ -235,13 +218,12 @@ export default function ClientsManager() {
 
   const loadClientDetails = useCallback(async (clientId: string) => {
     setDetailsLoading(true);
-    const [historyResult, eventResult, timelineResult] = await Promise.all([
+    const [historyResult, timelineResult] = await Promise.all([
       supabase.rpc("get_admin_client_bookings", { p_client_id: clientId }),
-      supabase.rpc("get_admin_client_events", { p_client_id: clientId }),
       supabase.rpc("get_admin_client_timeline", { p_client_id: clientId }),
     ]);
 
-    const firstError = historyResult.error ?? eventResult.error ?? timelineResult.error;
+    const firstError = historyResult.error ?? timelineResult.error;
     if (firstError) {
       setError(firstError.message);
       setDetailsLoading(false);
@@ -249,7 +231,6 @@ export default function ClientsManager() {
     }
 
     setHistory((historyResult.data ?? []) as ClientBookingRow[]);
-    setEvents((eventResult.data ?? []) as ClientEventRow[]);
     setTimeline((timelineResult.data ?? []) as UnifiedTimelineRow[]);
     setDetailsLoading(false);
   }, []);
@@ -297,7 +278,7 @@ export default function ClientsManager() {
         setSelectedClientId(null);
         setDraft(emptyDraft(defaultLocale));
         setHistory([]);
-        setEvents([]);
+        setTimeline([]);
       }
     },
     [],
@@ -349,7 +330,7 @@ export default function ClientsManager() {
     setSelectedClientId(null);
     setDraft(emptyDraft(workspace?.default_locale || "ru"));
     setHistory([]);
-    setEvents([]);
+    setTimeline([]);
   };
 
   const saveClient = async (event: FormEvent<HTMLFormElement>) => {

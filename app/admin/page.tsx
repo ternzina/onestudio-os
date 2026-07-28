@@ -110,7 +110,7 @@ export default function AdminPage() {
     {
       title: t("Module map"),
       label: t("System architecture"),
-      description: t("See which modules are enabled, contract-ready or still planned."),
+      description: t("See every Core Suite module, its version and its dependencies."),
       href: "/admin/modules",
       icon: "⌘",
     },
@@ -121,18 +121,18 @@ export default function AdminPage() {
       <main className="min-h-screen px-5 pb-24 pt-36">
         <section className="mx-auto w-full max-w-7xl">
           <div className="rounded-[38px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.2)] sm:p-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Resend Adapter 1.0")}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d8b36a]">{t("Core Suite 1.0")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>
-                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("The queue now has a real postman.")}</h1>
+                <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t("All core modules, one operating system.")}</h1>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  {t("Resend delivery, test redirection, protected cron processing and stale-job recovery now sit behind the provider-neutral notification queue.")}
+                  {t("Bookings, clients, payments, notifications, documents and analytics now share one protected workspace and one source of truth.")}
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Delivery rule")}</p>
-                <p className="mt-3 text-2xl font-semibold">{t("Disabled first, test next, live only when explicitly enabled.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("The adapter defaults to disabled and never exposes API keys in the browser.")}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Release rule")}</p>
+                <p className="mt-3 text-2xl font-semibold">{t("One source of truth across every module.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Core plus nine enabled product modules form the first integrated suite.")}</p>
               </div>
             </div>
           </div>
