@@ -73,6 +73,13 @@ export default function AdminPage() {
       icon: "▧",
     },
     {
+      title: t("Analytics"),
+      label: t("Business metrics"),
+      description: t("See bookings, clients, booked hours and money for a trusted workspace-local period."),
+      href: "/admin/analytics",
+      icon: "⌁",
+    },
+    {
       title: t("Public booking"),
       label: t("Client booking flow"),
       description: t("Open the public service, date, slot and contact flow that writes into the canonical booking record."),
@@ -108,8 +115,6 @@ export default function AdminPage() {
       icon: "⌘",
     },
   ];
-  const nextModules = [t("Analytics")];
-
   return (
     <>
       <AdminHeader />
@@ -145,17 +150,6 @@ export default function AdminPage() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-[30px] border border-black/8 bg-[#eeebe3] p-6 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">{t("Next product layers")}</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {nextModules.map((module, index) => (
-                <div key={module} className="rounded-2xl bg-white/80 p-4">
-                  <p className="text-xs text-[#9a742e]">0{index + 1}</p>
-                  <p className="mt-2 text-sm font-semibold">{module}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
       </main>
     </>

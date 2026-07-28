@@ -23,9 +23,9 @@ export default function AdminSidebar() {
     { href: "/admin/settings/company", label: t("Company"), icon: "◍" },
     { href: "/admin/legal", label: t("Legal"), icon: "§" },
     { href: "/admin/documents", label: t("Documents"), icon: "▧" },
+    { href: "/admin/analytics", label: t("Analytics"), icon: "⌁" },
     { href: "/admin/modules", label: t("Modules"), icon: "⌘" },
   ] as const;
-  const plannedItems = [t("Analytics")];
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[290px] overflow-y-auto border-r border-black/8 bg-[#fffdfa] px-5 py-6 shadow-[18px_0_70px_rgba(25,25,25,0.06)] lg:block">
@@ -56,15 +56,6 @@ export default function AdminSidebar() {
             );
           })}
         </nav>
-
-        <div className="mt-6 rounded-[22px] border border-black/8 bg-[#eeebe3] p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Next product layers")}</p>
-          <div className="mt-3 grid gap-2">
-            {plannedItems.map((item) => (
-              <div key={item} className="rounded-xl bg-white/70 px-3 py-2 text-sm text-[#79766f]">{item}</div>
-            ))}
-          </div>
-        </div>
 
         <div className="mt-auto grid gap-2 pt-6">
           <Link href="/book" target="_blank" className="rounded-full bg-[#17191f] px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white">

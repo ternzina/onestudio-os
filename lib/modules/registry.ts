@@ -86,8 +86,8 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
     key: "analytics",
     title: "Analytics",
     description: "Operational metrics derived from bookings, clients and payments.",
-    stage: "planned",
-    version: "0.0.0",
+    stage: "enabled",
+    version: "1.0.0",
     dependsOn: ["core", "scheduling", "crm"],
   },
 ] as const;
