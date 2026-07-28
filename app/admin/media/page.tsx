@@ -40,6 +40,11 @@ type CategoryLink = {
   sort_order: number;
 };
 
+type Workspace = {
+  business_id: string;
+  is_default: boolean;
+};
+
 const formatBytes = (bytes: number | null) => {
   if (!bytes) return "—";
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -67,15 +72,32 @@ export default function AdminMediaPage() {
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [businessId, setBusinessId] = useState("");
 
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
 
+    const { data: workspaceData, error: workspaceError } = await supabase.rpc(
+      "list_my_businesses",
+    );
+    const workspaces = (workspaceData ?? []) as Workspace[];
+    const workspace =
+      workspaces.find((item) => item.is_default) ?? workspaces[0] ?? null;
+
+    if (workspaceError || !workspace) {
+      setError(workspaceError?.message || t("No active workspace was found."));
+      setLoading(false);
+      return;
+    }
+
+    setBusinessId(workspace.business_id);
+
     const [categoryResult, mediaResult, linkResult] = await Promise.all([
       supabase
         .from("portfolio_categories")
         .select("id,name,slug,is_active,sort_order")
+        .eq("business_id", workspace.business_id)
         .order("sort_order", { ascending: true })
         .order("name", { ascending: true }),
       supabase
@@ -83,10 +105,12 @@ export default function AdminMediaPage() {
         .select(
           "id,image_url,r2_key,original_filename,mime_type,size_bytes,width,height,alt_text,is_active,is_favorite,manual_likes,source,created_at",
         )
+        .eq("business_id", workspace.business_id)
         .order("created_at", { ascending: false }),
       supabase
         .from("portfolio_category_images")
         .select("id,category_id,media_id,is_active,sort_order")
+        .eq("business_id", workspace.business_id)
         .order("sort_order", { ascending: true }),
     ]);
 
@@ -102,7 +126,7 @@ export default function AdminMediaPage() {
     setLinks((linkResult.data || []) as CategoryLink[]);
     setSelectedIds([]);
     setLoading(false);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadData();
@@ -218,8 +242,13 @@ export default function AdminMediaPage() {
   };
 
   const patchMedia = async (id: string, patch: Partial<MediaItem>, successMessage: string) => {
+    if (!businessId) return;
     clearNotices();
-    const { error: updateError } = await supabase.from("media_library").update(patch).eq("id", id);
+    const { error: updateError } = await supabase
+      .from("media_library")
+      .update(patch)
+      .eq("business_id", businessId)
+      .eq("id", id);
     if (updateError) {
       setError(updateError.message);
       return;
@@ -235,7 +264,7 @@ export default function AdminMediaPage() {
   };
 
   const assignSelectedToCategory = async () => {
-    if (selectedIds.length === 0) return;
+    if (selectedIds.length === 0 || !businessId) return;
     const targetCategory = categoryId === "all" ? categories[0]?.id : categoryId;
     if (!targetCategory) {
       setError(t("Select or create a category first."));
@@ -259,6 +288,7 @@ export default function AdminMediaPage() {
       );
       const { error: insertError } = await supabase.from("portfolio_category_images").insert(
         missingIds.map((mediaId, index) => ({
+          business_id: businessId,
           category_id: targetCategory,
           media_id: mediaId,
           is_active: true,
@@ -276,12 +306,13 @@ export default function AdminMediaPage() {
   };
 
   const removeSelectedFromCategory = async () => {
-    if (selectedIds.length === 0 || categoryId === "all") return;
+    if (selectedIds.length === 0 || categoryId === "all" || !businessId) return;
     clearNotices();
     setWorking(true);
     const { error: deleteError } = await supabase
       .from("portfolio_category_images")
       .delete()
+      .eq("business_id", businessId)
       .eq("category_id", categoryId)
       .in("media_id", selectedIds);
     if (deleteError) setError(deleteError.message);

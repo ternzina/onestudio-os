@@ -12,7 +12,12 @@ export const getAdminSupabase = async (request: NextRequest) => {
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
 
   if (!token) {
-    return { error: "Нет токена авторизации", supabase: null, userId: null };
+    return {
+      error: "Нет токена авторизации",
+      supabase: null,
+      userId: null,
+      businessId: null,
+    };
   }
 
   const supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
@@ -29,7 +34,12 @@ export const getAdminSupabase = async (request: NextRequest) => {
   } = await supabase.auth.getUser(token);
 
   if (userError || !user) {
-    return { error: "Не удалось проверить пользователя", supabase: null, userId: null };
+    return {
+      error: "Не удалось проверить пользователя",
+      supabase: null,
+      userId: null,
+      businessId: null,
+    };
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -39,8 +49,31 @@ export const getAdminSupabase = async (request: NextRequest) => {
     .single();
 
   if (profileError || profile?.role !== "admin") {
-    return { error: "Недостаточно прав", supabase: null, userId: user.id };
+    return {
+      error: "Недостаточно прав",
+      supabase: null,
+      userId: user.id,
+      businessId: null,
+    };
   }
 
-  return { error: null, supabase, userId: user.id };
+  const { data: businessId, error: workspaceError } = await supabase.rpc(
+    "current_business_id",
+  );
+
+  if (workspaceError || !businessId) {
+    return {
+      error: "Рабочее пространство не найдено",
+      supabase: null,
+      userId: user.id,
+      businessId: null,
+    };
+  }
+
+  return {
+    error: null,
+    supabase,
+    userId: user.id,
+    businessId: String(businessId),
+  };
 };

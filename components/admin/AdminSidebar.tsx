@@ -9,10 +9,11 @@ import type { CoreModuleKey } from "@/lib/modules/contracts";
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { t } = useAdminI18n();
-  const { enabledModules } = useAdminModules();
+  const { enabledModules, businessSlug } = useAdminModules();
   const activeItems = [
     { href: "/admin", label: t("Overview"), icon: "⌂" },
     { href: "/admin/workspace", label: t("Workspace"), icon: "◎" },
+    { href: "/admin/site", label: t("Site"), icon: "◈" },
     { href: "/admin/catalog", label: t("Catalog"), icon: "▦", module: "catalog" },
     { href: "/admin/availability", label: t("Availability"), icon: "◷", module: "scheduling" },
     { href: "/admin/bookings", label: t("Bookings"), icon: "▣", module: "scheduling" },
@@ -79,9 +80,11 @@ export default function AdminSidebar() {
               {t("Open booking form")}
             </Link>
           ) : null}
-          <Link href="/" target="_blank" className="rounded-full border border-black/10 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em]">
-            {t("Open public site")}
-          </Link>
+          {businessSlug ? (
+            <Link href={`/site/${businessSlug}`} target="_blank" className="rounded-full border border-black/10 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em]">
+              {t("Open public site")}
+            </Link>
+          ) : null}
           <Link href="/dashboard" className="rounded-full border border-black/10 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em]">
             {t("Account area")}
           </Link>

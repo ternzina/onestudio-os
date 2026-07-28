@@ -187,9 +187,9 @@ type RequestBody = PrepareBody | CompleteBody;
 
 export async function POST(request: NextRequest) {
   try {
-    const { error: authError, supabase } = await getAdminSupabase(request);
+    const { error: authError, supabase, businessId } = await getAdminSupabase(request);
 
-    if (authError || !supabase) {
+    if (authError || !supabase || !businessId) {
       return NextResponse.json({ error: authError }, { status: 401 });
     }
 
@@ -231,6 +231,7 @@ export async function POST(request: NextRequest) {
       .from("portfolio_categories")
       .select("id, slug, name")
       .eq("id", categoryId)
+      .eq("business_id", businessId)
       .single();
 
     if (categoryError || !category) {
@@ -246,7 +247,7 @@ export async function POST(request: NextRequest) {
       const extension = EXTENSIONS[mimeType] || "mp4";
       const safeName = makeSafeSlug(filename.replace(/\.[^/.]+$/, "")) || "video";
       const safeCategory = makeSafeSlug(category.slug || "video") || "video";
-      const r2Key = `portfolio/videos/${safeCategory}/${Date.now()}-${safeName}-${randomUUID().slice(0, 8)}.${extension}`;
+      const r2Key = `businesses/${businessId}/portfolio/videos/${safeCategory}/${Date.now()}-${safeName}-${randomUUID().slice(0, 8)}.${extension}`;
 
       const uploadUrl = createPresignedPutUrl({
         endpoint,
@@ -271,7 +272,7 @@ export async function POST(request: NextRequest) {
     }
 
     const r2Key = String(body.r2Key || "").trim();
-    if (!r2Key.startsWith("portfolio/videos/")) {
+    if (!r2Key.startsWith(`businesses/${businessId}/portfolio/videos/`)) {
       return NextResponse.json(
         { error: "Неправильный путь видео в R2" },
         { status: 400 },
@@ -295,12 +296,14 @@ export async function POST(request: NextRequest) {
         "id, image_url, r2_key, original_filename, mime_type, size_bytes, width, height, alt_text, is_active, is_favorite, source, created_at",
       )
       .eq("r2_key", r2Key)
+      .eq("business_id", businessId)
       .maybeSingle();
 
     if (existingMedia) {
       const { data: existingLink } = await supabase
         .from("portfolio_category_images")
         .select("id")
+        .eq("business_id", businessId)
         .eq("category_id", categoryId)
         .eq("media_id", existingMedia.id)
         .maybeSingle();
@@ -309,12 +312,14 @@ export async function POST(request: NextRequest) {
         const { data: lastLink } = await supabase
           .from("portfolio_category_images")
           .select("sort_order")
+          .eq("business_id", businessId)
           .eq("category_id", categoryId)
           .order("sort_order", { ascending: false })
           .limit(1)
           .maybeSingle();
 
         await supabase.from("portfolio_category_images").insert({
+          business_id: businessId,
           category_id: categoryId,
           media_id: existingMedia.id,
           is_active: true,
@@ -333,6 +338,7 @@ export async function POST(request: NextRequest) {
     const { data: mediaItem, error: mediaError } = await supabase
       .from("media_library")
       .insert({
+        business_id: businessId,
         image_url: videoUrl,
         r2_key: r2Key,
         original_filename: filename,
@@ -360,6 +366,7 @@ export async function POST(request: NextRequest) {
     const { data: lastLink } = await supabase
       .from("portfolio_category_images")
       .select("sort_order")
+      .eq("business_id", businessId)
       .eq("category_id", categoryId)
       .order("sort_order", { ascending: false })
       .limit(1)
@@ -368,6 +375,7 @@ export async function POST(request: NextRequest) {
     const { error: linkError } = await supabase
       .from("portfolio_category_images")
       .insert({
+        business_id: businessId,
         category_id: categoryId,
         media_id: mediaItem.id,
         is_active: true,
@@ -375,7 +383,11 @@ export async function POST(request: NextRequest) {
       });
 
     if (linkError) {
-      await supabase.from("media_library").delete().eq("id", mediaItem.id);
+      await supabase
+        .from("media_library")
+        .delete()
+        .eq("business_id", businessId)
+        .eq("id", mediaItem.id);
       return NextResponse.json(
         { error: linkError.message || "Не удалось добавить видео в категорию" },
         { status: 500 },

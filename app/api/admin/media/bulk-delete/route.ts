@@ -7,9 +7,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const { error: authError, supabase } = await getAdminSupabase(request);
+    const { error: authError, supabase, businessId } = await getAdminSupabase(request);
 
-    if (authError || !supabase) {
+    if (authError || !supabase || !businessId) {
       return NextResponse.json({ error: authError }, { status: 401 });
     }
 
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     const { data: mediaItems, error: mediaError } = await supabase
       .from("media_library")
       .select("id, r2_key")
+      .eq("business_id", businessId)
       .in("id", cleanMediaIds);
 
     if (mediaError) {
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     const { error: linksError } = await supabase
       .from("portfolio_category_images")
       .delete()
+      .eq("business_id", businessId)
       .in("media_id", r2DeletedIds);
 
     if (linksError) {
@@ -91,6 +93,7 @@ export async function POST(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from("media_library")
       .delete()
+      .eq("business_id", businessId)
       .in("id", r2DeletedIds);
 
     if (deleteError) {

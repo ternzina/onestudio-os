@@ -12,9 +12,10 @@ export default function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useAdminI18n();
-  const { enabledModules } = useAdminModules();
+  const { enabledModules, businessSlug } = useAdminModules();
   const links = [
     { label: t("Overview"), href: "/admin" },
+    { label: t("Site"), href: "/admin/site" },
     { label: t("Catalog"), href: "/admin/catalog", module: "catalog" },
     { label: t("Availability"), href: "/admin/availability", module: "scheduling" },
     { label: t("Bookings"), href: "/admin/bookings", module: "scheduling" },
@@ -55,7 +56,11 @@ export default function AdminHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <AdminLanguageSwitcher />
-          <Link href="/" target="_blank" className="hidden rounded-full px-3 py-2 text-xs font-semibold text-[#6f6c65] xl:inline-flex">{t("Site")}</Link>
+          {businessSlug ? (
+            <Link href={`/site/${businessSlug}`} target="_blank" className="hidden rounded-full px-3 py-2 text-xs font-semibold text-[#6f6c65] xl:inline-flex">
+              {t("Open public site")}
+            </Link>
+          ) : null}
           <button type="button" onClick={logout} className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold">{t("Sign out")}</button>
         </div>
       </div>

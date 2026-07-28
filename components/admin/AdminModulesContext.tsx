@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 
 type AdminModulesContextValue = {
   enabledModules: Set<CoreModuleKey> | null;
+  businessSlug: string | null;
   refreshModules: () => Promise<void>;
 };
 
@@ -23,14 +24,20 @@ const AdminModulesContext = createContext<AdminModulesContextValue | null>(null)
 export default function AdminModulesProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [enabledModules, setEnabledModules] = useState<Set<CoreModuleKey> | null>(null);
+  const [businessSlug, setBusinessSlug] = useState<string | null>(null);
 
   const refreshModules = useCallback(async () => {
     const { data: workspaceData, error: workspaceError } = await supabase.rpc("list_my_businesses");
     if (workspaceError) return;
 
-    const workspaces = (workspaceData ?? []) as Array<{ business_id: string; is_default: boolean }>;
+    const workspaces = (workspaceData ?? []) as Array<{
+      business_id: string;
+      slug: string;
+      is_default: boolean;
+    }>;
     const workspace = workspaces.find((item) => item.is_default) ?? workspaces[0];
     if (!workspace) return;
+    setBusinessSlug(workspace.slug);
 
     const { data, error } = await supabase
       .from("business_modules")
@@ -55,8 +62,8 @@ export default function AdminModulesProvider({ children }: { children: ReactNode
   }, [refreshModules]);
 
   const value = useMemo(
-    () => ({ enabledModules, refreshModules }),
-    [enabledModules, refreshModules],
+    () => ({ enabledModules, businessSlug, refreshModules }),
+    [businessSlug, enabledModules, refreshModules],
   );
 
   return <AdminModulesContext.Provider value={value}>{children}</AdminModulesContext.Provider>;

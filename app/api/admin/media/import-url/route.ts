@@ -149,8 +149,8 @@ const sourceFilename = (url: URL) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { error: authError, supabase } = await getAdminSupabase(request);
-    if (authError || !supabase) {
+    const { error: authError, supabase, businessId } = await getAdminSupabase(request);
+    if (authError || !supabase || !businessId) {
       return NextResponse.json({ error: authError }, { status: 401 });
     }
 
@@ -190,6 +190,7 @@ export async function POST(request: NextRequest) {
       .from("portfolio_categories")
       .select("id, slug")
       .eq("id", categoryId)
+      .eq("business_id", businessId)
       .single();
 
     if (categoryError || !category) {
@@ -203,6 +204,7 @@ export async function POST(request: NextRequest) {
       .from("portfolio_category_images")
       .select("sort_order")
       .eq("category_id", categoryId)
+      .eq("business_id", businessId)
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -218,7 +220,7 @@ export async function POST(request: NextRequest) {
         const filenameBase = makeSafeSlug(
           originalFilename.replace(/\.[^.]+$/, ""),
         );
-        const key = `portfolio/${makeSafeSlug(category.slug || "imported")}/${Date.now()}-${randomUUID().slice(0, 8)}-${filenameBase}.webp`;
+        const key = `businesses/${businessId}/portfolio/${makeSafeSlug(category.slug || "imported")}/${Date.now()}-${randomUUID().slice(0, 8)}-${filenameBase}.webp`;
 
         const output = await sharp(buffer, { failOn: "error" })
           .rotate()
@@ -240,6 +242,7 @@ export async function POST(request: NextRequest) {
         const { data: media, error: mediaError } = await supabase
           .from("media_library")
           .insert({
+            business_id: businessId,
             image_url: imageUrl,
             r2_key: key,
             original_filename: originalFilename,
@@ -263,6 +266,7 @@ export async function POST(request: NextRequest) {
         const { error: linkError } = await supabase
           .from("portfolio_category_images")
           .insert({
+            business_id: businessId,
             category_id: categoryId,
             media_id: media.id,
             is_active: true,

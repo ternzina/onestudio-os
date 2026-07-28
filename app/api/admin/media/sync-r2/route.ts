@@ -47,9 +47,9 @@ const getMimeType = (key: string) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { error: authError, supabase } = await getAdminSupabase(request);
+    const { error: authError, supabase, businessId } = await getAdminSupabase(request);
 
-    if (authError || !supabase) {
+    if (authError || !supabase || !businessId) {
       return NextResponse.json({ error: authError }, { status: 401 });
     }
 
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabase
         .from("media_library")
         .select("r2_key")
+        .eq("business_id", businessId)
         .range(from, from + pageSize - 1);
 
       if (error) {
@@ -82,8 +83,11 @@ export async function POST(request: NextRequest) {
     }
 
     const allR2Objects = await listObjectsFromR2();
-    const mediaObjects = allR2Objects.filter((object) =>
-      MEDIA_EXTENSION.test(object.key),
+    const workspacePrefix = `businesses/${businessId}/`;
+    const mediaObjects = allR2Objects.filter(
+      (object) =>
+        object.key.startsWith(workspacePrefix) &&
+        MEDIA_EXTENSION.test(object.key),
     );
     const missingObjects = mediaObjects.filter(
       (object) => !existingKeys.has(normalizeR2Key(object.key)),
@@ -96,6 +100,7 @@ export async function POST(request: NextRequest) {
     for (let index = 0; index < missingObjects.length; index += batchSize) {
       const batch = missingObjects.slice(index, index + batchSize);
       const rows = batch.map((object) => ({
+        business_id: businessId,
         image_url: getR2ObjectPublicUrl(object.key),
         r2_key: normalizeR2Key(object.key),
         original_filename: getFilename(object.key),

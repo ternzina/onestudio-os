@@ -34,9 +34,9 @@ const getSafeOriginalName = (fileName: string) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { error: authError, supabase } = await getAdminSupabase(request);
+    const { error: authError, supabase, businessId } = await getAdminSupabase(request);
 
-    if (authError || !supabase) {
+    if (authError || !supabase || !businessId) {
       return NextResponse.json({ error: authError }, { status: 401 });
     }
 
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       .from("portfolio_categories")
       .select("id, slug, name")
       .eq("id", categoryId)
+      .eq("business_id", businessId)
       .single();
 
     if (categoryError || !category) {
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
       .from("portfolio_category_images")
       .select("sort_order")
       .eq("category_id", categoryId)
+      .eq("business_id", businessId)
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
       const inputBuffer = Buffer.from(arrayBuffer);
       const safeName = getSafeOriginalName(file.name);
       const randomId = crypto.randomUUID();
-      const r2Key = `${safeCategorySlug}/${Date.now()}-${safeName}-${randomId}.webp`;
+      const r2Key = `businesses/${businessId}/portfolio/${safeCategorySlug}/${Date.now()}-${safeName}-${randomId}.webp`;
 
       let webpBuffer: Buffer;
       let width: number | null = null;
@@ -168,6 +170,7 @@ export async function POST(request: NextRequest) {
       const { data: mediaItem, error: mediaError } = await supabase
         .from("media_library")
         .insert({
+          business_id: businessId,
           image_url: imageUrl,
           r2_key: r2Key,
           original_filename: file.name,
@@ -195,6 +198,7 @@ export async function POST(request: NextRequest) {
       const { data: categoryLink, error: linkError } = await supabase
         .from("portfolio_category_images")
         .insert({
+          business_id: businessId,
           category_id: categoryId,
           media_id: mediaItem.id,
           is_active: true,

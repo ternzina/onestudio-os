@@ -48,6 +48,11 @@ type ProjectImage = {
   sort_order: number;
 };
 
+type Workspace = {
+  business_id: string;
+  is_default: boolean;
+};
+
 type FormState = {
   id: string | null;
   categoryId: string;
@@ -95,28 +100,51 @@ export default function PortfolioProjectsManager() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [businessId, setBusinessId] = useState("");
 
   const loadData = useCallback(async () => {
     setLoading(true);
+    const { data: workspaceData, error: workspaceError } = await supabase.rpc(
+      "list_my_businesses",
+    );
+    const workspaces = (workspaceData ?? []) as Workspace[];
+    const workspace =
+      workspaces.find((item) => item.is_default) ?? workspaces[0] ?? null;
+
+    if (workspaceError || !workspace) {
+      setError(workspaceError?.message || t("No active workspace was found."));
+      setLoading(false);
+      return;
+    }
+
+    setBusinessId(workspace.business_id);
+
     const [categoryResult, mediaResult, categoryLinksResult, projectsResult, imagesResult] = await Promise.all([
       supabase
         .from("portfolio_categories")
         .select("id,name,slug,is_active,sort_order")
+        .eq("business_id", workspace.business_id)
         .order("sort_order", { ascending: true }),
       supabase
         .from("media_library")
         .select("id,image_url,original_filename,mime_type,alt_text,is_active")
+        .eq("business_id", workspace.business_id)
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
-      supabase.from("portfolio_category_images").select("category_id,media_id"),
+      supabase
+        .from("portfolio_category_images")
+        .select("category_id,media_id")
+        .eq("business_id", workspace.business_id),
       supabase
         .from("portfolio_projects")
         .select("id,category_id,slug,title,description,cover_media_id,is_active,sort_order,created_at")
+        .eq("business_id", workspace.business_id)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false }),
       supabase
         .from("portfolio_project_images")
         .select("id,project_id,media_id,is_active,sort_order")
+        .eq("business_id", workspace.business_id)
         .order("sort_order", { ascending: true }),
     ]);
 
@@ -133,7 +161,7 @@ export default function PortfolioProjectsManager() {
     setProjects((projectsResult.data || []) as Project[]);
     setProjectImages((imagesResult.data || []) as ProjectImage[]);
     setLoading(false);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadData();
@@ -211,6 +239,7 @@ export default function PortfolioProjectsManager() {
   };
 
   const saveProject = async () => {
+    if (!businessId) return;
     setMessage("");
     setError("");
 
@@ -230,6 +259,7 @@ export default function PortfolioProjectsManager() {
       let projectId: string | null = form.id;
       const coverMediaId = selectedMediaIds.includes(form.coverMediaId) ? form.coverMediaId : selectedMediaIds[0];
       const payload = {
+        business_id: businessId,
         category_id: form.categoryId,
         slug,
         title,
@@ -239,9 +269,17 @@ export default function PortfolioProjectsManager() {
       };
 
       if (projectId) {
-        const { error: updateError } = await supabase.from("portfolio_projects").update(payload).eq("id", projectId);
+        const { error: updateError } = await supabase
+          .from("portfolio_projects")
+          .update(payload)
+          .eq("business_id", businessId)
+          .eq("id", projectId);
         if (updateError) throw updateError;
-        const { error: removeLinksError } = await supabase.from("portfolio_project_images").delete().eq("project_id", projectId);
+        const { error: removeLinksError } = await supabase
+          .from("portfolio_project_images")
+          .delete()
+          .eq("business_id", businessId)
+          .eq("project_id", projectId);
         if (removeLinksError) throw removeLinksError;
       } else {
         const nextOrder = Math.max(0, ...projects.map((item) => item.sort_order || 0)) + 10;
@@ -257,6 +295,7 @@ export default function PortfolioProjectsManager() {
       if (!projectId) throw new Error(t("Project ID was not created"));
       const { error: linksError } = await supabase.from("portfolio_project_images").insert(
         selectedMediaIds.map((mediaId, index) => ({
+          business_id: businessId,
           project_id: projectId,
           media_id: mediaId,
           is_active: true,
@@ -277,9 +316,14 @@ export default function PortfolioProjectsManager() {
   };
 
   const deleteProject = async (project: Project) => {
+    if (!businessId) return;
     if (!window.confirm(t("Delete project “{name}”? Media files will remain in the library and R2.", { name: project.title }))) return;
     setError("");
-    const { error: deleteError } = await supabase.from("portfolio_projects").delete().eq("id", project.id);
+    const { error: deleteError } = await supabase
+      .from("portfolio_projects")
+      .delete()
+      .eq("business_id", businessId)
+      .eq("id", project.id);
     if (deleteError) {
       setError(deleteError.message);
       return;
@@ -289,6 +333,7 @@ export default function PortfolioProjectsManager() {
   };
 
   const moveProject = async (project: Project, direction: "up" | "down") => {
+    if (!businessId) return;
     const index = projects.findIndex((item) => item.id === project.id);
     const target = direction === "up" ? index - 1 : index + 1;
     if (index < 0 || target < 0 || target >= projects.length) return;
@@ -301,6 +346,7 @@ export default function PortfolioProjectsManager() {
       const { error: updateError } = await supabase
         .from("portfolio_projects")
         .update({ sort_order: (position + 1) * 10 })
+        .eq("business_id", businessId)
         .eq("id", item.id);
       if (updateError) {
         setError(updateError.message);

@@ -3,8 +3,10 @@ import { getAdminSupabase } from "@/lib/adminAuth";
 import { makeSafeSlug } from "@/lib/r2";
 
 export async function POST(request: NextRequest) {
-  const { error: authError, supabase } = await getAdminSupabase(request);
-  if (authError || !supabase) return NextResponse.json({ error: authError }, { status: 401 });
+  const { error: authError, supabase, businessId } = await getAdminSupabase(request);
+  if (authError || !supabase || !businessId) {
+    return NextResponse.json({ error: authError }, { status: 401 });
+  }
 
   try {
     const body = (await request.json()) as { name?: string; slug?: string };
@@ -18,6 +20,7 @@ export async function POST(request: NextRequest) {
     const { data: last } = await supabase
       .from("portfolio_categories")
       .select("sort_order")
+      .eq("business_id", businessId)
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -25,6 +28,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("portfolio_categories")
       .insert({
+        business_id: businessId,
         name,
         slug,
         is_active: true,
