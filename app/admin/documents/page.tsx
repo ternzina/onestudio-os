@@ -156,6 +156,23 @@ export default function DocumentsPage() {
   return <><AdminHeader/><main className="min-h-screen px-5 pb-24 pt-36"><section className="mx-auto max-w-7xl">
     <div className="rounded-[36px] bg-[#17191f] p-8 text-white sm:p-10"><p className="text-xs uppercase tracking-[0.28em] text-[#d8b36a]">DOCUMENT ENGINE 1.0</p><h1 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">Templates become records.</h1><p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">Generate contracts, invoices and service acts from Company Profile, CRM clients and real bookings. Open this screen from a client or booking and the source record is selected automatically.</p></div>
     {(notice||error)&&<div className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error?"border-red-200 bg-red-50 text-red-800":"border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{error||notice}</div>}
+    <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <Link href="/admin/legal" className="rounded-[26px] border border-black/8 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(20,20,20,0.08)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Legal Engine</p>
+        <h2 className="mt-2 text-xl font-semibold">Public legal pages</h2>
+        <p className="mt-2 text-sm leading-6 text-[#6f6c65]">Offer, privacy, refund and cookies with publishable versions.</p>
+      </Link>
+      <Link href="/admin/settings/company" className="rounded-[26px] border border-black/8 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(20,20,20,0.08)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Company Profile</p>
+        <h2 className="mt-2 text-xl font-semibold">Legal source data</h2>
+        <p className="mt-2 text-sm leading-6 text-[#6f6c65]">Business name, tax ID, email, bank details and address.</p>
+      </Link>
+      <div className="rounded-[26px] border border-black/8 bg-[#fff8e8] p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Documents Core 1.0</p>
+        <h2 className="mt-2 text-xl font-semibold">Snapshot workflow</h2>
+        <p className="mt-2 text-sm leading-6 text-[#6f6c65]">{generated.length} generated · {generated.filter((item)=>item.sent_at || item.status==="sent").length} sent</p>
+      </div>
+    </div>
     {contextClient&&<div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Client context</p><p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p><p className="mt-1 text-xs text-[#77736a]">{visibleGenerated.length} linked documents</p></div><div className="flex flex-wrap gap-2"><Link href={`/admin/clients?client=${contextClient.id}`} className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold">Open client</Link><Link href="/admin/documents" className="rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Show all documents</Link></div></div>}
     {templates.length===0?<div className="mt-6 rounded-[30px] bg-white p-8"><h2 className="text-2xl font-semibold">Initialize document templates</h2><button onClick={initializeTemplates} disabled={busy||!canEdit} className="mt-5 rounded-full bg-[#17191f] px-5 py-3 text-sm font-semibold text-white">Create default templates</button></div>:
     <div className="mt-6 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">

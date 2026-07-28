@@ -7,6 +7,7 @@ export const CORE_MODULE_KEYS = [
   "crm",
   "payments",
   "notifications",
+  "documents",
   "analytics",
 ] as const;
 

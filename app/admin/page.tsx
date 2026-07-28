@@ -66,6 +66,13 @@ export default function AdminPage() {
       icon: "✉",
     },
     {
+      title: t("Documents"),
+      label: t("Documents and Legal"),
+      description: t("Manage company details, legal pages, templates, generated snapshots and document email delivery."),
+      href: "/admin/documents",
+      icon: "▧",
+    },
+    {
       title: t("Public booking"),
       label: t("Client booking flow"),
       description: t("Open the public service, date, slot and contact flow that writes into the canonical booking record."),

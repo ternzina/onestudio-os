@@ -75,6 +75,14 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
     dependsOn: ["core", "scheduling", "crm", "payments"],
   },
   {
+    key: "documents",
+    title: "Documents and Legal",
+    description: "Company profile, legal pages, reusable document templates, immutable generated snapshots and email delivery history.",
+    stage: "enabled",
+    version: "1.0.0",
+    dependsOn: ["core", "crm", "scheduling", "notifications"],
+  },
+  {
     key: "analytics",
     title: "Analytics",
     description: "Operational metrics derived from bookings, clients and payments.",
