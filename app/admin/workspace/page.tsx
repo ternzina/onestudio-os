@@ -197,6 +197,7 @@ export default function AdminWorkspacePage() {
     }
 
     await loadWorkspaces(selectedWorkspace.business_id);
+    window.dispatchEvent(new Event("onestudio:modules-changed"));
     setMessage(t("Default workspace changed."));
     setSwitching(false);
   };

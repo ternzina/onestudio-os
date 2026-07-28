@@ -64,7 +64,7 @@ export const CORE_MODULES: readonly CoreModuleDefinition[] = [
     description: "Provider-neutral immutable payment and refund ledger linked to canonical bookings and clients.",
     stage: "enabled",
     version: "1.0.0",
-    dependsOn: ["core", "scheduling", "crm", "payments"],
+    dependsOn: ["core", "scheduling", "crm"],
   },
   {
     key: "notifications",

@@ -4,10 +4,13 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
 import CommandCenterOverview from "@/components/admin/CommandCenterOverview";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import { useAdminModules } from "@/components/admin/AdminModulesContext";
+import type { CoreModuleKey } from "@/lib/modules/contracts";
 
 export default function AdminPage() {
   const router = useRouter();
   const { t } = useAdminI18n();
+  const { enabledModules } = useAdminModules();
   const readyModules = [
     {
       title: t("Workspace"),
@@ -22,6 +25,7 @@ export default function AdminPage() {
       description: t("Define offers, prices, durations, categories and the resources each service requires."),
       href: "/admin/catalog",
       icon: "▦",
+      module: "catalog",
     },
     {
       title: t("Availability"),
@@ -29,6 +33,7 @@ export default function AdminPage() {
       description: t("Set weekly resource hours, date exceptions and preview conflict-safe service times."),
       href: "/admin/availability",
       icon: "◷",
+      module: "scheduling",
     },
     {
       title: t("Bookings"),
@@ -36,6 +41,7 @@ export default function AdminPage() {
       description: t("Create and reschedule conflict-safe bookings, manage status and keep an activity trail."),
       href: "/admin/bookings",
       icon: "▣",
+      module: "scheduling",
     },
     {
       title: t("Clients"),
@@ -43,6 +49,7 @@ export default function AdminPage() {
       description: t("Keep canonical client cards, contacts, language, tags, notes and booking history in one protected workspace."),
       href: "/admin/clients",
       icon: "◉",
+      module: "crm",
     },
     {
       title: t("Calendar"),
@@ -50,6 +57,7 @@ export default function AdminPage() {
       description: t("See occupied time, working windows and blocked intervals across every bookable resource."),
       href: "/admin/calendar",
       icon: "▤",
+      module: "scheduling",
     },
     {
       title: t("Payments"),
@@ -57,6 +65,7 @@ export default function AdminPage() {
       description: t("Track required, unpaid, partial, paid and refunded booking balances with an immutable provider-neutral ledger."),
       href: "/admin/payments",
       icon: "¤",
+      module: "payments",
     },
     {
       title: t("Notifications"),
@@ -64,6 +73,7 @@ export default function AdminPage() {
       description: t("Deliver queued messages through Resend without changing bookings, templates or the provider-neutral notification ledger."),
       href: "/admin/notifications",
       icon: "✉",
+      module: "notifications",
     },
     {
       title: t("Documents"),
@@ -71,6 +81,7 @@ export default function AdminPage() {
       description: t("Manage company details, legal pages, templates, generated snapshots and document email delivery."),
       href: "/admin/documents",
       icon: "▧",
+      module: "documents",
     },
     {
       title: t("Analytics"),
@@ -78,6 +89,7 @@ export default function AdminPage() {
       description: t("See bookings, clients, booked hours and money for a trusted workspace-local period."),
       href: "/admin/analytics",
       icon: "⌁",
+      module: "analytics",
     },
     {
       title: t("Public booking"),
@@ -85,6 +97,7 @@ export default function AdminPage() {
       description: t("Open the public service, date, slot and contact flow that writes into the canonical booking record."),
       href: "/book",
       icon: "↗",
+      module: "scheduling",
     },
     {
       title: t("Media library"),
@@ -92,6 +105,7 @@ export default function AdminPage() {
       description: t("Upload, organize and remove images or video stored in Cloudflare R2."),
       href: "/admin/media",
       icon: "◫",
+      module: "media",
     },
     {
       title: t("Portfolio"),
@@ -99,6 +113,7 @@ export default function AdminPage() {
       description: t("Manage portfolio categories, selected media and display order."),
       href: "/admin/portfolio",
       icon: "◇",
+      module: "portfolio",
     },
     {
       title: t("Foundation settings"),
@@ -114,7 +129,18 @@ export default function AdminPage() {
       href: "/admin/modules",
       icon: "⌘",
     },
-  ];
+  ] satisfies ReadonlyArray<{
+    title: string;
+    label: string;
+    description: string;
+    href: string;
+    icon: string;
+    module?: CoreModuleKey;
+  }>;
+
+  const visibleModules = enabledModules
+    ? readyModules.filter((module) => !module.module || enabledModules.has(module.module))
+    : readyModules;
   return (
     <>
       <AdminHeader />
@@ -132,7 +158,7 @@ export default function AdminPage() {
               <div className="rounded-[28px] border border-white/10 bg-white/[0.07] p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#d8b36a]">{t("Release rule")}</p>
                 <p className="mt-3 text-2xl font-semibold">{t("One source of truth across every module.")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t("Core plus nine enabled product modules form the first integrated suite.")}</p>
+                <p className="mt-3 text-sm leading-6 text-white/65">{t("Use the complete suite or keep only the modules this workspace needs.")}</p>
               </div>
             </div>
           </div>
@@ -140,7 +166,7 @@ export default function AdminPage() {
           <CommandCenterOverview t={t} />
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {readyModules.map((module) => (
+            {visibleModules.map((module) => (
               <button key={module.href} type="button" onClick={() => router.push(module.href)} className="rounded-[28px] border border-black/8 bg-white p-6 text-left shadow-[0_18px_55px_rgba(20,20,20,0.07)] transition hover:-translate-y-1">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#17191f] text-xl text-white">{module.icon}</span>
                 <span className="mt-5 block text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{module.label}</span>

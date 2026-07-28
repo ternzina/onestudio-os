@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { CoreModuleKey } from "@/lib/modules/contracts";
 import { getSupabaseConfig } from "./config";
 
 export type AdminAccessState =
@@ -23,6 +24,25 @@ function redirectTo(request: NextRequest, pathname: string) {
   url.pathname = pathname;
   url.search = "";
   return NextResponse.redirect(url);
+}
+
+function moduleForAdminPath(pathname: string): CoreModuleKey | null {
+  const prefixes: Array<[string, CoreModuleKey]> = [
+    ["/admin/settings/company", "documents"],
+    ["/admin/availability", "scheduling"],
+    ["/admin/bookings", "scheduling"],
+    ["/admin/calendar", "scheduling"],
+    ["/admin/catalog", "catalog"],
+    ["/admin/clients", "crm"],
+    ["/admin/payments", "payments"],
+    ["/admin/notifications", "notifications"],
+    ["/admin/media", "media"],
+    ["/admin/portfolio", "portfolio"],
+    ["/admin/legal", "documents"],
+    ["/admin/documents", "documents"],
+    ["/admin/analytics", "analytics"],
+  ];
+  return prefixes.find(([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`))?.[1] ?? null;
 }
 
 export async function updateSession(request: NextRequest) {
@@ -92,9 +112,23 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (state === "ready") {
-    return pathname === "/admin/bootstrap"
-      ? redirectTo(request, "/admin")
-      : response;
+    if (pathname === "/admin/bootstrap") return redirectTo(request, "/admin");
+
+    const moduleKey = moduleForAdminPath(pathname);
+    if (moduleKey && access?.business_id) {
+      const { data: moduleAccess, error: moduleError } = await supabase
+        .from("business_modules")
+        .select("enabled")
+        .eq("business_id", access.business_id)
+        .eq("module_key", moduleKey)
+        .maybeSingle();
+
+      if (!moduleError && moduleAccess?.enabled !== true) {
+        return redirectTo(request, "/admin/modules");
+      }
+    }
+
+    return response;
   }
 
   const loginUrl = request.nextUrl.clone();
