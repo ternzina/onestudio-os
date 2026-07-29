@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import AdminLanguageSwitcher from "@/components/i18n/AdminLanguageSwitcher";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 type AccessState = "bootstrap_required" | "ready" | "denied" | "signed_out";
 
@@ -33,6 +34,8 @@ export default function LoginPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("error") === "admin_access") {
       setMessage(t("This account has no workspace access yet."));
+    } else if (params.get("error") === "oauth_callback") {
+      setMessage("Не удалось завершить вход. Попробуйте ещё раз.");
     }
 
     void supabase
@@ -124,7 +127,17 @@ export default function LoginPage() {
           {t("Enter the protected administration area for your workspace.")}
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div className="mt-8">
+          <SocialAuthButtons nextPath={readSafeNextPath()} />
+        </div>
+
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-white/35">
+          <span className="h-px flex-1 bg-white/10" />
+          <span>или по email</span>
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
             <span className="mb-2 block text-xs uppercase tracking-[0.16em] text-[#b9b5ab]">{t("Email")}</span>
             <input

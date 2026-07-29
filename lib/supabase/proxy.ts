@@ -26,6 +26,11 @@ function redirectTo(request: NextRequest, pathname: string) {
   return NextResponse.redirect(url);
 }
 
+function authNextPath(request: NextRequest) {
+  const next = request.nextUrl.searchParams.get("next");
+  return next === "/launch" || next?.startsWith("/admin") ? next : null;
+}
+
 function moduleForAdminPath(pathname: string): CoreModuleKey | null {
   const prefixes: Array<[string, CoreModuleKey]> = [
     ["/admin/settings/company", "documents"],
@@ -98,10 +103,12 @@ export async function updateSession(request: NextRequest) {
   const state = access?.access_state ?? "denied";
 
   if (isPublicAuthPath) {
-    if (state === "ready") return redirectTo(request, "/admin");
+    const next = authNextPath(request);
+    if (state === "ready") return redirectTo(request, next ?? "/admin");
     if (state === "bootstrap_required") {
-      return redirectTo(request, "/admin/bootstrap");
+      return redirectTo(request, next ?? "/admin/bootstrap");
     }
+    if (next === "/launch") return redirectTo(request, next);
     return response;
   }
 
