@@ -7,6 +7,7 @@ import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   PublicSiteContent,
   PublicSiteEditorData,
+  PublicSiteSection,
 } from "@/lib/public-site/types";
 import { supabase } from "@/lib/supabase";
 
@@ -18,8 +19,32 @@ type Workspace = {
   role: string;
 };
 
+type CanvasSection = "hero" | PublicSiteSection;
+type PreviewDevice = "desktop" | "mobile";
+
 const inputClass =
   "mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#9a742e]";
+const defaultSectionOrder: PublicSiteSection[] = [
+  "services",
+  "portfolio",
+  "about",
+  "contact",
+];
+const sectionVisibilityKey: Record<
+  PublicSiteSection,
+  "show_services" | "show_portfolio" | "show_about" | "show_contact"
+> = {
+  services: "show_services",
+  portfolio: "show_portfolio",
+  about: "show_about",
+  contact: "show_contact",
+};
+const sectionLabelKey = {
+  services: "Services",
+  portfolio: "Portfolio",
+  about: "About",
+  contact: "Contact",
+} as const;
 
 function contentFromLocale(
   editor: PublicSiteEditorData,
@@ -46,6 +71,10 @@ export default function AdminSitePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [selectedSection, setSelectedSection] =
+    useState<CanvasSection>("hero");
+  const [previewDevice, setPreviewDevice] =
+    useState<PreviewDevice>("desktop");
 
   const canConfigure = workspace
     ? ["owner", "admin", "manager"].includes(workspace.role)
@@ -117,6 +146,15 @@ export default function AdminSitePage() {
   ) {
     setDraft((current) => current ? { ...current, [key]: value } : current);
     setMessage("");
+  }
+
+  function moveSection(section: PublicSiteSection, direction: -1 | 1) {
+    const order = [...(draft?.section_order ?? defaultSectionOrder)];
+    const currentIndex = order.indexOf(section);
+    const nextIndex = currentIndex + direction;
+    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= order.length) return;
+    [order[currentIndex], order[nextIndex]] = [order[nextIndex], order[currentIndex]];
+    update("section_order", order);
   }
 
   async function saveDraft(options?: { publish?: boolean }) {
@@ -262,13 +300,13 @@ export default function AdminSitePage() {
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">
-              {t("Public Site Foundation 1.0")}
+              {t("Site Builder 1.0")}
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">
               {t("Public site")}
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6f6c65]">
-              {t("Prepare each language as a draft, then publish only the version visitors should see. Services, portfolio and contacts come from the same workspace.")}
+              {t("Edit the content, control visible blocks and arrange them in the order visitors should see.")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -327,7 +365,28 @@ export default function AdminSitePage() {
           </div>
         ) : null}
 
-        <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <VisualBuilder
+          businessName={editor.business.name}
+          canConfigure={canConfigure}
+          draft={draft}
+          previewDevice={previewDevice}
+          selectedSection={selectedSection}
+          saving={saving}
+          t={t}
+          onDeviceChange={setPreviewDevice}
+          onMove={moveSection}
+          onPublish={() => void saveDraft({ publish: true })}
+          onSave={() => void saveDraft()}
+          onSectionChange={setSelectedSection}
+          onUpdate={update}
+        />
+
+        <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold">
+            <span>{t("Advanced site settings")}</span>
+            <span className="text-lg transition group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+        <div className="grid gap-6 border-t border-black/8 p-5 xl:grid-cols-[minmax(0,1fr)_420px] sm:p-7">
           <section className="rounded-[30px] border border-black/8 bg-white/80 p-5 shadow-[0_22px_75px_rgba(30,30,30,0.06)] sm:p-7">
             <div className="flex flex-wrap items-center gap-2">
               {editor.locales.map((locale) => (
@@ -383,10 +442,21 @@ export default function AdminSitePage() {
               </EditorGroup>
 
               <EditorGroup title={t("Sections")}>
-                <Toggle label={t("Show services")} checked={draft.show_services} disabled={!canConfigure} onChange={(value) => update("show_services", value)} />
-                <Toggle label={t("Show portfolio")} checked={draft.show_portfolio} disabled={!canConfigure} onChange={(value) => update("show_portfolio", value)} />
-                <Toggle label={t("Show about")} checked={draft.show_about} disabled={!canConfigure} onChange={(value) => update("show_about", value)} />
-                <Toggle label={t("Show contacts")} checked={draft.show_contact} disabled={!canConfigure} onChange={(value) => update("show_contact", value)} />
+                <div className="sm:col-span-2 grid gap-2">
+                  {(draft.section_order ?? defaultSectionOrder).map((section, index, order) => (
+                    <SectionOrderRow
+                      key={section}
+                      label={t(sectionLabelKey[section])}
+                      checked={draft[sectionVisibilityKey[section]]}
+                      disabled={!canConfigure}
+                      first={index === 0}
+                      last={index === order.length - 1}
+                      onToggle={(value) => update(sectionVisibilityKey[section], value)}
+                      onUp={() => moveSection(section, -1)}
+                      onDown={() => moveSection(section, 1)}
+                    />
+                  ))}
+                </div>
                 <Field label={t("Services heading")}>
                   <input className={inputClass} value={draft.services_title} disabled={!canConfigure} onChange={(event) => update("services_title", event.target.value)} />
                 </Field>
@@ -483,8 +553,351 @@ export default function AdminSitePage() {
             </p>
           </aside>
         </div>
+        </details>
       </div>
     </main>
+  );
+}
+
+function VisualBuilder({
+  businessName,
+  canConfigure,
+  draft,
+  previewDevice,
+  selectedSection,
+  saving,
+  t,
+  onDeviceChange,
+  onMove,
+  onPublish,
+  onSave,
+  onSectionChange,
+  onUpdate,
+}: {
+  businessName: string;
+  canConfigure: boolean;
+  draft: PublicSiteContent;
+  previewDevice: PreviewDevice;
+  selectedSection: CanvasSection;
+  saving: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onDeviceChange: (device: PreviewDevice) => void;
+  onMove: (section: PublicSiteSection, direction: -1 | 1) => void;
+  onPublish: () => void;
+  onSave: () => void;
+  onSectionChange: (section: CanvasSection) => void;
+  onUpdate: <Key extends keyof PublicSiteContent>(
+    key: Key,
+    value: PublicSiteContent[Key],
+  ) => void;
+}) {
+  const [blocksOpen, setBlocksOpen] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(true);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const sectionOrder = draft.section_order ?? defaultSectionOrder;
+  const selectedIndex =
+    selectedSection === "hero" ? -1 : sectionOrder.indexOf(selectedSection);
+  const visibilityKey =
+    selectedSection === "hero" ? null : sectionVisibilityKey[selectedSection];
+
+  function addBlock(section: PublicSiteSection) {
+    onUpdate(sectionVisibilityKey[section], true);
+    onSectionChange(section);
+    setSettingsOpen(true);
+    setLibraryOpen(false);
+  }
+
+  return (
+    <section className="relative mt-8 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
+      <div className="flex flex-col gap-3 border-b border-black/10 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2">
+          <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b877e]">
+            {t("Page")}
+          </span>
+          <button type="button" className="rounded-xl border border-black/10 bg-[#f6f5f2] px-4 py-2 text-xs font-semibold">
+            {t("Home")}
+          </button>
+          <button type="button" disabled className="rounded-xl border border-dashed border-black/15 px-4 py-2 text-xs font-semibold text-black/35">
+            {t("+ Add page")}
+          </button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-xl bg-[#efeee9] p-1">
+            <button
+              type="button"
+              aria-pressed={previewDevice === "desktop"}
+              onClick={() => onDeviceChange("desktop")}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "desktop" ? "bg-white shadow-sm" : "text-black/45"}`}
+            >
+              {t("Computer")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={previewDevice === "mobile"}
+              onClick={() => onDeviceChange("mobile")}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "mobile" ? "bg-white shadow-sm" : "text-black/45"}`}
+            >
+              {t("Phone")}
+            </button>
+          </div>
+          <button type="button" onClick={onSave} disabled={saving || !canConfigure} className="rounded-xl border border-black/10 px-4 py-2 text-xs font-semibold disabled:opacity-40">
+            {saving ? t("Saving…") : t("Save")}
+          </button>
+          <button type="button" onClick={onPublish} disabled={saving || !canConfigure} className="rounded-xl bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">
+            {saving ? t("Publishing…") : t("Publish")}
+          </button>
+        </div>
+      </div>
+
+      <div
+        className={`grid min-h-[720px] ${
+          blocksOpen && settingsOpen
+            ? "lg:grid-cols-[220px_minmax(0,1fr)_300px]"
+            : blocksOpen
+              ? "lg:grid-cols-[220px_minmax(0,1fr)]"
+              : settingsOpen
+                ? "lg:grid-cols-[minmax(0,1fr)_300px]"
+                : "lg:grid-cols-[minmax(0,1fr)]"
+        }`}
+      >
+        {blocksOpen ? (
+        <aside className="border-b border-black/10 bg-[#f7f6f3] p-4 lg:border-b-0 lg:border-r">
+          <div className="flex items-center justify-between gap-2">
+            <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">
+              {t("Page blocks")}
+            </p>
+            <button
+              type="button"
+              onClick={() => setBlocksOpen(false)}
+              className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[10px] font-semibold text-[#716d65] transition hover:bg-[#eeece6]"
+              aria-label={t("Collapse blocks")}
+              title={t("Collapse blocks")}
+            >
+              ← {t("Collapse")}
+            </button>
+          </div>
+          <div className="mt-3 grid gap-2">
+            <BlockButton active={selectedSection === "hero"} label={t("Hero")} visible onClick={() => onSectionChange("hero")} />
+            {sectionOrder.map((section) => (
+              <BlockButton
+                key={section}
+                active={selectedSection === section}
+                label={t(sectionLabelKey[section])}
+                visible={draft[sectionVisibilityKey[section]]}
+                onClick={() => onSectionChange(section)}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setLibraryOpen(true)}
+            disabled={!canConfigure}
+            className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#725924] transition hover:border-[#9a742e] disabled:opacity-40"
+          >
+            {t("+ Add block")}
+          </button>
+          <p className="mt-3 px-2 text-[11px] leading-5 text-[#8b877e]">
+            {t("Choose a ready block from the library.")}
+          </p>
+        </aside>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setBlocksOpen(true)}
+            className="absolute left-4 top-[76px] z-20 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold shadow-lg transition hover:bg-[#f6f4ef]"
+            title={t("Open blocks")}
+          >
+            {t("Blocks")} →
+          </button>
+        )}
+
+        <div className="overflow-auto bg-[#dcdcd8] p-4 sm:p-7">
+          <div className={`mx-auto overflow-hidden bg-[#f3f0e9] text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${previewDevice === "mobile" ? "max-w-[390px] rounded-[28px]" : "max-w-[920px] rounded-lg"}`}>
+            <CanvasBlock active={selectedSection === "hero"} onClick={() => onSectionChange("hero")}>
+              <div className="border-b border-black/10 px-6 py-5 text-xs font-semibold uppercase tracking-[0.16em]">{businessName}</div>
+              <div className="relative overflow-hidden px-8 py-16 sm:px-12 sm:py-24">
+                <div className="absolute -right-16 top-4 h-64 w-64 rounded-full border border-[#9a742e]/20" />
+                <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em] text-[#9a742e]">{draft.hero_eyebrow}</p>
+                <h2 className="relative mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
+                <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
+                <span className="relative mt-7 inline-flex rounded-full bg-[#17191f] px-6 py-3 text-xs font-semibold text-white">{draft.booking_label}</span>
+              </div>
+            </CanvasBlock>
+            {sectionOrder.map((section, index) => {
+              const visible = draft[sectionVisibilityKey[section]];
+              return (
+                <CanvasBlock key={section} active={selectedSection === section} muted={!visible} onClick={() => onSectionChange(section)}>
+                  <div className={`${section === "services" ? "bg-[#191b20] text-white" : index % 2 ? "bg-white/70" : "bg-[#f3f0e9]"} px-8 py-12 sm:px-12`}>
+                    <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${section === "services" ? "text-[#d8b36a]" : "text-[#9a742e]"}`}>
+                      {draft[`${section}_label` as keyof PublicSiteContent] as string}
+                    </p>
+                    <h3 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
+                      {draft[`${section}_title` as keyof PublicSiteContent] as string}
+                    </h3>
+                    <div className="mt-7 grid grid-cols-2 gap-3">
+                      <span className="h-20 rounded-2xl border border-current/10" />
+                      <span className="h-20 rounded-2xl border border-current/10" />
+                    </div>
+                  </div>
+                </CanvasBlock>
+              );
+            })}
+          </div>
+        </div>
+
+        {settingsOpen ? (
+        <aside className="relative border-t border-black/10 bg-white p-5 lg:border-l lg:border-t-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(false)}
+              className="rounded-lg border border-black/10 px-2 py-1.5 text-[10px] font-semibold text-[#716d65] transition hover:bg-[#f6f4ef]"
+              aria-label={t("Collapse settings")}
+              title={t("Collapse settings")}
+            >
+              {t("Collapse")} →
+            </button>
+          </div>
+          <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em]">
+            {selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection])}
+          </h2>
+          <div className="mt-6 grid gap-5">
+            {selectedSection === "hero" ? (
+              <>
+                <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure} onChange={(value) => onUpdate("hero_eyebrow", value)} />
+                <CompactField label={t("Main title")} value={draft.hero_title} disabled={!canConfigure} onChange={(value) => onUpdate("hero_title", value)} multiline />
+                <CompactField label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure} onChange={(value) => onUpdate("hero_text", value)} multiline />
+                <CompactField label={t("Button")} value={draft.booking_label} disabled={!canConfigure} onChange={(value) => onUpdate("booking_label", value)} />
+              </>
+            ) : (
+              <>
+                <Toggle label={t("Show block")} checked={draft[visibilityKey!]} disabled={!canConfigure} onChange={(value) => onUpdate(visibilityKey!, value)} />
+                <CompactField
+                  label={t("Heading")}
+                  value={draft[`${selectedSection}_title` as keyof PublicSiteContent] as string}
+                  disabled={!canConfigure}
+                  onChange={(value) => onUpdate(`${selectedSection}_title` as keyof PublicSiteContent, value)}
+                  multiline
+                />
+                {selectedSection === "about" ? (
+                  <CompactField label={t("Text")} value={draft.about_text} disabled={!canConfigure} onChange={(value) => onUpdate("about_text", value)} multiline />
+                ) : null}
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" disabled={!canConfigure || selectedIndex <= 0} onClick={() => onMove(selectedSection, -1)} className="rounded-xl border border-black/10 px-3 py-3 text-xs font-semibold disabled:opacity-30">↑ {t("Up")}</button>
+                  <button type="button" disabled={!canConfigure || selectedIndex === sectionOrder.length - 1} onClick={() => onMove(selectedSection, 1)} className="rounded-xl border border-black/10 px-3 py-3 text-xs font-semibold disabled:opacity-30">↓ {t("Down")}</button>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="mt-8 rounded-2xl bg-[#f6f4ef] p-4 text-xs leading-6 text-[#716d65]">
+            {t("Select any block in the page preview to edit it here.")}
+          </div>
+        </aside>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            className="absolute right-4 top-[76px] z-20 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold shadow-lg transition hover:bg-[#f6f4ef]"
+            title={t("Open settings")}
+          >
+            ← {t("Settings")}
+          </button>
+        )}
+      </div>
+
+      {libraryOpen ? (
+        <div
+          className="absolute inset-0 z-40 flex items-center justify-center bg-[#17191f]/45 p-4 backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("Block library")}
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setLibraryOpen(false);
+          }}
+        >
+          <div className="max-h-[85%] w-full max-w-3xl overflow-auto rounded-[28px] bg-[#f8f7f3] p-5 shadow-[0_35px_120px_rgba(0,0,0,0.35)] sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
+                  {t("Ready-made blocks")}
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
+                  {t("Block library")}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-[#716d65]">
+                  {t("Add a block and then edit its content in the settings panel.")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLibraryOpen(false)}
+                className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold"
+                aria-label={t("Close")}
+              >
+                ×
+              </button>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {defaultSectionOrder.map((section) => {
+                const visible = draft[sectionVisibilityKey[section]];
+                return (
+                  <button
+                    key={section}
+                    type="button"
+                    onClick={() => addBlock(section)}
+                    className="group rounded-2xl border border-black/8 bg-white p-5 text-left transition hover:-translate-y-0.5 hover:border-[#9a742e]/40 hover:shadow-lg"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-lg font-semibold">{t(sectionLabelKey[section])}</span>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${visible ? "bg-emerald-50 text-emerald-700" : "bg-[#f4ead6] text-[#725924]"}`}>
+                        {visible ? t("On page") : t("Add")}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-xs leading-5 text-[#716d65]">
+                      {t(`${sectionLabelKey[section]} block description`)}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function BlockButton({ active, label, visible, onClick }: { active: boolean; label: string; visible: boolean; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${active ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]" : "border-black/8 bg-white hover:border-black/20"}`}>
+      <span className="text-black/25" aria-hidden="true">⋮⋮</span>
+      <span className="flex-1">{label}</span>
+      <span className={`h-2 w-2 rounded-full ${visible ? "bg-emerald-500" : "bg-black/20"}`} />
+    </button>
+  );
+}
+
+function CanvasBlock({ active, muted, onClick, children }: { active: boolean; muted?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} className={`relative block w-full text-left outline-none transition ${muted ? "opacity-35 grayscale" : ""} ${active ? "ring-2 ring-inset ring-[#b58a36]" : "hover:ring-2 hover:ring-inset hover:ring-black/15"}`}>
+      {active ? <span className="absolute right-3 top-3 z-10 rounded-full bg-[#b58a36] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">Edit</span> : null}
+      {children}
+    </button>
+  );
+}
+
+function CompactField({ label, value, disabled, multiline, onChange }: { label: string; value: string; disabled: boolean; multiline?: boolean; onChange: (value: string) => void }) {
+  const className = "mt-2 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 py-3 text-sm leading-6 outline-none focus:border-[#9a742e]";
+  return (
+    <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+      {label}
+      {multiline ? (
+        <textarea rows={value.length > 80 ? 5 : 3} className={className} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+      ) : (
+        <input className={className} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </label>
   );
 }
 
@@ -550,5 +963,59 @@ function Toggle({
         onChange={(event) => onChange(event.target.checked)}
       />
     </label>
+  );
+}
+
+function SectionOrderRow({
+  label,
+  checked,
+  disabled,
+  first,
+  last,
+  onToggle,
+  onUp,
+  onDown,
+}: {
+  label: string;
+  checked: boolean;
+  disabled: boolean;
+  first: boolean;
+  last: boolean;
+  onToggle: (value: boolean) => void;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white px-4 py-3">
+      <span className="text-black/30" aria-hidden="true">⋮⋮</span>
+      <span className="min-w-0 flex-1 text-sm font-semibold">{label}</span>
+      <button
+        type="button"
+        aria-label={`${label}: move up`}
+        disabled={disabled || first}
+        onClick={onUp}
+        className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        aria-label={`${label}: move down`}
+        disabled={disabled || last}
+        onClick={onDown}
+        className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+      >
+        ↓
+      </button>
+      <label className="inline-flex items-center gap-2 text-xs font-semibold">
+        <span>{checked ? "On" : "Off"}</span>
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          onChange={(event) => onToggle(event.target.checked)}
+        />
+      </label>
+    </div>
   );
 }

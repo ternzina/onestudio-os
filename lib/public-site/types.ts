@@ -16,9 +16,16 @@ export type PublicSiteContent = {
   show_portfolio: boolean;
   show_about: boolean;
   show_contact: boolean;
+  section_order?: PublicSiteSection[];
   seo_title: string;
   seo_description: string;
 };
+
+export type PublicSiteSection =
+  | "services"
+  | "portfolio"
+  | "about"
+  | "contact";
 
 export type PublicSiteService = {
   id: string;

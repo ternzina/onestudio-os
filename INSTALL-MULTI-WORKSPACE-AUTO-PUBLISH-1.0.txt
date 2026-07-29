@@ -1,0 +1,19 @@
+OneStudio OS — Multi-workspace + Auto-publish 1.0
+
+Included migration:
+supabase/migrations/20260729130000_multi_workspace_auto_publish_1_0.sql
+
+What changes:
+- one account can create more than one isolated workspace;
+- the newest workspace becomes the current/default admin context;
+- all selected locales of a newly created demo are published immediately;
+- draft and published snapshots remain separate for later edits;
+- existing workspaces and existing customer content are not changed.
+
+Install:
+1. Extract the archive into the OneStudio OS project root.
+2. Run: npx supabase@beta migration list
+3. Confirm that 20260729130000 is Local only.
+4. Run: npx supabase@beta db push
+
+No Vercel deployment is required because this patch changes only the database.

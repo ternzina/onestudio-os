@@ -15,9 +15,11 @@ type AccessRow = {
 };
 
 function readSafeNextPath() {
-  if (typeof window === "undefined") return "/admin";
+  if (typeof window === "undefined") return "/dashboard";
   const value = new URLSearchParams(window.location.search).get("next");
-  return value?.startsWith("/admin") || value === "/launch" ? value : "/admin";
+  return value?.startsWith("/admin") || value === "/launch" || value === "/dashboard"
+    ? value
+    : "/dashboard";
 }
 
 export default function LoginPage() {
@@ -67,8 +69,8 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage(t("This account has no workspace access yet."));
-    setIsSubmitting(false);
+    router.replace("/dashboard");
+    router.refresh();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

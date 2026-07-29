@@ -5,6 +5,9 @@ import type {
   PublicSiteService,
 } from "@/lib/public-site/types";
 import { publicSitePath } from "@/lib/public-site/metadata";
+import BackToDashboardButton from "@/components/public/BackToDashboardButton";
+
+const DEFAULT_SECTION_ORDER = ["services", "portfolio", "about", "contact"] as const;
 
 function formatPrice(service: PublicSiteService, locale: string) {
   const language = locale.split("-")[0];
@@ -109,6 +112,13 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   const showPortfolio = content.show_portfolio && portfolio.length > 0;
   const showAbout = content.show_about && Boolean(content.about_text);
   const showContact = content.show_contact && hasContact;
+  const sectionOrder = Array.isArray(content.section_order)
+    ? content.section_order
+    : [...DEFAULT_SECTION_ORDER];
+  const sectionPosition = (section: (typeof DEFAULT_SECTION_ORDER)[number]) => {
+    const position = sectionOrder.indexOf(section);
+    return position === -1 ? DEFAULT_SECTION_ORDER.indexOf(section) : position;
+  };
 
   return (
     <main
@@ -223,8 +233,9 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
         </div>
       </section>
 
+      <div className="flex flex-col">
       {showServices ? (
-        <section id="services" className="border-y border-black/8 bg-[#191b20] px-5 py-24 text-white sm:py-32">
+        <section id="services" style={{ order: sectionPosition("services") }} className="border-y border-black/8 bg-[#191b20] px-5 py-24 text-white sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#d8b36a]">
               {content.services_label}
@@ -272,7 +283,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showPortfolio ? (
-        <section id="portfolio" className="px-5 py-24 sm:py-32">
+        <section id="portfolio" style={{ order: sectionPosition("portfolio") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#9a742e]">
               {content.portfolio_label}
@@ -290,7 +301,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showAbout ? (
-        <section id="about" className="px-5 py-24 sm:py-32">
+        <section id="about" style={{ order: sectionPosition("about") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto grid w-full max-w-[1240px] gap-10 border-t border-black/10 pt-16 lg:grid-cols-[0.7fr_1.3fr]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#9a742e]">
               {content.about_label}
@@ -308,7 +319,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showContact ? (
-        <section id="contact" className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
+        <section id="contact" style={{ order: sectionPosition("contact") }} className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
           <div className="mx-auto grid w-full max-w-[1240px] gap-12 lg:grid-cols-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#725924]">
@@ -338,6 +349,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
           </div>
         </section>
       ) : null}
+      </div>
 
       <footer className="bg-[#191b20] px-5 py-10 text-white">
         <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-4 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
@@ -345,6 +357,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
           <p>Powered by OneStudio OS</p>
         </div>
       </footer>
+      <BackToDashboardButton />
     </main>
   );
 }

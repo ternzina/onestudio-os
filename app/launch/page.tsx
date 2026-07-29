@@ -111,7 +111,7 @@ export default function LaunchPage() {
       if (error) {
         if (error.message === "account_already_has_workspace") {
           window.localStorage.removeItem("onestudio-config:pending");
-          router.replace("/admin");
+          router.replace("/dashboard");
           router.refresh();
           return;
         }
@@ -121,7 +121,7 @@ export default function LaunchPage() {
       }
 
       window.localStorage.removeItem("onestudio-config:pending");
-      router.replace("/admin");
+      router.replace("/dashboard");
       router.refresh();
     }
 

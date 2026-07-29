@@ -28,7 +28,9 @@ function redirectTo(request: NextRequest, pathname: string) {
 
 function authNextPath(request: NextRequest) {
   const next = request.nextUrl.searchParams.get("next");
-  return next === "/launch" || next?.startsWith("/admin") ? next : null;
+  return next === "/launch" || next === "/dashboard" || next?.startsWith("/admin")
+    ? next
+    : null;
 }
 
 function moduleForAdminPath(pathname: string): CoreModuleKey | null {
@@ -109,6 +111,7 @@ export async function updateSession(request: NextRequest) {
       return redirectTo(request, next ?? "/admin/bootstrap");
     }
     if (next === "/launch") return redirectTo(request, next);
+    if (state === "denied") return redirectTo(request, "/dashboard");
     return response;
   }
 

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import type { DemoDefinition } from "@/lib/demo-catalog";
+import { supabase } from "@/lib/supabase";
 import styles from "./Configurator.module.css";
 
 const steps = ["Демо", "Бренд", "Дизайн", "Модули", "Языки", "Оплата", "Запуск"] as const;
@@ -24,8 +25,13 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
   const [reminders, setReminders] = useState(true);
   const [phonePreview, setPhonePreview] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => {
+      setAuthenticated(Boolean(data.user));
+    });
+
     const stored = window.localStorage.getItem(storageKey);
     if (!stored) return;
     try {
@@ -256,7 +262,11 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
             ) : (
               <>
                 <button type="button" onClick={saveConfiguration}>Сохранить конфигурацию</button>
-                {saved ? <Link href="/register?source=configurator">Создать рабочее пространство →</Link> : null}
+                {saved ? (
+                  <Link href={authenticated ? "/launch" : "/register?source=configurator"}>
+                    Создать рабочее пространство →
+                  </Link>
+                ) : null}
               </>
             )}
           </div>

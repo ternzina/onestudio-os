@@ -9,11 +9,13 @@ type SocialAuthButtonsProps = {
 };
 
 function safeNextPath(value?: string) {
-  return value === "/launch" || value?.startsWith("/admin") ? value : "/admin";
+  return value === "/launch" || value === "/dashboard" || value?.startsWith("/admin")
+    ? value
+    : "/dashboard";
 }
 
 export default function SocialAuthButtons({
-  nextPath = "/admin",
+  nextPath = "/dashboard",
 }: SocialAuthButtonsProps) {
   const [pendingProvider, setPendingProvider] = useState<Provider | null>(null);
   const [message, setMessage] = useState("");
