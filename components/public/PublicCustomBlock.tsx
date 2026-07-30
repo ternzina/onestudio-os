@@ -49,28 +49,55 @@ function columnCards(block: PublicSiteCustomBlock): PublicSiteColumnCard[] {
   });
 }
 
+function validYouTubeVideoId(value?: string | null) {
+  const id = value?.trim() ?? "";
+  return /^[A-Za-z0-9_-]{6,20}$/.test(id) ? id : null;
+}
+
 function videoEmbedUrl(value?: string) {
   if (!value) return null;
+
   try {
     const url = new URL(value);
-    const host = url.hostname.replace(/^www\./, "");
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    const segments = url.pathname.split("/").filter(Boolean);
+
     if (host === "youtu.be") {
-      const id = url.pathname.split("/").filter(Boolean)[0];
+      const id = validYouTubeVideoId(segments[0]);
       return id ? `https://www.youtube-nocookie.com/embed/${id}` : null;
     }
-    if (host === "youtube.com" || host === "m.youtube.com") {
-      const id = url.searchParams.get("v");
+
+    if (
+      host === "youtube.com" ||
+      host === "m.youtube.com" ||
+      host === "music.youtube.com"
+    ) {
+      const pathType = segments[0];
+      const id =
+        validYouTubeVideoId(url.searchParams.get("v")) ||
+        (["shorts", "live", "embed"].includes(pathType)
+          ? validYouTubeVideoId(segments[1])
+          : null);
+
       return id ? `https://www.youtube-nocookie.com/embed/${id}` : null;
     }
-    if (host === "vimeo.com") {
-      const id = url.pathname.split("/").filter(Boolean)[0];
-      return id && /^\d+$/.test(id)
-        ? `https://player.vimeo.com/video/${id}`
-        : null;
+
+    if (host === "youtube-nocookie.com") {
+      const id =
+        segments[0] === "embed"
+          ? validYouTubeVideoId(segments[1])
+          : null;
+      return id ? `https://www.youtube-nocookie.com/embed/${id}` : null;
+    }
+
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id = [...segments].reverse().find((segment) => /^\d+$/.test(segment));
+      return id ? `https://player.vimeo.com/video/${id}` : null;
     }
   } catch {
     return null;
   }
+
   return null;
 }
 
