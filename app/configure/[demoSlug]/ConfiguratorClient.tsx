@@ -41,6 +41,7 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
         paletteIndex?: number;
         modules?: string[];
         languages?: string[];
+        primaryLanguage?: string;
         currency?: string;
         onlinePayment?: boolean;
         reminders?: boolean;
@@ -49,7 +50,12 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
       if (config.tagline) setTagline(config.tagline);
       if (typeof config.paletteIndex === "number") setPaletteIndex(config.paletteIndex);
       if (config.modules?.length) setModules(config.modules);
-      if (config.languages?.length) setLanguages(config.languages);
+      if (config.languages?.length) {
+        const orderedLanguages = config.primaryLanguage && config.languages.includes(config.primaryLanguage)
+          ? [config.primaryLanguage, ...config.languages.filter((item) => item !== config.primaryLanguage)]
+          : config.languages;
+        setLanguages(orderedLanguages);
+      }
       if (config.currency) setCurrency(config.currency);
       if (typeof config.onlinePayment === "boolean") setOnlinePayment(config.onlinePayment);
       if (typeof config.reminders === "boolean") setReminders(config.reminders);
@@ -58,13 +64,19 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
     }
   }, [storageKey]);
 
+  useEffect(() => {
+    setSaved(false);
+  }, [businessName, tagline, paletteIndex, modules, languages, currency, onlinePayment, reminders]);
+
   const palette = demo.palettes[paletteIndex] || demo.palettes[0];
   const summary = useMemo(() => ({
     demo: `${demo.name} · ${demo.title.ru}`,
     brand: businessName,
     design: palette.name,
     modules: modules.join(", "),
-    languages: languages.join(", "),
+    languages: languages.map((language, index) =>
+      index === 0 ? `${language} (основной)` : language,
+    ).join(", "),
     payment: `${currency} · ${onlinePayment ? "онлайн-оплата включена" : "без онлайн-оплаты"}`,
   }), [businessName, currency, demo, languages, modules, onlinePayment, palette.name]);
 
@@ -77,14 +89,50 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
     setValues([...values, value]);
   }
 
+  function makePrimaryLanguage(language: string) {
+    if (!languages.includes(language) || languages[0] === language) return;
+    setLanguages([language, ...languages.filter((item) => item !== language)]);
+
+    if (tagline === demo.promise.ru || tagline === demo.promise.en) {
+      setTagline(
+        language === "English"
+          ? demo.promise.en
+          : language === "Русский"
+            ? demo.promise.ru
+            : businessName,
+      );
+    }
+  }
+
+  function toggleLanguage(language: string) {
+    if (languages.includes(language)) {
+      if (languages.length === 1) return;
+      const next = languages.filter((item) => item !== language);
+      setLanguages(next);
+      if (languages[0] === language && (tagline === demo.promise.ru || tagline === demo.promise.en)) {
+        setTagline(
+          next[0] === "English"
+            ? demo.promise.en
+            : next[0] === "Русский"
+              ? demo.promise.ru
+              : businessName,
+        );
+      }
+      return;
+    }
+    setLanguages([...languages, language]);
+  }
+
   function saveConfiguration() {
     const configuration = {
+      launchId: window.crypto.randomUUID(),
       demoSlug: demo.slug,
       businessName,
       tagline,
       paletteIndex,
       modules,
       languages,
+      primaryLanguage: languages[0],
       currency,
       onlinePayment,
       reminders,
@@ -166,19 +214,36 @@ export default function ConfiguratorClient({ demo }: { demo: DemoDefinition }) {
     },
     {
       title: "Языки сайта",
-      lead: "Выберите один или несколько языков. Клиентская часть и письма будут подготовлены для выбранного набора.",
+      lead: "Первый язык будет основным и опубликуется сразу. Остальные создадим как отдельные черновики, чтобы вы проверили тексты перед публикацией.",
       body: (
         <div className={styles.checkList}>
-          {languageChoices.map((language) => (
-            <label className={styles.check} key={language}>
-              <input
-                type="checkbox"
-                checked={languages.includes(language)}
-                onChange={() => toggleItem(language, languages, setLanguages)}
-              />
-              <span>{language}</span>
-            </label>
-          ))}
+          {languageChoices.map((language) => {
+            const selected = languages.includes(language);
+            const primary = languages[0] === language;
+            return (
+              <div className={styles.languageRow} key={language}>
+                <label className={styles.check}>
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => toggleLanguage(language)}
+                  />
+                  <span>{language}</span>
+                </label>
+                {primary ? (
+                  <span className={styles.primaryBadge}>Основной</span>
+                ) : selected ? (
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => makePrimaryLanguage(language)}
+                  >
+                    Сделать основным
+                  </button>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       ),
     },

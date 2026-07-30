@@ -1,8 +1,0 @@
-OneStudio OS Document Engine 1.0
-
-1. Apply patch in feature/document-engine-1.0.
-2. Run: npx supabase@beta db reset
-3. Run: npx supabase@beta test db
-4. Run: npm run build
-5. Open: /admin/documents
-6. Push migration only after local verification.

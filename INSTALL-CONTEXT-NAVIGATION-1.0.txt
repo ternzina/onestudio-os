@@ -1,8 +1,0 @@
-OneStudio OS Context Navigation 1.0
-
-Files:
-- components/admin/SmartClientWorkspace.tsx
-- app/admin/payments/PaymentsManager.tsx
-- docs/CONTEXT-NAVIGATION-1.0.md
-
-No Supabase migration is required. Run the test suite and production build before deployment.

@@ -477,3 +477,47 @@
     content: "×";
   }
 }
+
+.languageRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 9px;
+}
+
+.languageRow .check {
+  min-width: 0;
+}
+
+.primaryBadge,
+.primaryButton {
+  white-space: nowrap;
+  border-radius: 999px;
+  font: 700 9px var(--font-geist-sans);
+}
+
+.primaryBadge {
+  padding: 8px 10px;
+  background: #dff0ea;
+  color: #2f6f62;
+}
+
+.primaryButton {
+  padding: 8px 10px;
+  border: 1px solid #c7d5d2;
+  background: white;
+  color: #5f7477;
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .languageRow {
+    grid-template-columns: 1fr;
+  }
+
+  .primaryBadge,
+  .primaryButton {
+    justify-self: start;
+    margin-left: 13px;
+  }
+}

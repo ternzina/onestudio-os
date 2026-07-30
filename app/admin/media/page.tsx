@@ -68,6 +68,7 @@ export default function AdminMediaPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
@@ -218,6 +219,96 @@ export default function AdminMediaPage() {
       setError(caught instanceof Error ? caught.message : t("Upload failed"));
     } finally {
       setUploading(false);
+    }
+  };
+
+  const uploadVideo = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    if (!file) return;
+
+    const targetCategory = categoryId === "all" ? categories[0]?.id : categoryId;
+    if (!targetCategory) {
+      setError(t("Create a portfolio category before uploading media."));
+      return;
+    }
+
+    const allowedVideoTypes = new Set([
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      "video/x-m4v",
+    ]);
+    if (!allowedVideoTypes.has(file.type)) {
+      setError("Поддерживаются только MP4, WebM и MOV.");
+      return;
+    }
+    if (file.size > 250 * 1024 * 1024) {
+      setError("Видео больше 250 МБ. Уменьшите его перед загрузкой.");
+      return;
+    }
+
+    clearNotices();
+    setVideoUploading(true);
+    try {
+      const token = await getAccessToken();
+      const commonBody = {
+        categoryId: targetCategory,
+        filename: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+      };
+      const prepareResponse = await fetch("/api/admin/portfolio/video-upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "prepare", ...commonBody }),
+      });
+      const prepared = (await prepareResponse.json()) as {
+        error?: string;
+        uploadUrl?: string;
+        r2Key?: string;
+      };
+      if (!prepareResponse.ok || !prepared.uploadUrl || !prepared.r2Key) {
+        throw new Error(prepared.error || "Не удалось подготовить загрузку видео.");
+      }
+
+      const uploadResponse = await fetch(prepared.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error("Cloudflare R2 не принял видео.");
+      }
+
+      const completeResponse = await fetch("/api/admin/portfolio/video-upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "complete",
+          ...commonBody,
+          r2Key: prepared.r2Key,
+        }),
+      });
+      const completed = (await completeResponse.json()) as { error?: string };
+      if (!completeResponse.ok) {
+        throw new Error(completed.error || "Не удалось сохранить видео в медиатеке.");
+      }
+
+      setMessage("Видео безопасно загружено в медиатеку.");
+      await loadData();
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Не удалось загрузить видео.",
+      );
+    } finally {
+      setVideoUploading(false);
     }
   };
 
@@ -375,7 +466,26 @@ export default function AdminMediaPage() {
               {uploading ? t("Uploading…") : t("Upload images")}
               <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple disabled={uploading} onChange={uploadFiles} className="hidden" />
             </label>
+            <label className="cursor-pointer rounded-full border border-black/10 bg-white px-5 py-3 text-xs font-semibold">
+              {videoUploading ? t("Uploading video…") : t("Upload video")}
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime,video/x-m4v"
+                disabled={videoUploading}
+                onChange={uploadVideo}
+                className="hidden"
+              />
+            </label>
           </div>
+        </div>
+
+        <div className="mt-5 rounded-[20px] border border-emerald-200 bg-emerald-50/70 px-5 py-4">
+          <p className="text-xs font-semibold text-emerald-900">
+            {t("Safe uploads")}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-emerald-900/70">
+            {t("Images up to 30 MB and videos up to 250 MB. SVG, HTML, archives and executable files are blocked.")}
+          </p>
         </div>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-3">

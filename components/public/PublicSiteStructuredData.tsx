@@ -24,8 +24,10 @@ export default function PublicSiteStructuredData({
     url,
     email: site.company.email || undefined,
     telephone: site.company.phone || undefined,
-    address: site.company.address || undefined,
+    address: site.content.contact_address || site.company.address || undefined,
     image:
+      site.content.seo_image_url ||
+      site.content.hero_image_url ||
       site.portfolio.find((project) => project.image_url)?.image_url ||
       undefined,
     makesOffer: site.services.map((service) => ({

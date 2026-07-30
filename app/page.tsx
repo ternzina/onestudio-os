@@ -273,7 +273,7 @@ export default function Home() {
 
       <footer className="os-footer">
         <div><Link href="/" className="os-brand"><Mark/><span><b>ONE</b>STUDIO <em>OS</em></span></Link><p>{t.footerText}</p></div>
-        <div className="flex flex-wrap justify-center gap-3 text-xs"><Link href="/legal/uk/public-offer">Оферта</Link><Link href="/legal/en/privacy">Privacy</Link><Link href="/legal/en/refunds">Refunds</Link><Link href="/legal/en/cookies">Cookies</Link></div>
+        <div className="flex flex-wrap justify-center gap-3 text-xs"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div>
         <a href="mailto:hello@onestudioos.com">hello@onestudioos.com</a>
         <small>© 2026 OneStudio OS. {t.rights}</small>
       </footer>

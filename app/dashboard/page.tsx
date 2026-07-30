@@ -22,6 +22,8 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
+  const [switchingWorkspace, setSwitchingWorkspace] = useState<string | null>(null);
+  const [workspaceError, setWorkspaceError] = useState("");
 
   useEffect(() => {
     void supabase.auth.getUser().then(async ({ data }) => {
@@ -81,6 +83,22 @@ export default function DashboardPage() {
     });
   }, []);
 
+  async function openWorkspace(businessId: string, path: string) {
+    setSwitchingWorkspace(businessId);
+    setWorkspaceError("");
+    const { data, error } = await supabase.rpc("set_default_business", {
+      p_business_id: businessId,
+    });
+
+    if (error || data !== true) {
+      setWorkspaceError(error?.message || "Не удалось открыть выбранный сайт.");
+      setSwitchingWorkspace(null);
+      return;
+    }
+
+    router.push(path);
+  }
+
   async function logout() {
     await supabase.auth.signOut();
     router.replace("/login");
@@ -121,6 +139,12 @@ export default function DashboardPage() {
             </Link>
           </div>
 
+          {workspaceError ? (
+            <p className="mt-5 rounded-2xl border border-red-300/20 bg-red-400/10 px-4 py-3 text-sm text-red-100">
+              {workspaceError}
+            </p>
+          ) : null}
+
           {!loading && workspaces.length === 0 ? (
             <div className="mt-7 rounded-[28px] border border-dashed border-white/15 bg-black/15 p-7">
               <h3 className="text-xl font-semibold">У вас пока нет сайта</h3>
@@ -156,9 +180,21 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      <Link href="/admin/site" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold">
-                        {workspace.site_is_published ? "Настроить сайт" : "Продолжить настройку"}
-                      </Link>
+                      <button
+                        type="button"
+                        disabled={switchingWorkspace === workspace.business_id}
+                        onClick={() => void openWorkspace(
+                          workspace.business_id,
+                          `/admin/site?business=${workspace.business_id}`,
+                        )}
+                        className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-60"
+                      >
+                        {switchingWorkspace === workspace.business_id
+                          ? "Открываем…"
+                          : workspace.site_is_published
+                            ? "Настроить сайт"
+                            : "Продолжить настройку"}
+                      </button>
                       {workspace.site_is_published ? (
                         <Link
                           href={`/site/${workspace.slug}`}
@@ -168,9 +204,14 @@ export default function DashboardPage() {
                           Открыть сайт
                         </Link>
                       ) : null}
-                      <Link href="/admin" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold">
+                      <button
+                        type="button"
+                        disabled={switchingWorkspace === workspace.business_id}
+                        onClick={() => void openWorkspace(workspace.business_id, "/admin")}
+                        className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-60"
+                      >
                         Управление сайтом
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </article>

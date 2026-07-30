@@ -42,21 +42,6 @@ export const getAdminSupabase = async (request: NextRequest) => {
     };
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || profile?.role !== "admin") {
-    return {
-      error: "Недостаточно прав",
-      supabase: null,
-      userId: user.id,
-      businessId: null,
-    };
-  }
-
   const { data: businessId, error: workspaceError } = await supabase.rpc(
     "current_business_id",
   );
@@ -64,6 +49,20 @@ export const getAdminSupabase = async (request: NextRequest) => {
   if (workspaceError || !businessId) {
     return {
       error: "Рабочее пространство не найдено",
+      supabase: null,
+      userId: user.id,
+      businessId: null,
+    };
+  }
+
+  const { data: canConfigure, error: accessError } = await supabase.rpc(
+    "can_configure_business",
+    { p_business_id: businessId },
+  );
+
+  if (accessError || canConfigure !== true) {
+    return {
+      error: "Недостаточно прав",
       supabase: null,
       userId: user.id,
       businessId: null,

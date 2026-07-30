@@ -7,12 +7,14 @@ import MarketingBrand from "@/components/marketing/MarketingBrand";
 import { supabase } from "@/lib/supabase";
 
 type PendingConfiguration = {
+  launchId?: string;
   demoSlug: string;
   businessName: string;
   tagline: string;
   paletteIndex: number;
   modules: string[];
   languages: string[];
+  primaryLanguage?: string;
   currency: string;
   onlinePayment: boolean;
   reminders: boolean;
@@ -86,7 +88,15 @@ export default function LaunchPage() {
       }
 
       setMessage("Создаём отдельный сайт и рабочее пространство…");
+      const launchId = config.launchId || window.crypto.randomUUID();
+      if (!config.launchId) {
+        config = { ...config, launchId };
+        window.localStorage.setItem("onestudio-config:pending", JSON.stringify(config));
+      }
+
       const locales = config.languages.map((item) => localeCodes[item]).filter(Boolean);
+      const primaryLocale =
+        localeCodes[config.primaryLanguage || config.languages[0]] || locales[0] || "en";
       const enabledModules = [...new Set([
         "core",
         "catalog",
@@ -98,11 +108,13 @@ export default function LaunchPage() {
 
       const { error } = await supabase.rpc("create_configured_workspace", {
         p_configuration: {
+          launch_id: launchId,
           demo_slug: config.demoSlug,
           business_name: config.businessName,
           tagline: config.tagline,
           palette_index: config.paletteIndex,
           locales,
+          primary_locale: primaryLocale,
           currency: config.currency,
           enabled_modules: enabledModules,
         },

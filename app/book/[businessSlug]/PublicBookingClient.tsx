@@ -14,6 +14,15 @@ type PublicLocale = "ru" | "en";
 
 type PublicBookingClientProps = {
   initialContext: PublicBookingContext;
+  initialServiceSlug?: string;
+  initialDate?: string;
+  branding?: {
+    brandName: string;
+    accent: string;
+    dark: string;
+    surface: string;
+    homeHref: string;
+  } | null;
 };
 
 const copy = {
@@ -51,6 +60,7 @@ const copy = {
     total: "Стоимость",
     newBooking: "Создать ещё одну бронь",
     back: "На главную",
+    backToSite: "Вернуться на сайт",
     minutes: "мин",
     person: "чел.",
     free: "Бесплатно",
@@ -99,6 +109,7 @@ const copy = {
     total: "Total",
     newBooking: "Create another booking",
     back: "Back to home",
+    backToSite: "Back to website",
     minutes: "min",
     person: "guests",
     free: "Free",
@@ -165,17 +176,58 @@ function bookingErrorMessage(message: string, locale: PublicLocale) {
   return copy[locale].genericError;
 }
 
-export default function PublicBookingClient({ initialContext }: PublicBookingClientProps) {
+function dateRange(minimum: string, maximum: string) {
+  const dates: string[] = [];
+  const current = new Date(`${minimum}T12:00:00Z`);
+  const end = new Date(`${maximum}T12:00:00Z`);
+
+  while (current <= end && dates.length < 370) {
+    dates.push(current.toISOString().slice(0, 10));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return dates;
+}
+
+function calendarDateParts(value: string, locale: PublicLocale) {
+  const date = new Date(`${value}T12:00:00Z`);
+  const language = locale === "ru" ? "ru-RU" : "en-US";
+  return {
+    weekday: new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" })
+      .format(date)
+      .replace(".", ""),
+    day: new Intl.DateTimeFormat(language, { day: "2-digit", timeZone: "UTC" }).format(date),
+    month: new Intl.DateTimeFormat(language, { month: "short", timeZone: "UTC" })
+      .format(date)
+      .replace(".", ""),
+  };
+}
+
+export default function PublicBookingClient({
+  initialContext,
+  initialServiceSlug,
+  initialDate,
+  branding,
+}: PublicBookingClientProps) {
   const defaultLocale: PublicLocale = initialContext.business.default_locale.toLowerCase().startsWith("ru") ? "ru" : "en";
   const [locale, setLocale] = useState<PublicLocale>(defaultLocale);
-  const [serviceId, setServiceId] = useState(initialContext.services[0]?.id ?? "");
+  const initialService =
+    initialContext.services.find((item) => item.slug === initialServiceSlug) ??
+    initialContext.services[0];
+  const [serviceId, setServiceId] = useState(initialService?.id ?? "");
   const service = useMemo(
     () => initialContext.services.find((item) => item.id === serviceId) ?? initialContext.services[0],
     [initialContext.services, serviceId],
   );
   const [duration, setDuration] = useState(service?.duration_min_minutes ?? 60);
   const [partySize, setPartySize] = useState(1);
-  const [date, setDate] = useState(initialContext.date_bounds.minimum_date);
+  const requestedDate =
+    initialDate &&
+    initialDate >= initialContext.date_bounds.minimum_date &&
+    initialDate <= initialContext.date_bounds.maximum_date
+      ? initialDate
+      : initialContext.date_bounds.minimum_date;
+  const [date, setDate] = useState(requestedDate);
   const [slots, setSlots] = useState<AvailableSlotRecord[]>([]);
   const [slotsRequested, setSlotsRequested] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlotRecord | null>(null);
@@ -188,12 +240,38 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [confirmation, setConfirmation] = useState<PublicBookingConfirmation | null>(null);
+  const [calendarPage, setCalendarPage] = useState(0);
   const t = copy[locale];
+  const allDates = useMemo(
+    () =>
+      dateRange(
+        initialContext.date_bounds.minimum_date,
+        initialContext.date_bounds.maximum_date,
+      ),
+    [
+      initialContext.date_bounds.maximum_date,
+      initialContext.date_bounds.minimum_date,
+    ],
+  );
+  const visibleDates = allDates.slice(calendarPage * 14, calendarPage * 14 + 14);
+  const hasPreviousDates = calendarPage > 0;
+  const hasNextDates = (calendarPage + 1) * 14 < allDates.length;
+  const selectDate = (value: string) => {
+    setDate(value);
+    setSlots([]);
+    setSlotsRequested(false);
+    setSelectedSlot(null);
+  };
 
   useEffect(() => {
     const stored = window.localStorage.getItem("onestudio_public_booking_locale");
     if (stored === "ru" || stored === "en") setLocale(stored);
   }, []);
+
+  useEffect(() => {
+    const index = allDates.indexOf(requestedDate);
+    if (index >= 0) setCalendarPage(Math.floor(index / 14));
+  }, [allDates, requestedDate]);
 
   useEffect(() => {
     window.localStorage.setItem("onestudio_public_booking_locale", locale);
@@ -210,6 +288,27 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
     setError("");
   }, [service]);
 
+  async function refreshGoogleCalendar(bookingId?: string) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8_000);
+    try {
+      await fetch("/api/integrations/google-calendar/sync", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          businessSlug: initialContext.business.slug,
+          bookingId,
+        }),
+        signal: controller.signal,
+      });
+    } catch {
+      // Google Calendar is optional. Canonical OneStudio availability remains
+      // usable even if the provider is disconnected or temporarily unavailable.
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
   async function loadSlots() {
     if (!service || !date) return;
     setLoadingSlots(true);
@@ -217,6 +316,7 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
     setError("");
     setSelectedSlot(null);
 
+    await refreshGoogleCalendar();
     const supabase = getSupabaseBrowserClient();
     const { data, error: slotError } = await supabase.rpc("get_service_available_slots", {
       p_business_id: initialContext.business.id,
@@ -281,7 +381,9 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
       return;
     }
 
-    setConfirmation(result as PublicBookingConfirmation);
+    const confirmationResult = result as PublicBookingConfirmation;
+    setConfirmation(confirmationResult);
+    await refreshGoogleCalendar(confirmationResult.booking_id);
   }
 
   function resetBooking() {
@@ -299,10 +401,13 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
   if (confirmation) {
     const confirmed = confirmation.status === "confirmed";
     return (
-      <main className="min-h-screen bg-[#f4f1ea] px-5 py-8 text-[#191b20] sm:px-8 sm:py-14">
+      <main
+        className="min-h-screen px-5 py-8 text-[#191b20] sm:px-8 sm:py-14"
+        style={{ backgroundColor: branding?.surface ?? "#f4f1ea" }}
+      >
         <section className="mx-auto max-w-3xl rounded-[38px] border border-black/8 bg-white p-7 shadow-[0_30px_100px_rgba(25,25,25,0.12)] sm:p-12">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#9a742e]">{initialContext.business.name}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em]" style={{ color: branding?.accent ?? "#9a742e" }}>{branding?.brandName || initialContext.business.name}</p>
             <div className="flex rounded-full bg-[#eeebe3] p-1 text-xs font-semibold">
               {(["ru", "en"] as const).map((value) => (
                 <button key={value} type="button" onClick={() => setLocale(value)} className={`rounded-full px-4 py-2 ${locale === value ? "bg-[#17191f] text-white" : "text-[#6d6961]"}`}>{value.toUpperCase()}</button>
@@ -320,7 +425,7 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={resetBooking} className="rounded-full bg-[#17191f] px-6 py-3.5 text-sm font-semibold text-white">{t.newBooking}</button>
-            <Link href="/" className="rounded-full border border-black/10 px-6 py-3.5 text-center text-sm font-semibold">{t.back}</Link>
+            <Link href={branding?.homeHref ?? "/"} className="rounded-full border border-black/10 px-6 py-3.5 text-center text-sm font-semibold">{t.back}</Link>
           </div>
         </section>
       </main>
@@ -328,12 +433,30 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f1ea] px-4 py-5 text-[#191b20] sm:px-7 sm:py-8">
+    <main
+      className="min-h-screen px-4 py-5 text-[#191b20] sm:px-7 sm:py-8"
+      style={{
+        backgroundColor: branding?.surface ?? "#f4f1ea",
+        "--booking-accent": branding?.accent ?? "#9a742e",
+        "--booking-dark": branding?.dark ?? "#17191f",
+      } as React.CSSProperties}
+    >
       <section className="mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-black/8 bg-white shadow-[0_35px_120px_rgba(25,25,25,0.12)]">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-black/8 px-6 py-5 sm:px-9">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#9a742e]">OneStudio OS</p>
+          <div className="flex items-center gap-4">
+            <Link
+              href={branding?.homeHref ?? "/"}
+              className="inline-flex min-h-10 items-center rounded-full border border-black/10 bg-white px-4 text-xs font-semibold text-[#5f5b54] transition hover:border-[var(--booking-accent)]"
+            >
+              <span className="mr-2 text-base" aria-hidden="true">←</span>
+              {t.backToSite}
+            </Link>
+            <div>
+            <Link href={branding?.homeHref ?? "/"} className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--booking-accent)]">
+              {branding?.brandName || "OneStudio OS"}
+            </Link>
             <h1 className="mt-1 text-2xl font-semibold tracking-[-0.045em]">{initialContext.business.name}</h1>
+            </div>
           </div>
           <div className="flex rounded-full bg-[#eeebe3] p-1 text-xs font-semibold">
             {(["ru", "en"] as const).map((value) => (
@@ -343,7 +466,7 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
         </header>
 
         <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
-          <aside className="bg-[#17191f] p-6 text-white sm:p-10 lg:min-h-[760px]">
+          <aside className="bg-[var(--booking-dark)] p-6 text-white sm:p-10 lg:min-h-[760px]">
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#d8b36a]">{t.booking}</p>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{t.chooseService}</h2>
             <div className="mt-8 grid gap-3">
@@ -371,9 +494,52 @@ export default function PublicBookingClient({ initialContext }: PublicBookingCli
               <>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a742e]">01 · {t.availableTime}</p>
+                  <div className="mt-5 rounded-[26px] border border-black/8 bg-[#f7f3ef] p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--booking-accent)]">
+                          {t.date}
+                        </p>
+                        <p className="mt-1 text-sm font-semibold">
+                          {visibleDates.length
+                            ? `${calendarDateParts(visibleDates[0], locale).month} — ${
+                                calendarDateParts(visibleDates[visibleDates.length - 1], locale).month
+                              }`
+                            : ""}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setCalendarPage((value) => Math.max(0, value - 1))} disabled={!hasPreviousDates} className="grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white text-sm disabled:opacity-25" aria-label="Previous dates">←</button>
+                        <button type="button" onClick={() => setCalendarPage((value) => value + 1)} disabled={!hasNextDates} className="grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white text-sm disabled:opacity-25" aria-label="Next dates">→</button>
+                      </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-7">
+                      {visibleDates.map((value) => {
+                        const parts = calendarDateParts(value, locale);
+                        const active = date === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => selectDate(value)}
+                            aria-pressed={active}
+                            className={`rounded-2xl border px-2 py-3 text-center transition ${
+                              active
+                                ? "border-[var(--booking-dark)] bg-[var(--booking-dark)] text-white shadow-lg"
+                                : "border-black/8 bg-white hover:border-[var(--booking-accent)]"
+                            }`}
+                          >
+                            <span className="block text-[9px] font-semibold uppercase tracking-[0.12em] opacity-55">{parts.weekday}</span>
+                            <span className="mt-1 block text-lg font-semibold">{parts.day}</span>
+                            <span className="block text-[9px] uppercase opacity-45">{parts.month}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#77736b]">{t.date}
-                      <input type="date" min={initialContext.date_bounds.minimum_date} max={initialContext.date_bounds.maximum_date} value={date} onChange={(event) => { setDate(event.target.value); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]" />
+                      <input type="date" min={initialContext.date_bounds.minimum_date} max={initialContext.date_bounds.maximum_date} value={date} onChange={(event) => { selectDate(event.target.value); const index = allDates.indexOf(event.target.value); if (index >= 0) setCalendarPage(Math.floor(index / 14)); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]" />
                     </label>
                     <label className="grid gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#77736b]">{t.duration}
                       <select value={duration} onChange={(event) => { setDuration(Number(event.target.value)); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]">

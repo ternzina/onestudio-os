@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { supabase } from "@/lib/supabase";
@@ -160,6 +161,18 @@ export default function AdminSettingsPage() {
             <div className="mt-6 rounded-[28px] bg-white p-8 text-sm text-[#6f6c65]">{t("Loading settings...")}</div>
           ) : (
             <div className="mt-6 grid gap-6">
+              <SettingsCard
+                title={t("Integrations")}
+                description={t("Connect external services without placing client secret keys on the public site.")}
+              >
+                <Link
+                  href="/admin/integrations/google-calendar"
+                  className="inline-flex min-h-12 items-center rounded-xl bg-[#17191f] px-6 text-sm font-semibold text-white"
+                >
+                  Google Calendar →
+                </Link>
+              </SettingsCard>
+
               <SettingsCard title={t("Business identity")} description={t("Neutral name, logo text, footer and social links.")}>
                 <form onSubmit={saveGlobal} className="grid gap-4 sm:grid-cols-2">
                   <TextField label={t("Business name")} value={global.studio_name} onChange={(value) => setGlobal({ ...global, studio_name: value })} />

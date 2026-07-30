@@ -1,1 +1,0 @@
-Document Workflow 1.2: unzip into the OneStudio OS project root, then run build and tests.

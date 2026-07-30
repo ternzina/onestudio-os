@@ -1,7 +1,0 @@
-OneStudio OS Document Workflow 1.1
-
-1. Apply migration 20260726170000_document_workflow.sql.
-2. Run npx supabase@beta test db.
-3. Run npm run build.
-4. Confirm RESEND_API_KEY and RESEND_FROM_EMAIL in Vercel.
-5. Open /admin/documents, generate a document linked to a client, then use Send email.

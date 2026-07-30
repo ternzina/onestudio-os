@@ -47,6 +47,7 @@ const createPresignedPutUrl = ({
   key,
   accessKeyId,
   secretAccessKey,
+  contentType,
   expiresIn = 15 * 60,
 }: {
   endpoint: string;
@@ -54,6 +55,7 @@ const createPresignedPutUrl = ({
   key: string;
   accessKeyId: string;
   secretAccessKey: string;
+  contentType: string;
   expiresIn?: number;
 }) => {
   const endpointUrl = new URL(endpoint);
@@ -73,19 +75,21 @@ const createPresignedPutUrl = ({
     "X-Amz-Credential": `${accessKeyId}/${credentialScope}`,
     "X-Amz-Date": amzDate,
     "X-Amz-Expires": String(expiresIn),
-    "X-Amz-SignedHeaders": "host",
+    "X-Amz-SignedHeaders": "content-type;host",
   };
   const canonicalQuery = Object.entries(query)
     .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
     .map(([name, value]) => `${encodeAwsValue(name)}=${encodeAwsValue(value)}`)
     .join("&");
-  const canonicalHeaders = `host:${endpointUrl.host.toLowerCase()}\n`;
+  const canonicalHeaders =
+    `content-type:${contentType}\n` +
+    `host:${endpointUrl.host.toLowerCase()}\n`;
   const canonicalRequest = [
     "PUT",
     canonicalUri,
     canonicalQuery,
     canonicalHeaders,
-    "host",
+    "content-type;host",
     "UNSIGNED-PAYLOAD",
   ].join("\n");
   const stringToSign = [
@@ -255,6 +259,7 @@ export async function POST(request: NextRequest) {
         key: r2Key,
         accessKeyId,
         secretAccessKey,
+        contentType: mimeType,
       });
 
       return NextResponse.json({
@@ -286,6 +291,18 @@ export async function POST(request: NextRequest) {
     if (!head.ContentLength || head.ContentLength <= 0) {
       return NextResponse.json(
         { error: "Видео не появилось в R2" },
+        { status: 422 },
+      );
+    }
+    if (head.ContentLength > MAX_VIDEO_SIZE) {
+      return NextResponse.json(
+        { error: "Видео в R2 превышает лимит 250 MB" },
+        { status: 422 },
+      );
+    }
+    if (!head.ContentType || !VIDEO_TYPES.has(head.ContentType.toLowerCase())) {
+      return NextResponse.json(
+        { error: "R2 вернул неподдерживаемый тип видео" },
         { status: 422 },
       );
     }
