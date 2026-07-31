@@ -31,6 +31,10 @@ export type PublicSiteContent = {
   hero_text: string;
   about_title: string;
   about_text: string;
+  about_image_url?: string;
+  about_facts?: string;
+  about_button_label?: string;
+  about_button_url?: string;
   services_title: string;
   portfolio_title: string;
   contact_title: string;
@@ -257,6 +261,10 @@ export type PublicSiteEditorLocale = {
 };
 
 export type PublicSiteEditorData = {
+  company?: {
+    display_name?: string;
+    logo_url?: string;
+  };
   business: {
     id: string;
     slug: string;

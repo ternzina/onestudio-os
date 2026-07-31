@@ -57,10 +57,15 @@ type ImageTarget =
       kind: "content";
       key:
         | "hero_image_url"
+        | "about_image_url"
         | "membership_image_url"
         | "gift_image_url"
         | "seo_image_url"
         | "favicon_url";
+      label: string;
+    }
+  | {
+      kind: "logo";
       label: string;
     }
   | {
@@ -165,6 +170,7 @@ function resolveEditorVideoPreview(value: string) {
 function findInvalidDraftImage(content: PublicSiteContent) {
   const directImages: Array<[string, string | undefined]> = [
     ["главное изображение", content.hero_image_url],
+    ["изображение раздела «О компании»", content.about_image_url],
     ["изображение клуба", content.membership_image_url],
     ["изображение сертификата", content.gift_image_url],
     ["SEO-изображение", content.seo_image_url],
@@ -456,6 +462,7 @@ export default function AdminSitePage() {
   const [editor, setEditor] = useState<PublicSiteEditorData | null>(null);
   const [selectedLocale, setSelectedLocale] = useState("");
   const [draft, setDraft] = useState<PublicSiteContent | null>(null);
+  const [logoUrl, setLogoUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -523,6 +530,7 @@ export default function AdminSitePage() {
     setEditor(nextEditor);
     setSelectedLocale(locale);
     setDraft(contentFromLocale(nextEditor, locale));
+    setLogoUrl(nextEditor.company?.logo_url ?? "");
     setLoading(false);
   }, [t]);
 
@@ -639,8 +647,38 @@ export default function AdminSitePage() {
     setSaving(false);
   }
 
+  async function saveCompanyLogo() {
+    if (!workspace || !canConfigure) return false;
+
+    const { error: logoError } = await supabase
+      .from("company_profiles")
+      .upsert(
+        {
+          business_id: workspace.business_id,
+          logo_url: logoUrl.trim(),
+        },
+        { onConflict: "business_id" },
+      );
+
+    if (logoError) {
+      setError(logoError.message);
+      setMessage("");
+      return false;
+    }
+
+    return true;
+  }
+
   async function saveDraft(options?: { publish?: boolean }) {
     if (!workspace || !editor || !draft || !canConfigure) return false;
+
+    if (logoUrl && isInvalidImageUrl(logoUrl)) {
+      setError(
+        "Нельзя сохранить: в поле «Логотип» вставлена ссылка на видео.",
+      );
+      setMessage("");
+      return false;
+    }
 
     const invalidImage = findInvalidDraftImage(draft);
     if (invalidImage) {
@@ -664,6 +702,11 @@ export default function AdminSitePage() {
 
     if (saveError) {
       setError(saveError.message);
+      setSaving(false);
+      return false;
+    }
+
+    if (!(await saveCompanyLogo())) {
       setSaving(false);
       return false;
     }
@@ -739,7 +782,7 @@ export default function AdminSitePage() {
       },
     );
     if (saveError) setError(saveError.message);
-    else {
+    else if (await saveCompanyLogo()) {
       await loadEditor(selectedLocale);
       setMessage(t("Primary language changed."));
     }
@@ -861,6 +904,7 @@ export default function AdminSitePage() {
           businessId={workspace.business_id}
           businessSlug={editor.business.slug}
           businessName={editor.business.name}
+          logoUrl={logoUrl}
           locales={editor.locales.map((item) => item.locale)}
           primaryLocale={editor.site.primary_locale}
           selectedLocale={selectedLocale}
@@ -878,6 +922,10 @@ export default function AdminSitePage() {
           onSave={() => void saveDraft()}
           onSectionChange={setSelectedSection}
           onUpdate={update}
+          onLogoChange={(value) => {
+            setLogoUrl(value);
+            setMessage("");
+          }}
           onUpdateTeam={updateTeam}
           onUpdateGift={updateGift}
           onUpdateMembership={updateMembership}
@@ -1065,6 +1113,7 @@ function VisualBuilder({
   businessId,
   businessSlug,
   businessName,
+  logoUrl,
   locales,
   primaryLocale,
   selectedLocale,
@@ -1082,6 +1131,7 @@ function VisualBuilder({
   onSave,
   onSectionChange,
   onUpdate,
+  onLogoChange,
   onUpdateTeam,
   onUpdateGift,
   onUpdateMembership,
@@ -1089,6 +1139,7 @@ function VisualBuilder({
   businessId: string;
   businessSlug: string;
   businessName: string;
+  logoUrl: string;
   locales: string[];
   primaryLocale: string;
   selectedLocale: string;
@@ -1109,6 +1160,7 @@ function VisualBuilder({
     key: Key,
     value: PublicSiteContent[Key],
   ) => void;
+  onLogoChange: (value: string) => void;
   onUpdateTeam: (items: string, images: string[]) => void;
   onUpdateGift: (items: string, images: string[]) => void;
   onUpdateMembership: (items: string, images: string[]) => void;
@@ -1214,7 +1266,9 @@ function VisualBuilder({
 
   function selectMedia(url: string) {
     if (!imageTarget) return;
-    if (imageTarget.kind === "content") {
+    if (imageTarget.kind === "logo") {
+      onLogoChange(url);
+    } else if (imageTarget.kind === "content") {
       onUpdate(imageTarget.key, url);
     } else if (imageTarget.kind === "list") {
       const values = [...(draft[imageTarget.key] ?? [])];
@@ -1736,12 +1790,20 @@ function VisualBuilder({
                 </div>
               ) : null}
               <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
-                <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em] text-[#551d1d]">
-                  {draft.brand_name || businessName}
-                  <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">
-                    NAIL STUDIO
-                  </small>
-                </span>
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={draft.brand_name || businessName}
+                    className="max-h-12 max-w-[180px] object-contain object-left"
+                  />
+                ) : (
+                  <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em] text-[#551d1d]">
+                    {draft.brand_name || businessName}
+                    <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">
+                      NAIL STUDIO
+                    </small>
+                  </span>
+                )}
                 <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
                   {draft.services_label} · {draft.portfolio_label} · {draft.contact_label}
                 </span>
@@ -2045,7 +2107,51 @@ function VisualBuilder({
                   multiline
                 />
                 {selectedSection === "about" ? (
-                  <CompactField label={t("Text")} value={draft.about_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("about_text", value)} multiline />
+                  <>
+                    <CompactField
+                      label={t("Text")}
+                      value={draft.about_text}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_text", value)}
+                      multiline
+                    />
+                    <ImageEditor
+                      label={`${t("About")} · ${t("Image")}`}
+                      value={draft.about_image_url ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={(value) => onUpdate("about_image_url", value)}
+                      onChoose={() =>
+                        openMediaPicker({
+                          kind: "content",
+                          key: "about_image_url",
+                          label: `${t("About")} · ${t("Image")}`,
+                        })
+                      }
+                    />
+                    <CompactField
+                      label={t("Feature cards")}
+                      value={draft.about_facts ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_facts", value)}
+                      multiline
+                    />
+                    <p className="-mt-2 text-[11px] leading-5 text-[#817c72]">
+                      {"5+ · лет опыта / 5+ · years of experience"}
+                    </p>
+                    <CompactField
+                      label={t("Button")}
+                      value={draft.about_button_label ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_button_label", value)}
+                    />
+                    <CompactField
+                      label={t("Button link")}
+                      value={draft.about_button_url ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_button_url", value)}
+                    />
+                  </>
                 ) : null}
                 {selectedSection === "services" ? (
                   <ImageListEditor
@@ -2547,6 +2653,19 @@ function VisualBuilder({
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
                 <h3 className="text-lg font-semibold">{t("Colors and languages")}</h3>
+                <ImageEditor
+                  label={"Логотип / Logo"}
+                  value={logoUrl}
+                  disabled={!canConfigure}
+                  t={t}
+                  onChange={onLogoChange}
+                  onChoose={() =>
+                    openMediaPicker({
+                      kind: "logo",
+                      label: "Логотип / Logo",
+                    })
+                  }
+                />
                 <ColorEditor
                   label={t("Primary color")}
                   value={draft.theme_accent ?? "#9d3151"}
@@ -5846,10 +5965,57 @@ function CanvasSectionPreview({
   }
 
   if (section === "about") {
+    const facts = previewLines(draft.about_facts);
+
     return (
-      <p className="mt-7 max-w-2xl text-xs leading-6 text-black/55">
-        {draft.about_text}
-      </p>
+      <div className={`mt-7 grid gap-5 ${draft.about_image_url ? "sm:grid-cols-[0.9fr_1.1fr] sm:items-center" : ""}`}>
+        {draft.about_image_url ? (
+          <div className="overflow-hidden rounded-2xl bg-black/5">
+            <img
+              src={draft.about_image_url}
+              alt=""
+              className="aspect-[4/3] h-full w-full object-cover"
+            />
+          </div>
+        ) : null}
+        <div>
+          {draft.about_text ? (
+            <p className="max-w-2xl whitespace-pre-line text-xs leading-6 text-black/55">
+              {draft.about_text}
+            </p>
+          ) : null}
+          {facts.length ? (
+            <div className="mt-5 grid gap-2 sm:grid-cols-3">
+              {facts.map((item, index) => {
+                const [value = "", ...labelParts] = item
+                  .split("·")
+                  .map((part) => part.trim());
+                return (
+                  <article
+                    key={`${item}-${index}`}
+                    className="rounded-xl border border-black/10 bg-white/70 p-3"
+                  >
+                    <p className="text-base font-semibold">{value}</p>
+                    {labelParts.length ? (
+                      <p className="mt-1 text-[9px] leading-4 text-black/45">
+                        {labelParts.join(" · ")}
+                      </p>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          ) : null}
+          {draft.about_button_label ? (
+            <span
+              className="mt-5 inline-flex rounded-full px-4 py-2 text-[10px] font-semibold text-white"
+              style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
+            >
+              {draft.about_button_label}
+            </span>
+          ) : null}
+        </div>
+      </div>
     );
   }
 

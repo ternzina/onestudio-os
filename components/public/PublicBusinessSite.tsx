@@ -154,7 +154,14 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   const hasContact = Boolean(company.email || company.phone || company.address);
   const showServices = content.show_services && services.length > 0;
   const showPortfolio = content.show_portfolio && portfolio.length > 0;
-  const showAbout = content.show_about && Boolean(content.about_text);
+  const showAbout = Boolean(
+    content.show_about
+    && (
+      content.about_text
+      || content.about_image_url
+      || lines(content.about_facts).length
+    ),
+  );
   const showContact = content.show_contact && hasContact;
   const showTeam = Boolean(content.show_team && lines(content.team_items).length);
   const reviews = publicSiteReviews(content);
@@ -188,9 +195,22 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
         <div className="mx-auto flex h-24 w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between border-b border-black/10">
           <Link
             href={`/site/${business.slug}`}
-            className="max-w-[55vw] truncate text-sm font-semibold uppercase tracking-[0.2em]"
+            className="flex max-w-[55vw] items-center"
+            aria-label={content.brand_name || company.display_name || business.name}
           >
-            {content.brand_name || company.display_name || business.name}
+            {company.logo_url ? (
+              // The logo is stored in the workspace-owned company profile.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={company.logo_url}
+                alt={content.brand_name || company.display_name || business.name}
+                className="max-h-14 max-w-[220px] object-contain object-left"
+              />
+            ) : (
+              <span className="truncate text-sm font-semibold uppercase tracking-[0.2em]">
+                {content.brand_name || company.display_name || business.name}
+              </span>
+            )}
           </Link>
           <nav aria-label="Primary navigation" className="hidden items-center gap-7 md:flex">
             {showServices ? (
@@ -405,17 +425,58 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {showAbout ? (
         <section id="about" style={{ order: sectionPosition("about") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] gap-10 border-t border-black/10 pt-16 lg:grid-cols-[0.7fr_1.3fr]">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#9a742e]">
+          <div className="mx-auto w-full max-w-[1240px] border-t border-black/10 pt-16">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
               {content.about_label}
             </p>
-            <div>
-              <h2 className="text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                {content.about_title}
-              </h2>
-              <p className="mt-8 max-w-3xl whitespace-pre-line text-base leading-8 text-[#656159] sm:text-lg">
-                {content.about_text}
-              </p>
+            <div className={`mt-8 grid gap-10 ${content.about_image_url ? "lg:grid-cols-[0.9fr_1.1fr] lg:items-center" : ""}`}>
+              {content.about_image_url ? (
+                <div className="overflow-hidden rounded-[30px] bg-black/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={content.about_image_url}
+                    alt={content.about_title}
+                    className="aspect-[4/3] h-full w-full object-cover"
+                  />
+                </div>
+              ) : null}
+              <div>
+                <h2 className="text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
+                  {content.about_title}
+                </h2>
+                {content.about_text ? (
+                  <p className="mt-8 max-w-3xl whitespace-pre-line text-base leading-8 text-[#656159] sm:text-lg">
+                    {content.about_text}
+                  </p>
+                ) : null}
+                {lines(content.about_facts).length ? (
+                  <div className="mt-9 grid gap-3 sm:grid-cols-3">
+                    {lines(content.about_facts).map((item, index) => {
+                      const fact = labeledLine(item);
+                      return (
+                        <article key={`${item}-${index}`} className="rounded-2xl border border-black/10 bg-white/60 p-5">
+                          <p className="text-2xl font-semibold tracking-[-0.04em]">
+                            {fact.title}
+                          </p>
+                          {fact.detail ? (
+                            <p className="mt-2 text-xs leading-5 text-black/50">
+                              {fact.detail}
+                            </p>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : null}
+                {content.about_button_label ? (
+                  <a
+                    href={content.about_button_url || "#contact"}
+                    className="mt-9 inline-flex min-h-12 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white"
+                  >
+                    {content.about_button_label}
+                  </a>
+                ) : null}
+              </div>
             </div>
           </div>
         </section>

@@ -303,6 +303,11 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
     about_title: "GLOSS — пространство красивых деталей",
     about_text:
       "Мы создали спокойное место, где профессиональный уход сочетается с вниманием к вашему стилю и комфорту.",
+    about_image_url: "/templates/gloss/gloss-gallery-4.webp",
+    about_facts:
+      "5+ лет · опыта и внимательной работы\n1000+ · красивых визитов\n4.9 · средняя оценка клиентов",
+    about_button_label: "Записаться",
+    about_button_url: "#booking",
     contact_label: "Контакты",
     contact_title: "Будем рады видеть вас",
     contact_hours: "Ежедневно: 09:00–21:00",

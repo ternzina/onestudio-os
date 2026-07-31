@@ -66,23 +66,41 @@ function formatPrice(service: PublicSiteService, locale: string) {
 
 function GlossLogo({
   href,
+  logoUrl,
+  brandName,
   light = false,
 }: {
   href: string;
+  logoUrl?: string;
+  brandName: string;
   light?: boolean;
 }) {
   return (
     <Link
       href={href}
-      aria-label="GLOSS Nail Studio"
+      aria-label={brandName}
       className={`inline-flex -translate-y-0.5 flex-col leading-none ${
         light ? "text-white" : "text-[#551d1d]"
       }`}
     >
-      <span className="font-serif text-[32px] tracking-[0.04em]">GLOSS</span>
-      <span className="mt-1 pl-1 text-[8px] font-semibold tracking-[0.42em] opacity-70">
-        NAIL STUDIO
-      </span>
+      {logoUrl ? (
+        // The logo is stored in the workspace-owned company profile.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={logoUrl}
+          alt={brandName}
+          className="max-h-14 max-w-[220px] object-contain object-left"
+        />
+      ) : (
+        <>
+          <span className="font-serif text-[32px] tracking-[0.04em]">
+            {brandName}
+          </span>
+          <span className="mt-1 pl-1 text-[8px] font-semibold tracking-[0.42em] opacity-70">
+            NAIL STUDIO
+          </span>
+        </>
+      )}
     </Link>
   );
 }
@@ -194,7 +212,11 @@ export default function GlossBusinessSite({
 
       <header className="border-b border-[#3b211f]/10 bg-white">
         <div className="mx-auto flex min-h-[82px] w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between gap-5">
-          <GlossLogo href={homeHref} />
+          <GlossLogo
+            href={homeHref}
+            logoUrl={company.logo_url}
+            brandName={content.brand_name || company.display_name || business.name}
+          />
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Основная навигация">
             {content.show_services ? <a href="#services">Услуги</a> : null}
             {navigationPages.map((page) => (
@@ -802,23 +824,70 @@ export default function GlossBusinessSite({
           </section>
         ) : null}
 
-        {content.show_about && content.about_text ? (
+        {content.show_about
+        && (
+          content.about_text
+          || content.about_image_url
+          || lines(content.about_facts).length
+        ) ? (
           <section
             id="about"
             style={{ order: layoutPosition(sectionLayoutId("about")) }}
             className="px-5 py-16"
           >
-            <div className="mx-auto grid w-full max-w-[1240px] gap-8 border-t border-[#3b211f]/10 pt-12 lg:grid-cols-[0.7fr_1.3fr]">
+            <div className="mx-auto w-full max-w-[1240px] border-t border-[#3b211f]/10 pt-12">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--site-accent)]">
                 {content.about_label}
               </p>
-              <div>
-                <h2 className="font-serif text-4xl sm:text-5xl">
-                  {content.about_title}
-                </h2>
-                <p className="mt-5 max-w-3xl whitespace-pre-line text-base leading-8 text-[#6c5753]">
-                  {content.about_text}
-                </p>
+              <div className={`mt-7 grid gap-9 ${content.about_image_url ? "lg:grid-cols-[0.9fr_1.1fr] lg:items-center" : ""}`}>
+                {content.about_image_url ? (
+                  <div className="overflow-hidden rounded-lg bg-[#eadedb]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={content.about_image_url}
+                      alt={content.about_title}
+                      className="aspect-[4/3] h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+                <div>
+                  <h2 className="font-serif text-4xl sm:text-5xl">
+                    {content.about_title}
+                  </h2>
+                  {content.about_text ? (
+                    <p className="mt-5 max-w-3xl whitespace-pre-line text-base leading-8 text-[#6c5753]">
+                      {content.about_text}
+                    </p>
+                  ) : null}
+                  {lines(content.about_facts).length ? (
+                    <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                      {lines(content.about_facts).map((item, index) => {
+                        const [value = "", ...labelParts] = item
+                          .split("·")
+                          .map((part) => part.trim());
+                        const label = labelParts.join(" · ");
+                        return (
+                          <article key={`${item}-${index}`} className="rounded-lg border border-[#3b211f]/10 bg-white p-5">
+                            <p className="font-serif text-3xl">{value}</p>
+                            {label ? (
+                              <p className="mt-2 text-xs leading-5 text-[#75615d]">
+                                {label}
+                              </p>
+                            ) : null}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  {content.about_button_label ? (
+                    <a
+                      href={content.about_button_url || "#contact"}
+                      className="mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
+                    >
+                      {content.about_button_label}
+                    </a>
+                  ) : null}
+                </div>
               </div>
             </div>
           </section>
@@ -879,7 +948,12 @@ export default function GlossBusinessSite({
 
       <footer className="mt-8 bg-[var(--site-accent)] px-5 py-10 text-white">
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 sm:grid-cols-[0.8fr_1.4fr_0.8fr] sm:items-center">
-          <GlossLogo href={homeHref} light />
+          <GlossLogo
+            href={homeHref}
+            logoUrl={company.logo_url}
+            brandName={content.brand_name || company.display_name || business.name}
+            light
+          />
           <nav className="flex flex-wrap justify-start gap-x-7 gap-y-3 text-xs sm:justify-center">
             <a href="#services">Услуги</a>
             <a href="#portfolio">Дизайны</a>
