@@ -480,46 +480,97 @@ export default function GlossBusinessSite({
           </section>
         ) : null}
 
-        {content.show_membership && content.membership_text ? (
+        {content.show_membership && (content.membership_text || lines(content.membership_items).length) ? (
           <section
             id="membership"
             style={{ order: layoutPosition(sectionLayoutId("membership")) }}
-            className="px-5 py-6"
+            className="px-5 py-10"
           >
-            <div className="relative mx-auto min-h-[360px] w-full max-w-[1240px] overflow-hidden rounded-2xl bg-[#650a11] text-white">
-              {/* Editable media URLs may point to the workspace CDN. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={content.membership_image_url || "/templates/gloss/gloss-club.webp"}
-                alt=""
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#5b0610] via-[#5b0610]/88 to-transparent" />
-              <div className="relative max-w-xl p-8 sm:p-12">
-                <p className="text-sm font-medium uppercase tracking-[0.12em]">
-                  {content.membership_label}
-                </p>
-                <h2 className="mt-5 font-serif text-4xl leading-tight sm:text-5xl">
-                  {content.membership_title}
-                </h2>
-                <div className="mt-6 space-y-2 text-sm leading-6 text-white/80">
-                  {lines(content.membership_text).map((benefit) => (
-                    <p key={benefit}>✓ {benefit}</p>
-                  ))}
+            <div className="mx-auto w-full max-w-[1240px]">
+              <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
+                    {content.membership_label}
+                  </p>
+                  <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                    {content.membership_title}
+                  </h2>
                 </div>
-                <div className="mt-8">
-                  <GlossLeadDialog
-                    businessSlug={business.slug}
-                    kind="club"
-                    buttonLabel="Вступить в клуб"
-                    currency={business.currency}
-                  />
-                </div>
+                {content.membership_text ? (
+                  <p className="whitespace-pre-line text-sm leading-7 text-[#77635f]">
+                    {content.membership_text}
+                  </p>
+                ) : null}
               </div>
-              <div className="absolute bottom-[18%] right-[12%] hidden -rotate-6 text-center text-[#e6b9a0] md:block">
-                <p className="font-serif text-3xl">GLOSS</p>
-                <p className="mt-1 text-[10px] tracking-[0.32em]">CLUB</p>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {(lines(content.membership_items).length
+                  ? lines(content.membership_items)
+                  : lines(content.membership_text).map(
+                      (benefit) => `${benefit} · · · Вступить · #contact`,
+                    )
+                ).map((item, index) => {
+                  const [
+                    title = "",
+                    condition = "",
+                    description = "",
+                    buttonLabel = "Вступить",
+                    buttonUrl = "",
+                  ] = item.split("·").map((part) => part.trim());
+                  const image =
+                    content.membership_image_urls?.[index]
+                    || content.membership_image_url
+                    || "/templates/gloss/gloss-club.webp";
+
+                  return (
+                    <article
+                      key={`${item}-${index}`}
+                      className="overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
+                    >
+                      <div className="relative aspect-[4/3] bg-[#eadde0]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={image}
+                          alt={title}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="p-6">
+                        <h3 className="font-serif text-2xl">{title}</h3>
+                        {condition ? (
+                          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--site-accent)]">
+                            {condition}
+                          </p>
+                        ) : null}
+                        {description ? (
+                          <p className="mt-3 text-xs leading-6 text-[#77635f]">
+                            {description}
+                          </p>
+                        ) : null}
+                        <div className="mt-6">
+                          {buttonUrl && !buttonUrl.startsWith("#") ? (
+                            <a
+                              href={buttonUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                            >
+                              {buttonLabel || "Вступить"}
+                            </a>
+                          ) : (
+                            <GlossLeadDialog
+                              businessSlug={business.slug}
+                              kind="club"
+                              buttonLabel={buttonLabel || "Вступить"}
+                              currency={business.currency}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>

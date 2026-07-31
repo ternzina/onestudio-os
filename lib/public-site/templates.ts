@@ -215,6 +215,11 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
       "/templates/gloss/gloss-master-elena.webp",
     ],
     membership_image_url: "/templates/gloss/gloss-club.webp",
+    membership_image_urls: [
+      "/templates/gloss/gloss-club.webp",
+      "/templates/gloss/gloss-club.webp",
+      "/templates/gloss/gloss-club.webp",
+    ],
     gift_image_url: "/templates/gloss/gloss-gift.webp",
     gift_image_urls: [
       "/templates/gloss/gloss-gift.webp",
@@ -266,7 +271,11 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
     membership_label: "GLOSS CLUB",
     membership_title: "Каждый пятый визит — особенный",
     membership_text:
-      "Скидка 30% на каждый пятый визит\nИстория оттенков в вашей карточке\nЛюбимые дизайны сохраняются",
+      "Выберите формат участия, который подходит именно вам. Условия и преимущества можно менять в редакторе.",
+    membership_items:
+      "GLOSS START · После первого визита · История оттенков и сохранённые любимые дизайны · Вступить · #contact\n"
+      + "GLOSS CLUB · После трёх визитов · Персональные предложения и приоритетная запись · Вступить · #contact\n"
+      + "GLOSS VIP · После пяти визитов · Скидка 30% на каждый пятый визит и особые подарки · Вступить · #contact",
     gift_label: "Сертификаты",
     gift_title: "Подарите немного GLOSS",
     gift_text:

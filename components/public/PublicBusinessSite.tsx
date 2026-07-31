@@ -159,7 +159,10 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   const showTeam = Boolean(content.show_team && lines(content.team_items).length);
   const reviews = publicSiteReviews(content);
   const showReviews = Boolean(content.show_reviews && reviews.length);
-  const showMembership = Boolean(content.show_membership && content.membership_text);
+  const showMembership = Boolean(
+    content.show_membership
+    && (content.membership_text || lines(content.membership_items).length),
+  );
   const showGift = Boolean(content.show_gift && content.gift_text);
   const showFaq = Boolean(content.show_faq && lines(content.faq_items).length);
   const sectionOrder = resolvePublicSiteLayoutOrder(content);
@@ -496,17 +499,78 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {showMembership ? (
         <section id="membership" style={{ order: sectionPosition("membership") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] overflow-hidden rounded-[36px] bg-[var(--site-accent)] text-white lg:grid-cols-[0.8fr_1.2fr]">
-            <p className="p-8 text-xs font-semibold uppercase tracking-[0.24em] lg:p-14">{content.membership_label}</p>
-            <div className="border-t border-white/20 p-8 lg:border-l lg:border-t-0 lg:p-14">
-              <h2 className="text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.membership_title}</h2>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {lines(content.membership_text).map((benefit) => (
-                  <p key={benefit} className="rounded-2xl border border-white/20 bg-white/8 px-4 py-4 text-sm leading-6 text-white/85">
-                    ✓ {benefit}
-                  </p>
-                ))}
+          <div className="mx-auto w-full max-w-[1240px]">
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
+                  {content.membership_label}
+                </p>
+                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
+                  {content.membership_title}
+                </h2>
               </div>
+              {content.membership_text ? (
+                <p className="whitespace-pre-line text-base leading-8 text-black/60">
+                  {content.membership_text}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {(lines(content.membership_items).length
+                ? lines(content.membership_items)
+                : lines(content.membership_text).map(
+                    (benefit) => `${benefit} · · · Вступить · #contact`,
+                  )
+              ).map((item, index) => {
+                const [
+                  title = "",
+                  condition = "",
+                  description = "",
+                  buttonLabel = "Вступить",
+                  buttonUrl = "#contact",
+                ] = item.split("·").map((part) => part.trim());
+                const image =
+                  content.membership_image_urls?.[index]
+                  || content.membership_image_url
+                  || "";
+
+                return (
+                  <article
+                    key={`${item}-${index}`}
+                    className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
+                  >
+                    {image ? (
+                      <div className="aspect-[4/3] overflow-hidden bg-black/5">
+                        <img
+                          src={image}
+                          alt={title}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="p-7">
+                      <h3 className="text-2xl font-semibold">{title}</h3>
+                      {condition ? (
+                        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--site-accent)]">
+                          {condition}
+                        </p>
+                      ) : null}
+                      {description ? (
+                        <p className="mt-4 text-sm leading-6 text-black/55">
+                          {description}
+                        </p>
+                      ) : null}
+                      <a
+                        href={buttonUrl || "#contact"}
+                        className="mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                      >
+                        {buttonLabel || "Вступить"}
+                      </a>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
