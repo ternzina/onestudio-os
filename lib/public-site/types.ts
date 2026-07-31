@@ -12,6 +12,7 @@ export type PublicSiteContent = {
   team_image_urls?: string[];
   membership_image_url?: string;
   gift_image_url?: string;
+  gift_image_urls?: string[];
   seo_image_url?: string;
   seo_no_index?: boolean;
   show_social_icons?: boolean;
@@ -50,6 +51,7 @@ export type PublicSiteContent = {
   gift_title?: string;
   gift_label?: string;
   gift_text?: string;
+  gift_items?: string;
   faq_title?: string;
   faq_label?: string;
   faq_items?: string;

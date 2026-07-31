@@ -616,49 +616,86 @@ export default function GlossBusinessSite({
           <section
             id="gift"
             style={{ order: layoutPosition(sectionLayoutId("gift")) }}
-            className="px-5 py-6"
+            className="px-5 py-10"
           >
-            <div className="relative mx-auto min-h-[330px] w-full max-w-[1240px] overflow-hidden rounded-2xl bg-[#650a11] text-white">
-              {/* Editable media URLs may point to the workspace CDN. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={content.gift_image_url || "/templates/gloss/gloss-gift.webp"}
-                alt=""
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#650a11] via-[#650a11]/82 to-transparent" />
-              <div className="relative max-w-lg p-8 sm:p-11">
-                <h2 className="font-serif text-4xl">
-                  {content.gift_title}
-                </h2>
-                <p className="mt-4 text-sm leading-7 text-white/80">
+            <div className="mx-auto w-full max-w-[1240px]">
+              <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
+                    {content.gift_label}
+                  </p>
+                  <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                    {content.gift_title}
+                  </h2>
+                </div>
+                <p className="text-sm leading-7 text-[#77635f]">
                   {content.gift_text}
                 </p>
-                <div className="mt-5 flex flex-wrap gap-2 text-xs">
-                  {["50", "100", "150", "Своя сумма"].map((amount) => (
-                    <span
-                      key={amount}
-                      className="rounded-md border border-white/25 px-3 py-2"
-                    >
-                      {amount}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <GlossLeadDialog
-                    businessSlug={business.slug}
-                    kind="gift"
-                    buttonLabel="Выбрать сертификат"
-                    currency={business.currency}
-                  />
-                </div>
               </div>
-              <div className="absolute right-[13%] top-[34%] hidden -rotate-3 text-center text-[#8d2930] md:block">
-                <p className="font-serif text-2xl">GLOSS</p>
-                <p className="mt-1 text-[8px] tracking-[0.24em]">
-                  GIFT CERTIFICATE
-                </p>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {lines(content.gift_items || "").map((item, index) => {
+                  const [
+                    title = "",
+                    amount = "",
+                    description = "",
+                    buttonLabel = "Выбрать",
+                    buttonUrl = "",
+                  ] = item.split("·").map((part) => part.trim());
+                  const image =
+                    content.gift_image_urls?.[index]
+                    || content.gift_image_url
+                    || "/templates/gloss/gloss-gift.webp";
+
+                  return (
+                    <article
+                      key={`${item}-${index}`}
+                      className="overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
+                    >
+                      <div className="relative aspect-[4/3] bg-[#eadde0]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={image}
+                          alt={title}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="p-6">
+                        <h3 className="font-serif text-2xl">{title}</h3>
+                        {amount ? (
+                          <p className="mt-3 text-xl font-semibold text-[var(--site-accent)]">
+                            {amount}
+                          </p>
+                        ) : null}
+                        {description ? (
+                          <p className="mt-3 text-xs leading-6 text-[#77635f]">
+                            {description}
+                          </p>
+                        ) : null}
+                        <div className="mt-6">
+                          {buttonUrl && !buttonUrl.startsWith("#") ? (
+                            <a
+                              href={buttonUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                            >
+                              {buttonLabel || "Выбрать"}
+                            </a>
+                          ) : (
+                            <GlossLeadDialog
+                              businessSlug={business.slug}
+                              kind="gift"
+                              buttonLabel={buttonLabel || "Выбрать"}
+                              currency={business.currency}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>

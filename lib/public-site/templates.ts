@@ -216,6 +216,11 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
     ],
     membership_image_url: "/templates/gloss/gloss-club.webp",
     gift_image_url: "/templates/gloss/gloss-gift.webp",
+    gift_image_urls: [
+      "/templates/gloss/gloss-gift.webp",
+      "/templates/gloss/gloss-gift.webp",
+      "/templates/gloss/gloss-gift.webp",
+    ],
     hero_eyebrow: "МАНИКЮР · ПЕДИКЮР · ДИЗАЙН",
     hero_title: "Детали, которые меняют настроение",
     hero_text:
@@ -266,6 +271,10 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
     gift_title: "Подарите немного GLOSS",
     gift_text:
       "Электронный сертификат на услугу или любую сумму. Отправим получателю в выбранный день.",
+    gift_items:
+      "Сертификат 50 · 50 · Небольшой подарок для приятного знакомства с салоном · Выбрать · #contact\n"
+      + "Сертификат 100 · 100 · Универсальный сертификат на услуги или уход · Выбрать · #contact\n"
+      + "Своя сумма · Любая сумма · Выберите номинал, который подходит именно вам · Заказать · #contact",
     booking_title: "Красивые руки — в удобное время",
     booking_text:
       "Выберите услугу, мастера и дату. Свободные окна обновляются автоматически.",

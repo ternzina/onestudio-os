@@ -514,12 +514,38 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {showGift ? (
         <section id="gift" style={{ order: sectionPosition("gift") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] gap-10 border-y border-black/10 py-16 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.gift_label}</p>
-              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.gift_title}</h2>
+          <div className="mx-auto w-full max-w-[1240px]">
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.gift_label}</p>
+                <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.gift_title}</h2>
+              </div>
+              <p className="whitespace-pre-line text-base leading-8 text-black/60">{content.gift_text}</p>
             </div>
-            <p className="whitespace-pre-line text-base leading-8 text-black/60">{content.gift_text}</p>
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {lines(content.gift_items || "").map((item, index) => {
+                const [title = "", amount = "", description = "", buttonLabel = "Выбрать", buttonUrl = "#contact"] =
+                  item.split("·").map((part) => part.trim());
+                const image = content.gift_image_urls?.[index] || content.gift_image_url || "";
+                return (
+                  <article key={`${item}-${index}`} className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70">
+                    {image ? (
+                      <div className="aspect-[4/3] overflow-hidden bg-black/5">
+                        <img src={image} alt={title} className="h-full w-full object-cover" />
+                      </div>
+                    ) : null}
+                    <div className="p-7">
+                      <h3 className="text-2xl font-semibold">{title}</h3>
+                      {amount ? <p className="mt-3 text-xl font-semibold text-[var(--site-accent)]">{amount}</p> : null}
+                      {description ? <p className="mt-4 text-sm leading-6 text-black/55">{description}</p> : null}
+                      <a href={buttonUrl || "#contact"} className="mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white">
+                        {buttonLabel || "Выбрать"}
+                      </a>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </section>
       ) : null}

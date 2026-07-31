@@ -65,7 +65,7 @@ type ImageTarget =
     }
   | {
       kind: "list";
-      key: "service_image_urls" | "team_image_urls";
+      key: "service_image_urls" | "team_image_urls" | "gift_image_urls";
       index: number;
       label: string;
     }
@@ -178,6 +178,7 @@ function findInvalidDraftImage(content: PublicSiteContent) {
   const listImages = [
     ...(content.service_image_urls ?? []),
     ...(content.team_image_urls ?? []),
+    ...(content.gift_image_urls ?? []),
   ];
   if (listImages.some(isInvalidImageUrl)) return "изображение в списке";
 
@@ -563,6 +564,19 @@ export default function AdminSitePage() {
     setMessage("");
   }
 
+  function updateGift(items: string, images: string[]) {
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            gift_items: items,
+            gift_image_urls: images,
+          }
+        : current,
+    );
+    setMessage("");
+  }
+
   function moveSection(section: PublicSiteSection, direction: -1 | 1) {
     if (!draft) return;
     const order = resolvePublicSiteLayoutOrder(draft);
@@ -850,6 +864,7 @@ export default function AdminSitePage() {
           onSectionChange={setSelectedSection}
           onUpdate={update}
           onUpdateTeam={updateTeam}
+          onUpdateGift={updateGift}
         />
 
         <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
@@ -1052,6 +1067,7 @@ function VisualBuilder({
   onSectionChange,
   onUpdate,
   onUpdateTeam,
+  onUpdateGift,
 }: {
   businessId: string;
   businessSlug: string;
@@ -1077,6 +1093,7 @@ function VisualBuilder({
     value: PublicSiteContent[Key],
   ) => void;
   onUpdateTeam: (items: string, images: string[]) => void;
+  onUpdateGift: (items: string, images: string[]) => void;
 }) {
   const [blocksOpen, setBlocksOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
@@ -2108,23 +2125,33 @@ function VisualBuilder({
                   />
                 ) : null}
                 {selectedSection === "gift" ? (
-                  <>
-                    <CompactField label={t("Text")} value={draft.gift_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("gift_text", value)} multiline />
-                    <ImageEditor
-                      label={t("Gift image")}
-                      value={draft.gift_image_url ?? glossGiftImage}
+                  <div className="grid gap-3">
+                    <CompactField
+                      label={t("Text")}
+                      value={draft.gift_text ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("gift_text", value)}
+                      multiline
+                    />
+                    <GiftCertificatesEditor
+                      items={draft.gift_items ?? ""}
+                      images={
+                        draft.gift_image_urls
+                        ?? [draft.gift_image_url || glossGiftImage]
+                      }
                       disabled={!canConfigure || !editingEnabled}
                       t={t}
-                      onChange={(value) => onUpdate("gift_image_url", value)}
-                      onChoose={() =>
+                      onChange={onUpdateGift}
+                      onChooseImage={(index) =>
                         openMediaPicker({
-                          kind: "content",
-                          key: "gift_image_url",
-                          label: t("Gift image"),
+                          kind: "list",
+                          key: "gift_image_urls",
+                          index,
+                          label: `Изображение сертификата ${index + 1}`,
                         })
                       }
                     />
-                  </>
+                  </div>
                 ) : null}
                 {selectedSection === "faq" ? (
                   <div className="grid gap-3">
@@ -3899,6 +3926,228 @@ function ImageListEditor({
   );
 }
 
+function GiftCertificatesEditor({
+  items,
+  images,
+  disabled,
+  t,
+  onChange,
+  onChooseImage,
+}: {
+  items: string;
+  images: string[];
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onChange: (items: string, images: string[]) => void;
+  onChooseImage: (index: number) => void;
+}) {
+  const certificates = previewLines(items).map((item, index) => {
+    const [
+      title = "",
+      amount = "",
+      description = "",
+      buttonLabel = "",
+      buttonUrl = "",
+    ] = item.split("·").map((part) => part.trim());
+
+    return {
+      title,
+      amount,
+      description,
+      buttonLabel,
+      buttonUrl,
+      image: images[index] ?? "",
+    };
+  });
+
+  const serialize = (
+    nextCertificates: Array<{
+      title: string;
+      amount: string;
+      description: string;
+      buttonLabel: string;
+      buttonUrl: string;
+      image: string;
+    }>,
+  ) => {
+    const nextItems = nextCertificates
+      .map(({ title, amount, description, buttonLabel, buttonUrl }) =>
+        [
+          title.trim(),
+          amount.trim(),
+          description.replace(/\n+/g, " ").trim(),
+          buttonLabel.trim(),
+          buttonUrl.trim(),
+        ].join(" · "),
+      )
+      .join("\n");
+    const nextImages = nextCertificates.map(({ image }) => image);
+    onChange(nextItems, nextImages);
+  };
+
+  const updateCertificate = (
+    index: number,
+    changes: Partial<(typeof certificates)[number]>,
+  ) => {
+    serialize(
+      certificates.map((certificate, certificateIndex) =>
+        certificateIndex === index
+          ? { ...certificate, ...changes }
+          : certificate,
+      ),
+    );
+  };
+
+  return (
+    <div className="grid gap-3">
+      <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+        Каждый сертификат хранится одной карточкой: изображение, название,
+        номинал, описание и кнопка. При перестановке всё перемещается вместе.
+      </div>
+
+      {certificates.map((certificate, index) => (
+        <article
+          key={`gift-certificate-${index}`}
+          className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold">Сертификат {index + 1}</p>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() =>
+                serialize(
+                  certificates.filter(
+                    (_, certificateIndex) => certificateIndex !== index,
+                  ),
+                )
+              }
+              className="text-[10px] font-semibold text-red-600 disabled:opacity-40"
+            >
+              {t("Remove")}
+            </button>
+          </div>
+
+          <ImageEditor
+            label="Изображение сертификата"
+            value={certificate.image}
+            disabled={disabled}
+            t={t}
+            onChange={(value) =>
+              updateCertificate(index, { image: value })
+            }
+            onChoose={() => onChooseImage(index)}
+          />
+
+          <CompactField
+            label="Название"
+            value={certificate.title}
+            disabled={disabled}
+            onChange={(value) =>
+              updateCertificate(index, { title: value })
+            }
+          />
+
+          <CompactField
+            label="Номинал или цена"
+            value={certificate.amount}
+            disabled={disabled}
+            onChange={(value) =>
+              updateCertificate(index, { amount: value })
+            }
+          />
+
+          <CompactField
+            label="Описание"
+            value={certificate.description}
+            disabled={disabled}
+            multiline
+            onChange={(value) =>
+              updateCertificate(index, {
+                description: value.replace(/\n+/g, " "),
+              })
+            }
+          />
+
+          <CompactField
+            label="Текст кнопки"
+            value={certificate.buttonLabel}
+            disabled={disabled}
+            onChange={(value) =>
+              updateCertificate(index, { buttonLabel: value })
+            }
+          />
+
+          <CompactField
+            label="Ссылка кнопки"
+            value={certificate.buttonUrl}
+            disabled={disabled}
+            onChange={(value) =>
+              updateCertificate(index, { buttonUrl: value })
+            }
+          />
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              aria-label="Поднять сертификат"
+              disabled={disabled || index === 0}
+              onClick={() => {
+                const next = [...certificates];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              aria-label="Опустить сертификат"
+              disabled={disabled || index === certificates.length - 1}
+              onClick={() => {
+                const next = [...certificates];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↓
+            </button>
+          </div>
+        </article>
+      ))}
+
+      <button
+        type="button"
+        disabled={disabled || certificates.length >= 12}
+        onClick={() =>
+          serialize([
+            ...certificates,
+            {
+              title: "Новый сертификат",
+              amount: "",
+              description: "",
+              buttonLabel: "Выбрать",
+              buttonUrl: "#contact",
+              image: "",
+            },
+          ])
+        }
+        className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
+      >
+        + Добавить сертификат
+      </button>
+    </div>
+  );
+}
+
 function TeamEditor({
   items,
   images,
@@ -5024,19 +5273,54 @@ function CanvasSectionPreview({
   }
 
   if (section === "gift") {
+    const giftItems = previewLines(draft.gift_items);
+    const giftImages = draft.gift_image_urls ?? [draft.gift_image_url || glossGiftImage];
+
     return (
-      <div className="mt-7 grid gap-3 rounded-2xl border border-black/8 bg-white/65 p-5 sm:grid-cols-[0.75fr_1.25fr]">
-        <div className="relative min-h-24 overflow-hidden rounded-xl">
-          <img
-            src={draft.gift_image_url || glossGiftImage}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/15" />
-        </div>
-        <p className="self-center whitespace-pre-line text-xs leading-6 text-black/55">
-          {draft.gift_text}
-        </p>
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {giftItems.length ? (
+          giftItems.map((item, index) => {
+            const [title = "", amount = "", description = "", buttonLabel = "Выбрать"] =
+              item.split("·").map((part) => part.trim());
+            return (
+              <article
+                key={`${item}-${index}`}
+                className="overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#eadde0]">
+                  <img
+                    src={giftImages[index] || draft.gift_image_url || glossGiftImage}
+                    alt={title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h4 className="text-sm font-semibold">{title}</h4>
+                  {amount ? (
+                    <p
+                      className="mt-2 text-lg font-semibold"
+                      style={{ color: draft.theme_accent ?? "#9d3151" }}
+                    >
+                      {amount}
+                    </p>
+                  ) : null}
+                  {description ? (
+                    <p className="mt-2 text-[10px] leading-5 text-black/50">
+                      {description}
+                    </p>
+                  ) : null}
+                  <span className="mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
+                    {buttonLabel || "Выбрать"}
+                  </span>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
+            Добавьте первый подарочный сертификат справа
+          </div>
+        )}
       </div>
     );
   }
