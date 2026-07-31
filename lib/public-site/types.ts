@@ -276,6 +276,8 @@ export type PublicSiteEditorData = {
     is_published: boolean;
     primary_locale: string;
     published_at: string | null;
+    logo_draft_url?: string;
+    logo_published_url?: string;
   };
   locales: PublicSiteEditorLocale[];
 };

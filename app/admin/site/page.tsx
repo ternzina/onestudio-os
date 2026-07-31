@@ -463,6 +463,7 @@ export default function AdminSitePage() {
   const [selectedLocale, setSelectedLocale] = useState("");
   const [draft, setDraft] = useState<PublicSiteContent | null>(null);
   const [logoUrl, setLogoUrl] = useState("");
+  const [savedLogoUrl, setSavedLogoUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -530,7 +531,10 @@ export default function AdminSitePage() {
     setEditor(nextEditor);
     setSelectedLocale(locale);
     setDraft(contentFromLocale(nextEditor, locale));
-    setLogoUrl(nextEditor.company?.logo_url ?? "");
+    const loadedLogoUrl =
+      nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
+    setLogoUrl(loadedLogoUrl);
+    setSavedLogoUrl(loadedLogoUrl);
     setLoading(false);
   }, [t]);
 
@@ -625,6 +629,7 @@ export default function AdminSitePage() {
       t("Apply this template? Current page texts and colors will be replaced, and its editable sample services and portfolio will be added."),
     )) return;
     setDraft(applySiteTemplate(draft, template));
+    setLogoUrl(template.logoUrl ?? "");
     setSelectedSection("hero");
     setError("");
     setMessage(t("Adding the complete template…"));
@@ -647,18 +652,16 @@ export default function AdminSitePage() {
     setSaving(false);
   }
 
-  async function saveCompanyLogo() {
+  async function saveSiteLogoDraft() {
     if (!workspace || !canConfigure) return false;
 
-    const { error: logoError } = await supabase
-      .from("company_profiles")
-      .upsert(
-        {
-          business_id: workspace.business_id,
-          logo_url: logoUrl.trim(),
-        },
-        { onConflict: "business_id" },
-      );
+    const { error: logoError } = await supabase.rpc(
+      "save_public_site_logo_draft",
+      {
+        p_business_id: workspace.business_id,
+        p_logo_url: logoUrl.trim(),
+      },
+    );
 
     if (logoError) {
       setError(logoError.message);
@@ -706,7 +709,7 @@ export default function AdminSitePage() {
       return false;
     }
 
-    if (!(await saveCompanyLogo())) {
+    if (!(await saveSiteLogoDraft())) {
       setSaving(false);
       return false;
     }
@@ -782,7 +785,7 @@ export default function AdminSitePage() {
       },
     );
     if (saveError) setError(saveError.message);
-    else if (await saveCompanyLogo()) {
+    else if (await saveSiteLogoDraft()) {
       await loadEditor(selectedLocale);
       setMessage(t("Primary language changed."));
     }
@@ -905,6 +908,7 @@ export default function AdminSitePage() {
           businessSlug={editor.business.slug}
           businessName={editor.business.name}
           logoUrl={logoUrl}
+          savedLogoUrl={savedLogoUrl}
           locales={editor.locales.map((item) => item.locale)}
           primaryLocale={editor.site.primary_locale}
           selectedLocale={selectedLocale}
@@ -1114,6 +1118,7 @@ function VisualBuilder({
   businessSlug,
   businessName,
   logoUrl,
+  savedLogoUrl,
   locales,
   primaryLocale,
   selectedLocale,
@@ -1140,6 +1145,7 @@ function VisualBuilder({
   businessSlug: string;
   businessName: string;
   logoUrl: string;
+  savedLogoUrl: string;
   locales: string[];
   primaryLocale: string;
   selectedLocale: string;
@@ -2604,7 +2610,51 @@ function VisualBuilder({
               </button>
             </div>
 
-            <div className="mt-7 grid gap-5 lg:grid-cols-2">
+            <section className="mt-7 grid gap-4 rounded-[24px] border border-[#9d3151]/20 bg-white p-5 sm:p-6">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">Бренд</p>
+                <h3 className="mt-2 text-lg font-semibold">Логотип сайта</h3>
+                <p className="mt-2 text-sm leading-6 text-[#716d65]">
+                  Отдельный логотип для шапки сайта. Это не favicon и не изображение Open Graph.
+                </p>
+              </div>
+              <ImageEditor
+                label="Логотип сайта"
+                value={logoUrl}
+                disabled={!canConfigure}
+                t={t}
+                onChange={onLogoChange}
+                onChoose={() =>
+                  openMediaPicker({
+                    kind: "logo",
+                    label: "Логотип сайта",
+                  })
+                }
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onLogoChange(savedLogoUrl)}
+                  disabled={!canConfigure || logoUrl === savedLogoUrl}
+                  className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold disabled:opacity-35"
+                >
+                  Отменить изменение
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onLogoChange(activeTemplate?.logoUrl ?? "")}
+                  disabled={!canConfigure || !activeTemplate}
+                  className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-900 disabled:opacity-35"
+                >
+                  Вернуть логотип демо
+                </button>
+                <p className="text-xs leading-5 text-[#716d65]">
+                  В опубликованном сайте логотип изменится только после кнопки «Опубликовать».
+                </p>
+              </div>
+            </section>
+
+            <div className="mt-5 grid gap-5 lg:grid-cols-2">
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
                 <h3 className="text-lg font-semibold">{t("Search basics")}</h3>
                 <CompactField
@@ -2653,19 +2703,6 @@ function VisualBuilder({
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
                 <h3 className="text-lg font-semibold">{t("Colors and languages")}</h3>
-                <ImageEditor
-                  label={"Логотип / Logo"}
-                  value={logoUrl}
-                  disabled={!canConfigure}
-                  t={t}
-                  onChange={onLogoChange}
-                  onChoose={() =>
-                    openMediaPicker({
-                      kind: "logo",
-                      label: "Логотип / Logo",
-                    })
-                  }
-                />
                 <ColorEditor
                   label={t("Primary color")}
                   value={draft.theme_accent ?? "#9d3151"}

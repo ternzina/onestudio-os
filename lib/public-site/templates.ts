@@ -29,6 +29,7 @@ export type SiteTemplate = {
   category: string;
   description: string;
   preview: { accent: string; dark: string; surface: string };
+  logoUrl?: string;
   content: Partial<PublicSiteContent>;
   sectionOrder: PublicSiteSection[];
   services: SiteTemplateService[];
@@ -64,6 +65,7 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
     dark: "#321722",
     surface: "#fff7f5",
   },
+  logoUrl: "",
   sectionOrder: [
     "services",
     "portfolio",
