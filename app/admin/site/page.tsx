@@ -550,6 +550,19 @@ export default function AdminSitePage() {
     setMessage("");
   }
 
+  function updateTeam(items: string, images: string[]) {
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            team_items: items,
+            team_image_urls: images,
+          }
+        : current,
+    );
+    setMessage("");
+  }
+
   function moveSection(section: PublicSiteSection, direction: -1 | 1) {
     if (!draft) return;
     const order = resolvePublicSiteLayoutOrder(draft);
@@ -836,6 +849,7 @@ export default function AdminSitePage() {
           onSave={() => void saveDraft()}
           onSectionChange={setSelectedSection}
           onUpdate={update}
+          onUpdateTeam={updateTeam}
         />
 
         <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
@@ -1037,6 +1051,7 @@ function VisualBuilder({
   onSave,
   onSectionChange,
   onUpdate,
+  onUpdateTeam,
 }: {
   businessId: string;
   businessSlug: string;
@@ -1061,6 +1076,7 @@ function VisualBuilder({
     key: Key,
     value: PublicSiteContent[Key],
   ) => void;
+  onUpdateTeam: (items: string, images: string[]) => void;
 }) {
   const [blocksOpen, setBlocksOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
@@ -2030,10 +2046,7 @@ function VisualBuilder({
                     images={draft.team_image_urls ?? glossMasterImages}
                     disabled={!canConfigure || !editingEnabled}
                     t={t}
-                    onChange={(items, images) => {
-                      onUpdate("team_items", items);
-                      onUpdate("team_image_urls", images);
-                    }}
+                    onChange={onUpdateTeam}
                     onChooseImage={(index) =>
                       openMediaPicker({
                         kind: "list",

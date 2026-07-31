@@ -412,32 +412,46 @@ export default function GlossBusinessSite({
               <h2 className="font-serif text-4xl sm:text-5xl">
                 {content.team_title}
               </h2>
-              <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                {team.slice(0, 3).map((item, index) => {
-                  const member = labeledLine(item);
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {team.map((item, index) => {
+                  const [name = "", role = "", ...descriptionParts] = item
+                    .split("·")
+                    .map((part) => part.trim());
+                  const description = descriptionParts.join(" · ");
+                  const image =
+                    teamImages[index]
+                    || MASTER_IMAGES[index % MASTER_IMAGES.length];
+
                   return (
                     <article
-                      key={item}
-                      className="grid min-h-[190px] grid-cols-[42%_58%] overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white"
+                      key={`${item}-${index}`}
+                      className="overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white"
                     >
-                      <div className="relative">
+                      <div className="relative aspect-[4/3] bg-[#eadde0]">
                         {/* Editable media URLs may point to the workspace CDN. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={teamImages[index] || MASTER_IMAGES[index]}
-                          alt={member.title}
+                          src={image}
+                          alt={name}
                           loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover"
+                          className="absolute inset-0 h-full w-full object-cover object-top"
                         />
                       </div>
-                      <div className="flex flex-col justify-center p-5">
-                        <h3 className="font-serif text-2xl">{member.title}</h3>
-                        <p className="mt-2 text-xs leading-5 text-[#77635f]">
-                          {member.detail}
-                        </p>
+                      <div className="p-5">
+                        <h3 className="font-serif text-2xl">{name}</h3>
+                        {role ? (
+                          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--site-accent)]">
+                            {role}
+                          </p>
+                        ) : null}
+                        {description ? (
+                          <p className="mt-3 text-xs leading-5 text-[#77635f]">
+                            {description}
+                          </p>
+                        ) : null}
                         <a
                           href="#portfolio"
-                          className="mt-5 text-xs font-semibold text-[var(--site-accent)]"
+                          className="mt-5 inline-block text-xs font-semibold text-[var(--site-accent)]"
                         >
                           Работы мастера →
                         </a>
