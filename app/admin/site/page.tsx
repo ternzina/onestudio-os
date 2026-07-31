@@ -98,6 +98,101 @@ type ImageTarget =
 
 const inputClass =
   "mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#9a742e]";
+
+function isVideoProviderUrl(value: string) {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.includes("youtube.com/") ||
+    normalized.includes("youtu.be/") ||
+    normalized.includes("vimeo.com/")
+  );
+}
+
+function isDirectVideoUrl(value: string) {
+  const normalized = value.trim().toLowerCase().split(/[?#]/)[0];
+  return [".mp4", ".webm", ".mov", ".m4v", ".ogv"].some((extension) =>
+    normalized.endsWith(extension),
+  );
+}
+
+function isInvalidImageUrl(value: string) {
+  return Boolean(value.trim()) && (isVideoProviderUrl(value) || isDirectVideoUrl(value));
+}
+
+function resolveEditorVideoPreview(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = new URL(trimmed);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+
+    if (
+      host === "youtube.com" ||
+      host === "m.youtube.com" ||
+      host === "music.youtube.com" ||
+      host === "youtube-nocookie.com"
+    ) {
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      const id =
+        parsed.searchParams.get("v") ||
+        (parts[0] === "shorts" || parts[0] === "live" || parts[0] === "embed"
+          ? parts[1]
+          : "");
+      return id ? { kind: "embed" as const, url: `https://www.youtube-nocookie.com/embed/${id}` } : null;
+    }
+
+    if (host === "youtu.be") {
+      const id = parsed.pathname.split("/").filter(Boolean)[0];
+      return id ? { kind: "embed" as const, url: `https://www.youtube-nocookie.com/embed/${id}` } : null;
+    }
+
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id = parsed.pathname.split("/").filter(Boolean).findLast((part) => /^\d+$/.test(part));
+      return id ? { kind: "embed" as const, url: `https://player.vimeo.com/video/${id}` } : null;
+    }
+
+    if (isDirectVideoUrl(trimmed)) {
+      return { kind: "file" as const, url: trimmed };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function findInvalidDraftImage(content: PublicSiteContent) {
+  const directImages: Array<[string, string | undefined]> = [
+    ["главное изображение", content.hero_image_url],
+    ["изображение клуба", content.membership_image_url],
+    ["изображение сертификата", content.gift_image_url],
+    ["SEO-изображение", content.seo_image_url],
+    ["favicon", content.favicon_url],
+  ];
+
+  for (const [label, value] of directImages) {
+    if (value && isInvalidImageUrl(value)) return label;
+  }
+
+  const listImages = [
+    ...(content.service_image_urls ?? []),
+    ...(content.team_image_urls ?? []),
+  ];
+  if (listImages.some(isInvalidImageUrl)) return "изображение в списке";
+
+  for (const block of content.custom_blocks ?? []) {
+    if (block.media_url && isInvalidImageUrl(block.media_url)) return `изображение блока «${block.title || block.id}»`;
+    if (block.video_poster_url && isInvalidImageUrl(block.video_poster_url)) return `обложка видео «${block.title || block.id}»`;
+    if ((block.media_urls ?? []).some(isInvalidImageUrl)) return `фотография блока «${block.title || block.id}»`;
+    for (const card of block.cards ?? []) {
+      if (card.media_url && isInvalidImageUrl(card.media_url)) return `изображение карточки «${card.title || block.title || block.id}»`;
+      if (card.video_poster_url && isInvalidImageUrl(card.video_poster_url)) return `обложка видео карточки «${card.title || block.title || block.id}»`;
+    }
+  }
+
+  return null;
+}
 const glossMasterImages = [
   "/templates/gloss/gloss-master-anna.webp",
   "/templates/gloss/gloss-master-maria.webp",
@@ -504,6 +599,16 @@ export default function AdminSitePage() {
 
   async function saveDraft(options?: { publish?: boolean }) {
     if (!workspace || !editor || !draft || !canConfigure) return false;
+
+    const invalidImage = findInvalidDraftImage(draft);
+    if (invalidImage) {
+      setError(
+        `Нельзя сохранить: в поле «${invalidImage}» вставлена ссылка на видео. Перенесите её в поле «Ссылка на видео».`,
+      );
+      setMessage("");
+      return false;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -3298,6 +3403,92 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
   );
 }
 
+function VideoUrlEditor({
+  value,
+  disabled,
+  onChange,
+  onChoose,
+}: {
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
+  onChoose: () => void;
+}) {
+  const preview = resolveEditorVideoPreview(value);
+  const invalid = Boolean(value.trim()) && !preview;
+
+  return (
+    <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+        Ссылка на видео
+        <input
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="https://www.youtube.com/watch?v=..."
+          aria-invalid={invalid}
+          className={`mt-2 min-h-11 w-full rounded-xl border bg-white px-3 text-sm outline-none ${
+            invalid
+              ? "border-red-400 focus:border-red-500"
+              : "border-black/10 focus:border-[#9d3151]"
+          }`}
+        />
+      </label>
+
+      {preview ? (
+        <div className="overflow-hidden rounded-xl border border-black/10 bg-black">
+          <div className="aspect-video">
+            {preview.kind === "embed" ? (
+              <iframe
+                src={preview.url}
+                title="Предпросмотр видео"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            ) : (
+              <video
+                src={preview.url}
+                controls
+                playsInline
+                preload="metadata"
+                className="h-full w-full"
+              />
+            )}
+          </div>
+        </div>
+      ) : invalid ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[11px] leading-5 text-red-700">
+          Ссылка не распознана. Поддерживаются YouTube, Vimeo и прямые ссылки на MP4, WebM или MOV.
+        </p>
+      ) : (
+        <p className="text-[11px] leading-5 text-[#716d65]">
+          После вставки ссылки здесь сразу появится предпросмотр.
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={onChoose}
+          className="rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold disabled:opacity-40"
+        >
+          Выбрать видео из медиа
+        </button>
+        <button
+          type="button"
+          disabled={disabled || !value}
+          onClick={() => onChange("")}
+          className="rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold disabled:opacity-35"
+        >
+          Очистить
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ImageEditor({
   label,
   value,
@@ -3320,8 +3511,12 @@ function ImageEditor({
       </p>
       <div className="mt-3 grid grid-cols-[76px_1fr] gap-3">
         <div className="aspect-square overflow-hidden rounded-xl bg-[#eee9e4]">
-          {value ? (
+          {value && !isInvalidImageUrl(value) ? (
             <img src={value} alt="" className="h-full w-full object-cover" />
+          ) : isInvalidImageUrl(value) ? (
+            <span className="grid h-full place-items-center px-2 text-center text-[10px] font-semibold leading-4 text-red-600">
+              Это ссылка на видео
+            </span>
           ) : (
             <span className="grid h-full place-items-center text-xl text-black/20">＋</span>
           )}
@@ -3332,8 +3527,18 @@ function ImageEditor({
             disabled={disabled}
             onChange={(event) => onChange(event.target.value)}
             placeholder="/images/photo.webp"
-            className="min-h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-xs outline-none focus:border-[#9d3151]"
+            aria-invalid={isInvalidImageUrl(value)}
+            className={`min-h-10 w-full rounded-xl border bg-white px-3 text-xs outline-none ${
+              isInvalidImageUrl(value)
+                ? "border-red-400 focus:border-red-500"
+                : "border-black/10 focus:border-[#9d3151]"
+            }`}
           />
+          {isInvalidImageUrl(value) ? (
+            <p className="mt-2 text-[11px] leading-5 text-red-600">
+              YouTube, Vimeo и видеофайлы нужно вставлять в поле «Ссылка на видео».
+            </p>
+          ) : null}
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
@@ -4069,22 +4274,14 @@ function CustomBlockSettings({
             </p>
           ) : block.media_type === "video" ? (
             <>
-              <CompactField
-                label={t("Video link")}
+              <VideoUrlEditor
                 value={block.video_url ?? ""}
                 disabled={disabled}
                 onChange={(value) => onChange("video_url", value)}
-              />
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() =>
+                onChoose={() =>
                   onChooseImage("video_url", t("Video from media"))
                 }
-                className="rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold disabled:opacity-40"
-              >
-                {t("Choose video from media")}
-              </button>
+              />
               <ImageEditor
                 label={t("Video cover")}
                 value={block.video_poster_url ?? ""}
@@ -4286,22 +4483,14 @@ function CustomBlockSettings({
       ) : null}
       {block.kind === "video" ? (
         <>
-          <CompactField
-            label={t("Video link")}
+          <VideoUrlEditor
             value={block.video_url ?? ""}
             disabled={disabled}
             onChange={(value) => onChange("video_url", value)}
-          />
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() =>
+            onChoose={() =>
               onChooseImage("video_url", t("Video from media"))
             }
-            className="rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold disabled:opacity-40"
-          >
-            {t("Choose video from media")}
-          </button>
+          />
           <ImageEditor
             label={t("Video cover")}
             value={block.video_poster_url ?? ""}
