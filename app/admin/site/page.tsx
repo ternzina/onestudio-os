@@ -2025,39 +2025,24 @@ function VisualBuilder({
                   </Link>
                 ) : null}
                 {selectedSection === "team" ? (
-                  <>
-                    <DelimitedItemsEditor
-                      label={t("Team members")}
-                      value={draft.team_items ?? ""}
-                      delimiter="·"
-                      fields={[t("Name"), t("Description")]}
-                      defaults={[t("New team member"), ""]}
-                      disabled={!canConfigure || !editingEnabled}
-                      t={t}
-                      onChange={(value) => onUpdate("team_items", value)}
-                    />
-                    <ImageListEditor
-                      label={t("Team photos")}
-                      values={draft.team_image_urls ?? glossMasterImages}
-                      count={Math.max(1, previewLines(draft.team_items).length)}
-                      disabled={!canConfigure || !editingEnabled}
-                      t={t}
-                      onChange={(index, value) => {
-                        const values = [...(draft.team_image_urls ?? glossMasterImages)];
-                        while (values.length <= index) values.push("");
-                        values[index] = value;
-                        onUpdate("team_image_urls", values);
-                      }}
-                      onChoose={(index) =>
-                        openMediaPicker({
-                          kind: "list",
-                          key: "team_image_urls",
-                          index,
-                          label: `${t("Team photo")} ${index + 1}`,
-                        })
-                      }
-                    />
-                  </>
+                  <TeamEditor
+                    items={draft.team_items ?? ""}
+                    images={draft.team_image_urls ?? glossMasterImages}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onChange={(items, images) => {
+                      onUpdate("team_items", items);
+                      onUpdate("team_image_urls", images);
+                    }}
+                    onChooseImage={(index) =>
+                      openMediaPicker({
+                        kind: "list",
+                        key: "team_image_urls",
+                        index,
+                        label: `${t("Team photo")} ${index + 1}`,
+                      })
+                    }
+                  />
                 ) : null}
                 {selectedSection === "reviews" ? (
                   <ReviewsEditor
@@ -3901,6 +3886,185 @@ function ImageListEditor({
   );
 }
 
+function TeamEditor({
+  items,
+  images,
+  disabled,
+  t,
+  onChange,
+  onChooseImage,
+}: {
+  items: string;
+  images: string[];
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onChange: (items: string, images: string[]) => void;
+  onChooseImage: (index: number) => void;
+}) {
+  const members = previewLines(items).map((item, index) => {
+    const [name = "", role = "", ...descriptionParts] = item
+      .split("·")
+      .map((part) => part.trim());
+
+    return {
+      name,
+      role,
+      description: descriptionParts.join(" · "),
+      image: images[index] ?? "",
+    };
+  });
+
+  const serialize = (
+    nextMembers: Array<{
+      name: string;
+      role: string;
+      description: string;
+      image: string;
+    }>,
+  ) => {
+    const nextItems = nextMembers
+      .map(({ name, role, description }) =>
+        [name.trim(), role.trim(), description.trim()].join(" · "),
+      )
+      .join("\n");
+    const nextImages = nextMembers.map(({ image }) => image);
+    onChange(nextItems, nextImages);
+  };
+
+  const updateMember = (
+    index: number,
+    changes: Partial<(typeof members)[number]>,
+  ) => {
+    const next = members.map((member, memberIndex) =>
+      memberIndex === index ? { ...member, ...changes } : member,
+    );
+    serialize(next);
+  };
+
+  return (
+    <div className="grid gap-3">
+      <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+        Фото, имя, роль и описание теперь собраны в одной карточке сотрудника.
+        При перестановке карточки фотография переезжает вместе с текстом.
+      </div>
+
+      {members.map((member, index) => (
+        <article
+          key={`team-member-${index}`}
+          className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold">
+              Сотрудник {index + 1}
+            </p>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() =>
+                serialize(
+                  members.filter((_, memberIndex) => memberIndex !== index),
+                )
+              }
+              className="text-[10px] font-semibold text-red-600 disabled:opacity-40"
+            >
+              {t("Remove")}
+            </button>
+          </div>
+
+          <ImageEditor
+            label={t("Team photo")}
+            value={member.image}
+            disabled={disabled}
+            t={t}
+            onChange={(value) => updateMember(index, { image: value })}
+            onChoose={() => onChooseImage(index)}
+          />
+
+          <CompactField
+            label={t("Name")}
+            value={member.name}
+            disabled={disabled}
+            onChange={(value) => updateMember(index, { name: value })}
+          />
+
+          <CompactField
+            label="Роль"
+            value={member.role}
+            disabled={disabled}
+            onChange={(value) => updateMember(index, { role: value })}
+          />
+
+          <CompactField
+            label={t("Description")}
+            value={member.description}
+            disabled={disabled}
+            multiline
+            onChange={(value) =>
+              updateMember(index, {
+                description: value.replace(/\n+/g, " "),
+              })
+            }
+          />
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              aria-label={`Сотрудник: ${t("Up")}`}
+              disabled={disabled || index === 0}
+              onClick={() => {
+                const next = [...members];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              aria-label={`Сотрудник: ${t("Down")}`}
+              disabled={disabled || index === members.length - 1}
+              onClick={() => {
+                const next = [...members];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↓
+            </button>
+          </div>
+        </article>
+      ))}
+
+      <button
+        type="button"
+        disabled={disabled || members.length >= 12}
+        onClick={() =>
+          serialize([
+            ...members,
+            {
+              name: t("New team member"),
+              role: "",
+              description: "",
+              image: "",
+            },
+          ])
+        }
+        className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
+      >
+        {t("+ Add another")}
+      </button>
+    </div>
+  );
+}
+
 function ReviewsEditor({
   reviews,
   disabled,
@@ -4727,21 +4891,39 @@ function CanvasSectionPreview({
     const members = previewLines(draft.team_items);
     const teamImages = draft.team_image_urls ?? glossMasterImages;
     return (
-      <div className="mt-7 grid gap-2 sm:grid-cols-3">
-        {members.slice(0, 3).map((member, index) => {
-          const [name, ...detail] = member.split("·").map((item) => item.trim());
+      <div className="mt-7 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {members.map((member, index) => {
+          const [name = "", role = "", ...descriptionParts] = member
+            .split("·")
+            .map((item) => item.trim());
+          const description = descriptionParts.join(" · ");
           return (
-            <article key={member} className="overflow-hidden rounded-2xl border border-black/8 bg-white/70">
+            <article
+              key={`${member}-${index}`}
+              className="overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+            >
               <div className="aspect-[4/3] overflow-hidden bg-[#eadde0]">
                 <img
-                  src={teamImages[index] || glossMasterImages[index]}
-                  alt=""
+                  src={teamImages[index] || glossMasterImages[index % glossMasterImages.length]}
+                  alt={name}
                   className="h-full w-full object-cover object-top"
                 />
               </div>
               <div className="p-4">
                 <h4 className="text-sm font-semibold">{name}</h4>
-                <p className="mt-1 text-[10px] leading-5 text-black/50">{detail.join(" · ")}</p>
+                {role ? (
+                  <p
+                    className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em]"
+                    style={{ color: draft.theme_accent ?? "#9d3151" }}
+                  >
+                    {role}
+                  </p>
+                ) : null}
+                {description ? (
+                  <p className="mt-2 text-[10px] leading-5 text-black/50">
+                    {description}
+                  </p>
+                ) : null}
               </div>
             </article>
           );

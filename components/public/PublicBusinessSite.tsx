@@ -424,16 +424,45 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
               {content.team_title}
             </h2>
-            <div className="mt-14 grid gap-4 md:grid-cols-3">
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {lines(content.team_items).map((item, index) => {
-                const member = labeledLine(item);
+                const [name = "", role = "", ...descriptionParts] = item
+                  .split("·")
+                  .map((part) => part.trim());
+                const description = descriptionParts.join(" · ");
+                const image = content.team_image_urls?.[index] ?? "";
+
                 return (
-                  <article key={`${item}-${index}`} className="rounded-[28px] border border-black/8 bg-white/70 p-7">
-                    <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--site-dark)] text-xl font-semibold text-white">
-                      {member.title.slice(0, 1)}
+                  <article
+                    key={`${item}-${index}`}
+                    className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
+                  >
+                    {image ? (
+                      <div className="aspect-[4/3] overflow-hidden bg-black/5">
+                        <img
+                          src={image}
+                          alt={name}
+                          className="h-full w-full object-cover object-top"
+                        />
+                      </div>
+                    ) : (
+                      <div className="grid aspect-[4/3] place-items-center bg-[var(--site-dark)] text-4xl font-semibold text-white">
+                        {name.slice(0, 1)}
+                      </div>
+                    )}
+                    <div className="p-7">
+                      <h3 className="text-2xl font-semibold">{name}</h3>
+                      {role ? (
+                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--site-accent)]">
+                          {role}
+                        </p>
+                      ) : null}
+                      {description ? (
+                        <p className="mt-4 text-sm leading-6 text-black/55">
+                          {description}
+                        </p>
+                      ) : null}
                     </div>
-                    <h3 className="mt-8 text-2xl font-semibold">{member.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-black/55">{member.detail}</p>
                   </article>
                 );
               })}
