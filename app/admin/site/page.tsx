@@ -1462,6 +1462,20 @@ function VisualBuilder({
           </button>
           <button
             type="button"
+            onClick={() => {
+              if (!activeTemplate) {
+                window.alert("Сначала выберите шаблон.");
+                return;
+              }
+              void onTemplate(activeTemplate);
+            }}
+            disabled={!canConfigure || saving || !activeTemplate}
+            className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-900 disabled:opacity-40"
+          >
+            Вернуть начальное демо
+          </button>
+          <button
+            type="button"
             onClick={() => setSeoOpen(true)}
             className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-black/65"
           >
@@ -4751,7 +4765,7 @@ function CanvasSectionPreview({
     const reviews = publicSiteReviews(draft);
     return (
       <div className="mt-7 grid gap-2 sm:grid-cols-2">
-        {reviews.slice(0, 2).map((review) => (
+        {reviews.map((review) => (
           <blockquote key={review.id} className="rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-black/60">
             <span className="block text-[#9d3151]">
               {"★".repeat(review.rating)}
