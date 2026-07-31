@@ -126,6 +126,93 @@ export default function PublicCustomBlock({
   const mediaFit = block.media_fit ?? "cover";
   const mediaFrame = block.media_frame ?? "line";
 
+  if (block.kind === "collage") {
+    const collageImages = (block.media_urls ?? []).filter(Boolean).slice(0, 8);
+    const alignClass =
+      block.media_position === "left"
+        ? "mr-auto"
+        : block.media_position === "right"
+          ? "ml-auto"
+          : "mx-auto";
+
+    return (
+      <section className={`px-5 py-20 sm:py-24 ${style}`}>
+        <div className="mx-auto w-full max-w-[1240px]">
+          {block.eyebrow ? (
+            <p
+              className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
+                isDark || isAccent
+                  ? "text-white/60"
+                  : "text-[var(--site-accent)]"
+              }`}
+            >
+              {block.eyebrow}
+            </p>
+          ) : null}
+          {block.title ? (
+            <h2 className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
+              {block.title}
+            </h2>
+          ) : null}
+          {block.text ? (
+            <p className="mt-7 max-w-3xl whitespace-pre-line text-base leading-8 opacity-70">
+              {block.text}
+            </p>
+          ) : null}
+
+          <div
+            className={`${alignClass} mt-10 ${mediaSizeClass[mediaSize]} ${
+              mediaFrameClass[mediaFrame]
+            }`}
+          >
+            {collageImages.length ? (
+              <div
+                className={`grid grid-cols-2 gap-2 overflow-hidden sm:grid-cols-4 ${
+                  mediaFrame === "none" ? "" : "rounded-2xl"
+                }`}
+              >
+                {collageImages.map((image, index) => {
+                  const isLead = index === 0 && collageImages.length >= 3;
+                  return (
+                    <div
+                      key={`${block.id}-collage-${index}`}
+                      className={`relative overflow-hidden bg-black/10 ${
+                        isLead
+                          ? "col-span-2 row-span-2 aspect-square"
+                          : "aspect-square"
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${block.title || "Коллаж"} — фото ${index + 1}`}
+                        fill
+                        unoptimized
+                        sizes={
+                          isLead
+                            ? "(max-width: 640px) 100vw, 50vw"
+                            : "(max-width: 640px) 50vw, 25vw"
+                        }
+                        className={
+                          mediaFit === "contain"
+                            ? "object-contain"
+                            : "object-cover"
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid min-h-64 place-items-center rounded-2xl bg-black/10 text-sm opacity-45">
+                Добавьте фотографии в коллаж
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (block.kind === "media_text") {
     const mediaIsVideo = block.media_type === "video";
     const mediaIsCalendar = block.media_type === "calendar";

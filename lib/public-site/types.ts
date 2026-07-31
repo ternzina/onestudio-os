@@ -84,6 +84,7 @@ export type PublicSiteCustomBlockKind =
   | "features"
   | "cta"
   | "slider"
+  | "collage"
   | "video"
   | "media_text"
   | "columns";
@@ -97,7 +98,7 @@ export type PublicSiteMediaAspect =
 export type PublicSiteMediaFit = "cover" | "contain";
 export type PublicSiteMediaFrame = "none" | "line" | "card";
 export type PublicSiteMediaType = "image" | "video" | "calendar";
-export type PublicSiteMediaPosition = "left" | "right";
+export type PublicSiteMediaPosition = "left" | "center" | "right";
 export type PublicSiteColumnsCount = 2 | 3;
 export type PublicSiteColumnCardMediaType = "none" | "image" | "video";
 

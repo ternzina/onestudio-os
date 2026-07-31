@@ -232,6 +232,13 @@ function createCustomBlock(
       items: "",
       button_label: "",
     },
+    collage: {
+      eyebrow: "КОЛЛАЖ",
+      title: "История в нескольких кадрах",
+      text: "Соберите выразительный коллаж из нескольких фотографий.",
+      items: "",
+      button_label: "",
+    },
     video: {
       eyebrow: "ВИДЕО",
       title: "Покажите атмосферу",
@@ -269,12 +276,16 @@ function createCustomBlock(
       kind === "cta" || kind === "media_text" ? "#booking" : "",
     tone: kind === "cta" ? "accent" : "light",
     is_visible: true,
-    media_urls: kind === "slider"
-      ? [
-          "/templates/gloss/gloss-gallery-1.webp",
-          "/templates/gloss/gloss-gallery-2.webp",
-        ]
-      : undefined,
+    media_urls:
+      kind === "slider" || kind === "collage"
+        ? [
+            "/templates/gloss/gloss-gallery-1.webp",
+            "/templates/gloss/gloss-gallery-2.webp",
+            ...(kind === "collage"
+              ? ["/templates/gloss/gloss-gallery-3.webp"]
+              : []),
+          ]
+        : undefined,
     slide_interval_seconds: kind === "slider" ? 4 : undefined,
     video_url: kind === "video" ? "" : undefined,
     video_poster_url: kind === "video" ? "" : undefined,
@@ -284,23 +295,36 @@ function createCustomBlock(
         : undefined,
     media_alt: kind === "media_text" ? "Интерьер и работа студии" : undefined,
     media_type: kind === "media_text" ? "image" : undefined,
-    media_position: kind === "media_text" ? "right" : undefined,
+    media_position:
+      kind === "media_text" ? "right" : kind === "collage" ? "center" : undefined,
     columns_count: kind === "columns" ? 3 : undefined,
     cards: kind === "columns" ? defaultColumnCards(id) : undefined,
     media_size:
-      kind === "slider" || kind === "video" || kind === "media_text"
+      kind === "slider" ||
+      kind === "collage" ||
+      kind === "video" ||
+      kind === "media_text"
         ? "wide"
         : undefined,
     media_aspect:
-      kind === "slider" || kind === "video" || kind === "media_text"
+      kind === "slider" ||
+      kind === "collage" ||
+      kind === "video" ||
+      kind === "media_text"
         ? "landscape"
         : undefined,
     media_fit:
-      kind === "slider" || kind === "video" || kind === "media_text"
+      kind === "slider" ||
+      kind === "collage" ||
+      kind === "video" ||
+      kind === "media_text"
         ? "cover"
         : undefined,
     media_frame:
-      kind === "slider" || kind === "video" || kind === "media_text"
+      kind === "slider" ||
+      kind === "collage" ||
+      kind === "video" ||
+      kind === "media_text"
         ? "line"
         : undefined,
   };
@@ -2116,6 +2140,7 @@ function VisualBuilder({
                 ["media_text", "Text + image or video", "A split section with media on the left or right."],
                 ["columns", "Two or three columns", "A row of two or three editable content cards."],
                 ["slider", "Image slider", "Automatic slides with an interval from two seconds."],
+                ["collage", "Коллаж", "Несколько фотографий слева, по центру или справа."],
                 ["video", "Video block", "YouTube, Vimeo or a direct video file."],
               ] as const).map(([kind, title, description]) => (
                 <button
@@ -2130,13 +2155,13 @@ function VisualBuilder({
                   className="group rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] p-5 text-left transition hover:-translate-y-0.5 hover:border-[#9d3151]/40 hover:shadow-lg"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-lg font-semibold">{t(title)}</span>
+                    <span className="text-lg font-semibold">{kind === "collage" ? title : t(title)}</span>
                     <span className="rounded-full bg-[#f5e5ea] px-3 py-1 text-[10px] font-semibold text-[#8d2d4a]">
                       {t("Add")}
                     </span>
                   </div>
                   <p className="mt-3 text-xs leading-5 text-[#716d65]">
-                    {t(description)}
+                    {kind === "collage" ? description : t(description)}
                   </p>
                 </button>
               ))}
@@ -3187,6 +3212,43 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           {block.text}
         </p>
       ) : null}
+      {block.kind === "collage" ? (
+        <div
+          className={`mt-6 ${
+            block.media_position === "left"
+              ? "mr-auto"
+              : block.media_position === "right"
+                ? "ml-auto"
+                : "mx-auto"
+          } ${mediaSize} ${mediaFrame}`}
+        >
+          <div
+            className={`grid grid-cols-2 gap-2 overflow-hidden ${
+              block.media_frame === "none" ? "" : "rounded-lg"
+            }`}
+          >
+            {(block.media_urls ?? []).slice(0, 8).map((image, index) => (
+              <div
+                key={`${block.id}-collage-preview-${index}`}
+                className={`relative overflow-hidden bg-black/10 ${
+                  index === 0 && (block.media_urls ?? []).length >= 3
+                    ? "row-span-2 min-h-40"
+                    : "min-h-20"
+                }`}
+              >
+                {image ? (
+                  <img
+                    src={image}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full ${mediaFit}`}
+                  />
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {block.kind === "slider" ? (
         <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}>
           <div className={`relative overflow-hidden bg-black/10 ${mediaAspect} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
@@ -3898,6 +3960,7 @@ function CustomBlockSettings({
   ) => void;
 }) {
   const sliderImages = block.media_urls ?? [];
+  const collageImages = block.media_urls ?? [];
 
   return (
     <>
@@ -4114,6 +4177,111 @@ function CustomBlockSettings({
           >
             {t("+ Add slide")}
           </button>
+        </div>
+      ) : null}
+      {block.kind === "collage" ? (
+        <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+            Коллаж
+          </p>
+          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+            Расположение
+            <select
+              value={block.media_position ?? "center"}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange(
+                  "media_position",
+                  event.target.value === "left"
+                    ? "left"
+                    : event.target.value === "right"
+                      ? "right"
+                      : "center",
+                )
+              }
+              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+            >
+              <option value="left">Слева</option>
+              <option value="center">По центру</option>
+              <option value="right">Справа</option>
+            </select>
+          </label>
+          {collageImages.slice(0, 8).map((image, index) => (
+            <div key={`${block.id}-collage-${index}`} className="grid gap-2">
+              <ImageEditor
+                label={`Фото ${index + 1}`}
+                value={image}
+                disabled={disabled}
+                t={t}
+                onChange={(value) => {
+                  const values = [...collageImages];
+                  values[index] = value;
+                  onChange("media_urls", values);
+                }}
+                onChoose={() =>
+                  onChooseListImage(index, `Фото коллажа ${index + 1}`)
+                }
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  disabled={disabled || index === 0}
+                  onClick={() => {
+                    const values = [...collageImages];
+                    [values[index - 1], values[index]] = [
+                      values[index],
+                      values[index - 1],
+                    ];
+                    onChange("media_urls", values);
+                  }}
+                  className="text-[10px] font-semibold text-[#725924] disabled:opacity-30"
+                >
+                  Выше
+                </button>
+                <button
+                  type="button"
+                  disabled={disabled || index >= collageImages.length - 1}
+                  onClick={() => {
+                    const values = [...collageImages];
+                    [values[index], values[index + 1]] = [
+                      values[index + 1],
+                      values[index],
+                    ];
+                    onChange("media_urls", values);
+                  }}
+                  className="text-[10px] font-semibold text-[#725924] disabled:opacity-30"
+                >
+                  Ниже
+                </button>
+                <button
+                  type="button"
+                  disabled={disabled || collageImages.length <= 2}
+                  onClick={() =>
+                    onChange(
+                      "media_urls",
+                      collageImages.filter((_, itemIndex) => itemIndex !== index),
+                    )
+                  }
+                  className="text-[10px] font-semibold text-red-600 disabled:opacity-35"
+                >
+                  Удалить
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            disabled={disabled || collageImages.length >= 8}
+            onClick={() =>
+              onChange("media_urls", [...collageImages, ""])
+            }
+            className="rounded-xl border border-dashed border-[#9d3151]/30 bg-white px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
+          >
+            + Добавить фотографию
+          </button>
+          <p className="text-[11px] leading-5 text-[#716d65]">
+            Можно добавить от 2 до 8 фотографий. Первый кадр становится главным.
+          </p>
         </div>
       ) : null}
       {block.kind === "video" ? (
