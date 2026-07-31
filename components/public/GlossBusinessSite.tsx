@@ -583,24 +583,42 @@ export default function GlossBusinessSite({
             className="px-5 py-6"
           >
             <div className="mx-auto w-full max-w-[1240px] rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10">
-              <h2 className="text-center font-serif text-4xl">
+              {content.safety_label ? (
+                <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
+                  {content.safety_label}
+                </p>
+              ) : null}
+              <h2 className="mt-3 text-center font-serif text-4xl">
                 {content.safety_title || "Красиво и безопасно"}
               </h2>
-              <div className="mt-8 grid gap-7 md:grid-cols-3">
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {safety.map((item, index) => {
-                  const feature = labeledLine(item);
+                  const parts = item.split("·").map((part) => part.trim());
+                  const hasIcon = parts.length >= 3;
+                  const icon = hasIcon ? parts[0] : "";
+                  const title = hasIcon ? parts[1] : parts[0] ?? "";
+                  const description = (
+                    hasIcon ? parts.slice(2) : parts.slice(1)
+                  ).join(" · ");
+
                   return (
                     <article
-                      key={item}
-                      className="grid grid-cols-[48px_1fr] gap-4 text-[#60312e]"
+                      key={`${item}-${index}`}
+                      className="rounded-xl border border-[#3b211f]/10 bg-[#fffaf8] p-6 text-[#60312e]"
                     >
-                      <SafetyIcon index={index % 3} />
-                      <div>
-                        <h3 className="text-sm font-semibold">{feature.title}</h3>
+                      {icon ? (
+                        <span className="grid h-12 w-12 place-items-center rounded-full border border-[var(--site-accent)]/25 text-xl text-[var(--site-accent)]">
+                          {icon}
+                        </span>
+                      ) : (
+                        <SafetyIcon index={index % 3} />
+                      )}
+                      <h3 className="mt-5 text-sm font-semibold">{title}</h3>
+                      {description ? (
                         <p className="mt-2 text-xs leading-5 text-[#7d6864]">
-                          {feature.detail}
+                          {description}
                         </p>
-                      </div>
+                      ) : null}
                     </article>
                   );
                 })}

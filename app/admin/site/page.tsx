@@ -2133,12 +2133,8 @@ function VisualBuilder({
                   <CompactField label={t("Text")} value={draft.booking_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("booking_text", value)} multiline />
                 ) : null}
                 {selectedSection === "safety" ? (
-                  <DelimitedItemsEditor
-                    label={t("Safety items")}
-                    value={draft.safety_items ?? ""}
-                    delimiter="·"
-                    fields={[t("Heading"), t("Description")]}
-                    defaults={[t("New advantage"), ""]}
+                  <SafetyCardsEditor
+                    items={draft.safety_items ?? ""}
                     disabled={!canConfigure || !editingEnabled}
                     t={t}
                     onChange={(value) => onUpdate("safety_items", value)}
@@ -4168,6 +4164,171 @@ function MembershipCardsEditor({
   );
 }
 
+function SafetyCardsEditor({
+  items,
+  disabled,
+  t,
+  onChange,
+}: {
+  items: string;
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onChange: (items: string) => void;
+}) {
+  const cards = previewLines(items).map((item) => {
+    const parts = item.split("·").map((part) => part.trim());
+    const hasIcon = parts.length >= 3;
+
+    return {
+      icon: hasIcon ? parts[0] : "",
+      title: hasIcon ? parts[1] : parts[0] ?? "",
+      description: (hasIcon ? parts.slice(2) : parts.slice(1)).join(" · "),
+    };
+  });
+
+  const serialize = (
+    nextCards: Array<{
+      icon: string;
+      title: string;
+      description: string;
+    }>,
+  ) => {
+    onChange(
+      nextCards
+        .map(({ icon, title, description }) =>
+          [
+            icon.trim(),
+            title.trim(),
+            description.replace(/\n+/g, " ").trim(),
+          ].join(" · "),
+        )
+        .join("\n"),
+    );
+  };
+
+  const updateCard = (
+    index: number,
+    changes: Partial<(typeof cards)[number]>,
+  ) => {
+    serialize(
+      cards.map((card, cardIndex) =>
+        cardIndex === index ? { ...card, ...changes } : card,
+      ),
+    );
+  };
+
+  return (
+    <div className="grid gap-3">
+      <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+        Каждая гарантия хранится отдельной карточкой: значок, название и
+        описание. Карточки можно добавлять, удалять и переставлять.
+      </div>
+
+      {cards.map((card, index) => (
+        <article
+          key={`safety-card-${index}`}
+          className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold">Гарантия {index + 1}</p>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() =>
+                serialize(cards.filter((_, cardIndex) => cardIndex !== index))
+              }
+              className="text-[10px] font-semibold text-red-600 disabled:opacity-40"
+            >
+              {t("Remove")}
+            </button>
+          </div>
+
+          <CompactField
+            label="Значок или символ"
+            value={card.icon}
+            disabled={disabled}
+            onChange={(value) =>
+              updateCard(index, { icon: Array.from(value).slice(0, 3).join("") })
+            }
+          />
+
+          <CompactField
+            label="Название гарантии"
+            value={card.title}
+            disabled={disabled}
+            onChange={(value) => updateCard(index, { title: value })}
+          />
+
+          <CompactField
+            label="Описание"
+            value={card.description}
+            disabled={disabled}
+            multiline
+            onChange={(value) =>
+              updateCard(index, {
+                description: value.replace(/\n+/g, " "),
+              })
+            }
+          />
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              aria-label="Поднять гарантию"
+              disabled={disabled || index === 0}
+              onClick={() => {
+                const next = [...cards];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              aria-label="Опустить гарантию"
+              disabled={disabled || index === cards.length - 1}
+              onClick={() => {
+                const next = [...cards];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
+                serialize(next);
+              }}
+              className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
+            >
+              ↓
+            </button>
+          </div>
+        </article>
+      ))}
+
+      <button
+        type="button"
+        disabled={disabled || cards.length >= 12}
+        onClick={() =>
+          serialize([
+            ...cards,
+            {
+              icon: "✓",
+              title: "Новая гарантия",
+              description: "",
+            },
+          ])
+        }
+        className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
+      >
+        + Добавить гарантию
+      </button>
+    </div>
+  );
+}
+
 function GiftCertificatesEditor({
   items,
   images,
@@ -5541,22 +5702,46 @@ function CanvasSectionPreview({
   }
 
   if (section === "safety") {
+    const safetyItems = previewLines(draft.safety_items);
+
     return (
-      <div className="mt-7 grid gap-3 sm:grid-cols-3">
-        {previewLines(draft.safety_items).slice(0, 3).map((item, index) => {
-          const [title, ...detail] = item.split("·");
-          return (
-            <article key={item} className="rounded-2xl border border-black/8 bg-white/70 p-4">
-              <span className="grid h-10 w-10 place-items-center rounded-full border border-[#9d3151]/25 text-lg text-[#9d3151]">
-                {index === 0 ? "⌁" : index === 1 ? "◒" : "◇"}
-              </span>
-              <h4 className="mt-4 text-xs font-semibold">{title.trim()}</h4>
-              <p className="mt-2 text-[10px] leading-5 text-black/45">
-                {detail.join("·").trim()}
-              </p>
-            </article>
-          );
-        })}
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {safetyItems.length ? (
+          safetyItems.map((item, index) => {
+            const parts = item.split("·").map((part) => part.trim());
+            const hasIcon = parts.length >= 3;
+            const icon = hasIcon ? parts[0] : "";
+            const title = hasIcon ? parts[1] : parts[0] ?? "";
+            const description = (hasIcon ? parts.slice(2) : parts.slice(1)).join(" · ");
+
+            return (
+              <article
+                key={`${item}-${index}`}
+                className="rounded-2xl border border-black/8 bg-white/70 p-4"
+              >
+                <span
+                  className="grid h-10 w-10 place-items-center rounded-full border text-lg"
+                  style={{
+                    borderColor: `${draft.theme_accent ?? "#9d3151"}40`,
+                    color: draft.theme_accent ?? "#9d3151",
+                  }}
+                >
+                  {icon || (index === 0 ? "⌁" : index === 1 ? "◒" : "◇")}
+                </span>
+                <h4 className="mt-4 text-xs font-semibold">{title}</h4>
+                {description ? (
+                  <p className="mt-2 text-[10px] leading-5 text-black/45">
+                    {description}
+                  </p>
+                ) : null}
+              </article>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
+            Добавьте первую гарантию справа
+          </div>
+        )}
       </div>
     );
   }

@@ -165,6 +165,9 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   );
   const showGift = Boolean(content.show_gift && content.gift_text);
   const showFaq = Boolean(content.show_faq && lines(content.faq_items).length);
+  const showSafety = Boolean(
+    content.show_safety !== false && lines(content.safety_items).length,
+  );
   const sectionOrder = resolvePublicSiteLayoutOrder(content);
   const sectionPosition = (section: PublicSiteSection) => {
     const position = sectionOrder.indexOf(sectionLayoutId(section));
@@ -466,6 +469,56 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                         </p>
                       ) : null}
                     </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {showSafety ? (
+        <section
+          id="safety"
+          style={{ order: sectionPosition("safety") }}
+          className="px-5 py-24 sm:py-32"
+        >
+          <div className="mx-auto w-full max-w-[1240px]">
+            <div className="max-w-3xl">
+              {content.safety_label ? (
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
+                  {content.safety_label}
+                </p>
+              ) : null}
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
+                {content.safety_title || "Безопасность и гарантии"}
+              </h2>
+            </div>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {lines(content.safety_items).map((item, index) => {
+                const parts = item.split("·").map((part) => part.trim());
+                const hasIcon = parts.length >= 3;
+                const icon = hasIcon ? parts[0] : "";
+                const title = hasIcon ? parts[1] : parts[0] ?? "";
+                const description = (
+                  hasIcon ? parts.slice(2) : parts.slice(1)
+                ).join(" · ");
+
+                return (
+                  <article
+                    key={`${item}-${index}`}
+                    className="rounded-[28px] border border-black/8 bg-white/70 p-7"
+                  >
+                    <span className="grid h-12 w-12 place-items-center rounded-full border border-[var(--site-accent)]/25 text-xl text-[var(--site-accent)]">
+                      {icon || (index === 0 ? "⌁" : index === 1 ? "◒" : "◇")}
+                    </span>
+                    <h3 className="mt-6 text-xl font-semibold">{title}</h3>
+                    {description ? (
+                      <p className="mt-3 text-sm leading-6 text-black/55">
+                        {description}
+                      </p>
+                    ) : null}
                   </article>
                 );
               })}
