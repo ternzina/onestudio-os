@@ -15,6 +15,7 @@ import GlossBusinessSite from "@/components/public/GlossBusinessSite";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
+import PublicMobileMenu from "@/components/public/PublicMobileMenu";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import {
   customBlockLayoutId,
@@ -76,6 +77,61 @@ function requestLabels(locale: string) {
     pl: { general: "Omów projekt", service: "Wyślij zapytanie" },
     en: { general: "Discuss your project", service: "Send request" },
   }[language] ?? { general: "Discuss your project", service: "Send request" };
+}
+
+function contactLabels(locale: string) {
+  const language = locale.split("-")[0];
+  return {
+    ru: { route: "Открыть карту", hours: "Часы работы", mapMissing: "Добавьте адрес для карты в редакторе контактов." },
+    uk: { route: "Відкрити карту", hours: "Години роботи", mapMissing: "Додайте адресу для карти в редакторі контактів." },
+    pl: { route: "Otwórz mapę", hours: "Godziny otwarcia", mapMissing: "Dodaj adres mapy w edytorze kontaktów." },
+    en: { route: "Open map", hours: "Opening hours", mapMissing: "Add a map address in the contact editor." },
+  }[language] ?? { route: "Open map", hours: "Opening hours", mapMissing: "Add a map address in the contact editor." };
+}
+
+function safeActionHref(value: string | undefined, fallback: string) {
+  const href = value?.trim() ?? "";
+  if (!href) return fallback;
+  if (
+    href.startsWith("#") ||
+    href.startsWith("/") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    /^https:\/\//i.test(href)
+  ) {
+    return href;
+  }
+  return fallback;
+}
+
+function heroObjectClass(
+  fit: "cover" | "contain" | undefined,
+  position: "top" | "center" | "bottom" | undefined,
+) {
+  const fitClass = fit === "contain" ? "object-contain" : "object-cover";
+  const positionClass =
+    position === "top"
+      ? "object-top"
+      : position === "bottom"
+        ? "object-bottom"
+        : "object-center";
+  return `${fitClass} ${positionClass}`;
+}
+
+function logoSizeClass(size: "small" | "medium" | "large" | undefined) {
+  if (size === "small") return "max-h-9 max-w-[150px]";
+  if (size === "large") return "max-h-[68px] max-w-[280px]";
+  return "max-h-14 max-w-[220px]";
+}
+
+function menuLabels(locale: string) {
+  const language = locale.split("-")[0];
+  return {
+    ru: { menu: "Меню", close: "Закрыть" },
+    uk: { menu: "Меню", close: "Закрити" },
+    pl: { menu: "Menu", close: "Zamknij" },
+    en: { menu: "Menu", close: "Close" },
+  }[language] ?? { menu: "Menu", close: "Close" };
 }
 
 function ProjectCard({ project }: { project: PublicSiteProject }) {
@@ -151,7 +207,30 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       )
     : null;
   const requestCopy = requestLabels(business.locale);
-  const hasContact = Boolean(company.email || company.phone || company.address);
+  const contactCopy = contactLabels(business.locale);
+  const brandName = content.brand_name || company.display_name || business.name;
+  const contactEmail = content.contact_email?.trim() || company.email?.trim() || "";
+  const contactPhone = content.contact_phone?.trim() || company.phone?.trim() || "";
+  const contactAddress = content.contact_address?.trim() || company.address?.trim() || "";
+  const contactHours = content.contact_hours?.trim() || "";
+  const contactNote = content.contact_note?.trim() || "";
+  const mapQuery = (content.map_query?.trim() || contactAddress).trim();
+  const mapHref = mapQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`
+    : "";
+  const hasSocialLinks = Boolean(
+    content.show_social_icons === true
+    && (content.social_links ?? []).some((item) => item.platform && item.url),
+  );
+  const hasContact = Boolean(
+    contactEmail
+    || contactPhone
+    || contactAddress
+    || contactHours
+    || contactNote
+    || mapQuery
+    || hasSocialLinks,
+  );
   const showServices = content.show_services && services.length > 0;
   const showPortfolio = content.show_portfolio && portfolio.length > 0;
   const showAbout = Boolean(
@@ -180,6 +259,46 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
     const position = sectionOrder.indexOf(sectionLayoutId(section));
     return position === -1 ? sectionOrder.length : position;
   };
+  const headerLogoPosition = content.header_logo_position ?? "left";
+  const headerLogoSize = content.header_logo_size ?? "medium";
+  const menuText = menuLabels(business.locale);
+  const heroLayout = content.hero_layout ?? "split";
+  const primaryHref = safeActionHref(
+    content.hero_primary_url,
+    capabilities.booking ? bookingHref : requestHref,
+  );
+  const primaryLabel =
+    content.hero_primary_label?.trim()
+    || (capabilities.booking ? content.booking_label : requestCopy.general);
+  const secondaryHref = safeActionHref(content.hero_secondary_url, requestHref);
+  const secondaryLabel =
+    content.hero_secondary_label?.trim() || requestCopy.general;
+  const navigationItems = [
+    ...(showServices ? [{ href: "#services", label: content.services_label }] : []),
+    ...(portfolioPage?.show_in_navigation && portfolioPageHref
+      ? [{ href: portfolioPageHref, label: portfolioPage.nav_label }]
+      : showPortfolio
+        ? [{ href: "#portfolio", label: content.portfolio_label }]
+        : []),
+    ...customPages.map((page) => ({
+      href: publicCustomPagePath(
+        business.slug,
+        page.slug,
+        business.locale === business.primary_locale ? null : business.locale,
+      ),
+      label: page.nav_label,
+    })),
+    ...(showAbout ? [{ href: "#about", label: content.about_label }] : []),
+    ...(showContact ? [{ href: "#contact", label: content.contact_label }] : []),
+  ];
+  const localeItems = availableLocales.map((locale) => ({
+    label: locale.toUpperCase(),
+    href: publicSitePath(
+      business.slug,
+      locale === business.primary_locale ? null : locale,
+    ),
+    current: locale === business.locale,
+  }));
 
   return (
     <main
@@ -189,76 +308,78 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
         backgroundColor: content.theme_surface ?? "#f3f0e9",
         "--site-accent": content.theme_accent ?? "#9a742e",
         "--site-dark": content.theme_dark ?? "#191b20",
+        "--site-surface": content.theme_surface ?? "#f3f0e9",
       } as React.CSSProperties}
     >
-      <header className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto flex h-24 w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between border-b border-black/10">
-          <Link
-            href={`/site/${business.slug}`}
-            className="flex max-w-[55vw] items-center"
-            aria-label={content.brand_name || company.display_name || business.name}
-          >
-            {company.logo_url ? (
-              // The logo is stored in the workspace-owned company profile.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={company.logo_url}
-                alt={content.brand_name || company.display_name || business.name}
-                className="max-h-14 max-w-[220px] object-contain object-left"
+      <header
+        className={content.header_sticky === true
+          ? "sticky top-0 z-50 border-b border-black/10 backdrop-blur-xl"
+          : "absolute inset-x-0 top-0 z-40"}
+        style={content.header_sticky === true
+          ? { backgroundColor: content.theme_surface ?? "#f3f0e9" }
+          : undefined}
+      >
+        <div className="relative mx-auto flex h-24 w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between gap-4 border-b border-black/10">
+          <div className={headerLogoPosition === "center" ? "absolute left-1/2 -translate-x-1/2" : "shrink-0"}>
+            <Link
+              href={`/site/${business.slug}`}
+              className="flex max-w-[55vw] items-center"
+              aria-label={brandName}
+            >
+              {company.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={company.logo_url}
+                  alt={brandName}
+                  className={`${logoSizeClass(headerLogoSize)} object-contain object-left`}
+                />
+              ) : (
+                <span className="truncate text-sm font-semibold uppercase tracking-[0.2em]">
+                  {brandName}
+                </span>
+              )}
+            </Link>
+          </div>
+
+          {headerLogoPosition === "left" ? (
+            <nav aria-label="Primary navigation" className="hidden items-center gap-7 lg:flex">
+              {navigationItems.map((item) => (
+                item.href.startsWith("#") ? (
+                  <a key={`${item.href}-${item.label}`} href={item.href} className="text-xs font-semibold text-black/60">
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link key={`${item.href}-${item.label}`} href={item.href} className="text-xs font-semibold text-black/60">
+                    {item.label}
+                  </Link>
+                )
+              ))}
+            </nav>
+          ) : (
+            <div className="mr-auto">
+              <PublicMobileMenu
+                items={navigationItems}
+                locales={localeItems}
+                action={{ href: primaryHref, label: primaryLabel }}
+                menuLabel={menuText.menu}
+                closeLabel={menuText.close}
+                alwaysVisible
               />
-            ) : (
-              <span className="truncate text-sm font-semibold uppercase tracking-[0.2em]">
-                {content.brand_name || company.display_name || business.name}
-              </span>
-            )}
-          </Link>
-          <nav aria-label="Primary navigation" className="hidden items-center gap-7 md:flex">
-            {showServices ? (
-              <a href="#services" className="text-xs font-semibold text-black/60">
-                {content.services_label}
-              </a>
+            </div>
+          )}
+
+          <div className="ml-auto flex items-center gap-2">
+            {headerLogoPosition === "left" ? (
+              <PublicMobileMenu
+                items={navigationItems}
+                locales={localeItems}
+                action={{ href: primaryHref, label: primaryLabel }}
+                menuLabel={menuText.menu}
+                closeLabel={menuText.close}
+              />
             ) : null}
-            {portfolioPage?.show_in_navigation && portfolioPageHref ? (
-              <Link
-                href={portfolioPageHref}
-                className="text-xs font-semibold text-black/60"
-              >
-                {portfolioPage.nav_label}
-              </Link>
-            ) : showPortfolio ? (
-              <a href="#portfolio" className="text-xs font-semibold text-black/60">
-                {content.portfolio_label}
-              </a>
-            ) : null}
-            {customPages.map((page) => (
-              <Link
-                key={page.id}
-                href={publicCustomPagePath(
-                  business.slug,
-                  page.slug,
-                  business.locale === business.primary_locale
-                    ? null
-                    : business.locale,
-                )}
-                className="text-xs font-semibold text-black/60"
-              >
-                {page.nav_label}
-              </Link>
-            ))}
-            {showAbout ? (
-              <a href="#about" className="text-xs font-semibold text-black/60">
-                {content.about_label}
-              </a>
-            ) : null}
-            {showContact ? (
-              <a href="#contact" className="text-xs font-semibold text-black/60">
-                {content.contact_label}
-              </a>
-            ) : null}
-          </nav>
-          <div className="flex items-center gap-2">
             {availableLocales.length > 1 ? (
-              <nav aria-label="Language" className="hidden items-center gap-1 sm:flex">
+              <nav aria-label="Language" className="hidden items-center gap-1 xl:flex">
                 {availableLocales.map((locale) => (
                   <Link
                     key={locale}
@@ -268,83 +389,79 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                     )}
                     hrefLang={locale}
                     aria-current={locale === business.locale ? "page" : undefined}
-                    className={`rounded-full px-2.5 py-2 text-[10px] font-semibold uppercase ${
-                      locale === business.locale
-                        ? "bg-white/70 text-black"
-                        : "text-black/40"
-                    }`}
+                    className={`rounded-full px-2.5 py-2 text-[10px] font-semibold uppercase ${locale === business.locale ? "bg-white/70 text-black" : "text-black/40"}`}
                   >
                     {locale}
                   </Link>
                 ))}
               </nav>
             ) : null}
-            {capabilities.booking ? (
-              <Link
-                href={bookingHref}
-                className="hidden rounded-full border border-black/15 px-5 py-3 text-xs font-semibold text-black/65 sm:inline-flex"
-              >
-                {content.booking_label}
-              </Link>
-            ) : null}
             <Link
-              href={requestHref}
-              className="rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+              href={primaryHref}
+              className="hidden rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white sm:inline-flex"
             >
-              {requestCopy.general}
+              {primaryLabel}
             </Link>
           </div>
         </div>
       </header>
 
       {content.show_hero !== false ? (
-      <section className="relative isolate overflow-hidden px-5 pb-24 pt-40 sm:pb-32 sm:pt-48">
-        <div className="absolute -right-24 top-12 -z-10 h-[460px] w-[460px] rounded-full border border-[var(--site-accent)]/20" />
-        <div className="absolute right-20 top-36 -z-10 h-[280px] w-[280px] rounded-full bg-[var(--site-accent)]/10 blur-3xl" />
-        <div className={`mx-auto grid w-full max-w-[1240px] gap-12 ${content.hero_image_url ? "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch" : "lg:grid-cols-[1.15fr_0.85fr] lg:items-end"}`}>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--site-accent)]">
-              {content.hero_eyebrow}
-            </p>
-            <h1 className="mt-7 max-w-4xl text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[92px] lg:leading-[0.96]">
-              {content.hero_title}
-            </h1>
-            <p className="mt-8 max-w-xl text-base leading-8 text-[#656159] sm:text-lg">
-              {content.hero_text}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {capabilities.booking ? (
-                <Link
-                  href={bookingHref}
-                  className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]"
-                >
-                  {content.booking_label}
-                </Link>
+        heroLayout === "cover" && content.hero_image_url ? (
+          <section className={`relative isolate min-h-[680px] overflow-hidden px-5 ${content.header_sticky === true ? "py-24" : "pb-24 pt-40"} text-white sm:min-h-[760px] sm:py-32`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={content.hero_image_url}
+              alt=""
+              fetchPriority="high"
+              className={`absolute inset-0 -z-20 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
+            />
+            <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(25,27,32,0.86),rgba(25,27,32,0.48),rgba(25,27,32,0.12))]" />
+            <div className="mx-auto flex min-h-[520px] w-full max-w-[1240px] items-center">
+              <div className="max-w-3xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">{content.hero_eyebrow}</p>
+                <h1 className="mt-7 text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[92px] lg:leading-[0.96]">{content.hero_title}</h1>
+                <p className="mt-8 max-w-xl text-base leading-8 text-white/75 sm:text-lg">{content.hero_text}</p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-accent)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(0,0,0,0.22)]">{primaryLabel}</Link>
+                  {content.show_hero_secondary !== false ? (
+                    <Link href={secondaryHref} className="inline-flex min-h-14 items-center rounded-full border border-white/35 px-7 text-sm font-semibold text-white">{secondaryLabel}<span aria-hidden="true" className="ml-8">→</span></Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className={`relative isolate overflow-hidden px-5 pb-24 ${content.header_sticky === true ? "pt-20" : "pt-40"} sm:pb-32 ${content.header_sticky === true ? "sm:pt-28" : "sm:pt-48"}`}>
+            <div className="absolute -right-24 top-12 -z-10 h-[460px] w-[460px] rounded-full border border-[var(--site-accent)]/20" />
+            <div className="absolute right-20 top-36 -z-10 h-[280px] w-[280px] rounded-full bg-[var(--site-accent)]/10 blur-3xl" />
+            <div className={`mx-auto grid w-full max-w-[1240px] gap-12 ${heroLayout === "text" || !content.hero_image_url ? "lg:grid-cols-1" : "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch"}`}>
+              <div className={content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--site-accent)]">{content.hero_eyebrow}</p>
+                <h1 className="mt-7 max-w-4xl text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[92px] lg:leading-[0.96]">{content.hero_title}</h1>
+                <p className="mt-8 max-w-xl text-base leading-8 text-[#656159] sm:text-lg">{content.hero_text}</p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]">{primaryLabel}</Link>
+                  {content.show_hero_secondary !== false ? (
+                    <Link href={secondaryHref} className="inline-flex min-h-14 items-center rounded-full border border-black/15 px-7 text-sm font-semibold text-black/65">{secondaryLabel}<span aria-hidden="true" className="ml-8 text-[var(--site-accent)]">→</span></Link>
+                  ) : null}
+                </div>
+              </div>
+              {heroLayout !== "text" && content.hero_image_url ? (
+                <div className={`relative min-h-[420px] overflow-hidden rounded-[36px] shadow-[0_35px_90px_rgba(50,23,34,0.16)] lg:min-h-[620px] ${content.hero_image_fit === "contain" ? "bg-white" : ""} ${content.hero_image_placement === "left" ? "lg:order-1" : "lg:order-2"}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={content.hero_image_url}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
+                    fetchPriority="high"
+                  />
+                  {content.hero_image_fit === "contain" ? null : <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[var(--site-dark)]/35 to-transparent" />}
+                </div>
               ) : null}
-              <Link
-                href={requestHref}
-                className="inline-flex min-h-14 items-center rounded-full border border-black/15 px-7 text-sm font-semibold text-black/65"
-              >
-                {requestCopy.general}
-                <span aria-hidden="true" className="ml-8 text-[var(--site-accent)]">→</span>
-              </Link>
             </div>
-          </div>
-          {content.hero_image_url ? (
-            <div className="relative min-h-[420px] overflow-hidden rounded-[36px] bg-white shadow-[0_35px_90px_rgba(50,23,34,0.16)] lg:min-h-[620px]">
-              {/* Template images are local; user-managed URLs are validated by the media workflow. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={content.hero_image_url}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                fetchPriority="high"
-              />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[var(--site-dark)]/35 to-transparent" />
-            </div>
-          ) : null}
-        </div>
-      </section>
+          </section>
+        )
       ) : null}
 
       <div className="flex flex-col">
@@ -754,32 +871,70 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {showContact ? (
         <section id="contact" style={{ order: sectionPosition("contact") }} className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] gap-12 lg:grid-cols-2">
-            <div>
+          <div className="mx-auto grid w-full max-w-[1240px] gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#725924]">
                 {content.contact_label}
               </p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
                 {content.contact_title}
               </h2>
-            </div>
-            <address className="grid content-start gap-4 not-italic">
-              {company.email ? (
-                <a href={`mailto:${company.email}`} className="border-b border-black/15 pb-4 text-xl font-semibold">
-                  {company.email}
-                </a>
-              ) : null}
-              {company.phone ? (
-                <a href={`tel:${company.phone.replace(/\s+/g, "")}`} className="border-b border-black/15 pb-4 text-xl font-semibold">
-                  {company.phone}
-                </a>
-              ) : null}
-              {company.address ? (
-                <p className="border-b border-black/15 pb-4 text-base leading-7 text-black/60">
-                  {company.address}
+              <address className="mt-8 grid content-start gap-4 not-italic">
+                {contactEmail ? (
+                  <a href={`mailto:${contactEmail}`} className="border-b border-black/15 pb-4 text-xl font-semibold">
+                    {contactEmail}
+                  </a>
+                ) : null}
+                {contactPhone ? (
+                  <a href={`tel:${contactPhone.replace(/\s+/g, "")}`} className="border-b border-black/15 pb-4 text-xl font-semibold">
+                    {contactPhone}
+                  </a>
+                ) : null}
+                {contactAddress ? (
+                  <p className="border-b border-black/15 pb-4 text-base leading-7 text-black/60">
+                    {contactAddress}
+                  </p>
+                ) : null}
+                {contactHours ? (
+                  <p className="border-b border-black/15 pb-4 text-sm leading-7 text-black/60">
+                    <span className="font-semibold text-black/75">{contactCopy.hours}:</span> {contactHours}
+                  </p>
+                ) : null}
+              </address>
+              {contactNote ? (
+                <p className="mt-5 max-w-xl whitespace-pre-line text-sm leading-7 text-black/55">
+                  {contactNote}
                 </p>
               ) : null}
-            </address>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                {mapHref ? (
+                  <a
+                    href={mapHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--site-dark)] px-6 text-xs font-semibold text-white"
+                  >
+                    {content.contact_route_label || contactCopy.route}
+                  </a>
+                ) : null}
+                <PublicSocialLinks content={content} />
+              </div>
+            </div>
+            <div className="min-h-[340px] overflow-hidden bg-[#cfc7b8]">
+              {mapQuery ? (
+                <iframe
+                  title={`${content.contact_title}: ${contactAddress || mapQuery}`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="h-full min-h-[340px] w-full border-0"
+                />
+              ) : (
+                <div className="grid h-full min-h-[340px] place-items-center px-8 text-center text-sm text-black/45">
+                  {contactCopy.mapMissing}
+                </div>
+              )}
+            </div>
           </div>
         </section>
       ) : null}
@@ -802,9 +957,49 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       </div>
 
       <footer className="bg-[var(--site-dark)] px-5 py-10 text-white">
-        <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-4 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {content.brand_name || company.display_name || business.name}</p>
-          <PublicSocialLinks content={content} light />
+        <div className="mx-auto grid w-full max-w-[1240px] gap-8 sm:grid-cols-[1fr_auto] sm:items-start">
+          <div>
+            <Link
+              href={`/site/${business.slug}`}
+              aria-label={brandName}
+              className="inline-flex max-w-[260px] items-center"
+            >
+              {company.logo_url ? (
+                // The published logo is isolated from its editor draft.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={company.logo_url}
+                  alt={brandName}
+                  className="max-h-14 max-w-[240px] object-contain object-left"
+                />
+              ) : (
+                <span className="text-sm font-semibold uppercase tracking-[0.2em]">
+                  {brandName}
+                </span>
+              )}
+            </Link>
+            {content.footer_note ? (
+              <p className="mt-4 max-w-lg whitespace-pre-line text-sm leading-6 text-white/55">
+                {content.footer_note}
+              </p>
+            ) : null}
+          </div>
+          <div className="grid gap-5 sm:justify-items-end">
+            <nav className="flex flex-wrap gap-x-5 gap-y-3 text-xs text-white/75" aria-label="Footer navigation">
+              {showServices ? <a href="#services">{content.services_label}</a> : null}
+              {showPortfolio ? <a href="#portfolio">{content.portfolio_label}</a> : null}
+              {showAbout ? <a href="#about">{content.about_label}</a> : null}
+              {showContact ? <a href="#contact">{content.contact_label}</a> : null}
+            </nav>
+            <PublicSocialLinks content={content} light />
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/55">
+              {contactEmail ? <a href={`mailto:${contactEmail}`}>{contactEmail}</a> : null}
+              {contactPhone ? <a href={`tel:${contactPhone.replace(/\s+/g, "")}`}>{contactPhone}</a> : null}
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto mt-8 flex w-full max-w-[1240px] flex-col gap-2 border-t border-white/15 pt-5 text-[10px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} {brandName}</p>
           <p>Powered by OneStudio OS</p>
         </div>
       </footer>

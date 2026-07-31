@@ -1190,6 +1190,12 @@ function VisualBuilder({
   >("intro");
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
   const [editingEnabled, setEditingEnabled] = useState(true);
+
+  useEffect(() => {
+    setBlocksOpen(true);
+    setSettingsOpen(true);
+  }, []);
+
   const layoutOrder = resolvePublicSiteLayoutOrder(draft);
   const sectionOrder = sectionsFromLayoutOrder(layoutOrder);
   const pages = draft.pages ?? [];
@@ -1320,6 +1326,7 @@ function VisualBuilder({
   function chooseSection(section: CanvasSection) {
     setSelectedCustomBlockId("");
     onSectionChange(section);
+    setSettingsOpen(true);
   }
 
   function choosePage(pageId: string) {
@@ -1601,6 +1608,20 @@ function VisualBuilder({
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setBlocksOpen((value) => !value)}
+            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${blocksOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#725924]" : "border-black/10 bg-white text-black/65"}`}
+          >
+            {blocksOpen ? `← ${t("Blocks")}` : `${t("Blocks")} →`}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((value) => !value)}
+            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#725924]" : "border-black/10 bg-white text-black/65"}`}
+          >
+            {settingsOpen ? `${t("Settings")} →` : `← ${t("Settings")}`}
+          </button>
           <div className="flex rounded-xl bg-[#efeee9] p-1">
             <button
               type="button"
@@ -1629,18 +1650,20 @@ function VisualBuilder({
       </div>
 
       <div
-        className={`grid min-h-[720px] ${
-          blocksOpen && settingsOpen
-            ? "lg:grid-cols-[220px_minmax(0,1fr)_300px]"
-            : blocksOpen
-              ? "lg:grid-cols-[220px_minmax(0,1fr)]"
-              : settingsOpen
-                ? "lg:grid-cols-[minmax(0,1fr)_300px]"
-                : "lg:grid-cols-[minmax(0,1fr)]"
-        }`}
+        className="relative grid min-h-[720px] min-w-0 overflow-x-auto"
+        style={{
+          gridTemplateColumns:
+            blocksOpen && settingsOpen
+              ? "220px minmax(0, 1fr) 300px"
+              : blocksOpen
+                ? "220px minmax(0, 1fr)"
+                : settingsOpen
+                  ? "minmax(0, 1fr) 300px"
+                  : "minmax(0, 1fr)",
+        }}
       >
         {blocksOpen ? (
-        <aside className="border-b border-black/10 bg-[#f7f6f3] p-4 lg:border-b-0 lg:border-r">
+        <aside className="min-w-0 border-r border-black/10 bg-[#f7f6f3] p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">
               {t("Page blocks")}
@@ -1752,7 +1775,7 @@ function VisualBuilder({
           </button>
         )}
 
-        <div className="overflow-auto bg-[#dcdcd8] p-4 sm:p-7">
+        <div className="min-w-0 overflow-auto bg-[#dcdcd8] p-4 sm:p-7">
           <div
             className={`mx-auto overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${previewDevice === "mobile" ? "max-w-[390px] rounded-[28px]" : "max-w-[920px] rounded-lg"}`}
             style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
@@ -1795,44 +1818,69 @@ function VisualBuilder({
                   {draft.announcement_text}
                 </div>
               ) : null}
-              <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
+              <div className={`relative flex items-center border-b border-black/10 px-6 py-5 ${draft.header_logo_position === "center" ? "justify-center" : "justify-between"}`}>
+                {draft.header_logo_position === "center" ? (
+                  <span className="absolute left-6 text-sm">☰</span>
+                ) : null}
                 {logoUrl ? (
                   <img
                     src={logoUrl}
                     alt={draft.brand_name || businessName}
-                    className="max-h-12 max-w-[180px] object-contain object-left"
+                    className={`${draft.header_logo_size === "small" ? "max-h-8 max-w-[130px]" : draft.header_logo_size === "large" ? "max-h-16 max-w-[240px]" : "max-h-12 max-w-[180px]"} object-contain object-left`}
                   />
                 ) : (
                   <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em] text-[#551d1d]">
                     {draft.brand_name || businessName}
-                    <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">
-                      NAIL STUDIO
-                    </small>
+                    <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">NAIL STUDIO</small>
                   </span>
                 )}
-                <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
-                  {draft.services_label} · {draft.portfolio_label} · {draft.contact_label}
-                </span>
-              </div>
-              <div className={`relative overflow-hidden ${draft.hero_image_url ? "grid lg:grid-cols-[0.9fr_1.1fr]" : ""}`}>
-                <div className="relative px-8 py-16 sm:px-12 sm:py-24">
-                  <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
-                  <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
-                  <h2 className="relative mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
-                  <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
-                  <span className="relative mt-7 inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.booking_label}</span>
-                </div>
-                {draft.hero_image_url ? (
-                  <div className="relative min-h-80 overflow-hidden lg:min-h-full">
-                    <img
-                      src={draft.hero_image_url}
-                      alt=""
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-                  </div>
+                {draft.header_logo_position !== "center" ? (
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                    {draft.services_label} · {draft.portfolio_label} · {draft.contact_label}
+                  </span>
                 ) : null}
               </div>
+              {draft.hero_layout === "cover" && draft.hero_image_url ? (
+                <div className="relative min-h-[420px] overflow-hidden bg-black text-white">
+                  <img
+                    src={draft.hero_image_url}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+                  <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{draft.hero_eyebrow}</p>
+                    <h2 className="mt-5 text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
+                    <p className="mt-6 text-sm leading-7 text-white/75">{draft.hero_text}</p>
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={`relative overflow-hidden ${draft.hero_layout !== "text" && draft.hero_image_url ? "grid lg:grid-cols-[0.9fr_1.1fr]" : ""}`}>
+                  <div className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}>
+                    <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
+                    <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
+                    <h2 className="relative mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
+                    <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
+                    <div className="relative mt-7 flex flex-wrap gap-3">
+                      <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                    </div>
+                  </div>
+                  {draft.hero_layout !== "text" && draft.hero_image_url ? (
+                    <div className={`relative min-h-80 overflow-hidden lg:min-h-full ${previewDevice === "mobile" ? "order-2" : draft.hero_image_placement === "left" ? "order-1" : "order-2"}`}>
+                      <img
+                        src={draft.hero_image_url}
+                        alt=""
+                        className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </CanvasBlock>
             <div className="flex flex-col">
             {sectionOrder.map((section, index) => {
@@ -1879,13 +1927,48 @@ function VisualBuilder({
               </CanvasBlock>
             ))}
             </div>
+            <footer
+              className="px-8 py-8 text-white sm:px-12"
+              style={{ backgroundColor: draft.theme_dark ?? "#191b20" }}
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={draft.brand_name || businessName}
+                      className="max-h-10 max-w-[170px] object-contain object-left"
+                    />
+                  ) : (
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em]">
+                      {draft.brand_name || businessName}
+                    </p>
+                  )}
+                  {draft.footer_note ? (
+                    <p className="mt-3 max-w-md whitespace-pre-line text-[9px] leading-5 text-white/55">
+                      {draft.footer_note}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="text-[9px] leading-5 text-white/65 sm:text-right">
+                  {draft.contact_email ? <p>{draft.contact_email}</p> : null}
+                  {draft.contact_phone ? <p>{draft.contact_phone}</p> : null}
+                  {draft.show_social_icons && draft.social_links?.length ? (
+                    <p>Социальные сети · {draft.social_links.length}</p>
+                  ) : null}
+                </div>
+              </div>
+              <p className="mt-5 border-t border-white/15 pt-4 text-[8px] text-white/35">
+                © {new Date().getFullYear()} {draft.brand_name || businessName} · OneStudio OS
+              </p>
+            </footer>
             </>
             )}
           </div>
         </div>
 
         {settingsOpen ? (
-        <aside className="relative border-t border-black/10 bg-white p-5 lg:border-l lg:border-t-0">
+        <aside className="relative min-w-0 border-l border-black/10 bg-white p-5">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p>
             <button
@@ -2083,10 +2166,69 @@ function VisualBuilder({
                 />
                 <Toggle label={t("Show announcement bar")} checked={draft.show_announcement !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_announcement", value)} />
                 <CompactField label={t("Announcement text")} value={draft.announcement_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("announcement_text", value)} />
+                <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">{t("Header settings")}</div>
+                <Toggle label={t("Sticky header")} checked={draft.header_sticky === true} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("header_sticky", value)} />
+                <CompactSelect
+                  label={t("Logo size")}
+                  value={draft.header_logo_size ?? "medium"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "small", label: t("Small") },
+                    { value: "medium", label: t("Medium") },
+                    { value: "large", label: t("Large") },
+                  ]}
+                  onChange={(value) => onUpdate("header_logo_size", value as "small" | "medium" | "large")}
+                />
+                <CompactSelect
+                  label={t("Logo position")}
+                  value={draft.header_logo_position ?? "left"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "left", label: t("Left") },
+                    { value: "center", label: t("Center") },
+                  ]}
+                  onChange={(value) => onUpdate("header_logo_position", value as "left" | "center")}
+                />
+                <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">{t("Hero settings")}</div>
+                <CompactSelect
+                  label={t("Hero layout")}
+                  value={draft.hero_layout ?? "split"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "split", label: t("Image beside text") },
+                    { value: "cover", label: t("Image as background") },
+                    { value: "text", label: t("Text only") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_layout", value as "split" | "cover" | "text")}
+                />
+                <CompactSelect
+                  label={t("Image fit")}
+                  value={draft.hero_image_fit ?? "cover"}
+                  disabled={!canConfigure || !editingEnabled || draft.hero_layout === "text"}
+                  options={[
+                    { value: "cover", label: t("Fill and crop") },
+                    { value: "contain", label: t("Show whole image") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_image_fit", value as "cover" | "contain")}
+                />
+                <CompactSelect
+                  label={t("Image position")}
+                  value={draft.hero_image_placement === "left" ? "left" : "right"}
+                  disabled={!canConfigure || !editingEnabled || draft.hero_layout !== "split"}
+                  options={[
+                    { value: "right", label: t("Right") },
+                    { value: "left", label: t("Left") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_image_placement", value as "left" | "right")}
+                />
                 <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_eyebrow", value)} />
                 <CompactField label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_title", value)} multiline />
                 <CompactField label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} multiline />
-                <CompactField label={t("Button")} value={draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("booking_label", value)} />
+                <CompactField label={t("Primary button label")} value={draft.hero_primary_label ?? draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_label", value)} />
+                <CompactField label={t("Primary button link")} value={draft.hero_primary_url ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_url", value)} />
+                <Toggle label={t("Show secondary button")} checked={draft.show_hero_secondary !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_hero_secondary", value)} />
+                <CompactField label={t("Secondary button label")} value={draft.hero_secondary_label ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_label", value)} />
+                <CompactField label={t("Secondary button link")} value={draft.hero_secondary_url ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_url", value)} />
                 <ImageEditor
                   label={t("Hero image")}
                   value={draft.hero_image_url ?? ""}
@@ -2300,7 +2442,22 @@ function VisualBuilder({
                   </div>
                 ) : null}
                 {selectedSection === "contact" ? (
-                  <>
+                  <div className="grid gap-3">
+                    <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+                      Контакты сохраняются в черновике этой языковой версии. На публичном сайте они изменятся только после публикации.
+                    </div>
+                    <CompactField
+                      label="Email для посетителей"
+                      value={draft.contact_email ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_email", value)}
+                    />
+                    <CompactField
+                      label="Телефон для посетителей"
+                      value={draft.contact_phone ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_phone", value)}
+                    />
                     <CompactField
                       label={t("Opening hours")}
                       value={draft.contact_hours ?? ""}
@@ -2319,10 +2476,30 @@ function VisualBuilder({
                       disabled={!canConfigure || !editingEnabled}
                       onChange={(value) => onUpdate("map_query", value)}
                     />
+                    <CompactField
+                      label="Подсказка посетителю"
+                      value={draft.contact_note ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      multiline
+                      onChange={(value) => onUpdate("contact_note", value)}
+                    />
+                    <CompactField
+                      label="Текст кнопки маршрута"
+                      value={draft.contact_route_label ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_route_label", value)}
+                    />
+                    <CompactField
+                      label="Короткий текст в подвале"
+                      value={draft.footer_note ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      multiline
+                      onChange={(value) => onUpdate("footer_note", value)}
+                    />
                     <p className="text-[11px] leading-5 text-[#716d65]">
-                      {t("The map preview updates after saving and publishing.")}
+                      Карта использует отдельный поисковый адрес. Социальные сети редактируются в «Настройках сайта» и выводятся здесь и в подвале.
                     </p>
-                  </>
+                  </div>
                 ) : null}
                 <MoveControls
                   disabled={!canConfigure || !editingEnabled}
@@ -6057,12 +6234,25 @@ function CanvasSectionPreview({
   }
 
   if (section === "contact") {
+    const previewEmail = draft.contact_email || "email@example.com";
+    const previewPhone = draft.contact_phone || "+00 000 000 00 00";
     return (
       <div className="mt-7 grid overflow-hidden rounded-2xl border border-black/10 bg-white sm:grid-cols-[0.85fr_1.15fr]">
         <div className="p-5 text-[10px] leading-6 text-black/50">
           <p>◷ {draft.contact_hours || "Ежедневно: 09:00–21:00"}</p>
           <p>⌖ {draft.contact_address || "Адрес студии"}</p>
-          <p>✉ Email · ☎ Телефон</p>
+          <p>✉ {previewEmail}</p>
+          <p>☎ {previewPhone}</p>
+          {draft.contact_note ? (
+            <p className="mt-3 border-t border-black/8 pt-3 leading-5">
+              {draft.contact_note}
+            </p>
+          ) : null}
+          {draft.show_social_icons && draft.social_links?.length ? (
+            <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.14em]">
+              Социальные сети · {draft.social_links.length}
+            </p>
+          ) : null}
         </div>
         <div className="relative min-h-28 bg-[#eee7df]">
           <div className="absolute inset-0 opacity-50 [background-image:linear-gradient(#c9c1b7_1px,transparent_1px),linear-gradient(90deg,#c9c1b7_1px,transparent_1px)] [background-size:22px_22px]" />
@@ -6131,6 +6321,36 @@ function CompactField({ label, value, disabled, multiline, onChange }: { label: 
       ) : (
         <input className={className} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
       )}
+    </label>
+  );
+}
+
+function CompactSelect({
+  label,
+  value,
+  disabled,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  disabled: boolean;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+      {label}
+      <select
+        className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 py-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#9a742e]"
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
     </label>
   );
 }

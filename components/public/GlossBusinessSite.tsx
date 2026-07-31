@@ -5,6 +5,7 @@ import GlossLeadDialog from "@/components/public/GlossLeadDialog";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
+import PublicMobileMenu from "@/components/public/PublicMobileMenu";
 import {
   publicCustomPagePath,
   publicSitePagePath,
@@ -69,11 +70,13 @@ function GlossLogo({
   logoUrl,
   brandName,
   light = false,
+  size = "medium",
 }: {
   href: string;
   logoUrl?: string;
   brandName: string;
   light?: boolean;
+  size?: "small" | "medium" | "large";
 }) {
   return (
     <Link
@@ -89,7 +92,7 @@ function GlossLogo({
         <img
           src={logoUrl}
           alt={brandName}
-          className="max-h-14 max-w-[220px] object-contain object-left"
+          className={`${size === "small" ? "max-h-9 max-w-[150px]" : size === "large" ? "max-h-[68px] max-w-[280px]" : "max-h-14 max-w-[220px]"} object-contain object-left`}
         />
       ) : (
         <>
@@ -130,6 +133,45 @@ function SafetyIcon({ index }: { index: number }) {
   );
 }
 
+function safeActionHref(value: string | undefined, fallback: string) {
+  const href = value?.trim() ?? "";
+  if (!href) return fallback;
+  if (
+    href.startsWith("#") ||
+    href.startsWith("/") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    /^https:\/\//i.test(href)
+  ) {
+    return href;
+  }
+  return fallback;
+}
+
+function heroObjectClass(
+  fit: "cover" | "contain" | undefined,
+  position: "top" | "center" | "bottom" | undefined,
+) {
+  const fitClass = fit === "contain" ? "object-contain" : "object-cover";
+  const positionClass =
+    position === "top"
+      ? "object-top"
+      : position === "bottom"
+        ? "object-bottom"
+        : "object-center";
+  return `${fitClass} ${positionClass}`;
+}
+
+function menuCopy(locale: string) {
+  const language = locale.split("-")[0];
+  return {
+    ru: { menu: "Меню", close: "Закрыть" },
+    uk: { menu: "Меню", close: "Закрити" },
+    pl: { menu: "Menu", close: "Zamknij" },
+    en: { menu: "Menu", close: "Close" },
+  }[language] ?? { menu: "Menu", close: "Close" };
+}
+
 function GalleryTile({
   project,
   index,
@@ -163,7 +205,15 @@ export default function GlossBusinessSite({
 }: {
   site: PublicSiteData;
 }) {
-  const { business, company, content, services, portfolio, capabilities } = site;
+  const {
+    business,
+    company,
+    content,
+    services,
+    portfolio,
+    capabilities,
+    available_locales: availableLocales,
+  } = site;
   const localized =
     business.locale === business.primary_locale ? null : business.locale;
   const homeHref = publicSitePath(business.slug, localized);
@@ -182,10 +232,16 @@ export default function GlossBusinessSite({
   );
   const serviceImages = content.service_image_urls ?? SERVICE_IMAGES;
   const teamImages = content.team_image_urls ?? MASTER_IMAGES;
+  const brandName = content.brand_name || company.display_name || business.name;
   const address =
     content.contact_address || company.address || "ул. Вишнёвая, 11";
+  const email = content.contact_email?.trim() || company.email?.trim() || "";
+  const phone = content.contact_phone?.trim() || company.phone?.trim() || "";
   const hours = content.contact_hours || "Ежедневно: 09:00–21:00";
-  const mapQuery = encodeURIComponent(content.map_query || address);
+  const contactNote = content.contact_note?.trim() || "";
+  const routeLabel = content.contact_route_label?.trim() || "Построить маршрут";
+  const mapSearch = content.map_query || address;
+  const mapQuery = encodeURIComponent(mapSearch);
   const navigationPages = (content.pages ?? []).filter(
     (page) => page.is_visible !== false && page.show_in_navigation,
   );
@@ -194,6 +250,38 @@ export default function GlossBusinessSite({
     page.type === "portfolio"
       ? publicSitePagePath(business.slug, page.slug, localized)
       : publicCustomPagePath(business.slug, page.slug, localized);
+  const headerLogoPosition = content.header_logo_position ?? "left";
+  const headerLogoSize = content.header_logo_size ?? "medium";
+  const menuText = menuCopy(business.locale);
+  const primaryHref = safeActionHref(
+    content.hero_primary_url,
+    capabilities.booking ? bookingHref : `/request/${business.slug}`,
+  );
+  const primaryLabel =
+    content.hero_primary_label?.trim() || content.booking_label || "Записаться";
+  const secondaryHref = safeActionHref(
+    content.hero_secondary_url,
+    "#portfolio",
+  );
+  const secondaryLabel =
+    content.hero_secondary_label?.trim() || "Выбрать дизайн";
+  const heroLayout = content.hero_layout ?? "split";
+  const heroImage = content.hero_image_url || "/templates/gloss/gloss-hero.webp";
+  const navItems = [
+    ...(content.show_services ? [{ href: "#services", label: content.services_label || "Услуги" }] : []),
+    ...navigationPages.map((page) => ({ href: pageHref(page), label: page.nav_label })),
+    ...(content.show_team ? [{ href: "#team", label: content.team_label || "Мастера" }] : []),
+    ...(content.show_about ? [{ href: "#about", label: content.about_label || "О студии" }] : []),
+    ...(content.show_contact ? [{ href: "#contact", label: content.contact_label || "Контакты" }] : []),
+  ];
+  const localeItems = availableLocales.map((locale) => ({
+    label: locale.toUpperCase(),
+    href: publicSitePath(
+      business.slug,
+      locale === business.primary_locale ? null : locale,
+    ),
+    current: locale === business.locale,
+  }));
 
   return (
     <main
@@ -202,6 +290,7 @@ export default function GlossBusinessSite({
       style={{
         "--site-accent": content.theme_accent ?? "#a60918",
         "--site-dark": content.theme_dark ?? "#551214",
+        "--site-surface": content.theme_surface ?? "#fffdfb",
       } as React.CSSProperties}
     >
       {content.show_announcement !== false && content.announcement_text ? (
@@ -210,82 +299,115 @@ export default function GlossBusinessSite({
         </div>
       ) : null}
 
-      <header className="border-b border-[#3b211f]/10 bg-white">
-        <div className="mx-auto flex min-h-[82px] w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between gap-5">
-          <GlossLogo
-            href={homeHref}
-            logoUrl={company.logo_url}
-            brandName={content.brand_name || company.display_name || business.name}
-          />
-          <nav className="hidden items-center gap-8 lg:flex" aria-label="Основная навигация">
-            {content.show_services ? <a href="#services">Услуги</a> : null}
-            {navigationPages.map((page) => (
-              <Link key={page.id} href={pageHref(page)}>
-                {page.nav_label}
+      <header
+        className={`${content.header_sticky === true ? "sticky top-0 z-50 bg-white/95 backdrop-blur-xl" : "relative z-40 bg-white"} border-b border-[#3b211f]/10`}
+      >
+        <div className="relative mx-auto flex min-h-[82px] w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between gap-5">
+          <div className={headerLogoPosition === "center" ? "absolute left-1/2 -translate-x-1/2" : "shrink-0"}>
+            <GlossLogo
+              href={homeHref}
+              logoUrl={company.logo_url}
+              brandName={brandName}
+              size={headerLogoSize}
+            />
+          </div>
+          {headerLogoPosition === "left" ? (
+            <nav className="hidden items-center gap-8 lg:flex" aria-label="Основная навигация">
+              {navItems.map((item) => (
+                item.href.startsWith("#") ? (
+                  <a key={`${item.href}-${item.label}`} href={item.href}>{item.label}</a>
+                ) : (
+                  <Link key={`${item.href}-${item.label}`} href={item.href}>{item.label}</Link>
+                )
+              ))}
+            </nav>
+          ) : (
+            <div className="mr-auto">
+              <PublicMobileMenu
+                items={navItems}
+                locales={localeItems}
+                action={capabilities.booking ? { href: bookingHref, label: content.booking_label } : null}
+                menuLabel={menuText.menu}
+                closeLabel={menuText.close}
+                alwaysVisible
+              />
+            </div>
+          )}
+          <div className="ml-auto flex items-center gap-2">
+            {headerLogoPosition === "left" ? (
+              <PublicMobileMenu
+                items={navItems}
+                locales={localeItems}
+                action={capabilities.booking ? { href: bookingHref, label: content.booking_label } : null}
+                menuLabel={menuText.menu}
+                closeLabel={menuText.close}
+              />
+            ) : null}
+            {capabilities.booking ? (
+              <Link
+                href={bookingHref}
+                className="hidden rounded-md bg-[var(--site-accent)] px-6 py-3 text-xs font-semibold text-white sm:inline-flex"
+              >
+                {content.booking_label}
               </Link>
-            ))}
-            {content.show_team ? <a href="#team">Мастера</a> : null}
-            {content.show_about ? <a href="#about">О студии</a> : null}
-            {content.show_contact ? <a href="#contact">Контакты</a> : null}
-          </nav>
-          {capabilities.booking ? (
-            <Link
-              href={bookingHref}
-              className="rounded-md bg-[var(--site-accent)] px-6 py-3 text-xs font-semibold text-white"
-            >
-              Записаться
-            </Link>
-          ) : null}
+            ) : null}
+          </div>
         </div>
       </header>
 
       {content.show_hero !== false ? (
-      <section className="border-b border-[#3b211f]/8 bg-white">
-        <div className="mx-auto grid w-full max-w-[1240px] lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">
-              {content.hero_eyebrow}
-            </p>
-            <h1 className="mt-5 max-w-xl font-serif text-5xl leading-[1.03] tracking-[-0.035em] sm:text-7xl">
-              {content.hero_title}
-            </h1>
-            <p className="mt-6 max-w-md text-base leading-7 text-[#6a5551]">
-              {content.hero_text}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-4">
-              {capabilities.booking ? (
-                <Link
-                  href={bookingHref}
-                  className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
-                >
-                  {content.booking_label}
-                </Link>
-              ) : null}
-              <a
-                href="#portfolio"
-                className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold"
-              >
-                Выбрать дизайн <span className="ml-8">→</span>
-              </a>
-            </div>
-            <p className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-xs text-[#7f6c68]">
-              <span>✓ Стерильные инструменты</span>
-              <span>· гарантия 7 дней</span>
-              <span>· более 500 оттенков</span>
-            </p>
-          </div>
-          <div className="relative min-h-[420px] overflow-hidden lg:min-h-[600px]">
-            {/* Hero may be replaced with a workspace-owned remote media URL. */}
+        heroLayout === "cover" ? (
+          <section className="relative isolate min-h-[620px] overflow-hidden border-b border-[#3b211f]/8 bg-[var(--site-dark)] text-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={content.hero_image_url || "/templates/gloss/gloss-hero.webp"}
-              alt="Интерьер GLOSS Nail Studio"
+              src={heroImage}
+              alt=""
               fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover"
+              className={`absolute inset-0 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
             />
-          </div>
-        </div>
-      </section>
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(50,23,34,0.86),rgba(50,23,34,0.48),rgba(50,23,34,0.14))]" />
+            <div className="relative mx-auto flex min-h-[620px] w-[calc(100%_-_40px)] max-w-[1240px] items-center py-20">
+              <div className="max-w-2xl">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{content.hero_eyebrow}</p>
+                <h1 className="mt-5 font-serif text-5xl leading-[1.03] tracking-[-0.035em] sm:text-7xl">{content.hero_title}</h1>
+                <p className="mt-6 max-w-xl text-base leading-7 text-white/78">{content.hero_text}</p>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  {content.show_hero_secondary !== false ? (
+                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="border-b border-[#3b211f]/8 bg-white">
+            <div className={`mx-auto grid w-full max-w-[1240px] ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`}>
+              <div className={`flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20 ${content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">{content.hero_eyebrow}</p>
+                <h1 className="mt-5 max-w-xl font-serif text-5xl leading-[1.03] tracking-[-0.035em] sm:text-7xl">{content.hero_title}</h1>
+                <p className="mt-6 max-w-md text-base leading-7 text-[#6a5551]">{content.hero_text}</p>
+                <div className="mt-7 flex flex-wrap gap-4">
+                  <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  {content.show_hero_secondary !== false ? (
+                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
+                  ) : null}
+                </div>
+              </div>
+              {heroLayout !== "text" ? (
+                <div className={`relative min-h-[420px] overflow-hidden lg:min-h-[600px] ${content.hero_image_fit === "contain" ? "bg-[#f8efed]" : ""} ${content.hero_image_placement === "left" ? "lg:order-1" : "lg:order-2"}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={heroImage}
+                    alt=""
+                    fetchPriority="high"
+                    className={`absolute inset-0 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )
       ) : null}
 
       <div className="flex flex-col">
@@ -917,20 +1039,36 @@ export default function GlossBusinessSite({
                 <h2 className="font-serif text-4xl">
                   {content.contact_title || "Ждём вас"}
                 </h2>
-                <div className="mt-6 space-y-3 text-sm text-[#67534f]">
+                <address className="mt-6 space-y-3 text-sm not-italic text-[#67534f]">
                   <p>◷ {hours}</p>
                   <p>⌖ {address}</p>
-                  {company.email ? <p>✉ {company.email}</p> : null}
-                  {company.phone ? <p>☎ {company.phone}</p> : null}
+                  {email ? (
+                    <p>
+                      ✉ <a href={`mailto:${email}`} className="font-semibold underline-offset-4 hover:underline">{email}</a>
+                    </p>
+                  ) : null}
+                  {phone ? (
+                    <p>
+                      ☎ <a href={`tel:${phone.replace(/\s+/g, "")}`} className="font-semibold underline-offset-4 hover:underline">{phone}</a>
+                    </p>
+                  ) : null}
+                </address>
+                {contactNote ? (
+                  <p className="mt-5 whitespace-pre-line text-sm leading-6 text-[#67534f]">
+                    {contactNote}
+                  </p>
+                ) : null}
+                <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center rounded-md bg-[var(--site-accent)] px-6 text-xs font-semibold text-white"
+                  >
+                    {routeLabel}
+                  </a>
+                  <PublicSocialLinks content={content} />
                 </div>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-7 inline-flex min-h-11 items-center rounded-md bg-[var(--site-accent)] px-6 text-xs font-semibold text-white"
-                >
-                  Построить маршрут
-                </a>
               </div>
               <div className="min-h-[320px] overflow-hidden bg-[#eee7df]">
                 <iframe
@@ -948,26 +1086,36 @@ export default function GlossBusinessSite({
 
       <footer className="mt-8 bg-[var(--site-accent)] px-5 py-10 text-white">
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 sm:grid-cols-[0.8fr_1.4fr_0.8fr] sm:items-center">
-          <GlossLogo
-            href={homeHref}
-            logoUrl={company.logo_url}
-            brandName={content.brand_name || company.display_name || business.name}
-            light
-          />
+          <div>
+            <GlossLogo
+              href={homeHref}
+              logoUrl={company.logo_url}
+              brandName={brandName}
+              light
+            />
+            {content.footer_note ? (
+              <p className="mt-4 max-w-xs whitespace-pre-line text-xs leading-5 text-white/70">
+                {content.footer_note}
+              </p>
+            ) : null}
+          </div>
           <nav className="flex flex-wrap justify-start gap-x-7 gap-y-3 text-xs sm:justify-center">
-            <a href="#services">Услуги</a>
-            <a href="#portfolio">Дизайны</a>
-            <a href="#team">Мастера</a>
-            <a href="#about">О студии</a>
-            <a href="#contact">Контакты</a>
+            {content.show_services ? <a href="#services">{content.services_label || "Услуги"}</a> : null}
+            {content.show_portfolio ? <a href="#portfolio">{content.portfolio_label || "Дизайны"}</a> : null}
+            {content.show_team ? <a href="#team">{content.team_label || "Мастера"}</a> : null}
+            {content.show_about ? <a href="#about">{content.about_label || "О студии"}</a> : null}
+            {content.show_contact ? <a href="#contact">{content.contact_label || "Контакты"}</a> : null}
           </nav>
-          <div className="sm:justify-self-end">
+          <div className="grid gap-4 sm:justify-items-end">
             <PublicSocialLinks content={content} light />
+            <div className="grid gap-1 text-xs text-white/75 sm:text-right">
+              {email ? <a href={`mailto:${email}`}>{email}</a> : null}
+              {phone ? <a href={`tel:${phone.replace(/\s+/g, "")}`}>{phone}</a> : null}
+            </div>
           </div>
         </div>
         <p className="mx-auto mt-7 max-w-[1240px] border-t border-white/20 pt-5 text-center text-[10px] text-white/65">
-          © {new Date().getFullYear()} GLOSS · Сайт и система управления созданы
-          на OneStudio OS
+          © {new Date().getFullYear()} {brandName} · Сайт и система управления созданы на OneStudio OS
         </p>
       </footer>
       <PublicSiteAnalytics content={content} />
