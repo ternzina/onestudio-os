@@ -2129,16 +2129,22 @@ function VisualBuilder({
                   </>
                 ) : null}
                 {selectedSection === "faq" ? (
-                  <DelimitedItemsEditor
-                    label={t("Questions and answers")}
-                    value={draft.faq_items ?? ""}
-                    delimiter="|"
-                    fields={[t("Question"), t("Answer")]}
-                    defaults={[t("New question"), t("Add an answer")]}
-                    disabled={!canConfigure || !editingEnabled}
-                    t={t}
-                    onChange={(value) => onUpdate("faq_items", value)}
-                  />
+                  <div className="grid gap-3">
+                    <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+                      Каждый вопрос хранится как отдельная карточка. Карточки можно добавлять,
+                      удалять и переставлять. В предпросмотре нажмите на вопрос, чтобы увидеть ответ.
+                    </div>
+                    <DelimitedItemsEditor
+                      label={t("Questions and answers")}
+                      value={draft.faq_items ?? ""}
+                      delimiter="|"
+                      fields={[t("Question"), t("Answer")]}
+                      defaults={[t("New question"), t("Add an answer")]}
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={(value) => onUpdate("faq_items", value)}
+                    />
+                  </div>
                 ) : null}
                 {selectedSection === "contact" ? (
                   <>
@@ -4841,17 +4847,47 @@ function CanvasSectionPreview({
   }
 
   if (section === "faq") {
+    const faqItems = previewLines(draft.faq_items);
+
     return (
       <div className="mt-7 divide-y divide-black/10 border-y border-black/10">
-        {previewLines(draft.faq_items).slice(0, 3).map((item) => {
-          const [question] = item.split("|");
-          return (
-            <div key={item} className="flex items-center justify-between gap-4 py-3 text-xs font-semibold">
-              <span>{question.trim()}</span>
-              <span style={{ color: draft.theme_accent ?? "#9d3151" }}>+</span>
-            </div>
-          );
-        })}
+        {faqItems.length ? (
+          faqItems.map((item, index) => {
+            const [question, ...answer] = item.split("|");
+            const answerText = answer.join("|").trim();
+
+            return (
+              <details
+                key={`${item}-${index}`}
+                className="group py-3"
+                open={index === 0}
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-xs font-semibold">
+                  <span>{question.trim()}</span>
+                  <span
+                    className="transition group-open:rotate-45"
+                    style={{ color: draft.theme_accent ?? "#9d3151" }}
+                  >
+                    +
+                  </span>
+                </summary>
+                {answerText ? (
+                  <p className="mt-3 pr-8 text-[11px] leading-5 text-black/55">
+                    {answerText}
+                  </p>
+                ) : (
+                  <p className="mt-3 pr-8 text-[11px] italic leading-5 text-black/35">
+                    Добавьте ответ справа
+                  </p>
+                )}
+              </details>
+            );
+          })
+        ) : (
+          <div className="py-6 text-center text-[11px] text-black/40">
+            Добавьте первый вопрос справа
+          </div>
+        )}
       </div>
     );
   }
