@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {
   getResendAdapterStatus,
   isResendConfigurationError,
+  prepareBookingReminders,
   processResendQueue,
 } from "@/lib/server/notifications/resend-adapter";
 
@@ -35,8 +36,14 @@ async function handle(request: Request) {
   }
 
   try {
+    const remindersPrepared = await prepareBookingReminders(30);
     const result = await processResendQueue("cron");
-    return NextResponse.json({ ok: true, adapter: getResendAdapterStatus(), result });
+    return NextResponse.json({
+      ok: true,
+      adapter: getResendAdapterStatus(),
+      remindersPrepared,
+      result,
+    });
   } catch (error) {
     console.error("Notification cron failed", error);
     return NextResponse.json(

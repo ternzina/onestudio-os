@@ -324,6 +324,21 @@ async function sendOne(
   }
 }
 
+export async function prepareBookingReminders(
+  daysAhead = 30,
+): Promise<number> {
+  const boundedDays = Math.min(366, Math.max(1, Math.trunc(daysAhead)));
+  const until = new Date(Date.now() + boundedDays * 86_400_000).toISOString();
+  const supabase = serviceClient();
+
+  const { data, error } = await supabase.rpc("schedule_all_booking_reminders", {
+    p_until: until,
+  });
+  if (error) throw error;
+
+  return Number(data ?? 0);
+}
+
 export async function processResendQueue(
   source: NotificationRunSource,
 ): Promise<ResendQueueResult> {
