@@ -20,16 +20,16 @@ select has_function(
   'guarded public booking creation RPC exists'
 );
 select ok(has_function_privilege('anon', 'public.get_public_booking_context(text)', 'EXECUTE'), 'anonymous visitors may load public booking context');
-select ok(has_function_privilege(
+select ok(not has_function_privilege(
   'anon',
   'public.create_public_booking(text,uuid,timestamp with time zone,integer,integer,text,text,text,text,text,uuid)',
   'EXECUTE'
-), 'anonymous visitors may call guarded public booking creation');
-select ok(has_function_privilege(
+), 'anonymous visitors cannot bypass the public booking gateway');
+select ok(not has_function_privilege(
   'authenticated',
   'public.create_public_booking(text,uuid,timestamp with time zone,integer,integer,text,text,text,text,text,uuid)',
   'EXECUTE'
-), 'signed-in visitors may use the same public booking contract');
+), 'signed-in visitors also use the rate-limited gateway');
 select ok(not has_table_privilege('anon', 'public.bookings', 'INSERT'), 'anonymous visitors cannot insert bookings directly');
 select ok(not has_table_privilege('anon', 'public.clients', 'INSERT'), 'anonymous visitors cannot insert clients directly');
 select ok(not has_table_privilege('anon', 'public.bookings', 'SELECT'), 'anonymous visitors cannot inspect booking rows');
@@ -162,6 +162,11 @@ select ok(
   )) > 0,
   'anonymous visitors receive calculated slots'
 );
+
+reset role;
+select set_config('request.jwt.claim.role', 'service_role', true);
+set local role service_role;
+
 select lives_ok($sql$
   select * from public.create_public_booking(
     'public-alpha',
@@ -176,7 +181,7 @@ select lives_ok($sql$
     'Window seat, please',
     '75000000-0000-4000-8000-000000000001'
   )
-$sql$, 'anonymous visitor can create a guarded public booking');
+$sql$, 'service-role gateway can create a guarded public booking');
 
 reset role;
 
@@ -196,8 +201,8 @@ select is((select count(*) from public.booking_events event join public.bookings
 select is((select metadata->>'public_contact_name' from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000001'), 'Public Client', 'submitted public contact is preserved on the booking');
 
 select set_config('request.jwt.claim.sub', '', true);
-select set_config('request.jwt.claim.role', 'anon', true);
-set local role anon;
+select set_config('request.jwt.claim.role', 'service_role', true);
+set local role service_role;
 
 select lives_ok($sql$
   select * from public.create_public_booking(
@@ -213,8 +218,8 @@ reset role;
 select is((select count(*) from public.bookings where business_id = '71000000-0000-4000-8000-000000000001'), 1::bigint, 'idempotent retry does not duplicate the booking');
 
 select set_config('request.jwt.claim.sub', '', true);
-select set_config('request.jwt.claim.role', 'anon', true);
-set local role anon;
+select set_config('request.jwt.claim.role', 'service_role', true);
+set local role service_role;
 
 select lives_ok($sql$
   select * from public.create_public_booking(
@@ -232,8 +237,8 @@ select is((select name from public.clients where business_id = '71000000-0000-40
 select is((select count(*) from public.bookings where business_id = '71000000-0000-4000-8000-000000000001'), 2::bigint, 'second public booking is stored');
 
 select set_config('request.jwt.claim.sub', '', true);
-select set_config('request.jwt.claim.role', 'anon', true);
-set local role anon;
+select set_config('request.jwt.claim.role', 'service_role', true);
+set local role service_role;
 
 select throws_ok($sql$
   select * from public.create_public_booking(
@@ -338,8 +343,8 @@ select is((select locale from public.bookings where public_request_key = '750000
 select is((select total_minor from public.bookings where public_request_key = '75000000-0000-4000-8000-000000000013'), 7000, 'pending public booking stores its price');
 
 select set_config('request.jwt.claim.sub', '', true);
-select set_config('request.jwt.claim.role', 'anon', true);
-set local role anon;
+select set_config('request.jwt.claim.role', 'service_role', true);
+set local role service_role;
 select lives_ok($sql$
   select * from public.create_public_booking(
     'public-beta', '73000000-0000-4000-8000-000000000005',
@@ -348,6 +353,10 @@ select lives_ok($sql$
     '75000000-0000-4000-8000-000000000001'
   )
 $sql$, 'the same request key is scoped independently per workspace');
+
+reset role;
+select set_config('request.jwt.claim.role', 'anon', true);
+set local role anon;
 select throws_ok($sql$ select * from public.bookings $sql$, '42501', null, 'anonymous visitors still cannot inspect created bookings');
 select throws_ok($sql$ select * from public.booking_events $sql$, '42501', null, 'anonymous visitors cannot inspect public booking history');
 

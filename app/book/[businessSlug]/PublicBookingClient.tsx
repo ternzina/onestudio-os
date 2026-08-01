@@ -25,6 +25,13 @@ type PublicBookingClientProps = {
   } | null;
 };
 
+type PublicBookingConfirmationView = PublicBookingConfirmation & {
+  payment_required?: boolean;
+  payment_status?: string;
+  due_minor?: number;
+  email_queued?: boolean;
+};
+
 const copy = {
   ru: {
     booking: "Онлайн-бронирование",
@@ -51,6 +58,8 @@ const copy = {
     requiredFields: "Заполните имя и корректный email.",
     conflict: "Это время уже заняли. Мы обновили список свободных слотов.",
     genericError: "Не удалось создать бронирование. Попробуйте ещё раз.",
+    rateLimited: "Слишком много попыток. Подождите немного и попробуйте снова.",
+    gatewayUnavailable: "Сервис бронирования временно недоступен. Попробуйте ещё раз позже.",
     confirmedTitle: "Бронирование подтверждено",
     pendingTitle: "Заявка отправлена",
     confirmedText: "Время закреплено за вами.",
@@ -74,6 +83,12 @@ const copy = {
     loadingError: "Не удалось загрузить свободное время.",
     slotsPrompt: "Нажмите «Показать свободное время», чтобы загрузить варианты.",
     privacyNote: "Контактные данные используются только для этого бронирования.",
+    paymentPending: "Оплата ожидается",
+    paymentPendingText: "Бронь создана. Студия пришлёт ссылку или инструкции по оплате.",
+    paymentPaid: "Оплачено",
+    paymentNotRequired: "Оплата не требуется",
+    emailQueued: "Письмо с подтверждением поставлено в очередь.",
+    emailNotQueued: "Сохраните номер брони. Письмо пока не поставлено в очередь.",
   },
   en: {
     booking: "Online booking",
@@ -100,6 +115,8 @@ const copy = {
     requiredFields: "Enter your name and a valid email.",
     conflict: "That time was just booked. We refreshed the available slots.",
     genericError: "The booking could not be created. Please try again.",
+    rateLimited: "Too many attempts. Wait a little and try again.",
+    gatewayUnavailable: "Booking is temporarily unavailable. Please try again later.",
     confirmedTitle: "Booking confirmed",
     pendingTitle: "Request sent",
     confirmedText: "The time is reserved for you.",
@@ -123,6 +140,12 @@ const copy = {
     loadingError: "Available times could not be loaded.",
     slotsPrompt: "Select “Show available times” to load the options.",
     privacyNote: "Contact details are used only for this booking.",
+    paymentPending: "Payment pending",
+    paymentPendingText: "The booking was created. The business will send a payment link or instructions.",
+    paymentPaid: "Paid",
+    paymentNotRequired: "No payment required",
+    emailQueued: "The confirmation email has been queued.",
+    emailNotQueued: "Save the booking reference. The email has not been queued yet.",
   },
 } as const;
 
@@ -173,6 +196,8 @@ function bookingErrorMessage(message: string, locale: PublicLocale) {
   if (message.includes("invalid_public_booking_client_email") || message.includes("invalid_public_booking_client_name")) {
     return copy[locale].requiredFields;
   }
+  if (message.includes("booking_rate_limited")) return copy[locale].rateLimited;
+  if (message.includes("booking_gateway_unavailable")) return copy[locale].gatewayUnavailable;
   return copy[locale].genericError;
 }
 
@@ -234,12 +259,14 @@ export default function PublicBookingClient({
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
+  const slotLoadLock = useRef(false);
+  const requestKeyRef = useRef<string | null>(null);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [confirmation, setConfirmation] = useState<PublicBookingConfirmation | null>(null);
+  const [confirmation, setConfirmation] = useState<PublicBookingConfirmationView | null>(null);
   const [calendarPage, setCalendarPage] = useState(0);
   const t = copy[locale];
   const allDates = useMemo(
@@ -261,6 +288,7 @@ export default function PublicBookingClient({
     setSlots([]);
     setSlotsRequested(false);
     setSelectedSlot(null);
+    requestKeyRef.current = null;
   };
 
   useEffect(() => {
@@ -285,6 +313,7 @@ export default function PublicBookingClient({
     setSlots([]);
     setSlotsRequested(false);
     setSelectedSlot(null);
+    requestKeyRef.current = null;
     setError("");
   }, [service]);
 
@@ -309,12 +338,16 @@ export default function PublicBookingClient({
     }
   }
 
-  async function loadSlots() {
-    if (!service || !date) return;
+  async function loadSlots(preserveSelection = false) {
+    if (!service || !date || slotLoadLock.current) return;
+    slotLoadLock.current = true;
     setLoadingSlots(true);
     setSlotsRequested(true);
     setError("");
-    setSelectedSlot(null);
+    if (!preserveSelection) {
+      setSelectedSlot(null);
+      requestKeyRef.current = null;
+    }
 
     await refreshGoogleCalendar();
     const supabase = getSupabaseBrowserClient();
@@ -327,14 +360,40 @@ export default function PublicBookingClient({
     });
 
     setLoadingSlots(false);
+    slotLoadLock.current = false;
     if (slotError) {
       setSlots([]);
       setError(t.loadingError);
       return;
     }
 
-    setSlots((data ?? []) as AvailableSlotRecord[]);
+    const nextSlots = (data ?? []) as AvailableSlotRecord[];
+    setSlots(nextSlots);
+    if (preserveSelection) {
+      setSelectedSlot((current) =>
+        current && nextSlots.some((slot) => slot.starts_at === current.starts_at)
+          ? current
+          : null,
+      );
+    }
   }
+
+  useEffect(() => {
+    if (!slotsRequested || confirmation) return;
+
+    const refreshVisibleSlots = () => {
+      if (document.visibilityState === "visible") {
+        void loadSlots(true);
+      }
+    };
+
+    window.addEventListener("focus", refreshVisibleSlots);
+    document.addEventListener("visibilitychange", refreshVisibleSlots);
+    return () => {
+      window.removeEventListener("focus", refreshVisibleSlots);
+      document.removeEventListener("visibilitychange", refreshVisibleSlots);
+    };
+  }, [confirmation, date, duration, partySize, serviceId, slotsRequested]);
 
   async function submitBooking() {
     if (!service || !selectedSlot) {
@@ -350,38 +409,49 @@ export default function PublicBookingClient({
     submitLock.current = true;
     setSubmitting(true);
     setError("");
-    const requestKey = crypto.randomUUID();
-    const supabase = getSupabaseBrowserClient();
-    const { data, error: bookingError } = await supabase.rpc("create_public_booking", {
-      p_business_slug: initialContext.business.slug,
-      p_service_id: service.id,
-      p_starts_at: selectedSlot.starts_at,
-      p_duration_minutes: duration,
-      p_party_size: partySize,
-      p_client_name: name.trim(),
-      p_client_email: email.trim(),
-      p_client_phone: phone.trim() || null,
-      p_locale: locale,
-      p_customer_notes: notes.trim(),
-      p_request_key: requestKey,
-    });
+    const requestKey = requestKeyRef.current ?? crypto.randomUUID();
+    requestKeyRef.current = requestKey;
+
+    let response: Response;
+    let payload: { ok?: boolean; error?: string; confirmation?: PublicBookingConfirmationView };
+    try {
+      response = await fetch("/api/public/bookings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          businessSlug: initialContext.business.slug,
+          serviceId: service.id,
+          startsAt: selectedSlot.starts_at,
+          durationMinutes: duration,
+          partySize,
+          clientName: name.trim(),
+          clientEmail: email.trim(),
+          clientPhone: phone.trim(),
+          locale,
+          customerNotes: notes.trim(),
+          requestKey,
+        }),
+      });
+      payload = (await response.json()) as typeof payload;
+    } catch {
+      setSubmitting(false);
+      submitLock.current = false;
+      setError(t.gatewayUnavailable);
+      return;
+    }
 
     setSubmitting(false);
     submitLock.current = false;
 
-    if (bookingError) {
-      setError(bookingErrorMessage(bookingError.message, locale));
-      if (bookingError.message.includes("booking_slot")) await loadSlots();
+    if (!response.ok || !payload.confirmation) {
+      const code = payload.error || "public_booking_failed";
+      setError(bookingErrorMessage(code, locale));
+      if (code.includes("booking_slot")) await loadSlots();
       return;
     }
 
-    const result = Array.isArray(data) ? data[0] : data;
-    if (!result) {
-      setError(t.genericError);
-      return;
-    }
-
-    const confirmationResult = result as PublicBookingConfirmation;
+    const confirmationResult = payload.confirmation;
+    requestKeyRef.current = null;
     setConfirmation(confirmationResult);
     await refreshGoogleCalendar(confirmationResult.booking_id);
   }
@@ -395,11 +465,22 @@ export default function PublicBookingClient({
     setEmail("");
     setPhone("");
     setNotes("");
+    requestKeyRef.current = null;
     setError("");
   }
 
   if (confirmation) {
     const confirmed = confirmation.status === "confirmed";
+    const paymentPending = Boolean(
+      confirmation.payment_required &&
+      (confirmation.due_minor ?? confirmation.total_minor) > 0 &&
+      confirmation.payment_status !== "paid",
+    );
+    const paymentLabel = paymentPending
+      ? t.paymentPending
+      : confirmation.payment_required
+        ? t.paymentPaid
+        : t.paymentNotRequired;
     return (
       <main
         className="min-h-screen px-5 py-8 text-[#191b20] sm:px-8 sm:py-14"
@@ -422,6 +503,22 @@ export default function PublicBookingClient({
             <div><p className="text-xs uppercase tracking-[0.18em] text-[#9a742e]">{t.when}</p><p className="mt-2 text-lg font-semibold">{formatConfirmationDate(confirmation, locale)}</p></div>
             <div><p className="text-xs uppercase tracking-[0.18em] text-[#9a742e]">{t.service}</p><p className="mt-2 text-lg font-semibold">{service?.title}</p></div>
             <div><p className="text-xs uppercase tracking-[0.18em] text-[#9a742e]">{t.total}</p><p className="mt-2 text-lg font-semibold">{service ? formatMoney(service, duration, partySize, locale) : ""}</p></div>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[24px] border border-black/8 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">
+                {paymentLabel}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#716d65]">
+                {paymentPending ? t.paymentPendingText : paymentLabel}
+              </p>
+            </div>
+            <div className="rounded-[24px] border border-black/8 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">Email</p>
+              <p className="mt-2 text-sm leading-6 text-[#716d65]">
+                {confirmation.email_queued ? t.emailQueued : t.emailNotQueued}
+              </p>
+            </div>
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={resetBooking} className="rounded-full bg-[#17191f] px-6 py-3.5 text-sm font-semibold text-white">{t.newBooking}</button>
@@ -542,15 +639,15 @@ export default function PublicBookingClient({
                       <input type="date" min={initialContext.date_bounds.minimum_date} max={initialContext.date_bounds.maximum_date} value={date} onChange={(event) => { selectDate(event.target.value); const index = allDates.indexOf(event.target.value); if (index >= 0) setCalendarPage(Math.floor(index / 14)); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]" />
                     </label>
                     <label className="grid gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#77736b]">{t.duration}
-                      <select value={duration} onChange={(event) => { setDuration(Number(event.target.value)); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]">
+                      <select value={duration} onChange={(event) => { setDuration(Number(event.target.value)); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); requestKeyRef.current = null; }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]">
                         {durationOptions(service).map((value) => <option key={value} value={value}>{value} {t.minutes}</option>)}
                       </select>
                     </label>
                     <label className="grid gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#77736b]">{t.partySize}
-                      <input type="number" min={1} max={service.capacity} value={partySize} onChange={(event) => { setPartySize(Math.max(1, Math.min(service.capacity, Number(event.target.value) || 1))); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]" />
+                      <input type="number" min={1} max={service.capacity} value={partySize} onChange={(event) => { setPartySize(Math.max(1, Math.min(service.capacity, Number(event.target.value) || 1))); setSlots([]); setSlotsRequested(false); setSelectedSlot(null); requestKeyRef.current = null; }} className="rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-base font-medium normal-case tracking-normal text-[#191b20] outline-none focus:border-[#9a742e]" />
                     </label>
                     <div className="flex items-end">
-                      <button type="button" onClick={loadSlots} disabled={loadingSlots} className="w-full rounded-2xl bg-[#17191f] px-5 py-3.5 text-sm font-semibold text-white disabled:opacity-55">{loadingSlots ? t.checking : t.checkSlots}</button>
+                      <button type="button" onClick={() => void loadSlots()} disabled={loadingSlots} className="w-full rounded-2xl bg-[#17191f] px-5 py-3.5 text-sm font-semibold text-white disabled:opacity-55">{loadingSlots ? t.checking : t.checkSlots}</button>
                     </div>
                   </div>
                   <div className="mt-5 rounded-[24px] bg-[#f4f1ea] p-5">
@@ -562,7 +659,7 @@ export default function PublicBookingClient({
                       <div className="mt-4 flex flex-wrap gap-2">
                         {slots.map((slot) => {
                           const active = selectedSlot?.starts_at === slot.starts_at;
-                          return <button key={slot.starts_at} type="button" onClick={() => { setSelectedSlot(slot); setError(""); }} className={`rounded-full px-4 py-2.5 text-sm font-semibold ${active ? "bg-[#17191f] text-white" : "bg-white text-[#191b20] shadow-sm"}`}>{slot.local_start_time.slice(0, 5)}–{slot.local_end_time.slice(0, 5)}</button>;
+                          return <button key={slot.starts_at} type="button" onClick={() => { setSelectedSlot(slot); requestKeyRef.current = crypto.randomUUID(); setError(""); }} className={`rounded-full px-4 py-2.5 text-sm font-semibold ${active ? "bg-[#17191f] text-white" : "bg-white text-[#191b20] shadow-sm"}`}>{slot.local_start_time.slice(0, 5)}–{slot.local_end_time.slice(0, 5)}</button>;
                         })}
                       </div>
                     ) : (
