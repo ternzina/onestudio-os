@@ -6,6 +6,7 @@ import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicMobileMenu from "@/components/public/PublicMobileMenu";
+import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import {
   publicCustomPagePath,
   publicSitePagePath,
@@ -19,7 +20,6 @@ import {
 } from "@/lib/public-site/layout";
 import type {
   PublicSiteData,
-  PublicSiteProject,
   PublicSiteService,
 } from "@/lib/public-site/types";
 
@@ -187,34 +187,6 @@ function menuCopy(locale: string) {
   }[language] ?? { menu: "Menu", close: "Close" };
 }
 
-function GalleryTile({
-  project,
-  index,
-}: {
-  project: PublicSiteProject;
-  index: number;
-}) {
-  return (
-    <article className="group relative aspect-[4/5] overflow-hidden rounded-lg bg-[#eadedb]">
-      {project.image_url ? (
-        // Portfolio URLs may be local template files or workspace-owned media.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={project.image_url}
-          alt={project.image_alt}
-          width={project.width || 900}
-          height={project.height || 1125}
-          loading={index < 5 ? "eager" : "lazy"}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
-        />
-      ) : null}
-      <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/10 text-sm text-white backdrop-blur-sm">
-        ♡
-      </span>
-    </article>
-  );
-}
-
 export default function GlossBusinessSite({
   site,
 }: {
@@ -241,7 +213,6 @@ export default function GlossBusinessSite({
   const team = lines(content.team_items);
   const reviews = publicSiteReviews(content);
   const safety = lines(content.safety_items);
-  const filters = lines(content.work_filters);
   const customBlocks = (content.custom_blocks ?? []).filter(
     (block) => block.is_visible !== false,
   );
@@ -489,30 +460,21 @@ export default function GlossBusinessSite({
                 <h2 className="font-serif text-4xl sm:text-5xl">
                   {content.portfolio_title}
                 </h2>
-                {filters.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {filters.map((filter, index) => (
-                      <span
-                        key={filter}
-                        className={`rounded-full px-4 py-2 text-[10px] font-semibold ${
-                          index === 0
-                            ? "bg-[var(--site-accent)] text-white"
-                            : "border border-[#3b211f]/10 bg-white"
-                        }`}
-                      >
-                        {filter}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-                <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                  {portfolio.slice(0, 10).map((project, index) => (
-                    <GalleryTile
-                      key={project.id}
-                      project={project}
-                      index={index}
-                    />
-                  ))}
+                <div className="mt-5">
+                  <PublicPortfolioGallery
+                    projects={portfolio}
+                    locale={business.locale}
+                    layout={content.portfolio_layout ?? "masonry"}
+                    columns={content.portfolio_columns ?? 3}
+                    aspect={content.portfolio_card_aspect ?? "portrait"}
+                    showFilters={content.portfolio_show_filters !== false}
+                    showCategory={content.portfolio_show_category !== false}
+                    showTitle={content.portfolio_show_title !== false}
+                    showDescription={content.portfolio_show_description === true}
+                    lightbox={content.portfolio_lightbox !== false}
+                    limit={content.portfolio_home_limit ?? 9}
+                    variant="gloss"
+                  />
                 </div>
               </div>
 

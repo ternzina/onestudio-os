@@ -28,6 +28,15 @@ export type PublicSiteContent = {
   services_show_price?: boolean;
   services_show_duration?: boolean;
   services_button_label?: string;
+  portfolio_layout?: "grid" | "masonry";
+  portfolio_columns?: 2 | 3 | 4;
+  portfolio_card_aspect?: "auto" | "square" | "landscape" | "portrait";
+  portfolio_show_filters?: boolean;
+  portfolio_lightbox?: boolean;
+  portfolio_show_category?: boolean;
+  portfolio_show_title?: boolean;
+  portfolio_show_description?: boolean;
+  portfolio_home_limit?: number;
   team_image_urls?: string[];
   membership_image_url?: string;
   membership_image_urls?: string[];
@@ -235,6 +244,14 @@ export type PublicSiteService = {
   requires_confirmation: boolean;
 };
 
+export type PublicSiteProjectImage = {
+  id: string;
+  image_url: string;
+  image_alt: string;
+  width: number | null;
+  height: number | null;
+};
+
 export type PublicSiteProject = {
   id: string;
   slug: string;
@@ -245,6 +262,7 @@ export type PublicSiteProject = {
   image_alt: string;
   width: number | null;
   height: number | null;
+  images?: PublicSiteProjectImage[];
 };
 
 export type PublicSiteData = {
@@ -305,4 +323,5 @@ export type PublicSiteEditorData = {
   };
   locales: PublicSiteEditorLocale[];
   services?: PublicSiteService[];
+  portfolio?: PublicSiteProject[];
 };

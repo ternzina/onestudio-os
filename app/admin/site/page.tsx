@@ -16,6 +16,7 @@ import type {
   PublicSiteReview,
   PublicSiteSection,
   PublicSiteService,
+  PublicSiteProject,
   PublicSiteSocialLink,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
@@ -30,7 +31,6 @@ import {
   applySiteTemplate,
   GLOSS_PORTFOLIO_PAGE,
   SITE_TEMPLATES,
-  type SiteTemplateProject,
   type SiteTemplate,
 } from "@/lib/public-site/templates";
 import { supabase } from "@/lib/supabase";
@@ -918,6 +918,7 @@ export default function AdminSitePage() {
           logoUrl={logoUrl}
           savedLogoUrl={savedLogoUrl}
           services={editor.services ?? []}
+          portfolio={editor.portfolio ?? []}
           locales={editor.locales.map((item) => item.locale)}
           primaryLocale={editor.site.primary_locale}
           selectedLocale={selectedLocale}
@@ -1129,6 +1130,7 @@ function VisualBuilder({
   logoUrl,
   savedLogoUrl,
   services,
+  portfolio,
   locales,
   primaryLocale,
   selectedLocale,
@@ -1157,6 +1159,7 @@ function VisualBuilder({
   logoUrl: string;
   savedLogoUrl: string;
   services: PublicSiteService[];
+  portfolio: PublicSiteProject[];
   locales: string[];
   primaryLocale: string;
   selectedLocale: string;
@@ -1248,6 +1251,19 @@ function VisualBuilder({
         duration_max_minutes: service.durationMinutes,
         capacity: 1,
         requires_confirmation: false,
+      }));
+  const previewPortfolio: PublicSiteProject[] = portfolio.length
+    ? portfolio
+    : (activeTemplate?.portfolio ?? []).map((project, index) => ({
+        id: `template-project-${index}`,
+        slug: project.slug,
+        title: project.title,
+        description: project.description,
+        category: draft.portfolio_label || "Portfolio",
+        image_url: project.imageUrl,
+        image_alt: project.imageAlt,
+        width: null,
+        height: null,
       }));
 
   useEffect(() => {
@@ -1816,7 +1832,7 @@ function VisualBuilder({
               <PortfolioPagePreview
                 page={activePage}
                 draft={draft}
-                portfolio={activeTemplate?.portfolio ?? []}
+                portfolio={previewPortfolio}
                 bookingHref={`/book/${businessSlug}`}
                 editingEnabled={editingEnabled}
                 selectedPart={selectedPagePart === "blocks" ? "intro" : selectedPagePart}
@@ -1939,7 +1955,7 @@ function VisualBuilder({
                       section={section}
                       draft={draft}
                       services={previewServices}
-                      portfolio={activeTemplate?.portfolio ?? []}
+                      portfolio={previewPortfolio}
                     />
                   </div>
                 </CanvasBlock>
@@ -2350,9 +2366,13 @@ function VisualBuilder({
                   />
                 ) : null}
                 {selectedSection === "portfolio" ? (
-                  <Link href="/admin/portfolio" className="rounded-xl bg-[#321722] px-4 py-3 text-center text-xs font-semibold text-white">
-                    {t("Edit portfolio images")}
-                  </Link>
+                  <PortfolioSectionEditor
+                    projects={previewPortfolio}
+                    draft={draft}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onUpdate={onUpdate}
+                  />
                 ) : null}
                 {selectedSection === "team" ? (
                   <TeamEditor
@@ -2680,8 +2700,8 @@ function VisualBuilder({
                   <p className="mt-3 text-xs leading-6 text-white/55">{t("A separate gallery page with many works and a booking button.")}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  {(activeTemplate?.portfolio ?? []).slice(0, 4).map((project) => (
-                    <img key={project.slug} src={project.imageUrl} alt="" className="h-20 w-full rounded-xl object-cover" />
+                  {previewPortfolio.slice(0, 4).map((project) => (
+                    <img key={project.slug} src={project.image_url ?? ""} alt="" className="h-20 w-full rounded-xl object-cover" />
                   ))}
                 </div>
               </div>
@@ -3352,7 +3372,7 @@ function PortfolioPagePreview({
 }: {
   page: PublicSitePage;
   draft: PublicSiteContent;
-  portfolio: SiteTemplateProject[];
+  portfolio: PublicSiteProject[];
   bookingHref: string;
   editingEnabled: boolean;
   selectedPart: "intro" | "gallery" | "booking";
@@ -3417,22 +3437,78 @@ function PortfolioPagePreview({
             Редактировать
           </span>
         ) : null}
-        <div className="columns-2 gap-3 sm:columns-3">
+        <div
+          className={
+            draft.portfolio_layout === "grid"
+              ? `grid gap-3 ${
+                  draft.portfolio_columns === 2
+                    ? "sm:grid-cols-2"
+                    : draft.portfolio_columns === 4
+                      ? "sm:grid-cols-2 lg:grid-cols-4"
+                      : "sm:grid-cols-3"
+                }`
+              : `columns-2 gap-3 ${
+                  draft.portfolio_columns === 4
+                    ? "lg:columns-4"
+                    : draft.portfolio_columns === 2
+                      ? "lg:columns-2"
+                      : "lg:columns-3"
+                }`
+          }
+        >
           {portfolio.map((project, index) => (
             <article
               key={project.slug}
-              className="mb-3 break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-sm"
+              className={`overflow-hidden rounded-2xl bg-white shadow-sm ${
+                draft.portfolio_layout === "grid"
+                  ? ""
+                  : "mb-3 break-inside-avoid"
+              }`}
             >
-              <div className={index % 4 === 0 ? "aspect-[4/5]" : "aspect-[4/3]"}>
-                <img
-                  src={project.imageUrl}
-                  alt={project.imageAlt}
-                  className="h-full w-full object-cover"
-                />
+              <div
+                className={
+                  draft.portfolio_card_aspect === "square"
+                    ? "aspect-square"
+                    : draft.portfolio_card_aspect === "landscape"
+                      ? "aspect-[4/3]"
+                      : draft.portfolio_card_aspect === "portrait"
+                        ? "aspect-[4/5]"
+                        : index % 4 === 0
+                          ? "aspect-[4/5]"
+                          : "aspect-[4/3]"
+                }
+              >
+                {project.image_url ? (
+                  <img
+                    src={project.image_url}
+                    alt={project.image_alt}
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
               </div>
-              <p className="px-3 py-3 text-[10px] font-semibold">
-                {project.title}
-              </p>
+              {draft.portfolio_show_category !== false ||
+              draft.portfolio_show_title !== false ||
+              (draft.portfolio_show_description === true &&
+                project.description) ? (
+                <div className="px-3 py-3">
+                  {draft.portfolio_show_category !== false ? (
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--site-accent)]">
+                      {project.category}
+                    </p>
+                  ) : null}
+                  {draft.portfolio_show_title !== false ? (
+                    <p className="mt-1 text-[10px] font-semibold">
+                      {project.title}
+                    </p>
+                  ) : null}
+                  {draft.portfolio_show_description === true &&
+                  project.description ? (
+                    <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-black/45">
+                      {project.description}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </article>
           ))}
         </div>
@@ -4364,6 +4440,180 @@ function ServicesSectionEditor({
           <p className="rounded-2xl border border-dashed border-black/15 px-4 py-5 text-xs leading-6 text-[#716d65]">В каталоге пока нет активных публичных услуг. Создайте услугу, и её карточка появится здесь автоматически.</p>
         )}
       </div>
+    </div>
+  );
+}
+
+
+function PortfolioSectionEditor({
+  projects,
+  draft,
+  disabled,
+  t,
+  onUpdate,
+}: {
+  projects: PublicSiteProject[];
+  draft: PublicSiteContent;
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onUpdate: <Key extends keyof PublicSiteContent>(
+    key: Key,
+    value: PublicSiteContent[Key],
+  ) => void;
+}) {
+  const categoryCount = new Set(
+    projects.map((project) => project.category).filter(Boolean),
+  ).size;
+
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-4">
+        <p className="text-xs font-semibold text-[#725924]">
+          {t("Portfolio data comes from the shared Portfolio module.")}
+        </p>
+        <p className="mt-2 text-xs leading-5 text-[#716d65]">
+          {t("Categories and media are edited in Media; projects, order and visibility are edited in Portfolio. Here you configure only the public presentation.")}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/portfolio"
+            className="inline-flex rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white"
+          >
+            {t("Open portfolio module")}
+          </Link>
+          <Link
+            href="/admin/media"
+            className="inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-[#321722]"
+          >
+            {t("Open media library")}
+          </Link>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+            {projects.length} {t("projects")} · {categoryCount} {t("categories")}
+          </span>
+        </div>
+      </div>
+
+      <CompactSelect
+        label={t("Portfolio layout")}
+        value={draft.portfolio_layout ?? "masonry"}
+        disabled={disabled}
+        options={[
+          { value: "grid", label: t("Grid") },
+          { value: "masonry", label: t("Masonry") },
+        ]}
+        onChange={(value) =>
+          onUpdate("portfolio_layout", value === "grid" ? "grid" : "masonry")
+        }
+      />
+      <CompactSelect
+        label={t("Portfolio columns")}
+        value={String(draft.portfolio_columns ?? 3)}
+        disabled={disabled}
+        options={[
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+          { value: "4", label: "4" },
+        ]}
+        onChange={(value) =>
+          onUpdate(
+            "portfolio_columns",
+            value === "2" ? 2 : value === "4" ? 4 : 3,
+          )
+        }
+      />
+      <CompactSelect
+        label={t("Card proportions")}
+        value={draft.portfolio_card_aspect ?? "auto"}
+        disabled={disabled}
+        options={[
+          { value: "auto", label: t("Automatic") },
+          { value: "square", label: t("Square") },
+          { value: "landscape", label: t("Landscape") },
+          { value: "portrait", label: t("Portrait") },
+        ]}
+        onChange={(value) =>
+          onUpdate(
+            "portfolio_card_aspect",
+            value === "square" ||
+              value === "landscape" ||
+              value === "portrait"
+              ? value
+              : "auto",
+          )
+        }
+      />
+      <CompactSelect
+        label={t("Projects on home page")}
+        value={String(draft.portfolio_home_limit ?? 9)}
+        disabled={disabled}
+        options={[
+          { value: "6", label: "6" },
+          { value: "9", label: "9" },
+          { value: "12", label: "12" },
+          { value: "0", label: t("All projects") },
+        ]}
+        onChange={(value) =>
+          onUpdate(
+            "portfolio_home_limit",
+            value === "0" ? 0 : value === "6" ? 6 : value === "12" ? 12 : 9,
+          )
+        }
+      />
+
+      <Toggle
+        label={t("Show category filters")}
+        checked={draft.portfolio_show_filters !== false}
+        disabled={disabled}
+        onChange={(value) => onUpdate("portfolio_show_filters", value)}
+      />
+      <Toggle
+        label={t("Open images in gallery")}
+        checked={draft.portfolio_lightbox !== false}
+        disabled={disabled}
+        onChange={(value) => onUpdate("portfolio_lightbox", value)}
+      />
+      <Toggle
+        label={t("Show project category")}
+        checked={draft.portfolio_show_category !== false}
+        disabled={disabled}
+        onChange={(value) => onUpdate("portfolio_show_category", value)}
+      />
+      <Toggle
+        label={t("Show project title")}
+        checked={draft.portfolio_show_title !== false}
+        disabled={disabled}
+        onChange={(value) => onUpdate("portfolio_show_title", value)}
+      />
+      <Toggle
+        label={t("Show project description")}
+        checked={draft.portfolio_show_description === true}
+        disabled={disabled}
+        onChange={(value) => onUpdate("portfolio_show_description", value)}
+      />
+
+      {projects.length ? (
+        <div className="grid grid-cols-3 gap-2">
+          {projects.slice(0, 6).map((project) => (
+            <div
+              key={project.id}
+              className="aspect-square overflow-hidden rounded-xl bg-[#eadedb]"
+              title={project.title}
+            >
+              {project.image_url ? (
+                <img
+                  src={project.image_url}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-black/15 px-4 py-5 text-xs leading-6 text-[#716d65]">
+          {t("No active portfolio projects yet.")}
+        </p>
+      )}
     </div>
   );
 }
@@ -5951,7 +6201,7 @@ function CanvasSectionPreview({
   section: PublicSiteSection;
   draft: PublicSiteContent;
   services: PublicSiteService[];
-  portfolio: SiteTemplateProject[];
+  portfolio: PublicSiteProject[];
 }) {
   if (section === "services" && services.length) {
     const columns = draft.services_columns ?? 3;
@@ -5990,29 +6240,98 @@ function CanvasSectionPreview({
   }
 
   if (section === "portfolio" && portfolio.length) {
+    const previewLimit = draft.portfolio_home_limit ?? 9;
+    const previewProjects =
+      previewLimit > 0 ? portfolio.slice(0, previewLimit) : portfolio;
+    const previewColumns =
+      draft.portfolio_columns === 2
+        ? "sm:grid-cols-2"
+        : draft.portfolio_columns === 4
+          ? "sm:grid-cols-2 lg:grid-cols-4"
+          : "sm:grid-cols-3";
+
     return (
-      <div className="mt-7 grid gap-3 lg:grid-cols-[1.45fr_0.7fr]">
-        <div className="grid grid-cols-5 gap-1.5">
-          {portfolio.slice(0, 10).map((project) => (
-            <div key={project.slug} className="aspect-[4/5] overflow-hidden rounded-lg bg-[#eadde0]">
-              <img src={project.imageUrl} alt={project.imageAlt} className="h-full w-full object-cover" />
-            </div>
-          ))}
-        </div>
-        <div className="rounded-xl border border-black/8 bg-white p-3">
-          <p className="font-serif text-lg text-[#321722]">
-            {draft.popular_title || "Чаще выбирают"}
-          </p>
-          <div className="mt-2 grid gap-2">
-            {services.slice(0, 3).map((service, index) => (
-              <div key={service.slug} className="grid grid-cols-[42px_1fr] overflow-hidden rounded-lg border border-black/8">
-                <img src={portfolio[index]?.imageUrl} alt="" className="h-11 w-11 object-cover" />
-                <span className="self-center px-2 text-[9px] font-semibold text-[#321722]">
-                  {service.title}
+      <div className="mt-7">
+        {draft.portfolio_show_filters !== false ? (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {Array.from(
+              new Set(previewProjects.map((project) => project.category)),
+            )
+              .slice(0, 5)
+              .map((category, index) => (
+                <span
+                  key={category}
+                  className={`rounded-full px-3 py-1.5 text-[8px] font-semibold ${
+                    index === 0
+                      ? "bg-[var(--site-accent)] text-white"
+                      : "border border-black/10 bg-white text-black/55"
+                  }`}
+                >
+                  {category}
                 </span>
-              </div>
-            ))}
+              ))}
           </div>
+        ) : null}
+        <div
+          className={
+            draft.portfolio_layout === "masonry"
+              ? `columns-2 gap-2 ${
+                  draft.portfolio_columns === 4
+                    ? "lg:columns-4"
+                    : draft.portfolio_columns === 2
+                      ? "lg:columns-2"
+                      : "lg:columns-3"
+                }`
+              : `grid grid-cols-2 gap-2 ${previewColumns}`
+          }
+        >
+          {previewProjects.map((project, index) => (
+            <article
+              key={project.id}
+              className={`overflow-hidden rounded-xl border border-black/8 bg-white ${
+                draft.portfolio_layout === "masonry"
+                  ? "mb-2 break-inside-avoid"
+                  : ""
+              }`}
+            >
+              <div
+                className={
+                  draft.portfolio_card_aspect === "square"
+                    ? "aspect-square"
+                    : draft.portfolio_card_aspect === "landscape"
+                      ? "aspect-[4/3]"
+                      : draft.portfolio_card_aspect === "portrait"
+                        ? "aspect-[4/5]"
+                        : index % 4 === 0
+                          ? "aspect-[4/5]"
+                          : "aspect-[4/3]"
+                }
+              >
+                {project.image_url ? (
+                  <img
+                    src={project.image_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
+              {draft.portfolio_show_category !== false ||
+              draft.portfolio_show_title !== false ? (
+                <div className="p-2.5 text-[#321722]">
+                  {draft.portfolio_show_category !== false ? (
+                    <p className="text-[7px] font-semibold uppercase tracking-[0.12em] text-[#9a3152]">
+                      {project.category}
+                    </p>
+                  ) : null}
+                  {draft.portfolio_show_title !== false ? (
+                    <p className="mt-1 text-[9px] font-semibold">
+                      {project.title}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </article>
+          ))}
         </div>
       </div>
     );

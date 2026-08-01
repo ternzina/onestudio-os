@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type {
   PublicSiteData,
-  PublicSiteProject,
   PublicSiteSection,
   PublicSiteService,
 } from "@/lib/public-site/types";
@@ -16,6 +15,7 @@ import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicMobileMenu from "@/components/public/PublicMobileMenu";
+import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import {
   customBlockLayoutId,
@@ -145,44 +145,6 @@ function menuLabels(locale: string) {
     pl: { menu: "Menu", close: "Zamknij" },
     en: { menu: "Menu", close: "Close" },
   }[language] ?? { menu: "Menu", close: "Close" };
-}
-
-function ProjectCard({ project }: { project: PublicSiteProject }) {
-  return (
-    <article className="group overflow-hidden rounded-[28px] border border-black/8 bg-white">
-      <div className="relative aspect-[4/3] overflow-hidden bg-[linear-gradient(145deg,#dedbd2,#f3f0e9)]">
-        {project.image_url ? (
-          // URLs originate from the workspace-owned media library and R2 adapter.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={project.image_url}
-            alt={project.image_alt}
-            width={project.width || 1200}
-            height={project.height || 900}
-            loading="lazy"
-            className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]"
-          />
-        ) : (
-          <div className="absolute inset-0 grid place-items-center">
-            <span className="h-24 w-24 rounded-full border border-black/10" />
-          </div>
-        )}
-      </div>
-      <div className="p-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
-          {project.category}
-        </p>
-        <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-          {project.title}
-        </h3>
-        {project.description ? (
-          <p className="mt-3 text-sm leading-6 text-[#716d65]">
-            {project.description}
-          </p>
-        ) : null}
-      </div>
-    </article>
-  );
 }
 
 export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
@@ -535,10 +497,20 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
               {content.portfolio_title}
             </h2>
-            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {portfolio.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
+            <div className="mt-14">
+              <PublicPortfolioGallery
+                projects={portfolio}
+                locale={business.locale}
+                layout={content.portfolio_layout ?? "masonry"}
+                columns={content.portfolio_columns ?? 3}
+                aspect={content.portfolio_card_aspect ?? "auto"}
+                showFilters={content.portfolio_show_filters !== false}
+                showCategory={content.portfolio_show_category !== false}
+                showTitle={content.portfolio_show_title !== false}
+                showDescription={content.portfolio_show_description === true}
+                lightbox={content.portfolio_lightbox !== false}
+                limit={content.portfolio_home_limit ?? 9}
+              />
             </div>
           </div>
         </section>

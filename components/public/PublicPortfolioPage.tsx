@@ -2,6 +2,7 @@ import Link from "next/link";
 import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
+import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import {
   publicSitePagePath,
   publicSitePath,
@@ -9,57 +10,7 @@ import {
 import type {
   PublicSiteData,
   PublicSitePage,
-  PublicSiteProject,
 } from "@/lib/public-site/types";
-
-function PortfolioCard({
-  project,
-  index,
-}: {
-  project: PublicSiteProject;
-  index: number;
-}) {
-  const tall = index % 5 === 0 || index % 5 === 3;
-
-  return (
-    <article className="group mb-5 break-inside-avoid overflow-hidden rounded-[30px] border border-black/8 bg-white/80 shadow-[0_18px_55px_rgba(50,23,34,0.08)]">
-      <div
-        className={`relative overflow-hidden bg-[#eadedb] ${
-          tall ? "aspect-[4/5]" : "aspect-[4/3]"
-        }`}
-      >
-        {project.image_url ? (
-          // User-owned portfolio URLs are validated by the media workflow.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={project.image_url}
-            alt={project.image_alt}
-            width={project.width || 1200}
-            height={project.height || (tall ? 1500 : 900)}
-            loading={index < 3 ? "eager" : "lazy"}
-            className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,.9),transparent_45%),linear-gradient(145deg,#eadedb,#f8eeee)]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--site-dark)]/45 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-      </div>
-      <div className="p-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
-          {project.category}
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-          {project.title}
-        </h2>
-        {project.description ? (
-          <p className="mt-3 text-sm leading-6 text-black/55">
-            {project.description}
-          </p>
-        ) : null}
-      </div>
-    </article>
-  );
-}
 
 export default function PublicPortfolioPage({
   site,
@@ -163,10 +114,20 @@ export default function PublicPortfolioPage({
       </section>
 
       <section className="px-5 pb-24 sm:pb-32">
-        <div className="mx-auto w-full max-w-[1240px] columns-1 gap-5 sm:columns-2 lg:columns-3">
-          {portfolio.map((project, index) => (
-            <PortfolioCard key={project.id} project={project} index={index} />
-          ))}
+        <div className="mx-auto w-full max-w-[1240px]">
+          <PublicPortfolioGallery
+            projects={portfolio}
+            locale={business.locale}
+            layout={content.portfolio_layout ?? "masonry"}
+            columns={content.portfolio_columns ?? 3}
+            aspect={content.portfolio_card_aspect ?? "auto"}
+            showFilters={content.portfolio_show_filters !== false}
+            showCategory={content.portfolio_show_category !== false}
+            showTitle={content.portfolio_show_title !== false}
+            showDescription={content.portfolio_show_description === true}
+            lightbox={content.portfolio_lightbox !== false}
+            limit={0}
+          />
         </div>
       </section>
 
