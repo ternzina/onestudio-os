@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { dispatchQueuedNotificationsBestEffort } from "@/lib/server/notifications/immediate-dispatch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -211,6 +212,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "public_booking_failed" }, { status: 500 });
     }
 
+    const origin = new URL(request.url).origin;
+    const { data: managementData, error: managementError } =
+      await supabaseAdmin.rpc("ensure_public_booking_management_link", {
+        p_booking_id: confirmation.booking_id,
+        p_request_key: requestKey,
+        p_base_url: origin,
+      });
+    const management =
+      managementData &&
+      typeof managementData === "object" &&
+      !Array.isArray(managementData)
+        ? (managementData as { token?: unknown; manage_url?: unknown })
+        : null;
+    const managementToken =
+      typeof management?.token === "string" ? management.token : "";
+    const manageUrl =
+      typeof management?.manage_url === "string"
+        ? management.manage_url
+        : "";
+    const calendarUrl = managementToken
+      ? `${origin}/api/public/bookings/manage/calendar?token=${encodeURIComponent(
+          managementToken,
+        )}`
+      : "";
+
+    if (managementError || !managementToken || !manageUrl) {
+      console.error("Public booking management link could not be prepared", {
+        bookingId: confirmation.booking_id,
+        message:
+          managementError?.message || "booking_management_link_missing",
+      });
+    }
+
+    const notificationDispatch =
+      await dispatchQueuedNotificationsBestEffort("public-booking-created");
+
     const [{ data: payment }, { count: queuedCount }] = await Promise.all([
       supabaseAdmin
         .from("bookings")
@@ -240,6 +277,12 @@ export async function POST(request: Request) {
         payment_status: payment?.payment_status || "not_required",
         due_minor: dueMinor,
         email_queued: Number(queuedCount || 0) > 0,
+        email_dispatch_attempted: true,
+        email_dispatch_ok: notificationDispatch.ok,
+        manage_url:
+          managementError || !manageUrl ? null : manageUrl,
+        calendar_url:
+          managementError || !calendarUrl ? null : calendarUrl,
       },
     });
   } catch (error) {

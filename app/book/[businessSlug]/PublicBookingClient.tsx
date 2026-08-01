@@ -30,6 +30,8 @@ type PublicBookingConfirmationView = PublicBookingConfirmation & {
   payment_status?: string;
   due_minor?: number;
   email_queued?: boolean;
+  manage_url?: string | null;
+  calendar_url?: string | null;
 };
 
 const copy = {
@@ -89,6 +91,8 @@ const copy = {
     paymentNotRequired: "Оплата не требуется",
     emailQueued: "Письмо с подтверждением поставлено в очередь.",
     emailNotQueued: "Сохраните номер брони. Письмо пока не поставлено в очередь.",
+    manageBooking: "Управлять бронью",
+    addToCalendar: "Добавить в календарь",
   },
   en: {
     booking: "Online booking",
@@ -146,6 +150,8 @@ const copy = {
     paymentNotRequired: "No payment required",
     emailQueued: "The confirmation email has been queued.",
     emailNotQueued: "Save the booking reference. The email has not been queued yet.",
+    manageBooking: "Manage booking",
+    addToCalendar: "Add to calendar",
   },
 } as const;
 
@@ -520,8 +526,18 @@ export default function PublicBookingClient({
               </p>
             </div>
           </div>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button type="button" onClick={resetBooking} className="rounded-full bg-[#17191f] px-6 py-3.5 text-sm font-semibold text-white">{t.newBooking}</button>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {confirmation.manage_url && (
+              <a href={confirmation.manage_url} className="rounded-full bg-[#17191f] px-6 py-3.5 text-center text-sm font-semibold text-white">
+                {t.manageBooking}
+              </a>
+            )}
+            {confirmation.calendar_url && (
+              <a href={confirmation.calendar_url} className="rounded-full bg-[#9a742e] px-6 py-3.5 text-center text-sm font-semibold text-white">
+                {t.addToCalendar}
+              </a>
+            )}
+            <button type="button" onClick={resetBooking} className="rounded-full border border-black/10 px-6 py-3.5 text-sm font-semibold">{t.newBooking}</button>
             <Link href={branding?.homeHref ?? "/"} className="rounded-full border border-black/10 px-6 py-3.5 text-center text-sm font-semibold">{t.back}</Link>
           </div>
         </section>
