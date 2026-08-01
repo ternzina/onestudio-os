@@ -69,6 +69,19 @@ function durationLabel(service: PublicSiteService) {
   return `${minimum} min`;
 }
 
+function serviceImage(content: PublicSiteData["content"], service: PublicSiteService, index: number) {
+  if (Object.prototype.hasOwnProperty.call(content.service_card_images ?? {}, service.slug)) {
+    return content.service_card_images?.[service.slug] ?? "";
+  }
+  return content.service_image_urls?.[index] || "";
+}
+
+function serviceGridClass(columns: number | undefined) {
+  if (columns === 2) return "md:grid-cols-2";
+  if (columns === 4) return "md:grid-cols-2 xl:grid-cols-4";
+  return "md:grid-cols-2 lg:grid-cols-3";
+}
+
 function requestLabels(locale: string) {
   const language = locale.split("-")[0];
   return {
@@ -474,49 +487,40 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
               {content.services_title}
             </h2>
-            <div className="mt-14 grid border-l border-t border-white/12 md:grid-cols-2 lg:grid-cols-3">
-              {services.map((service) => (
-                <article key={service.id} className="min-h-72 border-b border-r border-white/12 p-7">
-                  <div className="flex items-start justify-between gap-5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                      {service.kind}
-                    </p>
-                    <p className="text-sm font-semibold text-[#d8b36a]">
-                      {formatPrice(service, business.locale)}
-                    </p>
-                  </div>
-                  <h3 className="mt-10 text-2xl font-semibold tracking-[-0.04em]">
-                    {service.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-6 text-white/55">
-                    {service.description || durationLabel(service)}
-                  </p>
-                  {durationLabel(service) && service.description ? (
-                    <p className="mt-6 text-xs uppercase tracking-[0.15em] text-white/35">
-                      {durationLabel(service)}
-                    </p>
-                  ) : null}
-                  <Link
-                    href={
-                      capabilities.booking
-                        ? {
-                            pathname: bookingHref,
-                            query: { service: service.slug },
-                          }
-                        : {
-                            pathname: requestHref,
-                            query: { subject: service.title },
-                          }
-                    }
-                    className="mt-8 inline-flex items-center gap-4 text-sm font-semibold text-[#d8b36a]"
-                  >
-                    {capabilities.booking
-                      ? content.booking_label
-                      : requestCopy.service}
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </article>
-              ))}
+            <div className={`mt-14 grid ${content.services_layout === "list" ? "grid-cols-1 gap-4" : `border-l border-t border-white/12 ${serviceGridClass(content.services_columns)}`}`}>
+              {services.map((service, index) => {
+                const image = serviceImage(content, service, index);
+                return (
+                  <article key={service.id} className={`${content.services_layout === "list" ? "grid overflow-hidden rounded-2xl border border-white/12 md:grid-cols-[260px_1fr]" : "min-h-72 border-b border-r border-white/12"}`}>
+                    {image ? (
+                      <div className={`${content.services_layout === "list" ? "min-h-52" : "aspect-[16/10]"} overflow-hidden`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      </div>
+                    ) : null}
+                    <div className="flex h-full flex-col p-7">
+                      <div className="flex items-start justify-between gap-5">
+                        <p className="text-xs uppercase tracking-[0.18em] text-white/40">{service.kind}</p>
+                        {content.services_show_price !== false ? <p className="text-sm font-semibold text-[#d8b36a]">{formatPrice(service, business.locale)}</p> : null}
+                      </div>
+                      <h3 className="mt-8 text-2xl font-semibold tracking-[-0.04em]">{service.title}</h3>
+                      {content.services_show_description !== false && service.description ? (
+                        <p className="mt-4 text-sm leading-6 text-white/55">{service.description}</p>
+                      ) : null}
+                      {content.services_show_duration !== false && durationLabel(service) ? (
+                        <p className="mt-6 text-xs uppercase tracking-[0.15em] text-white/35">{durationLabel(service)}</p>
+                      ) : null}
+                      <Link
+                        href={capabilities.booking ? { pathname: bookingHref, query: { service: service.slug } } : { pathname: requestHref, query: { subject: service.title } }}
+                        className="mt-auto inline-flex items-center gap-4 pt-8 text-sm font-semibold text-[#d8b36a]"
+                      >
+                        {content.services_button_label || (capabilities.booking ? content.booking_label : requestCopy.service)}
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>

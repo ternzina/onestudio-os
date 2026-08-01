@@ -223,6 +223,18 @@ export const GLOSS_TEMPLATE: SiteTemplate = {
       "/templates/gloss/gloss-gallery-3.webp",
       "/templates/gloss/gloss-gallery-8.webp",
     ],
+    service_card_images: {
+      "gloss-signature-manicure": "/templates/gloss/gloss-gallery-4.webp",
+      "gloss-clean-manicure": "/templates/gloss/gloss-gallery-1.webp",
+      "gloss-strengthening": "/templates/gloss/gloss-gallery-3.webp",
+      "gloss-pedicure": "/templates/gloss/gloss-gallery-8.webp",
+    },
+    services_layout: "cards",
+    services_columns: 4,
+    services_show_description: true,
+    services_show_price: true,
+    services_show_duration: true,
+    services_button_label: "Подробнее",
     team_image_urls: [
       "/templates/gloss/gloss-master-anna.webp",
       "/templates/gloss/gloss-master-maria.webp",

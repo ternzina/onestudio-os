@@ -15,6 +15,7 @@ import type {
   PublicSitePage,
   PublicSiteReview,
   PublicSiteSection,
+  PublicSiteService,
   PublicSiteSocialLink,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
@@ -30,7 +31,6 @@ import {
   GLOSS_PORTFOLIO_PAGE,
   SITE_TEMPLATES,
   type SiteTemplateProject,
-  type SiteTemplateService,
   type SiteTemplate,
 } from "@/lib/public-site/templates";
 import { supabase } from "@/lib/supabase";
@@ -72,6 +72,11 @@ type ImageTarget =
       kind: "list";
       key: "service_image_urls" | "team_image_urls" | "membership_image_urls" | "gift_image_urls";
       index: number;
+      label: string;
+    }
+  | {
+      kind: "service-card";
+      slug: string;
       label: string;
     }
   | {
@@ -188,6 +193,9 @@ function findInvalidDraftImage(content: PublicSiteContent) {
     ...(content.gift_image_urls ?? []),
   ];
   if (listImages.some(isInvalidImageUrl)) return "изображение в списке";
+  if (Object.values(content.service_card_images ?? {}).some(isInvalidImageUrl)) {
+    return "изображение карточки услуги";
+  }
 
   for (const block of content.custom_blocks ?? []) {
     if (block.media_url && isInvalidImageUrl(block.media_url)) return `изображение блока «${block.title || block.id}»`;
@@ -909,6 +917,7 @@ export default function AdminSitePage() {
           businessName={editor.business.name}
           logoUrl={logoUrl}
           savedLogoUrl={savedLogoUrl}
+          services={editor.services ?? []}
           locales={editor.locales.map((item) => item.locale)}
           primaryLocale={editor.site.primary_locale}
           selectedLocale={selectedLocale}
@@ -1119,6 +1128,7 @@ function VisualBuilder({
   businessName,
   logoUrl,
   savedLogoUrl,
+  services,
   locales,
   primaryLocale,
   selectedLocale,
@@ -1146,6 +1156,7 @@ function VisualBuilder({
   businessName: string;
   logoUrl: string;
   savedLogoUrl: string;
+  services: PublicSiteService[];
   locales: string[];
   primaryLocale: string;
   selectedLocale: string;
@@ -1222,6 +1233,22 @@ function VisualBuilder({
     selectedSection === "hero" ? null : sectionVisibilityKey[selectedSection];
   const activeTemplate =
     SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
+  const previewServices: PublicSiteService[] = services.length
+    ? services
+    : (activeTemplate?.services ?? []).map((service, index) => ({
+        id: `template-service-${index}`,
+        slug: service.slug,
+        kind: "appointment",
+        title: service.title,
+        description: service.description,
+        pricing_model: "fixed",
+        price_minor: service.priceMinor,
+        currency: "EUR",
+        duration_min_minutes: service.durationMinutes,
+        duration_max_minutes: service.durationMinutes,
+        capacity: 1,
+        requires_confirmation: false,
+      }));
 
   useEffect(() => {
     if (!mediaPickerOpen) return;
@@ -1287,6 +1314,11 @@ function VisualBuilder({
       while (values.length <= imageTarget.index) values.push("");
       values[imageTarget.index] = url;
       onUpdate(imageTarget.key, values);
+    } else if (imageTarget.kind === "service-card") {
+      onUpdate("service_card_images", {
+        ...(draft.service_card_images ?? {}),
+        [imageTarget.slug]: url,
+      });
     } else if (imageTarget.kind === "page") {
       updatePageById(imageTarget.pageId, imageTarget.key, url);
     } else if (imageTarget.kind === "block") {
@@ -1906,7 +1938,7 @@ function VisualBuilder({
                     <CanvasSectionPreview
                       section={section}
                       draft={draft}
-                      services={activeTemplate?.services ?? []}
+                      services={previewServices}
                       portfolio={activeTemplate?.portfolio ?? []}
                     />
                   </div>
@@ -2302,24 +2334,17 @@ function VisualBuilder({
                   </>
                 ) : null}
                 {selectedSection === "services" ? (
-                  <ImageListEditor
-                    label={t("Service images")}
-                    values={draft.service_image_urls ?? glossServiceImages}
-                    count={4}
+                  <ServicesSectionEditor
+                    services={previewServices}
+                    draft={draft}
                     disabled={!canConfigure || !editingEnabled}
                     t={t}
-                    onChange={(index, value) => {
-                      const values = [...(draft.service_image_urls ?? glossServiceImages)];
-                      while (values.length <= index) values.push("");
-                      values[index] = value;
-                      onUpdate("service_image_urls", values);
-                    }}
-                    onChoose={(index) =>
+                    onUpdate={onUpdate}
+                    onChooseImage={(service) =>
                       openMediaPicker({
-                        kind: "list",
-                        key: "service_image_urls",
-                        index,
-                        label: `${t("Service image")} ${index + 1}`,
+                        kind: "service-card",
+                        slug: service.slug,
+                        label: `${t("Service image")}: ${service.title}`,
                       })
                     }
                   />
@@ -4238,6 +4263,111 @@ function SocialLinksEditor({
   );
 }
 
+function serviceCardImage(
+  content: PublicSiteContent,
+  service: PublicSiteService,
+  index: number,
+) {
+  if (Object.prototype.hasOwnProperty.call(content.service_card_images ?? {}, service.slug)) {
+    return content.service_card_images?.[service.slug] ?? "";
+  }
+  return (
+    content.service_image_urls?.[index] ||
+    glossServiceImages[index % glossServiceImages.length] ||
+    ""
+  );
+}
+
+function previewServicePrice(service: PublicSiteService) {
+  if (service.pricing_model === "free") return "Бесплатно";
+  if (service.pricing_model === "quote" || service.price_minor === null) return "По запросу";
+  const amount = service.price_minor / 100;
+  return `${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2)} ${service.currency}`;
+}
+
+function previewServiceDuration(service: PublicSiteService) {
+  const minimum = service.duration_min_minutes;
+  const maximum = service.duration_max_minutes;
+  if (!minimum) return "";
+  if (maximum && maximum !== minimum) return `${minimum}–${maximum} мин`;
+  return `${minimum} мин`;
+}
+
+function ServicesSectionEditor({
+  services,
+  draft,
+  disabled,
+  t,
+  onUpdate,
+  onChooseImage,
+}: {
+  services: PublicSiteService[];
+  draft: PublicSiteContent;
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onUpdate: <Key extends keyof PublicSiteContent>(
+    key: Key,
+    value: PublicSiteContent[Key],
+  ) => void;
+  onChooseImage: (service: PublicSiteService) => void;
+}) {
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-4">
+        <p className="text-xs font-semibold text-[#725924]">Данные услуг берутся из единого каталога</p>
+        <p className="mt-2 text-xs leading-5 text-[#716d65]">Название, цена, длительность, порядок и доступность редактируются в каталоге. Здесь настраивается только внешний вид карточек на сайте.</p>
+        <Link href="/admin/catalog" className="mt-3 inline-flex rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Открыть каталог услуг</Link>
+      </div>
+
+      <CompactSelect
+        label="Макет услуг"
+        value={draft.services_layout ?? "cards"}
+        disabled={disabled}
+        options={[{ value: "cards", label: "Карточки" }, { value: "list", label: "Компактный список" }]}
+        onChange={(value) => onUpdate("services_layout", value === "list" ? "list" : "cards")}
+      />
+      <CompactSelect
+        label="Количество колонок"
+        value={String(draft.services_columns ?? 4)}
+        disabled={disabled || draft.services_layout === "list"}
+        options={[{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]}
+        onChange={(value) => onUpdate("services_columns", value === "2" ? 2 : value === "3" ? 3 : 4)}
+      />
+      <CompactField
+        label="Текст кнопки"
+        value={draft.services_button_label ?? "Подробнее"}
+        disabled={disabled}
+        onChange={(value) => onUpdate("services_button_label", value)}
+      />
+      <Toggle label="Показывать описание" checked={draft.services_show_description !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_description", value)} />
+      <Toggle label="Показывать цену" checked={draft.services_show_price !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_price", value)} />
+      <Toggle label="Показывать длительность" checked={draft.services_show_duration !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_duration", value)} />
+
+      <div className="grid gap-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">Изображения карточек</p>
+        {services.length ? services.map((service, index) => (
+          <article key={service.id} className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4">
+            <div>
+              <p className="text-sm font-semibold">{service.title}</p>
+              <p className="mt-1 text-[10px] text-[#716d65]">{previewServicePrice(service)} · {previewServiceDuration(service) || "без длительности"}</p>
+            </div>
+            <ImageEditor
+              label="Изображение услуги"
+              value={serviceCardImage(draft, service, index)}
+              disabled={disabled}
+              t={t}
+              onChange={(value) => onUpdate("service_card_images", { ...(draft.service_card_images ?? {}), [service.slug]: value })}
+              onChoose={() => onChooseImage(service)}
+            />
+          </article>
+        )) : (
+          <p className="rounded-2xl border border-dashed border-black/15 px-4 py-5 text-xs leading-6 text-[#716d65]">В каталоге пока нет активных публичных услуг. Создайте услугу, и её карточка появится здесь автоматически.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ImageListEditor({
   label,
   values,
@@ -5820,38 +5950,41 @@ function CanvasSectionPreview({
 }: {
   section: PublicSiteSection;
   draft: PublicSiteContent;
-  services: SiteTemplateService[];
+  services: PublicSiteService[];
   portfolio: SiteTemplateProject[];
 }) {
   if (section === "services" && services.length) {
-    const serviceImages = draft.service_image_urls ?? glossServiceImages;
+    const columns = draft.services_columns ?? 3;
+    const gridClass = columns === 2 ? "sm:grid-cols-2" : columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
     return (
-      <div className="mt-7 grid gap-2 sm:grid-cols-3">
-        {services.slice(0, 3).map((service, index) => (
-          <article key={service.slug} className="overflow-hidden rounded-2xl border border-white/12 bg-white/5">
-            {serviceImages[index] ? (
-              <img
-                src={serviceImages[index]}
-                alt=""
-                className="aspect-[16/8] w-full object-cover"
-              />
-            ) : null}
-            <div className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">
-                {service.durationMinutes} min
-              </span>
-              <span className="text-xs font-semibold text-[#f0cad5]">
-                {(service.priceMinor / 100).toFixed(0)}
-              </span>
-            </div>
-            <h4 className="mt-5 text-sm font-semibold">{service.title}</h4>
-            <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-white/50">
-              {service.description}
-            </p>
-            </div>
-          </article>
-        ))}
+      <div className={`mt-7 grid gap-2 ${draft.services_layout === "list" ? "grid-cols-1" : gridClass}`}>
+        {services.slice(0, 8).map((service, index) => {
+          const image = serviceCardImage(draft, service, index);
+          const price = previewServicePrice(service);
+          const duration = previewServiceDuration(service);
+          return (
+            <article key={service.slug} className={`overflow-hidden rounded-2xl border border-white/12 bg-white/5 ${draft.services_layout === "list" ? "grid grid-cols-[120px_1fr]" : ""}`}>
+              {image ? (
+                <img
+                  src={image}
+                  alt=""
+                  className={`${draft.services_layout === "list" ? "h-full min-h-28" : "aspect-[16/9]"} w-full object-cover`}
+                />
+              ) : null}
+              <div className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  {draft.services_show_duration !== false ? <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">{duration}</span> : <span />}
+                  {draft.services_show_price !== false ? <span className="text-xs font-semibold text-[#f0cad5]">{price}</span> : null}
+                </div>
+                <h4 className="mt-4 text-sm font-semibold">{service.title}</h4>
+                {draft.services_show_description !== false && service.description ? (
+                  <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-white/50">{service.description}</p>
+                ) : null}
+                <span className="mt-4 inline-flex text-[10px] font-semibold text-[#f0cad5]">{draft.services_button_label || "Подробнее"} →</span>
+              </div>
+            </article>
+          );
+        })}
       </div>
     );
   }

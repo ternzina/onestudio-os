@@ -21,6 +21,13 @@ export type PublicSiteContent = {
   hero_secondary_url?: string;
   show_hero_secondary?: boolean;
   service_image_urls?: string[];
+  service_card_images?: Record<string, string>;
+  services_layout?: "cards" | "list";
+  services_columns?: 2 | 3 | 4;
+  services_show_description?: boolean;
+  services_show_price?: boolean;
+  services_show_duration?: boolean;
+  services_button_label?: string;
   team_image_urls?: string[];
   membership_image_url?: string;
   membership_image_urls?: string[];
@@ -297,4 +304,5 @@ export type PublicSiteEditorData = {
     logo_published_url?: string;
   };
   locales: PublicSiteEditorLocale[];
+  services?: PublicSiteService[];
 };

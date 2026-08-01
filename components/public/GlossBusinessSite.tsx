@@ -65,6 +65,21 @@ function formatPrice(service: PublicSiteService, locale: string) {
   }
 }
 
+function serviceImage(content: PublicSiteData["content"], service: PublicSiteService, index: number) {
+  if (Object.prototype.hasOwnProperty.call(content.service_card_images ?? {}, service.slug)) {
+    return content.service_card_images?.[service.slug] ?? "";
+  }
+  return content.service_image_urls?.[index]
+    || SERVICE_IMAGES[index % SERVICE_IMAGES.length]
+    || "";
+}
+
+function serviceGridClass(columns: number | undefined) {
+  if (columns === 2) return "sm:grid-cols-2";
+  if (columns === 3) return "sm:grid-cols-2 lg:grid-cols-3";
+  return "sm:grid-cols-2 lg:grid-cols-4";
+}
+
 function GlossLogo({
   href,
   logoUrl,
@@ -230,7 +245,7 @@ export default function GlossBusinessSite({
   const customBlocks = (content.custom_blocks ?? []).filter(
     (block) => block.is_visible !== false,
   );
-  const serviceImages = content.service_image_urls ?? SERVICE_IMAGES;
+  const servicesLayout = content.services_layout ?? "cards";
   const teamImages = content.team_image_urls ?? MASTER_IMAGES;
   const brandName = content.brand_name || company.display_name || business.name;
   const address =
@@ -421,44 +436,43 @@ export default function GlossBusinessSite({
               <h2 className="text-center font-serif text-4xl sm:text-5xl">
                 {content.services_title}
               </h2>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {services.slice(0, 4).map((service, index) => (
-                  <article
-                    key={service.id}
-                    className="overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white p-2"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
-                      {/* Editable media URLs may point to the workspace CDN. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={serviceImages[index] || SERVICE_IMAGES[index]}
-                        alt=""
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="px-2 pb-2 pt-4">
-                      <h3 className="text-sm font-semibold">{service.title}</h3>
-                      <div className="mt-2 flex items-center justify-between gap-3 text-xs">
-                        <span>{formatPrice(service, business.locale)}</span>
-                        <span className="text-[#8a7773]">
-                          {service.duration_min_minutes
-                            ? `${service.duration_min_minutes} минут`
-                            : ""}
-                        </span>
+              <div className={`mt-8 grid gap-4 ${servicesLayout === "list" ? "grid-cols-1" : serviceGridClass(content.services_columns)}`}>
+                {services.map((service, index) => {
+                  const image = serviceImage(content, service, index);
+                  return (
+                    <article
+                      key={service.id}
+                      className={`overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white p-2 ${servicesLayout === "list" ? "grid gap-3 sm:grid-cols-[220px_1fr]" : ""}`}
+                    >
+                      {image ? (
+                        <div className={`relative overflow-hidden rounded-lg ${servicesLayout === "list" ? "min-h-40" : "aspect-[16/10]"}`}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                        </div>
+                      ) : null}
+                      <div className="flex flex-col px-2 pb-2 pt-4">
+                        <h3 className="text-sm font-semibold">{service.title}</h3>
+                        {content.services_show_description !== false && service.description ? (
+                          <p className="mt-3 text-xs leading-6 text-[#7d6a66]">{service.description}</p>
+                        ) : null}
+                        <div className="mt-3 flex items-center justify-between gap-3 text-xs">
+                          {content.services_show_price !== false ? <span>{formatPrice(service, business.locale)}</span> : <span />}
+                          {content.services_show_duration !== false ? (
+                            <span className="text-[#8a7773]">{service.duration_min_minutes ? `${service.duration_min_minutes} минут` : ""}</span>
+                          ) : null}
+                        </div>
+                        <Link
+                          href={{ pathname: bookingHref, query: { service: service.slug } }}
+                          className="mt-auto pt-4"
+                        >
+                          <span className="flex min-h-10 items-center justify-center rounded-md border border-[var(--site-accent)] text-xs font-semibold text-[var(--site-accent)]">
+                            {content.services_button_label || "Подробнее"}
+                          </span>
+                        </Link>
                       </div>
-                      <Link
-                        href={{
-                          pathname: bookingHref,
-                          query: { service: service.slug },
-                        }}
-                        className="mt-4 flex min-h-10 items-center justify-center rounded-md border border-[var(--site-accent)] text-xs font-semibold text-[var(--site-accent)]"
-                      >
-                        Подробнее
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>
