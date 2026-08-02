@@ -57,7 +57,7 @@ export default function AdminWorkspacePage() {
   const { t } = useAdminI18n();
   const lifecycleErrorMessage = useCallback((value: string) => {
     if (value.includes("cannot_archive_last_workspace")) return t("The last active workspace cannot be archived.");
-    if (value.includes("cannot_delete_last_workspace")) return t("The last active workspace cannot be deleted.");
+    if (value.includes("workspace_limit_reached")) return t("You can have up to three active owned workspaces.");
     if (value.includes("workspace_has_operational_data")) return t("This workspace contains operational records and can only be archived.");
     if (value.includes("workspace_confirmation_mismatch")) return t("Enter the workspace name exactly as shown.");
     if (value.includes("workspace_foundation_cannot_be_deleted")) return t("The foundation workspace can be archived but cannot be permanently deleted.");
@@ -549,7 +549,7 @@ export default function AdminWorkspacePage() {
                           <p className="mt-4 text-xs leading-5 text-red-950/65">
                             {operationalCount > 0 || selectedWorkspace.google_calendar_connected
                               ? t("This workspace contains operational records and can only be archived.")
-                              : t("This workspace is protected or it is the last active workspace.")}
+                              : t("This workspace is protected.")}
                           </p>
                         )}
                       </div>

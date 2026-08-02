@@ -1,8 +1,31 @@
+export type PublicSiteSection =
+  | "services"
+  | "portfolio"
+  | "booking"
+  | "about"
+  | "team"
+  | "reviews"
+  | "membership"
+  | "gift"
+  | "faq"
+  | "safety"
+  | "contact";
+
+export type PublicSiteCanvasSection = "hero" | PublicSiteSection;
+export type PublicSiteBlockColorMode = "theme" | "custom";
+export type PublicSiteBlockColors = {
+  mode?: PublicSiteBlockColorMode;
+  background?: string;
+  text?: string;
+  accent?: string;
+};
+
 export type PublicSiteContent = {
   template_id?: string;
   theme_accent?: string;
   theme_dark?: string;
   theme_surface?: string;
+  section_colors?: Partial<Record<PublicSiteCanvasSection, PublicSiteBlockColors>>;
   brand_name?: string;
   site_summary?: string;
   seo_keywords?: string;
@@ -12,6 +35,7 @@ export type PublicSiteContent = {
   header_logo_size?: "small" | "medium" | "large";
   header_logo_position?: "left" | "center";
   hero_layout?: "split" | "cover" | "text";
+  hero_title_mobile_size?: "small" | "medium" | "large";
   hero_image_placement?: "left" | "right";
   hero_image_position?: "top" | "center" | "bottom";
   hero_image_fit?: "cover" | "contain";
@@ -164,6 +188,7 @@ export type PublicSiteCustomBlock = {
   button_label: string;
   button_url: string;
   tone: PublicSiteCustomBlockTone;
+  colors?: PublicSiteBlockColors;
   is_visible?: boolean;
   media_urls?: string[];
   slide_interval_seconds?: number;
@@ -215,19 +240,6 @@ export type PublicSitePage = {
   seo_no_index?: boolean;
   blocks?: PublicSiteCustomBlock[];
 };
-
-export type PublicSiteSection =
-  | "services"
-  | "portfolio"
-  | "booking"
-  | "about"
-  | "team"
-  | "reviews"
-  | "membership"
-  | "gift"
-  | "faq"
-  | "safety"
-  | "contact";
 
 export type PublicSiteService = {
   id: string;

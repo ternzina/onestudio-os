@@ -17,6 +17,7 @@ import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicMobileMenu from "@/components/public/PublicMobileMenu";
 import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import { publicSiteReviews } from "@/lib/public-site/content";
+import { sectionColorStyle } from "@/lib/public-site/colors";
 import {
   customBlockLayoutId,
   resolvePublicSiteLayoutOrder,
@@ -135,6 +136,14 @@ function logoSizeClass(size: "small" | "medium" | "large" | undefined) {
   if (size === "small") return "max-h-9 max-w-[150px]";
   if (size === "large") return "max-h-[68px] max-w-[280px]";
   return "max-h-14 max-w-[220px]";
+}
+
+function heroTitleSizeClass(
+  size: "small" | "medium" | "large" | undefined,
+) {
+  if (size === "small") return "text-4xl";
+  if (size === "large") return "text-6xl";
+  return "text-5xl";
 }
 
 function menuLabels(locale: string) {
@@ -383,7 +392,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {content.show_hero !== false ? (
         heroLayout === "cover" && content.hero_image_url ? (
-          <section className={`relative isolate min-h-[680px] overflow-hidden px-5 ${content.header_sticky === true ? "py-24" : "pb-24 pt-40"} text-white sm:min-h-[760px] sm:py-32`}>
+          <section className={`relative isolate min-h-[680px] overflow-hidden px-5 ${content.header_sticky === true ? "py-24" : "pb-24 pt-40"} text-white sm:min-h-[760px] sm:py-32`} style={sectionColorStyle(content, "hero")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={content.hero_image_url}
@@ -395,7 +404,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <div className="mx-auto flex min-h-[520px] w-full max-w-[1240px] items-center">
               <div className="max-w-3xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">{content.hero_eyebrow}</p>
-                <h1 className="mt-7 text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[92px] lg:leading-[0.96]">{content.hero_title}</h1>
+                <h1 className={`mt-7 break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-8 max-w-xl text-base leading-8 text-white/75 sm:text-lg">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-accent)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(0,0,0,0.22)]">{primaryLabel}</Link>
@@ -407,13 +416,13 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             </div>
           </section>
         ) : (
-          <section className={`relative isolate overflow-hidden px-5 pb-24 ${content.header_sticky === true ? "pt-20" : "pt-40"} sm:pb-32 ${content.header_sticky === true ? "sm:pt-28" : "sm:pt-48"}`}>
+          <section className={`relative isolate overflow-hidden px-5 pb-24 ${content.header_sticky === true ? "pt-20" : "pt-40"} sm:pb-32 ${content.header_sticky === true ? "sm:pt-28" : "sm:pt-48"}`} style={sectionColorStyle(content, "hero")}>
             <div className="absolute -right-24 top-12 -z-10 h-[460px] w-[460px] rounded-full border border-[var(--site-accent)]/20" />
             <div className="absolute right-20 top-36 -z-10 h-[280px] w-[280px] rounded-full bg-[var(--site-accent)]/10 blur-3xl" />
             <div className={`mx-auto grid w-full max-w-[1240px] gap-12 ${heroLayout === "text" || !content.hero_image_url ? "lg:grid-cols-1" : "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch"}`}>
               <div className={content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--site-accent)]">{content.hero_eyebrow}</p>
-                <h1 className="mt-7 max-w-4xl text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[92px] lg:leading-[0.96]">{content.hero_title}</h1>
+                <h1 className={`mt-7 max-w-4xl break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-8 max-w-xl text-base leading-8 text-[#656159] sm:text-lg">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]">{primaryLabel}</Link>
@@ -441,7 +450,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       <div className="flex flex-col">
       {showServices ? (
-        <section id="services" style={{ order: sectionPosition("services") }} className="border-y border-black/8 bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
+        <section id="services" style={{ order: sectionPosition("services"), ...sectionColorStyle(content, "services") }} className="border-y border-black/8 bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#d8b36a]">
               {content.services_label}
@@ -489,7 +498,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showPortfolio ? (
-        <section id="portfolio" style={{ order: sectionPosition("portfolio") }} className="px-5 py-24 sm:py-32">
+        <section id="portfolio" style={{ order: sectionPosition("portfolio"), ...sectionColorStyle(content, "portfolio") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#9a742e]">
               {content.portfolio_label}
@@ -517,7 +526,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showAbout ? (
-        <section id="about" style={{ order: sectionPosition("about") }} className="px-5 py-24 sm:py-32">
+        <section id="about" style={{ order: sectionPosition("about"), ...sectionColorStyle(content, "about") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px] border-t border-black/10 pt-16">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
               {content.about_label}
@@ -576,7 +585,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showTeam ? (
-        <section id="team" style={{ order: sectionPosition("team") }} className="px-5 py-24 sm:py-32">
+        <section id="team" style={{ order: sectionPosition("team"), ...sectionColorStyle(content, "team") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
               {content.team_label}
@@ -634,7 +643,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       {showSafety ? (
         <section
           id="safety"
-          style={{ order: sectionPosition("safety") }}
+          style={{ order: sectionPosition("safety"), ...sectionColorStyle(content, "safety") }}
           className="px-5 py-24 sm:py-32"
         >
           <div className="mx-auto w-full max-w-[1240px]">
@@ -682,7 +691,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showReviews ? (
-        <section id="reviews" style={{ order: sectionPosition("reviews") }} className="bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
+        <section id="reviews" style={{ order: sectionPosition("reviews"), ...sectionColorStyle(content, "reviews") }} className="bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{content.reviews_label}</p>
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.reviews_title}</h2>
@@ -705,7 +714,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showMembership ? (
-        <section id="membership" style={{ order: sectionPosition("membership") }} className="px-5 py-24 sm:py-32">
+        <section id="membership" style={{ order: sectionPosition("membership"), ...sectionColorStyle(content, "membership") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
               <div>
@@ -784,7 +793,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showGift ? (
-        <section id="gift" style={{ order: sectionPosition("gift") }} className="px-5 py-24 sm:py-32">
+        <section id="gift" style={{ order: sectionPosition("gift"), ...sectionColorStyle(content, "gift") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto w-full max-w-[1240px]">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
               <div>
@@ -822,7 +831,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showFaq ? (
-        <section id="faq" style={{ order: sectionPosition("faq") }} className="px-5 py-24 sm:py-32">
+        <section id="faq" style={{ order: sectionPosition("faq"), ...sectionColorStyle(content, "faq") }} className="px-5 py-24 sm:py-32">
           <div className="mx-auto grid w-full max-w-[1240px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.faq_label}</p>
@@ -846,7 +855,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
       ) : null}
 
       {showContact ? (
-        <section id="contact" style={{ order: sectionPosition("contact") }} className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
+        <section id="contact" style={{ order: sectionPosition("contact"), ...sectionColorStyle(content, "contact") }} className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
           <div className="mx-auto grid w-full max-w-[1240px] gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#725924]">

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
+import { colorOverrideStyle } from "@/lib/public-site/colors";
 import type {
   PublicSiteColumnCard,
   PublicSiteCustomBlock,
@@ -112,13 +113,20 @@ export default function PublicCustomBlock({
 }) {
   if (block.is_visible === false) return null;
 
-  const isDark = block.tone === "dark";
-  const isAccent = block.tone === "accent";
-  const style = isDark
+  const hasCustomColors = block.colors?.mode === "custom";
+  const isDark = !hasCustomColors && block.tone === "dark";
+  const isAccent = !hasCustomColors && block.tone === "accent";
+  const style = hasCustomColors
+    ? "border-y border-black/8"
+    : isDark
     ? "bg-[var(--site-dark)] text-white"
     : isAccent
       ? "bg-[var(--site-accent)] text-white"
       : "border-y border-black/8 bg-white/60 text-[#3b211f]";
+  const blockStyle = colorOverrideStyle(block.colors);
+  const customButtonStyle = hasCustomColors
+    ? { backgroundColor: "var(--site-accent)", color: "#ffffff" }
+    : undefined;
   const sliderImages = (block.media_urls ?? []).filter(Boolean);
   const embedUrl = videoEmbedUrl(block.video_url);
   const mediaSize = block.media_size ?? "wide";
@@ -136,7 +144,7 @@ export default function PublicCustomBlock({
           : "mx-auto";
 
     return (
-      <section className={`px-5 py-20 sm:py-24 ${style}`}>
+      <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
         <div className="mx-auto w-full max-w-[1240px]">
           {block.eyebrow ? (
             <p
@@ -219,7 +227,7 @@ export default function PublicCustomBlock({
     const mediaOnRight = block.media_position !== "left";
 
     return (
-      <section className={`px-5 py-20 sm:py-24 ${style}`}>
+      <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
         <div className="mx-auto grid w-full max-w-[1240px] gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
             {mediaIsCalendar && bookingHref && services.length ? (
@@ -306,10 +314,13 @@ export default function PublicCustomBlock({
               <Link
                 href={block.button_url}
                 className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
-                  isDark || isAccent
-                    ? "bg-white text-[var(--site-dark)]"
-                    : "bg-[var(--site-dark)] text-white"
+                  hasCustomColors
+                    ? ""
+                    : isDark || isAccent
+                      ? "bg-white text-[var(--site-dark)]"
+                      : "bg-[var(--site-dark)] text-white"
                 }`}
+                style={customButtonStyle}
               >
                 {block.button_label}
                 <span className="ml-8" aria-hidden="true">
@@ -324,7 +335,7 @@ export default function PublicCustomBlock({
   }
 
   return (
-    <section className={`px-5 py-20 sm:py-24 ${style}`}>
+    <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
       <div className="mx-auto w-full max-w-[1240px]">
         {block.eyebrow ? (
           <p
@@ -371,7 +382,7 @@ export default function PublicCustomBlock({
                   <article
                     key={key}
                     className={`overflow-hidden rounded-2xl border ${
-                      isDark || isAccent
+                      hasCustomColors || isDark || isAccent
                         ? "border-white/18 bg-white/8"
                         : "border-black/8 bg-white"
                     }`}
@@ -483,10 +494,13 @@ export default function PublicCustomBlock({
           <Link
             href={block.button_url}
             className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
-              isDark || isAccent
-                ? "bg-white text-[var(--site-dark)]"
-                : "bg-[var(--site-dark)] text-white"
+              hasCustomColors
+                ? ""
+                : isDark || isAccent
+                  ? "bg-white text-[var(--site-dark)]"
+                  : "bg-[var(--site-dark)] text-white"
             }`}
+            style={customButtonStyle}
           >
             {block.button_label}
             <span className="ml-8" aria-hidden="true">

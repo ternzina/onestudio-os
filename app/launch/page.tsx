@@ -20,6 +20,11 @@ type PendingConfiguration = {
   reminders: boolean;
 };
 
+type LaunchResult = {
+  business_id: string;
+  business_slug: string;
+};
+
 const localeCodes: Record<string, string> = {
   Русский: "ru",
   English: "en",
@@ -62,6 +67,10 @@ export default function LaunchPage() {
   const router = useRouter();
   const [message, setMessage] = useState("Проверяем учётную запись…");
   const [failed, setFailed] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [businessSlug, setBusinessSlug] = useState("");
+  const [failedHref, setFailedHref] = useState("/demos");
+  const [failedLabel, setFailedLabel] = useState("Вернуться к демо");
 
   useEffect(() => {
     async function launch() {
@@ -106,7 +115,7 @@ export default function LaunchPage() {
         ...(config.reminders ? ["notifications"] : []),
       ])];
 
-      const { error } = await supabase.rpc("create_configured_workspace", {
+      const { data, error } = await supabase.rpc("create_configured_workspace", {
         p_configuration: {
           launch_id: launchId,
           demo_slug: config.demoSlug,
@@ -127,31 +136,91 @@ export default function LaunchPage() {
           router.refresh();
           return;
         }
-        setMessage(error.message || "Не удалось создать проект.");
+        if (error.message.includes("workspace_limit_reached")) {
+          setMessage(
+            "У вас уже 3 активных сайта. Удалите ненужный пустой демо-сайт или архивируйте рабочий сайт в личном кабинете.",
+          );
+          setFailedHref("/dashboard");
+          setFailedLabel("Перейти к моим сайтам");
+        } else {
+          setMessage(error.message || "Не удалось создать проект.");
+        }
         setFailed(true);
         return;
       }
 
+      const result = (
+        Array.isArray(data) ? data[0] : data
+      ) as LaunchResult | null;
+
       window.localStorage.removeItem("onestudio-config:pending");
-      router.replace("/dashboard");
-      router.refresh();
+      if (result?.business_slug) {
+        window.localStorage.setItem(
+          "onestudio:last-created-business-slug",
+          result.business_slug,
+        );
+        setBusinessSlug(result.business_slug);
+      }
+
+      setMessage(
+        "Сайт и рабочее пространство готовы. Теперь можно перейти в редактор и заменить демо-контент своим.",
+      );
+      setCompleted(true);
     }
 
     void launch();
   }, [router]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#edf2f0] px-5 text-[#10242a]">
-      <section className="w-full max-w-lg rounded-[32px] border border-[#d3dedc] bg-white/80 p-8 text-center shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-[#edf2f0] px-5 py-10 text-[#10242a]">
+      <section className="w-full max-w-xl rounded-[32px] border border-[#d3dedc] bg-white/80 p-8 text-center shadow-xl sm:p-10">
         <div className="flex justify-center"><MarketingBrand /></div>
-        <h1 className="mt-8 text-3xl font-medium tracking-[-0.05em]">
-          {failed ? "Нужен ещё один шаг" : "Подготавливаем ваш проект"}
+
+        <h1 className="mt-8 text-3xl font-medium tracking-[-0.05em] sm:text-4xl">
+          {failed
+            ? "Нужен ещё один шаг"
+            : completed
+              ? "Ваш проект создан"
+              : "Подготавливаем ваш проект"}
         </h1>
-        <p className="mt-4 text-sm leading-7 text-[#607478]">{message}</p>
+
+        <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#607478]">
+          {message}
+        </p>
+
         {failed ? (
-          <Link className="mt-7 inline-flex rounded-full bg-[#17343a] px-6 py-3 text-sm font-semibold text-white" href="/demos">
-            Вернуться к демо
+          <Link
+            className="mt-7 inline-flex rounded-full bg-[#17343a] px-6 py-3 text-sm font-semibold text-white"
+            href={failedHref}
+          >
+            {failedLabel}
           </Link>
+        ) : completed ? (
+          <div className="mt-8 grid gap-3">
+            <Link
+              className="inline-flex items-center justify-center rounded-full bg-[#17343a] px-6 py-3.5 text-sm font-semibold text-white"
+              href="/admin/site"
+            >
+              Открыть редактор сайта →
+            </Link>
+
+            {businessSlug ? (
+              <Link
+                className="inline-flex items-center justify-center rounded-full border border-[#bfd0cc] bg-white px-6 py-3.5 text-sm font-semibold text-[#17343a]"
+                href={`/site/${businessSlug}`}
+                target="_blank"
+              >
+                Посмотреть готовый сайт
+              </Link>
+            ) : null}
+
+            <Link
+              className="inline-flex items-center justify-center px-6 py-2 text-sm font-semibold text-[#607478]"
+              href="/dashboard"
+            >
+              Перейти в кабинет
+            </Link>
+          </div>
         ) : (
           <div className="mx-auto mt-7 h-2 w-40 overflow-hidden rounded-full bg-[#dce7e4]">
             <div className="h-full w-2/3 animate-pulse rounded-full bg-[#4b9a89]" />

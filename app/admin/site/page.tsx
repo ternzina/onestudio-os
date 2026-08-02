@@ -8,6 +8,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   PublicSiteContent,
+  PublicSiteBlockColors,
   PublicSiteColumnCard,
   PublicSiteCustomBlock,
   PublicSiteCustomBlockKind,
@@ -20,6 +21,7 @@ import type {
   PublicSiteSocialLink,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
+import { colorOverrideStyle, sectionColorStyle } from "@/lib/public-site/colors";
 import {
   customBlockLayoutId,
   PUBLIC_SITE_SECTION_ORDER,
@@ -108,6 +110,16 @@ type ImageTarget =
 
 const inputClass =
   "mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#9a742e]";
+
+const SITE_COLOR_PRESETS = [
+  {
+    id: "bordeaux",
+    name: "Bordeaux",
+    accent: "#9d3151",
+    dark: "#321722",
+    surface: "#fff7f5",
+  },
+] as const;
 
 function isVideoProviderUrl(value: string) {
   const normalized = value.trim().toLowerCase();
@@ -292,9 +304,21 @@ function contentFromLocale(
   editor: PublicSiteEditorData,
   locale: string,
 ) {
-  return (
-    editor.locales.find((item) => item.locale === locale)?.draft_content ?? null
-  );
+  const record =
+    editor.locales.find((item) => item.locale === locale) ?? null;
+  const draftContent = record?.draft_content ?? record?.published_content ?? null;
+
+  if (!draftContent) return null;
+
+  return {
+    ...draftContent,
+    theme_accent:
+      draftContent.theme_accent ?? record?.published_content?.theme_accent,
+    theme_dark:
+      draftContent.theme_dark ?? record?.published_content?.theme_dark,
+    theme_surface:
+      draftContent.theme_surface ?? record?.published_content?.theme_surface,
+  };
 }
 
 function publicHref(editor: PublicSiteEditorData, locale: string) {
@@ -485,8 +509,12 @@ export default function AdminSitePage() {
     ? ["owner", "admin", "manager"].includes(workspace.role)
     : false;
 
-  const loadEditor = useCallback(async (preferredLocale?: string) => {
-    setLoading(true);
+  const loadEditor = useCallback(async (
+    preferredLocale?: string,
+    options?: { silent?: boolean },
+  ) => {
+    const silent = options?.silent === true;
+    if (!silent) setLoading(true);
     setError("");
 
     const { data: workspaceData, error: workspaceError } = await supabase.rpc(
@@ -507,7 +535,7 @@ export default function AdminSitePage() {
 
     if (workspaceError || !current) {
       setError(workspaceError?.message || t("No active workspace was found."));
-      setLoading(false);
+      if (!silent) setLoading(false);
       return;
     }
 
@@ -524,7 +552,7 @@ export default function AdminSitePage() {
 
     if (editorError || !data || typeof data !== "object") {
       setError(editorError?.message || t("Public site settings could not be loaded."));
-      setLoading(false);
+      if (!silent) setLoading(false);
       return;
     }
 
@@ -543,7 +571,7 @@ export default function AdminSitePage() {
       nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
     setLogoUrl(loadedLogoUrl);
     setSavedLogoUrl(loadedLogoUrl);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [t]);
 
   useEffect(() => {
@@ -741,7 +769,7 @@ export default function AdminSitePage() {
       setMessage(t("Draft saved."));
     }
 
-    await loadEditor(selectedLocale);
+    await loadEditor(selectedLocale, { silent: true });
     setSaving(false);
     return true;
   }
@@ -773,7 +801,7 @@ export default function AdminSitePage() {
     );
     if (saveError) setError(saveError.message);
     else {
-      await loadEditor(locale);
+      await loadEditor(locale, { silent: true });
       setMessage(t("Language draft added."));
     }
     setSaving(false);
@@ -794,7 +822,7 @@ export default function AdminSitePage() {
     );
     if (saveError) setError(saveError.message);
     else if (await saveSiteLogoDraft()) {
-      await loadEditor(selectedLocale);
+      await loadEditor(selectedLocale, { silent: true });
       setMessage(t("Primary language changed."));
     }
     setSaving(false);
@@ -811,7 +839,7 @@ export default function AdminSitePage() {
     );
     if (unpublishError) setError(unpublishError.message);
     else {
-      await loadEditor(selectedLocale);
+      await loadEditor(selectedLocale, { silent: true });
       setMessage(t("Site unpublished."));
     }
     setSaving(false);
@@ -839,6 +867,54 @@ export default function AdminSitePage() {
     );
   }
 
+  const quickStartSteps = [
+    {
+      id: "brand",
+      title: t("Brand and logo"),
+      description: t("Add the business name and logo visitors should recognize."),
+      complete: Boolean((draft.brand_name || editor.business.name || "").trim() && logoUrl.trim()),
+    },
+    {
+      id: "hero",
+      title: t("Main screen"),
+      description: t("Replace the demo headline, introduction and main image."),
+      complete: Boolean(draft.hero_title.trim() && draft.hero_text.trim()),
+    },
+    {
+      id: "services",
+      title: t("Services and prices"),
+      description: t("Check the service cards and replace demo prices with real ones."),
+      complete: Boolean((editor.services ?? []).length),
+    },
+    {
+      id: "contacts",
+      title: t("Contacts"),
+      description: t("Add at least one way for clients to contact the business."),
+      complete: Boolean(
+        [draft.contact_email, draft.contact_phone, draft.contact_address].some(
+          (value) => Boolean(value?.trim()),
+        ),
+      ),
+    },
+    {
+      id: "publish",
+      title: t("Publish"),
+      description: t("Save the draft, review the site and publish the selected language."),
+      complete: editor.site.is_published,
+    },
+  ];
+  const completedQuickStartSteps = quickStartSteps.filter(
+    (step) => step.complete,
+  ).length;
+
+  function scrollToVisualBuilder() {
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById("site-builder-canvas")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   return (
     <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
       <AdminHeader />
@@ -846,7 +922,7 @@ export default function AdminSitePage() {
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">
-              {t("Site Builder 1.0")}
+              {t("Site Builder 2.0")}
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">
               {t("Public site")}
@@ -897,6 +973,82 @@ export default function AdminSitePage() {
             label={t("Published languages")}
             value={String(editor.locales.filter((item) => item.published_content).length)}
           />
+        </section>
+
+        <section className="mt-6 rounded-[28px] border border-[#cfded9] bg-[linear-gradient(135deg,#f7fbfa_0%,#edf5f2_100%)] p-5 shadow-[0_18px_55px_rgba(31,70,65,0.08)] sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#3f8a7c]">
+                {t("Quick start")}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.045em]">
+                {t("Prepare the site in five clear steps")}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#607470]">
+                {t("The full editor is already ready below. This checklist shows what should be replaced before the first publication.")}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="min-w-[150px]">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-[#47645f]">
+                  <span>{t("Progress")}</span>
+                  <span>{completedQuickStartSteps}/{quickStartSteps.length}</span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/80">
+                  <div
+                    className="h-full rounded-full bg-[#4b9a89] transition-[width]"
+                    style={{
+                      width: `${(completedQuickStartSteps / quickStartSteps.length) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={scrollToVisualBuilder}
+                className="rounded-full bg-[#17343a] px-5 py-3 text-xs font-semibold text-white"
+              >
+                {t("Open site editor")} →
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {quickStartSteps.map((step, index) => (
+              <button
+                key={step.id}
+                type="button"
+                onClick={scrollToVisualBuilder}
+                className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${
+                  step.complete
+                    ? "border-emerald-200 bg-white/85"
+                    : "border-black/8 bg-white/60"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6c817c]">
+                    {t("Step")} {index + 1}
+                  </span>
+                  <span
+                    className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+                      step.complete
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-[#e5eeeb] text-[#57716b]"
+                    }`}
+                    aria-label={step.complete ? t("Quick start completed") : t("Quick start not completed")}
+                  >
+                    {step.complete ? "✓" : index + 1}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-[#17343a]">
+                  {step.title}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-[#6d7f7b]">
+                  {step.description}
+                </p>
+              </button>
+            ))}
+          </div>
         </section>
 
         {(message || error) ? (
@@ -1076,13 +1228,14 @@ export default function AdminSitePage() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
               {t("Draft preview")}
             </p>
-            <div className="overflow-hidden rounded-[30px] border border-black/10 bg-[#f3f0e9] shadow-[0_30px_90px_rgba(30,30,30,0.12)]">
+            <div className="overflow-hidden rounded-[30px] border border-black/10 shadow-[0_30px_90px_rgba(30,30,30,0.12)]"
+              style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}>
               <div className="border-b border-black/8 px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.16em]">
                 {editor.business.name}
               </div>
               <div className="relative overflow-hidden px-6 py-14">
-                <div className="absolute -right-12 top-4 h-48 w-48 rounded-full border border-[#9a742e]/20" />
-                <p className="relative text-[9px] font-semibold uppercase tracking-[0.22em] text-[#9a742e]">
+                <div className="absolute -right-12 top-4 h-48 w-48 rounded-full border opacity-20" style={{ borderColor: draft.theme_accent ?? "#9a742e" }} />
+                <p className="relative text-[9px] font-semibold uppercase tracking-[0.22em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
                   {draft.hero_eyebrow}
                 </p>
                 <h2 className="relative mt-4 text-4xl font-semibold tracking-[-0.06em]">
@@ -1091,13 +1244,13 @@ export default function AdminSitePage() {
                 <p className="relative mt-5 text-xs leading-6 text-[#6f6c65]">
                   {draft.hero_text}
                 </p>
-                <span className="relative mt-6 inline-flex rounded-full bg-[#17191f] px-5 py-3 text-[10px] font-semibold text-white">
+                <span className="relative mt-6 inline-flex rounded-full px-5 py-3 text-[10px] font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>
                   {draft.booking_label}
                 </span>
               </div>
               {draft.show_services ? (
-                <div className="bg-[#17191f] px-6 py-8 text-white">
-                  <p className="text-[9px] uppercase tracking-[0.18em] text-[#d8b36a]">
+                <div className="px-6 py-8 text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>
+                  <p className="text-[9px] uppercase tracking-[0.18em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
                     {draft.services_label}
                   </p>
                   <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
@@ -1204,6 +1357,16 @@ function VisualBuilder({
   >("intro");
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
   const [editingEnabled, setEditingEnabled] = useState(true);
+  const mobileHeroTitleClass =
+    draft.hero_title_mobile_size === "small"
+      ? "text-3xl leading-[1.02]"
+      : draft.hero_title_mobile_size === "large"
+        ? "text-5xl leading-[0.98]"
+        : "text-4xl leading-[1]";
+  const previewHeroTitleClass =
+    previewDevice === "mobile"
+      ? mobileHeroTitleClass
+      : "text-6xl leading-[0.98]";
 
   useEffect(() => {
     setBlocksOpen(true);
@@ -1234,6 +1397,25 @@ function VisualBuilder({
     : -1;
   const visibilityKey =
     selectedSection === "hero" ? null : sectionVisibilityKey[selectedSection];
+  const sectionColorDefaults = (() => {
+    const accent = draft.theme_accent ?? "#9d3151";
+    const dark = draft.theme_dark ?? "#321722";
+    const surface = draft.theme_surface ?? "#fff7f5";
+    if (selectedSection === "services" || selectedSection === "reviews") {
+      return { background: dark, text: "#ffffff", accent };
+    }
+    if (selectedSection === "contact") {
+      return { background: "#d9d1c0", text: dark, accent };
+    }
+    return { background: surface, text: dark, accent };
+  })();
+
+  function updateSectionColors(colors: PublicSiteBlockColors) {
+    onUpdate("section_colors", {
+      ...(draft.section_colors ?? {}),
+      [selectedSection]: colors,
+    });
+  }
   const activeTemplate =
     SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
   const previewServices: PublicSiteService[] = services.length
@@ -1560,7 +1742,10 @@ function VisualBuilder({
   }
 
   return (
-    <section className="relative mt-8 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
+    <section
+      id="site-builder-canvas"
+      className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] shadow-[0_26px_90px_rgba(25,27,32,0.12)]"
+    >
       <div className="flex flex-col gap-3 border-b border-black/10 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-2">
           <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b877e]">
@@ -1733,7 +1918,7 @@ function VisualBuilder({
                 {activePage.type === "portfolio" ? (
                   <BlockButton active={selectedPagePart === "gallery"} label={t("Nail gallery")} visible onClick={() => setSelectedPagePart("gallery")} />
                 ) : (
-                  (activePage.blocks ?? []).map((block) => (
+                  (activePage.blocks ?? []).map((block, index, blocks) => (
                     <BlockButton
                       key={block.id}
                       active={selectedCustomBlockId === block.id}
@@ -1742,6 +1927,7 @@ function VisualBuilder({
                       onClick={() => {
                         setSelectedPagePart("blocks");
                         setSelectedCustomBlockId(block.id);
+                        setSettingsOpen(true);
                       }}
                     />
                   ))
@@ -1766,7 +1952,7 @@ function VisualBuilder({
             <>
               <div className="mt-3 grid gap-2">
                 <BlockButton active={!selectedCustomBlockId && selectedSection === "hero"} label={t("Hero")} visible={draft.show_hero !== false} onClick={() => chooseSection("hero")} />
-                {layoutOrder.map((item) => {
+                {layoutOrder.map((item, index) => {
                   if (item.startsWith("section:")) {
                     const section = item.slice("section:".length) as PublicSiteSection;
                     return (
@@ -1823,9 +2009,21 @@ function VisualBuilder({
           </button>
         )}
 
-        <div className="min-w-0 overflow-auto bg-[#dcdcd8] p-4 sm:p-7">
+        <div
+          className={`min-w-0 overflow-auto bg-[#dcdcd8] transition-[padding] ${
+            blocksOpen || settingsOpen ? "p-4 sm:p-7" : "p-2 sm:p-3"
+          }`}
+        >
           <div
-            className={`mx-auto overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${previewDevice === "mobile" ? "max-w-[390px] rounded-[28px]" : "max-w-[920px] rounded-lg"}`}
+            className={`mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
+              previewDevice === "mobile"
+                ? "max-w-[390px] rounded-[28px]"
+                : blocksOpen && settingsOpen
+                  ? "max-w-[920px] rounded-lg"
+                  : blocksOpen || settingsOpen
+                    ? "max-w-[1120px] rounded-lg"
+                    : "max-w-none rounded-lg"
+            }`}
             style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
           >
             {activePage?.type === "portfolio" ? (
@@ -1877,7 +2075,8 @@ function VisualBuilder({
                     className={`${draft.header_logo_size === "small" ? "max-h-8 max-w-[130px]" : draft.header_logo_size === "large" ? "max-h-16 max-w-[240px]" : "max-h-12 max-w-[180px]"} object-contain object-left`}
                   />
                 ) : (
-                  <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em] text-[#551d1d]">
+                  <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em]"
+                    style={{ color: draft.theme_dark ?? "#17191f" }}>
                     {draft.brand_name || businessName}
                     <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">NAIL STUDIO</small>
                   </span>
@@ -1898,7 +2097,7 @@ function VisualBuilder({
                   <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
                   <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{draft.hero_eyebrow}</p>
-                    <h2 className="mt-5 text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
+                    <h2 className={`mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
                     <p className="mt-6 text-sm leading-7 text-white/75">{draft.hero_text}</p>
                     <div className="mt-7 flex flex-wrap gap-3">
                       <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
@@ -1911,7 +2110,7 @@ function VisualBuilder({
                   <div className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}>
                     <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
                     <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
-                    <h2 className="relative mt-5 max-w-2xl text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">{draft.hero_title}</h2>
+                    <h2 className={`relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
                     <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
                     <div className="relative mt-7 flex flex-wrap gap-3">
                       <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
@@ -1943,9 +2142,14 @@ function VisualBuilder({
                 >
                   <div
                     className={`${section === "services" ? "text-white" : index % 2 ? "bg-white/70" : ""} px-8 py-12 sm:px-12`}
-                    style={section === "services" ? { backgroundColor: draft.theme_dark ?? "#191b20" } : undefined}
+                    style={{
+                      ...(section === "services"
+                        ? { backgroundColor: draft.theme_dark ?? "#191b20" }
+                        : {}),
+                      ...sectionColorStyle(draft, section),
+                    }}
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: section === "services" ? "#f0cad5" : draft.theme_accent ?? "#9a742e" }}>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
                       {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
                     </p>
                     <h3 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
@@ -2095,18 +2299,14 @@ function VisualBuilder({
                 ) : null}
                 {selectedPagePart === "blocks" && selectedCustomBlock ? (
                   <>
-                    <MoveControls
-                      disabled={!canConfigure || !editingEnabled}
-                      first={(activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id}
-                      last={(activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id}
-                      t={t}
-                      onUp={() => movePageBlock(selectedCustomBlock.id, -1)}
-                      onDown={() => movePageBlock(selectedCustomBlock.id, 1)}
-                    />
                     <CustomBlockSettings
                       block={selectedCustomBlock}
                       disabled={!canConfigure || !editingEnabled}
+                      colorDisabled={!canConfigure}
                       t={t}
+                      siteAccent={draft.theme_accent ?? "#9d3151"}
+                      siteDark={draft.theme_dark ?? "#321722"}
+                      siteSurface={draft.theme_surface ?? "#fff7f5"}
                       onChange={updateCustomBlock}
                       onRemove={removeCustomBlock}
                       onChooseImage={(key, label) =>
@@ -2136,6 +2336,14 @@ function VisualBuilder({
                         })
                       }
                     />
+                    <MoveControls
+                      disabled={!canConfigure || !editingEnabled}
+                      first={(activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id}
+                      last={(activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id}
+                      t={t}
+                      onUp={() => movePageBlock(selectedCustomBlock.id, -1)}
+                      onDown={() => movePageBlock(selectedCustomBlock.id, 1)}
+                    />
                   </>
                 ) : null}
                 {selectedPagePart === "booking" ? (
@@ -2152,28 +2360,14 @@ function VisualBuilder({
               </>
             ) : selectedCustomBlock ? (
               <>
-                <MoveControls
-                  disabled={!canConfigure || !editingEnabled}
-                  first={selectedIndex <= 0}
-                  last={selectedIndex === layoutOrder.length - 1}
-                  t={t}
-                  onUp={() =>
-                    moveLayoutItem(
-                      customBlockLayoutId(selectedCustomBlock.id),
-                      -1,
-                    )
-                  }
-                  onDown={() =>
-                    moveLayoutItem(
-                      customBlockLayoutId(selectedCustomBlock.id),
-                      1,
-                    )
-                  }
-                />
                 <CustomBlockSettings
                   block={selectedCustomBlock}
                   disabled={!canConfigure || !editingEnabled}
+                  colorDisabled={!canConfigure}
                   t={t}
+                  siteAccent={draft.theme_accent ?? "#9d3151"}
+                  siteDark={draft.theme_dark ?? "#321722"}
+                  siteSurface={draft.theme_surface ?? "#fff7f5"}
                   onChange={updateCustomBlock}
                   onRemove={removeCustomBlock}
                   onChooseImage={(key, label) =>
@@ -2203,6 +2397,24 @@ function VisualBuilder({
                     })
                   }
                 />
+                <MoveControls
+                  disabled={!canConfigure || !editingEnabled}
+                  first={selectedIndex <= 0}
+                  last={selectedIndex === layoutOrder.length - 1}
+                  t={t}
+                  onUp={() =>
+                    moveLayoutItem(
+                      customBlockLayoutId(selectedCustomBlock.id),
+                      -1,
+                    )
+                  }
+                  onDown={() =>
+                    moveLayoutItem(
+                      customBlockLayoutId(selectedCustomBlock.id),
+                      1,
+                    )
+                  }
+                />
               </>
             ) : selectedSection === "hero" ? (
               <>
@@ -2211,6 +2423,13 @@ function VisualBuilder({
                   checked={draft.show_hero !== false}
                   disabled={!canConfigure || !editingEnabled}
                   onChange={(value) => onUpdate("show_hero", value)}
+                />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.hero}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure}
+                  t={t}
+                  onChange={updateSectionColors}
                 />
                 <Toggle label={t("Show announcement bar")} checked={draft.show_announcement !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_announcement", value)} />
                 <CompactField label={t("Announcement text")} value={draft.announcement_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("announcement_text", value)} />
@@ -2271,6 +2490,22 @@ function VisualBuilder({
                 />
                 <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_eyebrow", value)} />
                 <CompactField label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_title", value)} multiline />
+                <CompactSelect
+                  label={t("Hero mobile title size")}
+                  value={draft.hero_title_mobile_size ?? "medium"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "small", label: t("Compact mobile title") },
+                    { value: "medium", label: t("Standard mobile title") },
+                    { value: "large", label: t("Large mobile title") },
+                  ]}
+                  onChange={(value) =>
+                    onUpdate(
+                      "hero_title_mobile_size",
+                      value as "small" | "medium" | "large",
+                    )
+                  }
+                />
                 <CompactField label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} multiline />
                 <CompactField label={t("Primary button label")} value={draft.hero_primary_label ?? draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_label", value)} />
                 <CompactField label={t("Primary button link")} value={draft.hero_primary_url ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_url", value)} />
@@ -2295,6 +2530,13 @@ function VisualBuilder({
             ) : (
               <>
                 <Toggle label={t("Show block")} checked={Boolean(draft[visibilityKey!])} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate(visibilityKey!, value)} />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.[selectedSection]}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure}
+                  t={t}
+                  onChange={updateSectionColors}
+                />
                 <CompactField
                   label={t("Heading")}
                   value={(draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? ""}
@@ -2925,6 +3167,59 @@ function VisualBuilder({
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
                 <h3 className="text-lg font-semibold">{t("Colors and languages")}</h3>
+
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+                    {t("Ready-made palettes")}
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    {SITE_COLOR_PRESETS.map((preset) => {
+                      const selected =
+                        draft.theme_accent?.toLowerCase() === preset.accent &&
+                        draft.theme_dark?.toLowerCase() === preset.dark &&
+                        draft.theme_surface?.toLowerCase() === preset.surface;
+
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          disabled={!canConfigure}
+                          aria-pressed={selected}
+                          aria-label={t("Apply Bordeaux palette")}
+                          onClick={() => {
+                            onUpdate("theme_accent", preset.accent);
+                            onUpdate("theme_dark", preset.dark);
+                            onUpdate("theme_surface", preset.surface);
+                          }}
+                          className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition disabled:opacity-40 ${
+                            selected
+                              ? "border-[#9d3151]/45 bg-[#fff3f6] shadow-sm"
+                              : "border-black/10 bg-white hover:border-[#9d3151]/35"
+                          }`}
+                        >
+                          <span>
+                            <strong className="block text-sm">{t(preset.name)}</strong>
+                            <span className="mt-1 block text-[11px] text-[#716d65]">
+                              #9d3151 · #321722 · #fff7f5
+                            </span>
+                          </span>
+                          <span className="flex shrink-0 -space-x-1">
+                            {[preset.surface, preset.accent, preset.dark].map(
+                              (color) => (
+                                <i
+                                  key={color}
+                                  className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
+                                  style={{ backgroundColor: color }}
+                                />
+                              ),
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <ColorEditor
                   label={t("Primary color")}
                   value={draft.theme_accent ?? "#9d3151"}
@@ -3643,13 +3938,17 @@ function CustomPagePreview({
 }
 
 function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
-  const dark = block.tone === "dark";
-  const accent = block.tone === "accent";
-  const style = dark
+  const customColors = block.colors?.mode === "custom";
+  const dark = !customColors && block.tone === "dark";
+  const accent = !customColors && block.tone === "accent";
+  const style = customColors
+    ? "border-y border-black/8"
+    : dark
     ? "bg-[#321722] text-white"
     : accent
       ? "bg-[#9d3151] text-white"
       : "border-y border-black/8 bg-white/70 text-[#321722]";
+  const inlineStyle = colorOverrideStyle(block.colors);
   const mediaSize = {
     full: "w-full",
     wide: "w-full max-w-4xl",
@@ -3675,6 +3974,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
     return (
       <div
         className={`grid gap-7 px-8 py-12 sm:px-12 lg:grid-cols-2 lg:items-center ${style}`}
+        style={inlineStyle}
       >
         <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
           <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`}>
@@ -3746,7 +4046,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
   }
 
   return (
-    <div className={`px-8 py-12 sm:px-12 ${style}`}>
+    <div className={`px-8 py-12 sm:px-12 ${style}`} style={inlineStyle}>
       <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
         {block.eyebrow}
       </p>
@@ -4194,34 +4494,220 @@ function ColorEditor({
   label,
   value,
   disabled,
+  presets = [],
   onChange,
 }: {
   label: string;
   value: string;
   disabled: boolean;
+  presets?: string[];
   onChange: (value: string) => void;
 }) {
   const normalized = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
+  const uniquePresets = [...new Set(presets.filter((color) => /^#[0-9a-f]{6}$/i.test(color)))];
   return (
-    <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
-      {label}
-      <span className="mt-2 grid grid-cols-[48px_1fr] gap-2">
+    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+      <p>{label}</p>
+      <div className="mt-2 grid grid-cols-[54px_1fr] gap-2">
         <input
+          aria-label={label}
           type="color"
           value={normalized}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          className="h-11 w-12 cursor-pointer rounded-xl border border-black/10 bg-white p-1 disabled:cursor-not-allowed"
+          className="h-12 w-[54px] cursor-pointer rounded-xl border border-black/10 bg-white p-1 disabled:cursor-not-allowed disabled:opacity-50"
         />
         <input
+          aria-label={`${label} HEX`}
           value={value}
           disabled={disabled}
           maxLength={7}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-11 rounded-xl border border-black/10 bg-[#faf9f6] px-3 font-mono text-sm uppercase outline-none"
+          className="min-h-12 rounded-xl border border-black/10 bg-white px-3 font-mono text-sm uppercase outline-none focus:border-[#9d3151]/50 focus:ring-2 focus:ring-[#9d3151]/10 disabled:opacity-50"
         />
-      </span>
-    </label>
+      </div>
+      {uniquePresets.length ? (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {uniquePresets.map((color) => (
+            <button
+              key={color}
+              type="button"
+              disabled={disabled}
+              aria-label={`${label}: ${color}`}
+              title={color}
+              onClick={() => onChange(color)}
+              className={`h-7 w-7 rounded-full border-2 shadow-sm transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 ${
+                normalized.toLowerCase() === color.toLowerCase()
+                  ? "border-[#17191f] ring-2 ring-black/10"
+                  : "border-white"
+              }`}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function BlockColorsEditor({
+  colors,
+  defaults,
+  disabled,
+  t,
+  onChange,
+}: {
+  colors?: PublicSiteBlockColors;
+  defaults: { background: string; text: string; accent: string };
+  disabled: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onChange: (colors: PublicSiteBlockColors) => void;
+}) {
+  const custom = colors?.mode === "custom";
+  const current = {
+    background: colors?.background ?? defaults.background,
+    text: colors?.text ?? defaults.text,
+    accent: colors?.accent ?? defaults.accent,
+  };
+  const combinations = [
+    {
+      id: "light",
+      label: t("Light"),
+      background: "#ffffff",
+      text: defaults.text,
+      accent: defaults.accent,
+    },
+    {
+      id: "accent",
+      label: t("Accent"),
+      background: defaults.accent,
+      text: "#ffffff",
+      accent: defaults.text,
+    },
+    {
+      id: "dark",
+      label: t("Dark"),
+      background: defaults.text,
+      text: "#ffffff",
+      accent: defaults.accent,
+    },
+  ];
+
+  function chooseCustom(next = current) {
+    onChange({
+      mode: "custom",
+      background: next.background,
+      text: next.text,
+      accent: next.accent,
+    });
+  }
+
+  return (
+    <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
+          {t("Block colors")}
+        </p>
+        <span className="flex -space-x-1" aria-label={t("Current block colors")}> 
+          {[current.background, current.accent, current.text].map((color, index) => (
+            <i
+              key={`${color}-${index}`}
+              className="h-6 w-6 rounded-full border-2 border-white shadow-sm"
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          aria-pressed={!custom}
+          onClick={() => onChange({ mode: "theme" })}
+          className={`rounded-xl border px-3 py-3 text-left text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+            !custom
+              ? "border-[#17191f] bg-[#17191f] text-white"
+              : "border-black/10 bg-white text-[#514d47] hover:border-black/25"
+          }`}
+        >
+          {t("Use site palette")}
+        </button>
+        <button
+          type="button"
+          disabled={disabled}
+          aria-pressed={custom}
+          onClick={() => chooseCustom()}
+          className={`rounded-xl border px-3 py-3 text-left text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+            custom
+              ? "border-[#9d3151] bg-[#9d3151] text-white"
+              : "border-black/10 bg-white text-[#514d47] hover:border-[#9d3151]/40"
+          }`}
+        >
+          {t("Choose colors for this block")}
+        </button>
+      </div>
+      {custom ? (
+        <>
+          <div className="grid gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+              {t("Ready color combinations")}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {combinations.map((combination) => (
+                <button
+                  key={combination.id}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => chooseCustom(combination)}
+                  className="rounded-xl border border-black/10 bg-white p-2 text-left transition hover:-translate-y-0.5 hover:border-black/20 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span className="mb-2 flex -space-x-1">
+                    {[combination.background, combination.accent, combination.text].map((color, index) => (
+                      <i
+                        key={`${combination.id}-${color}-${index}`}
+                        className="h-5 w-5 rounded-full border-2 border-white shadow-sm"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </span>
+                  <span className="text-[10px] font-semibold text-[#514d47]">
+                    {combination.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="rounded-xl bg-white px-3 py-2 text-[11px] leading-5 text-[#716d65]">
+            {t("Click a ready combination, or press a color square to choose your own shade.")}
+          </p>
+          <ColorEditor
+            label={t("Block background")}
+            value={current.background}
+            disabled={disabled}
+            presets={[defaults.background, "#ffffff", "#f7f3ee", defaults.accent, defaults.text]}
+            onChange={(value) => onChange({ ...current, mode: "custom", background: value })}
+          />
+          <ColorEditor
+            label={t("Block text")}
+            value={current.text}
+            disabled={disabled}
+            presets={[defaults.text, "#17191f", "#321722", "#ffffff"]}
+            onChange={(value) => onChange({ ...current, mode: "custom", text: value })}
+          />
+          <ColorEditor
+            label={t("Block accent")}
+            value={current.accent}
+            disabled={disabled}
+            presets={[defaults.accent, "#9d3151", "#c49a6c", "#2f6d73", "#17191f"]}
+            onChange={(value) => onChange({ ...current, mode: "custom", accent: value })}
+          />
+        </>
+      ) : (
+        <p className="text-[11px] leading-5 text-[#716d65]">
+          {t("This block follows the main site palette.")}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -5700,7 +6186,11 @@ function ColumnCardsEditor({
 function CustomBlockSettings({
   block,
   disabled,
+  colorDisabled,
   t,
+  siteAccent,
+  siteDark,
+  siteSurface,
   onChange,
   onRemove,
   onChooseImage,
@@ -5709,7 +6199,11 @@ function CustomBlockSettings({
 }: {
   block: PublicSiteCustomBlock;
   disabled: boolean;
+  colorDisabled: boolean;
   t: ReturnType<typeof useAdminI18n>["t"];
+  siteAccent: string;
+  siteDark: string;
+  siteSurface: string;
   onChange: <Key extends keyof PublicSiteCustomBlock>(
     key: Key,
     value: PublicSiteCustomBlock[Key],
@@ -5728,6 +6222,11 @@ function CustomBlockSettings({
 }) {
   const sliderImages = block.media_urls ?? [];
   const collageImages = block.media_urls ?? [];
+  const colorDefaults = block.tone === "dark"
+    ? { background: siteDark, text: "#ffffff", accent: siteAccent }
+    : block.tone === "accent"
+      ? { background: siteAccent, text: "#ffffff", accent: siteDark }
+      : { background: siteSurface, text: siteDark, accent: siteAccent };
 
   return (
     <>
@@ -6155,6 +6654,13 @@ function CustomBlockSettings({
           </label>
         </div>
       ) : null}
+      <BlockColorsEditor
+        colors={block.colors}
+        defaults={colorDefaults}
+        disabled={colorDisabled}
+        t={t}
+        onChange={(colors) => onChange("colors", colors)}
+      />
       <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
         {t("Block style")}
         <select
@@ -6727,12 +7233,34 @@ function CanvasSectionPreview({
   );
 }
 
-function BlockButton({ active, label, visible, onClick }: { active: boolean; label: string; visible: boolean; onClick: () => void }) {
+function BlockButton({
+  active,
+  label,
+  visible,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  visible: boolean;
+  onClick: () => void;
+}) {
   return (
-    <button type="button" onClick={onClick} className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${active ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]" : "border-black/8 bg-white hover:border-black/20"}`}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${
+        active
+          ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]"
+          : "border-black/8 bg-white hover:border-black/20"
+      }`}
+    >
       <span className="text-black/25" aria-hidden="true">⋮⋮</span>
-      <span className="flex-1">{label}</span>
-      <span className={`h-2 w-2 rounded-full ${visible ? "bg-emerald-500" : "bg-black/20"}`} />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <span
+        className={`h-2 w-2 shrink-0 rounded-full ${
+          visible ? "bg-emerald-500" : "bg-black/20"
+        }`}
+      />
     </button>
   );
 }

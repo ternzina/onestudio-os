@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(25);
+select plan(26);
 
 select has_function('public', 'list_my_workspace_management', array[]::text[], 'workspace management list exists');
 select has_function('public', 'archive_my_workspace', array['uuid'], 'workspace archive RPC exists');
@@ -100,11 +100,15 @@ select throws_ok(
   'cannot_archive_last_workspace',
   'last active workspace cannot be archived'
 );
-select throws_ok(
-  $$select public.delete_my_empty_workspace('85000000-0000-4000-8000-000000000005', 'Lifecycle Single')$$,
-  'P0001',
-  'cannot_delete_last_workspace',
-  'last active workspace cannot be deleted'
+select is(
+  public.delete_my_empty_workspace('85000000-0000-4000-8000-000000000005', 'Lifecycle Single'),
+  null::uuid,
+  'last empty demo workspace may be deleted'
+);
+select is(
+  (select count(*) from public.businesses where id = '85000000-0000-4000-8000-000000000005'),
+  0::bigint,
+  'last deleted workspace is gone'
 );
 
 reset role;

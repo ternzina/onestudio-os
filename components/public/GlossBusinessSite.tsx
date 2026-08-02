@@ -13,6 +13,7 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import { publicSiteReviews } from "@/lib/public-site/content";
+import { sectionColorStyle } from "@/lib/public-site/colors";
 import {
   customBlockLayoutId,
   resolvePublicSiteLayoutOrder,
@@ -98,7 +99,7 @@ function GlossLogo({
       href={href}
       aria-label={brandName}
       className={`inline-flex -translate-y-0.5 flex-col leading-none ${
-        light ? "text-white" : "text-[#551d1d]"
+        light ? "text-white" : "text-[var(--site-dark)]"
       }`}
     >
       {logoUrl ? (
@@ -175,6 +176,14 @@ function heroObjectClass(
         ? "object-bottom"
         : "object-center";
   return `${fitClass} ${positionClass}`;
+}
+
+function heroTitleSizeClass(
+  size: "small" | "medium" | "large" | undefined,
+) {
+  if (size === "small") return "text-4xl";
+  if (size === "large") return "text-6xl";
+  return "text-5xl";
 }
 
 function menuCopy(locale: string) {
@@ -272,8 +281,10 @@ export default function GlossBusinessSite({
   return (
     <main
       lang={business.locale}
-      className="min-h-screen bg-[#fffdfb] text-[#3b211f]"
+      className="min-h-screen"
       style={{
+        backgroundColor: content.theme_surface ?? "#fffdfb",
+        color: content.theme_dark ?? "#551214",
         "--site-accent": content.theme_accent ?? "#a60918",
         "--site-dark": content.theme_dark ?? "#551214",
         "--site-surface": content.theme_surface ?? "#fffdfb",
@@ -286,7 +297,11 @@ export default function GlossBusinessSite({
       ) : null}
 
       <header
-        className={`${content.header_sticky === true ? "sticky top-0 z-50 bg-white/95 backdrop-blur-xl" : "relative z-40 bg-white"} border-b border-[#3b211f]/10`}
+        className={`${content.header_sticky === true ? "sticky top-0 z-50 backdrop-blur-xl" : "relative z-40"} border-b`}
+        style={{
+          backgroundColor: content.theme_surface ?? "#fffdfb",
+          borderColor: `${content.theme_dark ?? "#551214"}1a`,
+        }}
       >
         <div className="relative mx-auto flex min-h-[82px] w-[calc(100%_-_40px)] max-w-[1240px] items-center justify-between gap-5">
           <div className={headerLogoPosition === "center" ? "absolute left-1/2 -translate-x-1/2" : "shrink-0"}>
@@ -343,7 +358,7 @@ export default function GlossBusinessSite({
 
       {content.show_hero !== false ? (
         heroLayout === "cover" ? (
-          <section className="relative isolate min-h-[620px] overflow-hidden border-b border-[#3b211f]/8 bg-[var(--site-dark)] text-white">
+          <section className="relative isolate min-h-[620px] overflow-hidden border-b border-[#3b211f]/8 bg-[var(--site-dark)] text-white" style={sectionColorStyle(content, "hero")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={heroImage}
@@ -355,7 +370,7 @@ export default function GlossBusinessSite({
             <div className="relative mx-auto flex min-h-[620px] w-[calc(100%_-_40px)] max-w-[1240px] items-center py-20">
               <div className="max-w-2xl">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{content.hero_eyebrow}</p>
-                <h1 className="mt-5 font-serif text-5xl leading-[1.03] tracking-[-0.035em] sm:text-7xl">{content.hero_title}</h1>
+                <h1 className={`mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-6 max-w-xl text-base leading-7 text-white/78">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
@@ -367,11 +382,11 @@ export default function GlossBusinessSite({
             </div>
           </section>
         ) : (
-          <section className="border-b border-[#3b211f]/8 bg-white">
+          <section className="border-b border-[#3b211f]/8 bg-white" style={sectionColorStyle(content, "hero")}>
             <div className={`mx-auto grid w-full max-w-[1240px] ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`}>
               <div className={`flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20 ${content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}`}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">{content.hero_eyebrow}</p>
-                <h1 className="mt-5 max-w-xl font-serif text-5xl leading-[1.03] tracking-[-0.035em] sm:text-7xl">{content.hero_title}</h1>
+                <h1 className={`mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-6 max-w-md text-base leading-7 text-[#6a5551]">{content.hero_text}</p>
                 <div className="mt-7 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
@@ -400,7 +415,7 @@ export default function GlossBusinessSite({
         {content.show_services && services.length ? (
           <section
             id="services"
-            style={{ order: layoutPosition(sectionLayoutId("services")) }}
+            style={{ order: layoutPosition(sectionLayoutId("services")), ...sectionColorStyle(content, "services") }}
             className="px-5 py-16 sm:py-20"
           >
             <div className="mx-auto w-full max-w-[1240px]">
@@ -452,7 +467,7 @@ export default function GlossBusinessSite({
         {content.show_portfolio && portfolio.length ? (
           <section
             id="portfolio"
-            style={{ order: layoutPosition(sectionLayoutId("portfolio")) }}
+            style={{ order: layoutPosition(sectionLayoutId("portfolio")), ...sectionColorStyle(content, "portfolio") }}
             className="px-5 pb-16 sm:pb-20"
           >
             <div className="mx-auto grid w-full max-w-[1240px] gap-8 lg:grid-cols-[1.45fr_0.72fr]">
@@ -525,7 +540,7 @@ export default function GlossBusinessSite({
         {content.show_team && team.length ? (
           <section
             id="team"
-            style={{ order: layoutPosition(sectionLayoutId("team")) }}
+            style={{ order: layoutPosition(sectionLayoutId("team")), ...sectionColorStyle(content, "team") }}
             className="px-5 pb-16 sm:pb-20"
           >
             <div className="mx-auto w-full max-w-[1240px]">
@@ -587,7 +602,7 @@ export default function GlossBusinessSite({
         {content.show_booking !== false && capabilities.booking ? (
           <section
             id="booking"
-            style={{ order: layoutPosition(sectionLayoutId("booking")) }}
+            style={{ order: layoutPosition(sectionLayoutId("booking")), ...sectionColorStyle(content, "booking") }}
             className="px-5 pb-6"
           >
             <div className="mx-auto w-full max-w-[1240px]">
@@ -603,7 +618,7 @@ export default function GlossBusinessSite({
         {content.show_membership && (content.membership_text || lines(content.membership_items).length) ? (
           <section
             id="membership"
-            style={{ order: layoutPosition(sectionLayoutId("membership")) }}
+            style={{ order: layoutPosition(sectionLayoutId("membership")), ...sectionColorStyle(content, "membership") }}
             className="px-5 py-10"
           >
             <div className="mx-auto w-full max-w-[1240px]">
@@ -699,7 +714,7 @@ export default function GlossBusinessSite({
         {content.show_safety !== false && safety.length ? (
           <section
             id="safety"
-            style={{ order: layoutPosition(sectionLayoutId("safety")) }}
+            style={{ order: layoutPosition(sectionLayoutId("safety")), ...sectionColorStyle(content, "safety") }}
             className="px-5 py-6"
           >
             <div className="mx-auto w-full max-w-[1240px] rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10">
@@ -750,7 +765,7 @@ export default function GlossBusinessSite({
         {content.show_reviews && reviews.length ? (
           <section
             id="reviews"
-            style={{ order: layoutPosition(sectionLayoutId("reviews")) }}
+            style={{ order: layoutPosition(sectionLayoutId("reviews")), ...sectionColorStyle(content, "reviews") }}
             className="px-5 py-6"
           >
             <div className="mx-auto w-full max-w-[1240px] rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12">
@@ -804,7 +819,7 @@ export default function GlossBusinessSite({
         {content.show_gift && content.gift_text ? (
           <section
             id="gift"
-            style={{ order: layoutPosition(sectionLayoutId("gift")) }}
+            style={{ order: layoutPosition(sectionLayoutId("gift")), ...sectionColorStyle(content, "gift") }}
             className="px-5 py-10"
           >
             <div className="mx-auto w-full max-w-[1240px]">
@@ -893,7 +908,7 @@ export default function GlossBusinessSite({
         {content.show_faq && content.faq_items ? (
           <section
             id="faq"
-            style={{ order: layoutPosition(sectionLayoutId("faq")) }}
+            style={{ order: layoutPosition(sectionLayoutId("faq")), ...sectionColorStyle(content, "faq") }}
             className="px-5 py-16"
           >
             <div className="mx-auto grid w-full max-w-[1240px] gap-10 lg:grid-cols-[0.7fr_1.3fr]">
@@ -930,7 +945,7 @@ export default function GlossBusinessSite({
         ) ? (
           <section
             id="about"
-            style={{ order: layoutPosition(sectionLayoutId("about")) }}
+            style={{ order: layoutPosition(sectionLayoutId("about")), ...sectionColorStyle(content, "about") }}
             className="px-5 py-16"
           >
             <div className="mx-auto w-full max-w-[1240px] border-t border-[#3b211f]/10 pt-12">
@@ -1007,7 +1022,7 @@ export default function GlossBusinessSite({
         {content.show_contact ? (
           <section
             id="contact"
-            style={{ order: layoutPosition(sectionLayoutId("contact")) }}
+            style={{ order: layoutPosition(sectionLayoutId("contact")), ...sectionColorStyle(content, "contact") }}
             className="px-5 pb-6 pt-10"
           >
             <div className="mx-auto grid w-full max-w-[1240px] overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]">
