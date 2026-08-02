@@ -229,6 +229,8 @@ export default function BookingsManager() {
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [copyingManagementLink, setCopyingManagementLink] = useState(false);
+  const [deletingBooking, setDeletingBooking] = useState(false);
   const saveInFlightRef = useRef(false);
   const [checkingSlots, setCheckingSlots] = useState(false);
   const [notice, setNotice] = useState("");
@@ -531,9 +533,24 @@ export default function BookingsManager() {
       }
 
       const savedId = String(result.data);
+      let managementLinkWarning = "";
+
+      if (draft.client_email.trim()) {
+        const linkResult = await supabase.rpc("ensure_admin_booking_management_link", {
+          p_booking_id: savedId,
+          p_base_url: window.location.origin,
+        });
+
+        if (linkResult.error) {
+          managementLinkWarning = adminLocale === "ru"
+            ? " Ссылка управления не была добавлена в письмо."
+            : " The management link could not be added to the email.";
+        }
+      }
+
       await reload();
       setSelectedBookingId(savedId);
-      setNotice(wasEditing ? t("Booking updated.") : t("Booking created."));
+      setNotice(`${wasEditing ? t("Booking updated.") : t("Booking created.")}${managementLinkWarning}`);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : t("That slot was just taken or is no longer available."));
     } finally {
@@ -569,6 +586,89 @@ export default function BookingsManager() {
     await reload();
     setNotice(status === "cancelled" ? t("Booking cancelled.") : t("Booking status updated."));
     setSaving(false);
+  };
+
+  const copyClientManagementLink = async () => {
+    if (!selectedBooking || !selectedClient?.email || !canOperate) return;
+    resetMessages();
+    setCopyingManagementLink(true);
+
+    const result = await supabase.rpc("ensure_admin_booking_management_link", {
+      p_booking_id: selectedBooking.id,
+      p_base_url: window.location.origin,
+    });
+
+    if (result.error) {
+      setError(result.error.message);
+      setCopyingManagementLink(false);
+      return;
+    }
+
+    const manageUrl = String((result.data as { manage_url?: string } | null)?.manage_url ?? "");
+    if (!manageUrl) {
+      setError(adminLocale === "ru" ? "Ссылка управления не создана." : "The management link was not created.");
+      setCopyingManagementLink(false);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(manageUrl);
+      setNotice(adminLocale === "ru"
+        ? "Ссылка клиента скопирована. Она также добавлена в ожидающие письма по этой брони."
+        : "The client link was copied and added to pending emails for this booking.");
+    } catch {
+      setNotice(manageUrl);
+    }
+
+    setCopyingManagementLink(false);
+  };
+
+  const deleteBooking = async () => {
+    if (!selectedBooking || !canOperate) return;
+    resetMessages();
+
+    const promptText = adminLocale === "ru"
+      ? `Чтобы удалить бронь окончательно, введите её номер: ${selectedBooking.reference}`
+      : `To permanently delete this booking, enter its reference: ${selectedBooking.reference}`;
+    const confirmation = window.prompt(promptText, "");
+    if (confirmation === null) return;
+    if (confirmation.trim().toUpperCase() !== selectedBooking.reference.toUpperCase()) {
+      setError(adminLocale === "ru" ? "Номер брони не совпал. Удаление отменено." : "The booking reference did not match. Deletion was cancelled.");
+      return;
+    }
+
+    setDeletingBooking(true);
+    const result = await supabase.rpc("delete_admin_booking", {
+      p_booking_id: selectedBooking.id,
+    });
+
+    if (result.error) {
+      const protectedHistory = result.error.message.includes("booking_delete_protected_history");
+      const calendarLinked = result.error.message.includes("booking_delete_calendar_linked");
+      setError(protectedHistory
+        ? (adminLocale === "ru"
+          ? "Эту бронь нельзя удалить: к ней уже привязана оплата или документ. Её можно только отменить."
+          : "This booking cannot be deleted because it has a payment or document. Cancel it instead.")
+        : calendarLinked
+          ? (adminLocale === "ru"
+            ? "Эту бронь нельзя удалить, пока она связана с Google Calendar. Сначала отмените её."
+            : "This booking cannot be deleted while it is linked to Google Calendar. Cancel it first.")
+          : result.error.message);
+      setDeletingBooking(false);
+      return;
+    }
+
+    const service = services.find((item) => item.is_active) ?? services[0];
+    setSelectedBookingId(null);
+    setDraft({
+      ...emptyDraft(workspace?.default_locale || "ru"),
+      service_id: service?.id ?? "",
+      duration_minutes: String(service?.duration_min_minutes ?? 60),
+    });
+    setSlots([]);
+    await reload();
+    setNotice(adminLocale === "ru" ? "Бронь удалена окончательно." : "The booking was permanently deleted.");
+    setDeletingBooking(false);
   };
 
   const activeBooking = selectedBooking && ["hold", "pending", "confirmed"].includes(selectedBooking.status);
@@ -697,6 +797,18 @@ export default function BookingsManager() {
                 >
                   {t("Open payments")}
                 </Link>
+                {selectedClient?.email && (
+                  <button
+                    type="button"
+                    className={secondaryButtonClass}
+                    onClick={() => void copyClientManagementLink()}
+                    disabled={saving || copyingManagementLink || deletingBooking}
+                  >
+                    {copyingManagementLink
+                      ? (adminLocale === "ru" ? "Создаём ссылку…" : "Creating link…")
+                      : (adminLocale === "ru" ? "Ссылка клиенту" : "Client link")}
+                  </button>
+                )}
                 {nextActions.map((status) => (
                   <button
                     key={status}
@@ -708,6 +820,16 @@ export default function BookingsManager() {
                     {status === "cancelled" ? t("Cancel booking") : t(statusMessages[status])}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-45"
+                  onClick={() => void deleteBooking()}
+                  disabled={saving || deletingBooking || copyingManagementLink}
+                >
+                  {deletingBooking
+                    ? (adminLocale === "ru" ? "Удаляем…" : "Deleting…")
+                    : (adminLocale === "ru" ? "Удалить бронь" : "Delete booking")}
+                </button>
               </div>
             )}
           </div>

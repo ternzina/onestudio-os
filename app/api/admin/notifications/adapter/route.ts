@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getResendAdapterStatus,
   isResendConfigurationError,
+  processResendJob,
   processResendQueue,
 } from "@/lib/server/notifications/resend-adapter";
 
@@ -90,14 +91,22 @@ export async function GET() {
   });
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const access = await adminAccess();
   if (!access.ok || !["owner", "admin", "manager"].includes(access.role || "")) {
     return NextResponse.json({ ok: false, error: "notification_adapter_forbidden" }, { status: access.ok ? 403 : access.status });
   }
 
   try {
-    const result = await processResendQueue("admin");
+    let jobId = "";
+    if ((request.headers.get("content-type") || "").includes("application/json")) {
+      const body = (await request.json().catch(() => null)) as { jobId?: unknown } | null;
+      jobId = typeof body?.jobId === "string" ? body.jobId.trim() : "";
+    }
+
+    const result = jobId
+      ? await processResendJob("admin", jobId)
+      : await processResendQueue("admin");
     return NextResponse.json({
       ok: true,
       adapter: getResendAdapterStatus(),

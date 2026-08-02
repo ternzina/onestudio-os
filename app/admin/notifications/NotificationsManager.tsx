@@ -310,6 +310,46 @@ export default function NotificationsManager() {
     }
   }
 
+  async function sendSelectedNow() {
+    if (!selectedJob) return;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      if (selectedJob.status === "failed") {
+        const { error: retryError } = await supabase.rpc("retry_admin_notification", {
+          p_job_id: selectedJob.id,
+        });
+        if (retryError) throw retryError;
+      }
+
+      const response = await fetch("/api/admin/notifications/adapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: selectedJob.id }),
+      });
+      const result = (await response.json()) as AdapterResponse;
+      if (!response.ok || !result.ok || !result.result) {
+        throw new Error(result.error || "notification_selected_delivery_failed");
+      }
+
+      setNotice(
+        result.result.sent === 1
+          ? (adminLocale === "ru"
+            ? `Письмо отправлено: ${selectedJob.recipient_email}`
+            : `Email sent: ${selectedJob.recipient_email}`)
+          : (adminLocale === "ru"
+            ? "Письмо не отправлено. Проверьте последнюю ошибку доставки."
+            : "The email was not sent. Check the latest delivery error."),
+      );
+      await Promise.all([loadData(workspace), loadAdapterStatus()]);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function prepareReminders() {
     if (!workspace) return;
     await runAction(async () => {
@@ -548,6 +588,22 @@ export default function NotificationsManager() {
                   <div className="mt-6 flex flex-wrap gap-2">
                     {selectedJob.booking_id ? <Link className={secondaryButtonClass} href={`/admin/bookings?booking=${selectedJob.booking_id}`}>{t("Open booking")}</Link> : null}
                     {selectedJob.client_id ? <Link className={secondaryButtonClass} href={`/admin/clients?client=${selectedJob.client_id}`}>{t("Open client")}</Link> : null}
+                    <button
+                      className={buttonClass}
+                      type="button"
+                      onClick={() => void sendSelectedNow()}
+                      disabled={
+                        !canOperate ||
+                        !canProcessAdapter ||
+                        busy ||
+                        !adapterStatus?.configured ||
+                        !["scheduled", "pending", "failed"].includes(selectedJob.status)
+                      }
+                    >
+                      {busy
+                        ? t("Processing…")
+                        : (adminLocale === "ru" ? "Отправить это письмо сейчас" : "Send this email now")}
+                    </button>
                     <button className={secondaryButtonClass} type="button" onClick={() => void retryJob()} disabled={!canOperate || busy || !["failed", "cancelled"].includes(selectedJob.status)}>{t("Retry")}</button>
                     <button className={secondaryButtonClass} type="button" onClick={() => void cancelJob()} disabled={!canOperate || busy || !["scheduled", "pending", "failed"].includes(selectedJob.status)}>{t("Cancel notification")}</button>
                   </div>

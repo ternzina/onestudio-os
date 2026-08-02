@@ -414,6 +414,63 @@ export async function processResendQueue(
   };
 }
 
+export async function processResendJob(
+  source: NotificationRunSource,
+  jobId: string,
+): Promise<ResendQueueResult> {
+  const status = getResendAdapterStatus();
+
+  if (status.mode === "disabled") {
+    return {
+      provider: "resend",
+      mode: status.mode,
+      source,
+      recovered: 0,
+      claimed: 0,
+      sent: 0,
+      failed: 0,
+      disabled: true,
+      failures: [],
+    };
+  }
+
+  if (!status.configured) {
+    throw new ResendAdapterConfigurationError(
+      `Resend adapter is missing: ${status.missing.join(", ")}`,
+    );
+  }
+
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(jobId)) {
+    throw new Error("invalid_notification_job_id");
+  }
+
+  const supabase = serviceClient();
+  const { data, error } = await supabase.rpc("claim_notification_job", {
+    p_job_id: jobId,
+    p_provider: "resend",
+  });
+  if (error) throw error;
+
+  const jobs = (data ?? []) as ClaimedNotificationJob[];
+  if (jobs.length !== 1) {
+    throw new Error("notification_job_not_sendable");
+  }
+
+  const job = jobs[0];
+  const result = await sendOne(supabase, job, status);
+  return {
+    provider: "resend",
+    mode: status.mode,
+    source,
+    recovered: 0,
+    claimed: 1,
+    sent: result.sent ? 1 : 0,
+    failed: result.sent ? 0 : 1,
+    disabled: false,
+    failures: result.sent ? [] : [{ jobId: job.id, message: result.message }],
+  };
+}
+
 export function isResendConfigurationError(error: unknown) {
   return error instanceof ResendAdapterConfigurationError;
 }
