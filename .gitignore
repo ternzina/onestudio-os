@@ -15,3 +15,6 @@ supabase/.temp/
 
 # Supabase local branch metadata
 supabase/.branches/
+
+playwright-report/
+test-results/
