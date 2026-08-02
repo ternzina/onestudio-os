@@ -146,6 +146,61 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+
+function SectionCard({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-[26px] border border-black/8 bg-[#fffdfa] p-5 sm:p-6">
+      <div className="mb-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{eyebrow}</p>
+        <h3 className="mt-2 text-xl font-semibold tracking-[-0.035em] text-[#26231f]">{title}</h3>
+        {description && <p className="mt-1.5 text-sm leading-6 text-[#77736a]">{description}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function SummaryItem({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: ReactNode;
+  detail?: ReactNode;
+}) {
+  return (
+    <div className="min-w-0 rounded-[20px] border border-black/8 bg-white px-4 py-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.17em] text-[#9a742e]">{label}</p>
+      <div className="mt-2 truncate text-sm font-semibold text-[#26231f]">{value}</div>
+      {detail && <div className="mt-1 truncate text-xs text-[#77736a]">{detail}</div>}
+    </div>
+  );
+}
+
+function statusBadgeClass(status: BookingStatus) {
+  if (status === "confirmed" || status === "completed") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  }
+  if (status === "cancelled" || status === "no_show") {
+    return "border-red-200 bg-red-50 text-red-800";
+  }
+  if (status === "pending" || status === "hold") {
+    return "border-amber-200 bg-amber-50 text-amber-800";
+  }
+  return "border-black/10 bg-[#eeebe3] text-[#55524c]";
+}
+
 function tomorrowInputDate() {
   const date = new Date();
   date.setDate(date.getDate() + 1);
@@ -706,29 +761,30 @@ export default function BookingsManager() {
           <div className="flex flex-wrap items-center gap-2">
             <select className={inputClass} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as BookingStatus | "all")}>
               <option value="all">{t("All statuses")}</option>
-              {(Object.keys(statusMessages) as BookingStatus[]).map((status) => <option key={status} value={status}>{t(statusMessages[status])}</option>)}
+              {Object.keys(statusMessages).map((status) => <option key={status} value={status}>{t(statusMessages[status as BookingStatus])}</option>)}
             </select>
-            <button type="button" className={secondaryButtonClass} onClick={() => void load()}>{t("Refresh")}</button>
             <button type="button" className={buttonClass} onClick={startNew} disabled={!canOperate}>{t("New booking")}</button>
           </div>
         </div>
       </div>
 
       {contextClient && (
-        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-[#d8b36a]/35 bg-[#fff8e8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">Client context</p>
-            <p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p>
-            <p className="mt-1 text-xs text-[#77736a]">{visibleBookings.length} bookings shown</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/admin/clients?client=${contextClient.id}`} className={secondaryButtonClass}>Open client</Link>
-            <Link href="/admin/bookings" className={buttonClass}>Show all bookings</Link>
+        <div className="mt-5 rounded-[24px] border border-[#d8b36a]/45 bg-[#fff8e8] px-5 py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{adminLocale === "ru" ? "Контекст клиента" : "Client context"}</p>
+              <p className="mt-1 font-semibold text-[#332f29]">{contextClient.name}</p>
+              <p className="mt-1 text-xs text-[#77736a]">{adminLocale === "ru" ? `Показано броней: ${visibleBookings.length}` : `${visibleBookings.length} bookings shown`}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/admin/clients?client=${contextClient.id}`} className={secondaryButtonClass}>{t("Open client")}</Link>
+              <Link href="/admin/bookings" className={buttonClass}>{adminLocale === "ru" ? "Все брони" : "Show all bookings"}</Link>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[0.78fr_1.22fr]">
         <section className="rounded-[30px] border border-black/8 bg-[#eeebe3] p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -736,7 +792,7 @@ export default function BookingsManager() {
               <p className="mt-1 text-sm text-[#77736a]">{t("{count} bookings", { count: visibleBookings.length })}</p>
             </div>
           </div>
-          <div className="mt-5 grid max-h-[820px] gap-3 overflow-y-auto pr-1">
+          <div className="mt-5 grid max-h-[900px] gap-3 overflow-y-auto pr-1">
             {visibleBookings.length === 0 && <div className="rounded-2xl bg-white/80 p-5 text-sm text-[#77736a]">{t("No bookings yet.")}</div>}
             {visibleBookings.map((booking) => {
               const client = clientMap.get(booking.client_id);
@@ -747,15 +803,15 @@ export default function BookingsManager() {
                   key={booking.id}
                   type="button"
                   onClick={() => selectBooking(booking)}
-                  className={`rounded-[22px] border p-4 text-left transition ${active ? "border-[#17191f] bg-[#17191f] text-white" : "border-black/8 bg-white hover:-translate-y-0.5"}`}
+                  className={`rounded-[22px] border p-4 text-left transition ${active ? "border-[#17191f] bg-[#17191f] text-white shadow-[0_14px_34px_rgba(23,25,31,0.18)]" : "border-black/8 bg-white hover:-translate-y-0.5 hover:border-black/15"}`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] ${active ? "text-[#d8b36a]" : "text-[#9a742e]"}`}>{booking.reference}</p>
-                      <p className="mt-2 text-lg font-semibold">{client?.name ?? t("Unknown client")}</p>
-                      <p className={`mt-1 text-sm ${active ? "text-white/65" : "text-[#77736a]"}`}>{service?.title ?? t("Unknown service")}</p>
+                      <p className="mt-2 truncate text-lg font-semibold">{client?.name ?? t("Unknown client")}</p>
+                      <p className={`mt-1 truncate text-sm ${active ? "text-white/65" : "text-[#77736a]"}`}>{service?.title ?? t("Unknown service")}</p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${active ? "bg-white/10" : "bg-[#eeebe3]"}`}>{t(statusMessages[booking.status])}</span>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-semibold uppercase ${active ? "bg-white/10" : "bg-[#eeebe3]"}`}>{t(statusMessages[booking.status])}</span>
                   </div>
                   <p className={`mt-4 text-sm ${active ? "text-white/78" : "text-[#55524c]"}`}>{formatDateTime(booking.starts_at, workspace.timezone, adminLocale)}</p>
                   <div className={`mt-3 flex items-center justify-between text-xs ${active ? "text-white/60" : "text-[#77736a]"}`}>
@@ -769,170 +825,218 @@ export default function BookingsManager() {
         </section>
 
         <section className="rounded-[30px] border border-black/8 bg-white p-5 shadow-[0_18px_55px_rgba(20,20,20,0.06)] sm:p-7">
-          <div className="flex flex-col gap-4 border-b border-black/8 pb-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{selectedBooking ? t("Booking details") : t("New booking")}</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{selectedBooking?.reference ?? t("Reserve a calculated slot")}</h2>
-              {selectedBooking && <p className="mt-2 text-sm text-[#77736a]">{t("Status")}: {t(statusMessages[selectedBooking.status])}</p>}
+          <div className="border-b border-black/8 pb-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{selectedBooking ? t("Booking details") : t("New booking")}</p>
+                  {selectedBooking && (
+                    <span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] ${statusBadgeClass(selectedBooking.status)}`}>
+                      {t(statusMessages[selectedBooking.status])}
+                    </span>
+                  )}
+                </div>
+                <h2 className="mt-2 truncate text-3xl font-semibold tracking-[-0.05em]">{selectedBooking?.reference ?? t("Reserve a calculated slot")}</h2>
+                {selectedBooking && (
+                  <p className="mt-2 text-sm text-[#77736a]">
+                    {formatDateTime(selectedBooking.starts_at, workspace.timezone, adminLocale)} · {durationMinutes(selectedBooking.starts_at, selectedBooking.ends_at)} {adminLocale === "ru" ? "мин" : "min"}
+                  </p>
+                )}
+              </div>
+
+              {selectedBooking && (
+                <div className="flex flex-wrap gap-2 lg:max-w-[360px] lg:justify-end">
+                  {selectedClient && <Link href={`/admin/clients?client=${selectedClient.id}`} className={secondaryButtonClass}>{t("Open client")}</Link>}
+                  {selectedClient?.email && (
+                    <button type="button" className={secondaryButtonClass} onClick={() => void copyClientManagementLink()} disabled={saving || copyingManagementLink || deletingBooking}>
+                      {copyingManagementLink ? (adminLocale === "ru" ? "Создаём ссылку…" : "Creating link…") : (adminLocale === "ru" ? "Ссылка клиенту" : "Client link")}
+                    </button>
+                  )}
+                  <Link href={`/admin/documents?booking=${selectedBooking.id}`} className={secondaryButtonClass}>{t("Create document")}</Link>
+                  <Link href={`/admin/payments?booking=${selectedBooking.id}`} className={secondaryButtonClass}>{t("Open payments")}</Link>
+                </div>
+              )}
             </div>
+
             {selectedBooking && (
-              <div className="flex flex-wrap gap-2">
-                {selectedClient && (
-                  <Link
-                    href={`/admin/clients?client=${selectedClient.id}`}
-                    className={secondaryButtonClass}
-                  >
-                    {t("Open client")}
-                  </Link>
-                )}
-                <Link
-                  href={`/admin/documents?booking=${selectedBooking.id}`}
-                  className={secondaryButtonClass}
-                >
-                  {t("Create document")}
-                </Link>
-                <Link
-                  href={`/admin/payments?booking=${selectedBooking.id}`}
-                  className={secondaryButtonClass}
-                >
-                  {t("Open payments")}
-                </Link>
-                {selectedClient?.email && (
-                  <button
-                    type="button"
-                    className={secondaryButtonClass}
-                    onClick={() => void copyClientManagementLink()}
-                    disabled={saving || copyingManagementLink || deletingBooking}
-                  >
-                    {copyingManagementLink
-                      ? (adminLocale === "ru" ? "Создаём ссылку…" : "Creating link…")
-                      : (adminLocale === "ru" ? "Ссылка клиенту" : "Client link")}
-                  </button>
-                )}
-                {nextActions.map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    className={status === "cancelled" ? "rounded-full border border-red-200 px-4 py-2 text-xs font-semibold text-red-700" : secondaryButtonClass}
-                    onClick={() => void changeStatus(status)}
-                    disabled={saving}
-                  >
-                    {status === "cancelled" ? t("Cancel booking") : t(statusMessages[status])}
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <SummaryItem
+                  label={adminLocale === "ru" ? "Клиент" : "Client"}
+                  value={selectedClient?.name ?? t("Unknown client")}
+                  detail={selectedClient?.email || selectedClient?.phone || (adminLocale === "ru" ? "Контакты не указаны" : "No contact details")}
+                />
+                <SummaryItem
+                  label={adminLocale === "ru" ? "Услуга" : "Service"}
+                  value={serviceMap.get(selectedBooking.service_id)?.title ?? t("Unknown service")}
+                  detail={`${selectedBooking.party_size} ${adminLocale === "ru" ? "чел." : "people"}`}
+                />
+                <SummaryItem
+                  label={adminLocale === "ru" ? "Дата и время" : "Date and time"}
+                  value={localParts(selectedBooking.starts_at, workspace.timezone).date}
+                  detail={`${localParts(selectedBooking.starts_at, workspace.timezone).time}–${localParts(selectedBooking.ends_at, workspace.timezone).time}`}
+                />
+                <SummaryItem
+                  label={t("Payment status")}
+                  value={formatMoney(selectedBooking.total_minor, selectedBooking.currency, adminLocale)}
+                  detail={selectedBooking.payment_status === "paid"
+                    ? t("Paid")
+                    : selectedBooking.payment_status === "refunded"
+                      ? t("Refunded")
+                      : selectedBooking.payment_status === "failed"
+                        ? t("Failed")
+                        : selectedBooking.payment_status === "pending"
+                          ? t("Pending")
+                          : t("Unpaid")}
+                />
+              </div>
+            )}
+
+            {selectedBooking && nextActions.some((status) => status !== "cancelled") && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 rounded-[20px] bg-[#eeebe3] p-3">
+                <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#77736a]">{adminLocale === "ru" ? "Сменить статус" : "Change status"}</span>
+                {nextActions.filter((status) => status !== "cancelled").map((status) => (
+                  <button key={status} type="button" className={secondaryButtonClass} onClick={() => void changeStatus(status)} disabled={saving}>
+                    {t(statusMessages[status])}
                   </button>
                 ))}
-                <button
-                  type="button"
-                  className="rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-45"
-                  onClick={() => void deleteBooking()}
-                  disabled={saving || deletingBooking || copyingManagementLink}
-                >
-                  {deletingBooking
-                    ? (adminLocale === "ru" ? "Удаляем…" : "Deleting…")
-                    : (adminLocale === "ru" ? "Удалить бронь" : "Delete booking")}
-                </button>
               </div>
             )}
           </div>
 
-          <form className="mt-6" onSubmit={saveBooking}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t("Service")}>
-                <select className={inputClass} value={draft.service_id} onChange={(event) => setDraft((current) => ({ ...current, service_id: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)}>
-                  <option value="">{t("Choose service")}</option>
-                  {services.filter((service) => service.is_active || service.id === selectedBooking?.service_id).map((service) => <option key={service.id} value={service.id}>{service.title}</option>)}
-                </select>
-              </Field>
-              <Field label={t("Date")}>
-                <input className={inputClass} type="date" value={draft.date} onChange={(event) => setDraft((current) => ({ ...current, date: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
-              </Field>
-              <Field label={t("Duration, min")}>
-                <input className={inputClass} type="number" min="1" value={draft.duration_minutes} onChange={(event) => setDraft((current) => ({ ...current, duration_minutes: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
-              </Field>
-              <Field label={t("Party size")}>
-                <input className={inputClass} type="number" min="1" max={selectedService?.capacity ?? undefined} value={draft.party_size} onChange={(event) => setDraft((current) => ({ ...current, party_size: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
-              </Field>
-            </div>
-
-            <div className="mt-4 rounded-[24px] border border-black/8 bg-[#eeebe3] p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Available start")}</p>
-                  <p className="mt-1 text-sm text-[#77736a]">{t("The slot is checked again inside the database when you save.")}</p>
-                </div>
-                <button type="button" className={secondaryButtonClass} onClick={() => void checkSlots()} disabled={checkingSlots || !canOperate || Boolean(selectedBooking && !activeBooking)}>{checkingSlots ? t("Checking…") : t("Check available slots")}</button>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {slots.map((slot) => (
-                  <button
-                    key={slot.starts_at}
-                    type="button"
-                    onClick={() => setDraft((current) => ({ ...current, slot_starts_at: slot.starts_at }))}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold ${draft.slot_starts_at === slot.starts_at ? "border-[#17191f] bg-[#17191f] text-white" : "border-black/10 bg-white"}`}
-                  >
-                    {slot.local_start_time.slice(0, 5)}–{slot.local_end_time.slice(0, 5)}
-                  </button>
-                ))}
-                {draft.slot_starts_at && slots.length === 0 && (
-                  <span className="rounded-full bg-[#17191f] px-4 py-2 text-sm font-semibold text-white">{localParts(draft.slot_starts_at, workspace.timezone).time}</span>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <Field label={t("Client name")}><input className={inputClass} value={draft.client_name} onChange={(event) => setDraft((current) => ({ ...current, client_name: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-              <Field label={t("Email")}><input className={inputClass} type="email" value={draft.client_email} onChange={(event) => setDraft((current) => ({ ...current, client_email: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-              <Field label={t("Phone")}><input className={inputClass} value={draft.client_phone} onChange={(event) => setDraft((current) => ({ ...current, client_phone: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-              <Field label={t("Client language")}><input className={inputClass} value={draft.locale} onChange={(event) => setDraft((current) => ({ ...current, locale: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-              {!selectedBooking && (
-                <Field label={t("Initial status")}>
-                  <select className={inputClass} value={draft.initial_status} onChange={(event) => setDraft((current) => ({ ...current, initial_status: event.target.value as BookingDraft["initial_status"] }))} disabled={!canOperate}>
-                    <option value="hold">{t("Hold")}</option>
-                    <option value="pending">{t("Pending")}</option>
-                    <option value="confirmed">{t("Confirmed")}</option>
+          <form className="mt-6 grid gap-5" onSubmit={saveBooking}>
+            <SectionCard
+              eyebrow={adminLocale === "ru" ? "Расписание" : "Schedule"}
+              title={selectedBooking ? (adminLocale === "ru" ? "Перенос и параметры" : "Reschedule and details") : (adminLocale === "ru" ? "Дата и услуга" : "Date and service")}
+              description={selectedBooking
+                ? (adminLocale === "ru" ? "Измените дату или длительность, затем проверьте свободные часы и сохраните бронь." : "Change the date or duration, check available times, then save the booking.")
+                : (adminLocale === "ru" ? "Сначала выберите услугу и дату, затем система покажет свободное время." : "Choose a service and date first, then check the available times.")}
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label={t("Service")}>
+                  <select className={inputClass} value={draft.service_id} onChange={(event) => setDraft((current) => ({ ...current, service_id: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)}>
+                    <option value="">{t("Choose service")}</option>
+                    {services.filter((service) => service.is_active || service.id === selectedBooking?.service_id).map((service) => <option key={service.id} value={service.id}>{service.title}</option>)}
                   </select>
                 </Field>
-              )}
-            </div>
+                <Field label={t("Date")}>
+                  <input className={inputClass} type="date" value={draft.date} onChange={(event) => setDraft((current) => ({ ...current, date: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
+                </Field>
+                <Field label={t("Duration, min")}>
+                  <input className={inputClass} type="number" min="1" value={draft.duration_minutes} onChange={(event) => setDraft((current) => ({ ...current, duration_minutes: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
+                </Field>
+                <Field label={t("Party size")}>
+                  <input className={inputClass} type="number" min="1" max={selectedService?.capacity ?? undefined} value={draft.party_size} onChange={(event) => setDraft((current) => ({ ...current, party_size: event.target.value, slot_starts_at: "" }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} />
+                </Field>
+              </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <Field label={t("Client notes")}><textarea className={`${inputClass} min-h-28`} value={draft.customer_notes} onChange={(event) => setDraft((current) => ({ ...current, customer_notes: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-              <Field label={t("Internal notes")}><textarea className={`${inputClass} min-h-28`} value={draft.internal_notes} onChange={(event) => setDraft((current) => ({ ...current, internal_notes: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
-            </div>
+              <div className="mt-5 rounded-[22px] border border-black/8 bg-[#eeebe3] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Available start")}</p>
+                    <p className="mt-1 text-sm text-[#77736a]">{t("The slot is checked again inside the database when you save.")}</p>
+                  </div>
+                  <button type="button" className={secondaryButtonClass} onClick={() => void checkSlots()} disabled={checkingSlots || !canOperate || Boolean(selectedBooking && !activeBooking)}>{checkingSlots ? t("Checking…") : t("Check available slots")}</button>
+                </div>
+                <div className="mt-4 flex min-h-10 flex-wrap gap-2">
+                  {slots.map((slot) => (
+                    <button key={slot.starts_at} type="button" onClick={() => setDraft((current) => ({ ...current, slot_starts_at: slot.starts_at }))} className={`rounded-full border px-4 py-2 text-sm font-semibold ${draft.slot_starts_at === slot.starts_at ? "border-[#17191f] bg-[#17191f] text-white" : "border-black/10 bg-white"}`}>
+                      {slot.local_start_time.slice(0, 5)}–{slot.local_end_time.slice(0, 5)}
+                    </button>
+                  ))}
+                  {draft.slot_starts_at && slots.length === 0 && <span className="rounded-full bg-[#17191f] px-4 py-2 text-sm font-semibold text-white">{localParts(draft.slot_starts_at, workspace.timezone).time}</span>}
+                  {!draft.slot_starts_at && slots.length === 0 && <span className="py-2 text-sm text-[#77736a]">{adminLocale === "ru" ? "Нажмите «Проверить свободные слоты»." : "Click “Check available slots”."}</span>}
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              eyebrow={adminLocale === "ru" ? "Клиент" : "Client"}
+              title={adminLocale === "ru" ? "Контакты и язык писем" : "Contact details and email language"}
+              description={adminLocale === "ru" ? "Email нужен для подтверждения, напоминаний и защищённой ссылки управления бронью." : "Email is used for confirmations, reminders, and the secure booking-management link."}
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label={t("Client name")}><input className={inputClass} value={draft.client_name} onChange={(event) => setDraft((current) => ({ ...current, client_name: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
+                <Field label={t("Email")}><input className={inputClass} type="email" value={draft.client_email} onChange={(event) => setDraft((current) => ({ ...current, client_email: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
+                <Field label={t("Phone")}><input className={inputClass} value={draft.client_phone} onChange={(event) => setDraft((current) => ({ ...current, client_phone: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
+                <Field label={t("Client language")}>
+                  <select className={inputClass} value={draft.locale} onChange={(event) => setDraft((current) => ({ ...current, locale: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)}>
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="pl">Polski</option>
+                    <option value="uk">Українська</option>
+                  </select>
+                </Field>
+                {!selectedBooking && (
+                  <Field label={t("Initial status")}>
+                    <select className={inputClass} value={draft.initial_status} onChange={(event) => setDraft((current) => ({ ...current, initial_status: event.target.value as BookingDraft["initial_status"] }))} disabled={!canOperate}>
+                      <option value="hold">{t("Hold")}</option>
+                      <option value="pending">{t("Pending")}</option>
+                      <option value="confirmed">{t("Confirmed")}</option>
+                    </select>
+                  </Field>
+                )}
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              eyebrow={adminLocale === "ru" ? "Заметки" : "Notes"}
+              title={adminLocale === "ru" ? "Информация для клиента и команды" : "Information for the client and team"}
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label={t("Client notes")}><textarea className={`${inputClass} min-h-32 resize-y`} value={draft.customer_notes} onChange={(event) => setDraft((current) => ({ ...current, customer_notes: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
+                <Field label={t("Internal notes")}><textarea className={`${inputClass} min-h-32 resize-y`} value={draft.internal_notes} onChange={(event) => setDraft((current) => ({ ...current, internal_notes: event.target.value }))} disabled={!canOperate || Boolean(selectedBooking && !activeBooking)} /></Field>
+              </div>
+            </SectionCard>
 
             {selectedBooking && (
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                <div className="grid gap-4">
-                  <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
+              <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid content-start gap-5">
+                  <div className="rounded-[26px] border border-black/8 bg-[#fffdfa] p-5 sm:p-6">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Reserved resources")}</p>
-                    <div className="mt-3 grid gap-2">
+                    <div className="mt-4 grid gap-2">
                       {selectedAllocations.map((allocation) => <div key={allocation.id} className="flex items-center justify-between rounded-xl bg-[#eeebe3] px-3 py-2 text-sm"><span>{resourceMap.get(allocation.resource_id)?.name ?? t("Unknown resource")}</span><span className="text-xs text-[#77736a]">{allocation.status}</span></div>)}
                       {selectedAllocations.length === 0 && <p className="text-sm text-[#77736a]">{t("No resource allocations.")}</p>}
                     </div>
                   </div>
-                  <InlineDocuments
-                    businessId={workspace.business_id}
-                    bookingId={selectedBooking.id}
-                    clientId={selectedBooking.client_id}
-                    locale={adminLocale}
-                    timezone={workspace.timezone}
-                    canOperate={canOperate}
-                  />
+                  <InlineDocuments businessId={workspace.business_id} bookingId={selectedBooking.id} clientId={selectedBooking.client_id} locale={adminLocale} timezone={workspace.timezone} canOperate={canOperate} />
                 </div>
-                <div className="rounded-[22px] border border-black/8 bg-[#fffdfa] p-4">
+                <div className="rounded-[26px] border border-black/8 bg-[#fffdfa] p-5 sm:p-6">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{t("Activity")}</p>
-                  <div className="mt-3">
-                    <UnifiedTimeline rows={timeline} loading={timelineLoading} timezone={workspace.timezone} />
-                  </div>
+                  <div className="mt-4"><UnifiedTimeline rows={timeline} loading={timelineLoading} timezone={workspace.timezone} /></div>
                 </div>
               </div>
             )}
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-black/8 pt-5">
-              <div className="text-sm text-[#77736a]">
-                {selectedService && selectedBooking ? formatMoney(selectedBooking.total_minor, selectedBooking.currency, adminLocale) : selectedService?.pricing_model === "fixed" && selectedService.price_minor !== null ? formatMoney(selectedService.price_minor, selectedService.currency, adminLocale) : t("Price is calculated when saved")}
+            <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-[24px] border border-black/10 bg-white/95 px-4 py-4 shadow-[0_18px_50px_rgba(20,20,20,0.14)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9a742e]">{adminLocale === "ru" ? "Итого" : "Total"}</p>
+                <p className="mt-1 text-sm font-semibold text-[#332f29]">
+                  {selectedService && selectedBooking ? formatMoney(selectedBooking.total_minor, selectedBooking.currency, adminLocale) : selectedService?.pricing_model === "fixed" && selectedService.price_minor !== null ? formatMoney(selectedService.price_minor, selectedService.currency, adminLocale) : t("Price is calculated when saved")}
+                </p>
               </div>
-              <button type="submit" className={buttonClass} disabled={saving || !canOperate || Boolean(selectedBooking && !activeBooking)}>{saving ? t("Saving…") : selectedBooking ? t("Save booking") : t("Create booking")}</button>
+              <button type="submit" className={`${buttonClass} min-w-[190px]`} disabled={saving || !canOperate || Boolean(selectedBooking && !activeBooking)}>{saving ? t("Saving…") : selectedBooking ? t("Save booking") : t("Create booking")}</button>
             </div>
+
+            {selectedBooking && (
+              <section className="rounded-[24px] border border-red-200 bg-red-50/70 p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-700">{adminLocale === "ru" ? "Опасная зона" : "Danger zone"}</p>
+                    <p className="mt-1 text-sm text-red-800/75">{adminLocale === "ru" ? "Отмена освобождает время и сохраняет историю. Удаление стирает тестовую бронь окончательно." : "Cancellation frees the slot and keeps history. Deletion permanently removes a test booking."}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {nextActions.includes("cancelled") && (
+                      <button type="button" className="rounded-full border border-red-300 bg-white px-4 py-2.5 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-45" onClick={() => void changeStatus("cancelled")} disabled={saving || deletingBooking}>
+                        {t("Cancel booking")}
+                      </button>
+                    )}
+                    <button type="button" className="rounded-full bg-red-700 px-4 py-2.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45" onClick={() => void deleteBooking()} disabled={saving || deletingBooking || copyingManagementLink}>
+                      {deletingBooking ? (adminLocale === "ru" ? "Удаляем…" : "Deleting…") : (adminLocale === "ru" ? "Удалить бронь" : "Delete booking")}
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
           </form>
         </section>
       </div>
