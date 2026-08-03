@@ -50,12 +50,19 @@ type OwnershipVerification = {
 class VercelApiError extends Error {
   status: number;
   code: string | null;
+  aliases: string[];
 
-  constructor(status: number, message: string, code?: string | null) {
+  constructor(
+    status: number,
+    message: string,
+    code?: string | null,
+    aliases: string[] = [],
+  ) {
     super(message);
     this.name = "VercelApiError";
     this.status = status;
     this.code = code ?? null;
+    this.aliases = aliases;
   }
 }
 
@@ -100,14 +107,28 @@ async function vercelRequest<T>(
 
   if (!response.ok) {
     const body = payload as {
-      error?: { message?: string; code?: string };
+      error?: {
+        message?: string;
+        code?: string;
+        aliases?: Array<string | { alias?: string; name?: string }>;
+      };
       message?: string;
       code?: string;
+      aliases?: Array<string | { alias?: string; name?: string }>;
     };
+    const rawAliases = body.error?.aliases || body.aliases || [];
+    const aliases = rawAliases
+      .map((item) =>
+        typeof item === "string" ? item : item.alias || item.name || "",
+      )
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean);
+
     throw new VercelApiError(
       response.status,
       body.error?.message || body.message || `Vercel HTTP ${response.status}`,
       body.error?.code || body.code || null,
+      aliases,
     );
   }
 
@@ -123,6 +144,24 @@ function projectDomainPath(domain?: string) {
 function addProjectDomainPath() {
   const { projectId, teamId } = requiredConfig();
   return `/v10/projects/${encodeURIComponent(projectId)}/domains?teamId=${encodeURIComponent(teamId)}`;
+}
+
+
+function aliasPath(alias: string) {
+  const { teamId } = requiredConfig();
+  return `/v2/aliases/${encodeURIComponent(alias)}?teamId=${encodeURIComponent(teamId)}`;
+}
+
+async function removeAlias(alias: string) {
+  try {
+    await vercelRequest<Record<string, unknown>>(aliasPath(alias), {
+      method: "DELETE",
+    });
+  } catch (error) {
+    if (!(error instanceof VercelApiError && error.status === 404)) {
+      throw error;
+    }
+  }
 }
 
 async function addProjectDomain(
@@ -482,7 +521,10 @@ export async function removeVercelDomain(
   domain: string,
   redirectDomain?: string | null,
 ) {
-  const domains = [domain, redirectDomain].filter(Boolean) as string[];
+  const domains = [domain, redirectDomain]
+    .filter((item): item is string => Boolean(item))
+    .map((item) => item.trim().toLowerCase());
+  const allowedAliases = new Set(domains);
 
   for (const item of domains) {
     try {
@@ -490,9 +532,44 @@ export async function removeVercelDomain(
         method: "DELETE",
       });
     } catch (error) {
-      if (!(error instanceof VercelApiError && error.status === 404)) {
-        throw error;
+      if (error instanceof VercelApiError && error.status === 404) {
+        continue;
       }
+
+      if (
+        error instanceof VercelApiError &&
+        error.status === 409 &&
+        error.code === "conflict_aliases"
+      ) {
+        const aliasesToRemove = error.aliases.filter((alias) =>
+          allowedAliases.has(alias),
+        );
+
+        if (aliasesToRemove.length === 0) {
+          throw error;
+        }
+
+        for (const alias of aliasesToRemove) {
+          await removeAlias(alias);
+        }
+
+        try {
+          await vercelRequest<Record<string, unknown>>(projectDomainPath(item), {
+            method: "DELETE",
+          });
+          continue;
+        } catch (retryError) {
+          if (
+            retryError instanceof VercelApiError &&
+            retryError.status === 404
+          ) {
+            continue;
+          }
+          throw retryError;
+        }
+      }
+
+      throw error;
     }
   }
 }
