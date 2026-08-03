@@ -104,6 +104,12 @@ export default function ClientDomainManager({
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(""), 6_000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
   const status = payload?.domain ? STATUS[payload.domain.status] : null;
   const verificationRecords = useMemo(
     () =>
@@ -260,6 +266,27 @@ export default function ClientDomainManager({
 
   return (
     <div className="grid gap-6">
+      {message ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-4 z-[100] max-w-[calc(100vw-2rem)] rounded-2xl border border-emerald-300/25 bg-[#102019]/95 px-5 py-4 text-sm font-medium leading-6 text-emerald-100 shadow-2xl backdrop-blur sm:right-6 sm:top-6 sm:max-w-md"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-300/15 text-emerald-100"
+            >
+              ✓
+            </span>
+            <div>
+              <p className="font-semibold">Проверка завершена</p>
+              <p className="mt-1 text-emerald-100/80">{message}</p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <section className="overflow-hidden rounded-[36px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(216,179,106,0.16),transparent_42%),rgba(255,255,255,0.045)]">
         <div className="px-6 py-7 sm:px-9 sm:py-9">
           <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#d8b36a]">
@@ -289,12 +316,6 @@ export default function ClientDomainManager({
           {error}
         </div>
       ) : null}
-      {message ? (
-        <div className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.07] px-5 py-4 text-sm leading-6 text-emerald-100">
-          {message}
-        </div>
-      ) : null}
-
       {!payload.business.isPublished ? (
         <section className="rounded-[30px] border border-amber-300/15 bg-amber-300/[0.06] p-6 sm:p-8">
           <h2 className="text-2xl font-semibold tracking-[-0.035em]">
