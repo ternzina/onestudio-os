@@ -153,9 +153,11 @@ async function getProjectDomain(domain: string) {
 }
 
 async function verifyProjectDomain(domain: string) {
-  return vercelRequest<ProjectDomain>(`${projectDomainPath(domain)}/verify`, {
-    method: "POST",
-  });
+  const { projectId, teamId } = requiredConfig();
+  return vercelRequest<ProjectDomain>(
+    `/v9/projects/${encodeURIComponent(projectId)}/domains/${encodeURIComponent(domain)}/verify?teamId=${encodeURIComponent(teamId)}`,
+    { method: "POST" },
+  );
 }
 
 async function probeHttps(domain: string) {
