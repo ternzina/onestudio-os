@@ -19,7 +19,7 @@ function loginErrorUrl(next: string) {
 
 export default function AuthCallbackPage() {
   const [failed, setFailed] = useState(false);
-  const [message, setMessage] = useState("Подтверждаем email…");
+  const [message, setMessage] = useState("Завершаем безопасный вход…");
 
   useEffect(() => {
     let active = true;
@@ -38,51 +38,53 @@ export default function AuthCallbackPage() {
         hash.get("error");
 
       if (authError) {
+        console.error("Supabase callback error:", authError);
         if (!active) return;
         setFailed(true);
-        setMessage("Ссылка подтверждения недействительна или уже истекла.");
+        setMessage("Провайдер входа отклонил запрос или ссылка уже недействительна.");
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
       }
 
-      let errorMessage: string | null = null;
+      // @supabase/ssr initializes Auth automatically and can process the OAuth
+      // callback before this effect runs. Always check for an existing session
+      // first so that a one-time PKCE code is not exchanged twice.
+      const initial = await supabase.auth.getSession();
+      let session = initial.data.session;
+      let errorMessage = initial.error?.message || null;
 
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        errorMessage = error?.message || null;
-      } else if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
+      if (!session && !errorMessage && code) {
+        const exchanged = await supabase.auth.exchangeCodeForSession(code);
+        session = exchanged.data.session;
+        errorMessage = exchanged.error?.message || null;
+      } else if (!session && !errorMessage && accessToken && refreshToken) {
+        const restored = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
-        errorMessage = error?.message || null;
-      } else {
-        const { data, error } = await supabase.auth.getSession();
-        errorMessage = error?.message || null;
-
-        if (!data.session && !errorMessage) {
-          errorMessage = "Сессия подтверждения не найдена.";
-        }
+        session = restored.data.session;
+        errorMessage = restored.error?.message || null;
       }
 
       if (!active) return;
 
-      if (errorMessage) {
+      if (!session || errorMessage) {
+        console.error("Supabase session completion error:", errorMessage || "Session not found");
         setFailed(true);
-        setMessage("Не удалось завершить подтверждение email.");
+        setMessage("Не удалось завершить вход. Повторите попытку через Google или email.");
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
       }
 
-      // Remove tokens and the one-time code from browser history before leaving.
+      // Remove OAuth codes and tokens from browser history before leaving.
       window.history.replaceState(
         {},
         document.title,
         `${window.location.pathname}?next=${encodeURIComponent(next)}`,
       );
 
-      // A full navigation guarantees that Server Components and Proxy read the
-      // fresh Supabase cookies created by setSession/exchangeCodeForSession.
+      // A full navigation makes Server Components and Proxy read the fresh
+      // Supabase cookies written by the browser client.
       window.location.replace(next);
     }
 
@@ -100,7 +102,7 @@ export default function AuthCallbackPage() {
           OneStudio OS
         </p>
         <h1 className="mt-5 text-3xl font-semibold tracking-[-0.05em]">
-          {failed ? "Не удалось подтвердить email" : "Завершаем регистрацию"}
+          {failed ? "Не удалось завершить вход" : "Завершаем вход"}
         </h1>
         <p className="mt-4 text-sm leading-6 text-white/60">{message}</p>
         {failed ? (
