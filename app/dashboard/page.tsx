@@ -342,19 +342,95 @@ export default function DashboardPage() {
   }
 
   async function deleteWorkspace(workspace: Workspace) {
-    const confirmation = window.prompt(
-      `Чтобы навсегда удалить демо-сайт, введите его название точно:\n\n${workspace.name}`,
-      "",
-    );
-    if (confirmation === null) return;
-    if (confirmation !== workspace.name) {
-      setWorkspaceError("Название введено неверно. Удаление отменено.");
-      return;
-    }
-
     setWorkspaceAction(workspace.business_id);
     setWorkspaceError("");
     setWorkspaceMessage("");
+
+    let connectedDomain = "";
+
+    try {
+      const domainResponse = await fetch(
+        `/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`,
+        { cache: "no-store" },
+      );
+      const domainPayload = (await domainResponse.json()) as
+        | {
+            ok: true;
+            domain: { domain?: string | null } | null;
+          }
+        | {
+            ok: false;
+            message?: string;
+          };
+
+      if (!domainResponse.ok || domainPayload.ok !== true) {
+        throw new Error(
+          "message" in domainPayload && domainPayload.message
+            ? domainPayload.message
+            : "Не удалось проверить привязанный домен.",
+        );
+      }
+
+      connectedDomain = domainPayload.domain?.domain?.trim() || "";
+    } catch (domainError) {
+      setWorkspaceError(
+        domainError instanceof Error
+          ? domainError.message
+          : "Не удалось проверить привязанный домен. Удаление остановлено.",
+      );
+      setWorkspaceAction(null);
+      return;
+    }
+
+    const domainWarning = connectedDomain
+      ? `\n\nВместе с сайтом будет отключён домен ${connectedDomain} и его www-адрес. DNS-записи у регистратора останутся без изменений.`
+      : "";
+
+    const confirmation = window.prompt(
+      `Это действие необратимо.${domainWarning}\n\nЧтобы навсегда удалить демо-сайт, введите его название точно:\n\n${workspace.name}`,
+      "",
+    );
+
+    if (confirmation === null) {
+      setWorkspaceAction(null);
+      return;
+    }
+
+    if (confirmation !== workspace.name) {
+      setWorkspaceError("Название введено неверно. Удаление отменено.");
+      setWorkspaceAction(null);
+      return;
+    }
+
+    if (connectedDomain) {
+      try {
+        const removeDomainResponse = await fetch(
+          `/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`,
+          { method: "DELETE" },
+        );
+        const removeDomainPayload = (await removeDomainResponse.json()) as
+          | { ok: true; removed: boolean }
+          | { ok: false; message?: string };
+
+        if (!removeDomainResponse.ok || removeDomainPayload.ok !== true) {
+          throw new Error(
+            "message" in removeDomainPayload && removeDomainPayload.message
+              ? removeDomainPayload.message
+              : "Не удалось отключить домен.",
+          );
+        }
+      } catch (removeDomainError) {
+        setWorkspaceError(
+          `${
+            removeDomainError instanceof Error
+              ? removeDomainError.message
+              : "Не удалось отключить домен."
+          } Сайт не удалён.`,
+        );
+        setWorkspaceAction(null);
+        return;
+      }
+    }
 
     const { error } = await supabase.rpc("delete_my_empty_workspace", {
       p_business_id: workspace.business_id,
@@ -362,12 +438,22 @@ export default function DashboardPage() {
     });
 
     if (error) {
-      setWorkspaceError(workspaceErrorMessage(error.message));
+      setWorkspaceError(
+        connectedDomain
+          ? `${workspaceErrorMessage(
+              error.message,
+            )} Домен уже отключён, но сайт остался.`
+          : workspaceErrorMessage(error.message),
+      );
       setWorkspaceAction(null);
       return;
     }
 
-    setWorkspaceMessage(`Сайт «${workspace.name}» удалён навсегда.`);
+    setWorkspaceMessage(
+      connectedDomain
+        ? `Сайт «${workspace.name}» удалён навсегда. Домен ${connectedDomain} отключён.`
+        : `Сайт «${workspace.name}» удалён навсегда.`,
+    );
     setWorkspaceAction(null);
     await loadDashboard();
   }
