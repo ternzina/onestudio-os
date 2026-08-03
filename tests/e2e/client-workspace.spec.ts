@@ -265,11 +265,18 @@ test.describe.serial("Client Workspace 1.0", () => {
       await expect(editorButton).toBeVisible();
       await editorButton.click();
 
-      await page.waitForURL(/\/admin\/site(?:[/?#]|$)/, {
+      await page.waitForURL(/\/dashboard\/site(?:[/?#]|$)/, {
         timeout: 30_000,
       });
 
-      expect(page.url()).not.toContain("error=admin_access");
+      await expect(
+        page.getByRole("heading", { name: "Редактор сайта" }),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(
+        page.getByRole("link", { name: "Личный кабинет", exact: true }),
+      ).toBeVisible();
+      await expect(page.locator('main[data-editor-mode="client"]')).toBeVisible();
+      expect(page.url()).not.toContain("/admin/");
 
       console.log(
         "✅ Регистрация → создание сайта → личный кабинет → редактор работают.",

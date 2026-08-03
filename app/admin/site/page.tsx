@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -488,8 +489,57 @@ function createCustomPage(existingCount: number): PublicSitePage {
   };
 }
 
+function SiteEditorHeader({
+  clientMode,
+  workspaceName,
+}: {
+  clientMode: boolean;
+  workspaceName?: string;
+}) {
+  if (!clientMode) return <AdminHeader />;
+
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0b0d12]/95 text-white backdrop-blur-xl">
+      <div className="mx-auto flex min-h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
+        <Link href="/dashboard" className="flex items-center gap-3" aria-label="OneStudio OS">
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-[#d8b36a] text-xs font-black text-[#15120c]">
+            OS
+          </span>
+          <span>
+            <span className="block text-sm font-semibold tracking-[-0.02em]">OneStudio</span>
+            <span className="block text-[10px] uppercase tracking-[0.2em] text-white/45">Site Editor</span>
+          </span>
+        </Link>
+
+        {workspaceName ? (
+          <p className="hidden max-w-[36vw] truncate text-xs text-white/55 md:block">
+            {workspaceName}
+          </p>
+        ) : null}
+
+        <nav className="flex items-center gap-2">
+          <Link
+            href="/demos"
+            className="hidden rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/70 transition hover:bg-white/5 sm:inline-flex"
+          >
+            Демо
+          </Link>
+          <Link
+            href="/dashboard"
+            className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#0b0d12]"
+          >
+            Личный кабинет
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
 export default function AdminSitePage() {
   const { t } = useAdminI18n();
+  const pathname = usePathname();
+  const clientMode = pathname.startsWith("/dashboard/site");
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [editor, setEditor] = useState<PublicSiteEditorData | null>(null);
   const [selectedLocale, setSelectedLocale] = useState("");
@@ -848,7 +898,7 @@ export default function AdminSitePage() {
   if (loading) {
     return (
       <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
-        <AdminHeader />
+        <SiteEditorHeader clientMode={clientMode} />
         <p className="mx-auto mt-10 max-w-7xl text-sm text-[#716d65]">
           {t("Loading public site…")}
         </p>
@@ -859,7 +909,7 @@ export default function AdminSitePage() {
   if (!workspace || !editor || !draft) {
     return (
       <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
-        <AdminHeader />
+        <SiteEditorHeader clientMode={clientMode} />
         <div className="mx-auto mt-10 max-w-7xl rounded-[28px] border border-red-200 bg-red-50 p-6 text-sm text-red-700">
           {error || t("Public site settings could not be loaded.")}
         </div>
@@ -916,19 +966,37 @@ export default function AdminSitePage() {
   }
 
   return (
-    <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
-      <AdminHeader />
+    <main
+      data-editor-mode={clientMode ? "client" : "admin"}
+      className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10"
+      onClickCapture={(event) => {
+        if (!clientMode) return;
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest("a");
+        const href = link?.getAttribute("href");
+        if (!href?.startsWith("/admin/")) return;
+        event.preventDefault();
+        setError("");
+        setMessage(
+          "Этот рабочий раздел ещё переносится в клиентский кабинет. Редактирование сайта уже полностью доступно здесь.",
+        );
+      }}
+    >
+      <SiteEditorHeader clientMode={clientMode} workspaceName={workspace.name} />
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">
-              {t("Site Builder 2.0")}
+              {clientMode ? "OneStudio Site Editor" : t("Site Builder 2.0")}
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">
-              {t("Public site")}
+              {clientMode ? "Редактор сайта" : t("Public site")}
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6f6c65]">
-              {t("Edit the content, control visible blocks and arrange them in the order visitors should see.")}
+              {clientMode
+                ? "Меняйте тексты, изображения, цвета и блоки. Сохраняйте черновик и публикуйте сайт, когда всё готово."
+                : t("Edit the content, control visible blocks and arrange them in the order visitors should see.")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

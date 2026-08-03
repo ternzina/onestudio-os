@@ -637,7 +637,7 @@ function WorkspaceCard({
                 onClick={() =>
                   void onOpen(
                     workspace.business_id,
-                    `/admin/site?business=${workspace.business_id}&from=dashboard`,
+                    `/dashboard/site?business=${workspace.business_id}&from=dashboard`,
                   )
                 }
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f7f5ef] px-5 text-sm font-semibold text-[#0b0d12] transition hover:bg-white disabled:cursor-wait disabled:opacity-50"
@@ -809,7 +809,7 @@ function NextSteps({
                 onClick={() =>
                   void onOpen(
                     workspace.business_id,
-                    `/admin/site?business=${workspace.business_id}&from=dashboard`,
+                    `/dashboard/site?business=${workspace.business_id}&from=dashboard`,
                   )
                 }
                 className="text-xs font-semibold text-[#e8c77f] disabled:opacity-40"
