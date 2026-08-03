@@ -161,11 +161,11 @@ test.describe.serial("Client Workspace 1.0", () => {
 
     const configuration = {
       launchId: randomUUID(),
-      demoSlug: "frame-house",
+      demoSlug: "lumiere",
       businessName,
       tagline: "Автоматическая проверка клиентского пути",
-      paletteIndex: 0,
-      modules: ["Бронирование", "Клиенты", "Портфолио"],
+      paletteIndex: 3,
+      modules: ["Онлайн-запись", "CRM", "Портфолио"],
       languages: ["Русский", "English"],
       primaryLanguage: "Русский",
       currency: "EUR",

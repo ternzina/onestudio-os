@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(25);
+select plan(27);
 
 select has_function(
   'public', 'create_configured_workspace', array['jsonb'],
@@ -223,6 +223,34 @@ select is(
      and m.is_default),
   'Second Studio',
   'the newly created workspace becomes current'
+);
+
+select lives_ok(
+  $sql$
+    select * from public.create_configured_workspace(
+      '{
+        "launch_id":"e2000000-0000-4000-8000-000000000003",
+        "demo_slug":"north-flow",
+        "business_name":"Bordeaux Pilates",
+        "tagline":"Сильное тело. Спокойный ум.",
+        "palette_index":3,
+        "locales":["ru","en"],
+        "primary_locale":"ru",
+        "currency":"EUR",
+        "enabled_modules":["core","catalog","scheduling","crm"]
+      }'::jsonb
+    )
+  $sql$,
+  'the fourth Bordeaux palette creates a workspace successfully'
+);
+select is(
+  (select locale.draft_content->>'theme_accent'
+   from public.public_site_locales locale
+   join public.businesses business on business.id = locale.business_id
+   where business.name = 'Bordeaux Pilates'
+     and locale.locale = 'ru'),
+  '#9d3151',
+  'the fourth palette is transferred to the created public site'
 );
 
 select * from finish();

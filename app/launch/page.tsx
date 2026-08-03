@@ -80,6 +80,16 @@ export default function LaunchPage() {
         return;
       }
 
+      if (!authData.user.email_confirmed_at) {
+        setMessage(
+          "Подтвердите email перед созданием сайта. Откройте письмо или запросите его повторно на странице входа.",
+        );
+        setFailedHref("/login?next=/launch");
+        setFailedLabel("Перейти ко входу");
+        setFailed(true);
+        return;
+      }
+
       const stored = window.localStorage.getItem("onestudio-config:pending");
       if (!stored) {
         setMessage("Сохранённая конфигурация не найдена. Вернитесь к выбору демо.");
