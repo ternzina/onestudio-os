@@ -151,6 +151,18 @@ async function cleanupTestUser(email: string) {
 }
 
 test.describe.serial("Client Workspace 1.0", () => {
+  test("прямая страница регистрации доступна новому клиенту", async ({ page }) => {
+    await page.goto("/register");
+
+    await expect(page.locator('input[autocomplete="name"]')).toBeVisible();
+    await expect(page.locator('input[autocomplete="email"]')).toBeVisible();
+    await expect(page.locator('input[autocomplete="new-password"]')).toHaveCount(2);
+    await expect(page.getByRole("link", { name: "Войти", exact: true })).toBeVisible();
+
+
+    console.log("✅ Прямая страница регистрации доступна обычному клиенту.");
+  });
+
   test("регистрация создаёт личный сайт и открывает клиентский редактор", async ({
     page,
   }) => {
