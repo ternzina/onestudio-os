@@ -410,13 +410,20 @@ export default function DashboardPage() {
         );
         const removeDomainPayload = (await removeDomainResponse.json()) as
           | { ok: true; removed: boolean }
-          | { ok: false; message?: string };
+          | { ok: false; error?: string; message?: string };
 
         if (!removeDomainResponse.ok || removeDomainPayload.ok !== true) {
+          const errorCode =
+            "error" in removeDomainPayload && removeDomainPayload.error
+              ? ` Код: ${removeDomainPayload.error}.`
+              : "";
+
           throw new Error(
-            "message" in removeDomainPayload && removeDomainPayload.message
-              ? removeDomainPayload.message
-              : "Не удалось отключить домен.",
+            `${
+              "message" in removeDomainPayload && removeDomainPayload.message
+                ? removeDomainPayload.message
+                : "Не удалось отключить домен."
+            }${errorCode}`,
           );
         }
       } catch (removeDomainError) {
