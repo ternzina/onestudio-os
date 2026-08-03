@@ -251,10 +251,15 @@ test.describe.serial("Client Workspace 1.0", () => {
         page.getByText(businessName, { exact: true }),
       ).toBeVisible({ timeout: 30_000 });
 
+      await expect(page.getByText("Следующие шаги", { exact: true })).toBeVisible();
+      await expect(page.getByText("Расширенное управление сайтами")).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Управление" })).toHaveCount(0);
+      await expect(
+        page.getByText(`onestudioos.com/site/`, { exact: false }).first(),
+      ).toBeVisible();
+
       const editorButton = page
-        .getByRole("button", {
-          name: /Продолжить настройку|Настроить сайт/,
-        })
+        .getByRole("button", { name: "Редактировать сайт" })
         .first();
 
       await expect(editorButton).toBeVisible();
