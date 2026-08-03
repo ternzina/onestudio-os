@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
+import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   PublicSiteContent,
@@ -36,6 +37,7 @@ import {
   SITE_TEMPLATES,
   type SiteTemplate,
 } from "@/lib/public-site/templates";
+import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
 import { supabase } from "@/lib/supabase";
 
 type Workspace = {
@@ -550,6 +552,10 @@ export default function AdminSitePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [publishReviewOpen, setPublishReviewOpen] = useState(false);
+  const [publishSucceeded, setPublishSucceeded] = useState(false);
+  const [publishWasAlreadyPublished, setPublishWasAlreadyPublished] =
+    useState(false);
   const [selectedSection, setSelectedSection] =
     useState<CanvasSection>("hero");
   const [previewDevice, setPreviewDevice] =
@@ -634,12 +640,28 @@ export default function AdminSitePage() {
     [editor, selectedLocale],
   );
 
+  const clientPublicationReadiness = useMemo(
+    () =>
+      evaluatePublicationReadiness({
+        businessName: editor?.business.name || workspace?.name || "",
+        content: draft
+          ? (draft as unknown as Record<string, unknown>)
+          : null,
+        serviceCount: editor?.services?.length ?? 0,
+        portfolioCount: editor?.portfolio?.length ?? 0,
+        logoUrl,
+      }),
+    [draft, editor, logoUrl, workspace],
+  );
+
   function chooseLocale(locale: string) {
     if (!editor) return;
     setSelectedLocale(locale);
     setDraft(contentFromLocale(editor, locale));
     setMessage("");
     setError("");
+    setPublishReviewOpen(false);
+    setPublishSucceeded(false);
   }
 
   function update<Key extends keyof PublicSiteContent>(
@@ -822,6 +844,19 @@ export default function AdminSitePage() {
     await loadEditor(selectedLocale, { silent: true });
     setSaving(false);
     return true;
+  }
+
+  function openClientPublicationReview() {
+    setPublishWasAlreadyPublished(Boolean(selectedRecord?.published_content));
+    setPublishSucceeded(false);
+    setPublishReviewOpen(true);
+    setError("");
+    setMessage("");
+  }
+
+  async function confirmClientPublication() {
+    const published = await saveDraft({ publish: true });
+    if (published) setPublishSucceeded(true);
   }
 
   async function addLocale() {
@@ -1019,11 +1054,21 @@ export default function AdminSitePage() {
             </button>
             <button
               type="button"
-              onClick={() => void saveDraft({ publish: true })}
+              onClick={() =>
+                clientMode
+                  ? openClientPublicationReview()
+                  : void saveDraft({ publish: true })
+              }
               disabled={saving || !canConfigure}
               className="rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-40"
             >
-              {saving ? t("Publishing…") : t("Publish this language")}
+              {saving
+                ? t("Publishing…")
+                : clientMode
+                  ? selectedRecord?.published_content
+                    ? "Проверить обновление"
+                    : "Проверить и опубликовать"
+                  : t("Publish this language")}
             </button>
           </div>
         </div>
@@ -1152,7 +1197,11 @@ export default function AdminSitePage() {
           onAddLocale={() => void addLocale()}
           onLocaleChange={chooseLocale}
           onTemplate={installTemplate}
-          onPublish={() => void saveDraft({ publish: true })}
+          onPublish={() =>
+            clientMode
+              ? openClientPublicationReview()
+              : void saveDraft({ publish: true })
+          }
           onSave={() => void saveDraft()}
           onSectionChange={setSelectedSection}
           onUpdate={update}
@@ -1340,6 +1389,31 @@ export default function AdminSitePage() {
         </div>
         </details>
       </div>
+
+      {clientMode && publishReviewOpen ? (
+        <ClientPublishDialog
+          open
+          businessName={editor.business.name}
+          locale={selectedLocale}
+          publicPath={publicHref(editor, selectedLocale)}
+          alreadyPublished={publishWasAlreadyPublished}
+          busy={saving}
+          success={publishSucceeded}
+          readiness={clientPublicationReadiness}
+          error={error || undefined}
+          onClose={() => {
+            if (saving) return;
+            setPublishReviewOpen(false);
+            setPublishSucceeded(false);
+          }}
+          onConfirm={() => void confirmClientPublication()}
+          onEdit={() => {
+            setPublishReviewOpen(false);
+            setPublishSucceeded(false);
+            scrollToVisualBuilder();
+          }}
+        />
+      ) : null}
     </main>
   );
 }

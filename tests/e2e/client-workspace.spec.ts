@@ -258,6 +258,86 @@ test.describe.serial("Client Workspace 1.0", () => {
         page.getByText(`onestudioos.com/site/`, { exact: false }).first(),
       ).toBeVisible();
 
+      const { data: createdBusiness, error: createdBusinessError } = await admin
+        .from("businesses")
+        .select("id,slug")
+        .eq("name", businessName)
+        .single();
+
+      expect(createdBusinessError?.message || null).toBeNull();
+      expect(createdBusiness?.id).toBeTruthy();
+
+      const { error: unpublishError } = await admin
+        .from("public_site_settings")
+        .update({ is_published: false, published_at: null })
+        .eq("business_id", createdBusiness!.id);
+
+      expect(unpublishError?.message || null).toBeNull();
+
+      const { error: unpublishLocaleError } = await admin
+        .from("public_site_locales")
+        .update({
+          published_content: null,
+          published_at: null,
+        })
+        .eq("business_id", createdBusiness!.id)
+        .eq("locale", "ru");
+
+      expect(unpublishLocaleError?.message || null).toBeNull();
+
+      await page.reload();
+      await expect(page.getByText(businessName, { exact: true })).toBeVisible({
+        timeout: 30_000,
+      });
+
+      const publicationReviewButton = page
+        .getByRole("button", { name: "Проверить и опубликовать", exact: true })
+        .first();
+
+      await expect(publicationReviewButton).toBeVisible();
+      await publicationReviewButton.click();
+
+      const publicationDialog = page.getByRole("dialog");
+
+      await expect(
+        publicationDialog.getByRole("heading", {
+          name: "Проверка перед публикацией",
+        }),
+      ).toBeVisible();
+      await expect(
+        publicationDialog.getByText("Язык публикации", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        publicationDialog.getByText("Рабочий адрес", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        publicationDialog.getByText("Черновик языка сохранён", { exact: true }),
+      ).toBeVisible();
+
+      await publicationDialog
+        .getByRole("button", { name: "Опубликовать сайт", exact: true })
+        .click();
+
+      await expect(
+        publicationDialog.getByRole("heading", { name: "Сайт опубликован" }),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(
+        publicationDialog.getByRole("link", {
+          name: "Открыть сайт ↗",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        publicationDialog.getByRole("button", {
+          name: "Скопировать ссылку",
+          exact: true,
+        }),
+      ).toBeVisible();
+
+      await publicationDialog
+        .getByRole("button", { name: "Готово", exact: true })
+        .click();
+
       const editorButton = page
         .getByRole("button", { name: "Редактировать сайт" })
         .first();
@@ -279,7 +359,7 @@ test.describe.serial("Client Workspace 1.0", () => {
       expect(page.url()).not.toContain("/admin/");
 
       console.log(
-        "✅ Регистрация → создание сайта → личный кабинет → редактор работают.",
+        "✅ Регистрация → проверка публикации → публикация → редактор работают.",
       );
     } finally {
       await cleanupTestUser(email);

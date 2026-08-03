@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
+import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
 import { supabase } from "@/lib/supabase";
 
 const MAX_OWNED_SITES = 3;
@@ -41,11 +43,16 @@ type Workspace = WorkspaceManagementRow & {
   site_is_published: boolean;
   site_published_at: string | null;
   site_primary_locale: string;
+  site_primary_locale_is_published: boolean;
   preview_title: string;
   preview_tagline: string;
   preview_accent: string;
   preview_dark: string;
   preview_surface: string;
+  publication_content: Record<string, unknown> | null;
+  publication_service_count: number;
+  publication_portfolio_count: number;
+  publication_logo_url: string | null;
 };
 
 type EditorPayload = {
@@ -53,12 +60,16 @@ type EditorPayload = {
     is_published?: boolean;
     published_at?: string | null;
     primary_locale?: string;
+    logo_draft_url?: string | null;
+    logo_published_url?: string | null;
   };
   locales?: Array<{
     locale?: string;
     draft_content?: Record<string, unknown> | null;
     published_content?: Record<string, unknown> | null;
   }>;
+  services?: unknown[];
+  portfolio?: unknown[];
 };
 
 function workspaceErrorMessage(value: string) {
@@ -118,6 +129,9 @@ export default function DashboardPage() {
   const [workspaceAction, setWorkspaceAction] = useState<string | null>(null);
   const [workspaceError, setWorkspaceError] = useState("");
   const [workspaceMessage, setWorkspaceMessage] = useState("");
+  const [publishReviewWorkspace, setPublishReviewWorkspace] =
+    useState<Workspace | null>(null);
+  const [publishSucceeded, setPublishSucceeded] = useState(false);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -168,11 +182,16 @@ export default function DashboardPage() {
             site_is_published: false,
             site_published_at: null,
             site_primary_locale: "ru",
+            site_primary_locale_is_published: false,
             preview_title: workspace.name,
             preview_tagline: "Ваш сайт сохранён в архиве",
             preview_accent: FALLBACK_PREVIEW.accent,
             preview_dark: FALLBACK_PREVIEW.dark,
             preview_surface: FALLBACK_PREVIEW.surface,
+            publication_content: null,
+            publication_service_count: 0,
+            publication_portfolio_count: 0,
+            publication_logo_url: null,
           } satisfies Workspace;
         }
 
@@ -194,6 +213,9 @@ export default function DashboardPage() {
           site_is_published: payload?.site?.is_published === true,
           site_published_at: payload?.site?.published_at ?? null,
           site_primary_locale: primaryLocale,
+          site_primary_locale_is_published: Boolean(
+            primaryRecord?.published_content,
+          ),
           preview_title: readString(content.hero_title, workspace.name),
           preview_tagline: readString(
             content.hero_subtitle || content.tagline,
@@ -208,6 +230,13 @@ export default function DashboardPage() {
             content.theme_surface,
             FALLBACK_PREVIEW.surface,
           ),
+          publication_content: Object.keys(content).length ? content : null,
+          publication_service_count: payload?.services?.length ?? 0,
+          publication_portfolio_count: payload?.portfolio?.length ?? 0,
+          publication_logo_url:
+            payload?.site?.logo_draft_url ||
+            payload?.site?.logo_published_url ||
+            null,
         } satisfies Workspace;
       }),
     );
@@ -261,6 +290,13 @@ export default function DashboardPage() {
     router.push(path);
   }
 
+  function requestPublicationReview(workspace: Workspace) {
+    setWorkspaceError("");
+    setWorkspaceMessage("");
+    setPublishSucceeded(false);
+    setPublishReviewWorkspace(workspace);
+  }
+
   async function publishWorkspace(workspace: Workspace) {
     setWorkspaceAction(workspace.business_id);
     setWorkspaceError("");
@@ -277,7 +313,7 @@ export default function DashboardPage() {
       return;
     }
 
-    setWorkspaceMessage(`Сайт «${workspace.name}» опубликован и доступен посетителям.`);
+    setPublishSucceeded(true);
     setWorkspaceAction(null);
     await loadDashboard();
   }
@@ -494,7 +530,7 @@ export default function DashboardPage() {
                         workspaceAction === workspace.business_id
                       }
                       onOpen={openWorkspace}
-                      onPublish={publishWorkspace}
+                      onPublish={requestPublicationReview}
                       onDelete={deleteWorkspace}
                       onArchive={archiveWorkspace}
                     />
@@ -523,7 +559,7 @@ export default function DashboardPage() {
                   : false
               }
               onOpen={openWorkspace}
-              onPublish={publishWorkspace}
+              onPublish={requestPublicationReview}
             />
 
             <section className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
@@ -541,6 +577,43 @@ export default function DashboardPage() {
           </aside>
         </div>
       </section>
+
+      {publishReviewWorkspace ? (
+        <ClientPublishDialog
+          open
+          businessName={publishReviewWorkspace.name}
+          locale={publishReviewWorkspace.site_primary_locale}
+          publicPath={`/site/${publishReviewWorkspace.slug}`}
+          alreadyPublished={
+            publishReviewWorkspace.site_primary_locale_is_published
+          }
+          busy={workspaceAction === publishReviewWorkspace.business_id}
+          success={publishSucceeded}
+          readiness={evaluatePublicationReadiness({
+            businessName: publishReviewWorkspace.name,
+            content: publishReviewWorkspace.publication_content,
+            serviceCount: publishReviewWorkspace.publication_service_count,
+            portfolioCount: publishReviewWorkspace.publication_portfolio_count,
+            logoUrl: publishReviewWorkspace.publication_logo_url,
+          })}
+          error={workspaceError || undefined}
+          onClose={() => {
+            if (workspaceAction) return;
+            setPublishReviewWorkspace(null);
+            setPublishSucceeded(false);
+          }}
+          onConfirm={() => void publishWorkspace(publishReviewWorkspace)}
+          onEdit={() => {
+            const workspace = publishReviewWorkspace;
+            setPublishReviewWorkspace(null);
+            setPublishSucceeded(false);
+            void openWorkspace(
+              workspace.business_id,
+              `/dashboard/site?business=${workspace.business_id}&from=dashboard`,
+            );
+          }}
+        />
+      ) : null}
     </main>
   );
 }
@@ -556,7 +629,7 @@ function WorkspaceCard({
   workspace: Workspace;
   busy: boolean;
   onOpen: (businessId: string, path: string) => Promise<void>;
-  onPublish: (workspace: Workspace) => Promise<void>;
+  onPublish: (workspace: Workspace) => void | Promise<void>;
   onDelete: (workspace: Workspace) => Promise<void>;
   onArchive: (workspace: Workspace) => Promise<void>;
 }) {
@@ -647,21 +720,35 @@ function WorkspaceCard({
             ) : null}
 
             {workspace.site_is_published ? (
-              <Link
-                href={publicPath}
-                target="_blank"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/14 px-5 text-sm font-semibold text-white/85 transition hover:border-white/30 hover:text-white"
-              >
-                Открыть сайт ↗
-              </Link>
+              <>
+                <Link
+                  href={publicPath}
+                  target="_blank"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/14 px-5 text-sm font-semibold text-white/85 transition hover:border-white/30 hover:text-white"
+                >
+                  Открыть сайт ↗
+                </Link>
+                {canConfigure ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onPublish(workspace)}
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d8b36a]/30 bg-[#d8b36a]/[0.05] px-5 text-sm font-semibold text-[#e8c77f] transition hover:border-[#d8b36a]/55 disabled:cursor-wait disabled:opacity-50"
+                  >
+                    {workspace.site_primary_locale_is_published
+                      ? "Обновить публикацию"
+                      : "Опубликовать основной язык"}
+                  </button>
+                ) : null}
+              </>
             ) : canConfigure ? (
               <button
                 type="button"
                 disabled={busy}
-                onClick={() => void onPublish(workspace)}
+                onClick={() => onPublish(workspace)}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d8b36a]/35 bg-[#d8b36a]/[0.06] px-5 text-sm font-semibold text-[#e8c77f] transition hover:border-[#d8b36a]/60 disabled:cursor-wait disabled:opacity-50"
               >
-                {busy ? "Публикуем…" : "Опубликовать"}
+                Проверить и опубликовать
               </button>
             ) : null}
           </div>
@@ -772,7 +859,7 @@ function NextSteps({
   workspace: Workspace | null;
   busy: boolean;
   onOpen: (businessId: string, path: string) => Promise<void>;
-  onPublish: (workspace: Workspace) => Promise<void>;
+  onPublish: (workspace: Workspace) => void | Promise<void>;
 }) {
   return (
     <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
@@ -840,10 +927,10 @@ function NextSteps({
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => void onPublish(workspace)}
+                  onClick={() => onPublish(workspace)}
                   className="text-xs font-semibold text-[#e8c77f] disabled:opacity-40"
                 >
-                  Опубликовать →
+                  Проверить и опубликовать →
                 </button>
               )
             }
