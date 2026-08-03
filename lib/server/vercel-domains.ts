@@ -84,6 +84,7 @@ async function vercelRequest<T>(
       ...init.headers,
     },
     cache: "no-store",
+    signal: init.signal || AbortSignal.timeout(12_000),
   });
 
   const raw = await response.text();
@@ -148,6 +149,27 @@ async function getProjectDomain(domain: string) {
   } catch (error) {
     if (error instanceof VercelApiError && error.status === 404) return null;
     throw error;
+  }
+}
+
+async function verifyProjectDomain(domain: string) {
+  return vercelRequest<ProjectDomain>(`${projectDomainPath(domain)}/verify`, {
+    method: "POST",
+  });
+}
+
+async function probeHttps(domain: string) {
+  try {
+    const response = await fetch(`https://${domain}`, {
+      method: "HEAD",
+      redirect: "manual",
+      cache: "no-store",
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    return response.status > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -340,6 +362,22 @@ export async function inspectVercelDomain(
     }
   }
 
+  if (projectDomain.verified !== true) {
+    try {
+      projectDomain = await verifyProjectDomain(domain);
+    } catch (error) {
+      if (
+        error instanceof VercelApiError &&
+        [400, 403, 409].includes(error.status)
+      ) {
+        const refreshed = await getProjectDomain(domain);
+        if (refreshed) projectDomain = refreshed;
+      } else {
+        throw error;
+      }
+    }
+  }
+
   const apexName = projectDomain.apexName || domain;
   const redirectDomain = companionDomain(domain, apexName);
   let redirectProjectDomain: ProjectDomain | null = null;
@@ -351,6 +389,22 @@ export async function inspectVercelDomain(
         redirectProjectDomain = await addProjectDomain(redirectDomain, domain);
       } catch (error) {
         if (!(error instanceof VercelApiError && error.status === 409)) {
+          throw error;
+        }
+      }
+      redirectProjectDomain = await getProjectDomain(redirectDomain);
+    }
+
+    if (redirectProjectDomain?.verified !== true) {
+      try {
+        redirectProjectDomain = await verifyProjectDomain(redirectDomain);
+      } catch (error) {
+        if (
+          error instanceof VercelApiError &&
+          [400, 403, 409].includes(error.status)
+        ) {
+          redirectProjectDomain = await getProjectDomain(redirectDomain);
+        } else {
           throw error;
         }
       }
@@ -386,8 +440,18 @@ export async function inspectVercelDomain(
   const redirectConfigured = redirectConfig
     ? redirectConfig.misconfigured === false
     : true;
-  const active =
+  const routingReady =
     vercelVerified && redirectVerified && dnsConfigured && redirectConfigured;
+  const [primaryHttpsReady, redirectHttpsReady] = routingReady
+    ? await Promise.all([
+        probeHttps(domain),
+        effectiveRedirectDomain
+          ? probeHttps(effectiveRedirectDomain)
+          : Promise.resolve(true),
+      ])
+    : [false, false];
+  const sslReady = primaryHttpsReady && redirectHttpsReady;
+  const active = routingReady && sslReady;
 
   return {
     domain,
@@ -400,10 +464,11 @@ export async function inspectVercelDomain(
     ownershipVerificationRequired: false,
     vercelVerified: vercelVerified && redirectVerified,
     dnsConfigured: dnsConfigured && redirectConfigured,
-    sslReady: active,
+    sslReady,
     verification,
     dnsRecords,
-    lastError: null,
+    lastError:
+      routingReady && !sslReady ? "https_certificate_pending" : null,
   };
 }
 

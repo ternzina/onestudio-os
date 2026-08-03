@@ -31,7 +31,7 @@ const STATUS: Record<
   },
   active: {
     label: "Подключён",
-    description: "Домен подтверждён, направлен на OneStudio и готов к HTTPS.",
+    description: "Домен подтверждён, направлен на OneStudio и защищён HTTPS.",
     className: "bg-emerald-300/12 text-emerald-100",
   },
   error: {
@@ -126,29 +126,52 @@ export default function ClientDomainManager({
     setMessage("");
 
     try {
-      const response = await fetch("/api/client/domains", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action,
-          businessId,
-          ...(action === "connect" ? { domain: domainInput } : {}),
-        }),
-      });
-      const data = (await response.json()) as
-        | ClientDomainPayload
-        | ClientDomainErrorPayload;
+      let data: ClientDomainPayload | null = null;
+      const attempts = action === "check" ? 6 : 1;
 
-      if (!response.ok || data.ok !== true) {
-        throw new Error(responseMessage(data as ClientDomainErrorPayload));
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        const response = await fetch("/api/client/domains", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            businessId,
+            ...(action === "connect" ? { domain: domainInput } : {}),
+          }),
+        });
+        const nextData = (await response.json()) as
+          | ClientDomainPayload
+          | ClientDomainErrorPayload;
+
+        if (!response.ok || nextData.ok !== true) {
+          throw new Error(responseMessage(nextData as ClientDomainErrorPayload));
+        }
+
+        data = nextData;
+        setPayload(nextData);
+        setDomainInput(nextData.domain?.domain || domainInput);
+
+        if (
+          action !== "check" ||
+          nextData.domain?.status === "active" ||
+          nextData.domain?.dns_configured !== true ||
+          nextData.domain?.ssl_ready === true
+        ) {
+          break;
+        }
+
+        setMessage("DNS уже готов. OneStudio ожидает выпуск HTTPS-сертификата и проверит его автоматически.");
+        await new Promise((resolve) => window.setTimeout(resolve, 5_000));
       }
 
-      setPayload(data);
-      setDomainInput(data.domain?.domain || domainInput);
+      if (!data) throw new Error("Не удалось получить состояние домена.");
+
       setMessage(
         data.domain?.status === "active"
-          ? "Домен подключён. Сайт уже можно открыть по новому адресу."
-          : "Данные обновлены. Внесите показанные DNS-записи и повторите проверку.",
+          ? "Домен подключён. HTTPS работает, сайт уже можно открыть."
+          : data.domain?.dns_configured && !data.domain?.ssl_ready
+            ? "DNS подключён. Сертификат выпускается автоматически. Проверка продолжится при следующем нажатии."
+            : "Данные обновлены. Внесите показанные DNS-записи и повторите проверку.",
       );
     } catch (actionError) {
       setError(
@@ -240,7 +263,7 @@ export default function ClientDomainManager({
       <section className="overflow-hidden rounded-[36px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(216,179,106,0.16),transparent_42%),rgba(255,255,255,0.045)]">
         <div className="px-6 py-7 sm:px-9 sm:py-9">
           <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#d8b36a]">
-            Client Domain 1.0
+            Client Domain 1.1
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-5">
             <div>
@@ -348,7 +371,9 @@ export default function ClientDomainManager({
                   </span>
                 </div>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
-                  {status?.description}
+                  {domain.dns_configured && !domain.ssl_ready
+                    ? "DNS уже подключён. OneStudio автоматически ожидает и проверяет выпуск HTTPS-сертификата."
+                    : status?.description}
                 </p>
                 {domain.redirect_domain ? (
                   <p className="mt-2 text-xs text-white/35">
@@ -421,20 +446,33 @@ export default function ClientDomainManager({
                 Последняя проверка: {new Date(domain.last_checked_at).toLocaleString("ru-RU")}
               </p>
             ) : null}
+
+            {domain.last_error === "https_certificate_pending" ? (
+              <div className="mt-4 rounded-2xl border border-sky-300/15 bg-sky-300/[0.06] p-4 text-xs leading-5 text-sky-100">
+                DNS уже принят. HTTPS-сертификат выпускается автоматически. Никакие команды и ручные действия пользователя не нужны.
+              </div>
+            ) : domain.last_error ? (
+              <div className="mt-4 rounded-2xl border border-red-300/15 bg-red-300/[0.06] p-4 text-xs leading-5 text-red-100">
+                Последняя проверка не завершилась: {domain.last_error}
+              </div>
+            ) : null}
           </section>
 
           <details className="rounded-[30px] border border-white/10 bg-white/[0.025] p-6">
             <summary className="cursor-pointer text-sm font-semibold text-white/75">
-              Расширенный способ: передать DNS в Vercel
+              Управляемый DNS OneStudio
             </summary>
             <div className="mt-4 rounded-2xl border border-amber-300/12 bg-amber-300/[0.05] p-4 text-xs leading-6 text-white/50">
               <p>
-                Этот способ меняет управление всей зоной домена. Перед сменой NS необходимо перенести MX, SPF, DKIM и остальные существующие записи, иначе может перестать работать почта.
+                Скоро OneStudio сможет принимать управление всей DNS-зоной через фирменные серверы. До запуска этого режима оставьте NS у текущего провайдера и меняйте только показанные A, CNAME или TXT-записи.
               </p>
               <div className="mt-4 grid gap-2 font-mono text-white/75">
-                <p>ns1.vercel-dns.com</p>
-                <p>ns2.vercel-dns.com</p>
+                <p>ns1.onestudioos.com</p>
+                <p>ns2.onestudioos.com</p>
               </div>
+              <p className="mt-4 text-amber-100/75">
+                Пока не устанавливайте эти NS у регистратора. Они появятся после запуска OneStudio Managed DNS.
+              </p>
             </div>
           </details>
 
