@@ -438,22 +438,26 @@ export async function inspectVercelDomain(
   const redirectVerified = redirectProjectDomain
     ? redirectProjectDomain.verified === true
     : true;
-  const dnsConfigured = config.misconfigured === false;
-  const redirectConfigured = redirectConfig
+  const vercelDnsConfigured = config.misconfigured === false;
+  const vercelRedirectConfigured = redirectConfig
     ? redirectConfig.misconfigured === false
     : true;
-  const routingReady =
-    vercelVerified && redirectVerified && dnsConfigured && redirectConfigured;
-  const [primaryHttpsReady, redirectHttpsReady] = routingReady
-    ? await Promise.all([
-        probeHttps(domain),
-        effectiveRedirectDomain
-          ? probeHttps(effectiveRedirectDomain)
-          : Promise.resolve(true),
-      ])
-    : [false, false];
+
+  // A real HTTPS response is the final source of truth for a customer-facing
+  // domain. Vercel's strict config endpoint can temporarily keep reporting
+  // misconfigured for externally managed DNS even after routing and TLS work.
+  const [primaryHttpsReady, redirectHttpsReady] = await Promise.all([
+    probeHttps(domain),
+    effectiveRedirectDomain
+      ? probeHttps(effectiveRedirectDomain)
+      : Promise.resolve(true),
+  ]);
+
   const sslReady = primaryHttpsReady && redirectHttpsReady;
-  const active = routingReady && sslReady;
+  const dnsConfigured =
+    (vercelDnsConfigured && vercelRedirectConfigured) || sslReady;
+  const active =
+    vercelVerified && redirectVerified && dnsConfigured && sslReady;
 
   return {
     domain,
@@ -465,12 +469,12 @@ export async function inspectVercelDomain(
         : "dns_pending",
     ownershipVerificationRequired: false,
     vercelVerified: vercelVerified && redirectVerified,
-    dnsConfigured: dnsConfigured && redirectConfigured,
+    dnsConfigured,
     sslReady,
     verification,
     dnsRecords,
     lastError:
-      routingReady && !sslReady ? "https_certificate_pending" : null,
+      dnsConfigured && !sslReady ? "https_certificate_pending" : null,
   };
 }
 
