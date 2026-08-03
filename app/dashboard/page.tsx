@@ -53,6 +53,13 @@ type Workspace = WorkspaceManagementRow & {
   publication_service_count: number;
   publication_portfolio_count: number;
   publication_logo_url: string | null;
+  custom_domain: string | null;
+  custom_domain_active: boolean;
+};
+
+type DomainManagementPayload = {
+  domain?: string;
+  status?: string;
 };
 
 type EditorPayload = {
@@ -192,15 +199,26 @@ export default function DashboardPage() {
             publication_service_count: 0,
             publication_portfolio_count: 0,
             publication_logo_url: null,
+            custom_domain: null,
+            custom_domain_active: false,
           } satisfies Workspace;
         }
 
-        const { data: editor } = await supabase.rpc("get_public_site_editor", {
-          p_business_id: workspace.business_id,
-        });
+        const [{ data: editor }, { data: domainState }] = await Promise.all([
+          supabase.rpc("get_public_site_editor", {
+            p_business_id: workspace.business_id,
+          }),
+          supabase.rpc("get_public_site_domain_management", {
+            p_business_id: workspace.business_id,
+          }),
+        ]);
 
         const payload =
           editor && typeof editor === "object" ? (editor as EditorPayload) : null;
+        const domainPayload =
+          domainState && typeof domainState === "object"
+            ? (domainState as DomainManagementPayload)
+            : null;
         const primaryLocale = payload?.site?.primary_locale || "ru";
         const primaryRecord = payload?.locales?.find(
           (item) => item.locale === primaryLocale,
@@ -237,6 +255,11 @@ export default function DashboardPage() {
             payload?.site?.logo_draft_url ||
             payload?.site?.logo_published_url ||
             null,
+          custom_domain:
+            typeof domainPayload?.domain === "string"
+              ? domainPayload.domain
+              : null,
+          custom_domain_active: domainPayload?.status === "active",
         } satisfies Workspace;
       }),
     );
@@ -571,7 +594,7 @@ export default function DashboardPage() {
                 <AccountRow label="Телефон" value={profile?.phone || "Не указан"} />
               </div>
               <p className="mt-4 text-xs leading-5 text-white/35">
-                Настройки профиля и собственного домена появятся в следующих слоях кабинета.
+                Собственный домен подключается отдельно для каждого опубликованного сайта.
               </p>
             </section>
           </aside>
@@ -581,6 +604,7 @@ export default function DashboardPage() {
       {publishReviewWorkspace ? (
         <ClientPublishDialog
           open
+          businessId={publishReviewWorkspace.business_id}
           businessName={publishReviewWorkspace.name}
           locale={publishReviewWorkspace.site_primary_locale}
           publicPath={`/site/${publishReviewWorkspace.slug}`}
@@ -633,7 +657,12 @@ function WorkspaceCard({
   onDelete: (workspace: Workspace) => Promise<void>;
   onArchive: (workspace: Workspace) => Promise<void>;
 }) {
-  const publicPath = `/site/${workspace.slug}`;
+  const publicPath = workspace.custom_domain_active && workspace.custom_domain
+    ? `https://${workspace.custom_domain}`
+    : `/site/${workspace.slug}`;
+  const publicAddress = workspace.custom_domain_active && workspace.custom_domain
+    ? workspace.custom_domain
+    : `onestudioos.com/site/${workspace.slug}`;
   const publishedDate = formatPublishedDate(workspace.site_published_at);
   const canConfigure = ["owner", "admin", "manager"].includes(workspace.role);
 
@@ -684,11 +713,11 @@ function WorkspaceCard({
                 target="_blank"
                 className="mt-1 block truncate text-sm font-medium text-[#e8c77f] hover:text-[#f4d99a]"
               >
-                onestudioos.com{publicPath}
+                {publicAddress}
               </Link>
             ) : (
               <p className="mt-1 truncate text-sm text-white/55">
-                onestudioos.com{publicPath}
+                {publicAddress}
               </p>
             )}
           </div>
@@ -949,9 +978,25 @@ function NextSteps({
           <StepRow
             number="04"
             title="Добавьте собственный домен"
-            description="После завершения сайта подключим адрес клиента без поддомена OneStudio OS."
-            done={false}
-            badge="Запланировано"
+            description={
+              workspace.site_is_published
+                ? "Подключите адрес клиента и получите точные DNS-записи."
+                : "Сначала опубликуйте сайт, затем подключите адрес клиента."
+            }
+            done={workspace.custom_domain_active}
+            action={
+              workspace.site_is_published ? (
+                <Link
+                  href={`/dashboard/domain?business=${workspace.business_id}`}
+                  className="text-xs font-semibold text-[#e8c77f]"
+                >
+                  {workspace.custom_domain_active
+                    ? "Управлять доменом →"
+                    : "Подключить домен →"}
+                </Link>
+              ) : undefined
+            }
+            badge={workspace.site_is_published ? undefined : "После публикации"}
           />
         </div>
       )}

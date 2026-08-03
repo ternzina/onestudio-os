@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicPortfolioPage from "@/components/public/PublicPortfolioPage";
 import { getPublicSite } from "@/lib/public-site/data";
-import {
-  createPublicPageMetadata,
-} from "@/lib/public-site/metadata";
+import { createPublicPageMetadata } from "@/lib/public-site/metadata";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +15,10 @@ export async function generateMetadata({
   params,
 }: PortfolioPageProps): Promise<Metadata> {
   const { businessSlug } = await params;
-  const site = await getPublicSite(businessSlug);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) => item.type === "portfolio" && item.is_visible !== false,
   );
@@ -25,7 +27,7 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page);
+  return createPublicPageMetadata(site, page, null, context);
 }
 
 export default async function PortfolioPage({ params }: PortfolioPageProps) {

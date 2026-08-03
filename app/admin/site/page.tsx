@@ -1393,6 +1393,7 @@ export default function AdminSitePage() {
       {clientMode && publishReviewOpen ? (
         <ClientPublishDialog
           open
+          businessId={editor.business.id}
           businessName={editor.business.name}
           locale={selectedLocale}
           publicPath={publicHref(editor, selectedLocale)}

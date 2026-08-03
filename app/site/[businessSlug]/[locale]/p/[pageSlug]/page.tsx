@@ -3,9 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import PublicCustomPage from "@/components/public/PublicCustomPage";
 import { getPublicSite } from "@/lib/public-site/data";
 import {
+  cleanPublicPagePath,
   createPublicPageMetadata,
   publicCustomPagePath,
 } from "@/lib/public-site/metadata";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +23,10 @@ export async function generateMetadata({
   params,
 }: LocalizedCustomPageProps): Promise<Metadata> {
   const { businessSlug, locale, pageSlug } = await params;
-  const site = await getPublicSite(businessSlug, locale);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug, locale),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) =>
       item.type === "custom" &&
@@ -33,7 +38,7 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page, locale);
+  return createPublicPageMetadata(site, page, locale, context);
 }
 
 export default async function LocalizedCustomPage({
@@ -41,7 +46,10 @@ export default async function LocalizedCustomPage({
 }: LocalizedCustomPageProps) {
   const { businessSlug, locale, pageSlug } = await params;
   const normalizedLocale = locale.toLowerCase();
-  const site = await getPublicSite(businessSlug, normalizedLocale);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug, normalizedLocale),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) =>
       item.type === "custom" &&
@@ -51,7 +59,11 @@ export default async function LocalizedCustomPage({
 
   if (!site || !page || site.business.locale !== normalizedLocale) notFound();
   if (normalizedLocale === site.business.primary_locale) {
-    redirect(publicCustomPagePath(site.business.slug, page.slug));
+    redirect(
+      context.cleanUrls
+        ? cleanPublicPagePath(page.slug, null, true)
+        : publicCustomPagePath(site.business.slug, page.slug),
+    );
   }
 
   return <PublicCustomPage site={site} page={page} />;

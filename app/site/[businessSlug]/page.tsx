@@ -4,6 +4,7 @@ import PublicBusinessSite from "@/components/public/PublicBusinessSite";
 import PublicSiteStructuredData from "@/components/public/PublicSiteStructuredData";
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicSiteMetadata } from "@/lib/public-site/metadata";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,13 @@ export async function generateMetadata({
   params,
 }: PublicSitePageProps): Promise<Metadata> {
   const { businessSlug } = await params;
-  const site = await getPublicSite(businessSlug);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
 
   if (!site) return { title: "Site not found", robots: { index: false } };
-  return createPublicSiteMetadata(site);
+  return createPublicSiteMetadata(site, null, context);
 }
 
 export default async function PublicSitePage({

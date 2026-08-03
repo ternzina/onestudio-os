@@ -10,6 +10,7 @@ import { publicationLocaleLabel } from "@/lib/public-site/publication-readiness"
 
 type ClientPublishDialogProps = {
   open: boolean;
+  businessId: string;
   businessName: string;
   locale: string;
   publicPath: string;
@@ -49,6 +50,7 @@ function checkTone(check: PublicationCheck) {
 
 export default function ClientPublishDialog({
   open,
+  businessId,
   businessName,
   locale,
   publicPath,
@@ -204,12 +206,15 @@ export default function ClientPublishDialog({
                 <div>
                   <p className="text-sm font-semibold">Собственный домен</p>
                   <p className="mt-1 text-xs leading-5 text-white/40">
-                    Подключение A, CNAME, TXT и SSL будет следующим слоем кабинета.
+                    Подключите адрес клиента и получите точные A, CNAME или TXT-записи.
                   </p>
                 </div>
-                <span className="rounded-full bg-white/[0.055] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
-                  Следующий этап
-                </span>
+                <Link
+                  href={`/dashboard/domain?business=${businessId}`}
+                  className="inline-flex min-h-10 items-center rounded-full border border-[#d8b36a]/30 bg-[#d8b36a]/[0.06] px-4 text-xs font-semibold text-[#e8c77f]"
+                >
+                  Подключить домен →
+                </Link>
               </div>
             </div>
           </div>

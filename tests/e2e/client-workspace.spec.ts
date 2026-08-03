@@ -333,10 +333,50 @@ test.describe.serial("Client Workspace 1.0", () => {
           exact: true,
         }),
       ).toBeVisible();
+      await expect(
+        publicationDialog.getByRole("link", {
+          name: "Подключить домен →",
+          exact: true,
+        }),
+      ).toBeVisible();
 
       await publicationDialog
         .getByRole("button", { name: "Готово", exact: true })
         .click();
+
+      await page.route("**/api/client/domains?businessId=*", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ok: true,
+            business: {
+              id: createdBusiness!.id,
+              name: businessName,
+              slug: createdBusiness!.slug,
+              isPublished: true,
+            },
+            domain: null,
+          }),
+        });
+      });
+
+      await page
+        .getByRole("link", { name: "Подключить домен →", exact: true })
+        .click();
+      await page.waitForURL(/\/dashboard\/domain(?:[/?#]|$)/, {
+        timeout: 30_000,
+      });
+      await expect(
+        page.getByRole("heading", { name: "Собственный домен" }),
+      ).toBeVisible();
+      await expect(page.getByPlaceholder("mystudio.pl")).toBeVisible();
+
+      await page.unroute("**/api/client/domains?businessId=*");
+      await page.goto("/dashboard");
+      await expect(page.getByText(businessName, { exact: true })).toBeVisible({
+        timeout: 30_000,
+      });
 
       const editorButton = page
         .getByRole("button", { name: "Редактировать сайт" })
@@ -359,7 +399,7 @@ test.describe.serial("Client Workspace 1.0", () => {
       expect(page.url()).not.toContain("/admin/");
 
       console.log(
-        "✅ Регистрация → проверка публикации → публикация → редактор работают.",
+        "✅ Регистрация → публикация → домен → редактор работают.",
       );
     } finally {
       await cleanupTestUser(email);

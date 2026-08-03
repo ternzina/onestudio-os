@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicCustomPage from "@/components/public/PublicCustomPage";
 import { getPublicSite } from "@/lib/public-site/data";
-import {
-  createPublicPageMetadata,
-} from "@/lib/public-site/metadata";
+import { createPublicPageMetadata } from "@/lib/public-site/metadata";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +15,10 @@ export async function generateMetadata({
   params,
 }: CustomPageProps): Promise<Metadata> {
   const { businessSlug, pageSlug } = await params;
-  const site = await getPublicSite(businessSlug);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) =>
       item.type === "custom" &&
@@ -28,7 +30,7 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page);
+  return createPublicPageMetadata(site, page, null, context);
 }
 
 export default async function CustomPage({ params }: CustomPageProps) {

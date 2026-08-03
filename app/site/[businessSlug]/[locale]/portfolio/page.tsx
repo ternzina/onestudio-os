@@ -3,9 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import PublicPortfolioPage from "@/components/public/PublicPortfolioPage";
 import { getPublicSite } from "@/lib/public-site/data";
 import {
+  cleanPublicPagePath,
   createPublicPageMetadata,
   publicSitePagePath,
 } from "@/lib/public-site/metadata";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +19,10 @@ export async function generateMetadata({
   params,
 }: LocalizedPortfolioPageProps): Promise<Metadata> {
   const { businessSlug, locale } = await params;
-  const site = await getPublicSite(businessSlug, locale);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug, locale),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) => item.type === "portfolio" && item.is_visible !== false,
   );
@@ -26,7 +31,7 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page, locale);
+  return createPublicPageMetadata(site, page, locale, context);
 }
 
 export default async function LocalizedPortfolioPage({
@@ -34,14 +39,21 @@ export default async function LocalizedPortfolioPage({
 }: LocalizedPortfolioPageProps) {
   const { businessSlug, locale } = await params;
   const normalizedLocale = locale.toLowerCase();
-  const site = await getPublicSite(businessSlug, normalizedLocale);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug, normalizedLocale),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) => item.type === "portfolio" && item.is_visible !== false,
   );
 
   if (!site || !page || site.business.locale !== normalizedLocale) notFound();
   if (normalizedLocale === site.business.primary_locale) {
-    redirect(publicSitePagePath(site.business.slug, page.slug));
+    redirect(
+      context.cleanUrls
+        ? cleanPublicPagePath(page.slug)
+        : publicSitePagePath(site.business.slug, page.slug),
+    );
   }
 
   return <PublicPortfolioPage site={site} page={page} />;
