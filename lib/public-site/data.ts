@@ -3,6 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import type { PublicSiteData } from "./types";
 
+export type PublicSiteSeoPath = {
+  business_slug: string;
+  locale: string;
+  is_primary: boolean;
+  updated_at: string;
+  custom_domain: string | null;
+};
+
 function createPublicSupabaseClient() {
   const { url, key } = getSupabaseConfig();
 
@@ -39,4 +47,19 @@ export async function listPublicSitePaths() {
     is_primary: boolean;
     updated_at: string;
   }>;
+}
+
+export async function listPublicSiteSeoPaths(
+  businessSlug?: string | null,
+): Promise<PublicSiteSeoPath[]> {
+  const supabase = createPublicSupabaseClient();
+  const { data, error } = await supabase.rpc(
+    "list_public_site_seo_paths",
+    {
+      p_business_slug: businessSlug || null,
+    },
+  );
+
+  if (error) return [];
+  return (data ?? []) as PublicSiteSeoPath[];
 }
