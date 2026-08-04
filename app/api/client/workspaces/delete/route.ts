@@ -32,6 +32,18 @@ type DomainRow = {
   redirect_domain: string | null;
 };
 
+type ReplacementRow = {
+  current_domain: string;
+  current_redirect_domain: string | null;
+  candidate_domain: string;
+  candidate_redirect_domain: string | null;
+};
+
+type DomainPair = {
+  domain: string;
+  redirectDomain: string | null;
+};
+
 type LifecycleStatus =
   | "pending"
   | "vercel_detached"
@@ -61,15 +73,57 @@ function adminClient() {
   });
 }
 
-async function readDomain(admin: SupabaseClient, businessId: string) {
-  const { data, error } = await admin
-    .from("public_site_domains")
-    .select("domain,redirect_domain")
-    .eq("business_id", businessId)
-    .maybeSingle();
+async function readDomains(admin: SupabaseClient, businessId: string) {
+  const [{ data: domain, error: domainError }, { data: replacement, error: replacementError }] =
+    await Promise.all([
+      admin
+        .from("public_site_domains")
+        .select("domain,redirect_domain")
+        .eq("business_id", businessId)
+        .maybeSingle(),
+      admin
+        .from("public_site_domain_replacements")
+        .select(
+          "current_domain,current_redirect_domain,candidate_domain,candidate_redirect_domain",
+        )
+        .eq("business_id", businessId)
+        .maybeSingle(),
+    ]);
 
-  if (error) throw error;
-  return (data as DomainRow | null) || null;
+  if (domainError) throw domainError;
+  if (replacementError) throw replacementError;
+
+  const current = (domain as DomainRow | null) || null;
+  const staged = (replacement as ReplacementRow | null) || null;
+  const pairs: DomainPair[] = [];
+
+  if (current) {
+    pairs.push({
+      domain: current.domain,
+      redirectDomain: current.redirect_domain,
+    });
+  }
+
+  if (staged) {
+    pairs.push(
+      {
+        domain: staged.candidate_domain,
+        redirectDomain: staged.candidate_redirect_domain,
+      },
+      {
+        domain: staged.current_domain,
+        redirectDomain: staged.current_redirect_domain,
+      },
+    );
+  }
+
+  const seen = new Set<string>();
+  return pairs.filter((pair) => {
+    const key = `${pair.domain}|${pair.redirectDomain || ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function createLifecycleEvent(
@@ -77,7 +131,7 @@ async function createLifecycleEvent(
   input: {
     businessId: string;
     workspaceName: string;
-    domain: DomainRow | null;
+    domains: DomainPair[];
     requestedBy: string;
   },
 ) {
@@ -86,8 +140,8 @@ async function createLifecycleEvent(
     .insert({
       business_id: input.businessId,
       workspace_name: input.workspaceName,
-      domain: input.domain?.domain ?? null,
-      redirect_domain: input.domain?.redirect_domain ?? null,
+      domain: input.domains[0]?.domain ?? null,
+      redirect_domain: input.domains[0]?.redirectDomain ?? null,
       action: "workspace_delete",
       status: "pending",
       requested_by: input.requestedBy,
@@ -243,9 +297,9 @@ export async function POST(request: Request) {
     );
   }
 
-  let domain: DomainRow | null;
+  let domains: DomainPair[];
   try {
-    domain = await readDomain(admin, businessId);
+    domains = await readDomains(admin, businessId);
   } catch (error) {
     console.error("Workspace domain preflight failed", error);
     return jsonError(
@@ -260,7 +314,7 @@ export async function POST(request: Request) {
     eventId = await createLifecycleEvent(admin, {
       businessId,
       workspaceName: workspace.name,
-      domain,
+      domains,
       requestedBy: user.id,
     });
   } catch (error) {
@@ -272,9 +326,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (domain) {
+  if (domains.length > 0) {
     try {
-      await removeVercelDomain(domain.domain, domain.redirect_domain);
+      for (const domain of domains) {
+        await removeVercelDomain(domain.domain, domain.redirectDomain);
+      }
       await updateLifecycleEvent(admin, eventId, "vercel_detached", {
         vercel_detached_at: new Date().toISOString(),
         last_error: null,
@@ -287,7 +343,7 @@ export async function POST(request: Request) {
       console.error("Workspace domain removal failed", error);
       return jsonError(
         code,
-        "Не удалось отключить домен. Сайт не удалён.",
+        "Не удалось отключить все домены. Сайт не удалён.",
         502,
       );
     }
@@ -304,9 +360,11 @@ export async function POST(request: Request) {
   if (deleteError) {
     let rollbackError: string | null = null;
 
-    if (domain) {
+    if (domains.length > 0) {
       try {
-        await connectVercelDomain(domain.domain);
+        for (const domain of domains) {
+          await connectVercelDomain(domain.domain);
+        }
         await updateLifecycleEvent(admin, eventId, "rolled_back", {
           last_error: deleteError.message,
           rollback_completed_at: new Date().toISOString(),
@@ -344,7 +402,9 @@ export async function POST(request: Request) {
     deleted: true,
     replacementBusinessId:
       typeof replacementBusinessId === "string" ? replacementBusinessId : null,
-    removedDomain: domain?.domain ?? null,
-    removedRedirectDomain: domain?.redirect_domain ?? null,
+    removedDomains: domains.map((domain) => ({
+      domain: domain.domain,
+      redirectDomain: domain.redirectDomain,
+    })),
   });
 }
