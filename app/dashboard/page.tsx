@@ -346,48 +346,19 @@ export default function DashboardPage() {
     setWorkspaceError("");
     setWorkspaceMessage("");
 
-    let connectedDomain = "";
-
-    try {
-      const domainResponse = await fetch(
-        `/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`,
-        { cache: "no-store" },
-      );
-      const domainPayload = (await domainResponse.json()) as
-        | {
-            ok: true;
-            domain: { domain?: string | null } | null;
-          }
-        | {
-            ok: false;
-            message?: string;
-          };
-
-      if (!domainResponse.ok || domainPayload.ok !== true) {
-        throw new Error(
-          "message" in domainPayload && domainPayload.message
-            ? domainPayload.message
-            : "Не удалось проверить привязанный домен.",
-        );
-      }
-
-      connectedDomain = domainPayload.domain?.domain?.trim() || "";
-    } catch (domainError) {
-      setWorkspaceError(
-        domainError instanceof Error
-          ? domainError.message
-          : "Не удалось проверить привязанный домен. Удаление остановлено.",
-      );
-      setWorkspaceAction(null);
-      return;
-    }
-
+    const connectedDomain = workspace.custom_domain?.trim() || "";
     const domainWarning = connectedDomain
-      ? `\n\nВместе с сайтом будет отключён домен ${connectedDomain} и его www-адрес. DNS-записи у регистратора останутся без изменений.`
+      ? `
+
+Вместе с сайтом будет автоматически отключён домен ${connectedDomain} и его www-адрес. DNS-записи у регистратора останутся без изменений.`
       : "";
 
     const confirmation = window.prompt(
-      `Это действие необратимо.${domainWarning}\n\nЧтобы навсегда удалить демо-сайт, введите его название точно:\n\n${workspace.name}`,
+      `Это действие необратимо.${domainWarning}
+
+Чтобы навсегда удалить демо-сайт, введите его название точно:
+
+${workspace.name}`,
       "",
     );
 
@@ -402,67 +373,55 @@ export default function DashboardPage() {
       return;
     }
 
-    if (connectedDomain) {
-      try {
-        const removeDomainResponse = await fetch(
-          `/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`,
-          { method: "DELETE" },
-        );
-        const removeDomainPayload = (await removeDomainResponse.json()) as
-          | { ok: true; removed: boolean }
-          | { ok: false; error?: string; message?: string };
+    try {
+      const response = await fetch("/api/client/workspaces/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessId: workspace.business_id,
+          confirmationName: confirmation,
+        }),
+      });
 
-        if (!removeDomainResponse.ok || removeDomainPayload.ok !== true) {
-          const errorCode =
-            "error" in removeDomainPayload && removeDomainPayload.error
-              ? ` Код: ${removeDomainPayload.error}.`
-              : "";
+      const payload = (await response.json()) as
+        | {
+            ok: true;
+            deleted: true;
+            removedDomain: string | null;
+          }
+        | {
+            ok: false;
+            error?: string;
+            message?: string;
+          };
 
-          throw new Error(
-            `${
-              "message" in removeDomainPayload && removeDomainPayload.message
-                ? removeDomainPayload.message
-                : "Не удалось отключить домен."
-            }${errorCode}`,
-          );
-        }
-      } catch (removeDomainError) {
-        setWorkspaceError(
+      if (!response.ok || payload.ok !== true) {
+        const errorCode =
+          "error" in payload && payload.error ? ` Код: ${payload.error}.` : "";
+        throw new Error(
           `${
-            removeDomainError instanceof Error
-              ? removeDomainError.message
-              : "Не удалось отключить домен."
-          } Сайт не удалён.`,
+            "message" in payload && payload.message
+              ? payload.message
+              : "Не удалось удалить сайт."
+          }${errorCode}`,
         );
-        setWorkspaceAction(null);
-        return;
       }
-    }
 
-    const { error } = await supabase.rpc("delete_my_empty_workspace", {
-      p_business_id: workspace.business_id,
-      p_confirmation_name: confirmation,
-    });
-
-    if (error) {
-      setWorkspaceError(
-        connectedDomain
-          ? `${workspaceErrorMessage(
-              error.message,
-            )} Домен уже отключён, но сайт остался.`
-          : workspaceErrorMessage(error.message),
+      setWorkspaceMessage(
+        payload.removedDomain
+          ? `Сайт «${workspace.name}» удалён навсегда. Домен ${payload.removedDomain} автоматически отключён.`
+          : `Сайт «${workspace.name}» удалён навсегда.`,
       );
+      await loadDashboard();
+    } catch (deleteError) {
+      setWorkspaceError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Не удалось удалить сайт.",
+      );
+    } finally {
       setWorkspaceAction(null);
-      return;
     }
-
-    setWorkspaceMessage(
-      connectedDomain
-        ? `Сайт «${workspace.name}» удалён навсегда. Домен ${connectedDomain} отключён.`
-        : `Сайт «${workspace.name}» удалён навсегда.`,
-    );
-    setWorkspaceAction(null);
-    await loadDashboard();
   }
 
   async function archiveWorkspace(workspace: Workspace) {

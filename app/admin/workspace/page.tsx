@@ -300,21 +300,62 @@ export default function AdminWorkspacePage() {
     setMessage("");
     setError("");
 
-    const { data, error: deleteError } = await supabase.rpc("delete_my_empty_workspace", {
-      p_business_id: selectedWorkspace.business_id,
-      p_confirmation_name: deleteConfirmation,
-    });
+    try {
+      const response = await fetch("/api/client/workspaces/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessId: selectedWorkspace.business_id,
+          confirmationName: deleteConfirmation,
+        }),
+      });
 
-    if (deleteError) {
-      setError(lifecycleErrorMessage(deleteError.message));
+      const payload = (await response.json()) as
+        | {
+            ok: true;
+            deleted: true;
+            replacementBusinessId: string | null;
+            removedDomain: string | null;
+          }
+        | {
+            ok: false;
+            error?: string;
+            message?: string;
+          };
+
+      if (!response.ok || payload.ok !== true) {
+        const code =
+          "error" in payload && payload.error ? payload.error : "";
+        const mappedCode = code ? lifecycleErrorMessage(code) : "";
+        const serverMessage =
+          "message" in payload && payload.message ? payload.message : "";
+
+        setError(
+          mappedCode && mappedCode !== code
+            ? mappedCode
+            : serverMessage || mappedCode || "workspace_delete_failed",
+        );
+        setAction("");
+        return;
+      }
+
+      await loadWorkspaces(payload.replacementBusinessId ?? undefined);
+      announceWorkspaceChange();
+      setDeleteConfirmation("");
+      setMessage(
+        payload.removedDomain
+          ? `${t("Empty workspace permanently deleted.")} ${payload.removedDomain} disconnected.`
+          : "Не удалось удалить рабочее пространство безопасно.",
+      );
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? lifecycleErrorMessage(deleteError.message)
+          : t("Empty workspace permanently deleted."),
+      );
+    } finally {
       setAction("");
-      return;
     }
-
-    await loadWorkspaces((data as string | null) ?? undefined);
-    announceWorkspaceChange();
-    setMessage(t("Empty workspace permanently deleted."));
-    setAction("");
   };
 
   return (
