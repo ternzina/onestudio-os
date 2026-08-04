@@ -27,6 +27,7 @@ const GLOBAL_PUBLIC_PREFIXES = [
   "/domain-not-connected",
   "/robots.txt",
   "/sitemap.xml",
+  "/ads.txt",
 ];
 
 function platformUrl(request: NextRequest) {

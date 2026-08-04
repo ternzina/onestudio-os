@@ -171,6 +171,13 @@ export default function AdminSettingsPage() {
                 >
                   Google Calendar →
                 </Link>
+
+                <Link
+                  href="/admin/site/monetization"
+                  className="ml-3 inline-flex min-h-12 items-center rounded-xl border border-black/10 bg-white px-6 text-sm font-semibold text-[#17191f]"
+                >
+                  Реклама и монетизация →
+                </Link>
               </SettingsCard>
 
               <SettingsCard title={t("Business identity")} description={t("Neutral name, logo text, footer and social links.")}>
