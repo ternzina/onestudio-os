@@ -1,10 +1,19 @@
-import AdminSitePage from "@/app/admin/site/page";
-import AdminI18nBoundary from "@/components/i18n/AdminI18nBoundary";
+import { redirect } from "next/navigation";
 
-export default function ClientSiteEditorPage() {
-  return (
-    <AdminI18nBoundary>
-      <AdminSitePage />
-    </AdminI18nBoundary>
+type ClientSiteEditorPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function ClientSiteEditorPage({
+  searchParams,
+}: ClientSiteEditorPageProps) {
+  const params = await searchParams;
+  const business =
+    typeof params.business === "string" ? params.business.trim() : "";
+
+  redirect(
+    business
+      ? `/admin/site?business=${encodeURIComponent(business)}`
+      : "/admin/site",
   );
 }

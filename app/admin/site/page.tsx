@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -50,6 +50,14 @@ type Workspace = {
 
 type CanvasSection = "hero" | PublicSiteSection;
 type PreviewDevice = "desktop" | "mobile";
+type EditorSnapshot = {
+  draft: PublicSiteContent;
+  logoUrl: string;
+};
+type EditorHistoryEntry = EditorSnapshot & {
+  group: string | null;
+  createdAt: number;
+};
 type MediaItem = {
   id: string;
   image_url: string;
@@ -113,6 +121,36 @@ type ImageTarget =
 
 const inputClass =
   "mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#9a742e]";
+
+const MAX_EDITOR_HISTORY = 80;
+const HISTORY_GROUP_WINDOW_MS = 900;
+
+function cloneEditorValue<Value>(value: Value): Value {
+  return JSON.parse(JSON.stringify(value)) as Value;
+}
+
+function clonePublicSiteContent(content: PublicSiteContent) {
+  return cloneEditorValue(content);
+}
+
+function contentSignature(content: PublicSiteContent | null) {
+  return content ? JSON.stringify(content) : "";
+}
+
+function cloneCustomBlockForDuplicate(
+  block: PublicSiteCustomBlock,
+): PublicSiteCustomBlock {
+  const nextId = `${block.id}-copy-${Date.now()}`;
+  return {
+    ...cloneEditorValue(block),
+    id: nextId,
+    title: block.title ? `${block.title} · копия` : "Копия блока",
+    cards: block.cards?.map((card, index) => ({
+      ...card,
+      id: `${nextId}-card-${index + 1}`,
+    })),
+  };
+}
 
 const SITE_COLOR_PRESETS = [
   {
@@ -491,57 +529,13 @@ function createCustomPage(existingCount: number): PublicSitePage {
   };
 }
 
-function SiteEditorHeader({
-  clientMode,
-  workspaceName,
-}: {
-  clientMode: boolean;
-  workspaceName?: string;
-}) {
-  if (!clientMode) return <AdminHeader />;
-
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0b0d12]/95 text-white backdrop-blur-xl">
-      <div className="mx-auto flex min-h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
-        <Link href="/dashboard" className="flex items-center gap-3" aria-label="OneStudio OS">
-          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-[#d8b36a] text-xs font-black text-[#15120c]">
-            OS
-          </span>
-          <span>
-            <span className="block text-sm font-semibold tracking-[-0.02em]">OneStudio</span>
-            <span className="block text-[10px] uppercase tracking-[0.2em] text-white/45">Site Editor</span>
-          </span>
-        </Link>
-
-        {workspaceName ? (
-          <p className="hidden max-w-[36vw] truncate text-xs text-white/55 md:block">
-            {workspaceName}
-          </p>
-        ) : null}
-
-        <nav className="flex items-center gap-2">
-          <Link
-            href="/demos"
-            className="hidden rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/70 transition hover:bg-white/5 sm:inline-flex"
-          >
-            Демо
-          </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#0b0d12]"
-          >
-            Личный кабинет
-          </Link>
-        </nav>
-      </div>
-    </header>
-  );
+function SiteEditorHeader() {
+  return <AdminHeader />;
 }
 
 export default function AdminSitePage() {
   const { t } = useAdminI18n();
-  const pathname = usePathname();
-  const clientMode = pathname.startsWith("/dashboard/site");
+  const clientMode = false;
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [editor, setEditor] = useState<PublicSiteEditorData | null>(null);
   const [selectedLocale, setSelectedLocale] = useState("");
@@ -560,6 +554,53 @@ export default function AdminSitePage() {
     useState<CanvasSection>("hero");
   const [previewDevice, setPreviewDevice] =
     useState<PreviewDevice>("desktop");
+  const undoStackRef = useRef<EditorHistoryEntry[]>([]);
+  const redoStackRef = useRef<EditorHistoryEntry[]>([]);
+  const [undoDepth, setUndoDepth] = useState(0);
+  const [redoDepth, setRedoDepth] = useState(0);
+  const [savedDraftSignature, setSavedDraftSignature] = useState("");
+
+  const syncHistoryDepth = useCallback(() => {
+    setUndoDepth(undoStackRef.current.length);
+    setRedoDepth(redoStackRef.current.length);
+  }, []);
+
+  const resetEditorHistory = useCallback(() => {
+    undoStackRef.current = [];
+    redoStackRef.current = [];
+    syncHistoryDepth();
+  }, [syncHistoryDepth]);
+
+  const pushEditorHistory = useCallback((
+    currentDraft: PublicSiteContent,
+    currentLogoUrl: string,
+    group?: string,
+  ) => {
+    const now = Date.now();
+    const normalizedGroup = group ?? null;
+    const last = undoStackRef.current.at(-1);
+    const shouldCoalesce = Boolean(
+      normalizedGroup &&
+      last?.group === normalizedGroup &&
+      now - last.createdAt <= HISTORY_GROUP_WINDOW_MS,
+    );
+
+    if (shouldCoalesce && last) {
+      last.createdAt = now;
+    } else {
+      undoStackRef.current.push({
+        draft: clonePublicSiteContent(currentDraft),
+        logoUrl: currentLogoUrl,
+        group: normalizedGroup,
+        createdAt: now,
+      });
+      if (undoStackRef.current.length > MAX_EDITOR_HISTORY) {
+        undoStackRef.current.shift();
+      }
+    }
+    redoStackRef.current = [];
+    syncHistoryDepth();
+  }, [syncHistoryDepth]);
 
   const canConfigure = workspace
     ? ["owner", "admin", "manager"].includes(workspace.role)
@@ -619,16 +660,19 @@ export default function AdminSitePage() {
         ? preferredLocale
         : nextEditor.site.primary_locale;
 
+    const loadedDraft = contentFromLocale(nextEditor, locale);
     setWorkspace(current);
     setEditor(nextEditor);
     setSelectedLocale(locale);
-    setDraft(contentFromLocale(nextEditor, locale));
+    setDraft(loadedDraft);
     const loadedLogoUrl =
       nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
     setLogoUrl(loadedLogoUrl);
     setSavedLogoUrl(loadedLogoUrl);
+    setSavedDraftSignature(contentSignature(loadedDraft));
+    resetEditorHistory();
     if (!silent) setLoading(false);
-  }, [t]);
+  }, [resetEditorHistory, t]);
 
   useEffect(() => {
     void loadEditor();
@@ -639,6 +683,25 @@ export default function AdminSitePage() {
       editor?.locales.find((item) => item.locale === selectedLocale) ?? null,
     [editor, selectedLocale],
   );
+
+  const currentDraftSignature = useMemo(
+    () => contentSignature(draft),
+    [draft],
+  );
+  const hasUnsavedChanges = Boolean(
+    draft &&
+    (currentDraftSignature !== savedDraftSignature || logoUrl !== savedLogoUrl),
+  );
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const clientPublicationReadiness = useMemo(
     () =>
@@ -655,60 +718,139 @@ export default function AdminSitePage() {
   );
 
   function chooseLocale(locale: string) {
-    if (!editor) return;
+    if (!editor || locale === selectedLocale) return;
+    if (
+      hasUnsavedChanges &&
+      !window.confirm(
+        "В этом языке есть несохранённые изменения. Переключиться и потерять их?",
+      )
+    ) return;
+    const nextDraft = contentFromLocale(editor, locale);
     setSelectedLocale(locale);
-    setDraft(contentFromLocale(editor, locale));
+    setDraft(nextDraft);
+    setSavedDraftSignature(contentSignature(nextDraft));
+    const nextLogo = editor.site.logo_draft_url ?? editor.company?.logo_url ?? "";
+    setLogoUrl(nextLogo);
+    setSavedLogoUrl(nextLogo);
+    resetEditorHistory();
     setMessage("");
     setError("");
     setPublishReviewOpen(false);
     setPublishSucceeded(false);
   }
 
+  function replaceDraft(
+    nextDraft: PublicSiteContent,
+    historyGroup?: string,
+  ) {
+    setDraft((current) => {
+      if (!current || contentSignature(current) === contentSignature(nextDraft)) {
+        return current;
+      }
+      pushEditorHistory(current, logoUrl, historyGroup);
+      return clonePublicSiteContent(nextDraft);
+    });
+    setMessage("");
+  }
+
   function update<Key extends keyof PublicSiteContent>(
     key: Key,
     value: PublicSiteContent[Key],
   ) {
-    setDraft((current) => current ? { ...current, [key]: value } : current);
+    setDraft((current) => {
+      if (!current) return current;
+      const next = { ...current, [key]: value };
+      if (contentSignature(current) === contentSignature(next)) return current;
+      pushEditorHistory(current, logoUrl, `field:${String(key)}`);
+      return next;
+    });
     setMessage("");
   }
 
   function updateTeam(items: string, images: string[]) {
-    setDraft((current) =>
-      current
-        ? {
-            ...current,
-            team_items: items,
-            team_image_urls: images,
-          }
-        : current,
-    );
+    setDraft((current) => {
+      if (!current) return current;
+      const next = {
+        ...current,
+        team_items: items,
+        team_image_urls: images,
+      };
+      if (contentSignature(current) === contentSignature(next)) return current;
+      pushEditorHistory(current, logoUrl, "team");
+      return next;
+    });
     setMessage("");
   }
 
   function updateGift(items: string, images: string[]) {
-    setDraft((current) =>
-      current
-        ? {
-            ...current,
-            gift_items: items,
-            gift_image_urls: images,
-          }
-        : current,
-    );
+    setDraft((current) => {
+      if (!current) return current;
+      const next = {
+        ...current,
+        gift_items: items,
+        gift_image_urls: images,
+      };
+      if (contentSignature(current) === contentSignature(next)) return current;
+      pushEditorHistory(current, logoUrl, "gift");
+      return next;
+    });
     setMessage("");
   }
 
   function updateMembership(items: string, images: string[]) {
-    setDraft((current) =>
-      current
-        ? {
-            ...current,
-            membership_items: items,
-            membership_image_urls: images,
-          }
-        : current,
-    );
+    setDraft((current) => {
+      if (!current) return current;
+      const next = {
+        ...current,
+        membership_items: items,
+        membership_image_urls: images,
+      };
+      if (contentSignature(current) === contentSignature(next)) return current;
+      pushEditorHistory(current, logoUrl, "membership");
+      return next;
+    });
     setMessage("");
+  }
+
+  function updateLogo(value: string) {
+    if (value === logoUrl) return;
+    if (draft) pushEditorHistory(draft, logoUrl, "logo");
+    setLogoUrl(value);
+    setMessage("");
+  }
+
+  function undoEditorChange() {
+    if (!draft) return;
+    const previous = undoStackRef.current.pop();
+    if (!previous) return;
+    redoStackRef.current.push({
+      draft: clonePublicSiteContent(draft),
+      logoUrl,
+      group: null,
+      createdAt: Date.now(),
+    });
+    setDraft(clonePublicSiteContent(previous.draft));
+    setLogoUrl(previous.logoUrl);
+    setMessage("");
+    setError("");
+    syncHistoryDepth();
+  }
+
+  function redoEditorChange() {
+    if (!draft) return;
+    const next = redoStackRef.current.pop();
+    if (!next) return;
+    undoStackRef.current.push({
+      draft: clonePublicSiteContent(draft),
+      logoUrl,
+      group: null,
+      createdAt: Date.now(),
+    });
+    setDraft(clonePublicSiteContent(next.draft));
+    setLogoUrl(next.logoUrl);
+    setMessage("");
+    setError("");
+    syncHistoryDepth();
   }
 
 
@@ -719,16 +861,11 @@ export default function AdminSitePage() {
     const nextIndex = currentIndex + direction;
     if (currentIndex < 0 || nextIndex < 0 || nextIndex >= order.length) return;
     [order[currentIndex], order[nextIndex]] = [order[nextIndex], order[currentIndex]];
-    setDraft((current) =>
-      current
-        ? {
-            ...current,
-            layout_order: order,
-            section_order: sectionsFromLayoutOrder(order),
-          }
-        : current,
-    );
-    setMessage("");
+    replaceDraft({
+      ...draft,
+      layout_order: order,
+      section_order: sectionsFromLayoutOrder(order),
+    });
   }
 
   async function installTemplate(template: SiteTemplate) {
@@ -736,6 +873,7 @@ export default function AdminSitePage() {
     if (!window.confirm(
       t("Apply this template? Current page texts and colors will be replaced, and its editable sample services and portfolio will be added."),
     )) return;
+    resetEditorHistory();
     setDraft(applySiteTemplate(draft, template));
     setLogoUrl(template.logoUrl ?? "");
     setSelectedSection("hero");
@@ -932,8 +1070,8 @@ export default function AdminSitePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
-        <SiteEditorHeader clientMode={clientMode} />
+      <main className="min-h-screen px-4 pb-16 pt-24 text-[#17191f] sm:px-6 lg:px-10">
+        <SiteEditorHeader />
         <p className="mx-auto mt-10 max-w-7xl text-sm text-[#716d65]">
           {t("Loading public site…")}
         </p>
@@ -943,8 +1081,8 @@ export default function AdminSitePage() {
 
   if (!workspace || !editor || !draft) {
     return (
-      <main className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10">
-        <SiteEditorHeader clientMode={clientMode} />
+      <main className="min-h-screen px-4 pb-16 pt-24 text-[#17191f] sm:px-6 lg:px-10">
+        <SiteEditorHeader />
         <div className="mx-auto mt-10 max-w-7xl rounded-[28px] border border-red-200 bg-red-50 p-6 text-sm text-red-700">
           {error || t("Public site settings could not be loaded.")}
         </div>
@@ -1003,22 +1141,40 @@ export default function AdminSitePage() {
   return (
     <main
       data-editor-mode={clientMode ? "client" : "admin"}
-      className="min-h-screen px-4 pb-16 pt-24 sm:px-6 lg:px-10"
+      className="min-h-screen px-4 pb-16 pt-24 text-[#17191f] sm:px-6 lg:px-10"
       onClickCapture={(event) => {
-        if (!clientMode) return;
         const target = event.target;
         if (!(target instanceof Element)) return;
         const link = target.closest("a");
         const href = link?.getAttribute("href");
-        if (!href?.startsWith("/admin/")) return;
-        event.preventDefault();
-        setError("");
-        setMessage(
-          "Этот рабочий раздел ещё переносится в клиентский кабинет. Редактирование сайта уже полностью доступно здесь.",
-        );
+        if (
+          clientMode &&
+          href?.startsWith("/admin/") &&
+          link?.getAttribute("data-client-nav") !== "true"
+        ) {
+          event.preventDefault();
+          setError("");
+          setMessage(
+            "Этот рабочий раздел ещё переносится в клиентский кабинет. Редактирование сайта уже полностью доступно здесь.",
+          );
+          return;
+        }
+        if (
+          link &&
+          link.getAttribute("target") !== "_blank" &&
+          href &&
+          !href.startsWith("#") &&
+          hasUnsavedChanges &&
+          !window.confirm(
+            "Есть несохранённые изменения. Уйти со страницы и потерять их?",
+          )
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
       }}
     >
-      <SiteEditorHeader clientMode={clientMode} workspaceName={workspace.name} />
+      <SiteEditorHeader />
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -1039,7 +1195,7 @@ export default function AdminSitePage() {
               <Link
                 href={publicHref(editor, selectedLocale)}
                 target="_blank"
-                className="rounded-full border border-black/10 bg-white px-5 py-3 text-xs font-semibold"
+                className="rounded-full border border-black/15 bg-white px-5 py-3 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea]"
               >
                 {t("Open published site")}
               </Link>
@@ -1048,7 +1204,7 @@ export default function AdminSitePage() {
               type="button"
               onClick={() => void saveDraft()}
               disabled={saving || !canConfigure}
-              className="rounded-full border border-black/10 bg-white px-5 py-3 text-xs font-semibold disabled:opacity-40"
+              className="rounded-full border border-black/15 bg-white px-5 py-3 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea] disabled:opacity-55"
             >
               {saving ? t("Saving…") : t("Save draft")}
             </button>
@@ -1205,10 +1361,13 @@ export default function AdminSitePage() {
           onSave={() => void saveDraft()}
           onSectionChange={setSelectedSection}
           onUpdate={update}
-          onLogoChange={(value) => {
-            setLogoUrl(value);
-            setMessage("");
-          }}
+          onReplaceDraft={replaceDraft}
+          onLogoChange={updateLogo}
+          hasUnsavedChanges={hasUnsavedChanges}
+          canUndo={undoDepth > 0}
+          canRedo={redoDepth > 0}
+          onUndo={undoEditorChange}
+          onRedo={redoEditorChange}
           onUpdateTeam={updateTeam}
           onUpdateGift={updateGift}
           onUpdateMembership={updateMembership}
@@ -1251,7 +1410,7 @@ export default function AdminSitePage() {
                   type="button"
                   onClick={() => void makePrimary()}
                   disabled={saving || !canConfigure}
-                  className="rounded-full border border-[#9a742e]/30 bg-[#f8f0df] px-4 py-2 text-xs font-semibold text-[#725924] disabled:opacity-40"
+                  className="rounded-full border border-[#9a742e]/30 bg-[#f8f0df] px-4 py-2 text-xs font-semibold text-[#4f3a12] disabled:opacity-40"
                 >
                   {t("Make primary")}
                 </button>
@@ -1444,7 +1603,13 @@ function VisualBuilder({
   onSave,
   onSectionChange,
   onUpdate,
+  onReplaceDraft,
   onLogoChange,
+  hasUnsavedChanges,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
   onUpdateTeam,
   onUpdateGift,
   onUpdateMembership,
@@ -1476,11 +1641,19 @@ function VisualBuilder({
     key: Key,
     value: PublicSiteContent[Key],
   ) => void;
+  onReplaceDraft: (draft: PublicSiteContent, historyGroup?: string) => void;
   onLogoChange: (value: string) => void;
+  hasUnsavedChanges: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
   onUpdateTeam: (items: string, images: string[]) => void;
   onUpdateGift: (items: string, images: string[]) => void;
   onUpdateMembership: (items: string, images: string[]) => void;
 }) {
+  const visualBuilderPathname = usePathname();
+  const clientEditorMode = visualBuilderPathname.startsWith("/dashboard/site");
   const [blocksOpen, setBlocksOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -1500,6 +1673,9 @@ function VisualBuilder({
   >("intro");
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
   const [editingEnabled, setEditingEnabled] = useState(true);
+  const [draggedBlockId, setDraggedBlockId] = useState("");
+  const [dragOverBlockId, setDragOverBlockId] = useState("");
+  const [dragScope, setDragScope] = useState<"home" | "page" | null>(null);
   const mobileHeroTitleClass =
     draft.hero_title_mobile_size === "small"
       ? "text-3xl leading-[1.02]"
@@ -1740,11 +1916,13 @@ function VisualBuilder({
       updatePage("blocks", [...(activePage.blocks ?? []), block]);
       setSelectedPagePart("blocks");
     } else {
-      onUpdate("custom_blocks", [...(draft.custom_blocks ?? []), block]);
-      onUpdate("layout_order", [
-        ...layoutOrder,
-        customBlockLayoutId(block.id),
-      ]);
+      const order = [...layoutOrder, customBlockLayoutId(block.id)];
+      onReplaceDraft({
+        ...draft,
+        custom_blocks: [...(draft.custom_blocks ?? []), block],
+        layout_order: order,
+        section_order: sectionsFromLayoutOrder(order),
+      });
       setSelectedPageId("home");
     }
     setSelectedCustomBlockId(block.id);
@@ -1814,6 +1992,14 @@ function VisualBuilder({
     );
   }
 
+  function commitLayoutOrder(order: string[]) {
+    onReplaceDraft({
+      ...draft,
+      layout_order: order,
+      section_order: sectionsFromLayoutOrder(order),
+    });
+  }
+
   function moveLayoutItem(item: string, direction: -1 | 1) {
     const order = [...layoutOrder];
     const currentIndex = order.indexOf(item);
@@ -1823,8 +2009,54 @@ function VisualBuilder({
       order[nextIndex],
       order[currentIndex],
     ];
-    onUpdate("layout_order", order);
-    onUpdate("section_order", sectionsFromLayoutOrder(order));
+    commitLayoutOrder(order);
+  }
+
+  function reorderItems(items: string[], sourceId: string, targetId: string) {
+    const sourceIndex = items.indexOf(sourceId);
+    const targetIndex = items.indexOf(targetId);
+    if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) {
+      return items;
+    }
+    const next = [...items];
+    const [moved] = next.splice(sourceIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    return next;
+  }
+
+  function startBlockDrag(blockId: string, scope: "home" | "page") {
+    if (!canConfigure || !editingEnabled) return;
+    setDraggedBlockId(blockId);
+    setDragOverBlockId("");
+    setDragScope(scope);
+  }
+
+  function finishBlockDrag() {
+    setDraggedBlockId("");
+    setDragOverBlockId("");
+    setDragScope(null);
+  }
+
+  function dropBlock(targetId: string, scope: "home" | "page") {
+    if (!draggedBlockId || dragScope !== scope) {
+      finishBlockDrag();
+      return;
+    }
+    if (scope === "home") {
+      const next = reorderItems(layoutOrder, draggedBlockId, targetId);
+      if (next !== layoutOrder) commitLayoutOrder(next);
+    } else if (activePage) {
+      const blockIds = (activePage.blocks ?? []).map((block) => block.id);
+      const nextIds = reorderItems(blockIds, draggedBlockId, targetId);
+      const blockMap = new Map(
+        (activePage.blocks ?? []).map((block) => [block.id, block]),
+      );
+      updatePage(
+        "blocks",
+        nextIds.map((id) => blockMap.get(id)).filter(Boolean) as PublicSiteCustomBlock[],
+      );
+    }
+    finishBlockDrag();
   }
 
   function movePageBlock(blockId: string, direction: -1 | 1) {
@@ -1840,6 +2072,35 @@ function VisualBuilder({
     updatePage("blocks", blocks);
   }
 
+  function duplicateCustomBlock() {
+    if (!selectedCustomBlock) return;
+    const duplicate = cloneCustomBlockForDuplicate(selectedCustomBlock);
+    if (activePage) {
+      const blocks = [...(activePage.blocks ?? [])];
+      const index = blocks.findIndex((block) => block.id === selectedCustomBlock.id);
+      blocks.splice(index < 0 ? blocks.length : index + 1, 0, duplicate);
+      updatePage("blocks", blocks);
+    } else {
+      const blocks = [...(draft.custom_blocks ?? [])];
+      const blockIndex = blocks.findIndex((block) => block.id === selectedCustomBlock.id);
+      blocks.splice(blockIndex < 0 ? blocks.length : blockIndex + 1, 0, duplicate);
+      const currentLayoutId = customBlockLayoutId(selectedCustomBlock.id);
+      const duplicateLayoutId = customBlockLayoutId(duplicate.id);
+      const order = [...layoutOrder];
+      const layoutIndex = order.indexOf(currentLayoutId);
+      order.splice(layoutIndex < 0 ? order.length : layoutIndex + 1, 0, duplicateLayoutId);
+      onReplaceDraft({
+        ...draft,
+        custom_blocks: blocks,
+        layout_order: order,
+        section_order: sectionsFromLayoutOrder(order),
+      });
+    }
+    setSelectedCustomBlockId(duplicate.id);
+    setSelectedPagePart("blocks");
+    setSettingsOpen(true);
+  }
+
   function removeCustomBlock() {
     if (!selectedCustomBlock) return;
     if (activePage) {
@@ -1850,18 +2111,17 @@ function VisualBuilder({
         ),
       );
     } else {
-      onUpdate(
-        "custom_blocks",
-        (draft.custom_blocks ?? []).filter(
+      const order = layoutOrder.filter(
+        (item) => item !== customBlockLayoutId(selectedCustomBlock.id),
+      );
+      onReplaceDraft({
+        ...draft,
+        custom_blocks: (draft.custom_blocks ?? []).filter(
           (block) => block.id !== selectedCustomBlock.id,
         ),
-      );
-      onUpdate(
-        "layout_order",
-        layoutOrder.filter(
-          (item) => item !== customBlockLayoutId(selectedCustomBlock.id),
-        ),
-      );
+        layout_order: order,
+        section_order: sectionsFromLayoutOrder(order),
+      });
     }
     setSelectedCustomBlockId("");
   }
@@ -1887,7 +2147,7 @@ function VisualBuilder({
   return (
     <section
       id="site-builder-canvas"
-      className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] shadow-[0_26px_90px_rgba(25,27,32,0.12)]"
+      className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]"
     >
       <div className="flex flex-col gap-3 border-b border-black/10 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-2">
@@ -1901,7 +2161,7 @@ function VisualBuilder({
             className={`rounded-xl border px-4 py-2 text-xs font-semibold ${
               selectedPageId === "home"
                 ? "border-black/10 bg-[#f6f5f2]"
-                : "border-transparent text-black/45"
+                : "border-transparent text-[#4f4b45]"
             }`}
           >
             {t("Home")}
@@ -1916,8 +2176,8 @@ function VisualBuilder({
                 selectedPageId === page.id
                   ? "border-[#9d3151]/30 bg-[#f9edf1] text-[#7f2742]"
                   : page.is_visible === false
-                    ? "border-transparent text-black/25 line-through"
-                    : "border-transparent text-black/45"
+                    ? "border-transparent text-[#746e64] line-through"
+                    : "border-transparent text-[#4f4b45]"
               }`}
             >
               {page.nav_label}
@@ -1928,7 +2188,7 @@ function VisualBuilder({
             type="button"
             onClick={() => setPageLibraryOpen(true)}
             disabled={!canConfigure}
-            className="rounded-xl border border-dashed border-black/20 px-4 py-2 text-xs font-semibold text-black/60 disabled:opacity-40"
+            className="rounded-xl border border-dashed border-black/20 px-4 py-2 text-xs font-semibold text-[#2f2d29] disabled:opacity-40"
           >
             {t("+ Add page")}
           </button>
@@ -1942,7 +2202,7 @@ function VisualBuilder({
             className={`rounded-xl px-4 py-2 text-xs font-semibold ${
               editingEnabled
                 ? "bg-emerald-100 text-emerald-800"
-                : "border border-black/10 bg-white text-black/65"
+                : "border border-black/10 bg-white text-[#26231f]"
             }`}
           >
             {editingEnabled ? t("Editing on") : t("Edit")}
@@ -1971,14 +2231,14 @@ function VisualBuilder({
           <button
             type="button"
             onClick={() => setSeoOpen(true)}
-            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-black/65"
+            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-[#26231f]"
           >
             {t("SEO pages")}
           </button>
           <button
             type="button"
             onClick={() => setSiteSettingsOpen(true)}
-            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-black/65"
+            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-[#26231f]"
           >
             {t("Site settings")}
           </button>
@@ -1987,23 +2247,67 @@ function VisualBuilder({
           <button
             type="button"
             onClick={() => setBlocksOpen((value) => !value)}
-            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${blocksOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#725924]" : "border-black/10 bg-white text-black/65"}`}
+            className={`rounded-xl border px-3 py-2 text-xs font-bold shadow-sm transition ${blocksOpen ? "border-[#9a742e]/45 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/15 bg-white text-[#17191f] hover:bg-[#f4f1ea]"}`}
+            aria-expanded={blocksOpen}
+            aria-controls="site-editor-blocks-panel"
           >
-            {blocksOpen ? `← ${t("Blocks")}` : `${t("Blocks")} →`}
+            {blocksOpen ? "Скрыть меню блоков ←" : "Показать меню блоков →"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!selectedCustomBlock) {
+                window.alert("Сначала выберите добавленный блок. Основные разделы сайта не дублируются.");
+                return;
+              }
+              duplicateCustomBlock();
+            }}
+            disabled={!canConfigure || !editingEnabled}
+            className="rounded-xl border border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-2 text-xs font-bold text-[#4f3a12] shadow-sm transition hover:bg-[#f4ead6] disabled:cursor-not-allowed disabled:opacity-55"
+            title={selectedCustomBlock ? `Дублировать: ${selectedCustomBlock.title || "блок"}` : "Сначала выберите добавленный блок"}
+          >
+            ⧉ Дублировать блок
           </button>
           <button
             type="button"
             onClick={() => setSettingsOpen((value) => !value)}
-            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#725924]" : "border-black/10 bg-white text-black/65"}`}
+            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/10 bg-white text-[#26231f]"}`}
           >
             {settingsOpen ? `${t("Settings")} →` : `← ${t("Settings")}`}
+          </button>
+          <span
+            className={`rounded-full px-3 py-2 text-[10px] font-semibold ${
+              hasUnsavedChanges
+                ? "bg-amber-100 text-amber-800"
+                : "bg-emerald-100 text-emerald-800"
+            }`}
+          >
+            {hasUnsavedChanges ? "Не сохранено" : "Сохранено"}
+          </span>
+          <button
+            type="button"
+            onClick={onUndo}
+            disabled={!canUndo || saving}
+            className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-30"
+            title="Отменить последнее изменение"
+          >
+            ↶ Отменить
+          </button>
+          <button
+            type="button"
+            onClick={onRedo}
+            disabled={!canRedo || saving}
+            className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-30"
+            title="Вернуть отменённое изменение"
+          >
+            ↷ Вернуть
           </button>
           <div className="flex rounded-xl bg-[#efeee9] p-1">
             <button
               type="button"
               aria-pressed={previewDevice === "desktop"}
               onClick={() => onDeviceChange("desktop")}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "desktop" ? "bg-white shadow-sm" : "text-black/45"}`}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "desktop" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
             >
               {t("Computer")}
             </button>
@@ -2011,12 +2315,12 @@ function VisualBuilder({
               type="button"
               aria-pressed={previewDevice === "mobile"}
               onClick={() => onDeviceChange("mobile")}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "mobile" ? "bg-white shadow-sm" : "text-black/45"}`}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "mobile" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
             >
               {t("Phone")}
             </button>
           </div>
-          <button type="button" onClick={onSave} disabled={saving || !canConfigure} className="rounded-xl border border-black/10 px-4 py-2 text-xs font-semibold disabled:opacity-40">
+          <button type="button" onClick={onSave} disabled={saving || !canConfigure} className="rounded-xl border border-black/15 bg-white px-4 py-2 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea] disabled:opacity-55">
             {saving ? t("Saving…") : t("Save")}
           </button>
           <button type="button" onClick={onPublish} disabled={saving || !canConfigure} className="rounded-xl bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">
@@ -2039,7 +2343,7 @@ function VisualBuilder({
         }}
       >
         {blocksOpen ? (
-        <aside className="min-w-0 border-r border-black/10 bg-[#f7f6f3] p-4">
+        <aside id="site-editor-blocks-panel" className="min-w-0 border-r border-black/10 bg-[#f7f6f3] p-4 text-[#17191f]">
           <div className="flex items-center justify-between gap-2">
             <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">
               {t("Page blocks")}
@@ -2047,11 +2351,11 @@ function VisualBuilder({
             <button
               type="button"
               onClick={() => setBlocksOpen(false)}
-              className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[10px] font-semibold text-[#716d65] transition hover:bg-[#eeece6]"
+              className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-[10px] font-bold text-[#17191f] shadow-sm transition hover:bg-[#eeece6]"
               aria-label={t("Collapse blocks")}
               title={t("Collapse blocks")}
             >
-              ← {t("Collapse")}
+              Скрыть ←
             </button>
           </div>
           {activePage ? (
@@ -2067,6 +2371,13 @@ function VisualBuilder({
                       active={selectedCustomBlockId === block.id}
                       label={block.title || t("Custom block")}
                       visible={block.is_visible !== false}
+                      draggable={canConfigure && editingEnabled}
+                      dragging={draggedBlockId === block.id && dragScope === "page"}
+                      dragOver={dragOverBlockId === block.id && dragScope === "page"}
+                      onDragStart={() => startBlockDrag(block.id, "page")}
+                      onDragOver={() => setDragOverBlockId(block.id)}
+                      onDrop={() => dropBlock(block.id, "page")}
+                      onDragEnd={finishBlockDrag}
                       onClick={() => {
                         setSelectedPagePart("blocks");
                         setSelectedCustomBlockId(block.id);
@@ -2082,7 +2393,7 @@ function VisualBuilder({
                   type="button"
                   onClick={() => setLibraryOpen(true)}
                   disabled={!canConfigure}
-                  className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#725924] disabled:opacity-40"
+                  className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#4f3a12] disabled:opacity-40"
                 >
                   {t("+ Add block")}
                 </button>
@@ -2104,6 +2415,13 @@ function VisualBuilder({
                         active={!selectedCustomBlockId && selectedSection === section}
                         label={t(sectionLabelKey[section])}
                         visible={Boolean(draft[sectionVisibilityKey[section]])}
+                        draggable={canConfigure && editingEnabled}
+                        dragging={draggedBlockId === item && dragScope === "home"}
+                        dragOver={dragOverBlockId === item && dragScope === "home"}
+                        onDragStart={() => startBlockDrag(item, "home")}
+                        onDragOver={() => setDragOverBlockId(item)}
+                        onDrop={() => dropBlock(item, "home")}
+                        onDragEnd={finishBlockDrag}
                         onClick={() => chooseSection(section)}
                       />
                     );
@@ -2119,6 +2437,13 @@ function VisualBuilder({
                       active={selectedCustomBlockId === block.id}
                       label={block.title || t("Custom block")}
                       visible={block.is_visible !== false}
+                      draggable={canConfigure && editingEnabled}
+                      dragging={draggedBlockId === item && dragScope === "home"}
+                      dragOver={dragOverBlockId === item && dragScope === "home"}
+                      onDragStart={() => startBlockDrag(item, "home")}
+                      onDragOver={() => setDragOverBlockId(item)}
+                      onDrop={() => dropBlock(item, "home")}
+                      onDragEnd={finishBlockDrag}
                       onClick={() => {
                         setSelectedCustomBlockId(block.id);
                         setSettingsOpen(true);
@@ -2131,7 +2456,7 @@ function VisualBuilder({
                 type="button"
                 onClick={() => setLibraryOpen(true)}
                 disabled={!canConfigure}
-                className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#725924] transition hover:border-[#9a742e] disabled:opacity-40"
+                className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#4f3a12] transition hover:border-[#9a742e] disabled:opacity-40"
               >
                 {t("+ Add block")}
               </button>
@@ -2145,10 +2470,11 @@ function VisualBuilder({
           <button
             type="button"
             onClick={() => setBlocksOpen(true)}
-            className="absolute left-4 top-[76px] z-20 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold shadow-lg transition hover:bg-[#f6f4ef]"
+            className="absolute left-4 top-[76px] z-30 rounded-xl border border-black/20 bg-white px-4 py-3 text-xs font-bold text-[#17191f] shadow-xl transition hover:bg-[#f4f1ea]"
             title={t("Open blocks")}
+            aria-controls="site-editor-blocks-panel"
           >
-            {t("Blocks")} →
+            ☰ Показать меню блоков →
           </button>
         )}
 
@@ -2225,7 +2551,7 @@ function VisualBuilder({
                   </span>
                 )}
                 {draft.header_logo_position !== "center" ? (
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
                     {draft.services_label} · {draft.portfolio_label} · {draft.contact_label}
                   </span>
                 ) : null}
@@ -2451,6 +2777,7 @@ function VisualBuilder({
                       siteDark={draft.theme_dark ?? "#321722"}
                       siteSurface={draft.theme_surface ?? "#fff7f5"}
                       onChange={updateCustomBlock}
+                      onDuplicate={duplicateCustomBlock}
                       onRemove={removeCustomBlock}
                       onChooseImage={(key, label) =>
                         openMediaPicker({
@@ -2512,6 +2839,7 @@ function VisualBuilder({
                   siteDark={draft.theme_dark ?? "#321722"}
                   siteSurface={draft.theme_surface ?? "#fff7f5"}
                   onChange={updateCustomBlock}
+                  onDuplicate={duplicateCustomBlock}
                   onRemove={removeCustomBlock}
                   onChooseImage={(key, label) =>
                     openMediaPicker({
@@ -3008,7 +3336,7 @@ function VisualBuilder({
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-lg font-semibold">{t(sectionLabelKey[section])}</span>
-                      <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${visible ? "bg-emerald-50 text-emerald-700" : "bg-[#f4ead6] text-[#725924]"}`}>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${visible ? "bg-emerald-50 text-emerald-700" : "bg-[#f4ead6] text-[#4f3a12]"}`}>
                         {visible ? t("On page") : t("Add")}
                       </span>
                     </div>
@@ -3835,7 +4163,7 @@ function PortfolioPagePreview({
         <span className="text-xs font-semibold uppercase tracking-[0.2em]">
           {draft.brand_name}
         </span>
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
           Главная · {page.nav_label} · {draft.contact_label}
         </span>
         <span className="rounded-full bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
@@ -3941,7 +4269,7 @@ function PortfolioPagePreview({
                   ) : null}
                   {draft.portfolio_show_description === true &&
                   project.description ? (
-                    <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-black/45">
+                    <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-[#4f4b45]">
                       {project.description}
                     </p>
                   ) : null}
@@ -4014,7 +4342,7 @@ function CustomPagePreview({
     >
       <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
         <span className="font-serif text-xl">{draft.brand_name}</span>
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-black/45">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
           Главная · {page.nav_label} · {draft.contact_label}
         </span>
         <span className="rounded-md bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
@@ -5019,7 +5347,7 @@ function ServicesSectionEditor({
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-4">
-        <p className="text-xs font-semibold text-[#725924]">Данные услуг берутся из единого каталога</p>
+        <p className="text-xs font-semibold text-[#4f3a12]">Данные услуг берутся из единого каталога</p>
         <p className="mt-2 text-xs leading-5 text-[#716d65]">Название, цена, длительность, порядок и доступность редактируются в каталоге. Здесь настраивается только внешний вид карточек на сайте.</p>
         <Link href="/admin/catalog" className="mt-3 inline-flex rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Открыть каталог услуг</Link>
       </div>
@@ -5097,7 +5425,7 @@ function PortfolioSectionEditor({
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-4">
-        <p className="text-xs font-semibold text-[#725924]">
+        <p className="text-xs font-semibold text-[#4f3a12]">
           {t("Portfolio data comes from the shared Portfolio module.")}
         </p>
         <p className="mt-2 text-xs leading-5 text-[#716d65]">
@@ -6335,6 +6663,7 @@ function CustomBlockSettings({
   siteDark,
   siteSurface,
   onChange,
+  onDuplicate,
   onRemove,
   onChooseImage,
   onChooseListImage,
@@ -6351,6 +6680,7 @@ function CustomBlockSettings({
     key: Key,
     value: PublicSiteCustomBlock[Key],
   ) => void;
+  onDuplicate: () => void;
   onRemove: () => void;
   onChooseImage: (
     key: "video_poster_url" | "media_url" | "video_url",
@@ -6635,7 +6965,7 @@ function CustomBlockSettings({
                     ];
                     onChange("media_urls", values);
                   }}
-                  className="text-[10px] font-semibold text-[#725924] disabled:opacity-30"
+                  className="text-[10px] font-semibold text-[#4f3a12] disabled:opacity-30"
                 >
                   Выше
                 </button>
@@ -6650,7 +6980,7 @@ function CustomBlockSettings({
                     ];
                     onChange("media_urls", values);
                   }}
-                  className="text-[10px] font-semibold text-[#725924] disabled:opacity-30"
+                  className="text-[10px] font-semibold text-[#4f3a12] disabled:opacity-30"
                 >
                   Ниже
                 </button>
@@ -6822,14 +7152,24 @@ function CustomBlockSettings({
           <option value="dark">{t("Dark")}</option>
         </select>
       </label>
-      <button
-        type="button"
-        onClick={onRemove}
-        disabled={disabled}
-        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 disabled:opacity-40"
-      >
-        {t("Remove block")}
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={onDuplicate}
+          disabled={disabled}
+          className="rounded-xl border border-[#9a742e]/45 bg-[#fbf7ee] px-4 py-3 text-xs font-bold text-[#3f2e0e] shadow-sm transition hover:bg-[#f4ead6] disabled:opacity-50"
+        >
+          Дублировать
+        </button>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={disabled}
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 disabled:opacity-40"
+        >
+          {t("Remove block")}
+        </button>
+      </div>
     </>
   );
 }
@@ -7036,7 +7376,7 @@ function CanvasSectionPreview({
       <div className="mt-7 rounded-2xl border border-black/8 bg-white p-5">
         <div className="grid gap-3 sm:grid-cols-2">
           {["Выберите услугу", "Любой мастер", "Выберите дату", "Любое время"].map((label) => (
-            <span key={label} className="rounded-xl border border-black/10 px-3 py-3 text-[10px] text-black/45">
+            <span key={label} className="rounded-xl border border-black/10 px-3 py-3 text-[10px] text-[#4f4b45]">
               {label}
             </span>
           ))}
@@ -7053,7 +7393,7 @@ function CanvasSectionPreview({
     return (
       <div className="mt-7 grid gap-2 sm:grid-cols-2">
         {reviews.map((review) => (
-          <blockquote key={review.id} className="rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-black/60">
+          <blockquote key={review.id} className="rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-[#2f2d29]">
             <span className="block text-[#9d3151]">
               {"★".repeat(review.rating)}
             </span>
@@ -7164,7 +7504,7 @@ function CanvasSectionPreview({
                 </span>
                 <h4 className="mt-4 text-xs font-semibold">{title}</h4>
                 {description ? (
-                  <p className="mt-2 text-[10px] leading-5 text-black/45">
+                  <p className="mt-2 text-[10px] leading-5 text-[#4f4b45]">
                     {description}
                   </p>
                 ) : null}
@@ -7312,7 +7652,7 @@ function CanvasSectionPreview({
                   >
                     <p className="text-base font-semibold">{value}</p>
                     {labelParts.length ? (
-                      <p className="mt-1 text-[9px] leading-4 text-black/45">
+                      <p className="mt-1 text-[9px] leading-4 text-[#4f4b45]">
                         {labelParts.join(" · ")}
                       </p>
                     ) : null}
@@ -7380,31 +7720,74 @@ function BlockButton({
   active,
   label,
   visible,
+  draggable = false,
+  dragging = false,
+  dragOver = false,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
   onClick,
 }: {
   active: boolean;
   label: string;
   visible: boolean;
+  draggable?: boolean;
+  dragging?: boolean;
+  dragOver?: boolean;
+  onDragStart?: () => void;
+  onDragOver?: () => void;
+  onDrop?: () => void;
+  onDragEnd?: () => void;
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${
-        active
-          ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]"
-          : "border-black/8 bg-white hover:border-black/20"
-      }`}
+    <div
+      draggable={draggable}
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", label);
+        onDragStart?.();
+      }}
+      onDragOver={(event) => {
+        if (!draggable) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        onDragOver?.();
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        onDrop?.();
+      }}
+      onDragEnd={onDragEnd}
+      className={`rounded-xl transition ${
+        dragging ? "opacity-35" : ""
+      } ${dragOver ? "ring-2 ring-[#9a742e]/55 ring-offset-2" : ""}`}
     >
-      <span className="text-black/25" aria-hidden="true">⋮⋮</span>
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      <span
-        className={`h-2 w-2 shrink-0 rounded-full ${
-          visible ? "bg-emerald-500" : "bg-black/20"
+      <button
+        type="button"
+        onClick={onClick}
+        className={`flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${
+          active
+            ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]"
+            : "border-black/8 bg-white hover:border-black/20"
         }`}
-      />
-    </button>
+      >
+        <span
+          className={draggable ? "cursor-grab text-black/35 active:cursor-grabbing" : "text-black/15"}
+          aria-hidden="true"
+          title={draggable ? "Перетащите блок" : undefined}
+        >
+          ⋮⋮
+        </span>
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span
+          className={`h-2 w-2 shrink-0 rounded-full ${
+            visible ? "bg-emerald-500" : "bg-black/20"
+          }`}
+        />
+      </button>
+    </div>
   );
 }
 
@@ -7480,9 +7863,9 @@ function CompactSelect({
 
 function StatusCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-black/8 bg-white/80 p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-[#8b877e]">{label}</p>
-      <p className="mt-2 break-all text-lg font-semibold">{value}</p>
+    <div className="rounded-[24px] border border-black/10 bg-white p-5 text-[#17191f] shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f5a52]">{label}</p>
+      <p className="mt-2 break-all text-lg font-bold text-[#17191f]">{value}</p>
     </div>
   );
 }
