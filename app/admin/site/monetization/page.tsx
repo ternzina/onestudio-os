@@ -17,6 +17,7 @@ type MonetizationSettings = {
   ads_txt_content: string;
   ads_txt_enabled: boolean;
   adsense_publisher_id: string;
+  adsense_enabled: boolean;
   updated_at: string | null;
 };
 
@@ -30,6 +31,7 @@ const EMPTY_SETTINGS: MonetizationSettings = {
   ads_txt_content: "",
   ads_txt_enabled: false,
   adsense_publisher_id: "",
+  adsense_enabled: false,
   updated_at: null,
 };
 
@@ -114,12 +116,13 @@ export default function SiteMonetizationPage() {
     setError("");
 
     const { data, error: saveError } = await supabase.rpc(
-      "save_site_monetization_settings",
+      "save_site_monetization_settings_v2",
       {
         p_business_id: workspace.business_id,
         p_ads_txt_content: settings.ads_txt_content,
         p_ads_txt_enabled: settings.ads_txt_enabled,
         p_adsense_publisher_id: settings.adsense_publisher_id,
+        p_adsense_enabled: settings.adsense_enabled,
       },
     );
 
@@ -133,11 +136,11 @@ export default function SiteMonetizationPage() {
       setError(knownMessages[saveError.message] || saveError.message);
     } else {
       if (data) setSettings(data as MonetizationSettings);
-      setMessage(
-        settings.ads_txt_enabled
-          ? "ads.txt сохранён и опубликован."
-          : "Настройки сохранены. Публикация ads.txt выключена.",
-      );
+      const statusParts = [
+        settings.ads_txt_enabled ? "ads.txt опубликован" : "ads.txt выключен",
+        settings.adsense_enabled ? "AdSense включён" : "AdSense выключен",
+      ];
+      setMessage(`Настройки сохранены: ${statusParts.join(", ")}.`);
     }
 
     setSaving(false);
@@ -220,8 +223,23 @@ export default function SiteMonetizationPage() {
               </section>
 
               <section className="rounded-[30px] border border-black/8 bg-white p-6 sm:p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">ADSENSE</p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.045em]">Publisher ID</h2>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">ADSENSE RUNTIME</p>
+                    <h2 className="mt-2 text-3xl font-semibold tracking-[-0.045em]">Автоматическая реклама</h2>
+                  </div>
+                  <label className="flex items-center gap-3 rounded-full border border-black/10 px-4 py-3 text-sm font-semibold">
+                    <input
+                      type="checkbox"
+                      checked={settings.adsense_enabled}
+                      onChange={(event) => setSettings((current) => ({ ...current, adsense_enabled: event.target.checked }))}
+                      disabled={!canEdit}
+                      className="h-4 w-4"
+                    />
+                    Включить AdSense
+                  </label>
+                </div>
+
                 <label className="mt-6 grid gap-2 text-sm font-semibold">
                   <span>Идентификатор издателя</span>
                   <input
@@ -232,7 +250,9 @@ export default function SiteMonetizationPage() {
                     className="rounded-2xl border border-black/10 bg-[#fffdfa] px-4 py-3 font-normal outline-none focus:border-[#9a742e] disabled:opacity-60"
                   />
                 </label>
-                <p className="mt-3 text-xs leading-5 text-[#716d65]">На этом этапе ID только сохраняется. Подключение рекламного скрипта и блоков будет отдельным безопасным модулем.</p>
+                <p className="mt-3 text-xs leading-5 text-[#716d65]">
+                  Когда переключатель включён, OneStudio загружает официальный скрипт Google AdSense только на активном опубликованном сайте с подтверждённым собственным доменом. Размещение Auto Ads управляется в кабинете AdSense.
+                </p>
               </section>
 
               <div className="sticky bottom-5 flex justify-end rounded-[24px] border border-black/8 bg-white/95 p-4 shadow-[0_18px_60px_rgba(20,20,20,0.12)] backdrop-blur">

@@ -1,4 +1,5 @@
 import Script from "next/script";
+import PublicSiteAdSense from "@/components/public/PublicSiteAdSense";
 import type { PublicSiteContent } from "@/lib/public-site/types";
 
 export default function PublicSiteAnalytics({
@@ -14,6 +15,7 @@ export default function PublicSiteAnalytics({
 
   return (
     <>
+      <PublicSiteAdSense />
       {googleId ? (
         <>
           <Script
