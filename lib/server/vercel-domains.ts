@@ -521,7 +521,7 @@ export async function removeVercelDomain(
   domain: string,
   redirectDomain?: string | null,
 ) {
-  const domains = [domain, redirectDomain]
+  const domains = [redirectDomain, domain]
     .filter((item): item is string => Boolean(item))
     .map((item) => item.trim().toLowerCase());
   const allowedAliases = new Set(domains);
