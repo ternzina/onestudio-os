@@ -22,6 +22,38 @@ export type DemoDefinition = {
   currency: string;
 };
 
+export type PremiumDemoDefinition = {
+  slug: string;
+  href: string;
+  tier: "premium";
+  group: DemoGroup;
+  name: string;
+  title: { ru: string; en: string };
+  description: { ru: string; en: string };
+  previewImage: string;
+  previewAlt: { ru: string; en: string };
+};
+
+export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
+  {
+    slug: "premium-studio",
+    href: "/demos/premium-studio",
+    tier: "premium",
+    group: "studio",
+    name: "NOIR FRAME — Premium Photo Studio",
+    title: { ru: "Фотостудия", en: "Photo studio" },
+    description: {
+      ru: "Премиальный сайт фотостудии с ярким editorial-дизайном, интерактивным портфолио, 3D-туром, сравнением обработки и дорогими анимациями.",
+      en: "A premium photo studio website with vivid editorial design, an interactive portfolio, a 3D tour, retouch comparison and refined motion.",
+    },
+    previewImage: "/images/demos/premium-studio/bright/hero.webp",
+    previewAlt: {
+      ru: "Светлая съёмочная площадка премиальной фотостудии NOIR FRAME",
+      en: "Bright set inside the NOIR FRAME premium photo studio",
+    },
+  },
+] as const;
+
 export const DEMOS: readonly DemoDefinition[] = [
   {
     slug: "frame-house",
