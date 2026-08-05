@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   LazyMotion,
   MotionConfig,
@@ -47,6 +47,22 @@ const reveal = {
   visible: { opacity: 1, y: 0 },
 };
 
+const mobileNavigationQuery = "(max-width: 980px)";
+
+function subscribeToMobileNavigation(callback: () => void) {
+  const media = window.matchMedia(mobileNavigationQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getMobileNavigationSnapshot() {
+  return window.matchMedia(mobileNavigationQuery).matches;
+}
+
+function getServerMobileNavigationSnapshot() {
+  return false;
+}
+
 function Arrow() {
   return (
     <svg aria-hidden="true" viewBox="0 0 32 18">
@@ -75,11 +91,18 @@ function ParallaxProject({ project, index, onOpen }: { project: (typeof portfoli
 
 function StudioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMobileNavigation = useSyncExternalStore(
+    subscribeToMobileNavigation,
+    getMobileNavigationSnapshot,
+    getServerMobileNavigationSnapshot,
+  );
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const pageRef = usePointerGlow();
   const sceneRef = useRef<HTMLElement>(null);
   const emotionalRef = useRef<HTMLElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const { scrollYProgress } = useScroll();
   const { scrollYProgress: sceneProgress } = useScroll({
     target: sceneRef,
@@ -134,6 +157,20 @@ function StudioPage() {
 
   const closeProject = useCallback(() => setActiveProject(null), []);
   const changeProject = useCallback((index: number) => setActiveProject(index), []);
+  const mobileMenuClosed = isMobileNavigation && !menuOpen;
+
+  useEffect(() => {
+    if (!isMobileNavigation || !menuOpen) return;
+    navigationRef.current?.querySelector<HTMLElement>("a")?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setMenuOpen(false);
+      requestAnimationFrame(() => menuButtonRef.current?.focus());
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMobileNavigation, menuOpen]);
 
   return (
     <main className={styles.page} ref={pageRef}>
@@ -168,8 +205,12 @@ function StudioPage() {
             <span>FRAME</span>
           </Link>
           <nav
+            id="premium-studio-navigation"
+            ref={navigationRef}
             className={`${styles.nav} ${menuOpen ? styles.navOpen : ""}`}
             aria-label="Основная навигация"
+            aria-hidden={mobileMenuClosed ? true : undefined}
+            inert={mobileMenuClosed}
           >
             {navigation.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
@@ -181,10 +222,12 @@ function StudioPage() {
             </Link>
           </nav>
           <button
+            ref={menuButtonRef}
             type="button"
             className={styles.menuButton}
             aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={menuOpen}
+            aria-controls="premium-studio-navigation"
             onClick={() => setMenuOpen((value) => !value)}
           >
             <span />
