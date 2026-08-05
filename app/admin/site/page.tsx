@@ -49,7 +49,7 @@ type Workspace = {
 };
 
 type CanvasSection = "hero" | PublicSiteSection;
-type PreviewDevice = "desktop" | "mobile";
+type PreviewDevice = "desktop" | "tablet" | "mobile";
 type EditorSnapshot = {
   draft: PublicSiteContent;
   logoUrl: string;
@@ -503,6 +503,19 @@ function createCustomBlock(
       kind === "media_text"
         ? "line"
         : undefined,
+    content_width: "wide",
+    padding_top: "normal",
+    padding_bottom: "normal",
+    section_height: "auto",
+    media_height:
+      kind === "slider" ||
+      kind === "collage" ||
+      kind === "video" ||
+      kind === "media_text"
+        ? "auto"
+        : undefined,
+    animation: "none",
+    animate_on_mobile: true,
   };
 }
 
@@ -2313,6 +2326,14 @@ function VisualBuilder({
             </button>
             <button
               type="button"
+              aria-pressed={previewDevice === "tablet"}
+              onClick={() => onDeviceChange("tablet")}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "tablet" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
+            >
+              Планшет
+            </button>
+            <button
+              type="button"
               aria-pressed={previewDevice === "mobile"}
               onClick={() => onDeviceChange("mobile")}
               className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "mobile" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
@@ -2487,7 +2508,9 @@ function VisualBuilder({
             className={`mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
               previewDevice === "mobile"
                 ? "max-w-[390px] rounded-[28px]"
-                : blocksOpen && settingsOpen
+                : previewDevice === "tablet"
+                  ? "max-w-[820px] rounded-[22px]"
+                  : blocksOpen && settingsOpen
                   ? "max-w-[920px] rounded-lg"
                   : blocksOpen || settingsOpen
                     ? "max-w-[1120px] rounded-lg"
@@ -4439,20 +4462,53 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
   }[block.media_frame ?? "line"];
   const mediaFit =
     block.media_fit === "contain" ? "object-contain" : "object-cover";
+  const contentWidth = {
+    full: "max-w-none",
+    wide: "max-w-5xl",
+    medium: "max-w-4xl",
+    narrow: "max-w-2xl",
+  }[block.content_width ?? "wide"];
+  const paddingTop = {
+    none: "pt-0",
+    compact: "pt-6 sm:pt-8",
+    normal: "pt-12 sm:pt-14",
+    airy: "pt-16 sm:pt-20",
+  }[block.padding_top ?? "normal"];
+  const paddingBottom = {
+    none: "pb-0",
+    compact: "pb-6 sm:pb-8",
+    normal: "pb-12 sm:pb-14",
+    airy: "pb-16 sm:pb-20",
+  }[block.padding_bottom ?? "normal"];
+  const sectionHeight = {
+    auto: "",
+    compact: "min-h-[240px]",
+    medium: "min-h-[360px]",
+    tall: "min-h-[480px]",
+    screen: "min-h-[620px]",
+  }[block.section_height ?? "auto"];
+  const mediaHeightMode = block.media_height ?? "auto";
+  const mediaHeight = {
+    auto: mediaAspect,
+    compact: "h-44 sm:h-56",
+    medium: "h-56 sm:h-72",
+    tall: "h-72 sm:h-[420px]",
+  }[mediaHeightMode];
 
   if (block.kind === "media_text") {
     const mediaOnRight = block.media_position !== "left";
     return (
       <div
-        className={`grid gap-7 px-8 py-12 sm:px-12 lg:grid-cols-2 lg:items-center ${style}`}
+        className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`}
         style={inlineStyle}
       >
+        <div className={`mx-auto grid w-full ${contentWidth} gap-7 lg:grid-cols-2 lg:items-center`}>
         <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
           <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`}>
             <div
               className={`relative grid place-items-center overflow-hidden bg-black/10 ${
                 block.media_frame === "none" ? "" : "rounded-lg"
-              } ${mediaAspect}`}
+              } ${mediaHeight}`}
             >
               {block.media_type === "calendar" ? (
                 <div className="h-full w-full bg-white p-3 text-[#321722]">
@@ -4512,12 +4568,14 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
             </span>
           ) : null}
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`px-8 py-12 sm:px-12 ${style}`} style={inlineStyle}>
+    <div className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`} style={inlineStyle}>
+      <div className={`mx-auto w-full ${contentWidth}`}>
       <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
         {block.eyebrow}
       </p>
@@ -4595,16 +4653,22 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         >
           <div
             className={`grid grid-cols-2 gap-2 overflow-hidden ${
-              block.media_frame === "none" ? "" : "rounded-lg"
-            }`}
+              mediaHeightMode === "auto"
+                ? ""
+                : `${mediaHeight} [grid-auto-rows:minmax(0,1fr)]`
+            } ${block.media_frame === "none" ? "" : "rounded-lg"}`}
           >
             {(block.media_urls ?? []).slice(0, 8).map((image, index) => (
               <div
                 key={`${block.id}-collage-preview-${index}`}
                 className={`relative overflow-hidden bg-black/10 ${
-                  index === 0 && (block.media_urls ?? []).length >= 3
-                    ? "row-span-2 min-h-40"
-                    : "min-h-20"
+                  mediaHeightMode === "auto"
+                    ? index === 0 && (block.media_urls ?? []).length >= 3
+                      ? "row-span-2 min-h-40"
+                      : "min-h-20"
+                    : index === 0 && (block.media_urls ?? []).length >= 3
+                      ? "row-span-2 h-full min-h-0"
+                      : "h-full min-h-0"
                 }`}
               >
                 {image ? (
@@ -4622,7 +4686,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
 
       {block.kind === "slider" ? (
         <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}>
-          <div className={`relative overflow-hidden bg-black/10 ${mediaAspect} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+          <div className={`relative overflow-hidden bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {(block.media_urls ?? [])[0] ? (
               <img
                 src={(block.media_urls ?? [])[0]}
@@ -4648,7 +4712,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       ) : null}
       {block.kind === "video" ? (
         <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}>
-          <div className={`relative grid place-items-center overflow-hidden bg-black/80 text-center text-white ${mediaAspect} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+          <div className={`relative grid place-items-center overflow-hidden bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {block.video_poster_url ? (
               <img
                 src={block.video_poster_url}
@@ -4665,6 +4729,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           {block.button_label}
         </span>
       ) : null}
+      </div>
     </div>
   );
 }
@@ -6709,6 +6774,117 @@ function CustomBlockSettings({
         disabled={disabled}
         onChange={(value) => onChange("is_visible", value)}
       />
+      <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f531f]">
+          Размеры и анимация
+        </p>
+        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+          Ширина содержимого
+          <select
+            value={block.content_width ?? "wide"}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange(
+                "content_width",
+                event.target.value as NonNullable<PublicSiteCustomBlock["content_width"]>,
+              )
+            }
+            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+          >
+            <option value="full">На всю ширину</option>
+            <option value="wide">Широкая</option>
+            <option value="medium">Средняя</option>
+            <option value="narrow">Узкая</option>
+          </select>
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+            Отступ сверху
+            <select
+              value={block.padding_top ?? "normal"}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange(
+                  "padding_top",
+                  event.target.value as NonNullable<PublicSiteCustomBlock["padding_top"]>,
+                )
+              }
+              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+            >
+              <option value="none">Нет</option>
+              <option value="compact">Маленький</option>
+              <option value="normal">Обычный</option>
+              <option value="airy">Большой</option>
+            </select>
+          </label>
+          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+            Отступ снизу
+            <select
+              value={block.padding_bottom ?? "normal"}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange(
+                  "padding_bottom",
+                  event.target.value as NonNullable<PublicSiteCustomBlock["padding_bottom"]>,
+                )
+              }
+              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+            >
+              <option value="none">Нет</option>
+              <option value="compact">Маленький</option>
+              <option value="normal">Обычный</option>
+              <option value="airy">Большой</option>
+            </select>
+          </label>
+        </div>
+        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+          Минимальная высота секции
+          <select
+            value={block.section_height ?? "auto"}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange(
+                "section_height",
+                event.target.value as NonNullable<PublicSiteCustomBlock["section_height"]>,
+              )
+            }
+            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+          >
+            <option value="auto">По содержимому</option>
+            <option value="compact">Невысокая</option>
+            <option value="medium">Средняя</option>
+            <option value="tall">Высокая</option>
+            <option value="screen">Почти на экран</option>
+          </select>
+        </label>
+        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+          Анимация появления
+          <select
+            value={block.animation ?? "none"}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange(
+                "animation",
+                event.target.value as NonNullable<PublicSiteCustomBlock["animation"]>,
+              )
+            }
+            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+          >
+            <option value="none">Без анимации</option>
+            <option value="fade">Мягкое появление</option>
+            <option value="rise">Появление снизу</option>
+            <option value="scale">Лёгкое увеличение</option>
+          </select>
+        </label>
+        {block.animation && block.animation !== "none" ? (
+          <Toggle
+            label="Показывать анимацию на телефоне"
+            checked={block.animate_on_mobile !== false}
+            disabled={disabled}
+            onChange={(value) => onChange("animate_on_mobile", value)}
+          />
+        ) : null}
+      </div>
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
       <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
       {block.kind === "features" ? (
@@ -7039,7 +7215,8 @@ function CustomBlockSettings({
       ) : null}
       {block.kind === "slider" ||
       block.kind === "video" ||
-      block.kind === "media_text" ? (
+      block.kind === "media_text" ||
+      block.kind === "collage" ? (
         <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
             {t("Media display")}
@@ -7084,6 +7261,25 @@ function CustomBlockSettings({
               <option value="classic">4:3</option>
               <option value="square">1:1</option>
               <option value="portrait">4:5</option>
+            </select>
+          </label>
+          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+            Высота медиа
+            <select
+              value={block.media_height ?? "auto"}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange(
+                  "media_height",
+                  event.target.value as NonNullable<PublicSiteCustomBlock["media_height"]>,
+                )
+              }
+              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
+            >
+              <option value="auto">По пропорциям</option>
+              <option value="compact">Низкая</option>
+              <option value="medium">Средняя</option>
+              <option value="tall">Высокая</option>
             </select>
           </label>
           <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
