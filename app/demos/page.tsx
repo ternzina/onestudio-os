@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
-import { DEMOS, type DemoGroup } from "@/lib/demo-catalog";
+import { DEMOS, PREMIUM_DEMOS, type DemoGroup } from "@/lib/demo-catalog";
 import styles from "./DemosPage.module.css";
 
 type Lang = "ru" | "en";
@@ -18,6 +19,10 @@ const copy = {
     login: "Войти",
     view: "Посмотреть демо",
     configure: "Настроить под себя",
+    premiumEyebrow: "Premium Collection",
+    premiumLead: "Сайты с авторским дизайном, сложной анимацией и расширенной интерактивностью.",
+    premiumLabel: "Premium",
+    premiumView: "Смотреть демо",
     footer: "Вы сможете изменить название, цвета, языки, услуги и модули на следующем шаге.",
     filters: [
       ["all", "Все демо"],
@@ -35,6 +40,10 @@ const copy = {
     login: "Sign in",
     view: "View demo",
     configure: "Customize",
+    premiumEyebrow: "Premium Collection",
+    premiumLead: "Websites with art-directed design, sophisticated motion and extended interactivity.",
+    premiumLabel: "Premium",
+    premiumView: "View demo",
     footer: "You can change the name, colors, languages, services and modules in the next step.",
     filters: [
       ["all", "All demos"],
@@ -53,6 +62,10 @@ export default function DemosPage() {
   const t = copy[lang];
   const demos = useMemo(
     () => filter === "all" ? DEMOS : DEMOS.filter((demo) => demo.group === filter),
+    [filter],
+  );
+  const premiumDemos = useMemo(
+    () => filter === "all" ? PREMIUM_DEMOS : PREMIUM_DEMOS.filter((demo) => demo.group === filter),
     [filter],
   );
 
@@ -94,6 +107,45 @@ export default function DemosPage() {
           </button>
         ))}
       </div>
+
+      {premiumDemos.length > 0 ? (
+        <section className={styles.premium} aria-labelledby="premium-collection-title">
+          <div className={styles.premiumHeading}>
+            <p className={styles.premiumEyebrow}>01 / {t.premiumEyebrow}</p>
+            <div>
+              <h2 id="premium-collection-title">{t.premiumEyebrow}</h2>
+              <p>{t.premiumLead}</p>
+            </div>
+          </div>
+          {premiumDemos.map((demo) => (
+            <article className={styles.premiumCard} key={demo.slug}>
+              <Link className={styles.premiumVisual} href={demo.href} aria-label={`${t.premiumView}: ${demo.name}`}>
+                <Image
+                  src={demo.previewImage}
+                  alt={demo.previewAlt[lang]}
+                  fill
+                  sizes="(max-width: 900px) 100vw, 66vw"
+                  quality={88}
+                />
+                <span aria-hidden="true">NF / 01</span>
+              </Link>
+              <div className={styles.premiumCopy}>
+                <div className={styles.premiumMeta}>
+                  <span>{t.premiumLabel}</span>
+                  <span>{demo.title[lang]}</span>
+                </div>
+                <div>
+                  <h3>{demo.name}</h3>
+                  <p>{demo.description[lang]}</p>
+                </div>
+                <Link className={styles.premiumAction} href={demo.href}>
+                  {t.premiumView} <span aria-hidden="true">↗</span>
+                </Link>
+              </div>
+            </article>
+          ))}
+        </section>
+      ) : null}
 
       <section className={styles.grid}>
         {demos.map((demo) => (
