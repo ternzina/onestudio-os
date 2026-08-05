@@ -7,6 +7,7 @@ import type {
   PublicSiteMediaAspect,
   PublicSiteMediaFit,
   PublicSiteMediaFrame,
+  PublicSiteMediaHeight,
   PublicSiteMediaSize,
 } from "@/lib/public-site/types";
 
@@ -24,6 +25,12 @@ const aspectClass: Record<PublicSiteMediaAspect, string> = {
   portrait: "aspect-[4/5]",
 };
 
+const heightClass: Record<Exclude<PublicSiteMediaHeight, "auto">, string> = {
+  compact: "h-56 sm:h-72",
+  medium: "h-72 sm:h-[420px]",
+  tall: "h-[420px] sm:h-[560px]",
+};
+
 const frameClass: Record<PublicSiteMediaFrame, string> = {
   none: "",
   line: "rounded-2xl border border-current/15 p-1",
@@ -38,6 +45,7 @@ export default function PublicSliderBlock({
   aspect = "landscape",
   fit = "cover",
   frame = "line",
+  height = "auto",
 }: {
   images: string[];
   intervalSeconds: number;
@@ -46,6 +54,7 @@ export default function PublicSliderBlock({
   aspect?: PublicSiteMediaAspect;
   fit?: PublicSiteMediaFit;
   frame?: PublicSiteMediaFrame;
+  height?: PublicSiteMediaHeight;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const safeInterval = Math.min(30, Math.max(2, intervalSeconds || 4));
@@ -70,7 +79,7 @@ export default function PublicSliderBlock({
       <div
         className={`relative overflow-hidden bg-black/10 ${
           frame === "none" ? "" : "rounded-xl"
-        } ${aspectClass[aspect]}`}
+        } ${height === "auto" ? aspectClass[aspect] : heightClass[height]}`}
       >
         {images.map((image, index) => (
           <img

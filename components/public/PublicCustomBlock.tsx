@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
+import PublicReveal from "@/components/public/PublicReveal";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
 import type {
@@ -14,6 +15,43 @@ const mediaSizeClass = {
   wide: "w-full max-w-5xl",
   medium: "w-full max-w-3xl",
   compact: "w-full max-w-xl",
+} as const;
+
+
+const contentWidthClass = {
+  full: "max-w-none",
+  wide: "max-w-[1240px]",
+  medium: "max-w-5xl",
+  narrow: "max-w-3xl",
+} as const;
+
+const paddingTopClass = {
+  none: "pt-0",
+  compact: "pt-10 sm:pt-12",
+  normal: "pt-20 sm:pt-24",
+  airy: "pt-28 sm:pt-36",
+} as const;
+
+const paddingBottomClass = {
+  none: "pb-0",
+  compact: "pb-10 sm:pb-12",
+  normal: "pb-20 sm:pb-24",
+  airy: "pb-28 sm:pb-36",
+} as const;
+
+const sectionHeightClass = {
+  auto: "",
+  compact: "min-h-[320px]",
+  medium: "min-h-[480px]",
+  tall: "min-h-[640px]",
+  screen: "min-h-[85vh]",
+} as const;
+
+const mediaHeightClass = {
+  auto: "",
+  compact: "h-56 sm:h-72",
+  medium: "h-72 sm:h-[420px]",
+  tall: "h-[420px] sm:h-[560px]",
 } as const;
 
 const mediaAspectClass = {
@@ -133,6 +171,19 @@ export default function PublicCustomBlock({
   const mediaAspect = block.media_aspect ?? "landscape";
   const mediaFit = block.media_fit ?? "cover";
   const mediaFrame = block.media_frame ?? "line";
+  const contentWidth = block.content_width ?? "wide";
+  const paddingTop = block.padding_top ?? "normal";
+  const paddingBottom = block.padding_bottom ?? "normal";
+  const sectionHeight = block.section_height ?? "auto";
+  const mediaHeight = block.media_height ?? "auto";
+  const animation = block.animation ?? "none";
+  const sectionClass = `flex items-center px-5 ${paddingTopClass[paddingTop]} ${paddingBottomClass[paddingBottom]} ${sectionHeightClass[sectionHeight]} ${style}`;
+  const mediaDisplayClass = mediaHeight === "auto"
+    ? mediaAspectClass[mediaAspect]
+    : mediaHeightClass[mediaHeight];
+  const collageHeightClass = mediaHeight === "auto"
+    ? ""
+    : `${mediaHeightClass[mediaHeight]} [grid-auto-rows:minmax(0,1fr)]`;
 
   if (block.kind === "collage") {
     const collageImages = (block.media_urls ?? []).filter(Boolean).slice(0, 8);
@@ -144,8 +195,13 @@ export default function PublicCustomBlock({
           : "mx-auto";
 
     return (
-      <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
-        <div className="mx-auto w-full max-w-[1240px]">
+      <PublicReveal
+        animation={animation}
+        animateOnMobile={block.animate_on_mobile !== false}
+        className={sectionClass}
+        style={blockStyle}
+      >
+        <div className={`mx-auto w-full ${contentWidthClass[contentWidth]}`}>
           {block.eyebrow ? (
             <p
               className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
@@ -175,7 +231,7 @@ export default function PublicCustomBlock({
           >
             {collageImages.length ? (
               <div
-                className={`grid grid-cols-2 gap-2 overflow-hidden sm:grid-cols-4 ${
+                className={`grid grid-cols-2 gap-2 overflow-hidden sm:grid-cols-4 ${collageHeightClass} ${
                   mediaFrame === "none" ? "" : "rounded-2xl"
                 }`}
               >
@@ -185,9 +241,13 @@ export default function PublicCustomBlock({
                     <div
                       key={`${block.id}-collage-${index}`}
                       className={`relative overflow-hidden bg-black/10 ${
-                        isLead
-                          ? "col-span-2 row-span-2 aspect-square"
-                          : "aspect-square"
+                        mediaHeight === "auto"
+                          ? isLead
+                            ? "col-span-2 row-span-2 aspect-square"
+                            : "aspect-square"
+                          : isLead
+                            ? "col-span-2 row-span-2 h-full min-h-0"
+                            : "h-full min-h-0"
                       }`}
                     >
                       <Image
@@ -217,7 +277,7 @@ export default function PublicCustomBlock({
             )}
           </div>
         </div>
-      </section>
+      </PublicReveal>
     );
   }
 
@@ -227,8 +287,13 @@ export default function PublicCustomBlock({
     const mediaOnRight = block.media_position !== "left";
 
     return (
-      <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
-        <div className="mx-auto grid w-full max-w-[1240px] gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <PublicReveal
+        animation={animation}
+        animateOnMobile={block.animate_on_mobile !== false}
+        className={sectionClass}
+        style={blockStyle}
+      >
+        <div className={`mx-auto grid w-full ${contentWidthClass[contentWidth]} gap-10 lg:grid-cols-2 lg:items-center lg:gap-16`}>
           <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
             {mediaIsCalendar && bookingHref && services.length ? (
               <GlossBookingPanel
@@ -246,7 +311,7 @@ export default function PublicCustomBlock({
                 <div
                   className={`relative overflow-hidden bg-black/10 ${
                     mediaFrame === "none" ? "" : "rounded-xl"
-                  } ${mediaAspectClass[mediaAspect]}`}
+                  } ${mediaDisplayClass}`}
                 >
                   {mediaIsVideo && block.video_url ? (
                   embedUrl ? (
@@ -330,13 +395,18 @@ export default function PublicCustomBlock({
             ) : null}
           </div>
         </div>
-      </section>
+      </PublicReveal>
     );
   }
 
   return (
-    <section className={`px-5 py-20 sm:py-24 ${style}`} style={blockStyle}>
-      <div className="mx-auto w-full max-w-[1240px]">
+    <PublicReveal
+      animation={animation}
+      animateOnMobile={block.animate_on_mobile !== false}
+      className={sectionClass}
+      style={blockStyle}
+    >
+      <div className={`mx-auto w-full ${contentWidthClass[contentWidth]}`}>
         {block.eyebrow ? (
           <p
             className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
@@ -452,6 +522,7 @@ export default function PublicCustomBlock({
             aspect={mediaAspect}
             fit={mediaFit}
             frame={mediaFrame}
+            height={mediaHeight}
           />
         ) : null}
 
@@ -464,7 +535,7 @@ export default function PublicCustomBlock({
             <div
               className={`overflow-hidden bg-black ${
                 mediaFrame === "none" ? "" : "rounded-xl"
-              } ${mediaAspectClass[mediaAspect]}`}
+              } ${mediaDisplayClass}`}
             >
               {embedUrl ? (
                 <iframe
@@ -509,6 +580,6 @@ export default function PublicCustomBlock({
           </Link>
         ) : null}
       </div>
-    </section>
+    </PublicReveal>
   );
 }
