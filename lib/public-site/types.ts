@@ -162,6 +162,11 @@ export type PublicSiteMediaAspect =
   | "portrait";
 export type PublicSiteMediaFit = "cover" | "contain";
 export type PublicSiteMediaFrame = "none" | "line" | "card";
+export type PublicSiteBlockWidth = "full" | "wide" | "medium" | "narrow";
+export type PublicSiteBlockSpacing = "none" | "compact" | "normal" | "airy";
+export type PublicSiteSectionHeight = "auto" | "compact" | "medium" | "tall" | "screen";
+export type PublicSiteMediaHeight = "auto" | "compact" | "medium" | "tall";
+export type PublicSiteBlockAnimation = "none" | "fade" | "rise" | "scale";
 export type PublicSiteMediaType = "image" | "video" | "calendar";
 export type PublicSiteMediaPosition = "left" | "center" | "right";
 export type PublicSiteColumnsCount = 2 | 3;
@@ -204,6 +209,13 @@ export type PublicSiteCustomBlock = {
   media_aspect?: PublicSiteMediaAspect;
   media_fit?: PublicSiteMediaFit;
   media_frame?: PublicSiteMediaFrame;
+  content_width?: PublicSiteBlockWidth;
+  padding_top?: PublicSiteBlockSpacing;
+  padding_bottom?: PublicSiteBlockSpacing;
+  section_height?: PublicSiteSectionHeight;
+  media_height?: PublicSiteMediaHeight;
+  animation?: PublicSiteBlockAnimation;
+  animate_on_mobile?: boolean;
 };
 
 export type PublicSiteSocialLink = {
