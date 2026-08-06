@@ -60,13 +60,13 @@ export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
     name: "BEMBI — Kids Discovery Center",
     title: { ru: "Детский развивающий центр", en: "Kids discovery center" },
     description: {
-      ru: "Премиальный сайт детского центра с программами по возрастам, интерактивным расписанием, командой преподавателей и мягкими игровыми анимациями.",
-      en: "A premium kids center website with age-based programs, an interactive schedule, teacher profiles and gentle playful motion.",
+      ru: "Премиальная образовательная платформа с практическими заданиями, экспериментами, рабочими тетрадями, статьями для родителей и программами детского центра.",
+      en: "A premium learning platform with hands-on tasks, experiments, workbooks, a parent journal and kids center programs.",
     },
-    previewImage: "/images/demos/premium-kids-center/hero.webp",
+    previewImage: "/images/demos/premium-kids-center/hero-platform.webp",
     previewAlt: {
-      ru: "Дети создают объёмную композицию в светлом центре BEMBI",
-      en: "Children build a sculptural composition inside the bright BEMBI center",
+      ru: "Дети и педагог создают геометрический город в лаборатории BEMBI",
+      en: "Children and an educator build a geometric city in the BEMBI learning lab",
     },
   },
 ] as const;

@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { articles } from "../content";
+import { Arrow, PlatformLayout } from "../PlatformShell";
+import styles from "../Platform.module.css";
+export const metadata: Metadata = { title: "Журнал для родителей | BEMBI", description: "Оригинальные демонстрационные статьи о развитии, чтении, математике, творчестве и семейном обучении.", alternates: { canonical: "/demos/premium-kids-center/articles" } };
+export default function ArticlesPage(){return <PlatformLayout><main><section className={styles.pageHero}><div><div className={styles.breadcrumbs}><Link href="/demos/premium-kids-center">BEMBI</Link><span>/</span><span>Журнал</span></div><p>Parent journal / 03</p><h1>Понятно о развитии и поддержке ребёнка</h1></div><div>Без обещаний «научить за три дня». Наблюдения, практические схемы и идеи, которые помогают семье найти свой темп.</div></section><section className={styles.pageBody}><div className={styles.articleGrid}>{articles.map((article,index)=><article className={index===0?styles.featureArticle:""} key={article.slug}><Link href={article.slug==="add-subtract-within-100"?`/demos/premium-kids-center/articles/${article.slug}`:"#journal-note"}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index===0?"(max-width:760px) 100vw,58vw":"(max-width:760px) 100vw,28vw"}/></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow/></b></Link></article>)}</div><p id="journal-note" style={{marginTop:48}}>Одна статья открывается полностью; остальные карточки показывают структуру будущего журнала в демонстрационном интерфейсе.</p></section></main></PlatformLayout>}
