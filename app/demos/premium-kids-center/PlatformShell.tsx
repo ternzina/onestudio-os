@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import styles from "./Platform.module.css";
+import PlatformMotionRuntime from "./PlatformMotionRuntime";
 
 const routes = [
   ["Задания", "/demos/premium-kids-center/tasks"],
@@ -30,7 +31,7 @@ export function PlatformFooter() {
 }
 
 export function PlatformLayout({ children }: { children: ReactNode }) {
-  return <div className={styles.platform}><PlatformHeader />{children}<PlatformFooter /></div>;
+  return <div className={styles.platform}><PlatformMotionRuntime /><PlatformHeader />{children}<PlatformFooter /></div>;
 }
 
 export function SectionLead({ index, eyebrow, title, text }: { index: string; eyebrow: string; title: string; text?: string }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import type { Task } from "./content";
 import styles from "./Platform.module.css";
 
@@ -75,7 +76,11 @@ const worksheetByTaskId: Record<Task["id"], WorksheetDefinition> = {
 export default function WorksheetViewer({ task, onClose }: { task: Task; onClose: () => void }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const noticeTimerRef = useRef<number | null>(null);
+  const pdfTimerRef = useRef<number | null>(null);
   const [notice, setNotice] = useState("");
+  const [collectionPulse, setCollectionPulse] = useState(0);
+  const [pdfPreview, setPdfPreview] = useState(false);
+  const reduced = useReducedMotion();
   const worksheet = worksheetByTaskId[task.id];
 
   useEffect(() => {
@@ -94,21 +99,23 @@ export default function WorksheetViewer({ task, onClose }: { task: Task; onClose
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("keydown", onKey); if (noticeTimerRef.current !== null) window.clearTimeout(noticeTimerRef.current); document.body.style.overflow = oldOverflow; previous?.focus(); };
+    return () => { document.removeEventListener("keydown", onKey); if (noticeTimerRef.current !== null) window.clearTimeout(noticeTimerRef.current); if (pdfTimerRef.current !== null) window.clearTimeout(pdfTimerRef.current); document.body.style.overflow = oldOverflow; previous?.focus(); };
   }, [onClose]);
 
   const demoAction = (message: string) => { setNotice(message); if (noticeTimerRef.current !== null) window.clearTimeout(noticeTimerRef.current); noticeTimerRef.current = window.setTimeout(() => setNotice(""), 2400); };
-  return <div className={styles.dialogBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <div className={styles.worksheetDialog} role="dialog" aria-modal="true" aria-labelledby="worksheet-title" ref={dialogRef}>
+  const addToCollection = () => { setCollectionPulse(value => value + 1); demoAction("Задание добавлено в демо-подборку"); };
+  const showPdf = () => { setPdfPreview(true); demoAction("Демо: показан preview первой PDF-страницы"); if (pdfTimerRef.current !== null) window.clearTimeout(pdfTimerRef.current); pdfTimerRef.current = window.setTimeout(() => setPdfPreview(false), 900); };
+  return <motion.div className={styles.dialogBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: reduced ? 0 : .2 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <motion.div className={styles.worksheetDialog} role="dialog" aria-modal="true" aria-labelledby="worksheet-title" ref={dialogRef} initial={{ opacity: 0, scale: reduced ? 1 : .96, clipPath: reduced ? "inset(0)" : "inset(8% 12% round 18px)" }} animate={{ opacity: 1, scale: 1, clipPath: "inset(0% round 0px)" }} transition={{ duration: reduced ? 0 : .45, ease: [0.22, 1, 0.36, 1] }}>
       <button className={styles.dialogClose} onClick={onClose} aria-label="Закрыть просмотр задания">Закрыть ×</button>
-      <div className={styles.worksheetPaper}>
+      <motion.div className={`${styles.worksheetPaper} ${pdfPreview ? styles.pdfPreview : ""}`} initial={{ opacity: 0, y: reduced ? 0 : 30, rotate: reduced ? 0 : -2 }} animate={{ opacity: 1, y: 0, rotate: -1 }} transition={{ duration: reduced ? 0 : .55, delay: reduced ? 0 : .12, ease: [0.22, 1, 0.36, 1] }}>
         <div className={styles.paperMeta}><span>{worksheet.label}</span><span>{task.age} · {task.time}</span></div>
         <h2 id="worksheet-title">{task.title}</h2>
         <p>{worksheet.instruction}</p>
         {worksheet.visual}
-        <ol>{worksheet.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-      </div>
-      <aside><p>{task.subject} · {task.skill}</p><h3>{worksheet.asideTitle}</h3><p>{worksheet.hint}</p><button onClick={() => demoAction("Демо: PDF станет доступен в полной версии")}>Посмотреть PDF</button><button onClick={() => demoAction("Задание добавлено в демо-подборку")}>Добавить в подборку</button><span role="status" aria-live="polite">{notice}</span></aside>
-    </div>
-  </div>;
+        <ol>{worksheet.steps.map((step, index) => <motion.li key={step} initial={{ opacity: 0, x: reduced ? 0 : -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: reduced ? 0 : .35 + index * .08 }}>{step}</motion.li>)}</ol>
+      </motion.div>
+      <motion.aside initial={{ opacity: 0, clipPath: reduced ? "inset(0)" : "inset(0 0 0 18%)" }} animate={{ opacity: 1, clipPath: "inset(0)" }} transition={{ delay: reduced ? 0 : .24, duration: .45 }}><p>{task.subject} · {task.skill}</p><h3>{worksheet.asideTitle}</h3><p>{worksheet.hint}</p><button onClick={showPdf}>Посмотреть PDF</button><button onClick={addToCollection}>Добавить в подборку</button><span role="status" aria-live="polite">{notice}</span><motion.i key={collectionPulse} className={styles.collectionToken} initial={{ opacity: 0, x: 0, y: 0, scale: .8 }} animate={collectionPulse ? { opacity: [0, 1, 0], x: [0, 30, 70], y: [0, -25, -55], scale: [0.8, 1, .5] } : { opacity: 0 }} transition={{ duration: reduced ? 0 : .65 }} aria-hidden="true">✓</motion.i></motion.aside>
+    </motion.div>
+  </motion.div>;
 }
