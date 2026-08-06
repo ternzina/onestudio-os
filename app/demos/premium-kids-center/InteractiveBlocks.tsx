@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { experiments, interests, offlinePrograms, schedule, tasks, type InterestId, type Task } from "./content";
+import { ageRangesOverlap } from "./ageRanges";
 import styles from "./Platform.module.css";
 
 const WorksheetViewer = dynamic(() => import("./WorksheetViewer"), { ssr: false, loading: () => <div className={styles.viewerLoading} role="status">Открываем лист…</div> });
@@ -25,7 +26,7 @@ const filterOptions = {
   age: ["Все", "4–6", "6–8", "7–10"],
   grade: ["Все", "Старт", "1–2 класс", "2 класс", "2–4 класс"],
   subject: ["Все", "Математика", "Логика", "Чтение", "Творчество"],
-  skill: ["Все", "Состав числа", "Анализ", "Плавность", "Геометрия", "Координация", "Стратегия"],
+  skill: ["Все", "Состав числа", "Анализ", "Плавность", "Геометрия", "Координация", "Стратегия", "Воображение"],
   format: ["Все", "Printable", "Карточки", "Мини-книга", "Практикум"],
   time: ["Все", "до 15 минут", "15–20 минут", "более 20 минут"],
 } as const;
@@ -36,7 +37,7 @@ export function TaskExplorer({ compact = false }: { compact?: boolean }) {
   const visible = useMemo(() => tasks.filter((task) => {
     const minutes = Number.parseInt(task.time);
     const timeMatch = filters.time === "Все" || (filters.time === "до 15 минут" && minutes <= 15) || (filters.time === "15–20 минут" && minutes >= 15 && minutes <= 20) || (filters.time === "более 20 минут" && minutes > 20);
-    return (filters.age === "Все" || task.age.includes(filters.age.split("–")[0])) && (filters.grade === "Все" || task.grade === filters.grade) && (filters.subject === "Все" || task.subject === filters.subject) && (filters.skill === "Все" || task.skill === filters.skill) && (filters.format === "Все" || task.format === filters.format) && timeMatch;
+    return (filters.age === "Все" || ageRangesOverlap(filters.age, task.age)) && (filters.grade === "Все" || task.grade === filters.grade) && (filters.subject === "Все" || task.subject === filters.subject) && (filters.skill === "Все" || task.skill === filters.skill) && (filters.format === "Все" || task.format === filters.format) && timeMatch;
   }), [filters]);
   const display = compact ? visible.slice(0, 4) : visible;
   return <>

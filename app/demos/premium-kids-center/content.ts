@@ -20,6 +20,7 @@ export const tasks = [
   { id: "space", title: "Изучаем форму и пространство", age: "6–9 лет", grade: "1–3 класс", subject: "Математика", skill: "Геометрия", format: "Практикум", time: "25 минут", level: "Исследуем", image: `${imageRoot}/collaboration.webp`, accent: "apricot" },
   { id: "motor", title: "Развиваем мелкую моторику", age: "4–6 лет", grade: "Дошкольники", subject: "Творчество", skill: "Координация", format: "Вырезание", time: "18 минут", level: "Базовый", image: `${imageRoot}/creative-studio.webp`, accent: "berry" },
   { id: "maze", title: "Решаем логические лабиринты", age: "7–10 лет", grade: "2–4 класс", subject: "Логика", skill: "Стратегия", format: "Printable", time: "20 минут", level: "Продвинутый", image: `${imageRoot}/workbook-cover.webp`, accent: "cobalt" },
+  { id: "creative-print", title: "Печатаем узор формами", age: "5–8 лет", grade: "Старт", subject: "Творчество", skill: "Воображение", format: "Практикум", time: "25 минут", level: "Исследуем", image: `${imageRoot}/creative-studio.webp`, accent: "apricot" },
 ] as const;
 
 export type Task = (typeof tasks)[number];
