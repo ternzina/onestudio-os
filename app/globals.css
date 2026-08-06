@@ -102,3 +102,42 @@ html {
     transition: none !important;
   }
 }
+
+/* Site Editor System Sections 2.3 */
+.os-system-section {
+  background-attachment: scroll;
+}
+
+.os-system-section-content {
+  position: relative;
+  z-index: 1;
+}
+
+.os-system-section-panel {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  border-radius: 2rem;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  box-shadow: 0 24px 70px color-mix(in srgb, currentColor 8%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.os-system-section-center .os-system-section-content > :is(h1, h2, h3, p),
+.os-system-section-center .os-system-section-content > div > :is(h1, h2, h3, p) {
+  margin-inline: auto;
+}
+
+.os-system-section-center .os-system-section-content > .flex,
+.os-system-section-center .os-system-section-content > div > .flex {
+  justify-content: center;
+}
+
+.os-system-section-right .os-system-section-content > :is(h1, h2, h3, p),
+.os-system-section-right .os-system-section-content > div > :is(h1, h2, h3, p) {
+  margin-left: auto;
+}
+
+.os-system-section-right .os-system-section-content > .flex,
+.os-system-section-right .os-system-section-content > div > .flex {
+  justify-content: flex-end;
+}

@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import type { PublicSiteBlockAnimation } from "@/lib/public-site/types";
 
 export default function PublicReveal({
+  id,
   animation = "none",
   animateOnMobile = true,
   className = "",
   style,
   children,
 }: {
+  id?: string;
   animation?: PublicSiteBlockAnimation;
   animateOnMobile?: boolean;
   className?: string;
@@ -50,6 +52,7 @@ export default function PublicReveal({
 
   return (
     <section
+      id={id}
       ref={sectionRef}
       className={`os-public-reveal ${className}`.trim()}
       style={style}

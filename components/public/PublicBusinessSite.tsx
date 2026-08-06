@@ -12,12 +12,19 @@ import {
 import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import GlossBusinessSite from "@/components/public/GlossBusinessSite";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicMobileMenu from "@/components/public/PublicMobileMenu";
 import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
+import {
+  publicSystemSectionAnimation,
+  publicSystemSectionClass,
+  publicSystemSectionContentClass,
+  publicSystemSectionStyle,
+} from "@/lib/public-site/system-sections";
 import {
   customBlockLayoutId,
   resolvePublicSiteLayoutOrder,
@@ -450,8 +457,13 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       <div className="flex flex-col">
       {showServices ? (
-        <section id="services" style={{ order: sectionPosition("services"), ...sectionColorStyle(content, "services") }} className="border-y border-black/8 bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="services"
+            {...publicSystemSectionAnimation(content, "services")}
+            style={publicSystemSectionStyle(content, "services", { order: sectionPosition("services") })}
+            className={publicSystemSectionClass(content, "services", "border-y border-black/8 bg-[var(--site-dark)] py-24 text-white sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "services")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#d8b36a]">
               {content.services_label}
             </p>
@@ -494,12 +506,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showPortfolio ? (
-        <section id="portfolio" style={{ order: sectionPosition("portfolio"), ...sectionColorStyle(content, "portfolio") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="portfolio"
+            {...publicSystemSectionAnimation(content, "portfolio")}
+            style={publicSystemSectionStyle(content, "portfolio", { order: sectionPosition("portfolio") })}
+            className={publicSystemSectionClass(content, "portfolio", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "portfolio")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#9a742e]">
               {content.portfolio_label}
             </p>
@@ -522,12 +539,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               />
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showAbout ? (
-        <section id="about" style={{ order: sectionPosition("about"), ...sectionColorStyle(content, "about") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px] border-t border-black/10 pt-16">
+        <PublicReveal
+            id="about"
+            {...publicSystemSectionAnimation(content, "about")}
+            style={publicSystemSectionStyle(content, "about", { order: sectionPosition("about") })}
+            className={publicSystemSectionClass(content, "about", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "about", "border-t border-black/10 pt-16")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
               {content.about_label}
             </p>
@@ -581,12 +603,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               </div>
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showTeam ? (
-        <section id="team" style={{ order: sectionPosition("team"), ...sectionColorStyle(content, "team") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="team"
+            {...publicSystemSectionAnimation(content, "team")}
+            style={publicSystemSectionStyle(content, "team", { order: sectionPosition("team") })}
+            className={publicSystemSectionClass(content, "team", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "team")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
               {content.team_label}
             </p>
@@ -637,16 +664,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showSafety ? (
-        <section
-          id="safety"
-          style={{ order: sectionPosition("safety"), ...sectionColorStyle(content, "safety") }}
-          className="px-5 py-24 sm:py-32"
-        >
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="safety"
+            {...publicSystemSectionAnimation(content, "safety")}
+            style={publicSystemSectionStyle(content, "safety", { order: sectionPosition("safety") })}
+            className={publicSystemSectionClass(content, "safety", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "safety")}>
             <div className="max-w-3xl">
               {content.safety_label ? (
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
@@ -687,12 +715,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showReviews ? (
-        <section id="reviews" style={{ order: sectionPosition("reviews"), ...sectionColorStyle(content, "reviews") }} className="bg-[var(--site-dark)] px-5 py-24 text-white sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="reviews"
+            {...publicSystemSectionAnimation(content, "reviews")}
+            style={publicSystemSectionStyle(content, "reviews", { order: sectionPosition("reviews") })}
+            className={publicSystemSectionClass(content, "reviews", "bg-[var(--site-dark)] py-24 text-white sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "reviews")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{content.reviews_label}</p>
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.reviews_title}</h2>
             <div className="mt-14 grid gap-4 lg:grid-cols-3">
@@ -710,12 +743,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               ))}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showMembership ? (
-        <section id="membership" style={{ order: sectionPosition("membership"), ...sectionColorStyle(content, "membership") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="membership"
+            {...publicSystemSectionAnimation(content, "membership")}
+            style={publicSystemSectionStyle(content, "membership", { order: sectionPosition("membership") })}
+            className={publicSystemSectionClass(content, "membership", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "membership")}>
             <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">
@@ -789,12 +827,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showGift ? (
-        <section id="gift" style={{ order: sectionPosition("gift"), ...sectionColorStyle(content, "gift") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto w-full max-w-[1240px]">
+        <PublicReveal
+            id="gift"
+            {...publicSystemSectionAnimation(content, "gift")}
+            style={publicSystemSectionStyle(content, "gift", { order: sectionPosition("gift") })}
+            className={publicSystemSectionClass(content, "gift", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "gift")}>
             <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.gift_label}</p>
@@ -827,12 +870,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showFaq ? (
-        <section id="faq" style={{ order: sectionPosition("faq"), ...sectionColorStyle(content, "faq") }} className="px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+        <PublicReveal
+            id="faq"
+            {...publicSystemSectionAnimation(content, "faq")}
+            style={publicSystemSectionStyle(content, "faq", { order: sectionPosition("faq") })}
+            className={publicSystemSectionClass(content, "faq", "py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "faq", "grid gap-12 lg:grid-cols-[0.8fr_1.2fr]")}>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.faq_label}</p>
               <h2 className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.faq_title}</h2>
@@ -851,12 +899,17 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               })}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
 
       {showContact ? (
-        <section id="contact" style={{ order: sectionPosition("contact"), ...sectionColorStyle(content, "contact") }} className="bg-[#d9d1c0] px-5 py-24 sm:py-32">
-          <div className="mx-auto grid w-full max-w-[1240px] gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]">
+        <PublicReveal
+            id="contact"
+            {...publicSystemSectionAnimation(content, "contact")}
+            style={publicSystemSectionStyle(content, "contact", { order: sectionPosition("contact") })}
+            className={publicSystemSectionClass(content, "contact", "bg-[#d9d1c0] py-24 sm:py-32")}
+          >
+          <div className={publicSystemSectionContentClass(content, "contact", "grid gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]")}>
             <div className="p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#725924]">
                 {content.contact_label}
@@ -921,7 +974,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               )}
             </div>
           </div>
-        </section>
+        </PublicReveal>
       ) : null}
       {(content.custom_blocks ?? [])
         .filter((block) => block.is_visible !== false)
