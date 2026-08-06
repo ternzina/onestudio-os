@@ -117,17 +117,16 @@ export default function DemosPage() {
               <p>{t.premiumLead}</p>
             </div>
           </div>
-          {premiumDemos.map((demo) => (
-            <article className={styles.premiumCard} key={demo.slug}>
+          {premiumDemos.map((demo, index) => (
+            <article className={styles.premiumCard} data-premium={demo.slug} key={demo.slug}>
               <Link className={styles.premiumVisual} href={demo.href} aria-label={`${t.premiumView}: ${demo.name}`}>
                 <Image
                   src={demo.previewImage}
                   alt={demo.previewAlt[lang]}
                   fill
                   sizes="(max-width: 900px) 100vw, 66vw"
-                  quality={88}
                 />
-                <span aria-hidden="true">NF / 01</span>
+                <span aria-hidden="true">{demo.slug === "premium-studio" ? "NF" : "BM"} / 0{index + 1}</span>
               </Link>
               <div className={styles.premiumCopy}>
                 <div className={styles.premiumMeta}>

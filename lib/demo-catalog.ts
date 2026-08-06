@@ -52,6 +52,23 @@ export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
       en: "Bright set inside the NOIR FRAME premium photo studio",
     },
   },
+  {
+    slug: "premium-kids-center",
+    href: "/demos/premium-kids-center",
+    tier: "premium",
+    group: "education",
+    name: "BEMBI — Kids Discovery Center",
+    title: { ru: "Детский развивающий центр", en: "Kids discovery center" },
+    description: {
+      ru: "Премиальная образовательная платформа с практическими заданиями, экспериментами, рабочими тетрадями, статьями для родителей и программами детского центра.",
+      en: "A premium learning platform with hands-on tasks, experiments, workbooks, a parent journal and kids center programs.",
+    },
+    previewImage: "/images/demos/premium-kids-center/hero-platform.webp",
+    previewAlt: {
+      ru: "Дети и педагог создают геометрический город в лаборатории BEMBI",
+      en: "Children and an educator build a geometric city in the BEMBI learning lab",
+    },
+  },
 ] as const;
 
 export const DEMOS: readonly DemoDefinition[] = [

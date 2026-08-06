@@ -161,6 +161,32 @@
   background: #f8f7f2;
 }
 
+.premiumCard + .premiumCard {
+  margin-top: 18px;
+}
+
+.premiumCard[data-premium="premium-kids-center"] {
+  background: #fef9ef;
+}
+
+.premiumCard[data-premium="premium-kids-center"] .premiumCopy {
+  border-color: #cfc4c3;
+}
+
+.premiumCard[data-premium="premium-kids-center"] .premiumMeta span:first-child {
+  background: #e07e67;
+}
+
+.premiumCard[data-premium="premium-kids-center"] .premiumAction {
+  border-color: #3e263e;
+  background: #3e263e;
+}
+
+.premiumCard[data-premium="premium-kids-center"] .premiumAction:hover,
+.premiumCard[data-premium="premium-kids-center"] .premiumAction:focus-visible {
+  background: #e07e67;
+}
+
 .premiumVisual {
   position: relative;
   display: block;
