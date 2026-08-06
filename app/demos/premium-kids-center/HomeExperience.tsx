@@ -5,11 +5,13 @@ import { DiscoveryProgress, ExperimentExplorer, InterestNavigator, OfflineExplor
 import { Arrow, PlatformLayout, SectionLead } from "./PlatformShell";
 import EditorialMotion from "./EditorialMotion";
 import { DiscoveryRoute, HeroDiscovery, TodayDiscovery, WorkbookExperience } from "./PremiumMotion";
+import { CenterExperience, CenterFinalCta, CenterStickyNav } from "./CenterExperience";
 import styles from "./Platform.module.css";
 
 export default function HomeExperience() {
   return <PlatformLayout><main>
     <HeroDiscovery />
+    <CenterStickyNav />
     <DiscoveryRoute />
 
     <section className={styles.manifesto}><p>Не ещё один кружок.<br />Не ещё одна папка с распечатками.</p><h2>BEMBI соединяет живые занятия, домашнюю практику и понятные материалы для родителей в одну <em>систему открытий.</em></h2><DiscoveryProgress /></section>
@@ -24,6 +26,8 @@ export default function HomeExperience() {
 
     <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? `/demos/premium-kids-center/articles/${article.slug}` : "/demos/premium-kids-center/articles"}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href="/demos/premium-kids-center/articles">Открыть журнал <Arrow /></Link></div></section>
 
+    <CenterExperience />
+
     <EditorialMotion className={styles.platformScene} distance={24}><Image src="/images/demos/premium-kids-center/studio-interior.webp" alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" fill sizes="100vw" /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
 
     <section className={`${styles.section} ${styles.offline}`} id="offline"><SectionLead index="07" eyebrow="Программы центра" title="Живые занятия — часть большой экосистемы" text="Выберите возраст и день. После занятия ребёнок может продолжить тему дома с материалами платформы." /><OfflineExplorer /></section>
@@ -35,5 +39,6 @@ export default function HomeExperience() {
     <TodayDiscovery />
 
     <section className={styles.finalCta}><p>BEMBI / Discovery Platform</p><h2>Большие открытия начинаются с <em>маленького интереса.</em></h2><div><a href="#offline">Подобрать программу <Arrow /></a><Link href="/demos/premium-kids-center/tasks">Открыть практические задания</Link><a href="#offline">Записаться на пробное занятие</a></div><span>Демонстрационный интерфейс OneStudio OS.</span></section>
+    <CenterFinalCta />
   </main></PlatformLayout>;
 }

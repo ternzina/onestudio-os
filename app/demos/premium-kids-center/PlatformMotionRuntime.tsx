@@ -19,10 +19,10 @@ export default function PlatformMotionRuntime() {
       element.style.setProperty("--magnetic-x", "0px");
       element.style.setProperty("--magnetic-y", "0px");
     };
+    const magneticElements = [...root.querySelectorAll<HTMLElement>(magneticSelector)];
     const onPointerMove = (event: PointerEvent) => {
       if (reduced.matches || !precise.matches) return;
-      const target = (event.target as Element | null)?.closest<HTMLElement>(magneticSelector);
-      if (!target || !root.contains(target)) return;
+      const target = event.currentTarget as HTMLElement;
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         const rect = target.getBoundingClientRect();
@@ -32,12 +32,11 @@ export default function PlatformMotionRuntime() {
         target.style.setProperty("--magnetic-y", `${y}px`);
       });
     };
-    const onPointerOut = (event: PointerEvent) => {
-      const target = (event.target as Element | null)?.closest<HTMLElement>(magneticSelector);
-      if (target && !target.contains(event.relatedTarget as Node | null)) reset(target);
-    };
-    root.addEventListener("pointermove", onPointerMove, { passive: true });
-    root.addEventListener("pointerout", onPointerOut, { passive: true });
+    const onPointerLeave = (event: PointerEvent) => reset(event.currentTarget as HTMLElement);
+    magneticElements.forEach(element => {
+      element.addEventListener("pointermove", onPointerMove, { passive: true });
+      element.addEventListener("pointerleave", onPointerLeave, { passive: true });
+    });
 
     const article = root.querySelector(`.${styles.articleProse}`);
     const tocLinks = [...root.querySelectorAll<HTMLAnchorElement>(`.${styles.articleContent} aside a`)];
@@ -51,10 +50,12 @@ export default function PlatformMotionRuntime() {
 
     return () => {
       window.cancelAnimationFrame(frame);
-      root.removeEventListener("pointermove", onPointerMove);
-      root.removeEventListener("pointerout", onPointerOut);
+      magneticElements.forEach(element => {
+        element.removeEventListener("pointermove", onPointerMove);
+        element.removeEventListener("pointerleave", onPointerLeave);
+      });
       observer?.disconnect();
-      root.querySelectorAll<HTMLElement>(magneticSelector).forEach(reset);
+      magneticElements.forEach(reset);
     };
   }, []);
 
