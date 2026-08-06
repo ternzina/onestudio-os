@@ -20,12 +20,47 @@ export type PublicSiteBlockColors = {
   accent?: string;
 };
 
+export type PublicSiteSystemSectionLayout = "default" | "panel";
+export type PublicSiteSystemSectionTextAlign = "left" | "center" | "right";
+export type PublicSiteSystemSectionBackgroundMode =
+  | "theme"
+  | "color"
+  | "image"
+  | "transparent";
+export type PublicSiteSystemSectionBackgroundPosition =
+  | "top"
+  | "center"
+  | "bottom";
+export type PublicSiteSystemSectionBackgroundOverlay =
+  | "none"
+  | "soft"
+  | "strong";
+
+export type PublicSiteSystemSectionSettings = {
+  layout?: PublicSiteSystemSectionLayout;
+  content_width?: PublicSiteBlockWidth;
+  padding_top?: PublicSiteBlockSpacing;
+  padding_bottom?: PublicSiteBlockSpacing;
+  section_height?: PublicSiteSectionHeight;
+  text_align?: PublicSiteSystemSectionTextAlign;
+  background_mode?: PublicSiteSystemSectionBackgroundMode;
+  background_image_url?: string;
+  background_position?: PublicSiteSystemSectionBackgroundPosition;
+  background_overlay?: PublicSiteSystemSectionBackgroundOverlay;
+  animation?: PublicSiteBlockAnimation;
+  animate_on_mobile?: boolean;
+  hide_on_desktop?: boolean;
+  hide_on_tablet?: boolean;
+  hide_on_mobile?: boolean;
+};
+
 export type PublicSiteContent = {
   template_id?: string;
   theme_accent?: string;
   theme_dark?: string;
   theme_surface?: string;
   section_colors?: Partial<Record<PublicSiteCanvasSection, PublicSiteBlockColors>>;
+  system_section_settings?: Partial<Record<PublicSiteCanvasSection, PublicSiteSystemSectionSettings>>;
   brand_name?: string;
   site_summary?: string;
   seo_keywords?: string;

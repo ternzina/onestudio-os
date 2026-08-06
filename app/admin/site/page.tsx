@@ -21,9 +21,17 @@ import type {
   PublicSiteService,
   PublicSiteProject,
   PublicSiteSocialLink,
+  PublicSiteSystemSectionSettings,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { colorOverrideStyle, sectionColorStyle } from "@/lib/public-site/colors";
+import {
+  publicSystemSectionClass,
+  publicSystemSectionContentClass,
+  publicSystemSectionSettings,
+  publicSystemSectionStyle,
+  publicSystemSectionVisibleOnDevice,
+} from "@/lib/public-site/system-sections";
 import {
   customBlockLayoutId,
   PUBLIC_SITE_SECTION_ORDER,
@@ -116,6 +124,11 @@ type ImageTarget =
       kind: "page";
       pageId: string;
       key: "seo_image_url";
+      label: string;
+    }
+  | {
+      kind: "section-background";
+      section: CanvasSection;
       label: string;
     };
 
@@ -248,6 +261,13 @@ function findInvalidDraftImage(content: PublicSiteContent) {
   if (listImages.some(isInvalidImageUrl)) return "изображение в списке";
   if (Object.values(content.service_card_images ?? {}).some(isInvalidImageUrl)) {
     return "изображение карточки услуги";
+  }
+  for (const [section, settings] of Object.entries(
+    content.system_section_settings ?? {},
+  ) as Array<[string, PublicSiteSystemSectionSettings]>) {
+    if (settings.background_image_url && isInvalidImageUrl(settings.background_image_url)) {
+      return `фон системного раздела «${section}»`;
+    }
   }
 
   for (const block of content.custom_blocks ?? []) {
@@ -1742,11 +1762,54 @@ function VisualBuilder({
     return { background: surface, text: dark, accent };
   })();
 
+  const selectedSystemSectionSettings = publicSystemSectionSettings(
+    draft,
+    selectedSection,
+  );
+
+  function updateSystemSectionSettings(
+    changes: Partial<PublicSiteSystemSectionSettings>,
+  ) {
+    onReplaceDraft(
+      {
+        ...draft,
+        system_section_settings: {
+          ...(draft.system_section_settings ?? {}),
+          [selectedSection]: {
+            ...(draft.system_section_settings?.[selectedSection] ?? {}),
+            ...changes,
+          },
+        },
+      },
+      `system-section:${selectedSection}`,
+    );
+  }
+
   function updateSectionColors(colors: PublicSiteBlockColors) {
-    onUpdate("section_colors", {
-      ...(draft.section_colors ?? {}),
-      [selectedSection]: colors,
-    });
+    const nextBackgroundMode =
+      colors.mode === "custom"
+        ? "color"
+        : selectedSystemSectionSettings.background_mode === "color"
+          ? "theme"
+          : selectedSystemSectionSettings.background_mode;
+
+    onReplaceDraft(
+      {
+        ...draft,
+        section_colors: {
+          ...(draft.section_colors ?? {}),
+          [selectedSection]: colors,
+        },
+        system_section_settings: {
+          ...(draft.system_section_settings ?? {}),
+          [selectedSection]: {
+            ...(draft.system_section_settings?.[selectedSection] ?? {}),
+            background_mode: nextBackgroundMode,
+          },
+        },
+      },
+      `section-colors:${selectedSection}`,
+    );
   }
   const activeTemplate =
     SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
@@ -1851,6 +1914,15 @@ function VisualBuilder({
       });
     } else if (imageTarget.kind === "page") {
       updatePageById(imageTarget.pageId, imageTarget.key, url);
+    } else if (imageTarget.kind === "section-background") {
+      onUpdate("system_section_settings", {
+        ...(draft.system_section_settings ?? {}),
+        [imageTarget.section]: {
+          ...(draft.system_section_settings?.[imageTarget.section] ?? {}),
+          background_mode: "image",
+          background_image_url: url,
+        },
+      });
     } else if (imageTarget.kind === "block") {
       updateCustomBlockById(imageTarget.blockId, imageTarget.key, url);
     } else if (imageTarget.kind === "block-card") {
@@ -2633,26 +2705,41 @@ function VisualBuilder({
                   onClick={() => editingEnabled && chooseSection(section)}
                 >
                   <div
-                    className={`${section === "services" ? "text-white" : index % 2 ? "bg-white/70" : ""} px-8 py-12 sm:px-12`}
-                    style={{
+                    className={publicSystemSectionClass(
+                      draft,
+                      section,
+                      section === "services"
+                        ? "py-12 text-white sm:py-16"
+                        : index % 2
+                          ? "bg-white/70 py-12 sm:py-16"
+                          : "py-12 sm:py-16",
+                      false,
+                    )}
+                    style={publicSystemSectionStyle(draft, section, {
                       ...(section === "services"
                         ? { backgroundColor: draft.theme_dark ?? "#191b20" }
                         : {}),
-                      ...sectionColorStyle(draft, section),
-                    }}
+                    })}
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
-                      {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
-                    </p>
-                    <h3 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
-                      {(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
-                    </h3>
-                    <CanvasSectionPreview
-                      section={section}
-                      draft={draft}
-                      services={previewServices}
-                      portfolio={previewPortfolio}
-                    />
+                    <div className={publicSystemSectionContentClass(draft, section)}>
+                      {!publicSystemSectionVisibleOnDevice(draft, section, previewDevice) ? (
+                        <p className="mb-4 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[9px] font-semibold text-amber-800">
+                          Скрыто на выбранном устройстве
+                        </p>
+                      ) : null}
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
+                        {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
+                      </p>
+                      <h3 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
+                        {(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
+                      </h3>
+                      <CanvasSectionPreview
+                        section={section}
+                        draft={draft}
+                        services={previewServices}
+                        portfolio={previewPortfolio}
+                      />
+                    </div>
                   </div>
                 </CanvasBlock>
               );
@@ -3024,6 +3111,20 @@ function VisualBuilder({
             ) : (
               <>
                 <Toggle label={t("Show block")} checked={Boolean(draft[visibilityKey!])} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate(visibilityKey!, value)} />
+                <SystemSectionSettingsEditor
+                  settings={selectedSystemSectionSettings}
+                  disabled={!canConfigure || !editingEnabled}
+                  allowBackground
+                  t={t}
+                  onChange={updateSystemSectionSettings}
+                  onChooseImage={() =>
+                    openMediaPicker({
+                      kind: "section-background",
+                      section: selectedSection,
+                      label: `${t(sectionLabelKey[selectedSection])} · ${t("Image as background")}`,
+                    })
+                  }
+                />
                 <BlockColorsEditor
                   colors={draft.section_colors?.[selectedSection]}
                   defaults={sectionColorDefaults}
@@ -5082,6 +5183,273 @@ function ColorEditor({
           ))}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function SystemSectionSettingsEditor({
+  settings,
+  disabled,
+  allowBackground,
+  t,
+  onChange,
+  onChooseImage,
+}: {
+  settings: Required<PublicSiteSystemSectionSettings>;
+  disabled: boolean;
+  allowBackground: boolean;
+  t: ReturnType<typeof useAdminI18n>["t"];
+  onChange: (changes: Partial<PublicSiteSystemSectionSettings>) => void;
+  onChooseImage: () => void;
+}) {
+  return (
+    <div className="grid gap-4 rounded-2xl border border-[#9d3151]/15 bg-[#fff9fb] p-4">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8d2d4a]">
+          Внешний вид системного раздела
+        </p>
+        <p className="mt-1 text-[11px] leading-5 text-[#716d65]">
+          Эти параметры одинаково работают в предпросмотре и на опубликованном сайте.
+        </p>
+      </div>
+
+      <CompactSelect
+        label="Композиция"
+        value={settings.layout}
+        disabled={disabled}
+        options={[
+          { value: "default", label: "Обычная" },
+          { value: "panel", label: "Внутри панели" },
+        ]}
+        onChange={(value) =>
+          onChange({ layout: value === "panel" ? "panel" : "default" })
+        }
+      />
+      <CompactSelect
+        label="Ширина содержимого"
+        value={settings.content_width}
+        disabled={disabled}
+        options={[
+          { value: "full", label: "На всю ширину" },
+          { value: "wide", label: "Широкая" },
+          { value: "medium", label: "Средняя" },
+          { value: "narrow", label: "Узкая" },
+        ]}
+        onChange={(value) =>
+          onChange({
+            content_width:
+              value === "full" || value === "medium" || value === "narrow"
+                ? value
+                : "wide",
+          })
+        }
+      />
+      <CompactSelect
+        label="Выравнивание текста"
+        value={settings.text_align}
+        disabled={disabled}
+        options={[
+          { value: "left", label: "Слева" },
+          { value: "center", label: "По центру" },
+          { value: "right", label: "Справа" },
+        ]}
+        onChange={(value) =>
+          onChange({
+            text_align:
+              value === "center" || value === "right" ? value : "left",
+          })
+        }
+      />
+      <div className="grid grid-cols-2 gap-3">
+        <CompactSelect
+          label="Отступ сверху"
+          value={settings.padding_top}
+          disabled={disabled}
+          options={[
+            { value: "none", label: "Без отступа" },
+            { value: "compact", label: "Небольшой" },
+            { value: "normal", label: "Обычный" },
+            { value: "airy", label: "Большой" },
+          ]}
+          onChange={(value) =>
+            onChange({
+              padding_top:
+                value === "none" || value === "compact" || value === "airy"
+                  ? value
+                  : "normal",
+            })
+          }
+        />
+        <CompactSelect
+          label="Отступ снизу"
+          value={settings.padding_bottom}
+          disabled={disabled}
+          options={[
+            { value: "none", label: "Без отступа" },
+            { value: "compact", label: "Небольшой" },
+            { value: "normal", label: "Обычный" },
+            { value: "airy", label: "Большой" },
+          ]}
+          onChange={(value) =>
+            onChange({
+              padding_bottom:
+                value === "none" || value === "compact" || value === "airy"
+                  ? value
+                  : "normal",
+            })
+          }
+        />
+      </div>
+      <CompactSelect
+        label="Минимальная высота"
+        value={settings.section_height}
+        disabled={disabled}
+        options={[
+          { value: "auto", label: "По содержимому" },
+          { value: "compact", label: "Компактная" },
+          { value: "medium", label: "Средняя" },
+          { value: "tall", label: "Высокая" },
+          { value: "screen", label: "На высоту экрана" },
+        ]}
+        onChange={(value) =>
+          onChange({
+            section_height:
+              value === "compact" ||
+              value === "medium" ||
+              value === "tall" ||
+              value === "screen"
+                ? value
+                : "auto",
+          })
+        }
+      />
+
+      {allowBackground ? (
+        <>
+          <CompactSelect
+            label="Фон раздела"
+            value={settings.background_mode}
+            disabled={disabled}
+            options={[
+              { value: "theme", label: "Из шаблона" },
+              { value: "color", label: "Свой цвет" },
+              { value: "image", label: "Изображение" },
+              { value: "transparent", label: "Прозрачный" },
+            ]}
+            onChange={(value) =>
+              onChange({
+                background_mode:
+                  value === "color" ||
+                  value === "image" ||
+                  value === "transparent"
+                    ? value
+                    : "theme",
+              })
+            }
+          />
+          {settings.background_mode === "image" ? (
+            <>
+              <ImageEditor
+                label={t("Image as background")}
+                value={settings.background_image_url}
+                disabled={disabled}
+                t={t}
+                onChange={(value) =>
+                  onChange({
+                    background_mode: "image",
+                    background_image_url: value,
+                  })
+                }
+                onChoose={onChooseImage}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <CompactSelect
+                  label="Положение фона"
+                  value={settings.background_position}
+                  disabled={disabled}
+                  options={[
+                    { value: "top", label: "Сверху" },
+                    { value: "center", label: "По центру" },
+                    { value: "bottom", label: "Снизу" },
+                  ]}
+                  onChange={(value) =>
+                    onChange({
+                      background_position:
+                        value === "top" || value === "bottom" ? value : "center",
+                    })
+                  }
+                />
+                <CompactSelect
+                  label="Затемнение"
+                  value={settings.background_overlay}
+                  disabled={disabled}
+                  options={[
+                    { value: "none", label: "Без затемнения" },
+                    { value: "soft", label: "Мягкое" },
+                    { value: "strong", label: "Сильное" },
+                  ]}
+                  onChange={(value) =>
+                    onChange({
+                      background_overlay:
+                        value === "none" || value === "strong" ? value : "soft",
+                    })
+                  }
+                />
+              </div>
+            </>
+          ) : null}
+        </>
+      ) : null}
+
+      <CompactSelect
+        label="Анимация появления"
+        value={settings.animation}
+        disabled={disabled}
+        options={[
+          { value: "none", label: "Без анимации" },
+          { value: "fade", label: "Мягкое появление" },
+          { value: "rise", label: "Появление снизу" },
+          { value: "scale", label: "Лёгкое увеличение" },
+        ]}
+        onChange={(value) =>
+          onChange({
+            animation:
+              value === "fade" || value === "rise" || value === "scale"
+                ? value
+                : "none",
+          })
+        }
+      />
+      <Toggle
+        label="Анимация на телефоне"
+        checked={settings.animate_on_mobile}
+        disabled={disabled || settings.animation === "none"}
+        onChange={(value) => onChange({ animate_on_mobile: value })}
+      />
+
+      <div className="grid gap-2 border-t border-[#9d3151]/10 pt-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
+          Видимость по устройствам
+        </p>
+        <Toggle
+          label="Скрыть на компьютере"
+          checked={settings.hide_on_desktop}
+          disabled={disabled}
+          onChange={(value) => onChange({ hide_on_desktop: value })}
+        />
+        <Toggle
+          label="Скрыть на планшете"
+          checked={settings.hide_on_tablet}
+          disabled={disabled}
+          onChange={(value) => onChange({ hide_on_tablet: value })}
+        />
+        <Toggle
+          label="Скрыть на телефоне"
+          checked={settings.hide_on_mobile}
+          disabled={disabled}
+          onChange={(value) => onChange({ hide_on_mobile: value })}
+        />
+      </div>
     </div>
   );
 }

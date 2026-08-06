@@ -3,6 +3,7 @@ import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import GlossLeadDialog from "@/components/public/GlossLeadDialog";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicMobileMenu from "@/components/public/PublicMobileMenu";
@@ -14,6 +15,12 @@ import {
 } from "@/lib/public-site/metadata";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
+import {
+  publicSystemSectionAnimation,
+  publicSystemSectionClass,
+  publicSystemSectionContentClass,
+  publicSystemSectionStyle,
+} from "@/lib/public-site/system-sections";
 import {
   customBlockLayoutId,
   resolvePublicSiteLayoutOrder,
@@ -413,12 +420,13 @@ export default function GlossBusinessSite({
 
       <div className="flex flex-col">
         {content.show_services && services.length ? (
-          <section
+          <PublicReveal
             id="services"
-            style={{ order: layoutPosition(sectionLayoutId("services")), ...sectionColorStyle(content, "services") }}
-            className="px-5 py-16 sm:py-20"
+            {...publicSystemSectionAnimation(content, "services")}
+            style={publicSystemSectionStyle(content, "services", { order: layoutPosition(sectionLayoutId("services")) })}
+            className={publicSystemSectionClass(content, "services", "py-16 sm:py-20")}
           >
-            <div className="mx-auto w-full max-w-[1240px]">
+            <div className={publicSystemSectionContentClass(content, "services")}>
               <h2 className="text-center font-serif text-4xl sm:text-5xl">
                 {content.services_title}
               </h2>
@@ -461,16 +469,17 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_portfolio && portfolio.length ? (
-          <section
+          <PublicReveal
             id="portfolio"
-            style={{ order: layoutPosition(sectionLayoutId("portfolio")), ...sectionColorStyle(content, "portfolio") }}
-            className="px-5 pb-16 sm:pb-20"
+            {...publicSystemSectionAnimation(content, "portfolio")}
+            style={publicSystemSectionStyle(content, "portfolio", { order: layoutPosition(sectionLayoutId("portfolio")) })}
+            className={publicSystemSectionClass(content, "portfolio", "pb-16 sm:pb-20")}
           >
-            <div className="mx-auto grid w-full max-w-[1240px] gap-8 lg:grid-cols-[1.45fr_0.72fr]">
+            <div className={publicSystemSectionContentClass(content, "portfolio", "grid gap-8 lg:grid-cols-[1.45fr_0.72fr]")}>
               <div>
                 <h2 className="font-serif text-4xl sm:text-5xl">
                   {content.portfolio_title}
@@ -534,16 +543,17 @@ export default function GlossBusinessSite({
                 </div>
               </aside>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_team && team.length ? (
-          <section
+          <PublicReveal
             id="team"
-            style={{ order: layoutPosition(sectionLayoutId("team")), ...sectionColorStyle(content, "team") }}
-            className="px-5 pb-16 sm:pb-20"
+            {...publicSystemSectionAnimation(content, "team")}
+            style={publicSystemSectionStyle(content, "team", { order: layoutPosition(sectionLayoutId("team")) })}
+            className={publicSystemSectionClass(content, "team", "pb-16 sm:pb-20")}
           >
-            <div className="mx-auto w-full max-w-[1240px]">
+            <div className={publicSystemSectionContentClass(content, "team")}>
               <h2 className="font-serif text-4xl sm:text-5xl">
                 {content.team_title}
               </h2>
@@ -596,32 +606,34 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_booking !== false && capabilities.booking ? (
-          <section
+          <PublicReveal
             id="booking"
-            style={{ order: layoutPosition(sectionLayoutId("booking")), ...sectionColorStyle(content, "booking") }}
-            className="px-5 pb-6"
+            {...publicSystemSectionAnimation(content, "booking")}
+            style={publicSystemSectionStyle(content, "booking", { order: layoutPosition(sectionLayoutId("booking")) })}
+            className={publicSystemSectionClass(content, "booking", "pb-6")}
           >
-            <div className="mx-auto w-full max-w-[1240px]">
+            <div className={publicSystemSectionContentClass(content, "booking")}>
               <GlossBookingPanel
                 bookingHref={bookingHref}
                 bookingLabel="Показать свободное время"
                 services={services}
               />
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_membership && (content.membership_text || lines(content.membership_items).length) ? (
-          <section
+          <PublicReveal
             id="membership"
-            style={{ order: layoutPosition(sectionLayoutId("membership")), ...sectionColorStyle(content, "membership") }}
-            className="px-5 py-10"
+            {...publicSystemSectionAnimation(content, "membership")}
+            style={publicSystemSectionStyle(content, "membership", { order: layoutPosition(sectionLayoutId("membership")) })}
+            className={publicSystemSectionClass(content, "membership", "py-10")}
           >
-            <div className="mx-auto w-full max-w-[1240px]">
+            <div className={publicSystemSectionContentClass(content, "membership")}>
               <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
@@ -708,16 +720,17 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_safety !== false && safety.length ? (
-          <section
+          <PublicReveal
             id="safety"
-            style={{ order: layoutPosition(sectionLayoutId("safety")), ...sectionColorStyle(content, "safety") }}
-            className="px-5 py-6"
+            {...publicSystemSectionAnimation(content, "safety")}
+            style={publicSystemSectionStyle(content, "safety", { order: layoutPosition(sectionLayoutId("safety")) })}
+            className={publicSystemSectionClass(content, "safety", "py-6")}
           >
-            <div className="mx-auto w-full max-w-[1240px] rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10">
+            <div className={publicSystemSectionContentClass(content, "safety", "rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10")}>
               {content.safety_label ? (
                 <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
                   {content.safety_label}
@@ -759,16 +772,17 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_reviews && reviews.length ? (
-          <section
+          <PublicReveal
             id="reviews"
-            style={{ order: layoutPosition(sectionLayoutId("reviews")), ...sectionColorStyle(content, "reviews") }}
-            className="px-5 py-6"
+            {...publicSystemSectionAnimation(content, "reviews")}
+            style={publicSystemSectionStyle(content, "reviews", { order: layoutPosition(sectionLayoutId("reviews")) })}
+            className={publicSystemSectionClass(content, "reviews", "py-6")}
           >
-            <div className="mx-auto w-full max-w-[1240px] rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12">
+            <div className={publicSystemSectionContentClass(content, "reviews", "rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12")}>
               <h2 className="font-serif text-4xl">
                 {content.reviews_title}
               </h2>
@@ -813,16 +827,17 @@ export default function GlossBusinessSite({
                 ))}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_gift && content.gift_text ? (
-          <section
+          <PublicReveal
             id="gift"
-            style={{ order: layoutPosition(sectionLayoutId("gift")), ...sectionColorStyle(content, "gift") }}
-            className="px-5 py-10"
+            {...publicSystemSectionAnimation(content, "gift")}
+            style={publicSystemSectionStyle(content, "gift", { order: layoutPosition(sectionLayoutId("gift")) })}
+            className={publicSystemSectionClass(content, "gift", "py-10")}
           >
-            <div className="mx-auto w-full max-w-[1240px]">
+            <div className={publicSystemSectionContentClass(content, "gift")}>
               <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
@@ -902,16 +917,17 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_faq && content.faq_items ? (
-          <section
+          <PublicReveal
             id="faq"
-            style={{ order: layoutPosition(sectionLayoutId("faq")), ...sectionColorStyle(content, "faq") }}
-            className="px-5 py-16"
+            {...publicSystemSectionAnimation(content, "faq")}
+            style={publicSystemSectionStyle(content, "faq", { order: layoutPosition(sectionLayoutId("faq")) })}
+            className={publicSystemSectionClass(content, "faq", "py-16")}
           >
-            <div className="mx-auto grid w-full max-w-[1240px] gap-10 lg:grid-cols-[0.7fr_1.3fr]">
+            <div className={publicSystemSectionContentClass(content, "faq", "grid gap-10 lg:grid-cols-[0.7fr_1.3fr]")}>
               <h2 className="font-serif text-4xl sm:text-5xl">
                 {content.faq_title}
               </h2>
@@ -934,7 +950,7 @@ export default function GlossBusinessSite({
                 })}
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {content.show_about
@@ -943,12 +959,13 @@ export default function GlossBusinessSite({
           || content.about_image_url
           || lines(content.about_facts).length
         ) ? (
-          <section
+          <PublicReveal
             id="about"
-            style={{ order: layoutPosition(sectionLayoutId("about")), ...sectionColorStyle(content, "about") }}
-            className="px-5 py-16"
+            {...publicSystemSectionAnimation(content, "about")}
+            style={publicSystemSectionStyle(content, "about", { order: layoutPosition(sectionLayoutId("about")) })}
+            className={publicSystemSectionClass(content, "about", "py-16")}
           >
-            <div className="mx-auto w-full max-w-[1240px] border-t border-[#3b211f]/10 pt-12">
+            <div className={publicSystemSectionContentClass(content, "about", "border-t border-[#3b211f]/10 pt-12")}>
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--site-accent)]">
                 {content.about_label}
               </p>
@@ -1003,7 +1020,7 @@ export default function GlossBusinessSite({
                 </div>
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
 
         {customBlocks.map((block) => (
@@ -1020,12 +1037,13 @@ export default function GlossBusinessSite({
         ))}
 
         {content.show_contact ? (
-          <section
+          <PublicReveal
             id="contact"
-            style={{ order: layoutPosition(sectionLayoutId("contact")), ...sectionColorStyle(content, "contact") }}
-            className="px-5 pb-6 pt-10"
+            {...publicSystemSectionAnimation(content, "contact")}
+            style={publicSystemSectionStyle(content, "contact", { order: layoutPosition(sectionLayoutId("contact")) })}
+            className={publicSystemSectionClass(content, "contact", "pb-6 pt-10")}
           >
-            <div className="mx-auto grid w-full max-w-[1240px] overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]">
+            <div className={publicSystemSectionContentClass(content, "contact", "grid overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]")}>
               <div className="p-8 sm:p-10">
                 <h2 className="font-serif text-4xl">
                   {content.contact_title || "Ждём вас"}
@@ -1071,7 +1089,7 @@ export default function GlossBusinessSite({
                 />
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : null}
       </div>
 
