@@ -37,6 +37,18 @@ export type PublicSiteSystemSectionBackgroundOverlay =
   | "strong";
 
 export type PublicSiteDesignFont = "template" | "system" | "humanist" | "editorial";
+export type PublicSiteTextAlign = "left" | "center" | "right" | "justify";
+export type PublicSiteTypography = {
+  font_family?: PublicSiteDesignFont;
+  font_size?: number;
+  font_weight?: 400 | 500 | 600 | 700;
+  italic?: boolean;
+  underline?: boolean;
+  text_align?: PublicSiteTextAlign;
+  color?: string;
+  line_height?: number;
+  letter_spacing?: number;
+};
 export type PublicSiteDesignHeadingWeight =
   | "template"
   | "regular"
@@ -84,8 +96,24 @@ export type PublicSiteDesignSystem = {
   };
 };
 
+export type PublicSiteSystemSectionHeadingSize =
+  | "template"
+  | "24"
+  | "32"
+  | "40"
+  | "48"
+  | "56"
+  | "64"
+  | "72"
+  | "88"
+  | "104";
+
 export type PublicSiteSystemSectionSettings = {
   layout?: PublicSiteSystemSectionLayout;
+  heading_font?: PublicSiteDesignFont;
+  heading_size?: PublicSiteSystemSectionHeadingSize;
+  heading_weight?: PublicSiteDesignHeadingWeight;
+  heading_typography?: PublicSiteTypography;
   content_width?: PublicSiteBlockWidth;
   padding_top?: PublicSiteBlockSpacing;
   padding_bottom?: PublicSiteBlockSpacing;
@@ -272,6 +300,7 @@ export type PublicSiteCustomBlock = {
   kind: PublicSiteCustomBlockKind;
   eyebrow: string;
   title: string;
+  title_typography?: PublicSiteTypography;
   text: string;
   items: string;
   button_label: string;
@@ -326,6 +355,7 @@ export type PublicSitePage = {
   nav_label: string;
   eyebrow: string;
   title: string;
+  title_typography?: PublicSiteTypography;
   intro: string;
   is_visible?: boolean;
   show_in_navigation: boolean;

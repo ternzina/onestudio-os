@@ -3,6 +3,7 @@ import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import GlossLeadDialog from "@/components/public/GlossLeadDialog";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicRichText from "@/components/public/PublicRichText";
 import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
@@ -15,11 +16,14 @@ import {
 } from "@/lib/public-site/metadata";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
+import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
   publicSystemSectionContentClass,
+  publicSystemSectionHeadingClass,
+  publicSystemSectionHeadingStyle,
   publicSystemSectionStyle,
 } from "@/lib/public-site/system-sections";
 import {
@@ -46,7 +50,7 @@ const MASTER_IMAGES = [
 ];
 
 function lines(value?: string) {
-  return (value ?? "")
+  return richTextPlainText(value)
     .split("\n")
     .map((item) => item.trim())
     .filter(Boolean);
@@ -241,7 +245,7 @@ export default function GlossBusinessSite({
   const email = content.contact_email?.trim() || company.email?.trim() || "";
   const phone = content.contact_phone?.trim() || company.phone?.trim() || "";
   const hours = content.contact_hours || "Ежедневно: 09:00–21:00";
-  const contactNote = content.contact_note?.trim() || "";
+  const contactNote = richTextPlainText(content.contact_note).trim();
   const routeLabel = content.contact_route_label?.trim() || "Построить маршрут";
   const mapSearch = content.map_query || address;
   const mapQuery = encodeURIComponent(mapSearch);
@@ -378,8 +382,8 @@ export default function GlossBusinessSite({
             <div className="relative mx-auto flex min-h-[620px] w-[calc(100%_-_40px)] max-w-[1240px] items-center py-20">
               <div className="max-w-2xl">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{content.hero_eyebrow}</p>
-                <h1 className={`mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
-                <p className="mt-6 max-w-xl text-base leading-7 text-white/78">{content.hero_text}</p>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <PublicRichText value={content.hero_text} className="mt-6 max-w-xl text-base leading-7 text-white/78" />
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
@@ -394,8 +398,8 @@ export default function GlossBusinessSite({
             <div className={`mx-auto grid w-full max-w-[1240px] ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`}>
               <div className={`flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20 ${content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}`}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">{content.hero_eyebrow}</p>
-                <h1 className={`mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
-                <p className="mt-6 max-w-md text-base leading-7 text-[#6a5551]">{content.hero_text}</p>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <PublicRichText value={content.hero_text} className="mt-6 max-w-md text-base leading-7 text-[#6a5551]" />
                 <div className="mt-7 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
@@ -428,7 +432,7 @@ export default function GlossBusinessSite({
             className={publicSystemSectionClass(content, "services", "py-16 sm:py-20")}
           >
             <div className={publicSystemSectionContentClass(content, "services")}>
-              <h2 className="text-center font-serif text-4xl sm:text-5xl">
+              <h2 style={publicSystemSectionHeadingStyle(content, "services")} className="text-center font-serif text-4xl sm:text-5xl">
                 {content.services_title}
               </h2>
               <div className={`mt-8 grid gap-4 ${servicesLayout === "list" ? "grid-cols-1" : serviceGridClass(content.services_columns)}`}>
@@ -482,7 +486,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "portfolio", "grid gap-8 lg:grid-cols-[1.45fr_0.72fr]")}>
               <div>
-                <h2 className="font-serif text-4xl sm:text-5xl">
+                <h2 style={publicSystemSectionHeadingStyle(content, "portfolio")} className="font-serif text-4xl sm:text-5xl">
                   {content.portfolio_title}
                 </h2>
                 <div className="mt-5">
@@ -555,7 +559,7 @@ export default function GlossBusinessSite({
             className={publicSystemSectionClass(content, "team", "pb-16 sm:pb-20")}
           >
             <div className={publicSystemSectionContentClass(content, "team")}>
-              <h2 className="font-serif text-4xl sm:text-5xl">
+              <h2 style={publicSystemSectionHeadingStyle(content, "team")} className="font-serif text-4xl sm:text-5xl">
                 {content.team_title}
               </h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -618,6 +622,9 @@ export default function GlossBusinessSite({
             className={publicSystemSectionClass(content, "booking", "pb-6")}
           >
             <div className={publicSystemSectionContentClass(content, "booking")}>
+              {content.booking_text ? (
+                <PublicRichText value={content.booking_text} className="mb-6 max-w-3xl text-sm leading-7 opacity-70" />
+              ) : null}
               <GlossBookingPanel
                 bookingHref={bookingHref}
                 bookingLabel="Показать свободное время"
@@ -640,14 +647,12 @@ export default function GlossBusinessSite({
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
                     {content.membership_label}
                   </p>
-                  <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                  <h2 style={publicSystemSectionHeadingStyle(content, "membership")} className="mt-4 font-serif text-4xl sm:text-5xl">
                     {content.membership_title}
                   </h2>
                 </div>
                 {content.membership_text ? (
-                  <p className="whitespace-pre-line text-sm leading-7 text-[#77635f]">
-                    {content.membership_text}
-                  </p>
+                  <PublicRichText value={content.membership_text} className="text-sm leading-7 text-[#77635f]" />
                 ) : null}
               </div>
 
@@ -737,7 +742,7 @@ export default function GlossBusinessSite({
                   {content.safety_label}
                 </p>
               ) : null}
-              <h2 className="mt-3 text-center font-serif text-4xl">
+              <h2 style={publicSystemSectionHeadingStyle(content, "safety")} className="mt-3 text-center font-serif text-4xl">
                 {content.safety_title || "Красиво и безопасно"}
               </h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -784,7 +789,7 @@ export default function GlossBusinessSite({
             className={publicSystemSectionClass(content, "reviews", "py-6")}
           >
             <div className={publicSystemSectionContentClass(content, "reviews", "os-site-card rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12")}>
-              <h2 className="font-serif text-4xl">
+              <h2 style={publicSystemSectionHeadingStyle(content, "reviews")} className="font-serif text-4xl">
                 {content.reviews_title}
               </h2>
               <div className="mt-8 grid gap-4 text-left md:grid-cols-3">
@@ -844,13 +849,11 @@ export default function GlossBusinessSite({
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
                     {content.gift_label}
                   </p>
-                  <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                  <h2 style={publicSystemSectionHeadingStyle(content, "gift")} className="mt-4 font-serif text-4xl sm:text-5xl">
                     {content.gift_title}
                   </h2>
                 </div>
-                <p className="text-sm leading-7 text-[#77635f]">
-                  {content.gift_text}
-                </p>
+                <PublicRichText value={content.gift_text} className="text-sm leading-7 text-[#77635f]" />
               </div>
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -929,7 +932,7 @@ export default function GlossBusinessSite({
             className={publicSystemSectionClass(content, "faq", "py-16")}
           >
             <div className={publicSystemSectionContentClass(content, "faq", "grid gap-10 lg:grid-cols-[0.7fr_1.3fr]")}>
-              <h2 className="font-serif text-4xl sm:text-5xl">
+              <h2 style={publicSystemSectionHeadingStyle(content, "faq")} className="font-serif text-4xl sm:text-5xl">
                 {content.faq_title}
               </h2>
               <div className="divide-y divide-[#3b211f]/10 border-y border-[#3b211f]/10">
@@ -982,13 +985,11 @@ export default function GlossBusinessSite({
                   </div>
                 ) : null}
                 <div>
-                  <h2 className="font-serif text-4xl sm:text-5xl">
+                  <h2 style={publicSystemSectionHeadingStyle(content, "about")} className="font-serif text-4xl sm:text-5xl">
                     {content.about_title}
                   </h2>
                   {content.about_text ? (
-                    <p className="mt-5 max-w-3xl whitespace-pre-line text-base leading-8 text-[#6c5753]">
-                      {content.about_text}
-                    </p>
+                    <PublicRichText value={content.about_text} className="mt-5 max-w-3xl text-base leading-8 text-[#6c5753]" />
                   ) : null}
                   {lines(content.about_facts).length ? (
                     <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -1046,7 +1047,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "contact", "os-site-card grid overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]")}>
               <div className="p-8 sm:p-10">
-                <h2 className="font-serif text-4xl">
+                <h2 style={publicSystemSectionHeadingStyle(content, "contact")} className="font-serif text-4xl">
                   {content.contact_title || "Ждём вас"}
                 </h2>
                 <address className="mt-6 space-y-3 text-sm not-italic text-[#67534f]">
@@ -1064,9 +1065,7 @@ export default function GlossBusinessSite({
                   ) : null}
                 </address>
                 {contactNote ? (
-                  <p className="mt-5 whitespace-pre-line text-sm leading-6 text-[#67534f]">
-                    {contactNote}
-                  </p>
+                  <PublicRichText value={content.contact_note} className="mt-5 text-sm leading-6 text-[#67534f]" />
                 ) : null}
                 <div className="mt-7 flex flex-wrap items-center gap-3">
                   <a
@@ -1104,9 +1103,7 @@ export default function GlossBusinessSite({
               light
             />
             {content.footer_note ? (
-              <p className="mt-4 max-w-xs whitespace-pre-line text-xs leading-5 text-white/70">
-                {content.footer_note}
-              </p>
+              <PublicRichText value={content.footer_note} className="mt-4 max-w-xs text-xs leading-5 text-white/70" />
             ) : null}
           </div>
           <nav className="flex flex-wrap justify-start gap-x-7 gap-y-3 text-xs sm:justify-center">
