@@ -579,6 +579,8 @@ export default function AdminSitePage() {
   const [savedLogoUrl, setSavedLogoUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [templateSavingKey, setTemplateSavingKey] = useState("");
+  const [templateSavedKey, setTemplateSavedKey] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
@@ -705,6 +707,7 @@ export default function AdminSitePage() {
     setSelectedLocale(locale);
     draftRef.current = loadedDraft;
     setDraft(loadedDraft);
+    setTemplateSavedKey(loadedDraft?.template_id || "standard");
     const loadedLogoUrl =
       nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
     setLogoUrl(loadedLogoUrl);
@@ -795,13 +798,60 @@ export default function AdminSitePage() {
     setMessage("");
   }
 
-  function selectTemplateKey(templateKey: string) {
+  async function selectTemplateKey(templateKey: string) {
     const current = draftRef.current ?? draft;
-    if (!current) return;
-    replaceDraft(
-      { ...current, template_id: templateKey },
-      "site-template",
+    if (!current || !workspace || !editor || !canConfigure || saving) return;
+
+    const nextDraft = { ...current, template_id: templateKey };
+    const persistedDraft =
+      selectedRecord?.draft_content
+      ?? selectedRecord?.published_content
+      ?? current;
+    const contentToSave = { ...persistedDraft, template_id: templateKey };
+    const previousSavedTemplateKey = templateSavedKey;
+
+    replaceDraft(nextDraft, "site-template");
+    setTemplateSavingKey(templateKey);
+    setTemplateSavedKey("");
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    const { data, error: saveError } = await supabase.rpc(
+      "save_public_site_draft",
+      {
+        p_business_id: workspace.business_id,
+        p_locale: selectedLocale,
+        p_content: contentToSave,
+        p_make_primary: selectedLocale === editor.site.primary_locale,
+      },
     );
+
+    if (saveError) {
+      draftRef.current = current;
+      setDraft(current);
+      setTemplateSavedKey(previousSavedTemplateKey);
+      setError(saveError.message);
+    } else {
+      const savedContent = data as PublicSiteContent;
+      setEditor((currentEditor) => currentEditor ? {
+        ...currentEditor,
+        locales: currentEditor.locales.map((locale) =>
+          locale.locale === selectedLocale
+            ? { ...locale, draft_content: savedContent }
+            : locale
+        ),
+      } : currentEditor);
+      setSavedDraftSignature(contentSignature(savedContent));
+      setTemplateSavedKey(templateKey);
+      const templateName =
+        SITE_TEMPLATE_REGISTRY.find((template) => template.key === templateKey)?.name
+        ?? templateKey;
+      setMessage(`${templateName} сохранён в черновик.`);
+    }
+
+    setTemplateSavingKey("");
+    setSaving(false);
   }
 
   function update<Key extends keyof PublicSiteContent>(
@@ -1406,6 +1456,8 @@ export default function AdminSitePage() {
           onLocaleChange={chooseLocale}
           onTemplate={installTemplate}
           onTemplateKey={selectTemplateKey}
+          templateSavingKey={templateSavingKey}
+          templateSavedKey={templateSavedKey}
           onPublish={() =>
             clientMode
               ? openClientPublicationReview()
@@ -1653,6 +1705,8 @@ function VisualBuilder({
   onLocaleChange,
   onTemplate,
   onTemplateKey,
+  templateSavingKey,
+  templateSavedKey,
   onPublish,
   onSave,
   onSectionChange,
@@ -1688,7 +1742,9 @@ function VisualBuilder({
   onAddLocale: () => void;
   onLocaleChange: (locale: string) => void;
   onTemplate: (template: SiteTemplate) => void;
-  onTemplateKey: (templateKey: string) => void;
+  onTemplateKey: (templateKey: string) => Promise<void>;
+  templateSavingKey: string;
+  templateSavedKey: string;
   onPublish: () => void;
   onSave: () => void;
   onSectionChange: (section: CanvasSection) => void;
@@ -2273,9 +2329,11 @@ function VisualBuilder({
                   Premium
                 </span>
                 <span className="text-xs font-semibold text-[#3e263e]/60">
-                  {hasUnsavedChanges
-                    ? "Выбран в черновике · сохраните изменения"
-                    : "Выбран и сохранён в черновике"}
+                  {templateSavingKey === selectedPremiumTemplate.key
+                    ? "Сохраняем выбор в черновик…"
+                    : templateSavedKey === selectedPremiumTemplate.key
+                      ? "Выбран и сохранён в черновик"
+                      : "Выбран в черновике"}
                 </span>
               </div>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#3e263e]">
@@ -2286,14 +2344,24 @@ function VisualBuilder({
                 Публикация выполняется только отдельной кнопкой.
               </p>
             </div>
-            <Link
-              href={`/site-preview/${selectedPremiumTemplate.key}/${businessSlug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="shrink-0 rounded-xl bg-[#e07e67] px-5 py-3 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#cf6f5a]"
-            >
-              Открыть предпросмотр {selectedPremiumTemplate.name} ↗
-            </Link>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Link
+                href={`/site-preview/${selectedPremiumTemplate.key}/${businessSlug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-[#3e263e]/15 bg-white px-5 py-3 text-center text-xs font-bold text-[#3e263e] transition hover:bg-[#fef9ef]"
+              >
+                Предпросмотр ↗
+              </Link>
+              <button
+                type="button"
+                onClick={onPublish}
+                disabled={!canConfigure || saving}
+                className="rounded-xl bg-[#e07e67] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#cf6f5a] disabled:opacity-50"
+              >
+                Опубликовать
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
@@ -3687,11 +3755,20 @@ function VisualBuilder({
                       </div>
                       <p className="mt-4 text-sm leading-6 text-[#716d65]">{template.description}</p>
                       <div className="mt-5 flex gap-2">
-                        <button type="button" disabled={selected || !canConfigure} onClick={() => onTemplateKey(template.key)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">
-                          {selected ? "Выбран" : "Выбрать в черновик"}
+                        <button type="button" disabled={selected || !canConfigure || saving} onClick={() => void onTemplateKey(template.key)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">
+                          {selected ? "Выбран" : "Выбрать шаблон"}
                         </button>
-                        {template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Preview ↗</Link> : null}
+                        {template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Предпросмотр ↗</Link> : null}
                       </div>
+                      {selected ? (
+                        <p className="mt-3 text-xs font-semibold text-emerald-700">
+                          {templateSavingKey === template.key
+                            ? "Сохраняем в черновик…"
+                            : templateSavedKey === template.key
+                              ? "Сохранено в черновик"
+                              : "Выбрано в черновике"}
+                        </p>
+                      ) : null}
                     </article>
                   );
                 })}
