@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicRichText from "@/components/public/PublicRichText";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import {
@@ -11,6 +12,7 @@ import type {
   PublicSiteData,
   PublicSitePage,
 } from "@/lib/public-site/types";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
 
 export default function PublicCustomPage({
   site,
@@ -80,13 +82,11 @@ export default function PublicCustomPage({
             <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--site-accent)]">
               {page.eyebrow}
             </p>
-            <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[1.03] sm:text-7xl">
+            <h1 style={publicTypographyStyle(page.title_typography)} className="mt-5 max-w-4xl font-serif text-5xl leading-[1.03] sm:text-7xl">
               {page.title}
             </h1>
           </div>
-          <p className="max-w-xl text-base leading-8 text-black/55">
-            {page.intro}
-          </p>
+          <PublicRichText value={page.intro} className="max-w-xl text-base leading-8 text-black/55" />
         </div>
       </section>
 

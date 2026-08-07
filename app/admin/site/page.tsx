@@ -3,9 +3,13 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
+import TypographyControls from "@/components/admin/TypographyControls";
+import RichTextEditor from "@/components/admin/RichTextEditor";
+import PublicRichText from "@/components/public/PublicRichText";
+import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
@@ -25,11 +29,13 @@ import type {
   PublicSiteDesignSystem,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
-import { colorOverrideStyle, sectionColorStyle } from "@/lib/public-site/colors";
+import { colorOverrideStyle } from "@/lib/public-site/colors";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import {
   publicSystemSectionClass,
   publicSystemSectionContentClass,
+  publicSystemSectionHeadingClass,
+  publicSystemSectionHeadingStyle,
   publicSystemSectionSettings,
   publicSystemSectionStyle,
   publicSystemSectionVisibleOnDevice,
@@ -1533,7 +1539,7 @@ export default function AdminSitePage() {
                   <input className={inputClass} value={draft.hero_title} disabled={!canConfigure} onChange={(event) => update("hero_title", event.target.value)} />
                 </Field>
                 <Field label={t("Introduction")} wide>
-                  <textarea className={inputClass} rows={4} value={draft.hero_text} disabled={!canConfigure} onChange={(event) => update("hero_text", event.target.value)} />
+                  <RichTextEditor value={draft.hero_text} disabled={!canConfigure} onChange={(value) => update("hero_text", value)} />
                 </Field>
                 <Field label={t("Booking button")}>
                   <input className={inputClass} value={draft.booking_label} disabled={!canConfigure} onChange={(event) => update("booking_label", event.target.value)} />
@@ -1569,7 +1575,7 @@ export default function AdminSitePage() {
                   <input className={inputClass} value={draft.contact_title} disabled={!canConfigure} onChange={(event) => update("contact_title", event.target.value)} />
                 </Field>
                 <Field label={t("About text")} wide>
-                  <textarea className={inputClass} rows={7} value={draft.about_text} disabled={!canConfigure} onChange={(event) => update("about_text", event.target.value)} />
+                  <RichTextEditor value={draft.about_text} disabled={!canConfigure} onChange={(value) => update("about_text", value)} />
                 </Field>
               </EditorGroup>
 
@@ -1624,9 +1630,7 @@ export default function AdminSitePage() {
                 <h2 className="relative mt-4 text-4xl font-semibold tracking-[-0.06em]">
                   {draft.hero_title}
                 </h2>
-                <p className="relative mt-5 text-xs leading-6 text-[#6f6c65]">
-                  {draft.hero_text}
-                </p>
+                <PublicRichText value={draft.hero_text} className="relative mt-5 text-xs leading-6 text-[#6f6c65]" />
                 <span className="relative mt-6 inline-flex rounded-full px-5 py-3 text-[10px] font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>
                   {draft.booking_label}
                 </span>
@@ -1765,15 +1769,12 @@ function VisualBuilder({
   onUpdateGift: (items: string, images: string[]) => void;
   onUpdateMembership: (items: string, images: string[]) => void;
 }) {
-  const visualBuilderPathname = usePathname();
-  const clientEditorMode = visualBuilderPathname.startsWith("/dashboard/site");
   const [blocksOpen, setBlocksOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
   const [siteSettingsOpen, setSiteSettingsOpen] = useState(false);
-  const [siteDesignOpen, setSiteDesignOpen] = useState(false);
   const [pageLibraryOpen, setPageLibraryOpen] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -1817,6 +1818,7 @@ function VisualBuilder({
     selectedPageId === "home"
       ? null
       : pages.find((page) => page.id === selectedPageId) ?? null;
+  const activePageId = activePage?.id ?? "";
   const selectedCustomBlock = activePage
     ? (activePage.blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
@@ -1826,7 +1828,7 @@ function VisualBuilder({
       ) ?? null;
 
   useEffect(() => {
-    if (activePage || selectionFromCanvasScrollRef.current) {
+    if (activePageId || selectionFromCanvasScrollRef.current) {
       selectionFromCanvasScrollRef.current = false;
       return;
     }
@@ -1848,10 +1850,10 @@ function VisualBuilder({
       (targetRect.top - canvasRect.top) -
       Math.max(24, (canvas.clientHeight - targetRect.height) / 2);
     canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  }, [activePage, selectedCustomBlockId, selectedSection]);
+  }, [activePageId, selectedCustomBlockId, selectedSection]);
 
-  const syncSelectionFromCanvasScroll = useCallback(() => {
-    if (activePage || Date.now() < programmaticCanvasScrollUntilRef.current) return;
+  function syncSelectionFromCanvasScroll() {
+    if (activePageId || Date.now() < programmaticCanvasScrollUntilRef.current) return;
     const canvas = workspaceCanvasRef.current;
     if (!canvas) return;
     if (workspaceScrollFrameRef.current !== null) {
@@ -1881,7 +1883,6 @@ function VisualBuilder({
         const blockId = anchor.slice("custom:".length);
         if (blockId && blockId !== selectedCustomBlockId) {
           setSelectedCustomBlockId(blockId);
-          setSiteDesignOpen(false);
           setSettingsOpen(true);
         } else {
           selectionFromCanvasScrollRef.current = false;
@@ -1892,13 +1893,12 @@ function VisualBuilder({
       if (selectedCustomBlockId || nextSection !== selectedSection) {
         setSelectedCustomBlockId("");
         onSectionChange(nextSection);
-        setSiteDesignOpen(false);
         setSettingsOpen(true);
       } else {
         selectionFromCanvasScrollRef.current = false;
       }
     });
-  }, [activePage, onSectionChange, selectedCustomBlockId, selectedSection]);
+  }
 
   useEffect(() => () => {
     if (workspaceScrollFrameRef.current !== null) {
@@ -2128,7 +2128,6 @@ function VisualBuilder({
     onUpdate(sectionVisibilityKey[section], true);
     setSelectedCustomBlockId("");
     onSectionChange(section);
-    setSiteDesignOpen(false);
     setSettingsOpen(true);
     setLibraryOpen(false);
   }
@@ -2136,7 +2135,6 @@ function VisualBuilder({
   function chooseSection(section: CanvasSection) {
     setSelectedCustomBlockId("");
     onSectionChange(section);
-    setSiteDesignOpen(false);
     setSettingsOpen(true);
   }
 
@@ -2144,7 +2142,6 @@ function VisualBuilder({
     setSelectedPageId(pageId);
     setSelectedPagePart("intro");
     setSelectedCustomBlockId("");
-    setSiteDesignOpen(false);
     setSettingsOpen(true);
   }
 
@@ -2190,7 +2187,6 @@ function VisualBuilder({
     }
     setSelectedCustomBlockId(block.id);
     setLibraryOpen(false);
-    setSiteDesignOpen(false);
     setSettingsOpen(true);
     setEditingEnabled(true);
   }
@@ -2458,8 +2454,8 @@ function VisualBuilder({
           </div>
         </div>
       ) : null}
-      <div className="flex flex-col gap-3 border-b border-black/10 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2">
+      <div className="sticky top-0 z-40 flex flex-col gap-3 border-b border-black/10 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b877e]">
             {t("Page")}
           </span>
@@ -2544,17 +2540,6 @@ function VisualBuilder({
           >
             {t("SEO pages")}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setSiteDesignOpen(true);
-              setSettingsOpen(false);
-            }}
-            aria-pressed={siteDesignOpen}
-            className={`rounded-xl border px-4 py-2 text-xs font-semibold ${siteDesignOpen ? "border-[#9d3151]/30 bg-[#f9edf1] text-[#7f2742]" : "border-black/10 bg-white text-[#26231f]"}`}
-          >
-            Дизайн сайта
-          </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -2584,7 +2569,6 @@ function VisualBuilder({
           <button
             type="button"
             onClick={() => {
-              setSiteDesignOpen(false);
               setSettingsOpen((value) => !value);
             }}
             className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/10 bg-white text-[#26231f]"}`}
@@ -2657,11 +2641,11 @@ function VisualBuilder({
         className="relative grid h-[calc(100dvh-170px)] min-h-[560px] max-h-[calc(100dvh-96px)] min-w-0 overflow-hidden"
         style={{
           gridTemplateColumns:
-            blocksOpen && (settingsOpen || siteDesignOpen)
+            blocksOpen && settingsOpen
               ? "220px minmax(0, 1fr) 360px"
               : blocksOpen
                 ? "220px minmax(0, 1fr)"
-                : settingsOpen || siteDesignOpen
+                : settingsOpen
                   ? "minmax(0, 1fr) 360px"
                   : "minmax(0, 1fr)",
         }}
@@ -2898,8 +2882,8 @@ function VisualBuilder({
                   <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
                   <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{draft.hero_eyebrow}</p>
-                    <h2 className={`mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
-                    <p className="mt-6 text-sm leading-7 text-white/75">{draft.hero_text}</p>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}>{draft.hero_title}</h2>
+                    <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
                     <div className="mt-7 flex flex-wrap gap-3">
                       <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
                       {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
@@ -2911,8 +2895,8 @@ function VisualBuilder({
                   <div className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}>
                     <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
                     <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
-                    <h2 className={`relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
-                    <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}>{draft.hero_title}</h2>
+                    <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
                     <div className="relative mt-7 flex flex-wrap gap-3">
                       <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
                       {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
@@ -2968,7 +2952,7 @@ function VisualBuilder({
                       <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
                         {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
                       </p>
-                      <h3 className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
+                      <h3 data-editor-heading={section} style={publicSystemSectionHeadingStyle(draft, section)} className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
                         {(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
                       </h3>
                       <CanvasSectionPreview
@@ -3015,9 +2999,7 @@ function VisualBuilder({
                     </p>
                   )}
                   {draft.footer_note ? (
-                    <p className="mt-3 max-w-md whitespace-pre-line text-[9px] leading-5 text-white/55">
-                      {draft.footer_note}
-                    </p>
+                    <PublicRichText value={draft.footer_note} className="mt-3 max-w-md text-[9px] leading-5 text-white/55" />
                   ) : null}
                 </div>
                 <div className="text-[9px] leading-5 text-white/65 sm:text-right">
@@ -3037,19 +3019,7 @@ function VisualBuilder({
           </div>
         </div>
 
-        {siteDesignOpen ? (
-          <SiteDesignSidebar
-            draft={draft}
-            disabled={!canConfigure}
-            premiumIsolated={Boolean(selectedPremiumTemplate)}
-            onUpdate={onUpdate}
-            onAdvanced={() => setSiteSettingsOpen(true)}
-            onClose={() => {
-              setSiteDesignOpen(false);
-              setSettingsOpen(true);
-            }}
-          />
-        ) : settingsOpen ? (
+        {settingsOpen ? (
         <aside className="relative h-full min-w-0 overflow-y-auto overscroll-contain border-l border-black/10 bg-white p-5 [scrollbar-gutter:stable]">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p>
@@ -3097,7 +3067,8 @@ function VisualBuilder({
                     ) : null}
                     <CompactField label={t("Eyebrow")} value={activePage.eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("eyebrow", value)} />
                     <CompactField label={t("Main title")} value={activePage.title} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title", value)} multiline />
-                    <CompactField label={t("Introduction")} value={activePage.intro} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("intro", value)} multiline />
+                    <TypographyControls title="Заголовок страницы" description={activePage.title || "Без названия"} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
+                    <RichTextEditor label={t("Introduction")} value={activePage.intro} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("intro", value)} />
                     <Toggle
                       label={t("Show page on site")}
                       checked={activePage.is_visible !== false}
@@ -3322,23 +3293,13 @@ function VisualBuilder({
                 />
                 <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_eyebrow", value)} />
                 <CompactField label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_title", value)} multiline />
-                <CompactSelect
-                  label={t("Hero mobile title size")}
-                  value={draft.hero_title_mobile_size ?? "medium"}
+                <SectionHeadingTypographyEditor
+                  settings={selectedSystemSectionSettings}
+                  heading={draft.hero_title}
                   disabled={!canConfigure || !editingEnabled}
-                  options={[
-                    { value: "small", label: t("Compact mobile title") },
-                    { value: "medium", label: t("Standard mobile title") },
-                    { value: "large", label: t("Large mobile title") },
-                  ]}
-                  onChange={(value) =>
-                    onUpdate(
-                      "hero_title_mobile_size",
-                      value as "small" | "medium" | "large",
-                    )
-                  }
+                  onChange={updateSystemSectionSettings}
                 />
-                <CompactField label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} multiline />
+                <RichTextEditor label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} />
                 <CompactField label={t("Primary button label")} value={draft.hero_primary_label ?? draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_label", value)} />
                 <CompactField label={t("Primary button link")} value={draft.hero_primary_url ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_url", value)} />
                 <Toggle label={t("Show secondary button")} checked={draft.show_hero_secondary !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_hero_secondary", value)} />
@@ -3390,14 +3351,19 @@ function VisualBuilder({
                   onChange={(value) => onUpdate(`${selectedSection}_title` as keyof PublicSiteContent, value)}
                   multiline
                 />
+                <SectionHeadingTypographyEditor
+                  settings={selectedSystemSectionSettings}
+                  heading={(draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[selectedSection])}
+                  disabled={!canConfigure || !editingEnabled}
+                  onChange={updateSystemSectionSettings}
+                />
                 {selectedSection === "about" ? (
                   <>
-                    <CompactField
+                    <RichTextEditor
                       label={t("Text")}
                       value={draft.about_text}
                       disabled={!canConfigure || !editingEnabled}
                       onChange={(value) => onUpdate("about_text", value)}
-                      multiline
                     />
                     <ImageEditor
                       label={`${t("About")} · ${t("Image")}`}
@@ -3489,11 +3455,10 @@ function VisualBuilder({
                 ) : null}
                 {selectedSection === "membership" ? (
                   <div className="grid gap-3">
-                    <CompactField
+                    <RichTextEditor
                       label="Вводный текст клуба"
                       value={draft.membership_text ?? ""}
                       disabled={!canConfigure || !editingEnabled}
-                      multiline
                       onChange={(value) => onUpdate("membership_text", value)}
                     />
                     <MembershipCardsEditor
@@ -3517,7 +3482,7 @@ function VisualBuilder({
                   </div>
                 ) : null}
                 {selectedSection === "booking" ? (
-                  <CompactField label={t("Text")} value={draft.booking_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("booking_text", value)} multiline />
+                  <RichTextEditor label={t("Text")} value={draft.booking_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("booking_text", value)} />
                 ) : null}
                 {selectedSection === "safety" ? (
                   <SafetyCardsEditor
@@ -3529,12 +3494,11 @@ function VisualBuilder({
                 ) : null}
                 {selectedSection === "gift" ? (
                   <div className="grid gap-3">
-                    <CompactField
+                    <RichTextEditor
                       label={t("Text")}
                       value={draft.gift_text ?? ""}
                       disabled={!canConfigure || !editingEnabled}
                       onChange={(value) => onUpdate("gift_text", value)}
-                      multiline
                     />
                     <GiftCertificatesEditor
                       items={draft.gift_items ?? ""}
@@ -3609,11 +3573,10 @@ function VisualBuilder({
                       disabled={!canConfigure || !editingEnabled}
                       onChange={(value) => onUpdate("map_query", value)}
                     />
-                    <CompactField
+                    <RichTextEditor
                       label="Подсказка посетителю"
                       value={draft.contact_note ?? ""}
                       disabled={!canConfigure || !editingEnabled}
-                      multiline
                       onChange={(value) => onUpdate("contact_note", value)}
                     />
                     <CompactField
@@ -3622,11 +3585,10 @@ function VisualBuilder({
                       disabled={!canConfigure || !editingEnabled}
                       onChange={(value) => onUpdate("contact_route_label", value)}
                     />
-                    <CompactField
+                    <RichTextEditor
                       label="Короткий текст в подвале"
                       value={draft.footer_note ?? ""}
                       disabled={!canConfigure || !editingEnabled}
-                      multiline
                       onChange={(value) => onUpdate("footer_note", value)}
                     />
                     <p className="text-[11px] leading-5 text-[#716d65]">
@@ -4608,10 +4570,10 @@ function PortfolioPagePreview({
           {page.eyebrow}
         </p>
         <div className="relative mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <h2 className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">
+          <h2 style={publicTypographyStyle(page.title_typography)} className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">
             {page.title}
           </h2>
-          <p className="text-xs leading-6 text-black/55">{page.intro}</p>
+          <PublicRichText value={page.intro} className="text-xs leading-6 text-black/55" />
         </div>
       </button>
 
@@ -4957,10 +4919,8 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
             {block.eyebrow}
           </p>
-          <h3 className="mt-4 font-serif text-3xl">{block.title}</h3>
-          <p className="mt-4 whitespace-pre-line text-xs leading-6 opacity-65">
-            {block.text}
-          </p>
+          <h3 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-3xl">{block.title}</h3>
+          <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />
           {block.button_label ? (
             <span className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
               {block.button_label}
@@ -4978,7 +4938,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
         {block.eyebrow}
       </p>
-      <h3 className="mt-4 font-serif text-3xl">{block.title}</h3>
+      <h3 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-3xl">{block.title}</h3>
       {block.kind === "features" || block.kind === "columns" ? (
         <div
           className={`mt-6 grid gap-2 ${
@@ -5025,20 +4985,16 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
               <span className="block p-3">
                 <strong className="block">{card.title}</strong>
                 {card.text ? (
-                  <span className="mt-1 block opacity-60">{card.text}</span>
+                  <PublicRichText value={card.text} className="mt-1 block opacity-60" />
                 ) : null}
               </span>
             </span>
           ))}
         </div>
       ) : block.kind !== "slider" && block.kind !== "video" ? (
-        <p className="mt-4 max-w-2xl whitespace-pre-line text-xs leading-6 opacity-65">
-          {block.text}
-        </p>
+        <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
       ) : block.text ? (
-        <p className="mt-4 max-w-2xl whitespace-pre-line text-xs leading-6 opacity-65">
-          {block.text}
-        </p>
+        <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
       ) : null}
       {block.kind === "collage" ? (
         <div
@@ -5800,6 +5756,30 @@ function ColorEditor({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function SectionHeadingTypographyEditor({
+  settings,
+  heading,
+  disabled,
+  onChange,
+}: {
+  settings: Required<PublicSiteSystemSectionSettings>;
+  heading: string;
+  disabled: boolean;
+  onChange: (changes: Partial<PublicSiteSystemSectionSettings>) => void;
+}) {
+  const legacySize = settings.heading_size !== "template" ? Number(settings.heading_size) : undefined;
+  const legacyWeight = settings.heading_weight === "regular" ? 400 : settings.heading_weight === "medium" ? 500 : settings.heading_weight === "semibold" ? 600 : settings.heading_weight === "bold" ? 700 : undefined;
+  return (
+    <TypographyControls
+      title="Заголовок блока"
+      description={heading || "Без названия"}
+      value={settings.heading_typography && Object.keys(settings.heading_typography).length ? settings.heading_typography : (settings.heading_font !== "template" || legacySize || legacyWeight ? { font_family: settings.heading_font, font_size: legacySize, font_weight: legacyWeight } : undefined)}
+      disabled={disabled}
+      onChange={(heading_typography) => onChange({ heading_typography, heading_font: "template", heading_size: "template", heading_weight: "template" })}
+    />
   );
 }
 
@@ -7615,12 +7595,11 @@ function ColumnCardsEditor({
             disabled={disabled}
             onChange={(value) => updateCard(index, { title: value })}
           />
-          <CompactField
+          <RichTextEditor
             label={t("Description")}
             value={card.text}
             disabled={disabled}
             onChange={(value) => updateCard(index, { text: value })}
-            multiline
           />
           <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
             {t("Card content")}
@@ -7871,6 +7850,7 @@ function CustomBlockSettings({
       </div>
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
       <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
+      <TypographyControls title="Заголовок блока" description={block.title || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
       {block.kind === "features" ? (
         <DelimitedItemsEditor
           label={t("Feature cards")}
@@ -7891,7 +7871,7 @@ function CustomBlockSettings({
           onChooseImage={onChooseCardImage}
         />
       ) : (
-        <CompactField label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} multiline />
+        <RichTextEditor label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
       )}
       {block.kind === "columns" ? (
         <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
@@ -8355,7 +8335,7 @@ function CustomBlockSettings({
 }
 
 function previewLines(value?: string) {
-  return (value ?? "")
+  return richTextPlainText(value)
     .split("\n")
     .map((item) => item.trim())
     .filter(Boolean);
@@ -8554,6 +8534,9 @@ function CanvasSectionPreview({
   if (section === "booking") {
     return (
       <div className="mt-7 rounded-2xl border border-black/8 bg-white p-5">
+        {draft.booking_text ? (
+          <PublicRichText value={draft.booking_text} className="mb-4 text-xs leading-6 text-black/55" />
+        ) : null}
         <div className="grid gap-3 sm:grid-cols-2">
           {["Выберите услугу", "Любой мастер", "Выберите дату", "Любое время"].map((label) => (
             <span key={label} className="rounded-xl border border-black/10 px-3 py-3 text-[10px] text-[#4f4b45]">
@@ -8599,7 +8582,11 @@ function CanvasSectionPreview({
       ?? [draft.membership_image_url || glossMembershipImage];
 
     return (
-      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-7">
+        {draft.membership_text ? (
+          <PublicRichText value={draft.membership_text} className="mb-5 max-w-2xl text-xs leading-6 text-black/55" />
+        ) : null}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.length ? (
           cards.map((item, index) => {
             const [
@@ -8651,6 +8638,7 @@ function CanvasSectionPreview({
             Добавьте первый уровень клуба справа
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -8705,7 +8693,11 @@ function CanvasSectionPreview({
     const giftImages = draft.gift_image_urls ?? [draft.gift_image_url || glossGiftImage];
 
     return (
-      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-7">
+        {draft.gift_text ? (
+          <PublicRichText value={draft.gift_text} className="mb-5 max-w-2xl text-xs leading-6 text-black/55" />
+        ) : null}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {giftItems.length ? (
           giftItems.map((item, index) => {
             const [title = "", amount = "", description = "", buttonLabel = "Выбрать"] =
@@ -8749,6 +8741,7 @@ function CanvasSectionPreview({
             Добавьте первый подарочный сертификат справа
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -8815,9 +8808,7 @@ function CanvasSectionPreview({
         ) : null}
         <div>
           {draft.about_text ? (
-            <p className="max-w-2xl whitespace-pre-line text-xs leading-6 text-black/55">
-              {draft.about_text}
-            </p>
+            <PublicRichText value={draft.about_text} className="max-w-2xl text-xs leading-6 text-black/55" />
           ) : null}
           {facts.length ? (
             <div className="mt-5 grid gap-2 sm:grid-cols-3">
@@ -8865,9 +8856,7 @@ function CanvasSectionPreview({
           <p>✉ {previewEmail}</p>
           <p>☎ {previewPhone}</p>
           {draft.contact_note ? (
-            <p className="mt-3 border-t border-black/8 pt-3 leading-5">
-              {draft.contact_note}
-            </p>
+            <PublicRichText value={draft.contact_note} className="mt-3 border-t border-black/8 pt-3 leading-5" />
           ) : null}
           {draft.show_social_icons && draft.social_links?.length ? (
             <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.14em]">

@@ -2,8 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import PublicReveal from "@/components/public/PublicReveal";
+import PublicRichText from "@/components/public/PublicRichText";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
+import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
 import type {
   PublicSiteColumnCard,
   PublicSiteCustomBlock,
@@ -69,7 +72,7 @@ const mediaFrameClass = {
 } as const;
 
 function blockLines(value: string) {
-  return value
+  return richTextPlainText(value)
     .split("\n")
     .map((item) => item.trim())
     .filter(Boolean);
@@ -214,14 +217,12 @@ export default function PublicCustomBlock({
             </p>
           ) : null}
           {block.title ? (
-            <h2 className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
+            <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
               {block.title}
             </h2>
           ) : null}
           {block.text ? (
-            <p className="mt-7 max-w-3xl whitespace-pre-line text-base leading-8 opacity-70">
-              {block.text}
-            </p>
+            <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
           ) : null}
 
           <div
@@ -367,13 +368,11 @@ export default function PublicCustomBlock({
                 {block.eyebrow}
               </p>
             ) : null}
-            <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
+            <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
               {block.title}
             </h2>
             {block.text ? (
-              <p className="mt-7 whitespace-pre-line text-base leading-8 opacity-70">
-                {block.text}
-              </p>
+              <PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" />
             ) : null}
             {block.button_label && block.button_url ? (
               <Link
@@ -416,7 +415,7 @@ export default function PublicCustomBlock({
             {block.eyebrow}
           </p>
         ) : null}
-        <h2 className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
+        <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
           {block.title}
         </h2>
 
@@ -494,9 +493,7 @@ export default function PublicCustomBlock({
                     <div className="p-6">
                       <h3 className="text-lg font-semibold">{title}</h3>
                       {detail ? (
-                        <p className="mt-2 text-sm leading-6 opacity-65">
-                          {detail}
-                        </p>
+                        <PublicRichText value={detail} className="mt-2 text-sm leading-6 opacity-65" />
                       ) : null}
                     </div>
                   </article>
@@ -504,13 +501,9 @@ export default function PublicCustomBlock({
               })}
           </div>
         ) : block.kind !== "slider" && block.kind !== "video" ? (
-          <p className="mt-7 max-w-3xl whitespace-pre-line text-base leading-8 opacity-70">
-            {block.text}
-          </p>
+          <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
         ) : block.text ? (
-          <p className="mt-7 max-w-3xl whitespace-pre-line text-base leading-8 opacity-70">
-            {block.text}
-          </p>
+          <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
         ) : null}
 
         {block.kind === "slider" ? (

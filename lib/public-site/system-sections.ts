@@ -5,6 +5,7 @@ import type {
   PublicSiteContent,
   PublicSiteSystemSectionSettings,
 } from "@/lib/public-site/types";
+import { normalizeTypography, publicTypographyStyle } from "@/lib/public-site/typography";
 
 const widthClass = {
   full: "max-w-none",
@@ -34,6 +35,32 @@ export function publicSystemSectionSettings(
 
   return {
     layout: settings.layout === "panel" ? "panel" : "default",
+    heading_font:
+      settings.heading_font === "system" ||
+      settings.heading_font === "humanist" ||
+      settings.heading_font === "editorial"
+        ? settings.heading_font
+        : "template",
+    heading_size:
+      settings.heading_size === "24" ||
+      settings.heading_size === "32" ||
+      settings.heading_size === "40" ||
+      settings.heading_size === "48" ||
+      settings.heading_size === "56" ||
+      settings.heading_size === "64" ||
+      settings.heading_size === "72" ||
+      settings.heading_size === "88" ||
+      settings.heading_size === "104"
+        ? settings.heading_size
+        : "template",
+    heading_weight:
+      settings.heading_weight === "regular" ||
+      settings.heading_weight === "medium" ||
+      settings.heading_weight === "semibold" ||
+      settings.heading_weight === "bold"
+        ? settings.heading_weight
+        : "template",
+    heading_typography: normalizeTypography(settings.heading_typography),
     content_width:
       settings.content_width === "full" ||
       settings.content_width === "medium" ||
@@ -91,6 +118,35 @@ export function publicSystemSectionSettings(
     hide_on_tablet: settings.hide_on_tablet === true,
     hide_on_mobile: settings.hide_on_mobile === true,
   };
+}
+
+export function publicSystemSectionHeadingClass(
+  content: PublicSiteContent,
+  section: PublicSiteCanvasSection,
+  baseClass = "",
+) {
+  return ["os-section-heading-direct", baseClass]
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function publicSystemSectionHeadingStyle(content: PublicSiteContent, section: PublicSiteCanvasSection) {
+  const settings = publicSystemSectionSettings(content, section);
+  const legacyWeight = settings.heading_weight === "regular"
+    ? 400
+    : settings.heading_weight === "medium"
+      ? 500
+      : settings.heading_weight === "semibold"
+        ? 600
+        : settings.heading_weight === "bold"
+          ? 700
+          : undefined;
+  const legacy = publicTypographyStyle({
+    font_family: settings.heading_font,
+    font_size: settings.heading_size === "template" ? undefined : Number(settings.heading_size),
+    font_weight: legacyWeight,
+  });
+  return { ...legacy, ...publicTypographyStyle(settings.heading_typography) };
 }
 
 export function publicSystemSectionClass(
@@ -173,7 +229,6 @@ export function publicSystemSectionStyle(
         }
       : {}),
   };
-
   if (settings.background_mode === "transparent") {
     return {
       ...baseStyle,
