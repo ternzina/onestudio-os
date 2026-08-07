@@ -574,6 +574,7 @@ export default function AdminSitePage() {
   const [editor, setEditor] = useState<PublicSiteEditorData | null>(null);
   const [selectedLocale, setSelectedLocale] = useState("");
   const [draft, setDraft] = useState<PublicSiteContent | null>(null);
+  const draftRef = useRef<PublicSiteContent | null>(null);
   const [logoUrl, setLogoUrl] = useState("");
   const [savedLogoUrl, setSavedLogoUrl] = useState("");
   const [loading, setLoading] = useState(true);
@@ -593,6 +594,10 @@ export default function AdminSitePage() {
   const [undoDepth, setUndoDepth] = useState(0);
   const [redoDepth, setRedoDepth] = useState(0);
   const [savedDraftSignature, setSavedDraftSignature] = useState("");
+
+  useEffect(() => {
+    draftRef.current = draft;
+  }, [draft]);
 
   const syncHistoryDepth = useCallback(() => {
     setUndoDepth(undoStackRef.current.length);
@@ -698,6 +703,7 @@ export default function AdminSitePage() {
     setWorkspace(current);
     setEditor(nextEditor);
     setSelectedLocale(locale);
+    draftRef.current = loadedDraft;
     setDraft(loadedDraft);
     const loadedLogoUrl =
       nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
@@ -761,6 +767,7 @@ export default function AdminSitePage() {
     ) return;
     const nextDraft = contentFromLocale(editor, locale);
     setSelectedLocale(locale);
+    draftRef.current = nextDraft;
     setDraft(nextDraft);
     setSavedDraftSignature(contentSignature(nextDraft));
     const nextLogo = editor.site.logo_draft_url ?? editor.company?.logo_url ?? "";
@@ -777,14 +784,24 @@ export default function AdminSitePage() {
     nextDraft: PublicSiteContent,
     historyGroup?: string,
   ) {
-    setDraft((current) => {
-      if (!current || contentSignature(current) === contentSignature(nextDraft)) {
-        return current;
-      }
-      pushEditorHistory(current, logoUrl, historyGroup);
-      return clonePublicSiteContent(nextDraft);
-    });
+    const current = draftRef.current ?? draft;
+    if (!current || contentSignature(current) === contentSignature(nextDraft)) {
+      return;
+    }
+    pushEditorHistory(current, logoUrl, historyGroup);
+    const clonedDraft = clonePublicSiteContent(nextDraft);
+    draftRef.current = clonedDraft;
+    setDraft(clonedDraft);
     setMessage("");
+  }
+
+  function selectTemplateKey(templateKey: string) {
+    const current = draftRef.current ?? draft;
+    if (!current) return;
+    replaceDraft(
+      { ...current, template_id: templateKey },
+      "site-template",
+    );
   }
 
   function update<Key extends keyof PublicSiteContent>(
@@ -953,7 +970,8 @@ export default function AdminSitePage() {
   }
 
   async function saveDraft(options?: { publish?: boolean }) {
-    if (!workspace || !editor || !draft || !canConfigure) return false;
+    const draftToSave = draftRef.current ?? draft;
+    if (!workspace || !editor || !draftToSave || !canConfigure) return false;
 
     if (logoUrl && isInvalidImageUrl(logoUrl)) {
       setError(
@@ -963,7 +981,7 @@ export default function AdminSitePage() {
       return false;
     }
 
-    const invalidImage = findInvalidDraftImage(draft);
+    const invalidImage = findInvalidDraftImage(draftToSave);
     if (invalidImage) {
       setError(
         `Нельзя сохранить: в поле «${invalidImage}» вставлена ссылка на видео. Перенесите её в поле «Ссылка на видео».`,
@@ -979,7 +997,7 @@ export default function AdminSitePage() {
     const { error: saveError } = await supabase.rpc("save_public_site_draft", {
       p_business_id: workspace.business_id,
       p_locale: selectedLocale,
-      p_content: draft,
+      p_content: draftToSave,
       p_make_primary: selectedLocale === editor.site.primary_locale,
     });
 
@@ -1387,7 +1405,7 @@ export default function AdminSitePage() {
           onAddLocale={() => void addLocale()}
           onLocaleChange={chooseLocale}
           onTemplate={installTemplate}
-          onTemplateKey={(templateKey) => replaceDraft({ ...draft, template_id: templateKey }, "site-template")}
+          onTemplateKey={selectTemplateKey}
           onPublish={() =>
             clientMode
               ? openClientPublicationReview()
@@ -1817,6 +1835,14 @@ function VisualBuilder({
   }
   const activeTemplate =
     SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
+  const selectedRuntimeTemplate =
+    SITE_TEMPLATE_REGISTRY.find(
+      (template) => template.key === draft.template_id,
+    ) ?? null;
+  const selectedPremiumTemplate =
+    selectedRuntimeTemplate?.tier === "premium"
+      ? selectedRuntimeTemplate
+      : null;
   const previewServices: PublicSiteService[] = services.length
     ? services
     : (activeTemplate?.services ?? []).map((service, index) => ({
@@ -2238,6 +2264,39 @@ function VisualBuilder({
       id="site-builder-canvas"
       className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]"
     >
+      {selectedPremiumTemplate ? (
+        <div className="border-b border-[#3e263e]/15 bg-[#fef9ef] p-5 sm:p-6">
+          <div className="flex flex-col gap-5 rounded-[22px] border border-[#3e263e]/15 bg-white p-5 shadow-[0_18px_55px_rgba(62,38,62,0.08)] sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#3e263e] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef9ef]">
+                  Premium
+                </span>
+                <span className="text-xs font-semibold text-[#3e263e]/60">
+                  {hasUnsavedChanges
+                    ? "Выбран в черновике · сохраните изменения"
+                    : "Выбран и сохранён в черновике"}
+                </span>
+              </div>
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#3e263e]">
+                {selectedPremiumTemplate.name} — текущий шаблон черновика
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#3e263e]/65">
+                Блоковый редактор ниже относится к Standard template и не является предпросмотром выбранного Premium-шаблона.
+                Публикация выполняется только отдельной кнопкой.
+              </p>
+            </div>
+            <Link
+              href={`/site-preview/${selectedPremiumTemplate.key}/${businessSlug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 rounded-xl bg-[#e07e67] px-5 py-3 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#cf6f5a]"
+            >
+              Открыть предпросмотр {selectedPremiumTemplate.name} ↗
+            </Link>
+          </div>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-3 border-b border-black/10 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-2">
           <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b877e]">
