@@ -18,6 +18,7 @@ import PublicMobileMenu from "@/components/public/PublicMobileMenu";
 import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
+import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -289,7 +290,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   return (
     <main
       lang={business.locale}
-      className="min-h-screen text-[#191b20]"
+      className={publicSiteDesignClass(content, "min-h-screen text-[#191b20]")}
       style={{
         backgroundColor: content.theme_surface ?? "#f3f0e9",
         "--site-accent": content.theme_accent ?? "#9a742e",
@@ -384,7 +385,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             ) : null}
             <Link
               href={primaryHref}
-              className="hidden rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white sm:inline-flex"
+              className="os-site-button hidden rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white sm:inline-flex"
             >
               {primaryLabel}
             </Link>
@@ -409,9 +410,9 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 <h1 className={`mt-7 break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-8 max-w-xl text-base leading-8 text-white/75 sm:text-lg">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-accent)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(0,0,0,0.22)]">{primaryLabel}</Link>
+                  <Link href={primaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full bg-[var(--site-accent)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(0,0,0,0.22)]">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-14 items-center rounded-full border border-white/35 px-7 text-sm font-semibold text-white">{secondaryLabel}<span aria-hidden="true" className="ml-8">→</span></Link>
+                    <Link href={secondaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full border border-white/35 px-7 text-sm font-semibold text-white">{secondaryLabel}<span aria-hidden="true" className="ml-8">→</span></Link>
                   ) : null}
                 </div>
               </div>
@@ -427,9 +428,9 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 <h1 className={`mt-7 max-w-4xl break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-8 max-w-xl text-base leading-8 text-[#656159] sm:text-lg">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href={primaryHref} className="inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]">{primaryLabel}</Link>
+                  <Link href={primaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-14 items-center rounded-full border border-black/15 px-7 text-sm font-semibold text-black/65">{secondaryLabel}<span aria-hidden="true" className="ml-8 text-[var(--site-accent)]">→</span></Link>
+                    <Link href={secondaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full border border-black/15 px-7 text-sm font-semibold text-black/65">{secondaryLabel}<span aria-hidden="true" className="ml-8 text-[var(--site-accent)]">→</span></Link>
                   ) : null}
                 </div>
               </div>
@@ -469,7 +470,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               {services.map((service, index) => {
                 const image = serviceImage(content, service, index);
                 return (
-                  <article key={service.id} className={`${content.services_layout === "list" ? "grid overflow-hidden rounded-2xl border border-white/12 md:grid-cols-[260px_1fr]" : "min-h-72 border-b border-r border-white/12"}`}>
+                  <article key={service.id} className={`os-site-card ${content.services_layout === "list" ? "grid overflow-hidden rounded-2xl border border-white/12 md:grid-cols-[260px_1fr]" : "min-h-72 border-b border-r border-white/12"}`}>
                     {image ? (
                       <div className={`${content.services_layout === "list" ? "min-h-52" : "aspect-[16/10]"} overflow-hidden`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -573,7 +574,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                     {lines(content.about_facts).map((item, index) => {
                       const fact = labeledLine(item);
                       return (
-                        <article key={`${item}-${index}`} className="rounded-2xl border border-black/10 bg-white/60 p-5">
+                        <article key={`${item}-${index}`} className="os-site-card rounded-2xl border border-black/10 bg-white/60 p-5">
                           <p className="text-2xl font-semibold tracking-[-0.04em]">
                             {fact.title}
                           </p>
@@ -590,7 +591,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 {content.about_button_label ? (
                   <a
                     href={content.about_button_url || "#contact"}
-                    className="mt-9 inline-flex min-h-12 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white"
+                    className="os-site-button mt-9 inline-flex min-h-12 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white"
                   >
                     {content.about_button_label}
                   </a>
@@ -626,7 +627,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 return (
                   <article
                     key={`${item}-${index}`}
-                    className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
+                    className="os-site-card overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
                   >
                     {image ? (
                       <div className="aspect-[4/3] overflow-hidden bg-black/5">
@@ -694,7 +695,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 return (
                   <article
                     key={`${item}-${index}`}
-                    className="rounded-[28px] border border-black/8 bg-white/70 p-7"
+                    className="os-site-card rounded-[28px] border border-black/8 bg-white/70 p-7"
                   >
                     <span className="grid h-12 w-12 place-items-center rounded-full border border-[var(--site-accent)]/25 text-xl text-[var(--site-accent)]">
                       {icon || (index === 0 ? "⌁" : index === 1 ? "◒" : "◇")}
@@ -725,7 +726,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <h2 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.reviews_title}</h2>
             <div className="mt-14 grid gap-4 lg:grid-cols-3">
               {reviews.map((review) => (
-                <blockquote key={review.id} className="rounded-[28px] border border-white/12 bg-white/5 p-7 text-base leading-8 text-white/75">
+                <blockquote key={review.id} className="os-site-card rounded-[28px] border border-white/12 bg-white/5 p-7 text-base leading-8 text-white/75">
                   <p className="text-[#d8b36a]">
                     {"★".repeat(review.rating)}
                   </p>
@@ -787,7 +788,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 return (
                   <article
                     key={`${item}-${index}`}
-                    className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
+                    className="os-site-card overflow-hidden rounded-[28px] border border-black/8 bg-white/70"
                   >
                     {image ? (
                       <div className="aspect-[4/3] overflow-hidden bg-black/5">
@@ -812,7 +813,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                       ) : null}
                       <a
                         href={buttonUrl || "#contact"}
-                        className="mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                        className="os-site-button mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
                       >
                         {buttonLabel || "Вступить"}
                       </a>
@@ -846,7 +847,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                   item.split("·").map((part) => part.trim());
                 const image = content.gift_image_urls?.[index] || content.gift_image_url || "";
                 return (
-                  <article key={`${item}-${index}`} className="overflow-hidden rounded-[28px] border border-black/8 bg-white/70">
+                  <article key={`${item}-${index}`} className="os-site-card overflow-hidden rounded-[28px] border border-black/8 bg-white/70">
                     {image ? (
                       <div className="aspect-[4/3] overflow-hidden bg-black/5">
                         <img src={image} alt={title} className="h-full w-full object-cover" />
@@ -856,7 +857,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                       <h3 className="text-2xl font-semibold">{title}</h3>
                       {amount ? <p className="mt-3 text-xl font-semibold text-[var(--site-accent)]">{amount}</p> : null}
                       {description ? <p className="mt-4 text-sm leading-6 text-black/55">{description}</p> : null}
-                      <a href={buttonUrl || "#contact"} className="mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white">
+                      <a href={buttonUrl || "#contact"} className="os-site-button mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white">
                         {buttonLabel || "Выбрать"}
                       </a>
                     </div>
@@ -904,7 +905,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             style={publicSystemSectionStyle(content, "contact", { order: sectionPosition("contact") })}
             className={publicSystemSectionClass(content, "contact", "bg-[#d9d1c0] py-24 sm:py-32")}
           >
-          <div className={publicSystemSectionContentClass(content, "contact", "grid gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]")}>
+          <div className={publicSystemSectionContentClass(content, "contact", "os-site-card grid gap-8 overflow-hidden rounded-[32px] border border-black/10 bg-white/45 lg:grid-cols-[0.9fr_1.1fr]")}>
             <div className="p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#725924]">
                 {content.contact_label}
@@ -945,7 +946,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                     href={mapHref}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--site-dark)] px-6 text-xs font-semibold text-white"
+                    className="os-site-button inline-flex min-h-11 items-center rounded-full bg-[var(--site-dark)] px-6 text-xs font-semibold text-white"
                   >
                     {content.contact_route_label || contactCopy.route}
                   </a>
