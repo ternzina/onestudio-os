@@ -3,12 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-
-function safeNextPath(value: string | null) {
-  return value === "/launch" || value === "/dashboard" || value?.startsWith("/admin")
-    ? value
-    : "/dashboard";
-}
+import { safeAuthReturnPath } from "@/lib/auth/return-path";
 
 function loginErrorUrl(next: string) {
   const url = new URL("/login", window.location.origin);
@@ -27,7 +22,7 @@ export default function AuthCallbackPage() {
     async function completeAuthentication() {
       const search = new URLSearchParams(window.location.search);
       const hash = new URLSearchParams(window.location.hash.slice(1));
-      const next = safeNextPath(search.get("next"));
+      const next = safeAuthReturnPath(search.get("next"));
       const code = search.get("code");
       const accessToken = hash.get("access_token");
       const refreshToken = hash.get("refresh_token");

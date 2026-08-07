@@ -5,6 +5,7 @@ import { getPublicSite } from "@/lib/public-site/data";
 import { getSiteTemplateDefinition } from "@/lib/public-site/template-registry";
 import type { PublicSiteData, PublicSiteEditorData } from "@/lib/public-site/types";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { loginPathForReturnPath } from "@/lib/auth/return-path";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,15 @@ export default async function SiteTemplatePreviewPage({
 
   const supabase = await createServerSupabaseClient();
   const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) redirect("/login");
+  if (!userData.user) {
+    const returnPath = [
+      "/site-preview",
+      encodeURIComponent(templateKey),
+      encodeURIComponent(businessSlug),
+      ...templatePath.map(encodeURIComponent),
+    ].join("/");
+    redirect(loginPathForReturnPath(returnPath));
+  }
 
   const { data: workspaceData } = await supabase.rpc("list_my_businesses");
   const workspace = ((workspaceData ?? []) as Workspace[]).find(

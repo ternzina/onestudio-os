@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import AdminLanguageSwitcher from "@/components/i18n/AdminLanguageSwitcher";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
+import { safeAuthReturnPath } from "@/lib/auth/return-path";
 
 type AccessState = "bootstrap_required" | "ready" | "denied" | "signed_out";
 
@@ -19,9 +20,7 @@ function readSafeNextPath() {
 
   const value = new URLSearchParams(window.location.search).get("next");
 
-  return value?.startsWith("/admin") || value === "/launch" || value === "/dashboard"
-    ? value
-    : "/dashboard";
+  return safeAuthReturnPath(value);
 }
 
 function friendlyAuthMessage(value: string) {

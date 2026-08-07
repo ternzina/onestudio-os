@@ -3,16 +3,11 @@
 import { useState } from "react";
 import type { Provider } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { safeAuthReturnPath } from "@/lib/auth/return-path";
 
 type SocialAuthButtonsProps = {
   nextPath?: string;
 };
-
-function safeNextPath(value?: string) {
-  return value === "/launch" || value === "/dashboard" || value?.startsWith("/admin")
-    ? value
-    : "/dashboard";
-}
 
 export default function SocialAuthButtons({
   nextPath = "/dashboard",
@@ -24,7 +19,7 @@ export default function SocialAuthButtons({
     setMessage("");
     setPendingProvider(provider);
 
-    const next = safeNextPath(nextPath);
+    const next = safeAuthReturnPath(nextPath);
     const callbackUrl = new URL("/auth/callback", window.location.origin);
     callbackUrl.searchParams.set("next", next);
 

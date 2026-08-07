@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { CoreModuleKey } from "@/lib/modules/contracts";
 import { getSupabaseConfig } from "./config";
+import { safeAuthReturnPath } from "@/lib/auth/return-path";
 
 export type AdminAccessState =
   | "signed_out"
@@ -27,10 +28,7 @@ function redirectTo(request: NextRequest, pathname: string) {
 }
 
 function authNextPath(request: NextRequest) {
-  const next = request.nextUrl.searchParams.get("next");
-  return next === "/launch" || next === "/dashboard" || next?.startsWith("/admin")
-    ? next
-    : null;
+  return safeAuthReturnPath(request.nextUrl.searchParams.get("next"), "") || null;
 }
 
 function moduleForAdminPath(pathname: string): CoreModuleKey | null {

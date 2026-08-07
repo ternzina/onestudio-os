@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=/admin");
 
   const { data, error } = await supabase.rpc("get_admin_access_state");
   const state = !error && Array.isArray(data)
