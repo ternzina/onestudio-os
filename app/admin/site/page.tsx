@@ -22,9 +22,11 @@ import type {
   PublicSiteProject,
   PublicSiteSocialLink,
   PublicSiteSystemSectionSettings,
+  PublicSiteDesignSystem,
 } from "@/lib/public-site/types";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { colorOverrideStyle, sectionColorStyle } from "@/lib/public-site/colors";
+import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import {
   publicSystemSectionClass,
   publicSystemSectionContentClass,
@@ -1771,6 +1773,7 @@ function VisualBuilder({
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
   const [siteSettingsOpen, setSiteSettingsOpen] = useState(false);
+  const [siteDesignOpen, setSiteDesignOpen] = useState(false);
   const [pageLibraryOpen, setPageLibraryOpen] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -1787,6 +1790,10 @@ function VisualBuilder({
   const [draggedBlockId, setDraggedBlockId] = useState("");
   const [dragOverBlockId, setDragOverBlockId] = useState("");
   const [dragScope, setDragScope] = useState<"home" | "page" | null>(null);
+  const workspaceCanvasRef = useRef<HTMLDivElement | null>(null);
+  const workspaceScrollFrameRef = useRef<number | null>(null);
+  const selectionFromCanvasScrollRef = useRef(false);
+  const programmaticCanvasScrollUntilRef = useRef(0);
   const mobileHeroTitleClass =
     draft.hero_title_mobile_size === "small"
       ? "text-3xl leading-[1.02]"
@@ -1817,6 +1824,88 @@ function VisualBuilder({
     : (draft.custom_blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
+
+  useEffect(() => {
+    if (activePage || selectionFromCanvasScrollRef.current) {
+      selectionFromCanvasScrollRef.current = false;
+      return;
+    }
+    const canvas = workspaceCanvasRef.current;
+    if (!canvas) return;
+    const anchor = selectedCustomBlockId
+      ? `custom:${selectedCustomBlockId}`
+      : selectedSection;
+    const target = canvas.querySelector<HTMLElement>(
+      `[data-editor-anchor="${anchor}"]`,
+    );
+    if (!target) return;
+
+    programmaticCanvasScrollUntilRef.current = Date.now() + 700;
+    const canvasRect = canvas.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const top =
+      canvas.scrollTop +
+      (targetRect.top - canvasRect.top) -
+      Math.max(24, (canvas.clientHeight - targetRect.height) / 2);
+    canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [activePage, selectedCustomBlockId, selectedSection]);
+
+  const syncSelectionFromCanvasScroll = useCallback(() => {
+    if (activePage || Date.now() < programmaticCanvasScrollUntilRef.current) return;
+    const canvas = workspaceCanvasRef.current;
+    if (!canvas) return;
+    if (workspaceScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(workspaceScrollFrameRef.current);
+    }
+    workspaceScrollFrameRef.current = window.requestAnimationFrame(() => {
+      const canvasRect = canvas.getBoundingClientRect();
+      const focusY = canvasRect.top + Math.min(canvas.clientHeight * 0.42, 360);
+      const anchors = canvas.querySelectorAll<HTMLElement>("[data-editor-anchor]");
+      let closest: HTMLElement | null = null;
+      let distance = Number.POSITIVE_INFINITY;
+      anchors.forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        if (rect.bottom < canvasRect.top || rect.top > canvasRect.bottom) return;
+        const itemFocus = Math.max(rect.top, Math.min(focusY, rect.bottom));
+        const nextDistance = Math.abs(itemFocus - focusY);
+        if (nextDistance < distance) {
+          distance = nextDistance;
+          closest = item;
+        }
+      });
+      if (!closest) return;
+      const anchor = (closest as HTMLElement).dataset.editorAnchor;
+      if (!anchor) return;
+      selectionFromCanvasScrollRef.current = true;
+      if (anchor.startsWith("custom:")) {
+        const blockId = anchor.slice("custom:".length);
+        if (blockId && blockId !== selectedCustomBlockId) {
+          setSelectedCustomBlockId(blockId);
+          setSiteDesignOpen(false);
+          setSettingsOpen(true);
+        } else {
+          selectionFromCanvasScrollRef.current = false;
+        }
+        return;
+      }
+      const nextSection = anchor as CanvasSection;
+      if (selectedCustomBlockId || nextSection !== selectedSection) {
+        setSelectedCustomBlockId("");
+        onSectionChange(nextSection);
+        setSiteDesignOpen(false);
+        setSettingsOpen(true);
+      } else {
+        selectionFromCanvasScrollRef.current = false;
+      }
+    });
+  }, [activePage, onSectionChange, selectedCustomBlockId, selectedSection]);
+
+  useEffect(() => () => {
+    if (workspaceScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(workspaceScrollFrameRef.current);
+    }
+  }, []);
+
   const selectedLayoutItem = selectedCustomBlock
     ? customBlockLayoutId(selectedCustomBlock.id)
     : selectedSection === "hero"
@@ -2039,6 +2128,7 @@ function VisualBuilder({
     onUpdate(sectionVisibilityKey[section], true);
     setSelectedCustomBlockId("");
     onSectionChange(section);
+    setSiteDesignOpen(false);
     setSettingsOpen(true);
     setLibraryOpen(false);
   }
@@ -2046,6 +2136,7 @@ function VisualBuilder({
   function chooseSection(section: CanvasSection) {
     setSelectedCustomBlockId("");
     onSectionChange(section);
+    setSiteDesignOpen(false);
     setSettingsOpen(true);
   }
 
@@ -2053,6 +2144,7 @@ function VisualBuilder({
     setSelectedPageId(pageId);
     setSelectedPagePart("intro");
     setSelectedCustomBlockId("");
+    setSiteDesignOpen(false);
     setSettingsOpen(true);
   }
 
@@ -2098,6 +2190,7 @@ function VisualBuilder({
     }
     setSelectedCustomBlockId(block.id);
     setLibraryOpen(false);
+    setSiteDesignOpen(false);
     setSettingsOpen(true);
     setEditingEnabled(true);
   }
@@ -2453,10 +2546,14 @@ function VisualBuilder({
           </button>
           <button
             type="button"
-            onClick={() => setSiteSettingsOpen(true)}
-            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-[#26231f]"
+            onClick={() => {
+              setSiteDesignOpen(true);
+              setSettingsOpen(false);
+            }}
+            aria-pressed={siteDesignOpen}
+            className={`rounded-xl border px-4 py-2 text-xs font-semibold ${siteDesignOpen ? "border-[#9d3151]/30 bg-[#f9edf1] text-[#7f2742]" : "border-black/10 bg-white text-[#26231f]"}`}
           >
-            {t("Site settings")}
+            Дизайн сайта
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -2486,7 +2583,10 @@ function VisualBuilder({
           </button>
           <button
             type="button"
-            onClick={() => setSettingsOpen((value) => !value)}
+            onClick={() => {
+              setSiteDesignOpen(false);
+              setSettingsOpen((value) => !value);
+            }}
             className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/10 bg-white text-[#26231f]"}`}
           >
             {settingsOpen ? `${t("Settings")} →` : `← ${t("Settings")}`}
@@ -2554,20 +2654,20 @@ function VisualBuilder({
       </div>
 
       <div
-        className="relative grid min-h-[720px] min-w-0 overflow-x-auto"
+        className="relative grid h-[calc(100dvh-170px)] min-h-[560px] max-h-[calc(100dvh-96px)] min-w-0 overflow-hidden"
         style={{
           gridTemplateColumns:
-            blocksOpen && settingsOpen
-              ? "220px minmax(0, 1fr) 300px"
+            blocksOpen && (settingsOpen || siteDesignOpen)
+              ? "220px minmax(0, 1fr) 360px"
               : blocksOpen
                 ? "220px minmax(0, 1fr)"
-                : settingsOpen
-                  ? "minmax(0, 1fr) 300px"
+                : settingsOpen || siteDesignOpen
+                  ? "minmax(0, 1fr) 360px"
                   : "minmax(0, 1fr)",
         }}
       >
         {blocksOpen ? (
-        <aside id="site-editor-blocks-panel" className="min-w-0 border-r border-black/10 bg-[#f7f6f3] p-4 text-[#17191f]">
+        <aside id="site-editor-blocks-panel" className="h-full min-w-0 overflow-y-auto overscroll-contain border-r border-black/10 bg-[#f7f6f3] p-4 text-[#17191f] [scrollbar-gutter:stable]">
           <div className="flex items-center justify-between gap-2">
             <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">
               {t("Page blocks")}
@@ -2703,22 +2803,27 @@ function VisualBuilder({
         )}
 
         <div
-          className={`min-w-0 overflow-auto bg-[#dcdcd8] transition-[padding] ${
+          ref={workspaceCanvasRef}
+          onScroll={syncSelectionFromCanvasScroll}
+          className={`h-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain scroll-smooth bg-[#dcdcd8] transition-[padding] [scrollbar-gutter:stable] ${
             blocksOpen || settingsOpen ? "p-4 sm:p-7" : "p-2 sm:p-3"
           }`}
         >
           <div
-            className={`mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
-              previewDevice === "mobile"
-                ? "max-w-[390px] rounded-[28px]"
-                : previewDevice === "tablet"
-                  ? "max-w-[820px] rounded-[22px]"
-                  : blocksOpen && settingsOpen
-                  ? "max-w-[920px] rounded-lg"
-                  : blocksOpen || settingsOpen
-                    ? "max-w-[1120px] rounded-lg"
-                    : "max-w-none rounded-lg"
-            }`}
+            className={publicSiteDesignClass(
+              draft,
+              `mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
+                previewDevice === "mobile"
+                  ? "max-w-[390px] rounded-[28px]"
+                  : previewDevice === "tablet"
+                    ? "max-w-[820px] rounded-[22px]"
+                    : blocksOpen && settingsOpen
+                      ? "max-w-[920px] rounded-lg"
+                      : blocksOpen || settingsOpen
+                        ? "max-w-[1120px] rounded-lg"
+                        : "max-w-none rounded-lg"
+              }`,
+            )}
             style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
           >
             {activePage?.type === "portfolio" ? (
@@ -2747,6 +2852,7 @@ function VisualBuilder({
             ) : (
             <>
             <CanvasBlock
+              anchorId="hero"
               active={editingEnabled && !selectedCustomBlockId && selectedSection === "hero"}
               muted={draft.show_hero === false}
               onClick={() => editingEnabled && chooseSection("hero")}
@@ -2795,8 +2901,8 @@ function VisualBuilder({
                     <h2 className={`mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
                     <p className="mt-6 text-sm leading-7 text-white/75">{draft.hero_text}</p>
                     <div className="mt-7 flex flex-wrap gap-3">
-                      <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                 </div>
@@ -2808,8 +2914,8 @@ function VisualBuilder({
                     <h2 className={`relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`}>{draft.hero_title}</h2>
                     <p className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]">{draft.hero_text}</p>
                     <div className="relative mt-7 flex flex-wrap gap-3">
-                      <span className="inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                   {draft.hero_layout !== "text" && draft.hero_image_url ? (
@@ -2830,6 +2936,7 @@ function VisualBuilder({
               return (
                 <CanvasBlock
                   key={section}
+                  anchorId={section}
                   order={layoutOrder.indexOf(sectionLayoutId(section))}
                   active={editingEnabled && !selectedCustomBlockId && selectedSection === section}
                   muted={!visible}
@@ -2878,6 +2985,7 @@ function VisualBuilder({
             {(draft.custom_blocks ?? []).map((block) => (
               <CanvasBlock
                 key={block.id}
+                anchorId={`custom:${block.id}`}
                 order={layoutOrder.indexOf(customBlockLayoutId(block.id))}
                 active={editingEnabled && selectedCustomBlockId === block.id}
                 muted={block.is_visible === false}
@@ -2929,8 +3037,20 @@ function VisualBuilder({
           </div>
         </div>
 
-        {settingsOpen ? (
-        <aside className="relative min-w-0 border-l border-black/10 bg-white p-5">
+        {siteDesignOpen ? (
+          <SiteDesignSidebar
+            draft={draft}
+            disabled={!canConfigure}
+            premiumIsolated={Boolean(selectedPremiumTemplate)}
+            onUpdate={onUpdate}
+            onAdvanced={() => setSiteSettingsOpen(true)}
+            onClose={() => {
+              setSiteDesignOpen(false);
+              setSettingsOpen(true);
+            }}
+          />
+        ) : settingsOpen ? (
+        <aside className="relative h-full min-w-0 overflow-y-auto overscroll-contain border-l border-black/10 bg-white p-5 [scrollbar-gutter:stable]">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p>
             <button
@@ -4006,6 +4126,11 @@ function VisualBuilder({
                   disabled={!canConfigure}
                   onChange={(value) => onUpdate("theme_surface", value)}
                 />
+                <GlobalDesignSystemEditor
+                  design={draft.design_system}
+                  disabled={!canConfigure}
+                  onChange={(value) => onUpdate("design_system", value)}
+                />
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
                     {t("Site languages")}
@@ -4450,7 +4575,7 @@ function PortfolioPagePreview({
 
   return (
     <div
-      className={page.is_visible === false ? "opacity-45 grayscale" : ""}
+      className={publicSiteDesignClass(draft, page.is_visible === false ? "opacity-45 grayscale" : "")}
       style={{
         "--site-accent": draft.theme_accent ?? "#9d3151",
         "--site-dark": draft.theme_dark ?? "#321722",
@@ -4463,7 +4588,7 @@ function PortfolioPagePreview({
         <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
           Главная · {page.nav_label} · {draft.contact_label}
         </span>
-        <span className="rounded-full bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
+        <span className="os-site-button rounded-full bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
           {draft.booking_label}
         </span>
       </div>
@@ -4522,7 +4647,7 @@ function PortfolioPagePreview({
           {portfolio.map((project, index) => (
             <article
               key={project.slug}
-              className={`overflow-hidden rounded-2xl bg-white shadow-sm ${
+              className={`os-site-card overflow-hidden rounded-2xl bg-white shadow-sm ${
                 draft.portfolio_layout === "grid"
                   ? ""
                   : "mb-3 break-inside-avoid"
@@ -4595,7 +4720,7 @@ function PortfolioPagePreview({
             <h3 className="max-w-xl text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">
               Выберите дизайн и свободное время
             </h3>
-            <span className="rounded-full bg-white px-5 py-3 text-[10px] font-semibold text-[var(--site-dark)]">
+            <span className="os-site-button rounded-full bg-white px-5 py-3 text-[10px] font-semibold text-[var(--site-dark)]">
               {draft.booking_label} · {bookingHref}
             </span>
           </div>
@@ -4631,7 +4756,7 @@ function CustomPagePreview({
 
   return (
     <div
-      className={page.is_visible === false ? "opacity-45 grayscale" : ""}
+      className={publicSiteDesignClass(draft, page.is_visible === false ? "opacity-45 grayscale" : "")}
       style={{
         "--site-accent": draft.theme_accent ?? "#9d3151",
         "--site-dark": draft.theme_dark ?? "#321722",
@@ -4642,7 +4767,7 @@ function CustomPagePreview({
         <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
           Главная · {page.nav_label} · {draft.contact_label}
         </span>
-        <span className="rounded-md bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
+        <span className="os-site-button rounded-md bg-[var(--site-dark)] px-4 py-2 text-[9px] font-semibold text-white">
           {draft.booking_label}
         </span>
       </div>
@@ -4695,7 +4820,7 @@ function CustomPagePreview({
           </p>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
             <h3 className="font-serif text-3xl">Выберите удобное время</h3>
-            <span className="rounded-md bg-white px-5 py-3 text-[10px] font-semibold text-[var(--site-dark)]">
+            <span className="os-site-button rounded-md bg-white px-5 py-3 text-[10px] font-semibold text-[var(--site-dark)]">
               {draft.booking_label}
             </span>
           </div>
@@ -5295,6 +5420,324 @@ function DelimitedItemsEditor({
         className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
       >
         {t("+ Add another")}
+      </button>
+    </div>
+  );
+}
+
+function SiteDesignSidebar({
+  draft,
+  disabled,
+  premiumIsolated,
+  onUpdate,
+  onAdvanced,
+  onClose,
+}: {
+  draft: PublicSiteContent;
+  disabled: boolean;
+  premiumIsolated: boolean;
+  onUpdate: <Key extends keyof PublicSiteContent>(
+    key: Key,
+    value: PublicSiteContent[Key],
+  ) => void;
+  onAdvanced: () => void;
+  onClose: () => void;
+}) {
+  const designDisabled = disabled || premiumIsolated;
+
+  return (
+    <aside className="relative h-full min-w-0 overflow-hidden border-l border-black/10 bg-[#fbfaf7] text-[#17191f]">
+      <div className="h-full overflow-y-auto overscroll-contain p-4 sm:p-5 [scrollbar-gutter:stable]">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9d3151]">
+              Дизайн
+            </p>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.04em]">Дизайн сайта</h2>
+            <p className="mt-2 text-[11px] leading-5 text-[#716d65]">
+              Меняйте стиль здесь и сразу смотрите результат на странице слева.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-[#716d65]"
+          >
+            К блоку →
+          </button>
+        </div>
+
+        {premiumIsolated ? (
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-amber-900">
+            Этот Premium-шаблон использует собственную дизайн-систему. Глобальные настройки 2.4 не меняют его внешний вид, поэтому BEMBI остаётся изолированным.
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-4">
+            <details open className="group rounded-2xl border border-black/8 bg-white p-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
+                <span>Цвета</span>
+                <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
+              </summary>
+              <div className="mt-4 grid gap-4">
+                <div className="flex flex-wrap gap-2">
+                  {SITE_COLOR_PRESETS.map((preset) => {
+                    const selected =
+                      draft.theme_accent?.toLowerCase() === preset.accent &&
+                      draft.theme_dark?.toLowerCase() === preset.dark &&
+                      draft.theme_surface?.toLowerCase() === preset.surface;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        disabled={designDisabled}
+                        onClick={() => {
+                          onUpdate("theme_accent", preset.accent);
+                          onUpdate("theme_dark", preset.dark);
+                          onUpdate("theme_surface", preset.surface);
+                        }}
+                        className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-semibold transition disabled:opacity-40 ${selected ? "border-[#9d3151]/40 bg-[#fff3f6]" : "border-black/10 bg-white"}`}
+                      >
+                        <span className="flex -space-x-1">
+                          {[preset.surface, preset.accent, preset.dark].map((color) => (
+                            <i key={color} className="h-5 w-5 rounded-full border-2 border-white" style={{ backgroundColor: color }} />
+                          ))}
+                        </span>
+                        {preset.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                <ColorEditor label="Основной" value={draft.theme_accent ?? "#9d3151"} disabled={designDisabled} onChange={(value) => onUpdate("theme_accent", value)} />
+                <ColorEditor label="Тёмный" value={draft.theme_dark ?? "#321722"} disabled={designDisabled} onChange={(value) => onUpdate("theme_dark", value)} />
+                <ColorEditor label="Фон" value={draft.theme_surface ?? "#fff7f5"} disabled={designDisabled} onChange={(value) => onUpdate("theme_surface", value)} />
+              </div>
+            </details>
+
+            <GlobalDesignSystemEditor
+              design={draft.design_system}
+              disabled={designDisabled}
+              onChange={(value) => onUpdate("design_system", value)}
+              compact
+            />
+
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[11px] leading-5 text-emerald-900">
+              ● Живой предпросмотр включён. Сохранение и публикация остаются отдельными действиями.
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onAdvanced}
+          className="mt-5 w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold text-[#4f4b45]"
+        >
+          Все настройки сайта…
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function GlobalDesignSystemEditor({
+  design,
+  disabled,
+  onChange,
+  compact = false,
+}: {
+  design?: PublicSiteDesignSystem;
+  disabled: boolean;
+  onChange: (value: PublicSiteDesignSystem) => void;
+  compact?: boolean;
+}) {
+  const current = design ?? {};
+
+  const setGroup = (
+    group: "typography" | "buttons" | "cards",
+    value: Record<string, string>,
+  ) => {
+    const next: PublicSiteDesignSystem = { ...current };
+    if (Object.keys(value).length === 0) {
+      delete next[group];
+    } else {
+      (next as Record<string, unknown>)[group] = value;
+    }
+    onChange(next);
+  };
+
+  const patch = (
+    group: "typography" | "buttons" | "cards",
+    field: string,
+    value: string,
+  ) => {
+    const nextGroup = { ...(current[group] ?? {}) } as Record<string, string>;
+    if (value === "template") delete nextGroup[field];
+    else nextGroup[field] = value;
+    setGroup(group, nextGroup);
+  };
+
+  const buttonRadius = current.buttons?.radius ?? "template";
+  const cardPreset = !current.cards
+    ? "template"
+    : current.cards.shadow === "strong"
+      ? "elevated"
+      : current.cards.border === "strong" || current.cards.border === "subtle"
+        ? "outlined"
+        : current.cards.shadow === "none" && current.cards.border === "none"
+          ? "flat"
+          : "custom";
+
+  const quickButton = (active: boolean) =>
+    `rounded-xl border px-3 py-2 text-[11px] font-semibold transition disabled:opacity-40 ${active ? "border-[#9d3151]/40 bg-[#fff3f6] text-[#7f2742]" : "border-black/10 bg-white text-[#4f4b45]"}`;
+
+  return (
+    <div className={`grid gap-4 ${compact ? "" : "rounded-2xl border border-[#9d3151]/15 bg-[#fff9fb] p-4"}`}>
+      {!compact ? (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8d2d4a]">Global Design System 2.4</p>
+          <p className="mt-1 text-[11px] leading-5 text-[#716d65]">«Из шаблона» оставляет исходный характер шаблона.</p>
+        </div>
+      ) : null}
+
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
+          <span>Типографика</span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
+        </summary>
+        <div className="mt-4 grid gap-3">
+          <CompactSelect
+            label="Основной шрифт"
+            value={current.typography?.body_font ?? "template"}
+            disabled={disabled}
+            options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "system", label: "Современный" },
+              { value: "humanist", label: "Мягкий" },
+              { value: "editorial", label: "Редакционный serif" },
+            ]}
+            onChange={(value) => patch("typography", "body_font", value)}
+          />
+          <CompactSelect
+            label="Шрифт заголовков"
+            value={current.typography?.heading_font ?? "template"}
+            disabled={disabled}
+            options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "system", label: "Современный" },
+              { value: "humanist", label: "Мягкий" },
+              { value: "editorial", label: "Редакционный serif" },
+            ]}
+            onChange={(value) => patch("typography", "heading_font", value)}
+          />
+          <details className="rounded-xl bg-[#f7f5f0] p-3">
+            <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Дополнительно</summary>
+            <div className="mt-3 grid gap-3">
+              <CompactSelect
+                label="Насыщенность заголовков"
+                value={current.typography?.heading_weight ?? "template"}
+                disabled={disabled}
+                options={[
+                  { value: "template", label: "Из шаблона" },
+                  { value: "regular", label: "Обычная" },
+                  { value: "medium", label: "Средняя" },
+                  { value: "semibold", label: "Полужирная" },
+                  { value: "bold", label: "Жирная" },
+                ]}
+                onChange={(value) => patch("typography", "heading_weight", value)}
+              />
+              <CompactSelect
+                label="Интервал в заголовках"
+                value={current.typography?.heading_tracking ?? "template"}
+                disabled={disabled}
+                options={[
+                  { value: "template", label: "Из шаблона" },
+                  { value: "tight", label: "Плотный" },
+                  { value: "normal", label: "Обычный" },
+                  { value: "wide", label: "Свободный" },
+                ]}
+                onChange={(value) => patch("typography", "heading_tracking", value)}
+              />
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
+          <span>Кнопки</span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
+        </summary>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {[
+            ["template", "Из шаблона"],
+            ["square", "Строгие"],
+            ["soft", "Мягкие"],
+            ["pill", "Капсула"],
+          ].map(([value, label]) => (
+            <button key={value} type="button" disabled={disabled} onClick={() => patch("buttons", "radius", value)} className={quickButton(buttonRadius === value)}>{label}</button>
+          ))}
+        </div>
+        <details className="mt-3 rounded-xl bg-[#f7f5f0] p-3">
+          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Дополнительно</summary>
+          <div className="mt-3">
+            <CompactSelect
+              label="Тень"
+              value={current.buttons?.shadow ?? "template"}
+              disabled={disabled}
+              options={[
+                { value: "template", label: "Из шаблона" },
+                { value: "none", label: "Без тени" },
+                { value: "soft", label: "Мягкая" },
+                { value: "strong", label: "Выразительная" },
+              ]}
+              onChange={(value) => patch("buttons", "shadow", value)}
+            />
+          </div>
+        </details>
+      </details>
+
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
+          <span>Карточки</span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
+        </summary>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", {})} className={quickButton(cardPreset === "template")}>Из шаблона</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "soft", border: "none", shadow: "none" })} className={quickButton(cardPreset === "flat")}>Плоские</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "soft", border: "subtle", shadow: "none" })} className={quickButton(cardPreset === "outlined")}>С рамкой</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "rounded", border: "none", shadow: "strong" })} className={quickButton(cardPreset === "elevated")}>Объёмные</button>
+        </div>
+        <details className="mt-3 rounded-xl bg-[#f7f5f0] p-3">
+          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Точная настройка</summary>
+          <div className="mt-3 grid gap-3">
+            <CompactSelect label="Форма" value={current.cards?.radius ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "square", label: "Прямые" },
+              { value: "soft", label: "Мягкие" },
+              { value: "rounded", label: "Крупное скругление" },
+            ]} onChange={(value) => patch("cards", "radius", value)} />
+            <CompactSelect label="Граница" value={current.cards?.border ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "none", label: "Без границы" },
+              { value: "subtle", label: "Тонкая" },
+              { value: "strong", label: "Выразительная" },
+            ]} onChange={(value) => patch("cards", "border", value)} />
+            <CompactSelect label="Тень" value={current.cards?.shadow ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "none", label: "Без тени" },
+              { value: "soft", label: "Мягкая" },
+              { value: "strong", label: "Выразительная" },
+            ]} onChange={(value) => patch("cards", "shadow", value)} />
+          </div>
+        </details>
+      </details>
+
+      <button
+        type="button"
+        disabled={disabled || Object.keys(current).length === 0}
+        onClick={() => onChange({})}
+        className="rounded-xl border border-black/10 bg-white px-4 py-2.5 text-[11px] font-semibold text-[#716d65] disabled:opacity-35"
+      >
+        Вернуть дизайн шаблона
       </button>
     </div>
   );
@@ -7939,7 +8382,7 @@ function CanvasSectionPreview({
           const price = previewServicePrice(service);
           const duration = previewServiceDuration(service);
           return (
-            <article key={service.slug} className={`overflow-hidden rounded-2xl border border-white/12 bg-white/5 ${draft.services_layout === "list" ? "grid grid-cols-[120px_1fr]" : ""}`}>
+            <article key={service.slug} className={`os-site-card overflow-hidden rounded-2xl border border-white/12 bg-white/5 ${draft.services_layout === "list" ? "grid grid-cols-[120px_1fr]" : ""}`}>
               {image ? (
                 <img
                   src={image}
@@ -8014,7 +8457,7 @@ function CanvasSectionPreview({
           {previewProjects.map((project, index) => (
             <article
               key={project.id}
-              className={`overflow-hidden rounded-xl border border-black/8 bg-white ${
+              className={`os-site-card overflow-hidden rounded-xl border border-black/8 bg-white ${
                 draft.portfolio_layout === "masonry"
                   ? "mb-2 break-inside-avoid"
                   : ""
@@ -8076,7 +8519,7 @@ function CanvasSectionPreview({
           return (
             <article
               key={`${member}-${index}`}
-              className="overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+              className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
             >
               <div className="aspect-[4/3] overflow-hidden bg-[#eadde0]">
                 <img
@@ -8118,7 +8561,7 @@ function CanvasSectionPreview({
             </span>
           ))}
         </div>
-        <span className="mt-3 flex min-h-10 items-center justify-center rounded-xl bg-[#a60918] text-[10px] font-semibold text-white">
+        <span className="os-site-button mt-3 flex min-h-10 items-center justify-center rounded-xl bg-[#a60918] text-[10px] font-semibold text-white">
           Показать свободное время
         </span>
       </div>
@@ -8130,7 +8573,7 @@ function CanvasSectionPreview({
     return (
       <div className="mt-7 grid gap-2 sm:grid-cols-2">
         {reviews.map((review) => (
-          <blockquote key={review.id} className="rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-[#2f2d29]">
+          <blockquote key={review.id} className="os-site-card rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-[#2f2d29]">
             <span className="block text-[#9d3151]">
               {"★".repeat(review.rating)}
             </span>
@@ -8168,7 +8611,7 @@ function CanvasSectionPreview({
             return (
               <article
                 key={`${item}-${index}`}
-                className="overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+                className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#eadde0]">
                   <img
@@ -8196,7 +8639,7 @@ function CanvasSectionPreview({
                       {description}
                     </p>
                   ) : null}
-                  <span className="mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
+                  <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
                     {buttonLabel || "Вступить"}
                   </span>
                 </div>
@@ -8228,7 +8671,7 @@ function CanvasSectionPreview({
             return (
               <article
                 key={`${item}-${index}`}
-                className="rounded-2xl border border-black/8 bg-white/70 p-4"
+                className="os-site-card rounded-2xl border border-black/8 bg-white/70 p-4"
               >
                 <span
                   className="grid h-10 w-10 place-items-center rounded-full border text-lg"
@@ -8270,7 +8713,7 @@ function CanvasSectionPreview({
             return (
               <article
                 key={`${item}-${index}`}
-                className="overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+                className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#eadde0]">
                   <img
@@ -8294,7 +8737,7 @@ function CanvasSectionPreview({
                       {description}
                     </p>
                   ) : null}
-                  <span className="mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
+                  <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
                     {buttonLabel || "Выбрать"}
                   </span>
                 </div>
@@ -8385,7 +8828,7 @@ function CanvasSectionPreview({
                 return (
                   <article
                     key={`${item}-${index}`}
-                    className="rounded-xl border border-black/10 bg-white/70 p-3"
+                    className="os-site-card rounded-xl border border-black/10 bg-white/70 p-3"
                   >
                     <p className="text-base font-semibold">{value}</p>
                     {labelParts.length ? (
@@ -8529,12 +8972,14 @@ function BlockButton({
 }
 
 function CanvasBlock({
+  anchorId,
   active,
   muted,
   order,
   onClick,
   children,
 }: {
+  anchorId?: string;
   active: boolean;
   muted?: boolean;
   order?: number;
@@ -8544,6 +8989,7 @@ function CanvasBlock({
   return (
     <button
       type="button"
+      data-editor-anchor={anchorId}
       onClick={onClick}
       style={order === undefined ? undefined : { order }}
       className={`relative block w-full text-left outline-none transition ${muted ? "opacity-35 grayscale" : ""} ${active ? "ring-2 ring-inset ring-[#b58a36]" : "hover:ring-2 hover:ring-inset hover:ring-black/15"}`}

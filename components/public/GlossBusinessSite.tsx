@@ -15,6 +15,7 @@ import {
 } from "@/lib/public-site/metadata";
 import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
+import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -288,7 +289,7 @@ export default function GlossBusinessSite({
   return (
     <main
       lang={business.locale}
-      className="min-h-screen"
+      className={publicSiteDesignClass(content, "min-h-screen")}
       style={{
         backgroundColor: content.theme_surface ?? "#fffdfb",
         color: content.theme_dark ?? "#551214",
@@ -354,7 +355,7 @@ export default function GlossBusinessSite({
             {capabilities.booking ? (
               <Link
                 href={bookingHref}
-                className="hidden rounded-md bg-[var(--site-accent)] px-6 py-3 text-xs font-semibold text-white sm:inline-flex"
+                className="os-site-button hidden rounded-md bg-[var(--site-accent)] px-6 py-3 text-xs font-semibold text-white sm:inline-flex"
               >
                 {content.booking_label}
               </Link>
@@ -380,7 +381,7 @@ export default function GlossBusinessSite({
                 <h1 className={`mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-6 max-w-xl text-base leading-7 text-white/78">{content.hero_text}</p>
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
                     <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
@@ -396,7 +397,7 @@ export default function GlossBusinessSite({
                 <h1 className={`mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`}>{content.hero_title}</h1>
                 <p className="mt-6 max-w-md text-base leading-7 text-[#6a5551]">{content.hero_text}</p>
                 <div className="mt-7 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
                     <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
@@ -436,7 +437,7 @@ export default function GlossBusinessSite({
                   return (
                     <article
                       key={service.id}
-                      className={`overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white p-2 ${servicesLayout === "list" ? "grid gap-3 sm:grid-cols-[220px_1fr]" : ""}`}
+                      className={`os-site-card overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white p-2 ${servicesLayout === "list" ? "grid gap-3 sm:grid-cols-[220px_1fr]" : ""}`}
                     >
                       {image ? (
                         <div className={`relative overflow-hidden rounded-lg ${servicesLayout === "list" ? "min-h-40" : "aspect-[16/10]"}`}>
@@ -570,7 +571,7 @@ export default function GlossBusinessSite({
                   return (
                     <article
                       key={`${item}-${index}`}
-                      className="overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white"
+                      className="os-site-card overflow-hidden rounded-xl border border-[#3b211f]/10 bg-white"
                     >
                       <div className="relative aspect-[4/3] bg-[#eadde0]">
                         {/* Editable media URLs may point to the workspace CDN. */}
@@ -672,7 +673,7 @@ export default function GlossBusinessSite({
                   return (
                     <article
                       key={`${item}-${index}`}
-                      className="overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
+                      className="os-site-card overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
                     >
                       <div className="relative aspect-[4/3] bg-[#eadde0]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -701,7 +702,7 @@ export default function GlossBusinessSite({
                               href={buttonUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                              className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
                             >
                               {buttonLabel || "Вступить"}
                             </a>
@@ -730,7 +731,7 @@ export default function GlossBusinessSite({
             style={publicSystemSectionStyle(content, "safety", { order: layoutPosition(sectionLayoutId("safety")) })}
             className={publicSystemSectionClass(content, "safety", "py-6")}
           >
-            <div className={publicSystemSectionContentClass(content, "safety", "rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10")}>
+            <div className={publicSystemSectionContentClass(content, "safety", "os-site-card rounded-2xl border border-[#3b211f]/10 bg-white p-7 sm:p-10")}>
               {content.safety_label ? (
                 <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--site-accent)]">
                   {content.safety_label}
@@ -752,7 +753,7 @@ export default function GlossBusinessSite({
                   return (
                     <article
                       key={`${item}-${index}`}
-                      className="rounded-xl border border-[#3b211f]/10 bg-[#fffaf8] p-6 text-[#60312e]"
+                      className="os-site-card rounded-xl border border-[#3b211f]/10 bg-[#fffaf8] p-6 text-[#60312e]"
                     >
                       {icon ? (
                         <span className="grid h-12 w-12 place-items-center rounded-full border border-[var(--site-accent)]/25 text-xl text-[var(--site-accent)]">
@@ -782,7 +783,7 @@ export default function GlossBusinessSite({
             style={publicSystemSectionStyle(content, "reviews", { order: layoutPosition(sectionLayoutId("reviews")) })}
             className={publicSystemSectionClass(content, "reviews", "py-6")}
           >
-            <div className={publicSystemSectionContentClass(content, "reviews", "rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12")}>
+            <div className={publicSystemSectionContentClass(content, "reviews", "os-site-card rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12")}>
               <h2 className="font-serif text-4xl">
                 {content.reviews_title}
               </h2>
@@ -869,7 +870,7 @@ export default function GlossBusinessSite({
                   return (
                     <article
                       key={`${item}-${index}`}
-                      className="overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
+                      className="os-site-card overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white"
                     >
                       <div className="relative aspect-[4/3] bg-[#eadde0]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -898,7 +899,7 @@ export default function GlossBusinessSite({
                               href={buttonUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
+                              className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
                             >
                               {buttonLabel || "Выбрать"}
                             </a>
@@ -997,7 +998,7 @@ export default function GlossBusinessSite({
                           .map((part) => part.trim());
                         const label = labelParts.join(" · ");
                         return (
-                          <article key={`${item}-${index}`} className="rounded-lg border border-[#3b211f]/10 bg-white p-5">
+                          <article key={`${item}-${index}`} className="os-site-card rounded-lg border border-[#3b211f]/10 bg-white p-5">
                             <p className="font-serif text-3xl">{value}</p>
                             {label ? (
                               <p className="mt-2 text-xs leading-5 text-[#75615d]">
@@ -1012,7 +1013,7 @@ export default function GlossBusinessSite({
                   {content.about_button_label ? (
                     <a
                       href={content.about_button_url || "#contact"}
-                      className="mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
+                      className="os-site-button mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
                     >
                       {content.about_button_label}
                     </a>
@@ -1043,7 +1044,7 @@ export default function GlossBusinessSite({
             style={publicSystemSectionStyle(content, "contact", { order: layoutPosition(sectionLayoutId("contact")) })}
             className={publicSystemSectionClass(content, "contact", "pb-6 pt-10")}
           >
-            <div className={publicSystemSectionContentClass(content, "contact", "grid overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]")}>
+            <div className={publicSystemSectionContentClass(content, "contact", "os-site-card grid overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]")}>
               <div className="p-8 sm:p-10">
                 <h2 className="font-serif text-4xl">
                   {content.contact_title || "Ждём вас"}
@@ -1072,7 +1073,7 @@ export default function GlossBusinessSite({
                     href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-11 items-center rounded-md bg-[var(--site-accent)] px-6 text-xs font-semibold text-white"
+                    className="os-site-button inline-flex min-h-11 items-center rounded-md bg-[var(--site-accent)] px-6 text-xs font-semibold text-white"
                   >
                     {routeLabel}
                   </a>

@@ -36,6 +36,54 @@ export type PublicSiteSystemSectionBackgroundOverlay =
   | "soft"
   | "strong";
 
+export type PublicSiteDesignFont = "template" | "system" | "humanist" | "editorial";
+export type PublicSiteDesignHeadingWeight =
+  | "template"
+  | "regular"
+  | "medium"
+  | "semibold"
+  | "bold";
+export type PublicSiteDesignHeadingTracking =
+  | "template"
+  | "tight"
+  | "normal"
+  | "wide";
+export type PublicSiteDesignButtonRadius =
+  | "template"
+  | "square"
+  | "soft"
+  | "rounded"
+  | "pill";
+export type PublicSiteDesignElevation = "template" | "none" | "soft" | "strong";
+export type PublicSiteDesignCardRadius =
+  | "template"
+  | "square"
+  | "soft"
+  | "rounded";
+export type PublicSiteDesignCardBorder =
+  | "template"
+  | "none"
+  | "subtle"
+  | "strong";
+
+export type PublicSiteDesignSystem = {
+  typography?: {
+    body_font?: PublicSiteDesignFont;
+    heading_font?: PublicSiteDesignFont;
+    heading_weight?: PublicSiteDesignHeadingWeight;
+    heading_tracking?: PublicSiteDesignHeadingTracking;
+  };
+  buttons?: {
+    radius?: PublicSiteDesignButtonRadius;
+    shadow?: PublicSiteDesignElevation;
+  };
+  cards?: {
+    radius?: PublicSiteDesignCardRadius;
+    border?: PublicSiteDesignCardBorder;
+    shadow?: PublicSiteDesignElevation;
+  };
+};
+
 export type PublicSiteSystemSectionSettings = {
   layout?: PublicSiteSystemSectionLayout;
   content_width?: PublicSiteBlockWidth;
@@ -59,6 +107,7 @@ export type PublicSiteContent = {
   theme_accent?: string;
   theme_dark?: string;
   theme_surface?: string;
+  design_system?: PublicSiteDesignSystem;
   section_colors?: Partial<Record<PublicSiteCanvasSection, PublicSiteBlockColors>>;
   system_section_settings?: Partial<Record<PublicSiteCanvasSection, PublicSiteSystemSectionSettings>>;
   brand_name?: string;
