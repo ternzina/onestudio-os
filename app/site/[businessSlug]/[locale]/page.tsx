@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import PublicBusinessSite from "@/components/public/PublicBusinessSite";
+import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
 import PublicSiteStructuredData from "@/components/public/PublicSiteStructuredData";
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicSiteMetadata } from "@/lib/public-site/metadata";
 import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
+import { renderPublicSiteTemplatePath } from "@/components/public/PublicSiteTemplatePathRuntime";
 
 export const dynamic = "force-dynamic";
 
@@ -16,15 +17,27 @@ export async function generateMetadata({
   params,
 }: LocalizedPublicSitePageProps): Promise<Metadata> {
   const { businessSlug, locale } = await params;
-  const [site, context] = await Promise.all([
+  const [localizedSite, context] = await Promise.all([
     getPublicSite(businessSlug, locale),
     getPublicSiteRequestContext(),
   ]);
+  const site = localizedSite ?? await getPublicSite(businessSlug);
 
-  if (!site || site.business.locale !== locale.toLowerCase()) {
+  if (!localizedSite && site) {
+    const templatePage = renderPublicSiteTemplatePath({
+      site,
+      path: [locale],
+      basePath: `/site/${businessSlug}`,
+    });
+    if (templatePage) {
+      return { title: `${locale} | ${site.content.brand_name || site.business.name}`, robots: { index: false } };
+    }
+  }
+
+  if (!localizedSite || localizedSite.business.locale !== locale.toLowerCase()) {
     return { title: "Site not found", robots: { index: false } };
   }
-  return createPublicSiteMetadata(site, locale, context);
+  return createPublicSiteMetadata(localizedSite, locale, context);
 }
 
 export default async function LocalizedPublicSitePage({
@@ -32,10 +45,23 @@ export default async function LocalizedPublicSitePage({
 }: LocalizedPublicSitePageProps) {
   const { businessSlug, locale } = await params;
   const normalizedLocale = locale.toLowerCase();
-  const [site, context] = await Promise.all([
+  const [localizedSite, context] = await Promise.all([
     getPublicSite(businessSlug, normalizedLocale),
     getPublicSiteRequestContext(),
   ]);
+
+  if (!localizedSite) {
+    const site = await getPublicSite(businessSlug);
+    if (!site) notFound();
+    const templatePage = renderPublicSiteTemplatePath({
+      site,
+      path: [normalizedLocale],
+      basePath: context.cleanUrls ? "/" : `/site/${businessSlug}`,
+    });
+    if (templatePage) return templatePage;
+    notFound();
+  }
+  const site = localizedSite;
 
   if (!site || site.business.locale !== normalizedLocale) notFound();
   if (normalizedLocale === site.business.primary_locale) {
@@ -45,7 +71,7 @@ export default async function LocalizedPublicSitePage({
   return (
     <>
       <PublicSiteStructuredData site={site} />
-      <PublicBusinessSite site={site} />
+      <PublicSiteTemplateRuntime site={site} basePath={`/site/${businessSlug}/${normalizedLocale}`} />
     </>
   );
 }

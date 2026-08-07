@@ -10,7 +10,6 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import BackToDashboardButton from "@/components/public/BackToDashboardButton";
-import GlossBusinessSite from "@/components/public/GlossBusinessSite";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
@@ -164,10 +163,6 @@ function menuLabels(locale: string) {
 }
 
 export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
-  if (site.content.template_id === "gloss-nail-studio") {
-    return <GlossBusinessSite site={site} />;
-  }
-
   const {
     business,
     company,

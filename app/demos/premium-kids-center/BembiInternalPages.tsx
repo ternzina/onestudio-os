@@ -1,0 +1,17 @@
+import Image from "next/image";
+import Link from "next/link";
+import { articles } from "./content";
+import { ExperimentExplorer, TaskExplorer } from "./InteractiveBlocks";
+import { WorkbookExperience } from "./PremiumMotion";
+import { Arrow, bembiHref, PlatformLayout } from "./PlatformShell";
+import styles from "./Platform.module.css";
+
+type Props = { basePath: string; demo?: boolean };
+
+export function BembiTasksPage({ basePath, demo = false }: Props) { return <PlatformLayout basePath={basePath} demo={demo}><main><section className={styles.pageHero}><div><div className={styles.breadcrumbs}><Link href={basePath}>BEMBI</Link><span>/</span><span>Задания</span></div><p>Practice library / 01</p><h1>Задания, к которым хочется вернуться</h1></div><div>Короткая практика для дома и занятий: понятная цель, красивый printable-лист и место для собственного способа решения.</div></section><section className={styles.pageBody}><TaskExplorer /></section></main></PlatformLayout>; }
+
+export function BembiWorkbooksPage({ basePath, demo = false }: Props) { return <PlatformLayout basePath={basePath} demo={demo}><main><section className={styles.pageHero}><div><div className={styles.breadcrumbs}><Link href={basePath}>BEMBI</Link><span>/</span><span>Тетради</span></div><p>Learning routes / 04</p><h1>Маленькие шаги складываются в навык</h1></div><div>У каждой программы есть темп, понятная последовательность и паузы для повторения — без бесконечной ленты случайных упражнений.</div></section><section className={`${styles.pageBody} ${styles.workbookSection}`}><WorkbookExperience /></section></main></PlatformLayout>; }
+
+export function BembiExperimentsPage({ basePath, demo = false }: Props) { return <PlatformLayout basePath={basePath} demo={demo}><main><section className={styles.pageHero}><div><div className={styles.breadcrumbs}><Link href={basePath}>BEMBI</Link><span>/</span><span>Эксперименты</span></div><p>Home laboratory / 02</p><h1>Вопросы, которые можно проверить руками</h1></div><div>Каждый проект показывает материалы, время, сложность и роль взрослого. Никакой тяжёлой теории до первого наблюдения.</div></section><section className={styles.pageBody}><ExperimentExplorer /></section></main></PlatformLayout>; }
+
+export function BembiArticlesPage({ basePath, demo = false }: Props) { return <PlatformLayout basePath={basePath} demo={demo}><main><section className={styles.pageHero}><div><div className={styles.breadcrumbs}><Link href={basePath}>BEMBI</Link><span>/</span><span>Журнал</span></div><p>Parent journal / 03</p><h1>Понятно о развитии и поддержке ребёнка</h1></div><div>Без обещаний «научить за три дня». Наблюдения, практические схемы и идеи, которые помогают семье найти свой темп.</div></section><section className={styles.pageBody}><div className={styles.articleGrid}>{articles.map((article,index)=><article className={index===0?styles.featureArticle:""} key={article.slug}><Link href={article.slug==="add-subtract-within-100"?bembiHref(basePath, `articles/${article.slug}`):"#journal-note"}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index===0?"(max-width:760px) 100vw,58vw":"(max-width:760px) 100vw,28vw"}/></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow/></b></Link></article>)}</div><p id="journal-note" style={{marginTop:48}}>Одна статья открывается полностью; остальные карточки показывают структуру будущего журнала в демонстрационном интерфейсе.</p></section></main></PlatformLayout>; }

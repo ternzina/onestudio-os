@@ -13,6 +13,7 @@ const APP_ONLY_PREFIXES = [
   "/launch",
   "/demos",
   "/configure",
+  "/site-preview",
 ];
 
 const GLOBAL_PUBLIC_PREFIXES = [

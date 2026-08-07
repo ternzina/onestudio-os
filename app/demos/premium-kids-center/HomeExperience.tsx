@@ -7,10 +7,13 @@ import EditorialMotion from "./EditorialMotion";
 import { DiscoveryRoute, HeroDiscovery, TodayDiscovery, WorkbookExperience } from "./PremiumMotion";
 import { CenterExperience, CenterFinalCta, CenterStickyNav } from "./CenterExperience";
 import styles from "./Platform.module.css";
+import type { PublicSiteData } from "@/lib/public-site/types";
+import { BEMBI_DEMO_BASE_PATH, bembiHref } from "./PlatformShell";
 
-export default function HomeExperience() {
-  return <PlatformLayout><main>
-    <HeroDiscovery />
+export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }: { basePath?: string; site?: PublicSiteData }) {
+  const demo = !site;
+  return <PlatformLayout basePath={basePath} demo={demo}><main>
+    <HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} />
     <CenterStickyNav />
     <DiscoveryRoute />
 
@@ -18,13 +21,13 @@ export default function HomeExperience() {
 
     <section className={`${styles.section} ${styles.interests}`} id="interests"><SectionLead index="02" eyebrow="Навигатор по интересам" title="Что интересно вашему ребёнку сегодня?" text="Выберите направление — платформа соберёт подходящие задания, истории и занятия." /><InterestNavigator /></section>
 
-    <section className={`${styles.section} ${styles.tasksSection}`} id="tasks"><SectionLead index="03" eyebrow="Библиотека практики" title="Практические задания" text="Материалы, которые можно открыть, выполнить вместе или распечатать." /><TaskExplorer compact /><div className={styles.sectionLink}><Link href="/demos/premium-kids-center/tasks">Вся библиотека заданий <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.tasksSection}`} id="tasks"><SectionLead index="03" eyebrow="Библиотека практики" title="Практические задания" text="Материалы, которые можно открыть, выполнить вместе или распечатать." /><TaskExplorer compact /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "tasks")}>Вся библиотека заданий <Arrow /></Link></div></section>
 
-    <section className={`${styles.section} ${styles.workbookSection}`} id="workbooks"><SectionLead index="04" eyebrow="Рабочие тетради и программы" title="Учимся последовательно" text="Не случайный набор листов, а спокойный маршрут: одна идея становится уверенностью через короткую регулярную практику." /><WorkbookExperience /><div className={styles.sectionLink}><Link href="/demos/premium-kids-center/workbooks">Открыть все программы <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.workbookSection}`} id="workbooks"><SectionLead index="04" eyebrow="Рабочие тетради и программы" title="Учимся последовательно" text="Не случайный набор листов, а спокойный маршрут: одна идея становится уверенностью через короткую регулярную практику." /><WorkbookExperience /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "workbooks")}>Открыть все программы <Arrow /></Link></div></section>
 
-    <section className={`${styles.section} ${styles.experiments}`} id="experiments"><SectionLead index="05" eyebrow="Домашняя лаборатория" title="Эксперименты и творчество" text="Проекты с понятными материалами, временем и ролью взрослого — от первого вопроса до собственного вывода." /><ExperimentExplorer limit={4} /><div className={styles.sectionLink}><Link href="/demos/premium-kids-center/experiments">Все эксперименты <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.experiments}`} id="experiments"><SectionLead index="05" eyebrow="Домашняя лаборатория" title="Эксперименты и творчество" text="Проекты с понятными материалами, временем и ролью взрослого — от первого вопроса до собственного вывода." /><ExperimentExplorer limit={4} /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "experiments")}>Все эксперименты <Arrow /></Link></div></section>
 
-    <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? `/demos/premium-kids-center/articles/${article.slug}` : "/demos/premium-kids-center/articles"}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href="/demos/premium-kids-center/articles">Открыть журнал <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? bembiHref(basePath, `articles/${article.slug}`) : bembiHref(basePath, "articles")}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href={bembiHref(basePath, "articles")}>Открыть журнал <Arrow /></Link></div></section>
 
     <CenterExperience />
 
@@ -38,7 +41,7 @@ export default function HomeExperience() {
 
     <TodayDiscovery />
 
-    <section className={styles.finalCta}><p>BEMBI / Discovery Platform</p><h2>Большие открытия начинаются с <em>маленького интереса.</em></h2><div><a href="#offline">Подобрать программу <Arrow /></a><Link href="/demos/premium-kids-center/tasks">Открыть практические задания</Link><a href="#offline">Записаться на пробное занятие</a></div><span>Демонстрационный интерфейс OneStudio OS.</span></section>
+    <section className={styles.finalCta}><p>{site?.content.brand_name || "BEMBI"} / Discovery Platform</p><h2>Большие открытия начинаются с <em>маленького интереса.</em></h2><div><a href="#offline">Подобрать программу <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>Открыть практические задания</Link><a href="#offline">Записаться на пробное занятие</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
     <CenterFinalCta />
   </main></PlatformLayout>;
 }

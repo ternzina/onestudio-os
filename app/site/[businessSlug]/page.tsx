@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PublicBusinessSite from "@/components/public/PublicBusinessSite";
+import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
 import PublicSiteStructuredData from "@/components/public/PublicSiteStructuredData";
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicSiteMetadata } from "@/lib/public-site/metadata";
@@ -29,13 +29,16 @@ export default async function PublicSitePage({
   params,
 }: PublicSitePageProps) {
   const { businessSlug } = await params;
-  const site = await getPublicSite(businessSlug);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
   if (!site) notFound();
 
   return (
     <>
       <PublicSiteStructuredData site={site} />
-      <PublicBusinessSite site={site} />
+      <PublicSiteTemplateRuntime site={site} basePath={context.cleanUrls ? "/" : `/site/${businessSlug}`} />
     </>
   );
 }

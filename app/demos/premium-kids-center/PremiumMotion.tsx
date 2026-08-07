@@ -10,7 +10,7 @@ import styles from "./Platform.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function HeroDiscovery() {
+export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks" }: { tasksHref?: string }) {
   const reduced = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
@@ -36,7 +36,7 @@ export function HeroDiscovery() {
       <motion.p className={styles.kicker} variants={{ hidden: { opacity: 0, x: -14 }, visible: { opacity: 1, x: 0, transition: { duration: .55, ease } } }}><span>01</span> Learning ecosystem · Warszawa / online</motion.p>
       <h1 aria-label="Место для больших открытий"><span className={styles.heroLine}><motion.span variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>Место для</motion.span></span><span className={styles.heroLine}><motion.em variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>больших</motion.em></span><span className={styles.heroLine}><motion.em variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>открытий</motion.em></span></h1>
       <motion.p className={styles.heroText} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: .55, ease } } }}>Программы, в которых детям интересно расти, исследовать и открывать новое.</motion.p>
-      <motion.div className={styles.heroActions} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .5 } } }}><a href="#offline" className={styles.primaryButton}>Найти занятие <Arrow /></a><Link href="/demos/premium-kids-center/tasks" className={styles.secondaryButton}>Открыть библиотеку заданий</Link></motion.div>
+      <motion.div className={styles.heroActions} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .5 } } }}><a href="#offline" className={styles.primaryButton}>Найти занятие <Arrow /></a><Link href={tasksHref} className={styles.secondaryButton}>Открыть библиотеку заданий</Link></motion.div>
       <motion.ul className={styles.heroCategories} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}><li>Практика</li><li>Эксперименты</li><li>Журнал</li><li>Офлайн-программы</li></motion.ul>
     </motion.div>
     <div ref={stageRef} className={styles.heroVisual} onPointerMove={trackPointer} onPointerLeave={() => { pointerX.set(0); pointerY.set(0); }}>

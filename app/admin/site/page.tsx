@@ -46,6 +46,7 @@ import {
   type SiteTemplate,
 } from "@/lib/public-site/templates";
 import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
+import { SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
 import { supabase } from "@/lib/supabase";
 
 type Workspace = {
@@ -1386,6 +1387,7 @@ export default function AdminSitePage() {
           onAddLocale={() => void addLocale()}
           onLocaleChange={chooseLocale}
           onTemplate={installTemplate}
+          onTemplateKey={(templateKey) => replaceDraft({ ...draft, template_id: templateKey }, "site-template")}
           onPublish={() =>
             clientMode
               ? openClientPublicationReview()
@@ -1632,6 +1634,7 @@ function VisualBuilder({
   onAddLocale,
   onLocaleChange,
   onTemplate,
+  onTemplateKey,
   onPublish,
   onSave,
   onSectionChange,
@@ -1667,6 +1670,7 @@ function VisualBuilder({
   onAddLocale: () => void;
   onLocaleChange: (locale: string) => void;
   onTemplate: (template: SiteTemplate) => void;
+  onTemplateKey: (templateKey: string) => void;
   onPublish: () => void;
   onSave: () => void;
   onSectionChange: (section: CanvasSection) => void;
@@ -3601,6 +3605,39 @@ function VisualBuilder({
               </div>
               <button type="button" onClick={() => setTemplatesOpen(false)} className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold">×</button>
             </div>
+            <section className="mt-7">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">Шаблон сайта</p>
+                  <h3 className="mt-2 text-xl font-semibold">Текущий и Premium runtime</h3>
+                </div>
+                <p className="text-xs text-[#716d65]">Публикация выполняется отдельно</p>
+              </div>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {SITE_TEMPLATE_REGISTRY.filter((template) => template.key === "standard" || template.tier === "premium").map((template) => {
+                  const selected = (draft.template_id || "standard") === template.key;
+                  const previewHref = `/site-preview/${template.key}/${businessSlug}`;
+                  return (
+                    <article key={template.key} className={`rounded-[22px] border bg-white p-5 ${selected ? "border-[#9d3151] ring-2 ring-[#9d3151]/10" : "border-black/8"}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-semibold">{template.name}</p>
+                          <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p>
+                        </div>
+                        <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.tier === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{template.tier}</span>
+                      </div>
+                      <p className="mt-4 text-sm leading-6 text-[#716d65]">{template.description}</p>
+                      <div className="mt-5 flex gap-2">
+                        <button type="button" disabled={selected || !canConfigure} onClick={() => onTemplateKey(template.key)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">
+                          {selected ? "Выбран" : "Выбрать в черновик"}
+                        </button>
+                        {template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Preview ↗</Link> : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
             <div className="mt-7 grid gap-4 md:grid-cols-2">
               {SITE_TEMPLATES.map((template) => (
                 <article key={template.id} className="overflow-hidden rounded-[24px] border border-black/8 bg-white">
