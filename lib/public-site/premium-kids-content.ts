@@ -1,8 +1,11 @@
 import type { PublicSiteContent } from "@/lib/public-site/types";
+import type { PublicSiteTypography } from "@/lib/public-site/types";
 
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
 export type PremiumKidsContent = {
+  hidden_sections: string[];
+  heading_typography: Record<string, PublicSiteTypography>;
   brand_name: string;
   brand_tagline: string;
   hero_eyebrow: string;
@@ -38,6 +41,8 @@ export type PremiumKidsContent = {
 };
 
 export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsContent = {
+  hidden_sections: [],
+  heading_typography: {},
   brand_name: "BEMBI",
   brand_tagline: "Discovery Platform",
   hero_eyebrow: "Learning ecosystem · Warszawa / online",
@@ -82,7 +87,9 @@ export function resolvePremiumKidsContent(content?: PublicSiteContent): PremiumK
   const result = { ...DEFAULT_PREMIUM_KIDS_CONTENT };
   for (const key of Object.keys(result) as Array<keyof PremiumKidsContent>) {
     const value = source[key];
-    if (Array.isArray(result[key])) {
+    if (key === "heading_typography") {
+      (result as Record<string, unknown>)[key] = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    } else if (Array.isArray(result[key])) {
       (result as Record<string, unknown>)[key] = strings(value, result[key] as string[]);
     } else if (typeof value === "string") {
       (result as Record<string, unknown>)[key] = value;

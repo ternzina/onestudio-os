@@ -1457,7 +1457,13 @@ export default function AdminSitePage() {
           disabled={!canConfigure}
           saving={saving}
           hasUnsavedChanges={hasUnsavedChanges}
+          device={previewDevice}
+          canUndo={undoDepth > 0}
+          canRedo={redoDepth > 0}
           onChange={(nextDraft) => replaceDraft(nextDraft, "premium-template-content")}
+          onDeviceChange={setPreviewDevice}
+          onUndo={undoEditorChange}
+          onRedo={redoEditorChange}
           onSave={() => void saveDraft()}
           onPublish={() => clientMode ? openClientPublicationReview() : void saveDraft({ publish: true })}
         /> : <VisualBuilder

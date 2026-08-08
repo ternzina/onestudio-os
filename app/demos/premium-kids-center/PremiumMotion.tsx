@@ -7,6 +7,8 @@ import { useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { experiments, tasks, workbooks, type Task } from "./content";
 import { Arrow } from "./PlatformShell";
 import styles from "./Platform.module.css";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
+import PublicRichText from "@/components/public/PublicRichText";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -34,8 +36,8 @@ export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", 
   return <section className={styles.hero} id="top">
     <motion.div className={styles.heroCopy} initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : .09 } } }}>
       <motion.p className={styles.kicker} variants={{ hidden: { opacity: 0, x: -14 }, visible: { opacity: 1, x: 0, transition: { duration: .55, ease } } }}><span>01</span> {content?.hero_eyebrow ?? "Learning ecosystem · Warszawa / online"}</motion.p>
-      <h1 aria-label={(content?.hero_title ?? "Место для больших открытий").replaceAll("\n", " ")}>{(content?.hero_title ?? "Место для\nбольших\nоткрытий").split("\n").map((line, index) => <span className={styles.heroLine} key={`${line}-${index}`}>{index === 0 ? <motion.span variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.span> : <motion.em variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.em>}</span>)}</h1>
-      <motion.p className={styles.heroText} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: .55, ease } } }}>{content?.hero_description ?? "Программы, в которых детям интересно расти, исследовать и открывать новое."}</motion.p>
+      <h1 style={publicTypographyStyle(content?.heading_typography.hero)} aria-label={(content?.hero_title ?? "Место для больших открытий").replaceAll("\n", " ")}>{(content?.hero_title ?? "Место для\nбольших\nоткрытий").split("\n").map((line, index) => <span className={styles.heroLine} key={`${line}-${index}`}>{index === 0 ? <motion.span variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.span> : <motion.em variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.em>}</span>)}</h1>
+      <motion.div className={styles.heroText} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: .55, ease } } }}><PublicRichText value={content?.hero_description ?? "Программы, в которых детям интересно расти, исследовать и открывать новое."} /></motion.div>
       <motion.div className={styles.heroActions} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .5 } } }}><a href="#offline" className={styles.primaryButton}>{content?.primary_cta_label ?? "Найти занятие"} <Arrow /></a><Link href={tasksHref} className={styles.secondaryButton}>{content?.secondary_cta_label ?? "Открыть библиотеку заданий"}</Link></motion.div>
       <motion.ul className={styles.heroCategories} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}><li>Практика</li><li>Эксперименты</li><li>Журнал</li><li>Офлайн-программы</li></motion.ul>
     </motion.div>
