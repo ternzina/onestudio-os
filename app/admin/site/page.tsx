@@ -937,7 +937,7 @@ export default function AdminSitePage() {
     }
 
     if (options?.publish) {
-      const { error: publishError } = await supabase.rpc(
+      const { data: publishedData, error: publishError } = await supabase.rpc(
         "publish_public_site",
         {
           p_business_id: workspace.business_id,
@@ -947,6 +947,11 @@ export default function AdminSitePage() {
 
       if (publishError) {
         setError(publishError.message);
+        setSaving(false);
+        return false;
+      }
+      if (!templateContentRoundTripMatches(draftToSave, publishedData as PublicSiteContent | null)) {
+        setError("Публикация Premium не подтверждена: сервер не вернул полную композицию шаблона. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
         setSaving(false);
         return false;
       }

@@ -40,7 +40,7 @@ async function setSelectedTitle(page: Page, value: string) {
   await expect(title).toHaveValue(value);
 }
 
-test("real Premium Save preserves universal composition and published isolation", async ({ page }) => {
+test("real Premium Save and explicit Publish preserve universal composition", async ({ page }) => {
   const stamp = Date.now();
   const email = `premium-persistence-${stamp}@example.com`;
   const password = `Premium-persistence-${stamp}!`;
@@ -59,7 +59,9 @@ test("real Premium Save preserves universal composition and published isolation"
       },
     });
     expect(workspaceError).toBeNull();
-    businessId = (Array.isArray(workspace) ? workspace[0] : workspace)?.business_id as string;
+    const workspaceRow = Array.isArray(workspace) ? workspace[0] : workspace;
+    businessId = workspaceRow?.business_id as string;
+    const businessSlug = workspaceRow?.business_slug as string;
 
     const { data: localeRow } = await admin.from("public_site_locales").select("draft_content,published_content").eq("business_id", businessId).eq("locale", "en").single();
     const initialDraft = localeRow!.draft_content as Record<string, unknown>;
@@ -138,6 +140,40 @@ test("real Premium Save preserves universal composition and published isolation"
     const phoneGrid = page.frameLocator('iframe[title="BEMBI Premium · mobile"]').locator('[data-premium-columns="2"]');
     await expect(phoneGrid).toHaveCount(1);
     expect((await phoneGrid.evaluate(element => getComputedStyle(element).gridTemplateColumns)).split(" ")).toHaveLength(1);
+
+    await page.getByRole("button", { name: "Desktop", exact: true }).click();
+    const publishResponsePromise = page.waitForResponse(response => response.url().includes("/rpc/publish_public_site"));
+    await page.getByRole("button", { name: "Опубликовать", exact: true }).first().click();
+    const publishResponse = await publishResponsePromise;
+    expect(publishResponse.ok()).toBe(true);
+    const publishPayload = await publishResponse.json() as PublicSiteContent;
+    await expect(page.getByText(/Site published|Сайт опубликован/i)).toBeVisible();
+
+    const publishedPremium = resolvePremiumKidsContent(publishPayload);
+    expect(publishedPremium.blocks.map(block => block.id)).toEqual(expectedOrder);
+    expect(publishedPremium.blocks.find(block => block.id === duplicateId)?.visible).toBe(false);
+    expect(publishedPremium.blocks.some(block => block.id === deleted.id)).toBe(false);
+    expect(publishedPremium.blocks.find(block => block.id === columns.id)?.props.universal_block?.columns_count).toBe(2);
+
+    const { data: publishedRow, error: publishedError } = await admin.from("public_site_locales").select("draft_content,published_content").eq("business_id", businessId).eq("locale", "en").single();
+    expect(publishedError).toBeNull();
+    expect(publishedRow!.published_content).toEqual(publishedRow!.draft_content);
+    const storedPublished = resolvePremiumKidsContent(publishedRow!.published_content as PublicSiteContent);
+    expect(storedPublished.blocks.map(block => block.id)).toEqual(expectedOrder);
+
+    const { data: publicSite, error: publicError } = await admin.rpc("get_public_site", { p_business_slug: businessSlug, p_locale: null });
+    expect(publicError).toBeNull();
+    const publicPremium = resolvePremiumKidsContent((publicSite as { content: PublicSiteContent }).content);
+    expect(publicPremium.blocks.map(block => block.id)).toEqual(expectedOrder);
+    expect(publicPremium.blocks.find(block => block.id === duplicateId)?.visible).toBe(false);
+    for (const title of [`Persist text ${stamp}`, `Persist text image ${stamp}`, `Persist image text ${stamp}`, `Persist columns ${stamp}`]) expect(publicPremium.blocks.some(block => block.props.universal_block?.title === title)).toBe(true);
+
+    await page.goto(`/site/${businessSlug}`);
+    await expect(page.locator(`[data-premium-block-id="${text.id}"]`)).toHaveCount(1);
+    await expect(page.locator(`[data-premium-block-id="${textImage.id}"]`)).toHaveCount(1);
+    await expect(page.locator(`[data-premium-block-id="${imageText.id}"]`)).toHaveCount(1);
+    await expect(page.locator(`[data-premium-block-id="${columns.id}"] [data-premium-columns="2"]`)).toHaveCount(1);
+    await expect(page.locator(`[data-premium-block-id="${duplicateId}"]`)).toHaveCount(0);
   } finally {
     await cleanup(email);
   }
