@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   TEMPLATE_EDITOR_CANVAS_CLASS,
   TEMPLATE_EDITOR_COLUMNS_CLASS,
@@ -26,7 +26,9 @@ export default function TemplateEditorShell({ templateName, draftLabel, previewH
   onSave: () => void; onPublish: () => void;
   navigator?: ReactNode; renderSection?: (section: TemplateEditorSection, index: number) => ReactNode; toolbarActions?: ReactNode; canvas: ReactNode; inspector: ReactNode;
 }) {
-  return <section id="site-builder-canvas" className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
+  const [compactPanel, setCompactPanel] = useState<"navigator" | "settings" | null>(null);
+
+  return <section id="site-builder-canvas" className="template-editor-shell relative mt-8 w-full scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
     <div className="sticky top-0 z-40 flex flex-col gap-3 border-b border-black/10 bg-white/95 px-4 py-3 shadow-sm backdrop-blur xl:flex-row xl:items-center xl:justify-between">
       <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[#3e263e] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef9ef]">Premium</span><strong className="text-sm">{templateName}</strong><button type="button" aria-pressed={editingEnabled} onClick={() => onEditingChange(!editingEnabled)} className={`rounded-xl px-4 py-2 text-xs font-semibold ${editingEnabled ? "bg-emerald-100 text-emerald-800" : "border border-black/10 bg-white"}`}>{editingEnabled ? "Редактирование включено" : "Редактировать"}</button><span className="text-xs text-[#716d65]">{draftLabel}</span></div>
       <div className="flex flex-wrap items-center gap-2">
@@ -37,10 +39,14 @@ export default function TemplateEditorShell({ templateName, draftLabel, previewH
         <button type="button" onClick={onSave} disabled={saving} className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold disabled:opacity-50">Сохранить</button><button type="button" onClick={onPublish} disabled={saving} className="rounded-xl bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Опубликовать</button>
       </div>
     </div>
+    <div className="template-editor-compact-controls items-center gap-2 border-b border-black/10 bg-white/90 p-3">
+      <button type="button" aria-expanded={compactPanel === "navigator"} onClick={() => setCompactPanel(current => current === "navigator" ? null : "navigator")} className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold">Блоки</button>
+      <button type="button" aria-expanded={compactPanel === "settings"} onClick={() => setCompactPanel(current => current === "settings" ? null : "settings")} className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold">Настройки</button>
+    </div>
     <div data-template-editor-columns className={TEMPLATE_EDITOR_COLUMNS_CLASS}>
-      <aside data-template-editor-navigator className={TEMPLATE_EDITOR_NAVIGATOR_CLASS}><p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">Секции страницы</p><nav className="space-y-1">{sections.map((section,index) => renderSection ? renderSection(section, index) : <button type="button" key={section.id} aria-current={selectedSection === section.id ? "true" : undefined} onClick={() => onSelectSection(section.id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs font-semibold ${selectedSection === section.id ? "bg-[#17191f] text-white" : "hover:bg-black/5"}`}><span className="text-[10px] opacity-55">{String(index + 1).padStart(2,"0")}</span><span>{section.label}</span></button>)}</nav>{navigator}</aside>
+      <aside data-template-editor-navigator className={`${TEMPLATE_EDITOR_NAVIGATOR_CLASS} ${compactPanel === "navigator" ? "" : "template-editor-compact-hidden"}`}><p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">Секции страницы</p><nav className="space-y-1">{sections.map((section,index) => renderSection ? renderSection(section, index) : <button type="button" key={section.id} aria-current={selectedSection === section.id ? "true" : undefined} onClick={() => onSelectSection(section.id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs font-semibold ${selectedSection === section.id ? "bg-[#17191f] text-white" : "hover:bg-black/5"}`}><span className="text-[10px] opacity-55">{String(index + 1).padStart(2,"0")}</span><span>{section.label}</span></button>)}</nav>{navigator}</aside>
       <div data-template-editor-canvas className={TEMPLATE_EDITOR_CANVAS_CLASS}>{canvas}</div>
-      <aside data-template-editor-settings className={TEMPLATE_EDITOR_SETTINGS_CLASS}><div>{inspector}</div></aside>
+      <aside data-template-editor-settings className={`${TEMPLATE_EDITOR_SETTINGS_CLASS} ${compactPanel === "settings" ? "" : "template-editor-compact-hidden"}`}><div>{inspector}</div></aside>
     </div>
   </section>;
 }
