@@ -171,6 +171,28 @@ function contentSignature(content: PublicSiteContent | null) {
   return content ? JSON.stringify(content) : "";
 }
 
+function stableJsonSignature(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJsonSignature).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableJsonSignature(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function templateContentRoundTripMatches(
+  draft: PublicSiteContent,
+  saved: PublicSiteContent | null,
+) {
+  const templateId = draft.template_id;
+  const expected = templateId ? draft.template_content?.[templateId] : undefined;
+  if (!templateId || expected === undefined) return true;
+  return stableJsonSignature(saved?.template_content?.[templateId] ?? null)
+    === stableJsonSignature(expected);
+}
+
 function cloneCustomBlockForDuplicate(
   block: PublicSiteCustomBlock,
 ): PublicSiteCustomBlock {
@@ -890,7 +912,7 @@ export default function AdminSitePage() {
     setError("");
     setMessage("");
 
-    const { error: saveError } = await supabase.rpc("save_public_site_draft", {
+    const { data: savedDraftData, error: saveError } = await supabase.rpc("save_public_site_draft", {
       p_business_id: workspace.business_id,
       p_locale: selectedLocale,
       p_content: draftToSave,
@@ -899,6 +921,12 @@ export default function AdminSitePage() {
 
     if (saveError) {
       setError(saveError.message);
+      setSaving(false);
+      return false;
+    }
+
+    if (!templateContentRoundTripMatches(draftToSave, savedDraftData as PublicSiteContent | null)) {
+      setError("Черновик Premium не сохранён: сервер не вернул полную композицию шаблона. Изменения оставлены в редакторе.");
       setSaving(false);
       return false;
     }

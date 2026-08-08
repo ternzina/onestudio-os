@@ -34,9 +34,10 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
   }
 
   if (content.kind === "columns") {
-    const cards = publicSiteBlockColumnCards(content).slice(0, content.columns_count ?? 3);
+    const columnCount = content.columns_count === 2 ? 2 : 3;
+    const cards = publicSiteBlockColumnCards(content).slice(0, columnCount);
     return <EditorialMotion className={styles.premiumUniversal} distance={24}>
-      <section data-premium-block-id={block.id} className={styles.premiumUniversalColumns}>{heading}{content.text ? <div className={styles.premiumUniversalIntro}><PublicRichText value={content.text} /></div> : null}<div className={styles.premiumUniversalCards}>{cards.map((card, index) => <article key={card.id}>
+      <section data-premium-block-id={block.id} className={styles.premiumUniversalColumns}>{heading}{content.text ? <div className={styles.premiumUniversalIntro}><PublicRichText value={content.text} /></div> : null}<div data-premium-columns={columnCount} className={`${styles.premiumUniversalCards} ${columnCount === 2 ? styles.premiumUniversalCardsTwo : ""}`}>{cards.map((card, index) => <article key={card.id}>
         {card.media_type === "image" && card.media_url ? <div className={styles.premiumUniversalCardMedia}><PremiumImage src={card.media_url} alt={card.media_alt || ""} sizes="(max-width: 760px) 100vw, 31vw" /></div> : null}
         <span>0{index + 1}</span><h3>{card.title}</h3><PublicRichText value={card.text} />
       </article>)}</div></section>
