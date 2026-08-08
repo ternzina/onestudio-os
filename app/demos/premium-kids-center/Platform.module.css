@@ -80,3 +80,6 @@
 @media(max-width:760px){.section,.centerExperience>section:not(.centerApproach){content-visibility:visible;contain-intrinsic-size:none}}
 @media(max-width:1100px){.centerSubnav{top:137px}}
 @media(max-width:760px){.centerSubnav{top:140px}.centerPrograms,.centerSchedule,.centerTeam,.centerFirstClass,.centerGallery,.centerReviews,.centerFaq{scroll-margin-top:188px}}
+
+/* Mobile intrinsic sizing: retain the editorial composition without allowing long content to widen one-column grids. */
+@media(max-width:700px){.sectionLead,.parentSupport{grid-template-columns:minmax(0,1fr)}.sectionLead>*,.parentSupport>*,.workbookLayout>*{min-width:0}.sectionLead h2,.sectionLead>div,.parentSupport h2,.parentSupport h3{overflow-wrap:anywhere}.parentSupport li{grid-template-columns:40px minmax(0,1fr) auto}.centerFinalCta>a{max-width:100%;justify-content:center;text-align:left}}
