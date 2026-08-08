@@ -1,8 +1,11 @@
-import type { PublicSiteContent, PublicSiteTypography } from "@/lib/public-site/types";
+import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteCustomBlockKind, PublicSiteMediaPosition, PublicSiteTypography } from "@/lib/public-site/types";
+import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
 
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
-export type PremiumKidsBlockType = "header" | "hero" | "intro" | "approach" | "schedule" | "teachers" | "gallery" | "reviews" | "faq" | "programs" | "final" | "footer";
+export type PremiumKidsSemanticBlockType = "header" | "hero" | "intro" | "approach" | "schedule" | "teachers" | "gallery" | "reviews" | "faq" | "programs" | "final" | "footer";
+export type PremiumKidsUniversalBlockType = Extract<PublicSiteCustomBlockKind, "text" | "media_text" | "columns">;
+export type PremiumKidsBlockType = PremiumKidsSemanticBlockType | PremiumKidsUniversalBlockType;
 
 type PremiumKidsLegacyContent = {
   hidden_sections: string[];
@@ -42,7 +45,7 @@ type PremiumKidsLegacyContent = {
 };
 
 export type PremiumKidsEditableKey = Exclude<keyof PremiumKidsLegacyContent, "hidden_sections" | "heading_typography">;
-export type PremiumKidsBlockProps = Partial<Record<PremiumKidsEditableKey, string | string[]>> & { heading_typography?: PublicSiteTypography };
+export type PremiumKidsBlockProps = Partial<Record<PremiumKidsEditableKey, string | string[]>> & { heading_typography?: PublicSiteTypography; universal_block?: PublicSiteCustomBlock };
 export type PremiumKidsBlock = { id: string; type: PremiumKidsBlockType; visible: boolean; props: PremiumKidsBlockProps };
 export type PremiumKidsContent = PremiumKidsLegacyContent & { blocks: PremiumKidsBlock[] };
 
@@ -71,6 +74,9 @@ export const PREMIUM_KIDS_BLOCK_REGISTRY: readonly PremiumKidsBlockDefinition[] 
   { type: "programs", label: "Programs", description: "Программы центра и образовательная среда", defaultId: "bembi-programs", fieldKeys: ["programs_title", "programs_description"], capabilities: editable },
   { type: "final", label: "Final CTA", description: "Финальный призыв к действию", defaultId: "bembi-final", fieldKeys: ["final_cta_eyebrow", "final_cta_title", "final_cta_label"], capabilities: editable },
   { type: "footer", label: "Footer", description: "Описание и контакты", defaultId: "bembi-footer", fieldKeys: ["footer_description", "contact_email", "contact_phone", "contact_address"], capabilities: required },
+  { type: "text", label: "Текстовый блок", description: "Свободный заголовок и rich text в стиле BEMBI", defaultId: "bembi-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "media_text", label: "Текст и изображение", description: "BEMBI-композиция с изображением слева или справа", defaultId: "bembi-media-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "columns", label: "Две или три колонки", description: "Редактируемые карточки в визуальной системе BEMBI", defaultId: "bembi-columns", fieldKeys: [], capabilities: { ...editable, typography: true } },
 ] as const;
 
 export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
@@ -81,6 +87,7 @@ export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
 
 const definitionMap = new Map(PREMIUM_KIDS_BLOCK_REGISTRY.map((definition) => [definition.type, definition]));
 const requiredTypes = new Set<PremiumKidsBlockType>(["header", "hero", "footer"]);
+export function isPremiumKidsUniversalBlockType(type: PremiumKidsBlockType): type is PremiumKidsUniversalBlockType { return type === "text" || type === "media_text" || type === "columns"; }
 
 function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
 function strings(value: unknown, fallback: string[]) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 32) : cloneValue(fallback); }
@@ -101,16 +108,23 @@ function resolveLegacy(source: Record<string, unknown>, content?: PublicSiteCont
 
 export function getPremiumKidsBlockDefinition(type: PremiumKidsBlockType) { return definitionMap.get(type)!; }
 
-export function createPremiumKidsDefaultBlock(type: PremiumKidsBlockType, legacy: PremiumKidsLegacyContent = DEFAULT_PREMIUM_KIDS_CONTENT, id = getPremiumKidsBlockDefinition(type).defaultId): PremiumKidsBlock {
+export function createPremiumKidsDefaultBlock(type: PremiumKidsBlockType, legacy: PremiumKidsLegacyContent = DEFAULT_PREMIUM_KIDS_CONTENT, id = getPremiumKidsBlockDefinition(type).defaultId, mediaPosition?: PublicSiteMediaPosition): PremiumKidsBlock {
   const definition = getPremiumKidsBlockDefinition(type);
   const props: PremiumKidsBlockProps = {};
+  if (type === "text" || type === "media_text" || type === "columns") {
+    props.universal_block = createPublicSiteCustomBlock(type, id, mediaPosition);
+    if (type === "media_text") {
+      props.universal_block.media_url = "/images/demos/premium-kids-center/studio-interior.webp";
+      props.universal_block.media_alt = "Пространство детского центра BEMBI";
+    }
+  }
   for (const key of definition.fieldKeys) props[key] = cloneValue(legacy[key]) as string | string[];
   const typography = legacy.heading_typography[type];
   if (typography) props.heading_typography = cloneValue(typography);
   return { id, type, visible: !legacy.hidden_sections.includes(type), props };
 }
 
-export function createDefaultPremiumKidsBlocks(legacy: PremiumKidsLegacyContent = DEFAULT_PREMIUM_KIDS_CONTENT) { return PREMIUM_KIDS_BLOCK_REGISTRY.map((definition) => createPremiumKidsDefaultBlock(definition.type, legacy)); }
+export function createDefaultPremiumKidsBlocks(legacy: PremiumKidsLegacyContent = DEFAULT_PREMIUM_KIDS_CONTENT) { return PREMIUM_KIDS_BLOCK_REGISTRY.filter((definition) => !isPremiumKidsUniversalBlockType(definition.type)).map((definition) => createPremiumKidsDefaultBlock(definition.type, legacy)); }
 
 function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
   const used = new Set<string>();
@@ -122,7 +136,10 @@ function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
     const type = source.type as PremiumKidsBlockType;
     if (requiredTypes.has(type) && seenRequired.has(type)) return [];
     if (requiredTypes.has(type)) seenRequired.add(type);
-    const defaults = createPremiumKidsDefaultBlock(type, legacy);
+    let id = typeof source.id === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_-]{1,79}$/.test(source.id) ? source.id : `${type}-${index + 1}`;
+    while (used.has(id)) id = `${id}-${index + 1}`;
+    used.add(id);
+    const defaults = createPremiumKidsDefaultBlock(type, legacy, id);
     const rawProps = source.props && typeof source.props === "object" && !Array.isArray(source.props) ? source.props as Record<string, unknown> : {};
     for (const key of getPremiumKidsBlockDefinition(type).fieldKeys) {
       const fallback = defaults.props[key]; const value = rawProps[key];
@@ -130,9 +147,10 @@ function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
       else if (typeof value === "string") defaults.props[key] = value;
     }
     if (isTypography(rawProps.heading_typography)) defaults.props.heading_typography = rawProps.heading_typography;
-    let id = typeof source.id === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_-]{1,79}$/.test(source.id) ? source.id : `${type}-${index + 1}`;
-    while (used.has(id)) id = `${id}-${index + 1}`;
-    used.add(id);
+    if ((type === "text" || type === "media_text" || type === "columns") && rawProps.universal_block && typeof rawProps.universal_block === "object" && !Array.isArray(rawProps.universal_block)) {
+      const universal = rawProps.universal_block as PublicSiteCustomBlock;
+      if (universal.kind === type) defaults.props.universal_block = { ...createPublicSiteCustomBlock(type, id), ...cloneValue(universal), id, kind: type };
+    }
     return [{ ...defaults, id, visible: requiredTypes.has(type) ? true : source.visible !== false }];
   });
   for (const type of ["header", "hero", "footer"] as const) if (!blocks.some((block) => block.type === type)) blocks.push(createPremiumKidsDefaultBlock(type, legacy));
@@ -169,11 +187,11 @@ export function premiumKidsContentForBlock(content: PremiumKidsContent, block: P
 
 export function replacePremiumKidsBlocks(content: PremiumKidsContent, blocks: PremiumKidsBlock[]): PremiumKidsContent { return { ...flattenBlocks(content, blocks), blocks }; }
 export function movePremiumKidsBlock(content: PremiumKidsContent, sourceId: string, targetId: string) { const blocks = [...content.blocks]; const from = blocks.findIndex((block) => block.id === sourceId); const to = blocks.findIndex((block) => block.id === targetId); if (from < 2 || to < 2 || from >= blocks.length - 1 || to >= blocks.length - 1 || from === to || !getPremiumKidsBlockDefinition(blocks[from].type).capabilities.reorder || !getPremiumKidsBlockDefinition(blocks[to].type).capabilities.reorder) return content; const [moved] = blocks.splice(from, 1); blocks.splice(to, 0, moved); return replacePremiumKidsBlocks(content, blocks); }
-export function duplicatePremiumKidsBlock(content: PremiumKidsContent, blockId: string, newId: string) { const index = content.blocks.findIndex((block) => block.id === blockId); if (index < 0 || !getPremiumKidsBlockDefinition(content.blocks[index].type).capabilities.duplicate || content.blocks.some((block) => block.id === newId)) return content; const blocks = [...content.blocks]; blocks.splice(index + 1, 0, { ...cloneValue(blocks[index]), id: newId }); return replacePremiumKidsBlocks(content, blocks); }
-export function addPremiumKidsBlock(content: PremiumKidsContent, type: PremiumKidsBlockType, id: string) { const definition = getPremiumKidsBlockDefinition(type); if (!definition.capabilities.add || content.blocks.some((block) => block.id === id)) return content; const blocks = [...content.blocks]; blocks.splice(blocks.length - 1, 0, createPremiumKidsDefaultBlock(type, DEFAULT_PREMIUM_KIDS_CONTENT, id)); return replacePremiumKidsBlocks(content, blocks); }
+export function duplicatePremiumKidsBlock(content: PremiumKidsContent, blockId: string, newId: string) { const index = content.blocks.findIndex((block) => block.id === blockId); if (index < 0 || !getPremiumKidsBlockDefinition(content.blocks[index].type).capabilities.duplicate || content.blocks.some((block) => block.id === newId)) return content; const copy = { ...cloneValue(content.blocks[index]), id: newId }; if (copy.props.universal_block) copy.props.universal_block = clonePublicSiteCustomBlock(copy.props.universal_block, newId); const blocks = [...content.blocks]; blocks.splice(index + 1, 0, copy); return replacePremiumKidsBlocks(content, blocks); }
+export function addPremiumKidsBlock(content: PremiumKidsContent, type: PremiumKidsBlockType, id: string, mediaPosition?: PublicSiteMediaPosition) { const definition = getPremiumKidsBlockDefinition(type); if (!definition.capabilities.add || content.blocks.some((block) => block.id === id)) return content; const blocks = [...content.blocks]; blocks.splice(blocks.length - 1, 0, createPremiumKidsDefaultBlock(type, DEFAULT_PREMIUM_KIDS_CONTENT, id, mediaPosition)); return replacePremiumKidsBlocks(content, blocks); }
 export function deletePremiumKidsBlock(content: PremiumKidsContent, blockId: string) { const block = content.blocks.find((candidate) => candidate.id === blockId); if (!block || !getPremiumKidsBlockDefinition(block.type).capabilities.delete) return content; return replacePremiumKidsBlocks(content, content.blocks.filter((candidate) => candidate.id !== blockId)); }
 export function setPremiumKidsBlockVisibility(content: PremiumKidsContent, blockId: string, visible: boolean) { const block = content.blocks.find((candidate) => candidate.id === blockId); if (!block || !getPremiumKidsBlockDefinition(block.type).capabilities.visibility) return content; return replacePremiumKidsBlocks(content, content.blocks.map((candidate) => candidate.id === blockId ? { ...candidate, visible } : candidate)); }
-export function resetPremiumKidsBlock(content: PremiumKidsContent, blockId: string) { const block = content.blocks.find((candidate) => candidate.id === blockId); if (!block) return content; const reset = createPremiumKidsDefaultBlock(block.type, DEFAULT_PREMIUM_KIDS_CONTENT, block.id); reset.visible = block.visible; return replacePremiumKidsBlocks(content, content.blocks.map((candidate) => candidate.id === blockId ? reset : candidate)); }
+export function resetPremiumKidsBlock(content: PremiumKidsContent, blockId: string) { const block = content.blocks.find((candidate) => candidate.id === blockId); if (!block) return content; const reset = createPremiumKidsDefaultBlock(block.type, DEFAULT_PREMIUM_KIDS_CONTENT, block.id, block.props.universal_block?.media_position); reset.visible = block.visible; return replacePremiumKidsBlocks(content, content.blocks.map((candidate) => candidate.id === blockId ? reset : candidate)); }
 export function restoreOriginalPremiumKidsContent() { const blocks = createDefaultPremiumKidsBlocks(); return { ...cloneValue(DEFAULT_PREMIUM_KIDS_CONTENT), blocks } as PremiumKidsContent; }
 
 export function withPremiumKidsContent(content: PublicSiteContent, premium: PremiumKidsContent): PublicSiteContent {

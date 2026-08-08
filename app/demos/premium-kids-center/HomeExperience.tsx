@@ -6,6 +6,7 @@ import { Arrow, PlatformLayout, SectionLead } from "./PlatformShell";
 import EditorialMotion from "./EditorialMotion";
 import { DiscoveryRoute, HeroDiscovery, TodayDiscovery, WorkbookExperience } from "./PremiumMotion";
 import { CenterExperience, CenterFinalCta, CenterStickyNav } from "./CenterExperience";
+import PremiumUniversalBlock from "./PremiumUniversalBlock";
 import styles from "./Platform.module.css";
 import type { PublicSiteData } from "@/lib/public-site/types";
 import { BEMBI_DEMO_BASE_PATH, bembiHref } from "./PlatformShell";
@@ -62,6 +63,10 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
       return <ProgramsBlock content={blockContent} blockId={block.id} />;
     case "final":
       return <FinalBlock content={blockContent} blockId={block.id} basePath={basePath} demo={demo} />;
+    case "text":
+    case "media_text":
+    case "columns":
+      return <PremiumUniversalBlock block={block} />;
     default:
       return null;
   }

@@ -56,6 +56,12 @@ import {
 } from "@/lib/public-site/templates";
 import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
 import { SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
+import {
+  PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
+  createPublicSiteCustomBlock as createCustomBlock,
+  defaultPublicSiteColumnCards as defaultColumnCards,
+  publicSiteBlockColumnCards as blockColumnCards,
+} from "@/lib/public-site/custom-block-registry";
 import { supabase } from "@/lib/supabase";
 
 const PremiumTemplateEditor = dynamic(
@@ -353,29 +359,6 @@ const sectionLabelKey = {
   contact: "Contact",
 } as const;
 
-function defaultColumnCards(blockId: string): PublicSiteColumnCard[] {
-  return [1, 2, 3].map((number) => ({
-    id: `${blockId}-card-${number}`,
-    title: `${number === 1 ? "Первый" : number === 2 ? "Второй" : "Третий"} блок`,
-    text: "Добавьте короткое описание",
-    media_type: "none",
-  }));
-}
-
-function blockColumnCards(block: PublicSiteCustomBlock): PublicSiteColumnCard[] {
-  if (block.cards?.length) return block.cards;
-  const cards = previewLines(block.items).map((item, index) => {
-    const [title, ...detail] = item.split("·");
-    return {
-      id: `${block.id}-card-${index + 1}`,
-      title: title.trim(),
-      text: detail.join("·").trim(),
-      media_type: "none" as const,
-    };
-  });
-  return cards.length ? cards : defaultColumnCards(block.id);
-}
-
 function contentFromLocale(
   editor: PublicSiteEditorData,
   locale: string,
@@ -401,157 +384,6 @@ function publicHref(editor: PublicSiteEditorData, locale: string) {
   return locale === editor.site.primary_locale
     ? `/site/${editor.business.slug}`
     : `/site/${editor.business.slug}/${locale}`;
-}
-
-function createCustomBlock(
-  kind: PublicSiteCustomBlockKind,
-  id = `block-${Date.now()}`,
-): PublicSiteCustomBlock {
-  const presets: Record<
-    PublicSiteCustomBlockKind,
-    Pick<
-      PublicSiteCustomBlock,
-      "eyebrow" | "title" | "text" | "items" | "button_label"
-    >
-  > = {
-    text: {
-      eyebrow: "НОВЫЙ БЛОК",
-      title: "Расскажите о важном",
-      text: "Добавьте сюда собственный текст. Этот блок можно использовать для истории, условий или любого сообщения.",
-      items: "",
-      button_label: "",
-    },
-    features: {
-      eyebrow: "ПРЕИМУЩЕСТВА",
-      title: "Почему выбирают нас",
-      text: "",
-      items:
-        "Первое преимущество · Короткое пояснение\nВторое преимущество · Короткое пояснение\nТретье преимущество · Короткое пояснение",
-      button_label: "",
-    },
-    cta: {
-      eyebrow: "СЛЕДУЮЩИЙ ШАГ",
-      title: "Готовы записаться?",
-      text: "Добавьте короткое приглашение и ведите посетителя на нужную страницу.",
-      items: "",
-      button_label: "Перейти",
-    },
-    slider: {
-      eyebrow: "ГАЛЕРЕЯ",
-      title: "Слайды с фотографиями",
-      text: "Изображения меняются автоматически. Интервал можно настроить от двух секунд.",
-      items: "",
-      button_label: "",
-    },
-    collage: {
-      eyebrow: "КОЛЛАЖ",
-      title: "История в нескольких кадрах",
-      text: "Соберите выразительный коллаж из нескольких фотографий.",
-      items: "",
-      button_label: "",
-    },
-    video: {
-      eyebrow: "ВИДЕО",
-      title: "Покажите атмосферу",
-      text: "Добавьте ссылку на YouTube, Vimeo или прямую ссылку на видеофайл.",
-      items: "",
-      button_label: "",
-    },
-    media_text: {
-      eyebrow: "О СТУДИИ",
-      title: "Текст и изображение рядом",
-      text: "Расскажите о студии, услуге или мастере. Медиа можно расположить слева или справа.",
-      items: "",
-      button_label: "Подробнее",
-    },
-    columns: {
-      eyebrow: "ВАЖНОЕ",
-      title: "Два или три смысловых блока",
-      text: "Соберите короткий раздел из нескольких аккуратных карточек.",
-      items:
-        "Первый блок · Добавьте короткое описание\nВторой блок · Добавьте короткое описание\nТретий блок · Добавьте короткое описание",
-      button_label: "",
-    },
-  };
-  const preset = presets[kind];
-
-  return {
-    id,
-    kind,
-    eyebrow: preset.eyebrow,
-    title: preset.title,
-    text: preset.text,
-    items: preset.items,
-    button_label: preset.button_label,
-    button_url:
-      kind === "cta" || kind === "media_text" ? "#booking" : "",
-    tone: kind === "cta" ? "accent" : "light",
-    is_visible: true,
-    media_urls:
-      kind === "slider" || kind === "collage"
-        ? [
-            "/templates/gloss/gloss-gallery-1.webp",
-            "/templates/gloss/gloss-gallery-2.webp",
-            ...(kind === "collage"
-              ? ["/templates/gloss/gloss-gallery-3.webp"]
-              : []),
-          ]
-        : undefined,
-    slide_interval_seconds: kind === "slider" ? 4 : undefined,
-    video_url: kind === "video" ? "" : undefined,
-    video_poster_url: kind === "video" ? "" : undefined,
-    media_url:
-      kind === "media_text"
-        ? "/templates/gloss/gloss-gallery-4.webp"
-        : undefined,
-    media_alt: kind === "media_text" ? "Интерьер и работа студии" : undefined,
-    media_type: kind === "media_text" ? "image" : undefined,
-    media_position:
-      kind === "media_text" ? "right" : kind === "collage" ? "center" : undefined,
-    columns_count: kind === "columns" ? 3 : undefined,
-    cards: kind === "columns" ? defaultColumnCards(id) : undefined,
-    media_size:
-      kind === "slider" ||
-      kind === "collage" ||
-      kind === "video" ||
-      kind === "media_text"
-        ? "wide"
-        : undefined,
-    media_aspect:
-      kind === "slider" ||
-      kind === "collage" ||
-      kind === "video" ||
-      kind === "media_text"
-        ? "landscape"
-        : undefined,
-    media_fit:
-      kind === "slider" ||
-      kind === "collage" ||
-      kind === "video" ||
-      kind === "media_text"
-        ? "cover"
-        : undefined,
-    media_frame:
-      kind === "slider" ||
-      kind === "collage" ||
-      kind === "video" ||
-      kind === "media_text"
-        ? "line"
-        : undefined,
-    content_width: "wide",
-    padding_top: "normal",
-    padding_bottom: "normal",
-    section_height: "auto",
-    media_height:
-      kind === "slider" ||
-      kind === "collage" ||
-      kind === "video" ||
-      kind === "media_text"
-        ? "auto"
-        : undefined,
-    animation: "none",
-    animate_on_mobile: true,
-  };
 }
 
 function createCustomPage(existingCount: number): PublicSitePage {
@@ -3707,16 +3539,7 @@ function VisualBuilder({
                   </button>
                 );
               }) : null}
-              {([
-                ["text", "Text block", "A free heading and text section."],
-                ["features", "Feature cards", "Three or more editable advantages."],
-                ["cta", "Call to action", "Text with a button and link."],
-                ["media_text", "Text + image or video", "A split section with media on the left or right."],
-                ["columns", "Two or three columns", "A row of two or three editable content cards."],
-                ["slider", "Image slider", "Automatic slides with an interval from two seconds."],
-                ["collage", "Коллаж", "Несколько фотографий слева, по центру или справа."],
-                ["video", "Video block", "YouTube, Vimeo or a direct video file."],
-              ] as const).map(([kind, title, description]) => (
+              {PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(({ kind, label: title, description }) => (
                 <button
                   key={kind}
                   type="button"

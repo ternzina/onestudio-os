@@ -75,3 +75,43 @@ test("reset one block and restore original template affect draft composition onl
   expect(restored).toEqual(resolvePremiumKidsContent(legacyDraft()));
   expect(JSON.stringify(published)).toBe(publishedSnapshot);
 });
+
+test("Premium accepts the existing universal Site Editor block kinds", () => {
+  let content = resolvePremiumKidsContent(legacyDraft());
+  content = addPremiumKidsBlock(content, "text", "universal-text");
+  content = addPremiumKidsBlock(content, "media_text", "universal-text-image", "right");
+  content = addPremiumKidsBlock(content, "media_text", "universal-image-text", "left");
+  content = addPremiumKidsBlock(content, "columns", "universal-columns");
+  expect(content.blocks.slice(-5, -1).map(block => block.type)).toEqual(["text", "media_text", "media_text", "columns"]);
+  expect(content.blocks.find(block => block.id === "universal-text-image")?.props.universal_block?.media_position).toBe("right");
+  expect(content.blocks.find(block => block.id === "universal-image-text")?.props.universal_block?.media_position).toBe("left");
+  expect(content.blocks.find(block => block.id === "universal-columns")?.props.universal_block?.cards).toHaveLength(3);
+  const reloaded = resolvePremiumKidsContent(JSON.parse(JSON.stringify(withPremiumKidsContent(legacyDraft(), content))) as PublicSiteContent);
+  expect(reloaded.blocks.map(block => block.id)).toEqual(content.blocks.map(block => block.id));
+});
+
+test("universal blocks retain shared content and duplication-safe nested IDs", () => {
+  let content = addPremiumKidsBlock(resolvePremiumKidsContent(legacyDraft()), "columns", "universal-columns");
+  const blocks = content.blocks.map(block => block.id === "universal-columns" && block.props.universal_block ? { ...block, props: { ...block.props, universal_block: { ...block.props.universal_block, title: "Новые направления", cards: block.props.universal_block.cards?.map((card, index) => ({ ...card, title: `Направление ${index + 1}` })) } } } : block);
+  content = replacePremiumKidsBlocks(content, blocks);
+  const duplicated = duplicatePremiumKidsBlock(content, "universal-columns", "universal-columns-copy");
+  const source = duplicated.blocks.find(block => block.id === "universal-columns")!.props.universal_block!;
+  const copy = duplicated.blocks.find(block => block.id === "universal-columns-copy")!.props.universal_block!;
+  expect(copy.title).toBe("Новые направления");
+  expect(copy.id).not.toBe(source.id);
+  expect(copy.cards?.map(card => card.id)).not.toEqual(source.cards?.map(card => card.id));
+});
+
+test("universal block operations preserve variants and remain draft-only", () => {
+  const published = legacyDraft();
+  const publishedSnapshot = JSON.stringify(published);
+  const original = addPremiumKidsBlock(resolvePremiumKidsContent(legacyDraft()), "media_text", "universal-image-text", "left");
+  const hidden = setPremiumKidsBlockVisibility(original, "universal-image-text", false);
+  expect(hidden.blocks.find(block => block.id === "universal-image-text")?.visible).toBeFalsy();
+  const reset = resetPremiumKidsBlock(hidden, "universal-image-text");
+  expect(reset.blocks.find(block => block.id === "universal-image-text")?.props.universal_block?.media_position).toBe("left");
+  const deleted = deletePremiumKidsBlock(reset, "universal-image-text");
+  expect(deleted.blocks.some(block => block.id === "universal-image-text")).toBeFalsy();
+  expect(original.blocks.some(block => block.id === "universal-image-text")).toBeTruthy();
+  expect(JSON.stringify(published)).toBe(publishedSnapshot);
+});

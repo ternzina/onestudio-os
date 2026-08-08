@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 export type TemplatePreviewViewportHandle = {
@@ -25,8 +25,20 @@ const TemplatePreviewViewport = forwardRef<TemplatePreviewViewportHandle, {
   scale: number;
 }>(({ children, title, width, scale }, ref) => {
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
+  const frameBoxRef = useRef<HTMLDivElement>(null);
+  const [effectiveScale, setEffectiveScale] = useState(scale);
   const displayWidth = Math.round(width * scale);
-  const viewportHeight = Math.round(720 / scale);
+  const viewportHeight = Math.round(720 / effectiveScale);
+
+  useEffect(() => {
+    const box = frameBoxRef.current;
+    if (!box) return;
+    const resize = () => setEffectiveScale(Math.max(0.1, Math.min(scale, box.clientWidth / width)));
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, [scale, width]);
 
   useImperativeHandle(ref, () => ({
     scrollTo(selector) {
@@ -34,12 +46,12 @@ const TemplatePreviewViewport = forwardRef<TemplatePreviewViewportHandle, {
     },
   }), [previewDocument]);
 
-  return <div className="mx-auto h-[720px] overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_20px_70px_rgba(0,0,0,.12)]" style={{ width: displayWidth }}>
+  return <div ref={frameBoxRef} className="mx-auto h-[720px] w-full max-w-full overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_20px_70px_rgba(0,0,0,.12)]" style={{ maxWidth: displayWidth }}>
     <iframe
       title={title}
       srcDoc="<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;min-width:0;background:#fff}</style></head><body></body></html>"
       className="block origin-top-left border-0 bg-white"
-      style={{ width, height: viewportHeight, transform: `scale(${scale})` }}
+      style={{ width, height: viewportHeight, transform: `scale(${effectiveScale})` }}
       onLoad={(event) => {
         const frameDocument = event.currentTarget.contentDocument;
         if (!frameDocument) return;

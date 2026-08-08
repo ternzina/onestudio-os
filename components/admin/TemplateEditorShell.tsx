@@ -31,10 +31,10 @@ export default function TemplateEditorShell({ templateName, draftLabel, previewH
         <button type="button" onClick={onSave} disabled={saving} className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold disabled:opacity-50">Сохранить</button><button type="button" onClick={onPublish} disabled={saving} className="rounded-xl bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Опубликовать</button>
       </div>
     </div>
-    <div className="grid min-h-[760px] lg:grid-cols-[230px_minmax(0,1fr)_330px]">
-      <aside className="border-r border-black/10 bg-white/80 p-4"><p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">Секции страницы</p><nav className="space-y-1">{sections.map((section,index) => renderSection ? renderSection(section, index) : <button type="button" key={section.id} aria-current={selectedSection === section.id ? "true" : undefined} onClick={() => onSelectSection(section.id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs font-semibold ${selectedSection === section.id ? "bg-[#17191f] text-white" : "hover:bg-black/5"}`}><span className="text-[10px] opacity-55">{String(index + 1).padStart(2,"0")}</span><span>{section.label}</span></button>)}</nav>{navigator}</aside>
-      <div className="min-w-0 bg-[#d8d7d3] p-4">{canvas}</div>
-      <aside className="border-l border-black/10 bg-white p-4"><div className="sticky top-20">{inspector}</div></aside>
+    <div data-template-editor-columns className="grid min-h-[760px] min-w-0 grid-cols-1 xl:grid-cols-[minmax(190px,230px)_minmax(0,1fr)_minmax(290px,330px)]">
+      <aside data-template-editor-navigator className="min-w-0 border-b border-black/10 bg-white/80 p-4 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto xl:border-r xl:border-b-0"><p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">Секции страницы</p><nav className="space-y-1">{sections.map((section,index) => renderSection ? renderSection(section, index) : <button type="button" key={section.id} aria-current={selectedSection === section.id ? "true" : undefined} onClick={() => onSelectSection(section.id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs font-semibold ${selectedSection === section.id ? "bg-[#17191f] text-white" : "hover:bg-black/5"}`}><span className="text-[10px] opacity-55">{String(index + 1).padStart(2,"0")}</span><span>{section.label}</span></button>)}</nav>{navigator}</aside>
+      <div data-template-editor-canvas className="min-w-0 overflow-hidden bg-[#d8d7d3] p-4">{canvas}</div>
+      <aside data-template-editor-settings className="min-w-0 border-t border-black/10 bg-white p-4 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto xl:border-t-0 xl:border-l"><div>{inspector}</div></aside>
     </div>
   </section>;
 }
