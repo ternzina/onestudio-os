@@ -1,90 +1,36 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin", "cyrillic"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin", "cyrillic"] });
-const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://onestudioos.com");
+import { platformMetadata, platformStructuredData } from "./_seo/platform";
+import { classifyHostname } from "@/lib/seo/request";
+import { getRequestHtmlLang } from "@/lib/public-site/request-context";
 
-export const metadata: Metadata = {
-  metadataBase: siteUrl,
-  applicationName: "OneStudio OS",
-  title: {
-    default: "OneStudio OS | Website, booking and CRM",
-    template: "%s | OneStudio OS",
-  },
-  description:
-    "A digital operating system for service businesses: website, booking, clients, payments, media and analytics.",
-  keywords: ["service business", "online booking", "CRM", "business website", "OneStudio OS"],
-  authors: [{ name: "OneStudio OS", url: siteUrl }],
-  creator: "OneStudio OS",
-  publisher: "OneStudio OS",
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    alternateLocale: ["ru_RU"],
-    url: "/",
-    siteName: "OneStudio OS",
-    title: "OneStudio OS | Your business in one system",
-    description: "Website, booking, CRM, payments and content management on one adaptable foundation.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "OneStudio OS",
-    description: "The digital operating system for service businesses.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") || headerStore.get("host") || "";
+  const tenantRoute = headerStore.get("x-onestudio-tenant-route") === "1" || Boolean(headerStore.get("x-onestudio-custom-domain"));
+  if (tenantRoute) return { metadataBase: new URL("https://onestudioos.com"), manifest: "/manifest.webmanifest" };
+  if (classifyHostname(host) === "technical-platform") return { ...platformMetadata, robots: { index: false, follow: false, nocache: true } };
+  return platformMetadata;
+}
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${siteUrl.origin}/#organization`,
-      name: "OneStudio OS",
-      url: siteUrl.toString(),
-      email: "hello@onestudioos.com",
-    },
-    {
-      "@type": "WebSite",
-      "@id": `${siteUrl.origin}/#website`,
-      url: siteUrl.toString(),
-      name: "OneStudio OS",
-      inLanguage: ["en", "ru"],
-      publisher: { "@id": `${siteUrl.origin}/#organization` },
-    },
-    {
-      "@type": "SoftwareApplication",
-      name: "OneStudio OS",
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      description: "Website, booking, CRM, payments, media and analytics for service businesses.",
-    },
-  ],
-};
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const headerStore = await headers();
+  const tenantRoute = headerStore.get("x-onestudio-tenant-route") === "1" || Boolean(headerStore.get("x-onestudio-custom-domain"));
+  const lang = await getRequestHtmlLang();
   return (
-    <html lang="ru" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <script
+        {!tenantRoute ? <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+            __html: JSON.stringify(platformStructuredData).replace(/</g, "\\u003c"),
           }}
-        />
+        /> : null}
         {children}
       </body>
     </html>

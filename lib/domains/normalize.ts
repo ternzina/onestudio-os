@@ -14,6 +14,15 @@ export function isPlatformHostname(value: string) {
   return PLATFORM_HOSTS.has(hostname) || hostname.endsWith(".vercel.app");
 }
 
+export function isCanonicalPlatformHostname(value: string) {
+  const hostname = hostnameWithoutPort(value);
+  return hostname === "onestudioos.com" || hostname === "www.onestudioos.com";
+}
+
+export function isTechnicalPlatformHostname(value: string) {
+  return hostnameWithoutPort(value).endsWith(".vercel.app");
+}
+
 export function normalizeCustomDomain(value: string) {
   const raw = value.trim();
   if (!raw) throw new Error("invalid_domain");

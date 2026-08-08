@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_URL } from "@/app/_seo/site";
+import { SITE_URL } from "../../app/_seo/site.ts";
 import type { PublicSiteData, PublicSitePage } from "./types";
 
 export type PublicMetadataOptions = {

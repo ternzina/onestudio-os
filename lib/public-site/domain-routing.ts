@@ -24,6 +24,7 @@ const GLOBAL_PUBLIC_PREFIXES = [
   "/domain-not-connected",
   "/robots.txt",
   "/sitemap.xml",
+  "/manifest.webmanifest",
   "/ads.txt",
 ];
 
@@ -109,6 +110,11 @@ export async function routeCustomDomain(request: NextRequest) {
     "x-onestudio-business-slug",
     resolution.business_slug,
   );
+  requestHeaders.set("x-onestudio-tenant-route", "1");
+  const locale = request.nextUrl.pathname.split("/").filter(Boolean)[0];
+  if (locale && /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(locale)) {
+    requestHeaders.set("x-onestudio-request-locale", locale.toLowerCase());
+  }
   requestHeaders.set(
     "x-onestudio-primary-locale",
     resolution.primary_locale,

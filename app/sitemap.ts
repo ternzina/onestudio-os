@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { SITE_URL } from "./_seo/site";
-import { isPlatformHostname } from "@/lib/domains/normalize";
+import { isCanonicalPlatformHostname, isTechnicalPlatformHostname } from "@/lib/domains/normalize";
 import {
   getPublicSite,
   listPublicSiteSeoPaths,
@@ -162,7 +162,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headerStore = await headers();
   const hostname = requestHostname(headerStore);
 
-  if (hostname && !isPlatformHostname(hostname)) {
+  if (hostname && isTechnicalPlatformHostname(hostname)) return [];
+
+  if (hostname && !isCanonicalPlatformHostname(hostname) && hostname !== "localhost" && hostname !== "127.0.0.1") {
     const [origin, resolution] = await Promise.all([
       Promise.resolve(requestOrigin(headerStore)),
       resolvePublicSiteDomain(hostname),

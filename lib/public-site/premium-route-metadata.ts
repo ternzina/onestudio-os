@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { articles } from "../../app/demos/premium-kids-center/content.ts";
-import { resolvePremiumKidsContent } from "./premium-kids-content.ts";
+import { resolvePublicSiteBrand } from "./identity.ts";
 import { getSiteTemplateDefinition } from "./template-registry.ts";
 import type { PublicSiteData } from "./types.ts";
 
@@ -96,10 +96,7 @@ export function createPremiumPublicRouteMetadata(
   locale: string,
   options: { origin: string | URL; cleanUrls: boolean },
 ): Metadata {
-  const premiumContent = resolvePremiumKidsContent(site.content, {
-    brandFallback: site.company.display_name || site.business.name,
-  });
-  const brand = premiumContent.brand_name || site.company.display_name || site.business.name;
+  const brand = resolvePublicSiteBrand(site);
   const copy = route.kind === "article"
     ? { title: route.article.title, description: route.article.subtitle }
     : routeCopy[route.route];

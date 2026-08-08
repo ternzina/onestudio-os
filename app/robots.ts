@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { SITE_URL } from "./_seo/site";
-import { isPlatformHostname } from "@/lib/domains/normalize";
+import { isCanonicalPlatformHostname, isTechnicalPlatformHostname } from "@/lib/domains/normalize";
 import {
   requestHostname,
   requestOrigin,
@@ -47,7 +47,8 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const headerStore = await headers();
   const hostname = requestHostname(headerStore);
 
-  if (!hostname || isPlatformHostname(hostname)) {
+  if (hostname && isTechnicalPlatformHostname(hostname)) return { rules: { userAgent: "*", disallow: "/" } };
+  if (!hostname || isCanonicalPlatformHostname(hostname) || hostname === "localhost" || hostname === "127.0.0.1") {
     return platformRobots();
   }
 
