@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import TypographyControls from "@/components/admin/TypographyControls";
@@ -56,6 +57,11 @@ import {
 import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
 import { SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
 import { supabase } from "@/lib/supabase";
+
+const PremiumTemplateEditor = dynamic(
+  () => import("@/components/admin/PremiumTemplateEditor"),
+  { ssr: false },
+);
 
 type Workspace = {
   business_id: string;
@@ -1442,7 +1448,19 @@ export default function AdminSitePage() {
           </div>
         ) : null}
 
-        <VisualBuilder
+        {draft.template_id === "premium-kids-center" ? <PremiumTemplateEditor
+          businessId={workspace.business_id}
+          businessSlug={editor.business.slug}
+          businessName={editor.business.name}
+          locale={selectedLocale}
+          draft={draft}
+          disabled={!canConfigure}
+          saving={saving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          onChange={(nextDraft) => replaceDraft(nextDraft, "premium-template-content")}
+          onSave={() => void saveDraft()}
+          onPublish={() => clientMode ? openClientPublicationReview() : void saveDraft({ publish: true })}
+        /> : <VisualBuilder
           businessId={workspace.business_id}
           businessSlug={editor.business.slug}
           businessName={editor.business.name}
@@ -1484,9 +1502,9 @@ export default function AdminSitePage() {
           onUpdateTeam={updateTeam}
           onUpdateGift={updateGift}
           onUpdateMembership={updateMembership}
-        />
+        />}
 
-        <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
+        {draft.template_id !== "premium-kids-center" ? <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold">
             <span>{t("Advanced site settings")}</span>
             <span className="text-lg transition group-open:rotate-45" aria-hidden="true">+</span>
@@ -1657,7 +1675,7 @@ export default function AdminSitePage() {
             </p>
           </aside>
         </div>
-        </details>
+        </details> : null}
       </div>
 
       {clientMode && publishReviewOpen ? (

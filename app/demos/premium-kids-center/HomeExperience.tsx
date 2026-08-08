@@ -9,11 +9,13 @@ import { CenterExperience, CenterFinalCta, CenterStickyNav } from "./CenterExper
 import styles from "./Platform.module.css";
 import type { PublicSiteData } from "@/lib/public-site/types";
 import { BEMBI_DEMO_BASE_PATH, bembiHref } from "./PlatformShell";
+import { resolvePremiumKidsContent } from "@/lib/public-site/premium-kids-content";
 
 export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }: { basePath?: string; site?: PublicSiteData }) {
   const demo = !site;
-  return <PlatformLayout basePath={basePath} demo={demo}><main>
-    <HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} />
+  const content = resolvePremiumKidsContent(site?.content);
+  return <PlatformLayout basePath={basePath} demo={demo} content={content}><main>
+    <HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={content} />
     <CenterStickyNav />
     <DiscoveryRoute />
 
@@ -29,11 +31,11 @@ export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }
 
     <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? bembiHref(basePath, `articles/${article.slug}`) : bembiHref(basePath, "articles")}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href={bembiHref(basePath, "articles")}>Открыть журнал <Arrow /></Link></div></section>
 
-    <CenterExperience />
+    <CenterExperience content={content} />
 
     <EditorialMotion className={styles.platformScene} distance={24}><Image src="/images/demos/premium-kids-center/studio-interior.webp" alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" fill sizes="100vw" /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
 
-    <section className={`${styles.section} ${styles.offline}`} id="offline"><SectionLead index="07" eyebrow="Программы центра" title="Живые занятия — часть большой экосистемы" text="Выберите возраст и день. После занятия ребёнок может продолжить тему дома с материалами платформы." /><OfflineExplorer /></section>
+    <section className={`${styles.section} ${styles.offline}`} id="offline"><SectionLead index="07" eyebrow="Программы центра" title={content.programs_title} text={content.programs_description} /><OfflineExplorer /></section>
 
     <section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><Image src={teacher.image} alt={`Педагог ${teacher.name}`} fill sizes="(max-width: 700px) 100vw, 34vw" /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section>
 
@@ -41,7 +43,7 @@ export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }
 
     <TodayDiscovery />
 
-    <section className={styles.finalCta}><p>{site?.content.brand_name || "BEMBI"} / Discovery Platform</p><h2>Большие открытия начинаются с <em>маленького интереса.</em></h2><div><a href="#offline">Подобрать программу <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>Открыть практические задания</Link><a href="#offline">Записаться на пробное занятие</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
-    <CenterFinalCta />
+    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2>{content.final_cta_title}</h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
+    <CenterFinalCta content={content} />
   </main></PlatformLayout>;
 }

@@ -132,6 +132,7 @@ export type PublicSiteSystemSectionSettings = {
 
 export type PublicSiteContent = {
   template_id?: string;
+  template_content?: Record<string, unknown>;
   theme_accent?: string;
   theme_dark?: string;
   theme_surface?: string;
