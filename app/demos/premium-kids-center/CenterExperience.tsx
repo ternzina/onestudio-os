@@ -115,7 +115,7 @@ export function CenterStickyNav() {
 
 type CenterBlockType = Extract<PremiumKidsBlockType, "intro" | "approach" | "schedule" | "teachers" | "gallery" | "reviews" | "faq">;
 
-export function CenterExperience({ content, blockType, blockId }: { content?: PremiumKidsContent; blockType?: CenterBlockType; blockId?: string }) {
+export function CenterExperience({ content, blockType, blockId, anchored = true }: { content?: PremiumKidsContent; blockType?: CenterBlockType; blockId?: string; anchored?: boolean }) {
   const reduced = useReducedMotion();
   const [age, setAge] = useState<CenterAge>("4–5");
   const [day, setDay] = useState<CenterDay>("Пн");
@@ -133,7 +133,7 @@ export function CenterExperience({ content, blockType, blockId }: { content?: Pr
   const instanceKey = blockId ?? "default";
   const isDefault = !blockId || blockId === `bembi-${blockType}`;
 
-  return <div className={styles.centerExperience} data-premium-block-id={blockId}>
+  return <div className={styles.centerExperience} data-premium-block-id={anchored ? blockId : undefined}>
     {show("intro") ? <section className={styles.centerPrograms} id={isDefault ? "programs" : undefined}><SectionLead index="07" eyebrow={content?.intro_eyebrow ?? "Программы по возрастам"} title={content?.intro_title ?? "Интерес растёт вместе с ребёнком"} text={content?.intro_description ?? "Выберите возраст — мы покажем направления, в которых сейчас будет особенно интересно."} />
       <div className={styles.centerAgePicker} role="tablist" aria-label="Возраст ребёнка">{ages.map(item => <button key={item} role="tab" aria-selected={age === item} aria-controls={`center-age-panel-${instanceKey}`} tabIndex={age === item ? 0 : -1} onClick={() => setAge(item)} onKeyDown={event => ageKeys(event, item)}><span>{item}</span> года</button>)}</div>
       <AnimatePresence mode="wait" initial={false}><motion.div id={`center-age-panel-${instanceKey}`} role="tabpanel" className={styles.centerProgramGrid} key={age} initial={{ opacity: 0, y: reduced ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : -8 }} transition={{ duration: reduced ? 0 : .35 }}>{visiblePrograms.map((program, index) => <article className={`${styles.centerProgramCard} ${styles[program.tone]}`} key={program.title}><div><span>0{index + 1}</span><i aria-hidden="true" /></div><h3>{program.title}</h3><p>{program.note}</p><a href="#schedule">Найти в расписании <Arrow /></a></article>)}</motion.div></AnimatePresence>

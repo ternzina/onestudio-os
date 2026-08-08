@@ -28,12 +28,19 @@ function DiscoveryPrelude({ basePath }: { basePath: string }) {
   </>;
 }
 
+function IntroBlock({ block, content, basePath }: { block: PremiumKidsBlock; content: PremiumKidsContent; basePath: string }) {
+  return <div data-premium-block-id={block.id}><DiscoveryRoute /><DiscoveryPrelude basePath={basePath} /><CenterExperience content={content} blockType="intro" blockId={block.id} anchored={false} /></div>;
+}
+
 function ProgramsBlock({ content, blockId }: { content: PremiumKidsContent; blockId: string }) {
   return <div data-premium-block-id={blockId}>
     <EditorialMotion className={styles.platformScene} distance={24}><Image src="/images/demos/premium-kids-center/studio-interior.webp" alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" fill sizes="100vw" /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
     <section className={`${styles.section} ${styles.offline}`} id={blockId === "bembi-programs" ? "offline" : undefined}><SectionLead index="07" eyebrow="Программы центра" title={content.programs_title} text={content.programs_description} /><OfflineExplorer /></section>
-    <section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><Image src={teacher.image} alt={`Педагог ${teacher.name}`} fill sizes="(max-width: 700px) 100vw, 34vw" /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section>
   </div>;
+}
+
+function TeachersBlock({ content, blockId }: { content: PremiumKidsContent; blockId: string }) {
+  return <div data-premium-block-id={blockId}><CenterExperience content={content} blockType="teachers" blockId={blockId} anchored={false} /><section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><Image src={teacher.image} alt={`Педагог ${teacher.name}`} fill sizes="(max-width: 700px) 100vw, 34vw" /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section></div>;
 }
 
 function FinalBlock({ content, blockId, basePath, demo }: { content: PremiumKidsContent; blockId: string; basePath: string; demo: boolean }) {
@@ -50,15 +57,17 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
   const blockContent = premiumKidsContentForBlock(content, block);
   switch (block.type) {
     case "hero":
-      return <div data-premium-block-id={block.id}><HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={blockContent} /><CenterStickyNav /><DiscoveryRoute /><DiscoveryPrelude basePath={basePath} /></div>;
+      return <div data-premium-block-id={block.id}><HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={blockContent} /><CenterStickyNav /></div>;
     case "intro":
+      return <IntroBlock block={block} content={blockContent} basePath={basePath} />;
     case "approach":
     case "schedule":
-    case "teachers":
     case "gallery":
     case "reviews":
     case "faq":
       return <CenterExperience content={blockContent} blockType={block.type} blockId={block.id} />;
+    case "teachers":
+      return <TeachersBlock content={blockContent} blockId={block.id} />;
     case "programs":
       return <ProgramsBlock content={blockContent} blockId={block.id} />;
     case "final":
@@ -86,7 +95,7 @@ export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }
     contact_phone: typeof footer?.contact_phone === "string" ? footer.contact_phone : content.contact_phone,
     contact_address: typeof footer?.contact_address === "string" ? footer.contact_address : content.contact_address,
   };
-  return <PlatformLayout basePath={basePath} demo={demo} content={shellContent}><main>
-    {content.blocks.map(block => <PremiumBlockRenderer key={block.id} block={block} content={content} basePath={basePath} demo={demo} />)}
+  return <PlatformLayout basePath={basePath} demo={demo} content={shellContent} headerBlockId={content.blocks.find(block => block.type === "header")?.id} footerBlockId={content.blocks.find(block => block.type === "footer")?.id}><main>
+    {content.blocks.filter(block => block.type !== "header" && block.type !== "footer").map(block => <PremiumBlockRenderer key={block.id} block={block} content={content} basePath={basePath} demo={demo} />)}
   </main></PlatformLayout>;
 }

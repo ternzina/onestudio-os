@@ -40,6 +40,13 @@ async function setSelectedTitle(page: Page, value: string) {
   await expect(title).toHaveValue(value);
 }
 
+async function expectNavigatorAndPreviewOrder(page: Page) {
+  const navigatorOrder = await page.locator('[data-premium-editor-block-id][data-premium-editor-block-visible="true"]').evaluateAll(elements => elements.map(element => element.getAttribute("data-premium-editor-block-id")));
+  const previewOrder = await page.frameLocator('iframe[title^="BEMBI Premium"]').locator("[data-premium-runtime] [data-premium-block-id]").evaluateAll(elements => elements.map(element => element.getAttribute("data-premium-block-id")));
+  expect(previewOrder).toEqual(navigatorOrder);
+  return navigatorOrder;
+}
+
 test("real Premium Save and explicit Publish preserve universal composition", async ({ page }) => {
   const stamp = Date.now();
   const email = `premium-persistence-${stamp}@example.com`;
@@ -78,6 +85,14 @@ test("real Premium Save and explicit Publish preserve universal composition", as
 
     const text = await addBlock(page, "Текстовый блок");
     await setSelectedTitle(page, `Persist text ${stamp}`);
+    const initialMixedOrder = await expectNavigatorAndPreviewOrder(page);
+    expect(initialMixedOrder.slice(0, 4)).toEqual(["bembi-header", "bembi-hero", text.id, "bembi-intro"]);
+    await expect(page.frameLocator('iframe[title^="BEMBI Premium"]').locator('[data-premium-block-id="bembi-hero"] section')).toHaveCount(1);
+    const reviewsItem = page.locator('[data-premium-editor-block-id="bembi-reviews"]');
+    await reviewsItem.getByRole("button", { name: "Переместить выше" }).click();
+    await reviewsItem.getByRole("button", { name: "Переместить выше" }).click();
+    const nativeReorder = await expectNavigatorAndPreviewOrder(page);
+    expect(nativeReorder.indexOf("bembi-reviews")).toBeLessThan(nativeReorder.indexOf("bembi-teachers"));
     const textImage = await addBlock(page, "Текст + изображение");
     await setSelectedTitle(page, `Persist text image ${stamp}`);
     const imageText = await addBlock(page, "Изображение + текст");
@@ -107,6 +122,8 @@ test("real Premium Save and explicit Publish preserve universal composition", as
     await page.getByRole("button", { name: "Удалить блок", exact: true }).last().click();
     await expect(page.locator(`[data-premium-editor-block-id="${deleted.id}"]`)).toHaveCount(0);
 
+    const visibleOrderBeforeSave = await expectNavigatorAndPreviewOrder(page);
+
     const expectedOrder = await page.locator("[data-premium-editor-block-id]").evaluateAll(elements => elements.map(element => element.getAttribute("data-premium-editor-block-id")));
     let savePayload: PublicSiteContent | undefined;
     page.on("request", request => {
@@ -130,6 +147,7 @@ test("real Premium Save and explicit Publish preserve universal composition", as
     await expect(page.locator("[data-template-editor-columns]")).toBeVisible({ timeout: 30_000 });
     const reloadedOrder = await page.locator("[data-premium-editor-block-id]").evaluateAll(elements => elements.map(element => element.getAttribute("data-premium-editor-block-id")));
     expect(reloadedOrder).toEqual(expectedOrder);
+    expect(await expectNavigatorAndPreviewOrder(page)).toEqual(visibleOrderBeforeSave);
     for (const block of [text, textImage, imageText, columns]) await expect(page.locator(`[data-premium-editor-block-id="${block.id}"]`)).toHaveCount(1);
     await expect(page.locator(`[data-premium-editor-block-id="${duplicateId}"]`)).toHaveAttribute("data-premium-editor-block-visible", "false");
     await expect(page.locator(`[data-premium-editor-block-id="${deleted.id}"]`)).toHaveCount(0);
@@ -174,6 +192,8 @@ test("real Premium Save and explicit Publish preserve universal composition", as
     await expect(page.locator(`[data-premium-block-id="${imageText.id}"]`)).toHaveCount(1);
     await expect(page.locator(`[data-premium-block-id="${columns.id}"] [data-premium-columns="2"]`)).toHaveCount(1);
     await expect(page.locator(`[data-premium-block-id="${duplicateId}"]`)).toHaveCount(0);
+    const publicRenderedOrder = await page.locator("[data-premium-runtime] [data-premium-block-id]").evaluateAll(elements => elements.map(element => element.getAttribute("data-premium-block-id")));
+    expect(publicRenderedOrder).toEqual(visibleOrderBeforeSave);
   } finally {
     await cleanup(email);
   }

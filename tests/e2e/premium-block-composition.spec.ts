@@ -125,3 +125,18 @@ test("new blocks insert after the selected navigator block", () => {
   expect(afterHeader.blocks[2].id).toBe("safe-after-header");
   expect(afterHeader.blocks[1].id).toBe("bembi-hero");
 });
+
+test("mixed native and universal composition keeps one canonical order", () => {
+  let content = resolvePremiumKidsContent(legacyDraft());
+  content = addPremiumKidsBlock(content, "text", "text-after-hero", undefined, "bembi-hero");
+  content = addPremiumKidsBlock(content, "media_text", "image-before-programs", "left", "bembi-faq");
+  content = movePremiumKidsBlock(content, "bembi-reviews", "bembi-teachers");
+  content = duplicatePremiumKidsBlock(content, "bembi-reviews", "reviews-copy");
+  content = movePremiumKidsBlock(content, "reviews-copy", "bembi-programs");
+  const expected = content.blocks.map(block => block.id);
+  const reloaded = resolvePremiumKidsContent(JSON.parse(JSON.stringify(withPremiumKidsContent(legacyDraft(), content))) as PublicSiteContent);
+  expect(reloaded.blocks.map(block => block.id)).toEqual(expected);
+  expect(expected.slice(0, 4)).toEqual(["bembi-header", "bembi-hero", "text-after-hero", "bembi-intro"]);
+  expect(expected.indexOf("bembi-reviews")).toBeLessThan(expected.indexOf("bembi-teachers"));
+  expect(Math.abs(expected.indexOf("reviews-copy") - expected.indexOf("bembi-reviews"))).toBeGreaterThan(1);
+});
