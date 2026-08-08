@@ -83,10 +83,11 @@ begin
 end;
 $$;
 
-revoke all on function public.normalize_public_site_template_content(jsonb) from public, anon, authenticated;
-revoke all on function public.save_public_site_draft_v263(uuid, text, jsonb, boolean) from public, anon, authenticated;
-revoke all on function public.save_public_site_draft(uuid, text, jsonb, boolean) from public, anon, authenticated;
+revoke all on function public.normalize_public_site_template_content(jsonb) from public, anon, authenticated, service_role;
+revoke all on function public.save_public_site_draft_v263(uuid, text, jsonb, boolean) from public, anon, authenticated, service_role;
+revoke execute on function public.save_public_site_draft(uuid, text, jsonb, boolean) from public, anon, authenticated;
 grant execute on function public.save_public_site_draft(uuid, text, jsonb, boolean) to authenticated;
+grant execute on function public.save_public_site_draft(uuid, text, jsonb, boolean) to service_role;
 
 comment on function public.normalize_public_site_template_content(jsonb) is
   'Bounds and validates generic per-template content stored in public-site draft JSON.';
