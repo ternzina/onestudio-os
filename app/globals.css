@@ -30,8 +30,7 @@ html {
 
 * { box-sizing: border-box; }
 
-/* Template-aware Site Editor workspace breakpoints use the shell's real width. */
-.template-editor-shell { container-type: inline-size; }
+/* The primary editor shell follows the browser viewport, never a nested canvas. */
 .template-editor-compact-controls { display: flex; }
 .template-editor-columns { display: grid; min-width: 0; min-height: 760px; grid-template-columns: minmax(0, 1fr); }
 .template-editor-navigator { order: 2; }
@@ -39,16 +38,12 @@ html {
 .template-editor-settings { order: 3; }
 .template-editor-compact-hidden { display: none; }
 
-@container (min-width: 940px) {
+@media (min-width: 900px) {
   .template-editor-compact-controls { display: none; }
-  .template-editor-columns { grid-template-columns: minmax(190px, 200px) minmax(0, 1fr) minmax(280px, 290px); }
+  .template-editor-columns { grid-template-columns: clamp(170px, 18vw, 240px) minmax(0, 1fr) clamp(240px, 24vw, 350px); }
   .template-editor-navigator,
   .template-editor-canvas,
   .template-editor-settings { display: block; order: initial; max-height: calc(100vh - 110px); overflow-y: auto; }
-}
-
-@container (min-width: 1096px) {
-  .template-editor-columns { grid-template-columns: minmax(220px, 250px) minmax(0, 1fr) minmax(320px, 350px); }
 }
 
 .os-site { --ink:#0d1720; --muted:#6e7c87; --line:#dce5e8; --mint:#78d6bd; --blue:#91b8d6; overflow:hidden; background:#f5f8f7; color:var(--ink); }

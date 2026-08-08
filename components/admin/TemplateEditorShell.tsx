@@ -28,7 +28,7 @@ export default function TemplateEditorShell({ templateName, draftLabel, previewH
 }) {
   const [compactPanel, setCompactPanel] = useState<"navigator" | "settings" | null>(null);
 
-  return <section id="site-builder-canvas" className="template-editor-shell relative mt-8 w-full scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
+  return <section id="site-builder-canvas" className="relative mt-8 w-full scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]">
     <div className="sticky top-0 z-40 flex flex-col gap-3 border-b border-black/10 bg-white/95 px-4 py-3 shadow-sm backdrop-blur xl:flex-row xl:items-center xl:justify-between">
       <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[#3e263e] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef9ef]">Premium</span><strong className="text-sm">{templateName}</strong><button type="button" aria-pressed={editingEnabled} onClick={() => onEditingChange(!editingEnabled)} className={`rounded-xl px-4 py-2 text-xs font-semibold ${editingEnabled ? "bg-emerald-100 text-emerald-800" : "border border-black/10 bg-white"}`}>{editingEnabled ? "Редактирование включено" : "Редактировать"}</button><span className="text-xs text-[#716d65]">{draftLabel}</span></div>
       <div className="flex flex-wrap items-center gap-2">

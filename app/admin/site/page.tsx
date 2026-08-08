@@ -1123,7 +1123,7 @@ export default function AdminSitePage() {
       }}
     >
       <SiteEditorHeader />
-      <div className="mx-auto max-w-7xl">
+      <div data-admin-site-wrapper className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#9a742e]">
