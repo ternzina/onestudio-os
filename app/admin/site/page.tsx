@@ -1460,7 +1460,7 @@ export default function AdminSitePage() {
           device={previewDevice}
           canUndo={undoDepth > 0}
           canRedo={redoDepth > 0}
-          onChange={(nextDraft) => replaceDraft(nextDraft, "premium-template-content")}
+          onChange={(nextDraft, historyGroup) => replaceDraft(nextDraft, historyGroup ?? "premium-template-content")}
           onDeviceChange={setPreviewDevice}
           onUndo={undoEditorChange}
           onRedo={redoEditorChange}
