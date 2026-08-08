@@ -115,3 +115,13 @@ test("universal block operations preserve variants and remain draft-only", () =>
   expect(original.blocks.some(block => block.id === "universal-image-text")).toBeTruthy();
   expect(JSON.stringify(published)).toBe(publishedSnapshot);
 });
+
+test("new blocks insert after the selected navigator block", () => {
+  const original = resolvePremiumKidsContent(legacyDraft());
+  const afterReviews = addPremiumKidsBlock(original, "text", "inserted-text", undefined, "bembi-reviews");
+  const reviewsIndex = afterReviews.blocks.findIndex(block => block.id === "bembi-reviews");
+  expect(afterReviews.blocks[reviewsIndex + 1].id).toBe("inserted-text");
+  const afterHeader = addPremiumKidsBlock(original, "text", "safe-after-header", undefined, "bembi-header");
+  expect(afterHeader.blocks[2].id).toBe("safe-after-header");
+  expect(afterHeader.blocks[1].id).toBe("bembi-hero");
+});
