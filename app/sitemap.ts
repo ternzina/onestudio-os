@@ -19,6 +19,7 @@ import {
   publicSitePagePath,
   publicSitePath,
 } from "@/lib/public-site/metadata";
+import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +80,18 @@ async function platformWorkspaceEntries(
               priority: entry.is_primary ? 0.75 : 0.65,
             }));
 
-          return [home, ...pages];
+          const premiumPages: MetadataRoute.Sitemap = premiumPublicSitemapPaths(
+            site,
+            site.business.locale,
+            false,
+          ).map((path) => ({
+            url: new URL(path, SITE_URL).toString(),
+            lastModified,
+            changeFrequency: "weekly" as const,
+            priority: entry.is_primary ? 0.75 : 0.65,
+          }));
+
+          return [home, ...pages, ...premiumPages];
         }),
     )
   ).flat();
@@ -129,7 +141,18 @@ async function customDomainEntries(
             priority: entry.is_primary ? 0.8 : 0.7,
           }));
 
-        return [home, ...pages];
+        const premiumPages: MetadataRoute.Sitemap = premiumPublicSitemapPaths(
+          site,
+          site.business.locale,
+          true,
+        ).map((path) => ({
+          url: new URL(path, origin).toString(),
+          lastModified,
+          changeFrequency: "weekly" as const,
+          priority: entry.is_primary ? 0.8 : 0.7,
+        }));
+
+        return [home, ...pages, ...premiumPages];
       }),
     )
   ).flat();

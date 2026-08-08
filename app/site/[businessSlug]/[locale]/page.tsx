@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { SITE_URL } from "@/app/_seo/site";
 import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
 import PublicSiteStructuredData from "@/components/public/PublicSiteStructuredData";
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicSiteMetadata } from "@/lib/public-site/metadata";
 import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 import { renderPublicSiteTemplatePath } from "@/components/public/PublicSiteTemplatePathRuntime";
+import {
+  createPremiumPublicRouteMetadata,
+  resolvePremiumPublicRoute,
+} from "@/lib/public-site/premium-route-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -24,13 +29,14 @@ export async function generateMetadata({
   const site = localizedSite ?? await getPublicSite(businessSlug);
 
   if (!localizedSite && site) {
-    const templatePage = renderPublicSiteTemplatePath({
-      site,
-      path: [locale],
-      basePath: `/site/${businessSlug}`,
-    });
-    if (templatePage) {
-      return { title: `${locale} | ${site.content.brand_name || site.business.name}`, robots: { index: false } };
+    const route = resolvePremiumPublicRoute(site, [locale.toLowerCase()]);
+    if (route) {
+      return createPremiumPublicRouteMetadata(
+        site,
+        route,
+        site.business.locale,
+        { origin: context.origin || SITE_URL, cleanUrls: context.cleanUrls },
+      );
     }
   }
 

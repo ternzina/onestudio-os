@@ -1,5 +1,5 @@
-import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteCustomBlockKind, PublicSiteMediaPosition, PublicSiteTypography } from "@/lib/public-site/types";
-import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
+import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteCustomBlockKind, PublicSiteMediaPosition, PublicSiteTypography } from "./types.ts";
+import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "./custom-block-registry.ts";
 
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
@@ -93,7 +93,7 @@ function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) a
 function strings(value: unknown, fallback: string[]) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 32) : cloneValue(fallback); }
 function isTypography(value: unknown): value is PublicSiteTypography { return Boolean(value && typeof value === "object" && !Array.isArray(value)); }
 
-function resolveLegacy(source: Record<string, unknown>, content?: PublicSiteContent): PremiumKidsLegacyContent {
+function resolveLegacy(source: Record<string, unknown>, content?: PublicSiteContent, brandFallback?: string): PremiumKidsLegacyContent {
   const result = cloneValue(DEFAULT_PREMIUM_KIDS_CONTENT);
   for (const key of Object.keys(result) as Array<keyof PremiumKidsLegacyContent>) {
     const value = source[key];
@@ -102,7 +102,7 @@ function resolveLegacy(source: Record<string, unknown>, content?: PublicSiteCont
     else if (Array.isArray(result[key])) (result as Record<string, unknown>)[key] = strings(value, result[key] as string[]);
     else if (typeof value === "string") (result as Record<string, unknown>)[key] = value;
   }
-  if (!source.brand_name && content?.brand_name) result.brand_name = content.brand_name;
+  if (!source.brand_name) result.brand_name = brandFallback || content?.brand_name || result.brand_name;
   return result;
 }
 
@@ -171,10 +171,10 @@ function flattenBlocks(legacy: PremiumKidsLegacyContent, blocks: PremiumKidsBloc
   return result;
 }
 
-export function resolvePremiumKidsContent(content?: PublicSiteContent): PremiumKidsContent {
+export function resolvePremiumKidsContent(content?: PublicSiteContent, options?: { brandFallback?: string }): PremiumKidsContent {
   const raw = content?.template_content?.[PREMIUM_KIDS_TEMPLATE_KEY];
   const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : {};
-  const legacy = resolveLegacy(source, content);
+  const legacy = resolveLegacy(source, content, options?.brandFallback);
   const blocks = Array.isArray(source.blocks) ? normalizeBlocks(source.blocks, legacy) : createDefaultPremiumKidsBlocks(legacy);
   return { ...flattenBlocks(legacy, blocks), blocks };
 }
