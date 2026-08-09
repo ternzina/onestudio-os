@@ -399,7 +399,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
 
       {content.show_hero !== false ? (
         heroLayout === "cover" && content.hero_image_url ? (
-          <section className={`relative isolate min-h-[680px] overflow-hidden px-5 ${content.header_sticky === true ? "py-24" : "pb-24 pt-40"} text-white sm:min-h-[760px] sm:py-32`} style={sectionColorStyle(content, "hero")}>
+          <PublicReveal {...publicSystemSectionAnimation(content, "hero")} className={publicSystemSectionClass(content, "hero", `min-h-[680px] overflow-hidden ${content.header_sticky === true ? "py-24" : "pb-24 pt-40"} text-white sm:min-h-[760px] sm:py-32`)} style={publicSystemSectionStyle(content, "hero", sectionColorStyle(content, "hero"))}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={content.hero_image_url}
@@ -408,7 +408,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               className={`absolute inset-0 -z-20 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
             />
             <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(25,27,32,0.86),rgba(25,27,32,0.48),rgba(25,27,32,0.12))]" />
-            <div className="mx-auto flex min-h-[520px] w-full max-w-[1240px] items-center">
+            <div className={publicSystemSectionContentClass(content, "hero", "flex min-h-[520px] items-center")}>
               <div className="max-w-3xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">{content.hero_eyebrow}</p>
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
@@ -421,12 +421,12 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 </div>
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : (
-          <section className={`relative isolate overflow-hidden px-5 pb-24 ${content.header_sticky === true ? "pt-20" : "pt-40"} sm:pb-32 ${content.header_sticky === true ? "sm:pt-28" : "sm:pt-48"}`} style={sectionColorStyle(content, "hero")}>
+          <PublicReveal {...publicSystemSectionAnimation(content, "hero")} className={publicSystemSectionClass(content, "hero", `overflow-hidden pb-24 ${content.header_sticky === true ? "pt-20" : "pt-40"} sm:pb-32 ${content.header_sticky === true ? "sm:pt-28" : "sm:pt-48"}`)} style={publicSystemSectionStyle(content, "hero", sectionColorStyle(content, "hero"))}>
             <div className="absolute -right-24 top-12 -z-10 h-[460px] w-[460px] rounded-full border border-[var(--site-accent)]/20" />
             <div className="absolute right-20 top-36 -z-10 h-[280px] w-[280px] rounded-full bg-[var(--site-accent)]/10 blur-3xl" />
-            <div className={`mx-auto grid w-full max-w-[1240px] gap-12 ${heroLayout === "text" || !content.hero_image_url ? "lg:grid-cols-1" : "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch"}`}>
+            <div className={publicSystemSectionContentClass(content, "hero", `grid gap-12 ${heroLayout === "text" || !content.hero_image_url ? "lg:grid-cols-1" : "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch"}`)}>
               <div className={content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--site-accent)]">{content.hero_eyebrow}</p>
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 max-w-4xl break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
@@ -451,7 +451,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 </div>
               ) : null}
             </div>
-          </section>
+          </PublicReveal>
         )
       ) : null}
 

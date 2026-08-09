@@ -61,6 +61,7 @@ import {
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
   publicSiteBlockColumnCards as blockColumnCards,
+  publicSiteCustomBlockVisualCapabilities,
 } from "@/lib/public-site/custom-block-registry";
 import { supabase } from "@/lib/supabase";
 
@@ -3207,6 +3208,27 @@ function VisualBuilder({
                       label: t("Hero image"),
                     })
                   }
+                />
+                <SystemSectionSettingsEditor
+                  settings={selectedSystemSectionSettings}
+                  disabled={!canConfigure || !editingEnabled}
+                  allowBackground
+                  t={t}
+                  onChange={updateSystemSectionSettings}
+                  onChooseImage={() =>
+                    openMediaPicker({
+                      kind: "section-background",
+                      section: "hero",
+                      label: `${t("Hero settings")} · ${t("Image as background")}`,
+                    })
+                  }
+                />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.hero}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure || !editingEnabled}
+                  t={t}
+                  onChange={updateSectionColors}
                 />
               </>
             ) : (
@@ -7603,6 +7625,7 @@ function CustomBlockSettings({
 }) {
   const sliderImages = block.media_urls ?? [];
   const collageImages = block.media_urls ?? [];
+  const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "standard");
   const colorDefaults = block.tone === "dark"
     ? { background: siteDark, text: "#ffffff", accent: siteAccent }
     : block.tone === "accent"
@@ -7617,7 +7640,7 @@ function CustomBlockSettings({
         disabled={disabled}
         onChange={(value) => onChange("is_visible", value)}
       />
-      <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
+      {visual.layout ? <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f531f]">
           Размеры и анимация
         </p>
@@ -7727,7 +7750,7 @@ function CustomBlockSettings({
             onChange={(value) => onChange("animate_on_mobile", value)}
           />
         ) : null}
-      </div>
+      </div> : null}
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
       <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
       <TypographyControls title="Заголовок блока" description={block.title || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
@@ -8057,10 +8080,7 @@ function CustomBlockSettings({
           />
         </>
       ) : null}
-      {block.kind === "slider" ||
-      block.kind === "video" ||
-      block.kind === "media_text" ||
-      block.kind === "collage" ? (
+      {visual.mediaSizing ? (
         <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
             {t("Media display")}

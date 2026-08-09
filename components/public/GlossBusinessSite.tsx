@@ -370,7 +370,7 @@ export default function GlossBusinessSite({
 
       {content.show_hero !== false ? (
         heroLayout === "cover" ? (
-          <section className="relative isolate min-h-[620px] overflow-hidden border-b border-[#3b211f]/8 bg-[var(--site-dark)] text-white" style={sectionColorStyle(content, "hero")}>
+          <PublicReveal {...publicSystemSectionAnimation(content, "hero")} className={publicSystemSectionClass(content, "hero", "min-h-[620px] overflow-hidden border-b border-[#3b211f]/8 bg-[var(--site-dark)] text-white")} style={publicSystemSectionStyle(content, "hero", sectionColorStyle(content, "hero"))}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={heroImage}
@@ -379,7 +379,7 @@ export default function GlossBusinessSite({
               className={`absolute inset-0 h-full w-full ${heroObjectClass(content.hero_image_fit, content.hero_image_position)}`}
             />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(50,23,34,0.86),rgba(50,23,34,0.48),rgba(50,23,34,0.14))]" />
-            <div className="relative mx-auto flex min-h-[620px] w-[calc(100%_-_40px)] max-w-[1240px] items-center py-20">
+            <div className={publicSystemSectionContentClass(content, "hero", "relative flex min-h-[620px] items-center py-20")}>
               <div className="max-w-2xl">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{content.hero_eyebrow}</p>
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
@@ -392,10 +392,10 @@ export default function GlossBusinessSite({
                 </div>
               </div>
             </div>
-          </section>
+          </PublicReveal>
         ) : (
-          <section className="border-b border-[#3b211f]/8 bg-white" style={sectionColorStyle(content, "hero")}>
-            <div className={`mx-auto grid w-full max-w-[1240px] ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`}>
+          <PublicReveal {...publicSystemSectionAnimation(content, "hero")} className={publicSystemSectionClass(content, "hero", "border-b border-[#3b211f]/8 bg-white")} style={publicSystemSectionStyle(content, "hero", sectionColorStyle(content, "hero"))}>
+            <div className={publicSystemSectionContentClass(content, "hero", `grid ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`)}>
               <div className={`flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20 ${content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}`}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">{content.hero_eyebrow}</p>
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
@@ -419,7 +419,7 @@ export default function GlossBusinessSite({
                 </div>
               ) : null}
             </div>
-          </section>
+          </PublicReveal>
         )
       ) : null}
 

@@ -12,6 +12,45 @@ export type PublicSiteCustomBlockDefinition = {
   premiumSupported: boolean;
 };
 
+export type PublicSiteVisualCapabilities = {
+  layout: boolean;
+  spacing: boolean;
+  sectionHeight: boolean;
+  colors: boolean;
+  animation: boolean;
+  mediaSizing: boolean;
+  mediaPosition: boolean;
+};
+
+const UNIVERSAL_VISUAL_CAPABILITIES = {
+  layout: true,
+  spacing: true,
+  sectionHeight: true,
+  colors: true,
+  animation: true,
+} as const;
+
+/** Shared inspector/runtime contract. Premium deliberately supports only universal kinds. */
+export function publicSiteCustomBlockVisualCapabilities(
+  kind: PublicSiteCustomBlockKind,
+  runtime: "standard" | "premium" = "standard",
+): PublicSiteVisualCapabilities {
+  const premiumSupported = kind === "text" || kind === "media_text" || kind === "columns";
+  const supported = runtime === "standard" || premiumSupported;
+  const mediaSizing = runtime === "standard"
+    ? kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage"
+    : kind === "media_text";
+  return {
+    layout: supported && UNIVERSAL_VISUAL_CAPABILITIES.layout,
+    spacing: supported && UNIVERSAL_VISUAL_CAPABILITIES.spacing,
+    sectionHeight: supported && UNIVERSAL_VISUAL_CAPABILITIES.sectionHeight,
+    colors: supported && UNIVERSAL_VISUAL_CAPABILITIES.colors,
+    animation: supported && UNIVERSAL_VISUAL_CAPABILITIES.animation,
+    mediaSizing: supported && mediaSizing,
+    mediaPosition: supported && (kind === "media_text" || (runtime === "standard" && kind === "collage")),
+  };
+}
+
 export type PublicSiteCustomBlockLibraryItem = PublicSiteCustomBlockDefinition & {
   id: string;
   mediaPosition?: PublicSiteMediaPosition;

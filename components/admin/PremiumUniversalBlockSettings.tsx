@@ -2,7 +2,7 @@
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import TypographyControls from "@/components/admin/TypographyControls";
-import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards } from "@/lib/public-site/custom-block-registry";
+import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards, publicSiteCustomBlockVisualCapabilities } from "@/lib/public-site/custom-block-registry";
 import type { PublicSiteColumnCard, PublicSiteCustomBlock } from "@/lib/public-site/types";
 
 const inputClass = "mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#9a742e] disabled:opacity-50";
@@ -12,6 +12,7 @@ export default function PremiumUniversalBlockSettings({ block, disabled, onChang
 }) {
   const patch = <Key extends keyof PublicSiteCustomBlock>(key: Key, value: PublicSiteCustomBlock[Key]) => onChange({ ...block, [key]: value }, String(key));
   const cards = publicSiteBlockColumnCards(block);
+  const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "premium");
   while (cards.length < 3) cards.push(defaultPublicSiteColumnCards(block.id)[cards.length]);
   function updateCard(index: number, changes: Partial<PublicSiteColumnCard>, field: string) {
     const next = cards.map((card, cardIndex) => cardIndex === index ? { ...card, ...changes } : card);
@@ -19,6 +20,14 @@ export default function PremiumUniversalBlockSettings({ block, disabled, onChang
   }
 
   return <div className="grid gap-4">
+    {visual.layout ? <fieldset className="grid gap-3 rounded-xl border border-black/8 bg-[#faf9f6] p-3" data-premium-visual-controls>
+      <legend className="px-1 text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">Внешний вид</legend>
+      <VisualSelect label="Ширина содержимого" value={block.content_width ?? "wide"} disabled={disabled} onChange={value => patch("content_width", value as NonNullable<PublicSiteCustomBlock["content_width"]>)} options={[["full","На всю ширину"],["wide","Широкая"],["medium","Средняя"],["narrow","Узкая"]]} />
+      {visual.spacing ? <div className="grid grid-cols-2 gap-2"><VisualSelect label="Отступ сверху" value={block.padding_top ?? "normal"} disabled={disabled} onChange={value => patch("padding_top", value as NonNullable<PublicSiteCustomBlock["padding_top"]>)} options={[["none","Нет"],["compact","Малый"],["normal","Обычный"],["airy","Большой"]]} /><VisualSelect label="Отступ снизу" value={block.padding_bottom ?? "normal"} disabled={disabled} onChange={value => patch("padding_bottom", value as NonNullable<PublicSiteCustomBlock["padding_bottom"]>)} options={[["none","Нет"],["compact","Малый"],["normal","Обычный"],["airy","Большой"]]} /></div> : null}
+      {visual.sectionHeight ? <VisualSelect label="Минимальная высота" value={block.section_height ?? "auto"} disabled={disabled} onChange={value => patch("section_height", value as NonNullable<PublicSiteCustomBlock["section_height"]>)} options={[["auto","По содержимому"],["compact","Невысокая"],["medium","Средняя"],["tall","Высокая"],["screen","Почти экран"]]} /> : null}
+      {visual.animation ? <><VisualSelect label="Анимация" value={block.animation ?? "none"} disabled={disabled} onChange={value => patch("animation", value as NonNullable<PublicSiteCustomBlock["animation"]>)} options={[["none","Нет"],["fade","Появление"],["rise","Снизу"],["scale","Увеличение"]]} />{block.animation && block.animation !== "none" ? <label className="flex items-center gap-2 text-xs font-semibold text-[#4f4b45]"><input type="checkbox" checked={block.animate_on_mobile !== false} disabled={disabled} onChange={event => patch("animate_on_mobile", event.target.checked)} />Анимация на телефоне</label> : null}</> : null}
+      {visual.colors ? <><div className="grid grid-cols-3 gap-2"><VisualColor label="Фон" value={block.colors?.background ?? "#f5f0e6"} disabled={disabled} onChange={background => patch("colors", { ...block.colors, mode: "custom", background })} /><VisualColor label="Текст" value={block.colors?.text ?? "#202229"} disabled={disabled} onChange={text => patch("colors", { ...block.colors, mode: "custom", text })} /><VisualColor label="Акцент" value={block.colors?.accent ?? "#f09a68"} disabled={disabled} onChange={accent => patch("colors", { ...block.colors, mode: "custom", accent })} /></div><button type="button" className="text-left text-[10px] font-semibold text-[#716d65] underline" disabled={disabled || block.colors?.mode !== "custom"} onClick={() => patch("colors", { ...block.colors, mode: "theme" })}>Использовать цвета шаблона</button></> : null}
+    </fieldset> : null}
     <label className="text-xs font-semibold text-[#4f4b45]">Eyebrow<input className={inputClass} value={block.eyebrow} disabled={disabled} onChange={event => patch("eyebrow", event.target.value)} /></label>
     <label className="text-xs font-semibold text-[#4f4b45]">Заголовок<textarea className={inputClass} rows={3} value={block.title} disabled={disabled} onChange={event => patch("title", event.target.value)} /></label>
     <TypographyControls title="Заголовок блока" description="Ограниченные настройки Site Editor 2.6" value={block.title_typography} disabled={disabled} onChange={value => patch("title_typography", value)} />
@@ -28,6 +37,7 @@ export default function PremiumUniversalBlockSettings({ block, disabled, onChang
       <label className="text-xs font-semibold text-[#4f4b45]">URL изображения<input className={inputClass} value={block.media_url ?? ""} disabled={disabled} onChange={event => patch("media_url", event.target.value)} /></label>
       <button type="button" disabled={disabled} onClick={() => onChooseImage({ label: "Изображение блока" })} className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-xs font-semibold disabled:opacity-40">Выбрать из медиатеки</button>
       <label className="text-xs font-semibold text-[#4f4b45]">Альтернативный текст<input className={inputClass} value={block.media_alt ?? ""} disabled={disabled} onChange={event => patch("media_alt", event.target.value.slice(0, 180))} /></label>
+      {visual.mediaSizing ? <><VisualSelect label="Размер медиа" value={block.media_size ?? "wide"} disabled={disabled} onChange={value => patch("media_size", value as NonNullable<PublicSiteCustomBlock["media_size"]>)} options={[["full","Полный"],["wide","Большой"],["medium","Средний"],["compact","Малый"]]} /><VisualSelect label="Пропорции" value={block.media_aspect ?? "landscape"} disabled={disabled} onChange={value => patch("media_aspect", value as NonNullable<PublicSiteCustomBlock["media_aspect"]>)} options={[["landscape","16:9"],["classic","4:3"],["square","1:1"],["portrait","4:5"]]} /><VisualSelect label="Высота медиа" value={block.media_height ?? "auto"} disabled={disabled} onChange={value => patch("media_height", value as NonNullable<PublicSiteCustomBlock["media_height"]>)} options={[["auto","По пропорциям"],["compact","Низкая"],["medium","Средняя"],["tall","Высокая"]]} /><VisualSelect label="Заполнение" value={block.media_fit ?? "cover"} disabled={disabled} onChange={value => patch("media_fit", value as NonNullable<PublicSiteCustomBlock["media_fit"]>)} options={[["cover","Заполнить"],["contain","Целиком"]]} /><VisualSelect label="Рамка" value={block.media_frame ?? "line"} disabled={disabled} onChange={value => patch("media_frame", value as NonNullable<PublicSiteCustomBlock["media_frame"]>)} options={[["none","Нет"],["line","Линия"],["card","Карточка"]]} /></> : null}
       <label className="text-xs font-semibold text-[#4f4b45]">Текст кнопки<input className={inputClass} value={block.button_label} disabled={disabled} onChange={event => patch("button_label", event.target.value)} /></label>
       <label className="text-xs font-semibold text-[#4f4b45]">Ссылка кнопки<input className={inputClass} value={block.button_url} disabled={disabled} onChange={event => patch("button_url", event.target.value)} /></label>
     </div> : null}
@@ -36,4 +46,12 @@ export default function PremiumUniversalBlockSettings({ block, disabled, onChang
       {cards.slice(0, block.columns_count ?? 3).map((card, index) => <section key={card.id} className="grid gap-3 rounded-xl border border-black/8 bg-white p-3"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">Карточка {index + 1}</p><label className="text-xs font-semibold text-[#4f4b45]">Заголовок<input className={inputClass} value={card.title} disabled={disabled} onChange={event => updateCard(index, { title: event.target.value }, "title")} /></label><RichTextEditor label="Описание" value={card.text} disabled={disabled} onChange={value => updateCard(index, { text: value }, "text")} /><label className="text-xs font-semibold text-[#4f4b45]">Содержимое карточки<select className={inputClass} value={card.media_type} disabled={disabled} onChange={event => updateCard(index, { media_type: event.target.value === "image" ? "image" : "none" }, "media-type")}><option value="none">Только текст</option><option value="image">Изображение и текст</option></select></label>{card.media_type === "image" ? <><label className="text-xs font-semibold text-[#4f4b45]">URL изображения<input className={inputClass} value={card.media_url ?? ""} disabled={disabled} onChange={event => updateCard(index, { media_url: event.target.value }, "media-url")} /></label><button type="button" disabled={disabled} onClick={() => onChooseImage({ cardIndex: index, label: `Изображение карточки ${index + 1}` })} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">Выбрать из медиатеки</button></> : null}</section>)}
     </div> : null}
   </div>;
+}
+
+function VisualSelect({ label, value, disabled, options, onChange }: { label: string; value: string; disabled: boolean; options: readonly (readonly [string, string])[]; onChange: (value: string) => void }) {
+  return <label className="text-xs font-semibold text-[#4f4b45]">{label}<select className={inputClass} value={value} disabled={disabled} onChange={event => onChange(event.target.value)}>{options.map(([option, text]) => <option key={option} value={option}>{text}</option>)}</select></label>;
+}
+
+function VisualColor({ label, value, disabled, onChange }: { label: string; value: string; disabled: boolean; onChange: (value: string) => void }) {
+  return <label className="text-[10px] font-semibold text-[#4f4b45]">{label}<input className="mt-2 h-9 w-full rounded-lg border border-black/10" type="color" value={value} disabled={disabled} onChange={event => onChange(event.target.value)} /></label>;
 }
