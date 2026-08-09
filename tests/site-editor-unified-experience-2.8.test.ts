@@ -19,7 +19,7 @@ test("Premium semantic navigator names follow the selected Admin locale", () => 
 
 test("Premium universal library derives its safe presets from the canonical registry", () => {
   assert.equal(PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.length, 8);
-  assert.deepEqual([...new Set(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map((item) => item.kind))], ["text", "media_text", "columns"]);
+  assert.deepEqual([...new Set(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map((item) => item.kind))], PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(item => item.kind));
   assert.deepEqual(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.filter((item) => item.kind === "media_text").map((item) => item.mediaPosition), ["right", "left"]);
   for (const item of PREMIUM_UNIVERSAL_BLOCK_LIBRARY) assert.ok(PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.some((canonical) => canonical.kind === item.kind && canonical.premiumSupported));
   assert.ok(!PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.some((item) => item.kind === ("faq" as never)));
@@ -32,23 +32,44 @@ test("Standard FAQ stays a system section and Premium FAQ stays semantic", async
   assert.ok(PREMIUM_KIDS_BLOCK_REGISTRY.some((item) => item.type === "faq" && item.fieldKeys.includes("faq")));
 });
 
-test("Premium delimiter helpers preserve the existing string-array semantics", () => {
+test("Premium structured helpers parse legacy delimiters and round-trip formatted bodies", () => {
   for (const [source, fromEnd] of [["Question · Answer", false], ["Review text · Author", true]] as const) {
     const parsed = parsePremiumDelimitedItem(source, "·", fromEnd);
-    assert.equal(serializePremiumDelimitedItem(parsed.primary, parsed.secondary), source);
+    const serialized = serializePremiumDelimitedItem(parsed.primary, `<p><strong>${parsed.secondary}</strong></p>`);
+    assert.deepEqual(parsePremiumDelimitedItem(serialized), { primary: parsed.primary, secondary: `<p><strong>${parsed.secondary}</strong></p>` });
   }
-  assert.equal(serializePremiumDelimitedItem("Name", "Role"), "Name · Role");
-  assert.doesNotMatch(serializePremiumDelimitedItem("Question", "Answer"), /rich-text|\"version\"/);
+  assert.match(serializePremiumDelimitedItem("Name", "<p>Role</p>"), /^onestudio:rich-item:v1:/);
 });
 
 test("shared chrome, localized editor dependencies and independent scroll remain wired", async () => {
   const premium = await read("../components/admin/PremiumTemplateEditor.tsx");
-  const shell = await read("../components/admin/TemplateEditorShell.tsx");
+  const standard = await read("../app/admin/site/page.tsx");
+  const runtime = await read("../components/admin/TemplateEditorRuntime.tsx");
   const globals = await read("../app/globals.css");
-  for (const component of ["EditorBlockRow", "EditorToggle", "EditorInspectorActions", "PremiumDelimitedListEditor"]) assert.match(premium, new RegExp(component));
+  for (const component of ["PremiumDelimitedListEditor", "navigatorModel", "inspectorModel"]) assert.match(premium, new RegExp(component));
   for (const file of ["RichTextEditor.tsx", "TypographyControls.tsx", "MediaLibraryPicker.tsx", "PremiumUniversalBlockSettings.tsx"]) assert.match(await read(`../components/admin/${file}`), /useAdminI18n/);
-  assert.match(shell, /useAdminI18n/);
+  assert.match(runtime, /useAdminI18n/);
+  assert.doesNotMatch(premium, /TemplateEditorShell/);
+  assert.match(premium, /<TemplateEditorRuntime/);
+  assert.match(standard, /<TemplateEditorRuntime/);
+  assert.match(runtime, /<EditorBlockLibrary/);
+  assert.doesNotMatch(premium, /<EditorBlockLibrary/);
+  assert.doesNotMatch(standard, /<EditorBlockLibrary/);
+  for (const primitive of ["OneStudioEditorToolbar", "OneStudioEditorCommandBar", "OneStudioEditorWorkspace"]) assert.match(runtime, new RegExp(`export function ${primitive}`));
+  assert.doesNotMatch(standard, /<OneStudioEditorWorkspace/);
   assert.match(globals, /template-editor-settings[^}]*overflow-y: auto/s);
+});
+
+test("Premium structured prose uses rich editing and safe public rendering", async () => {
+  const editor = await read("../components/admin/PremiumDelimitedListEditor.tsx");
+  const renderer = await read("../app/demos/premium-kids-center/CenterExperience.tsx");
+  assert.match(editor, /primaryLabel === "Review text"/);
+  assert.match(editor, /secondaryLabel === "Answer" \|\| secondaryLabel === "Role"/);
+  assert.match(editor, /<RichTextEditor/);
+  assert.match(renderer, /parsePremiumDelimitedItem/);
+  assert.match(renderer, /<PublicRichText value=\{quote\}/);
+  assert.match(renderer, /<PublicRichText value=\{answer\}/);
+  assert.match(renderer, /<PublicRichText value=\{teacher\.role\}/);
 });
 
 test("required block normalization and renderer separation remain intact", async () => {

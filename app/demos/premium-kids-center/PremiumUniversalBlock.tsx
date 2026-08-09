@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import PublicRichText from "@/components/public/PublicRichText";
+import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicReveal from "@/components/public/PublicReveal";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
@@ -54,6 +55,12 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
         <span>0{index + 1}</span><h3>{card.title}</h3><PublicRichText value={card.text} />
       </article>)}</div></div>
     </PublicReveal>;
+  }
+
+  if (["features", "cta", "slider", "collage", "video"].includes(content.kind)) {
+    return <div data-premium-block-id={block.id} className={styles.premiumUniversal} style={sectionStyle} data-premium-universal-kind={content.kind}>
+      <PublicCustomBlock block={content} />
+    </div>;
   }
 
   return null;

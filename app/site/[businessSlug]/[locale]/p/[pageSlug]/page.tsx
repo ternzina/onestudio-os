@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import PublicCustomPage from "@/components/public/PublicCustomPage";
+import PublicCustomPageRuntime from "@/components/public/PublicCustomPageRuntime";
 import { getPublicSite } from "@/lib/public-site/data";
 import {
   cleanPublicPagePath,
@@ -66,5 +66,5 @@ export default async function LocalizedCustomPage({
     );
   }
 
-  return <PublicCustomPage site={site} page={page} />;
+  return <PublicCustomPageRuntime site={site} page={page} />;
 }

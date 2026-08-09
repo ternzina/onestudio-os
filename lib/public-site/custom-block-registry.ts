@@ -30,16 +30,13 @@ const UNIVERSAL_VISUAL_CAPABILITIES = {
   animation: true,
 } as const;
 
-/** Shared inspector/runtime contract. Premium deliberately supports only universal kinds. */
+/** Shared inspector/runtime contract for every canonical universal kind. */
 export function publicSiteCustomBlockVisualCapabilities(
   kind: PublicSiteCustomBlockKind,
   runtime: "standard" | "premium" = "standard",
 ): PublicSiteVisualCapabilities {
-  const premiumSupported = kind === "text" || kind === "media_text" || kind === "columns";
-  const supported = runtime === "standard" || premiumSupported;
-  const mediaSizing = runtime === "standard"
-    ? kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage"
-    : kind === "media_text";
+  const supported = runtime === "standard" || runtime === "premium";
+  const mediaSizing = kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage";
   return {
     layout: supported && UNIVERSAL_VISUAL_CAPABILITIES.layout,
     spacing: supported && UNIVERSAL_VISUAL_CAPABILITIES.spacing,
@@ -47,7 +44,7 @@ export function publicSiteCustomBlockVisualCapabilities(
     colors: supported && UNIVERSAL_VISUAL_CAPABILITIES.colors,
     animation: supported && UNIVERSAL_VISUAL_CAPABILITIES.animation,
     mediaSizing: supported && mediaSizing,
-    mediaPosition: supported && (kind === "media_text" || (runtime === "standard" && kind === "collage")),
+    mediaPosition: supported && (kind === "media_text" || kind === "collage"),
   };
 }
 
@@ -58,13 +55,13 @@ export type PublicSiteCustomBlockLibraryItem = PublicSiteCustomBlockDefinition &
 
 export const PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY = [
   { kind: "text", label: "Text block", description: "A free heading and text section.", premiumSupported: true },
-  { kind: "features", label: "Feature cards", description: "Three or more editable advantages.", premiumSupported: false },
-  { kind: "cta", label: "Call to action", description: "Text with a button and link.", premiumSupported: false },
+  { kind: "features", label: "Feature cards", description: "Three or more editable advantages.", premiumSupported: true },
+  { kind: "cta", label: "Call to action", description: "Text with a button and link.", premiumSupported: true },
   { kind: "media_text", label: "Text + image or video", description: "A split section with media on the left or right.", premiumSupported: true },
   { kind: "columns", label: "Two or three columns", description: "A row of two or three editable content cards.", premiumSupported: true },
-  { kind: "slider", label: "Image slider", description: "Automatic slides with an interval from two seconds.", premiumSupported: false },
-  { kind: "collage", label: "Collage", description: "Several photographs arranged on the left, center or right.", premiumSupported: false },
-  { kind: "video", label: "Video block", description: "YouTube, Vimeo or a direct video file.", premiumSupported: false },
+  { kind: "slider", label: "Image slider", description: "Automatic slides with an interval from two seconds.", premiumSupported: true },
+  { kind: "collage", label: "Collage", description: "Several photographs arranged on the left, center or right.", premiumSupported: true },
+  { kind: "video", label: "Video block", description: "YouTube, Vimeo or a direct video file.", premiumSupported: true },
 ] as const satisfies readonly PublicSiteCustomBlockDefinition[];
 
 /** Premium presentation is derived from the canonical registry plus safe runtime presets. */

@@ -4,7 +4,7 @@ import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "./custo
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
 export type PremiumKidsSemanticBlockType = "header" | "hero" | "intro" | "approach" | "schedule" | "teachers" | "gallery" | "reviews" | "faq" | "programs" | "final" | "footer";
-export type PremiumKidsUniversalBlockType = Extract<PublicSiteCustomBlockKind, "text" | "media_text" | "columns">;
+export type PremiumKidsUniversalBlockType = PublicSiteCustomBlockKind;
 export type PremiumKidsBlockType = PremiumKidsSemanticBlockType | PremiumKidsUniversalBlockType;
 
 type PremiumKidsLegacyContent = {
@@ -77,19 +77,31 @@ export const PREMIUM_KIDS_BLOCK_REGISTRY: readonly PremiumKidsBlockDefinition[] 
   { type: "text", label: "Text block", description: "A free heading and rich text in the BEMBI visual system.", defaultId: "bembi-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
   { type: "media_text", label: "Text + image or video", description: "A BEMBI composition with media on the left or right.", defaultId: "bembi-media-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
   { type: "columns", label: "Two or three columns", description: "Editable cards in the BEMBI visual system.", defaultId: "bembi-columns", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "features", label: "Feature cards", description: "Editable advantages in the BEMBI visual system.", defaultId: "bembi-features", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "cta", label: "Call to action", description: "An invitation and link in the BEMBI visual system.", defaultId: "bembi-cta", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "slider", label: "Image slider", description: "An image sequence in the BEMBI visual system.", defaultId: "bembi-slider", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "collage", label: "Collage", description: "A multi-image BEMBI composition.", defaultId: "bembi-collage", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "video", label: "Video block", description: "Video presented in the BEMBI visual system.", defaultId: "bembi-video", fieldKeys: [], capabilities: { ...editable, typography: true } },
 ] as const;
 
-export function parsePremiumDelimitedItem(value: string, delimiter = "·", fromEnd = false) {
+const PREMIUM_STRUCTURED_ITEM_PREFIX = "onestudio:rich-item:v1:";
+export type PremiumStructuredItem = { primary: string; secondary: string };
+
+export function parsePremiumDelimitedItem(value: string, delimiter = "·", fromEnd = false): PremiumStructuredItem {
+  if (value.startsWith(PREMIUM_STRUCTURED_ITEM_PREFIX)) {
+    try {
+      const parsed = JSON.parse(value.slice(PREMIUM_STRUCTURED_ITEM_PREFIX.length)) as Partial<PremiumStructuredItem>;
+      return { primary: typeof parsed.primary === "string" ? parsed.primary : "", secondary: typeof parsed.secondary === "string" ? parsed.secondary : "" };
+    } catch { /* Preserve malformed content through the legacy parser below. */ }
+  }
   const index = fromEnd ? value.lastIndexOf(delimiter) : value.indexOf(delimiter);
   return index < 0
     ? { primary: value.trim(), secondary: "" }
     : { primary: value.slice(0, index).trim(), secondary: value.slice(index + delimiter.length).trim() };
 }
 
-export function serializePremiumDelimitedItem(primary: string, secondary: string, delimiter = "·") {
-  const left = primary.trim();
-  const right = secondary.trim();
-  return right ? `${left} ${delimiter} ${right}` : left;
+export function serializePremiumDelimitedItem(primary: string, secondary: string) {
+  return `${PREMIUM_STRUCTURED_ITEM_PREFIX}${JSON.stringify({ primary, secondary })}`;
 }
 
 export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
@@ -100,7 +112,9 @@ export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
 
 const definitionMap = new Map(PREMIUM_KIDS_BLOCK_REGISTRY.map((definition) => [definition.type, definition]));
 const requiredTypes = new Set<PremiumKidsBlockType>(["header", "hero", "footer"]);
-export function isPremiumKidsUniversalBlockType(type: PremiumKidsBlockType): type is PremiumKidsUniversalBlockType { return type === "text" || type === "media_text" || type === "columns"; }
+export function isPremiumKidsUniversalBlockType(type: PremiumKidsBlockType): type is PremiumKidsUniversalBlockType {
+  return ["text", "features", "cta", "media_text", "columns", "slider", "collage", "video"].includes(type);
+}
 
 function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
 function strings(value: unknown, fallback: string[]) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 32) : cloneValue(fallback); }
@@ -124,7 +138,7 @@ export function getPremiumKidsBlockDefinition(type: PremiumKidsBlockType) { retu
 export function createPremiumKidsDefaultBlock(type: PremiumKidsBlockType, legacy: PremiumKidsLegacyContent = DEFAULT_PREMIUM_KIDS_CONTENT, id = getPremiumKidsBlockDefinition(type).defaultId, mediaPosition?: PublicSiteMediaPosition): PremiumKidsBlock {
   const definition = getPremiumKidsBlockDefinition(type);
   const props: PremiumKidsBlockProps = {};
-  if (type === "text" || type === "media_text" || type === "columns") {
+  if (isPremiumKidsUniversalBlockType(type)) {
     props.universal_block = createPublicSiteCustomBlock(type, id, mediaPosition);
     if (type === "media_text") {
       props.universal_block.media_url = "/images/demos/premium-kids-center/studio-interior.webp";
@@ -160,7 +174,7 @@ function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
       else if (typeof value === "string") defaults.props[key] = value;
     }
     if (isTypography(rawProps.heading_typography)) defaults.props.heading_typography = rawProps.heading_typography;
-    if ((type === "text" || type === "media_text" || type === "columns") && rawProps.universal_block && typeof rawProps.universal_block === "object" && !Array.isArray(rawProps.universal_block)) {
+    if (isPremiumKidsUniversalBlockType(type) && rawProps.universal_block && typeof rawProps.universal_block === "object" && !Array.isArray(rawProps.universal_block)) {
       const universal = rawProps.universal_block as PublicSiteCustomBlock;
       if (universal.kind === type) defaults.props.universal_block = { ...createPublicSiteCustomBlock(type, id), ...cloneValue(universal), id, kind: type };
     }

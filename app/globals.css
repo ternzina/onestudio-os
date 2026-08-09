@@ -38,6 +38,15 @@ html {
 .template-editor-settings { order: 3; }
 .template-editor-compact-hidden { display: none; }
 
+@media (max-width: 1023px) {
+  [data-template-editor-runtime] [data-template-editor-navigator],
+  [data-template-editor-runtime] [data-template-editor-settings] { display: none; }
+  [data-template-editor-runtime] [data-compact-panel="navigator"] [data-template-editor-navigator],
+  [data-template-editor-runtime] [data-compact-panel="settings"] [data-template-editor-settings] { display: block; }
+  [data-template-editor-runtime] [data-compact-panel="navigator"] [data-template-editor-canvas],
+  [data-template-editor-runtime] [data-compact-panel="settings"] [data-template-editor-canvas] { display: none; }
+}
+
 @media (min-width: 900px) {
   .template-editor-compact-controls { display: none; }
   .template-editor-columns { grid-template-columns: clamp(170px, 18vw, 240px) minmax(0, 1fr) clamp(240px, 24vw, 350px); }

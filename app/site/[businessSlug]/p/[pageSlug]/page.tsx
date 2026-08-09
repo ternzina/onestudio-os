@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PublicCustomPage from "@/components/public/PublicCustomPage";
+import PublicCustomPageRuntime from "@/components/public/PublicCustomPageRuntime";
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicPageMetadata } from "@/lib/public-site/metadata";
 import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
@@ -44,5 +44,5 @@ export default async function CustomPage({ params }: CustomPageProps) {
   );
 
   if (!site || !page) notFound();
-  return <PublicCustomPage site={site} page={page} />;
+  return <PublicCustomPageRuntime site={site} page={page} />;
 }

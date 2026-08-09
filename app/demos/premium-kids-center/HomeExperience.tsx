@@ -75,6 +75,11 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
     case "text":
     case "media_text":
     case "columns":
+    case "features":
+    case "cta":
+    case "slider":
+    case "collage":
+    case "video":
       return <PremiumUniversalBlock block={block} />;
     default:
       return null;
@@ -95,7 +100,7 @@ export default function HomeExperience({ basePath = BEMBI_DEMO_BASE_PATH, site }
     contact_phone: typeof footer?.contact_phone === "string" ? footer.contact_phone : content.contact_phone,
     contact_address: typeof footer?.contact_address === "string" ? footer.contact_address : content.contact_address,
   };
-  return <PlatformLayout basePath={basePath} demo={demo} content={shellContent} headerBlockId={content.blocks.find(block => block.type === "header")?.id} footerBlockId={content.blocks.find(block => block.type === "footer")?.id}><main>
+  return <PlatformLayout basePath={basePath} demo={demo} content={shellContent} pages={site?.content.pages} headerBlockId={content.blocks.find(block => block.type === "header")?.id} footerBlockId={content.blocks.find(block => block.type === "footer")?.id}><main>
     {content.blocks.filter(block => block.type !== "header" && block.type !== "footer").map(block => <PremiumBlockRenderer key={block.id} block={block} content={content} basePath={basePath} demo={demo} />)}
   </main></PlatformLayout>;
 }

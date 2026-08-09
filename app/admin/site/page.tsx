@@ -8,6 +8,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
+import { OneStudioDesignDialog, OneStudioSeoDialog } from "@/components/admin/OneStudioSystemDialogs";
+import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-site/editor-spec";
 import PublicRichText from "@/components/public/PublicRichText";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
@@ -55,7 +58,10 @@ import {
   type SiteTemplate,
 } from "@/lib/public-site/templates";
 import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
-import { SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
+import { getActiveEditorDesigns, SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
+import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
+import { selectExecutableTemplate } from "@/lib/public-site/template-selection";
+import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
   createPublicSiteCustomBlock as createCustomBlock,
@@ -409,28 +415,6 @@ function publicHref(editor: PublicSiteEditorData, locale: string) {
     : `/site/${editor.business.slug}/${locale}`;
 }
 
-function createCustomPage(existingCount: number): PublicSitePage {
-  const number = existingCount + 1;
-  const slug = `page-${number}`;
-  return {
-    id: `custom-${Date.now()}`,
-    type: "custom",
-    slug,
-    nav_label: `Страница ${number}`,
-    eyebrow: "GLOSS · PAGE",
-    title: "Заголовок новой страницы",
-    intro:
-      "Добавьте описание страницы и соберите её из произвольных блоков.",
-    is_visible: true,
-    show_in_navigation: true,
-    show_booking_cta: true,
-    seo_title: "",
-    seo_description: "",
-    seo_image_url: "",
-    seo_no_index: false,
-    blocks: [createCustomBlock("text", `${slug}-block-1`)],
-  };
-}
 
 function SiteEditorHeader() {
   return <AdminHeader />;
@@ -453,6 +437,8 @@ export default function AdminSitePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
+  const [designDialogOpen, setDesignDialogOpen] = useState(false);
+  const [seoDialogOpen, setSeoDialogOpen] = useState(false);
   const [publishSucceeded, setPublishSucceeded] = useState(false);
   const [publishWasAlreadyPublished, setPublishWasAlreadyPublished] =
     useState(false);
@@ -641,6 +627,7 @@ export default function AdminSitePage() {
     setSelectedLocale(locale);
     draftRef.current = nextDraft;
     setDraft(nextDraft);
+    setTemplateSavedKey(nextDraft?.template_id || "standard");
     setSavedDraftSignature(contentSignature(nextDraft));
     const nextLogo = editor.site.logo_draft_url ?? editor.company?.logo_url ?? "";
     setLogoUrl(nextLogo);
@@ -671,15 +658,16 @@ export default function AdminSitePage() {
     const current = draftRef.current ?? draft;
     if (!current || !workspace || !editor || !canConfigure || saving) return;
 
-    const nextDraft = { ...current, template_id: templateKey };
-    const persistedDraft =
-      selectedRecord?.draft_content
-      ?? selectedRecord?.published_content
-      ?? current;
-    const contentToSave = { ...persistedDraft, template_id: templateKey };
+    let contentToSave: PublicSiteContent;
+    try {
+      contentToSave = selectExecutableTemplate(current, templateKey);
+    } catch (selectionError) {
+      setError(selectionError instanceof Error ? selectionError.message : "Template selection failed.");
+      return;
+    }
     const previousSavedTemplateKey = templateSavedKey;
 
-    replaceDraft(nextDraft, "site-template");
+    replaceDraft(contentToSave, "site-template");
     setTemplateSavingKey(templateKey);
     setTemplateSavedKey("");
     setSaving(true);
@@ -703,6 +691,17 @@ export default function AdminSitePage() {
       setError(saveError.message);
     } else {
       const savedContent = data as PublicSiteContent;
+      if (savedContent.template_id !== templateKey) {
+        draftRef.current = current;
+        setDraft(current);
+        setTemplateSavedKey(previousSavedTemplateKey);
+        setError("Saved draft did not confirm the selected template.");
+        setTemplateSavingKey("");
+        setSaving(false);
+        return;
+      }
+      draftRef.current = savedContent;
+      setDraft(savedContent);
       setEditor((currentEditor) => currentEditor ? {
         ...currentEditor,
         locales: currentEditor.locales.map((locale) =>
@@ -1332,6 +1331,8 @@ export default function AdminSitePage() {
           onRedo={redoEditorChange}
           onSave={() => void saveDraft()}
           onPublish={() => clientMode ? openClientPublicationReview() : void saveDraft({ publish: true })}
+          onOpenDesign={() => setDesignDialogOpen(true)}
+          onOpenSeo={() => setSeoDialogOpen(true)}
         /> : <VisualBuilder
           businessId={workspace.business_id}
           businessSlug={editor.business.slug}
@@ -1353,9 +1354,8 @@ export default function AdminSitePage() {
           onAddLocale={() => void addLocale()}
           onLocaleChange={chooseLocale}
           onTemplate={installTemplate}
-          onTemplateKey={selectTemplateKey}
-          templateSavingKey={templateSavingKey}
-          templateSavedKey={templateSavedKey}
+          onOpenDesign={() => setDesignDialogOpen(true)}
+          onOpenSeo={() => setSeoDialogOpen(true)}
           onPublish={() =>
             clientMode
               ? openClientPublicationReview()
@@ -1375,6 +1375,30 @@ export default function AdminSitePage() {
           onUpdateGift={updateGift}
           onUpdateMembership={updateMembership}
         />}
+
+        <OneStudioDesignDialog
+          open={designDialogOpen}
+          activeTemplateKey={draft.template_id ?? "standard"}
+          activeDesigns={getActiveEditorDesigns()}
+          businessSlug={editor.business.slug}
+          locale={selectedLocale}
+          canConfigure={canConfigure}
+          saving={saving}
+          savingTemplateKey={templateSavingKey}
+          savedTemplateKey={templateSavedKey}
+          onSelectDesign={selectTemplateKey}
+          onClose={() => setDesignDialogOpen(false)}
+        />
+        <OneStudioSeoDialog
+          open={seoDialogOpen}
+          businessId={workspace.business_id}
+          draft={draft}
+          canConfigure={canConfigure}
+          saving={saving}
+          onChange={replaceDraft}
+          onSave={() => void saveDraft()}
+          onClose={() => setSeoDialogOpen(false)}
+        />
 
         {draft.template_id !== "premium-kids-center" ? <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold">
@@ -1600,9 +1624,8 @@ function VisualBuilder({
   onAddLocale,
   onLocaleChange,
   onTemplate,
-  onTemplateKey,
-  templateSavingKey,
-  templateSavedKey,
+  onOpenDesign,
+  onOpenSeo,
   onPublish,
   onSave,
   onSectionChange,
@@ -1638,9 +1661,8 @@ function VisualBuilder({
   onAddLocale: () => void;
   onLocaleChange: (locale: string) => void;
   onTemplate: (template: SiteTemplate) => void;
-  onTemplateKey: (templateKey: string) => Promise<void>;
-  templateSavingKey: string;
-  templateSavedKey: string;
+  onOpenDesign: () => void;
+  onOpenSeo: () => void;
   onPublish: () => void;
   onSave: () => void;
   onSectionChange: (section: CanvasSection) => void;
@@ -1662,8 +1684,6 @@ function VisualBuilder({
   const [blocksOpen, setBlocksOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [libraryOpen, setLibraryOpen] = useState(false);
-  const [templatesOpen, setTemplatesOpen] = useState(false);
-  const [seoOpen, setSeoOpen] = useState(false);
   const [siteSettingsOpen, setSiteSettingsOpen] = useState(false);
   const [pageLibraryOpen, setPageLibraryOpen] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -1679,7 +1699,7 @@ function VisualBuilder({
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
   const [editingEnabled, setEditingEnabled] = useState(true);
   const [draggedBlockId, setDraggedBlockId] = useState("");
-  const [dragOverBlockId, setDragOverBlockId] = useState("");
+  const [, setDragOverBlockId] = useState("");
   const [dragScope, setDragScope] = useState<"home" | "page" | null>(null);
   const workspaceCanvasRef = useRef<HTMLDivElement | null>(null);
   const workspaceScrollFrameRef = useRef<number | null>(null);
@@ -1870,14 +1890,6 @@ function VisualBuilder({
   }
   const activeTemplate =
     SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
-  const selectedRuntimeTemplate =
-    SITE_TEMPLATE_REGISTRY.find(
-      (template) => template.key === draft.template_id,
-    ) ?? null;
-  const selectedPremiumTemplate =
-    selectedRuntimeTemplate?.tier === "premium"
-      ? selectedRuntimeTemplate
-      : null;
   const previewServices: PublicSiteService[] = services.length
     ? services
     : (activeTemplate?.services ?? []).map((service, index) => ({
@@ -2048,9 +2060,7 @@ function VisualBuilder({
   }
 
   function addCustomPage() {
-    const page = createCustomPage(
-      pages.filter((item) => item.type === "custom").length,
-    );
+    const page = createOneStudioPage(draft, () => `custom-${Date.now()}`);
     onUpdate("pages", [...pages, page]);
     choosePage(page.id);
     setPageLibraryOpen(false);
@@ -2222,19 +2232,19 @@ function VisualBuilder({
     updatePage("blocks", blocks);
   }
 
-  function duplicateCustomBlock() {
-    if (!selectedCustomBlock) return;
-    const duplicate = cloneCustomBlockForDuplicate(selectedCustomBlock);
+  function duplicateCustomBlock(targetBlock = selectedCustomBlock) {
+    if (!targetBlock) return;
+    const duplicate = cloneCustomBlockForDuplicate(targetBlock);
     if (activePage) {
       const blocks = [...(activePage.blocks ?? [])];
-      const index = blocks.findIndex((block) => block.id === selectedCustomBlock.id);
+      const index = blocks.findIndex((block) => block.id === targetBlock.id);
       blocks.splice(index < 0 ? blocks.length : index + 1, 0, duplicate);
       updatePage("blocks", blocks);
     } else {
       const blocks = [...(draft.custom_blocks ?? [])];
-      const blockIndex = blocks.findIndex((block) => block.id === selectedCustomBlock.id);
+      const blockIndex = blocks.findIndex((block) => block.id === targetBlock.id);
       blocks.splice(blockIndex < 0 ? blocks.length : blockIndex + 1, 0, duplicate);
-      const currentLayoutId = customBlockLayoutId(selectedCustomBlock.id);
+      const currentLayoutId = customBlockLayoutId(targetBlock.id);
       const duplicateLayoutId = customBlockLayoutId(duplicate.id);
       const order = [...layoutOrder];
       const layoutIndex = order.indexOf(currentLayoutId);
@@ -2251,23 +2261,23 @@ function VisualBuilder({
     setSettingsOpen(true);
   }
 
-  function removeCustomBlock() {
-    if (!selectedCustomBlock) return;
+  function removeCustomBlock(targetBlock = selectedCustomBlock) {
+    if (!targetBlock) return;
     if (activePage) {
       updatePage(
         "blocks",
         (activePage.blocks ?? []).filter(
-          (block) => block.id !== selectedCustomBlock.id,
+          (block) => block.id !== targetBlock.id,
         ),
       );
     } else {
       const order = layoutOrder.filter(
-        (item) => item !== customBlockLayoutId(selectedCustomBlock.id),
+        (item) => item !== customBlockLayoutId(targetBlock.id),
       );
       onReplaceDraft({
         ...draft,
         custom_blocks: (draft.custom_blocks ?? []).filter(
-          (block) => block.id !== selectedCustomBlock.id,
+          (block) => block.id !== targetBlock.id,
         ),
         layout_order: order,
         section_order: sectionsFromLayoutOrder(order),
@@ -2294,395 +2304,88 @@ function VisualBuilder({
     choosePage("home");
   }
 
-  return (
-    <section
-      id="site-builder-canvas"
-      className="relative mt-8 scroll-mt-24 overflow-hidden rounded-[28px] border border-black/10 bg-[#e9e8e4] text-[#17191f] shadow-[0_26px_90px_rgba(25,27,32,0.12)]"
-    >
-      {selectedPremiumTemplate ? (
-        <div className="border-b border-[#3e263e]/15 bg-[#fef9ef] p-5 sm:p-6">
-          <div className="flex flex-col gap-5 rounded-[22px] border border-[#3e263e]/15 bg-white p-5 shadow-[0_18px_55px_rgba(62,38,62,0.08)] sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#3e263e] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#fef9ef]">
-                  Premium
-                </span>
-                <span className="text-xs font-semibold text-[#3e263e]/60">
-                  {templateSavingKey === selectedPremiumTemplate.key
-                    ? "Сохраняем выбор в черновик…"
-                    : templateSavedKey === selectedPremiumTemplate.key
-                      ? "Выбран и сохранён в черновик"
-                      : "Выбран в черновике"}
-                </span>
-              </div>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#3e263e]">
-                {selectedPremiumTemplate.name} — текущий шаблон черновика
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#3e263e]/65">
-                Блоковый редактор ниже относится к Standard template и не является предпросмотром выбранного Premium-шаблона.
-                Публикация выполняется только отдельной кнопкой.
-              </p>
-            </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <Link
-                href={`/site-preview/${selectedPremiumTemplate.key}/${businessSlug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-xl border border-[#3e263e]/15 bg-white px-5 py-3 text-center text-xs font-bold text-[#3e263e] transition hover:bg-[#fef9ef]"
-              >
-                Предпросмотр ↗
-              </Link>
-              <button
-                type="button"
-                onClick={onPublish}
-                disabled={!canConfigure || saving}
-                className="rounded-xl bg-[#e07e67] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#cf6f5a] disabled:opacity-50"
-              >
-                Опубликовать
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-      <div className="sticky top-0 z-40 flex flex-col gap-3 border-b border-black/10 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b877e]">
-            {t("Page")}
-          </span>
-          <button
-            type="button"
-            onClick={() => choosePage("home")}
-            aria-pressed={selectedPageId === "home"}
-            className={`rounded-xl border px-4 py-2 text-xs font-semibold ${
-              selectedPageId === "home"
-                ? "border-black/10 bg-[#f6f5f2]"
-                : "border-transparent text-[#4f4b45]"
-            }`}
-          >
-            {t("Home")}
-          </button>
-          {pages.map((page) => (
-            <button
-              key={page.id}
-              type="button"
-              onClick={() => choosePage(page.id)}
-              aria-pressed={selectedPageId === page.id}
-              className={`rounded-xl border px-4 py-2 text-xs font-semibold ${
-                selectedPageId === page.id
-                  ? "border-[#9d3151]/30 bg-[#f9edf1] text-[#7f2742]"
-                  : page.is_visible === false
-                    ? "border-transparent text-[#746e64] line-through"
-                    : "border-transparent text-[#4f4b45]"
-              }`}
-            >
-              {page.nav_label}
-              {page.is_visible === false ? ` · ${t("Hidden")}` : ""}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setPageLibraryOpen(true)}
-            disabled={!canConfigure}
-            className="rounded-xl border border-dashed border-black/20 px-4 py-2 text-xs font-semibold text-[#2f2d29] disabled:opacity-40"
-          >
-            {t("+ Add page")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setEditingEnabled((current) => !current);
-              setSettingsOpen(true);
-            }}
-            aria-pressed={editingEnabled}
-            className={`rounded-xl px-4 py-2 text-xs font-semibold ${
-              editingEnabled
-                ? "bg-emerald-100 text-emerald-800"
-                : "border border-black/10 bg-white text-[#26231f]"
-            }`}
-          >
-            {editingEnabled ? t("Editing on") : t("Edit")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setTemplatesOpen(true)}
-            className="rounded-xl bg-[#9d3151] px-4 py-2 text-xs font-semibold text-white shadow-sm"
-          >
-            {t("Templates")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!activeTemplate) {
-                window.alert("Сначала выберите шаблон.");
-                return;
-              }
-              void onTemplate(activeTemplate);
-            }}
-            disabled={!canConfigure || saving || !activeTemplate}
-            className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-900 disabled:opacity-40"
-          >
-            Вернуть начальное демо
-          </button>
-          <button
-            type="button"
-            onClick={() => setSeoOpen(true)}
-            className="rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-[#26231f]"
-          >
-            {t("SEO pages")}
-          </button>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setBlocksOpen((value) => !value)}
-            className={`rounded-xl border px-3 py-2 text-xs font-bold shadow-sm transition ${blocksOpen ? "border-[#9a742e]/45 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/15 bg-white text-[#17191f] hover:bg-[#f4f1ea]"}`}
-            aria-expanded={blocksOpen}
-            aria-controls="site-editor-blocks-panel"
-          >
-            {blocksOpen ? "Скрыть меню блоков ←" : "Показать меню блоков →"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!selectedCustomBlock) {
-                window.alert("Сначала выберите добавленный блок. Основные разделы сайта не дублируются.");
-                return;
-              }
-              duplicateCustomBlock();
-            }}
-            disabled={!canConfigure || !editingEnabled}
-            className="rounded-xl border border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-2 text-xs font-bold text-[#4f3a12] shadow-sm transition hover:bg-[#f4ead6] disabled:cursor-not-allowed disabled:opacity-55"
-            title={selectedCustomBlock ? `Дублировать: ${selectedCustomBlock.title || "блок"}` : "Сначала выберите добавленный блок"}
-          >
-            ⧉ Дублировать блок
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setSettingsOpen((value) => !value);
-            }}
-            className={`rounded-xl border px-3 py-2 text-xs font-semibold ${settingsOpen ? "border-[#9a742e]/35 bg-[#fbf7ee] text-[#4f3a12]" : "border-black/10 bg-white text-[#26231f]"}`}
-          >
-            {settingsOpen ? `${t("Settings")} →` : `← ${t("Settings")}`}
-          </button>
-          <span
-            className={`rounded-full px-3 py-2 text-[10px] font-semibold ${
-              hasUnsavedChanges
-                ? "bg-amber-100 text-amber-800"
-                : "bg-emerald-100 text-emerald-800"
-            }`}
-          >
-            {hasUnsavedChanges ? "Не сохранено" : "Сохранено"}
-          </span>
-          <button
-            type="button"
-            onClick={onUndo}
-            disabled={!canUndo || saving}
-            className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-30"
-            title="Отменить последнее изменение"
-          >
-            ↶ Отменить
-          </button>
-          <button
-            type="button"
-            onClick={onRedo}
-            disabled={!canRedo || saving}
-            className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-30"
-            title="Вернуть отменённое изменение"
-          >
-            ↷ Вернуть
-          </button>
-          <div className="flex rounded-xl bg-[#efeee9] p-1">
-            <button
-              type="button"
-              aria-pressed={previewDevice === "desktop"}
-              onClick={() => onDeviceChange("desktop")}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "desktop" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
-            >
-              {t("Computer")}
-            </button>
-            <button
-              type="button"
-              aria-pressed={previewDevice === "tablet"}
-              onClick={() => onDeviceChange("tablet")}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "tablet" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
-            >
-              Планшет
-            </button>
-            <button
-              type="button"
-              aria-pressed={previewDevice === "mobile"}
-              onClick={() => onDeviceChange("mobile")}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold ${previewDevice === "mobile" ? "bg-white shadow-sm" : "text-[#4f4b45]"}`}
-            >
-              {t("Phone")}
-            </button>
-          </div>
-          <button type="button" onClick={onSave} disabled={saving || !canConfigure} className="rounded-xl border border-black/15 bg-white px-4 py-2 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea] disabled:opacity-55">
-            {saving ? t("Saving…") : t("Save")}
-          </button>
-          <button type="button" onClick={onPublish} disabled={saving || !canConfigure} className="rounded-xl bg-[#17191f] px-4 py-2 text-xs font-semibold text-white disabled:opacity-40">
-            {saving ? t("Publishing…") : t("Publish")}
-          </button>
-        </div>
-      </div>
+  const navigatorSections: EditorNavigatorModel["sections"] = activePage
+    ? [
+        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
+        ...(activePage.type === "portfolio"
+          ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
+          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
+        { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
+      ]
+    : [
+        { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
+        ...layoutOrder.flatMap((item, index) => {
+          if (item.startsWith("section:")) {
+            const section = item.slice("section:".length) as PublicSiteSection;
+            return [{ id: item, key: item, label: t(sectionLabelKey[section]), index: index + 1, selected: !selectedCustomBlockId && selectedSection === section, visible: Boolean(draft[sectionVisibilityKey[section]]), disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => chooseSection(section), onVisibilityChange: (visible: boolean) => onUpdate(sectionVisibilityKey[section], visible), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+          }
+          const blockId = item.slice("custom:".length);
+          const block = (draft.custom_blocks ?? []).find(candidate => candidate.id === blockId);
+          if (!block) return [];
+          return [{ id: item, key: item, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+        }),
+      ];
+  const navigatorModel: EditorNavigatorModel = {
+    heading: t("Page blocks"), sections: navigatorSections, onCollapse: () => setBlocksOpen(false),
+    addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
+    footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
+  };
+  const inspectorActions: EditorInspectorAction[] = selectedCustomBlock ? [
+    { id: "duplicate", label: t("Duplicate block"), disabled: !canConfigure || !editingEnabled, onClick: () => duplicateCustomBlock(selectedCustomBlock) },
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
+    { id: "delete", label: t("Remove block"), tone: "danger", disabled: !canConfigure || !editingEnabled, onClick: () => removeCustomBlock(selectedCustomBlock) },
+  ] : !activePage && selectedSection !== "hero" ? [
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || selectedIndex <= 0, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || selectedIndex === layoutOrder.length - 1, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), 1) },
+  ] : [];
 
-      <div
-        className="relative grid h-[calc(100dvh-170px)] min-h-[560px] max-h-[calc(100dvh-96px)] min-w-0 overflow-hidden"
-        style={{
-          gridTemplateColumns:
-            blocksOpen && settingsOpen
-              ? "220px minmax(0, 1fr) 360px"
-              : blocksOpen
-                ? "220px minmax(0, 1fr)"
-                : settingsOpen
-                  ? "minmax(0, 1fr) 360px"
-                  : "minmax(0, 1fr)",
-        }}
-      >
-        {blocksOpen ? (
-        <aside id="site-editor-blocks-panel" className="h-full min-w-0 overflow-y-auto overscroll-contain border-r border-black/10 bg-[#f7f6f3] p-4 text-[#17191f] [scrollbar-gutter:stable]">
-          <div className="flex items-center justify-between gap-2">
-            <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">
-              {t("Page blocks")}
-            </p>
-            <button
-              type="button"
-              onClick={() => setBlocksOpen(false)}
-              className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-[10px] font-bold text-[#17191f] shadow-sm transition hover:bg-[#eeece6]"
-              aria-label={t("Collapse blocks")}
-              title={t("Collapse blocks")}
-            >
-              Скрыть ←
-            </button>
-          </div>
-          {activePage ? (
-            <>
-              <div className="mt-3 grid gap-2">
-                <BlockButton active={selectedPagePart === "intro"} label={t("Page intro")} visible onClick={() => setSelectedPagePart("intro")} />
-                {activePage.type === "portfolio" ? (
-                  <BlockButton active={selectedPagePart === "gallery"} label={t("Nail gallery")} visible onClick={() => setSelectedPagePart("gallery")} />
-                ) : (
-                  (activePage.blocks ?? []).map((block, index, blocks) => (
-                    <BlockButton
-                      key={block.id}
-                      active={selectedCustomBlockId === block.id}
-                      label={block.title || t("Custom block")}
-                      visible={block.is_visible !== false}
-                      draggable={canConfigure && editingEnabled}
-                      dragging={draggedBlockId === block.id && dragScope === "page"}
-                      dragOver={dragOverBlockId === block.id && dragScope === "page"}
-                      onDragStart={() => startBlockDrag(block.id, "page")}
-                      onDragOver={() => setDragOverBlockId(block.id)}
-                      onDrop={() => dropBlock(block.id, "page")}
-                      onDragEnd={finishBlockDrag}
-                      onClick={() => {
-                        setSelectedPagePart("blocks");
-                        setSelectedCustomBlockId(block.id);
-                        setSettingsOpen(true);
-                      }}
-                    />
-                  ))
-                )}
-                <BlockButton active={selectedPagePart === "booking"} label={t("Booking call to action")} visible={activePage.show_booking_cta} onClick={() => setSelectedPagePart("booking")} />
-              </div>
-              {activePage.type === "custom" ? (
-                <button
-                  type="button"
-                  onClick={() => setLibraryOpen(true)}
-                  disabled={!canConfigure}
-                  className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#4f3a12] disabled:opacity-40"
-                >
-                  {t("+ Add block")}
-                </button>
-              ) : null}
-              <p className="mt-4 rounded-xl bg-[#f1e7ea] px-3 py-3 text-[11px] leading-5 text-[#7f5060]">
-                {t("This is a separate public page with its own address and navigation item.")}
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="mt-3 grid gap-2">
-                <BlockButton active={!selectedCustomBlockId && selectedSection === "hero"} label={t("Hero")} visible={draft.show_hero !== false} onClick={() => chooseSection("hero")} />
-                {layoutOrder.map((item, index) => {
-                  if (item.startsWith("section:")) {
-                    const section = item.slice("section:".length) as PublicSiteSection;
-                    return (
-                      <BlockButton
-                        key={item}
-                        active={!selectedCustomBlockId && selectedSection === section}
-                        label={t(sectionLabelKey[section])}
-                        visible={Boolean(draft[sectionVisibilityKey[section]])}
-                        draggable={canConfigure && editingEnabled}
-                        dragging={draggedBlockId === item && dragScope === "home"}
-                        dragOver={dragOverBlockId === item && dragScope === "home"}
-                        onDragStart={() => startBlockDrag(item, "home")}
-                        onDragOver={() => setDragOverBlockId(item)}
-                        onDrop={() => dropBlock(item, "home")}
-                        onDragEnd={finishBlockDrag}
-                        onClick={() => chooseSection(section)}
-                      />
-                    );
-                  }
-                  const blockId = item.slice("custom:".length);
-                  const block = (draft.custom_blocks ?? []).find(
-                    (candidate) => candidate.id === blockId,
-                  );
-                  if (!block) return null;
-                  return (
-                    <BlockButton
-                      key={item}
-                      active={selectedCustomBlockId === block.id}
-                      label={block.title || t("Custom block")}
-                      visible={block.is_visible !== false}
-                      draggable={canConfigure && editingEnabled}
-                      dragging={draggedBlockId === item && dragScope === "home"}
-                      dragOver={dragOverBlockId === item && dragScope === "home"}
-                      onDragStart={() => startBlockDrag(item, "home")}
-                      onDragOver={() => setDragOverBlockId(item)}
-                      onDrop={() => dropBlock(item, "home")}
-                      onDragEnd={finishBlockDrag}
-                      onClick={() => {
-                        setSelectedCustomBlockId(block.id);
-                        setSettingsOpen(true);
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                onClick={() => setLibraryOpen(true)}
-                disabled={!canConfigure}
-                className="mt-4 w-full rounded-xl border border-dashed border-[#9a742e]/45 bg-[#fbf7ee] px-3 py-3 text-xs font-semibold text-[#4f3a12] transition hover:border-[#9a742e] disabled:opacity-40"
-              >
-                {t("+ Add block")}
-              </button>
-              <p className="mt-3 px-2 text-[11px] leading-5 text-[#8b877e]">
-                {t("Choose a ready block from the library.")}
-              </p>
-            </>
-          )}
-        </aside>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setBlocksOpen(true)}
-            className="absolute left-4 top-[76px] z-30 rounded-xl border border-black/20 bg-white px-4 py-3 text-xs font-bold text-[#17191f] shadow-xl transition hover:bg-[#f4f1ea]"
-            title={t("Open blocks")}
-            aria-controls="site-editor-blocks-panel"
-          >
-            ☰ Показать меню блоков →
-          </button>
-        )}
+  return (<>
+    <TemplateEditorRuntime
+      templateKey={draft.template_id ?? "standard"}
+      designName={draft.template_id === "gloss-nail-studio" ? "GLOSS" : t("Base OneStudio design")}
+      draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`}
+      previewHref={buildSitePreviewHref({ templateKey: draft.template_id ?? "standard", businessSlug, locale: selectedLocale })}
+      device={previewDevice}
+      editingEnabled={editingEnabled}
+      saving={saving || !canConfigure}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      onDeviceChange={onDeviceChange}
+      onEditingChange={(enabled) => { setEditingEnabled(enabled); if (enabled) setSettingsOpen(true); }}
+      onUndo={onUndo}
+      onRedo={onRedo}
+      onSave={onSave}
+      onPublish={onPublish}
+      libraryOpen={libraryOpen}
+      onLibraryClose={() => setLibraryOpen(false)}
+      templateLibraryItems={activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
+        id: section,
+        label: sectionLabelKey[section],
+        description: `${sectionLabelKey[section]} block description`,
+        stateLabel: Boolean(draft[sectionVisibilityKey[section]]) ? "On page" : "Add",
+        onAdd: () => addBlock(section),
+      }))}
+      universalLibraryItems={PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(({ kind, label, description }) => ({
+        id: kind,
+        label,
+        description,
+        onAdd: () => addCustomBlock(kind, activePage?.type === "custom" ? "page" : "home"),
+      }))}
+      commandModel={{
+        pageLabel: t("Page"),
+        pages: [{ id: "home", label: t("Home"), selected: selectedPageId === "home", onSelect: () => choosePage("home") }, ...pages.map(page => ({ id: page.id, label: `${page.nav_label}${page.is_visible === false ? ` · ${t("Hidden")}` : ""}`, selected: selectedPageId === page.id, onSelect: () => choosePage(page.id) }))],
+        addPage: { id: "add-page", label: t("+ Add page"), disabled: !canConfigure, onClick: () => setPageLibraryOpen(true) },
+        design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign },
+        seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
+        auxiliaryAction: { id: "restore", label: "Вернуть начальное демо", disabled: !canConfigure || saving || !activeTemplate, onClick: () => { if (activeTemplate) void onTemplate(activeTemplate); } },
+        contextualAction: { id: "duplicate", label: `⧉ ${t("Duplicate block")}`, disabled: !canConfigure || !editingEnabled || !selectedCustomBlock, onClick: () => { if (selectedCustomBlock) duplicateCustomBlock(); } },
+      }}
+      navigatorModel={navigatorModel}
 
-        <div
-          ref={workspaceCanvasRef}
-          onScroll={syncSelectionFromCanvasScroll}
-          className={`h-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain scroll-smooth bg-[#dcdcd8] transition-[padding] [scrollbar-gutter:stable] ${
-            blocksOpen || settingsOpen ? "p-4 sm:p-7" : "p-2 sm:p-3"
-          }`}
-        >
+      canvasRef={workspaceCanvasRef}
+      canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
+      canvas={<>
           <div
             className={publicSiteDesignClass(
               draft,
@@ -2907,32 +2610,13 @@ function VisualBuilder({
             </>
             )}
           </div>
-        </div>
+        </>}
 
-        {settingsOpen ? (
-        <aside className="relative h-full min-w-0 overflow-y-auto overscroll-contain border-l border-black/10 bg-white p-5 [scrollbar-gutter:stable]">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p>
-            <button
-              type="button"
-              onClick={() => setSettingsOpen(false)}
-              className="rounded-lg border border-black/10 px-2 py-1.5 text-[10px] font-semibold text-[#716d65] transition hover:bg-[#f6f4ef]"
-              aria-label={t("Collapse settings")}
-              title={t("Collapse settings")}
-            >
-              {t("Collapse")} →
-            </button>
-          </div>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em]">
-            {activePage
-              ? activePage.nav_label
-              : selectedCustomBlock
-                ? selectedCustomBlock.title
-              : selectedSection === "hero"
-                ? t("Hero")
-                : t(sectionLabelKey[selectedSection])}
-          </h2>
-          <div className="mt-6 grid gap-5">
+      inspectorModel={{
+        heading: t("Block settings"),
+        title: activePage ? activePage.nav_label : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        onCollapse: () => setSettingsOpen(false),
+        fields: [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
                 {selectedPagePart === "intro" ? (
@@ -2999,8 +2683,6 @@ function VisualBuilder({
                       siteDark={draft.theme_dark ?? "#321722"}
                       siteSurface={draft.theme_surface ?? "#fff7f5"}
                       onChange={updateCustomBlock}
-                      onDuplicate={duplicateCustomBlock}
-                      onRemove={removeCustomBlock}
                       onChooseImage={(key, label) =>
                         openMediaPicker({
                           kind: "block",
@@ -3028,14 +2710,6 @@ function VisualBuilder({
                         })
                       }
                     />
-                    <MoveControls
-                      disabled={!canConfigure || !editingEnabled}
-                      first={(activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id}
-                      last={(activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id}
-                      t={t}
-                      onUp={() => movePageBlock(selectedCustomBlock.id, -1)}
-                      onDown={() => movePageBlock(selectedCustomBlock.id, 1)}
-                    />
                   </>
                 ) : null}
                 {selectedPagePart === "booking" ? (
@@ -3061,8 +2735,6 @@ function VisualBuilder({
                   siteDark={draft.theme_dark ?? "#321722"}
                   siteSurface={draft.theme_surface ?? "#fff7f5"}
                   onChange={updateCustomBlock}
-                  onDuplicate={duplicateCustomBlock}
-                  onRemove={removeCustomBlock}
                   onChooseImage={(key, label) =>
                     openMediaPicker({
                       kind: "block",
@@ -3088,24 +2760,6 @@ function VisualBuilder({
                       key,
                       label,
                     })
-                  }
-                />
-                <MoveControls
-                  disabled={!canConfigure || !editingEnabled}
-                  first={selectedIndex <= 0}
-                  last={selectedIndex === layoutOrder.length - 1}
-                  t={t}
-                  onUp={() =>
-                    moveLayoutItem(
-                      customBlockLayoutId(selectedCustomBlock.id),
-                      -1,
-                    )
-                  }
-                  onDown={() =>
-                    moveLayoutItem(
-                      customBlockLayoutId(selectedCustomBlock.id),
-                      1,
-                    )
                   }
                 />
               </>
@@ -3507,120 +3161,16 @@ function VisualBuilder({
                     </p>
                   </div>
                 ) : null}
-                <MoveControls
-                  disabled={!canConfigure || !editingEnabled}
-                  first={selectedIndex <= 0}
-                  last={selectedIndex === layoutOrder.length - 1}
-                  t={t}
-                  onUp={() =>
-                    moveLayoutItem(sectionLayoutId(selectedSection), -1)
-                  }
-                  onDown={() =>
-                    moveLayoutItem(sectionLayoutId(selectedSection), 1)
-                  }
-                />
               </>
             )}
-          </div>
           <div className="mt-8 rounded-2xl bg-[#f6f4ef] p-4 text-xs leading-6 text-[#716d65]">
             {editingEnabled
               ? t("Select any block in the page preview to edit it here.")
               : t("Turn editing on to change this page.")}
           </div>
-        </aside>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setSettingsOpen(true)}
-            className="absolute right-4 top-[76px] z-20 rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold shadow-lg transition hover:bg-[#f6f4ef]"
-            title={t("Open settings")}
-          >
-            ← {t("Settings")}
-          </button>
-        )}
-      </div>
+        </> }], actions: inspectorActions}}
+    />
 
-      {libraryOpen ? (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17191f]/45 p-4 backdrop-blur-[2px]"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("Block library")}
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setLibraryOpen(false);
-          }}
-        >
-          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-auto rounded-[28px] bg-[#f8f7f3] p-5 shadow-[0_35px_120px_rgba(0,0,0,0.35)] sm:p-7">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
-                  {t("Ready-made blocks")}
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
-                  {t("Block library")}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-[#716d65]">
-                  {t("Add a block and then edit its content in the settings panel.")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLibraryOpen(false)}
-                className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold"
-                aria-label={t("Close")}
-              >
-                ×
-              </button>
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {activePage?.type !== "custom" ? defaultSectionOrder.map((section) => {
-                const visible = Boolean(draft[sectionVisibilityKey[section]]);
-                return (
-                  <button
-                    key={section}
-                    type="button"
-                    onClick={() => addBlock(section)}
-                    className="group rounded-2xl border border-black/8 bg-white p-5 text-left transition hover:-translate-y-0.5 hover:border-[#9a742e]/40 hover:shadow-lg"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-lg font-semibold">{t(sectionLabelKey[section])}</span>
-                      <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${visible ? "bg-emerald-50 text-emerald-700" : "bg-[#f4ead6] text-[#4f3a12]"}`}>
-                        {visible ? t("On page") : t("Add")}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-xs leading-5 text-[#716d65]">
-                      {t(`${sectionLabelKey[section]} block description`)}
-                    </p>
-                  </button>
-                );
-              }) : null}
-              {PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(({ kind, label: title, description }) => (
-                <button
-                  key={kind}
-                  type="button"
-                  onClick={() =>
-                    addCustomBlock(
-                      kind,
-                      activePage?.type === "custom" ? "page" : "home",
-                    )
-                  }
-                  className="group rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] p-5 text-left transition hover:-translate-y-0.5 hover:border-[#9d3151]/40 hover:shadow-lg"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-lg font-semibold">{kind === "collage" ? title : t(title)}</span>
-                    <span className="rounded-full bg-[#f5e5ea] px-3 py-1 text-[10px] font-semibold text-[#8d2d4a]">
-                      {t("Add")}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-[#716d65]">
-                    {kind === "collage" ? description : t(description)}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
       {pageLibraryOpen ? (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17191f]/55 p-4 backdrop-blur-[3px]"
@@ -3694,102 +3244,6 @@ function VisualBuilder({
                 </span>
               </div>
             </button>
-          </div>
-        </div>
-      ) : null}
-      {templatesOpen ? (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17191f]/55 p-4 backdrop-blur-[3px]"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("Site templates")}
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setTemplatesOpen(false);
-          }}
-        >
-          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-auto rounded-[30px] bg-[#f8f7f3] p-6 shadow-[0_35px_120px_rgba(0,0,0,0.4)] sm:p-8">
-            <div className="flex items-start justify-between gap-5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">{t("Ready-made sites")}</p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{t("Choose a starting point")}</h2>
-                <p className="mt-3 text-sm text-[#716d65]">{t("The template fills the page with editable blocks, texts and colors.")}</p>
-              </div>
-              <button type="button" onClick={() => setTemplatesOpen(false)} className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold">×</button>
-            </div>
-            <section className="mt-7">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">Шаблон сайта</p>
-                  <h3 className="mt-2 text-xl font-semibold">Текущий и Premium runtime</h3>
-                </div>
-                <p className="text-xs text-[#716d65]">Публикация выполняется отдельно</p>
-              </div>
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                {SITE_TEMPLATE_REGISTRY.filter((template) => template.key === "standard" || template.tier === "premium").map((template) => {
-                  const selected = (draft.template_id || "standard") === template.key;
-                  const previewHref = `/site-preview/${template.key}/${businessSlug}`;
-                  return (
-                    <article key={template.key} className={`rounded-[22px] border bg-white p-5 ${selected ? "border-[#9d3151] ring-2 ring-[#9d3151]/10" : "border-black/8"}`}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-semibold">{template.name}</p>
-                          <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p>
-                        </div>
-                        <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.tier === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{template.tier}</span>
-                      </div>
-                      <p className="mt-4 text-sm leading-6 text-[#716d65]">{template.description}</p>
-                      <div className="mt-5 flex gap-2">
-                        <button type="button" disabled={selected || !canConfigure || saving} onClick={() => void onTemplateKey(template.key)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">
-                          {selected ? "Выбран" : "Выбрать шаблон"}
-                        </button>
-                        {template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Предпросмотр ↗</Link> : null}
-                      </div>
-                      {selected ? (
-                        <p className="mt-3 text-xs font-semibold text-emerald-700">
-                          {templateSavingKey === template.key
-                            ? "Сохраняем в черновик…"
-                            : templateSavedKey === template.key
-                              ? "Сохранено в черновик"
-                              : "Выбрано в черновике"}
-                        </p>
-                      ) : null}
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-            <div className="mt-7 grid gap-4 md:grid-cols-2">
-              {SITE_TEMPLATES.map((template) => (
-                <article key={template.id} className="overflow-hidden rounded-[24px] border border-black/8 bg-white">
-                  <div className="relative h-48 p-6 text-white" style={{ backgroundColor: template.preview.dark }}>
-                    <div className="absolute -right-10 -top-8 h-40 w-40 rounded-full border border-white/20" />
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "#f0cad5" }}>{template.category}</p>
-                    <p className="mt-8 text-4xl font-semibold tracking-[-0.06em]">{template.name}</p>
-                    <div className="mt-5 h-2 w-28 rounded-full" style={{ backgroundColor: template.preview.accent }} />
-                  </div>
-                  <div className="p-5">
-                    <p className="text-sm leading-6 text-[#716d65]">{template.description}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onTemplate(template);
-                        setTemplatesOpen(false);
-                      }}
-                      className="mt-5 w-full rounded-xl px-4 py-3 text-xs font-semibold text-white"
-                      style={{ backgroundColor: template.preview.accent }}
-                    >
-                      {t("Use this template")}
-                    </button>
-                  </div>
-                </article>
-              ))}
-              <article className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-black/15 p-8 text-center text-sm text-[#8b877e]">
-                <div>
-                  <p className="font-semibold text-[#35332f]">{t("More templates are coming")}</p>
-                  <p className="mt-2 leading-6">{t("Photo studio, dance school, tattoo studio, events and more.")}</p>
-                </div>
-              </article>
-            </div>
           </div>
         </div>
       ) : null}
@@ -4090,223 +3544,6 @@ function VisualBuilder({
           </div>
         </div>
       ) : null}
-      {seoOpen ? (
-        <div
-          className="fixed inset-0 z-[105] flex items-center justify-center overflow-y-auto bg-[#17191f]/55 p-4 backdrop-blur-[3px]"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("SEO pages")}
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setSeoOpen(false);
-          }}
-        >
-          <div className="max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-auto rounded-[30px] bg-[#f8f7f3] p-5 shadow-[0_35px_120px_rgba(0,0,0,0.4)] sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">
-                  {t("Search and sharing")}
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">
-                  {t("SEO pages")}
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#716d65]">
-                  {t("Set a separate search title, description and sharing image for every public page.")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSeoOpen(false)}
-                className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold"
-                aria-label={t("Close")}
-              >
-                ×
-              </button>
-            </div>
-
-            <section className="mt-7 rounded-[24px] border border-emerald-200 bg-emerald-50/70 p-5 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                    {t("SEO infrastructure")}
-                  </p>
-                  <h3 className="mt-2 text-lg font-semibold text-emerald-950">
-                    {t("Ready for published pages")}
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
-                  <span className="rounded-full bg-white px-3 py-1.5 text-emerald-800">
-                    {t("Custom 404 page")}
-                  </span>
-                  <Link
-                    href="/robots.txt"
-                    target="_blank"
-                    className="rounded-full bg-white px-3 py-1.5 text-emerald-800"
-                  >
-                    {t("Robots directives")}
-                  </Link>
-                  <Link
-                    href="/sitemap.xml"
-                    target="_blank"
-                    className="rounded-full bg-white px-3 py-1.5 text-emerald-800"
-                  >
-                    {t("Automatic sitemap")}
-                  </Link>
-                </div>
-              </div>
-              <p className="mt-3 text-xs leading-6 text-emerald-900/70">
-                {t("Hidden and no-index pages are excluded from the sitemap.")}
-              </p>
-            </section>
-
-            <div className="mt-4 grid gap-4">
-              <article className="rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9d3151]">
-                      {t("Home page")}
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold">{draft.hero_title}</h3>
-                  </div>
-                  <span className="rounded-full bg-[#f2eee8] px-3 py-1.5 text-[10px] font-semibold">
-                    /
-                  </span>
-                </div>
-                <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  <CompactField
-                    label={t("SEO title")}
-                    value={draft.seo_title}
-                    disabled={!canConfigure}
-                    onChange={(value) => onUpdate("seo_title", value.slice(0, 70))}
-                  />
-                  <CompactField
-                    label={t("SEO description")}
-                    value={draft.seo_description}
-                    disabled={!canConfigure}
-                    multiline
-                    onChange={(value) => onUpdate("seo_description", value.slice(0, 170))}
-                  />
-                </div>
-                <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.8fr]">
-                  <ImageEditor
-                    label={t("SEO sharing image")}
-                    value={draft.seo_image_url ?? ""}
-                    disabled={!canConfigure}
-                    t={t}
-                    onChange={(value) => onUpdate("seo_image_url", value)}
-                    onChoose={() =>
-                      openMediaPicker({
-                        kind: "content",
-                        key: "seo_image_url",
-                        label: t("SEO sharing image"),
-                      })
-                    }
-                  />
-                  <Toggle
-                    label={t("Hide this page from search engines")}
-                    checked={draft.seo_no_index === true}
-                    disabled={!canConfigure}
-                    onChange={(value) => onUpdate("seo_no_index", value)}
-                  />
-                </div>
-              </article>
-
-              {pages.map((page) => (
-                <details
-                  key={page.id}
-                  className="group rounded-[24px] border border-black/8 bg-white"
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 sm:px-6">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9d3151]">
-                        {page.type === "portfolio" ? t("Portfolio") : t("Custom page")}
-                      </p>
-                      <h3 className="mt-2 text-lg font-semibold">{page.nav_label}</h3>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="max-w-44 truncate rounded-full bg-[#f2eee8] px-3 py-1.5 text-[10px] font-semibold">
-                        /{page.type === "custom" ? "p/" : ""}{page.slug}
-                      </span>
-                      <span className="text-lg transition group-open:rotate-45">+</span>
-                    </div>
-                  </summary>
-                  <div className="grid gap-4 border-t border-black/8 p-5 sm:p-6">
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <CompactField
-                        label={t("SEO title")}
-                        value={page.seo_title ?? ""}
-                        disabled={!canConfigure}
-                        onChange={(value) =>
-                          updatePageById(page.id, "seo_title", value.slice(0, 70))
-                        }
-                      />
-                      <CompactField
-                        label={t("SEO description")}
-                        value={page.seo_description ?? ""}
-                        disabled={!canConfigure}
-                        multiline
-                        onChange={(value) =>
-                          updatePageById(
-                            page.id,
-                            "seo_description",
-                            value.slice(0, 170),
-                          )
-                        }
-                      />
-                    </div>
-                    <div className="grid gap-4 lg:grid-cols-[1fr_0.8fr]">
-                      <ImageEditor
-                        label={t("SEO sharing image")}
-                        value={page.seo_image_url ?? ""}
-                        disabled={!canConfigure}
-                        t={t}
-                        onChange={(value) =>
-                          updatePageById(page.id, "seo_image_url", value)
-                        }
-                        onChoose={() =>
-                          openMediaPicker({
-                            kind: "page",
-                            pageId: page.id,
-                            key: "seo_image_url",
-                            label: `${t("SEO sharing image")} · ${page.nav_label}`,
-                          })
-                        }
-                      />
-                      <Toggle
-                        label={t("Hide this page from search engines")}
-                        checked={page.seo_no_index === true}
-                        disabled={!canConfigure}
-                        onChange={(value) =>
-                          updatePageById(page.id, "seo_no_index", value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </details>
-              ))}
-            </div>
-            <div className="mt-6 flex flex-wrap justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setSeoOpen(false)}
-                className="rounded-xl border border-black/10 bg-white px-5 py-3 text-xs font-semibold"
-              >
-                {t("Close")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSeoOpen(false);
-                  onSave();
-                }}
-                disabled={saving || !canConfigure}
-                className="rounded-xl bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-40"
-              >
-                {saving ? t("Saving…") : t("Save SEO")}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
       {mediaPickerOpen ? (
         <div
           className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-[#17191f]/55 p-4 backdrop-blur-[3px]"
@@ -4409,7 +3646,7 @@ function VisualBuilder({
           </div>
         </div>
       ) : null}
-    </section>
+    </>
   );
 }
 
@@ -7593,8 +6830,6 @@ function CustomBlockSettings({
   siteDark,
   siteSurface,
   onChange,
-  onDuplicate,
-  onRemove,
   onChooseImage,
   onChooseListImage,
   onChooseCardImage,
@@ -7610,8 +6845,6 @@ function CustomBlockSettings({
     key: Key,
     value: PublicSiteCustomBlock[Key],
   ) => void;
-  onDuplicate: () => void;
-  onRemove: () => void;
   onChooseImage: (
     key: "video_poster_url" | "media_url" | "video_url",
     label: string,
@@ -8212,24 +7445,6 @@ function CustomBlockSettings({
           <option value="dark">{t("Dark")}</option>
         </select>
       </label>
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={onDuplicate}
-          disabled={disabled}
-          className="rounded-xl border border-[#9a742e]/45 bg-[#fbf7ee] px-4 py-3 text-xs font-bold text-[#3f2e0e] shadow-sm transition hover:bg-[#f4ead6] disabled:opacity-50"
-        >
-          Дублировать
-        </button>
-        <button
-          type="button"
-          onClick={onRemove}
-          disabled={disabled}
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 disabled:opacity-40"
-        >
-          {t("Remove block")}
-        </button>
-      </div>
     </>
   );
 }
@@ -8785,81 +8000,6 @@ function CanvasSectionPreview({
   );
 }
 
-function BlockButton({
-  active,
-  label,
-  visible,
-  draggable = false,
-  dragging = false,
-  dragOver = false,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  visible: boolean;
-  draggable?: boolean;
-  dragging?: boolean;
-  dragOver?: boolean;
-  onDragStart?: () => void;
-  onDragOver?: () => void;
-  onDrop?: () => void;
-  onDragEnd?: () => void;
-  onClick: () => void;
-}) {
-  return (
-    <div
-      draggable={draggable}
-      onDragStart={(event) => {
-        event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.setData("text/plain", label);
-        onDragStart?.();
-      }}
-      onDragOver={(event) => {
-        if (!draggable) return;
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-        onDragOver?.();
-      }}
-      onDrop={(event) => {
-        event.preventDefault();
-        onDrop?.();
-      }}
-      onDragEnd={onDragEnd}
-      className={`rounded-xl transition ${
-        dragging ? "opacity-35" : ""
-      } ${dragOver ? "ring-2 ring-[#9a742e]/55 ring-offset-2" : ""}`}
-    >
-      <button
-        type="button"
-        onClick={onClick}
-        className={`flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${
-          active
-            ? "border-[#9a742e]/40 bg-[#f4ead6] text-[#6d531f]"
-            : "border-black/8 bg-white hover:border-black/20"
-        }`}
-      >
-        <span
-          className={draggable ? "cursor-grab text-black/35 active:cursor-grabbing" : "text-black/15"}
-          aria-hidden="true"
-          title={draggable ? "Перетащите блок" : undefined}
-        >
-          ⋮⋮
-        </span>
-        <span className="min-w-0 flex-1 truncate">{label}</span>
-        <span
-          className={`h-2 w-2 shrink-0 rounded-full ${
-            visible ? "bg-emerald-500" : "bg-black/20"
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
 function CanvasBlock({
   anchorId,
   active,
@@ -8995,43 +8135,6 @@ function Toggle({
         onChange={(event) => onChange(event.target.checked)}
       />
     </label>
-  );
-}
-
-function MoveControls({
-  disabled,
-  first,
-  last,
-  t,
-  onUp,
-  onDown,
-}: {
-  disabled: boolean;
-  first: boolean;
-  last: boolean;
-  t: ReturnType<typeof useAdminI18n>["t"];
-  onUp: () => void;
-  onDown: () => void;
-}) {
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        disabled={disabled || first}
-        onClick={onUp}
-        className="rounded-xl border border-black/10 px-3 py-3 text-xs font-semibold disabled:opacity-30"
-      >
-        ↑ {t("Up")}
-      </button>
-      <button
-        type="button"
-        disabled={disabled || last}
-        onClick={onDown}
-        className="rounded-xl border border-black/10 px-3 py-3 text-xs font-semibold disabled:opacity-30"
-      >
-        ↓ {t("Down")}
-      </button>
-    </div>
   );
 }
 

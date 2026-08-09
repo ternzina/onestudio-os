@@ -4,6 +4,7 @@ import styles from "./Platform.module.css";
 import PlatformMotionRuntime from "./PlatformMotionRuntime";
 import type { PremiumKidsContent } from "@/lib/public-site/premium-kids-content";
 import PublicRichText from "@/components/public/PublicRichText";
+import type { PublicSitePage } from "@/lib/public-site/types";
 
 const routes = [
   ["Задания", "tasks"],
@@ -23,10 +24,10 @@ export function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
 
-export function PlatformHeader({ basePath = BEMBI_DEMO_BASE_PATH, demo = true, content, blockId }: { basePath?: string; demo?: boolean; content?: PremiumKidsContent; blockId?: string }) {
+export function PlatformHeader({ basePath = BEMBI_DEMO_BASE_PATH, demo = true, content, blockId, pages = [] }: { basePath?: string; demo?: boolean; content?: PremiumKidsContent; blockId?: string; pages?: readonly PublicSitePage[] }) {
   return <header id="premium-header" className={styles.header} data-premium-block-id={blockId}>
     <Link className={styles.logo} href={basePath} aria-label={`${content?.brand_name ?? "BEMBI"} — главная`}><i aria-hidden="true">{(content?.brand_name ?? "B").slice(0, 1)}</i><span>{content?.brand_name ?? "BEMBI"}<small>{content?.brand_tagline ?? "Discovery Platform"}</small></span></Link>
-    <nav aria-label="Навигация платформы">{routes.map(([label, path]) => <Link key={path} href={bembiHref(basePath, path)}>{label}</Link>)}</nav>
+    <nav aria-label="Навигация платформы">{routes.map(([label, path]) => <Link key={path} href={bembiHref(basePath, path)}>{label}</Link>)}{pages.filter(page => page.is_visible !== false && page.show_in_navigation).map(page => <Link key={page.id} href={bembiHref(basePath, `p/${page.slug}`)}>{page.nav_label}</Link>)}</nav>
     {demo ? <Link className={styles.allDemos} href="/demos">Все демо <Arrow /></Link> : null}
   </header>;
 }
@@ -39,9 +40,9 @@ export function PlatformFooter({ basePath = BEMBI_DEMO_BASE_PATH, demo = true, c
   </footer>;
 }
 
-export function PlatformLayout({ children, basePath = BEMBI_DEMO_BASE_PATH, demo = true, content, headerBlockId, footerBlockId }: { children: ReactNode; basePath?: string; demo?: boolean; content?: PremiumKidsContent; headerBlockId?: string; footerBlockId?: string }) {
+export function PlatformLayout({ children, basePath = BEMBI_DEMO_BASE_PATH, demo = true, content, headerBlockId, footerBlockId, pages = [] }: { children: ReactNode; basePath?: string; demo?: boolean; content?: PremiumKidsContent; headerBlockId?: string; footerBlockId?: string; pages?: readonly PublicSitePage[] }) {
   const hidden = (content?.hidden_sections ?? []).filter((section) => ["teachers", "gallery", "faq"].includes(section));
-  return <div className={styles.platform} data-premium-runtime><style>{hidden.map((section) => `[data-premium-runtime] #${section === "teachers" ? "team" : section}{display:none!important}`).join("")}</style><PlatformMotionRuntime /><PlatformHeader basePath={basePath} demo={demo} content={content} blockId={headerBlockId} />{children}<PlatformFooter basePath={basePath} demo={demo} content={content} blockId={footerBlockId} /></div>;
+  return <div className={styles.platform} data-premium-runtime><style>{hidden.map((section) => `[data-premium-runtime] #${section === "teachers" ? "team" : section}{display:none!important}`).join("")}</style><PlatformMotionRuntime /><PlatformHeader basePath={basePath} demo={demo} content={content} blockId={headerBlockId} pages={pages} />{children}<PlatformFooter basePath={basePath} demo={demo} content={content} blockId={footerBlockId} /></div>;
 }
 
 export function SectionLead({ index, eyebrow, title, text }: { index: string; eyebrow: string; title: string; text?: string }) {

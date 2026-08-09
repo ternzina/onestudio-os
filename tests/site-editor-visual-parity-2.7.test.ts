@@ -4,12 +4,12 @@ import { test } from "node:test";
 
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
-test("Premium capability contract explicitly limits universal media controls", async () => {
+test("Premium capability contract preserves shared universal visual controls", async () => {
   const source = await read("../lib/public-site/custom-block-registry.ts");
-  assert.match(source, /kind === "text" \|\| kind === "media_text" \|\| kind === "columns"/);
-  assert.match(source, /const mediaSizing = runtime === "standard"/);
+  assert.match(source, /runtime === "standard" \|\| runtime === "premium"/);
+  assert.match(source, /kind === "slider" \|\| kind === "video" \|\| kind === "media_text" \|\| kind === "collage"/);
   assert.match(source, /mediaSizing: supported && mediaSizing/);
-  assert.match(source, /runtime === "standard" && kind === "collage"/);
+  assert.match(source, /kind === "media_text" \|\| kind === "collage"/);
 });
 
 test("shared visual tokens contain every Site Editor 2.7 token group", async () => {
@@ -37,8 +37,9 @@ test("sparse Hero layout overrides remain guarded by raw stored settings", async
 });
 
 test("editor panes retain independent scrolling and reachable settings", async () => {
-  const standard = await read("../app/admin/site/page.tsx");
+  const runtime = await read("../components/admin/TemplateEditorRuntime.tsx");
   const premium = await read("../app/globals.css");
-  assert.match(standard, /<aside className="relative h-full min-w-0 overflow-y-auto overscroll-contain/);
+  assert.match(runtime, /TEMPLATE_EDITOR_SETTINGS_CLASS/);
+  assert.match(runtime, /EditorSettingsFrame[\s\S]*overflow-y-auto overscroll-contain/);
   assert.match(premium, /template-editor-settings \{ display: block; order: initial; max-height: calc\(100vh - 110px\); overflow-y: auto; \}/);
 });

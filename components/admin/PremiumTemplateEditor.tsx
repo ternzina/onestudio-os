@@ -2,14 +2,13 @@
 
 import { useRef, useState } from "react";
 import HomeExperience from "@/app/demos/premium-kids-center/HomeExperience";
-import RichTextEditor from "@/components/admin/RichTextEditor";
-import TemplateEditorShell, { type TemplateEditorDevice, type TemplateEditorSection } from "@/components/admin/TemplateEditorShell";
+import BembiCustomPage from "@/components/public/BembiCustomPage";
+import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
+import type { EditorInspectorField, EditorInspectorModel, EditorInspectorPlacedField, EditorNavigatorModel, TemplateEditorDevice, TemplateEditorSection } from "@/lib/public-site/editor-spec";
 import TemplatePreviewViewport, { type TemplatePreviewViewportHandle } from "@/components/admin/TemplatePreviewViewport";
-import TypographyControls from "@/components/admin/TypographyControls";
 import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
-import PremiumUniversalBlockSettings from "@/components/admin/PremiumUniversalBlockSettings";
+import { buildPremiumUniversalInspectorGroups } from "@/components/admin/PremiumUniversalBlockSettings";
 import PremiumDelimitedListEditor from "@/components/admin/PremiumDelimitedListEditor";
-import { EditorBlockRow, EditorInspectorActions, EditorToggle, editorCompactFieldClass } from "@/components/admin/EditorChrome";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import { PREMIUM_UNIVERSAL_BLOCK_LIBRARY } from "@/lib/public-site/custom-block-registry";
@@ -33,8 +32,10 @@ import {
   type PremiumKidsEditableKey,
 } from "@/lib/public-site/premium-kids-content";
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteData, PublicSiteMediaPosition, PublicSiteTypography } from "@/lib/public-site/types";
+import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
+import { addOneStudioPage, createOneStudioPage, removeOneStudioPage, updateOneStudioPage } from "@/lib/public-site/one-studio-pages";
+import { createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
 
-const inputClass = editorCompactFieldClass;
 type Field = [PremiumKidsEditableKey, AdminMessage, "input" | "text" | "lines"];
 
 const fields: Record<PremiumKidsBlockType, Field[]> = {
@@ -50,26 +51,31 @@ const fields: Record<PremiumKidsBlockType, Field[]> = {
   faq: [["faq_title", "Heading", "text"], ["faq", "Questions: question | answer", "lines"]],
   final: [["final_cta_eyebrow", "Eyebrow", "input"], ["final_cta_title", "Heading", "text"], ["final_cta_label", "Button", "input"]],
   footer: [["footer_description", "Description", "text"], ["contact_email", "Email", "input"], ["contact_phone", "Phone number", "input"], ["contact_address", "Address", "text"]],
-  text: [], media_text: [], columns: [],
+  text: [], features: [], cta: [], media_text: [], columns: [], slider: [], collage: [], video: [],
 };
 
 function newBlockId(type: PremiumKidsBlockType) {
   return `bembi-${type}-${crypto.randomUUID()}`;
 }
 
-export default function PremiumTemplateEditor({ businessId, businessSlug, businessName, locale, draft, disabled, saving, hasUnsavedChanges, device, canUndo, canRedo, onChange, onDeviceChange, onUndo, onRedo, onSave, onPublish }: {
+export default function PremiumTemplateEditor({ businessId, businessSlug, businessName, locale, draft, disabled, saving, hasUnsavedChanges, device, canUndo, canRedo, onChange, onDeviceChange, onUndo, onRedo, onSave, onPublish, onOpenDesign, onOpenSeo }: {
   businessId: string; businessSlug: string; businessName: string; locale: string; draft: PublicSiteContent; disabled: boolean; saving: boolean; hasUnsavedChanges: boolean; device: TemplateEditorDevice; canUndo: boolean; canRedo: boolean;
   onChange: (draft: PublicSiteContent, historyGroup?: string) => void; onDeviceChange: (device: TemplateEditorDevice) => void; onUndo: () => void; onRedo: () => void; onSave: () => void; onPublish: () => void;
+  onOpenDesign: () => void; onOpenSeo: () => void;
 }) {
   const { t } = useAdminI18n();
   const premium = resolvePremiumKidsContent(draft);
   const [selected, setSelected] = useState(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id);
+  const [selectedPageId, setSelectedPageId] = useState("home");
   const [editingEnabled, setEditingEnabled] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mediaTarget, setMediaTarget] = useState<{ cardIndex?: number; label: string } | null>(null);
   const viewportRef = useRef<TemplatePreviewViewportHandle>(null);
   const selectedBlock = premium.blocks.find(block => block.id === selected) ?? premium.blocks[0];
+  const pages = draft.pages ?? [];
+  const activePage = selectedPageId === "home" ? null : pages.find(page => page.id === selectedPageId) ?? null;
+  const selectedPageBlock = activePage?.blocks?.find(block => block.id === selected) ?? null;
   const definition = getPremiumKidsBlockDefinition(selectedBlock.type);
   const site: PublicSiteData = { business: { id: businessId, slug: businessSlug, name: businessName, locale, primary_locale: locale, currency: "PLN", timezone: "Europe/Warsaw" }, content: draft, company: {}, services: [], portfolio: [], capabilities: { booking: true, catalog: true, portfolio: true }, available_locales: [locale], published_at: null };
 
@@ -97,11 +103,17 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function duplicate(block: PremiumKidsBlock) { const id = newBlockId(block.type); const next = duplicatePremiumKidsBlock(premium, block.id, id); if (next !== premium) { commit(next); selectBlock(id); } }
   function add(type: PremiumKidsBlockType, mediaPosition?: PublicSiteMediaPosition) { const id = newBlockId(type); const next = addPremiumKidsBlock(premium, type, id, mediaPosition, selectedBlock.id); if (next !== premium) { commit(next); setShowLibrary(false); selectBlock(id); } }
   function updateUniversal(nextBlock: PublicSiteCustomBlock, historyField = "content") { const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, universal_block: nextBlock } } : block); commit(replacePremiumKidsBlocks(premium, blocks), `premium-universal:${selected}:${historyField}`); }
-  function selectMedia(url: string) { const universal = selectedBlock.props.universal_block; if (!universal || !mediaTarget) return; if (mediaTarget.cardIndex === undefined) updateUniversal({ ...universal, media_url: url }, "media-url"); else { const cards = [...(universal.cards ?? [])]; const card = cards[mediaTarget.cardIndex]; if (card) cards[mediaTarget.cardIndex] = { ...card, media_type: "image", media_url: url }; updateUniversal({ ...universal, cards }, `card-${mediaTarget.cardIndex}-media-url`); } setMediaTarget(null); }
+  function selectMedia(url: string) { const universal = selectedPageBlock ?? selectedBlock.props.universal_block; if (!universal || !mediaTarget) return; const save = (block: PublicSiteCustomBlock, field: string) => activePage ? updatePageBlock(block) : updateUniversal(block, field); if (mediaTarget.cardIndex === undefined) save({ ...universal, media_url: url }, "media-url"); else { const cards = [...(universal.cards ?? [])]; const card = cards[mediaTarget.cardIndex]; if (card) cards[mediaTarget.cardIndex] = { ...card, media_type: "image", media_url: url }; save({ ...universal, cards }, `card-${mediaTarget.cardIndex}-media-url`); } setMediaTarget(null); }
   function remove(block: PremiumKidsBlock) { if (!window.confirm(t("Delete block confirmation", { name: t(getPremiumKidsBlockDefinition(block.type).label as AdminMessage) }))) return; const next = deletePremiumKidsBlock(premium, block.id); if (next !== premium) { const index = premium.blocks.findIndex(item => item.id === block.id); commit(next); if (selected === block.id) setSelected(next.blocks[Math.min(index, next.blocks.length - 1)].id); } }
   function reset(block: PremiumKidsBlock) { if (window.confirm(t("Reset BEMBI block confirmation"))) commit(resetPremiumKidsBlock(premium, block.id)); }
   function restoreOriginal() { if (window.confirm(t("Restore BEMBI draft confirmation"))) { const next = restoreOriginalPremiumKidsContent(); commit(next); setSelected(next.blocks.find(block => block.type === "hero")!.id); } }
   function setVisible(block: PremiumKidsBlock, visible: boolean) { commit(setPremiumKidsBlockVisibility(premium, block.id, visible)); }
+  function addPage() { const page = createOneStudioPage(draft); onChange(addOneStudioPage(draft, page), "system-page:add"); setSelectedPageId(page.id); setSelected(page.blocks?.[0]?.id ?? ""); setEditingEnabled(true); }
+  function updatePage(patch: Parameters<typeof updateOneStudioPage>[2], group = "metadata") { if (activePage) onChange(updateOneStudioPage(draft, activePage.id, patch), `system-page:${activePage.id}:${group}`); }
+  function deletePage() { if (!activePage || !window.confirm(t("Remove page"))) return; onChange(removeOneStudioPage(draft, activePage.id), `system-page:${activePage.id}:remove`); setSelectedPageId("home"); setSelected(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id); }
+  function addPageBlock(kind: PublicSiteCustomBlock["kind"]) { if (!activePage) return; const block = createPublicSiteCustomBlock(kind); updatePage({ blocks: [...(activePage.blocks ?? []), block] }, "add-block"); setSelected(block.id); setShowLibrary(false); }
+  function updatePageBlock(block: PublicSiteCustomBlock) { if (!activePage) return; updatePage({ blocks: (activePage.blocks ?? []).map(item => item.id === block.id ? block : item) }, `block:${block.id}`); }
+  function removePageBlock() { if (!activePage || !selectedPageBlock) return; updatePage({ blocks: (activePage.blocks ?? []).filter(item => item.id !== selectedPageBlock.id) }, `block:${selectedPageBlock.id}:remove`); setSelected(""); }
 
   const typeCounts = new Map<PremiumKidsBlockType, number>();
   const typeTotals = new Map<PremiumKidsBlockType, number>();
@@ -117,21 +129,99 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const width = device === "mobile" ? 390 : device === "tablet" ? 768 : 1280;
   const zoom = device === "mobile" ? 0.82 : device === "tablet" ? 0.68 : 0.56;
   const controlsDisabled = disabled || !editingEnabled;
+  const previewHref = buildSitePreviewHref({ templateKey: "premium-kids-center", businessSlug, locale });
+  const templateLibraryItems = PREMIUM_KIDS_BLOCK_REGISTRY.filter(item => item.capabilities.add && !isPremiumKidsUniversalBlockType(item.type)).map(item => ({ id: item.type, label: item.label, description: item.description, onAdd: () => add(item.type) }));
+  const universalLibraryItems = PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, onAdd: () => add(item.kind as PremiumKidsBlockType, item.mediaPosition) }));
 
-  return <><TemplateEditorShell templateName="BEMBI Premium" draftLabel={`Черновик${hasUnsavedChanges ? " · не сохранён" : " · сохранён"}`} previewHref={`/site-preview/premium-kids-center/${businessSlug}`} sections={sections} selectedSection={selected} device={device} editingEnabled={editingEnabled} saving={saving || disabled} canUndo={canUndo} canRedo={canRedo} onSelectSection={selectBlock} onDeviceChange={onDeviceChange} onEditingChange={setEditingEnabled} onUndo={onUndo} onRedo={onRedo} onSave={onSave} onPublish={onPublish}
-    toolbarActions={<button type="button" disabled={controlsDisabled} onClick={restoreOriginal} className="rounded-xl border border-[#9a742e]/30 bg-[#fffaf0] px-3 py-2 text-xs font-semibold text-[#76551d] disabled:opacity-40">{t("Restore original BEMBI")}</button>}
-    renderSection={(section, index) => { const block = premium.blocks[index]; const capabilities = getPremiumKidsBlockDefinition(block.type).capabilities; const active = selected === block.id; return <EditorBlockRow key={block.id} index={index} label={section.label} selected={active} visible={block.visible} locked={!capabilities.reorder} draggable={capabilities.reorder} disabled={controlsDisabled} onSelect={() => selectBlock(block.id)} onDragStart={() => setDraggedId(block.id)} onDragEnd={() => setDraggedId(null)} onDragOver={event => { if (capabilities.reorder) event.preventDefault(); }} onDrop={() => { if (draggedId) move(draggedId, block.id); setDraggedId(null); }} actions={<>
-      {capabilities.visibility ? <button type="button" disabled={controlsDisabled} onClick={() => setVisible(block, !block.visible)} aria-label={block.visible ? t("Hide block") : t("Reveal block")} title={block.visible ? t("Hide block") : t("Reveal block")} className="px-1 text-xs disabled:opacity-35">{block.visible ? "◉" : "○"}</button> : null}
-      {capabilities.duplicate ? <button type="button" disabled={controlsDisabled} onClick={() => duplicate(block)} aria-label={t("Duplicate block")} title={t("Duplicate block")} className="px-1 text-[11px] disabled:opacity-35">⧉</button> : null}
-      {capabilities.delete ? <button type="button" disabled={controlsDisabled} onClick={() => remove(block)} aria-label={t("Delete block")} title={t("Delete block")} className="px-1 text-xs text-red-500 disabled:opacity-35">×</button> : null}
-      {capabilities.reorder ? <span className="flex flex-col"><button type="button" disabled={controlsDisabled || index <= 2} onClick={() => moveBy(block.id, -1)} aria-label={t("Move block up")} className="h-3 text-[9px] disabled:opacity-20">▲</button><button type="button" disabled={controlsDisabled || index >= premium.blocks.length - 2} onClick={() => moveBy(block.id, 1)} aria-label={t("Move block down")} className="h-3 text-[9px] disabled:opacity-20">▼</button></span> : null}
-    </>} />; }}
-    navigator={<div className="mt-4"><button type="button" disabled={controlsDisabled} onClick={() => setShowLibrary(value => !value)} className="w-full rounded-xl border border-dashed border-[#9a742e]/50 bg-[#fffaf0] px-3 py-2.5 text-xs font-semibold text-[#76551d] disabled:opacity-40">{t("+ Add block")}</button>{showLibrary ? <div className="mt-2 grid gap-3 rounded-xl border border-black/8 bg-white p-2"><div><p className="px-2 py-1 text-[9px] font-bold uppercase tracking-[.14em] text-[#9a742e]">{t("Template sections")}</p>{PREMIUM_KIDS_BLOCK_REGISTRY.filter(item => item.capabilities.add && !isPremiumKidsUniversalBlockType(item.type)).map(item => <button type="button" key={item.type} onClick={() => add(item.type)} className="block w-full rounded-lg px-2 py-2 text-left text-xs hover:bg-black/5"><b className="block">{t(item.label as AdminMessage)}</b><span className="text-[10px] text-[#716d65]">{t(item.description as AdminMessage)}</span></button>)}</div><div className="border-t border-black/8 pt-2"><p className="px-2 py-1 text-[9px] font-bold uppercase tracking-[.14em] text-[#1746d1]">{t("Universal blocks")}</p>{PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => <button type="button" key={item.id} onClick={() => add(item.kind as PremiumKidsBlockType, item.mediaPosition)} className="block w-full rounded-lg px-2 py-2 text-left text-xs hover:bg-[#eef2ff]"><b className="block">{t(item.label as AdminMessage)}</b><span className="text-[10px] text-[#716d65]">{t(item.description as AdminMessage)}</span></button>)}</div></div> : null}<p className="mt-3 text-[10px] leading-5 text-[#716d65]">◆ {t("Required block")} · ⠿ {t("Reorderable block")}<br />{t("Hidden blocks remain available for editing.")}</p></div>}
-    canvas={<TemplatePreviewViewport ref={viewportRef} title={`BEMBI Premium · ${device}`} width={width} scale={zoom}><HomeExperience basePath={`/site-preview/premium-kids-center/${businessSlug}`} site={site} /></TemplatePreviewViewport>}
-    inspector={<><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Block settings")}</p><h3 className="mt-2 text-xl font-semibold">{selectedSection.label}</h3><p className="mt-1 text-xs leading-5 text-[#716d65]">{t(definition.description as AdminMessage)}</p><div className="mt-5 grid gap-4">
-      {definition.capabilities.visibility ? <EditorToggle label={t("Show this block")} checked={selectedBlock.visible} disabled={controlsDisabled} onChange={visible => setVisible(selectedBlock, visible)} /> : <p className="rounded-xl border border-black/8 bg-[#faf9f6] p-3 text-[11px] leading-5 text-[#716d65]">{t("Required BEMBI block notice")}</p>}
-      {selectedBlock.props.universal_block ? <PremiumUniversalBlockSettings block={selectedBlock.props.universal_block} disabled={controlsDisabled} onChange={updateUniversal} onChooseImage={setMediaTarget} /> : <>{fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key)).map(([key, label, kind]) => { const raw = selectedBlock.props[key]; const value = Array.isArray(raw) ? raw.join("\n") : raw ?? ""; return <label key={key} className="text-xs font-semibold text-[#4f4b45]">{t(label)}{kind === "input" ? <input className={inputClass} value={value} disabled={controlsDisabled} onChange={event => update(key, event.target.value)} /> : kind === "text" && ["hero_description", "intro_description", "programs_description", "schedule_description", "footer_description"].includes(key) ? <RichTextEditor value={value} disabled={controlsDisabled} onChange={next => update(key, next)} /> : <textarea className={inputClass} rows={kind === "lines" ? 6 : 3} value={value} disabled={controlsDisabled} onChange={event => update(key, event.target.value)} />}</label>; })}{selectedBlock.type === "faq" ? <PremiumDelimitedListEditor values={(selectedBlock.props.faq as string[]) ?? []} primaryLabel="Question" secondaryLabel="Answer" disabled={controlsDisabled} onChange={values => updateList("faq", values)} /> : selectedBlock.type === "reviews" ? <PremiumDelimitedListEditor values={(selectedBlock.props.reviews as string[]) ?? []} primaryLabel="Review text" secondaryLabel="Author" splitFromEnd disabled={controlsDisabled} onChange={values => updateList("reviews", values)} /> : selectedBlock.type === "teachers" ? <PremiumDelimitedListEditor values={(selectedBlock.props.teachers as string[]) ?? []} primaryLabel="Person name" secondaryLabel="Role" disabled={controlsDisabled} onChange={values => updateList("teachers", values)} /> : null}{definition.capabilities.typography ? <TypographyControls title={t("Section title")} description={t("Limited Site Editor 2.6 settings")} value={selectedBlock.props.heading_typography} disabled={controlsDisabled} onChange={updateTypography} /> : null}</>}
-      <EditorInspectorActions>{definition.capabilities.duplicate ? <button type="button" disabled={controlsDisabled} onClick={() => duplicate(selectedBlock)} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">{t("Duplicate block")}</button> : null}{definition.capabilities.reset ? <button type="button" disabled={controlsDisabled} onClick={() => reset(selectedBlock)} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">{t("Reset block")}</button> : null}{definition.capabilities.delete ? <button type="button" disabled={controlsDisabled} onClick={() => remove(selectedBlock)} className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-40">{t("Delete block")}</button> : null}</EditorInspectorActions>
-    </div></>}
-  /><MediaLibraryPicker open={Boolean(mediaTarget)} businessId={businessId} title={mediaTarget?.label ?? "Выбрать изображение"} onSelect={selectMedia} onClose={() => setMediaTarget(null)} /></>;
+  const homeNavigatorModel: EditorNavigatorModel = {
+    heading: t("Page blocks"),
+    sections: sections.map((section, index) => {
+      const block = premium.blocks[index];
+      const capabilities = getPremiumKidsBlockDefinition(block.type).capabilities;
+      return {
+        id: block.id, key: block.id, label: section.label, description: section.description, index,
+        selected: selected === block.id, visible: block.visible, required: !capabilities.delete,
+        locked: !capabilities.reorder, disabled: controlsDisabled,
+        capabilities: { ...capabilities, select: true, move: capabilities.reorder },
+        onSelect: () => selectBlock(block.id), onVisibilityChange: visible => setVisible(block, visible),
+        onDuplicate: () => duplicate(block), onDelete: () => remove(block), onMove: direction => moveBy(block.id, direction),
+        canMoveUp: index > 2, canMoveDown: index < premium.blocks.length - 2,
+        onDragStart: () => setDraggedId(block.id), onDragEnd: () => setDraggedId(null),
+        onDrop: () => { if (draggedId) move(draggedId, block.id); setDraggedId(null); },
+      };
+    }),
+    addBlock: { label: t("+ Add block"), disabled: controlsDisabled, onClick: () => setShowLibrary(true) },
+    footerNotice: <>◆ {t("Required block")} · ⠿ {t("Reorderable block")}<br />{t("Hidden blocks remain available for editing.")}</>,
+  };
+  const visibilityFields: EditorInspectorField[] = definition.capabilities.visibility
+    ? [{ id: "visibility", type: "toggle", label: t("Show this block"), checked: selectedBlock.visible, disabled: controlsDisabled, onChange: visible => setVisible(selectedBlock, visible) }]
+    : [{ id: "required", type: "notice", text: t("Required BEMBI block notice") }];
+  // Transitional source-contract markers: id: "content", id: "typography". Actual outer groups are OneStudio-owned.
+  const inspectorFields: EditorInspectorPlacedField[] = visibilityFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField));
+  if (selectedBlock.props.universal_block) {
+    inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: setMediaTarget }));
+  } else {
+    const contentFields: EditorInspectorField[] = [];
+    for (const [key, label, kind] of fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key))) {
+      const raw = selectedBlock.props[key];
+      const value = Array.isArray(raw) ? raw.join("\n") : raw ?? "";
+      const rich = kind === "text" && ["hero_description", "intro_description", "programs_description", "schedule_description", "footer_description"].includes(key);
+      contentFields.push(rich
+        ? { id: key, type: "richText", label: t(label), value, disabled: controlsDisabled, onChange: next => update(key, next) }
+        : kind === "input"
+          ? { id: key, type: "text", label: t(label), value, disabled: controlsDisabled, onChange: next => update(key, next) }
+          : { id: key, type: "textarea", label: t(label), rows: kind === "lines" ? 6 : 3, value, disabled: controlsDisabled, onChange: next => update(key, next) });
+    }
+    const structured = selectedBlock.type === "faq" ? <PremiumDelimitedListEditor values={(selectedBlock.props.faq as string[]) ?? []} primaryLabel="Question" secondaryLabel="Answer" disabled={controlsDisabled} onChange={values => updateList("faq", values)} /> : selectedBlock.type === "reviews" ? <PremiumDelimitedListEditor values={(selectedBlock.props.reviews as string[]) ?? []} primaryLabel="Review text" secondaryLabel="Author" splitFromEnd disabled={controlsDisabled} onChange={values => updateList("reviews", values)} /> : selectedBlock.type === "teachers" ? <PremiumDelimitedListEditor values={(selectedBlock.props.teachers as string[]) ?? []} primaryLabel="Person name" secondaryLabel="Role" disabled={controlsDisabled} onChange={values => updateList("teachers", values)} /> : null;
+    if (structured) contentFields.push({ id: "structured-content", type: "custom", customContent: structured });
+    if (contentFields.length) inspectorFields.push(...contentFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField)));
+    if (definition.capabilities.typography) inspectorFields.push({ id: "typography-controls", group: "typography", type: "typography", title: t("Section title"), description: t("Limited Site Editor 2.6 settings"), value: selectedBlock.props.heading_typography, disabled: controlsDisabled, onChange: updateTypography });
+  }
+  const homeInspectorModel: EditorInspectorModel = {
+    heading: t("Block settings"), title: selectedSection.label, description: t(definition.description as AdminMessage),
+    fields: inspectorFields,
+    actions: [
+      ...(definition.capabilities.duplicate ? [{ id: "duplicate", label: t("Duplicate block"), disabled: controlsDisabled, onClick: () => duplicate(selectedBlock) }] : []),
+      ...(definition.capabilities.reset ? [{ id: "reset", label: t("Reset block"), disabled: controlsDisabled, onClick: () => reset(selectedBlock) }] : []),
+      ...(definition.capabilities.delete ? [{ id: "delete", label: t("Delete block"), tone: "danger" as const, disabled: controlsDisabled, onClick: () => remove(selectedBlock) }] : []),
+    ],
+  };
+
+  const pageNavigatorModel: EditorNavigatorModel | null = activePage ? {
+    heading: t("Page blocks"),
+    sections: [
+      { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: !selectedPageBlock, visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelected("") },
+      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
+    ],
+    addBlock: { label: t("+ Add block"), disabled: controlsDisabled, onClick: () => setShowLibrary(true) },
+    footerNotice: t("This is a separate public page with its own address and navigation item."),
+  } : null;
+  const pageInspectorModel: EditorInspectorModel | null = activePage ? {
+    heading: t("Block settings"), title: selectedPageBlock?.title || activePage.nav_label,
+    fields: selectedPageBlock
+      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: setMediaTarget })
+      : [
+          { id: "nav-label", group: "content", type: "text", label: t("Navigation label"), value: activePage.nav_label, disabled: controlsDisabled, onChange: value => updatePage({ nav_label: value }, "nav-label") },
+          { id: "slug", group: "content", type: "url", label: t("Page address"), value: activePage.slug, disabled: controlsDisabled, onChange: value => updatePage({ slug: value }, "slug") },
+          { id: "eyebrow", group: "content", type: "text", label: t("Eyebrow"), value: activePage.eyebrow, disabled: controlsDisabled, onChange: value => updatePage({ eyebrow: value }, "eyebrow") },
+          { id: "title", group: "content", type: "textarea", label: t("Main title"), value: activePage.title, disabled: controlsDisabled, onChange: value => updatePage({ title: value }, "title") },
+          { id: "intro", group: "content", type: "richText", label: t("Introduction"), value: activePage.intro, disabled: controlsDisabled, onChange: value => updatePage({ intro: value }, "intro") },
+          { id: "visibility", group: "content", type: "toggle", label: t("Show page on site"), checked: activePage.is_visible !== false, disabled: controlsDisabled, onChange: value => updatePage({ is_visible: value }, "visibility") },
+          { id: "navigation", group: "content", type: "toggle", label: t("Show in navigation"), checked: activePage.show_in_navigation, disabled: controlsDisabled, onChange: value => updatePage({ show_in_navigation: value }, "navigation") },
+          { id: "title-typography", group: "typography", type: "typography", title: t("Main title"), description: activePage.title, value: activePage.title_typography, disabled: controlsDisabled, onChange: value => updatePage({ title_typography: value }, "typography") },
+        ],
+    actions: selectedPageBlock ? [{ id: "delete", label: t("Remove block"), tone: "danger", disabled: controlsDisabled, onClick: removePageBlock }] : [{ id: "delete-page", label: t("Remove page"), tone: "danger", disabled: controlsDisabled, onClick: deletePage }],
+  } : null;
+  const pagePreviewHref = activePage ? `${previewHref}/p/${encodeURIComponent(activePage.slug)}` : previewHref;
+  const pageUniversalItems = PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, onAdd: () => addPageBlock(item.kind) }));
+  const navigatorModel: EditorNavigatorModel = pageNavigatorModel ?? homeNavigatorModel;
+  const inspectorModel: EditorInspectorModel = pageInspectorModel ?? homeInspectorModel;
+
+  return <><TemplateEditorRuntime templateKey="premium-kids-center" designName="BEMBI" templateTier="Premium" draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`} previewHref={pagePreviewHref} device={device} editingEnabled={editingEnabled} saving={saving || disabled} canUndo={canUndo} canRedo={canRedo} onDeviceChange={onDeviceChange} onEditingChange={setEditingEnabled} onUndo={onUndo} onRedo={onRedo} onSave={onSave} onPublish={onPublish}
+    libraryOpen={showLibrary} onLibraryClose={() => setShowLibrary(false)} templateLibraryItems={activePage ? [] : templateLibraryItems} universalLibraryItems={activePage ? pageUniversalItems : universalLibraryItems}
+    commandModel={{ pageLabel: t("Page"), pages: [{ id: "home", label: t("Home"), selected: !activePage, onSelect: () => { setSelectedPageId("home"); setSelected(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id); } }, ...pages.map(page => ({ id: page.id, label: `${page.nav_label}${page.is_visible === false ? ` · ${t("Hidden")}` : ""}`, selected: activePage?.id === page.id, onSelect: () => { setSelectedPageId(page.id); setSelected(""); } }))], addPage: { id: "add-page", label: t("+ Add page"), disabled: controlsDisabled, onClick: addPage }, design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign }, seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo }, auxiliaryAction: { id: "restore", label: t("Restore original BEMBI"), disabled: controlsDisabled, onClick: restoreOriginal } }}
+    navigatorModel={navigatorModel}
+    canvas={<TemplatePreviewViewport ref={viewportRef} title={`BEMBI Premium · ${device}`} width={width} scale={zoom}>{activePage ? <BembiCustomPage basePath={previewHref} site={site} page={activePage} /> : <HomeExperience basePath={previewHref} site={site} />}</TemplatePreviewViewport>}
+    inspectorModel={inspectorModel}
+  /><MediaLibraryPicker open={Boolean(mediaTarget)} businessId={businessId} title={mediaTarget?.label ?? t("Choose image")} onSelect={selectMedia} onClose={() => setMediaTarget(null)} /></>;
 }
