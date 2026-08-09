@@ -2,10 +2,10 @@ import type {
   PublicSiteContent,
   PublicSitePage,
   PublicSiteSection,
-} from "./types";
+} from "./types.ts";
 import {
   resolvePublicSiteLayoutOrder,
-} from "./layout";
+} from "./layout.ts";
 
 export type SiteTemplateService = {
   slug: string;

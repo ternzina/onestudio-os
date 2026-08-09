@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import PremiumStudioExperience from "./PremiumStudioExperience";
+import Link from "next/link";
+import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
 
 export const metadata: Metadata = {
   title: "NOIR FRAME — премиальная фотостудия",
@@ -32,5 +34,5 @@ export const metadata: Metadata = {
 };
 
 export default function PremiumStudioPage() {
-  return <PremiumStudioExperience />;
+  return <><div className="fixed bottom-5 right-5 z-[100]"><Link className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black shadow-2xl" href={newSitePathForTemplate("premium-studio")}>Использовать этот шаблон</Link></div><PremiumStudioExperience /></>;
 }

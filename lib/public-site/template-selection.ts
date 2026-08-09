@@ -5,10 +5,11 @@ export function selectExecutableTemplate(currentDraft: PublicSiteContent, templa
   if (!isExecutableSiteTemplate(templateKey)) throw new Error(`Template is not executable: ${templateKey}`);
   const template = getSiteTemplateDefinition(templateKey)!;
   const templateContent = currentDraft.template_content;
-  const needsNamespace = template.contentNamespace && templateContent?.[templateKey] === undefined;
+  const needsNamespace = template.contentNamespace && templateContent?.[template.key] === undefined;
+  const namespace = needsNamespace ? template.seed().template_content?.[template.key] ?? {} : undefined;
   return {
     ...currentDraft,
-    template_id: templateKey,
-    ...(needsNamespace ? { template_content: { ...(templateContent ?? {}), [templateKey]: {} } } : {}),
+    template_id: template.key,
+    ...(needsNamespace ? { template_content: { ...(templateContent ?? {}), [template.key]: namespace } } : {}),
   };
 }

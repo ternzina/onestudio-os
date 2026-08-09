@@ -1,3 +1,5 @@
+import { TEMPLATE_CATALOG, type TemplateKey } from "./public-site/template-catalog";
+
 export type DemoGroup = "studio" | "beauty" | "wellness" | "education" | "events";
 
 export type DemoPalette = {
@@ -23,7 +25,7 @@ export type DemoDefinition = {
 };
 
 export type PremiumDemoDefinition = {
-  slug: string;
+  slug: TemplateKey;
   href: string;
   tier: "premium";
   group: DemoGroup;
@@ -34,42 +36,13 @@ export type PremiumDemoDefinition = {
   previewAlt: { ru: string; en: string };
 };
 
-export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
-  {
-    slug: "premium-studio",
-    href: "/demos/premium-studio",
-    tier: "premium",
-    group: "studio",
-    name: "NOIR FRAME — Premium Photo Studio",
-    title: { ru: "Фотостудия", en: "Photo studio" },
-    description: {
-      ru: "Премиальный сайт фотостудии с ярким editorial-дизайном, интерактивным портфолио, 3D-туром, сравнением обработки и дорогими анимациями.",
-      en: "A premium photo studio website with vivid editorial design, an interactive portfolio, a 3D tour, retouch comparison and refined motion.",
-    },
-    previewImage: "/images/demos/premium-studio/bright/hero.webp",
-    previewAlt: {
-      ru: "Светлая съёмочная площадка премиальной фотостудии NOIR FRAME",
-      en: "Bright set inside the NOIR FRAME premium photo studio",
-    },
-  },
-  {
-    slug: "premium-kids-center",
-    href: "/demos/premium-kids-center",
-    tier: "premium",
-    group: "education",
-    name: "BEMBI — Kids Discovery Center",
-    title: { ru: "Детский развивающий центр", en: "Kids discovery center" },
-    description: {
-      ru: "Премиальная образовательная платформа с практическими заданиями, экспериментами, рабочими тетрадями, статьями для родителей и программами детского центра.",
-      en: "A premium learning platform with hands-on tasks, experiments, workbooks, a parent journal and kids center programs.",
-    },
-    previewImage: "/images/demos/premium-kids-center/hero-platform.webp",
-    previewAlt: {
-      ru: "Дети и педагог создают геометрический город в лаборатории BEMBI",
-      en: "Children and an educator build a geometric city in the BEMBI learning lab",
-    },
-  },
-] as const;
+export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = TEMPLATE_CATALOG.filter(item => item.tier === "premium" && item.gallery.previewRoute).map(item => ({
+  slug: item.key, href: item.gallery.previewRoute!, tier: "premium" as const,
+  group: item.key === "premium-studio" ? "studio" as const : "education" as const,
+  name: item.name, title: item.key === "premium-studio" ? { ru: "Фотостудия", en: "Photo studio" } : { ru: "Детский развивающий центр", en: "Kids discovery center" },
+  description: { ru: item.gallery.description, en: item.gallery.description }, previewImage: item.gallery.previewImage!,
+  previewAlt: { ru: item.name, en: item.name },
+}));
 
 export const DEMOS: readonly DemoDefinition[] = [
   {

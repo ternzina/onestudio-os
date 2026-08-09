@@ -84,7 +84,7 @@ export default function LoginPage() {
       : undefined;
 
     if (access?.access_state === "bootstrap_required") {
-      router.replace("/admin/bootstrap");
+      router.replace(nextPath.startsWith("/new-site") ? nextPath : "/new-site");
       router.refresh();
       return;
     }
@@ -95,8 +95,8 @@ export default function LoginPage() {
       return;
     }
 
-    if (nextPath === "/launch") {
-      router.replace("/launch");
+    if (nextPath.startsWith("/new-site")) {
+      router.replace(nextPath);
       router.refresh();
       return;
     }
@@ -317,7 +317,7 @@ export default function LoginPage() {
               <p className="text-sm text-white/52">
                 Нет аккаунта?{" "}
                 <Link
-                  href={nextPath === "/launch" ? "/register?source=configurator" : "/register"}
+                  href={`/register?next=${encodeURIComponent(nextPath)}`}
                   className="font-semibold text-white underline decoration-[#d8b36a]/55 underline-offset-4 transition hover:text-[#efd08f]"
                 >
                   Зарегистрироваться

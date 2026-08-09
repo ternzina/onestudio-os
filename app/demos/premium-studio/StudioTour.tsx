@@ -4,22 +4,23 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "./PremiumInteractions.module.css";
+import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
 
 const DynamicStudioTour = dynamic(() => import("./StudioTourScene"), {
   ssr: false,
-  loading: () => <TourFallback status="Готовим интерактивную сцену…" />,
+  loading: () => null,
 });
 
-function TourFallback({ status = "Облегчённый режим для этого устройства" }: { status?: string }) {
+function TourFallback({ status, content }: { status: string; content: PremiumStudioContent["tour"] }) {
   return (
     <div className={styles.tourFallback} data-tour-fallback>
-      <Image src="/images/demos/premium-studio/bright/equipment.webp" alt="Светлая студия NOIR FRAME с циклорамой и оборудованием" fill sizes="(max-width: 760px) 100vw, 72vw" quality={84} />
-      <div><span>{status}</span><p>Циклорама · съёмочная зона · гримёрная · lounge</p></div>
+      <Image src={content.image} alt={content.imageAlt} fill sizes="(max-width: 760px) 100vw, 72vw" quality={84} />
+      <div><span>{status}</span><p>{content.fallbackCaption}</p></div>
     </div>
   );
 }
 
-export default function StudioTour() {
+export default function StudioTour({ content }: { content: PremiumStudioContent["tour"] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [near, setNear] = useState(false);
   const [fallback, setFallback] = useState(true);
@@ -50,11 +51,11 @@ export default function StudioTour() {
   return (
     <section className={styles.tour} id="tour" ref={sectionRef} aria-labelledby="tour-title">
       <div className={styles.tourIntro}>
-        <p>Пространство / интерактив</p>
-        <h2 id="tour-title">Интерактивный<br /><i>тур по студии.</i></h2>
-        <span>Поверните макет и выберите активную точку. На мобильных показываем облегчённый обзор без тяжёлой графики.</span>
+        <p>{content.eyebrow}</p>
+        <h2 id="tour-title">{content.title.split("\n")[0]}<br /><i>{content.title.split("\n").slice(1).join(" ")}</i></h2>
+        <span>{content.text}</span>
       </div>
-      {near && !fallback ? <DynamicStudioTour /> : <TourFallback status={near ? undefined : "Интерактив загрузится при приближении"} />}
+      {near && !fallback ? <DynamicStudioTour zones={content.zones} /> : <TourFallback content={content} status={near ? content.loadingText : content.deferredText} />}
     </section>
   );
 }

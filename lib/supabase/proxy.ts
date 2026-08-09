@@ -106,9 +106,9 @@ export async function updateSession(request: NextRequest) {
     const next = authNextPath(request);
     if (state === "ready") return redirectTo(request, next ?? "/admin");
     if (state === "bootstrap_required") {
-      return redirectTo(request, next ?? "/admin/bootstrap");
+      return redirectTo(request, next ?? "/new-site");
     }
-    if (next === "/launch") return redirectTo(request, next);
+    if (next?.startsWith("/new-site")) return redirectTo(request, next);
     if (state === "denied") return redirectTo(request, "/dashboard");
     return response;
   }
@@ -116,7 +116,7 @@ export async function updateSession(request: NextRequest) {
   if (state === "bootstrap_required") {
     return pathname === "/admin/bootstrap"
       ? response
-      : redirectTo(request, "/admin/bootstrap");
+      : redirectTo(request, "/new-site");
   }
 
   if (state === "ready") {

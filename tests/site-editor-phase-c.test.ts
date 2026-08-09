@@ -14,12 +14,12 @@ import type { PublicSiteContent } from "../lib/public-site/types.ts";
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("OneStudio editor design contract", () => {
-  test("Base OneStudio, GLOSS, and BEMBI are active editor designs", () => {
-    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center"]);
+  test("Base OneStudio, GLOSS, BEMBI, and NOIR are active editor designs", () => {
+    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]);
     assert.equal(isExecutableSiteTemplate("standard"), true);
     assert.equal(isExecutableSiteTemplate("premium-kids-center"), true);
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);
-    assert.equal(isExecutableSiteTemplate("premium-studio"), false);
+    assert.equal(isExecutableSiteTemplate("premium-studio"), true);
   });
 
   test("GLOSS is selectable, previewable, public-renderable, and not legacy", () => {
@@ -32,9 +32,9 @@ describe("OneStudio editor design contract", () => {
     });
   });
 
-  test("missing and unknown design keys resolve to Base OneStudio", () => {
+  test("missing design resolves to Base while unknown registered adapters fail clearly", () => {
     assert.equal(resolveSiteTemplateKey(), "standard");
-    assert.equal(resolveSiteTemplateKey("legacy-unknown"), "standard");
+    assert.throws(() => resolveSiteTemplateKey("legacy-unknown"), /No canonical template adapter/);
     const draft = selectExecutableTemplate({ brand_name: "Studio" } as PublicSiteContent, "standard");
     assert.equal(draft.template_id, "standard");
   });

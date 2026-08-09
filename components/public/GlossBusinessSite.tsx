@@ -210,8 +210,10 @@ function menuCopy(locale: string) {
 
 export default function GlossBusinessSite({
   site,
+  basePath,
 }: {
   site: PublicSiteData;
+  basePath?: string;
 }) {
   const {
     business,
@@ -224,7 +226,7 @@ export default function GlossBusinessSite({
   } = site;
   const localized =
     business.locale === business.primary_locale ? null : business.locale;
-  const homeHref = publicSitePath(business.slug, localized);
+  const homeHref = basePath ?? publicSitePath(business.slug, localized);
   const bookingHref = `/book/${business.slug}`;
   const order = resolvePublicSiteLayoutOrder(content);
   const layoutPosition = (item: string) => {
@@ -253,10 +255,12 @@ export default function GlossBusinessSite({
     (page) => page.is_visible !== false && page.show_in_navigation,
   );
 
-  const pageHref = (page: (typeof navigationPages)[number]) =>
-    page.type === "portfolio"
+  const pageHref = (page: (typeof navigationPages)[number]) => {
+    if (basePath) return `${basePath}/${page.type === "custom" ? "p/" : ""}${page.slug}`;
+    return page.type === "portfolio"
       ? publicSitePagePath(business.slug, page.slug, localized)
       : publicCustomPagePath(business.slug, page.slug, localized);
+  };
   const headerLogoPosition = content.header_logo_position ?? "left";
   const headerLogoSize = content.header_logo_size ?? "medium";
   const menuText = menuCopy(business.locale);

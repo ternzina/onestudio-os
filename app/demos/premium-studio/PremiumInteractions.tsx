@@ -9,8 +9,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { portfolio } from "./content";
 import styles from "./PremiumInteractions.module.css";
+import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
 
 type OpenProject = (index: number) => void;
 
@@ -72,26 +72,26 @@ export function usePointerGlow() {
   return ref;
 }
 
-export function BeforeAfter() {
+export function BeforeAfter({ content }: { content: PremiumStudioContent["retouch"] }) {
   const [value, setValue] = useState(50);
-  const image = portfolio[5];
+  const title = content.title.split("\n");
 
   return (
     <section className={styles.beforeAfter} id="retouch" aria-labelledby="retouch-title">
       <div className={styles.interactionIntro}>
-        <p>Ретушь / интерактив</p>
-        <h2 id="retouch-title">От исходника<br />до <i>финального света.</i></h2>
-        <span>Двигайте границу, чтобы увидеть деликатную работу с цветом, тоном и фактурой.</span>
+        <p>{content.eyebrow}</p>
+        <h2 id="retouch-title">{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2>
+        <span>{content.text}</span>
       </div>
       <div className={styles.compare} style={{ "--position": `${value}%` } as CSSProperties}>
         <div className={styles.compareImage}>
-          <Image src={image.image} alt={`${image.alt}. До обработки`} fill sizes="(max-width: 760px) 100vw, 74vw" quality={88} />
+          <Image src={content.image} alt={`${content.imageAlt}. ${content.beforeLabel}`} fill sizes="(max-width: 760px) 100vw, 74vw" quality={88} />
         </div>
         <div className={`${styles.compareImage} ${styles.afterImage}`}>
-          <Image src={image.image} alt={`${image.alt}. После обработки`} fill sizes="(max-width: 760px) 100vw, 74vw" quality={88} />
+          <Image src={content.image} alt={`${content.imageAlt}. ${content.afterLabel}`} fill sizes="(max-width: 760px) 100vw, 74vw" quality={88} />
         </div>
-        <span className={styles.beforeLabel}>До обработки</span>
-        <span className={styles.afterLabel}>После обработки</span>
+        <span className={styles.beforeLabel}>{content.beforeLabel}</span>
+        <span className={styles.afterLabel}>{content.afterLabel}</span>
         <div className={styles.compareLine} aria-hidden="true"><i>↔</i></div>
         <input
           type="range"
@@ -104,13 +104,13 @@ export function BeforeAfter() {
         />
       </div>
       <button className={styles.resetCompare} type="button" onClick={() => setValue(50)}>
-        Вернуть 50% <span aria-hidden="true">↺</span>
+        {content.resetLabel} <span aria-hidden="true">↺</span>
       </button>
     </section>
   );
 }
 
-export function FilmStrip({ onOpen }: { onOpen: OpenProject }) {
+export function FilmStrip({ onOpen, portfolio, content }: { onOpen: OpenProject; portfolio: PremiumStudioContent["portfolio"]; content: PremiumStudioContent["film"] }) {
   const railRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const paused = useRef(false);
@@ -203,10 +203,11 @@ export function FilmStrip({ onOpen }: { onOpen: OpenProject }) {
     onOpen(index);
   };
 
+  const title = content.title.split("\n");
   return (
     <section className={styles.film} id="film" aria-labelledby="film-title">
       <div className={styles.filmHeader}>
-        <div><p>Контактная печать / 04</p><h2 id="film-title">Кадры между<br /><i>главными кадрами.</i></h2></div>
+        <div><p>{content.eyebrow}</p><h2 id="film-title">{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2></div>
         <div className={styles.filmControls} aria-label="Управление галереей">
           <button type="button" onClick={() => moveRail(-1)} aria-label="Предыдущие фотографии">←</button>
           <button type="button" onClick={() => moveRail(1)} aria-label="Следующие фотографии">→</button>
@@ -224,8 +225,9 @@ export function FilmStrip({ onOpen }: { onOpen: OpenProject }) {
         aria-label="Горизонтальная галерея портретов"
       >
         <div className={styles.filmTrack}>
-          {filmFrames.map((portfolioIndex, index) => {
+          {filmFrames.flatMap((portfolioIndex, index) => {
             const frame = portfolio[portfolioIndex];
+            if (!frame) return [];
             return (
               <button key={frame.title} type="button" className={styles.filmFrame} onClick={() => openFrame(portfolioIndex)} aria-label={`Открыть «${frame.title}»`}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
@@ -236,18 +238,19 @@ export function FilmStrip({ onOpen }: { onOpen: OpenProject }) {
           })}
         </div>
       </div>
-      <p className={styles.filmHint}>Тяните плёнку · используйте колесо или стрелки</p>
+      <p className={styles.filmHint}>{content.hint}</p>
     </section>
   );
 }
 
-export function ProjectViewer({ active, onClose, onChange }: { active: number | null; onClose: () => void; onChange: (index: number) => void }) {
+export function ProjectViewer({ active, onClose, onChange, portfolio }: { active: number | null; onClose: () => void; onChange: (index: number) => void; portfolio: PremiumStudioContent["portfolio"] }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const activeRef = useRef(active);
   const isOpen = active !== null;
   const project = active === null ? null : portfolio[active];
+  const portfolioLength = portfolio.length;
 
   useEffect(() => { activeRef.current = active; }, [active]);
 
@@ -264,8 +267,8 @@ export function ProjectViewer({ active, onClose, onChange }: { active: number | 
         event.preventDefault();
         onClose();
       }
-      if (current !== null && event.key === "ArrowLeft") onChange((current - 1 + portfolio.length) % portfolio.length);
-      if (current !== null && event.key === "ArrowRight") onChange((current + 1) % portfolio.length);
+      if (current !== null && event.key === "ArrowLeft") onChange((current - 1 + portfolioLength) % portfolioLength);
+      if (current !== null && event.key === "ArrowRight") onChange((current + 1) % portfolioLength);
       if (event.key === "Tab") {
         const focusable = viewerRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])');
         if (!focusable?.length) return;
@@ -287,7 +290,7 @@ export function ProjectViewer({ active, onClose, onChange }: { active: number | 
       openerRef.current?.focus({ preventScroll: true });
       openerRef.current = null;
     };
-  }, [isOpen, onChange, onClose]);
+  }, [isOpen, onChange, onClose, portfolioLength]);
 
   return (
     <AnimatePresence>
@@ -301,11 +304,11 @@ export function ProjectViewer({ active, onClose, onChange }: { active: number | 
                 <Image src={project.image} alt={project.alt} fill sizes="(max-width: 760px) 100vw, 70vw" quality={90} priority />
               </m.div>
             </AnimatePresence>
-            <div className={styles.viewerMeta}><span>{project.category} · {project.year}</span><h2>{project.title}</h2><p>{String(active! + 1).padStart(2, "0")} / {portfolio.length}</p></div>
+            <div className={styles.viewerMeta}><span>{project.category} · {project.year}</span><h2>{project.title}</h2><p>{String(active! + 1).padStart(2, "0")} / {portfolioLength}</p></div>
           </div>
           <div className={styles.viewerControls}>
-            <button type="button" onClick={() => onChange((active! - 1 + portfolio.length) % portfolio.length)}>← Предыдущий</button>
-            <button type="button" onClick={() => onChange((active! + 1) % portfolio.length)}>Следующий →</button>
+            <button type="button" onClick={() => onChange((active! - 1 + portfolioLength) % portfolioLength)}>← Предыдущий</button>
+            <button type="button" onClick={() => onChange((active! + 1) % portfolioLength)}>Следующий →</button>
           </div>
         </m.div>
       ) : null}

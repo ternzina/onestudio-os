@@ -5,6 +5,7 @@ import { useState } from "react";
 import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import type { DemoDefinition } from "@/lib/demo-catalog";
+import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
 import styles from "./DemoShowcase.module.css";
 
 type View = "site" | "admin" | "phone";
@@ -204,7 +205,7 @@ export default function DemoShowcaseClient({ demo }: { demo: DemoDefinition }) {
           <div className={styles.modules}>
             {demo.modules.map((module) => <span key={module}>{module}</span>)}
           </div>
-          <Link className={styles.configure} href={`/configure/${demo.slug}`}>Настроить под себя ↗</Link>
+          <Link className={styles.configure} href={newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard")}>Использовать этот шаблон ↗</Link>
           <p className={styles.note}>Название, палитра, языки и набор модулей меняются на следующем шаге.</p>
         </aside>
       </div>

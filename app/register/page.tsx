@@ -7,10 +7,7 @@ import { supabase } from "@/lib/supabase";
 import AdminLanguageSwitcher from "@/components/i18n/AdminLanguageSwitcher";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
-
-type AccessRow = {
-  access_state?: "bootstrap_required" | "ready" | "denied" | "signed_out";
-};
+import { safeAuthReturnPath } from "@/lib/auth/return-path";
 
 function authMessage(value: string) {
   const normalized = value.toLowerCase();
@@ -30,10 +27,8 @@ function authMessage(value: string) {
   return value;
 }
 
-function registrationNextPath(selfService: boolean, bootstrapOpen: boolean) {
-  if (selfService) return "/launch";
-  if (bootstrapOpen) return "/admin/bootstrap";
-  return "/dashboard";
+function registrationNextPath(canonicalNextPath: string) {
+  return canonicalNextPath.startsWith("/new-site") ? canonicalNextPath : "/new-site";
 }
 
 function FeatureRow({ children }: { children: ReactNode }) {
@@ -57,7 +52,8 @@ export default function RegisterPage() {
   const [message, setMessage] = useState("");
   const [checking, setChecking] = useState(true);
   const [bootstrapOpen, setBootstrapOpen] = useState(false);
-  const [selfService, setSelfService] = useState(false);
+  const [selfService, setSelfService] = useState(true);
+  const [canonicalNextPath, setCanonicalNextPath] = useState("/new-site");
   const [submitting, setSubmitting] = useState(false);
   const [confirmationPending, setConfirmationPending] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
@@ -68,12 +64,13 @@ export default function RegisterPage() {
     let active = true;
 
     async function initialize() {
-      const fromConfigurator =
-        new URLSearchParams(window.location.search).get("source") === "configurator" &&
-        Boolean(window.localStorage.getItem("onestudio-config:pending"));
+      const search = new URLSearchParams(window.location.search);
+      const requestedNext = safeAuthReturnPath(search.get("next"), "/new-site");
+      const next = requestedNext.startsWith("/new-site") ? requestedNext : "/new-site";
 
       if (!active) return;
-      setSelfService(fromConfigurator);
+      setSelfService(true);
+      setCanonicalNextPath(next);
 
       const { data: authData } = await supabase.auth.getUser();
       if (!active) return;
@@ -81,22 +78,7 @@ export default function RegisterPage() {
       // Never place a second registration form over an existing session.
       // A saved configurator must belong to the account that is already signed in.
       if (authData.user) {
-        if (fromConfigurator) {
-          router.replace("/launch");
-          router.refresh();
-          return;
-        }
-
-        const { data: accessData } = await supabase.rpc("get_admin_access_state");
-        const access = Array.isArray(accessData)
-          ? (accessData[0] as AccessRow | undefined)
-          : undefined;
-
-        router.replace(
-          access?.access_state === "bootstrap_required"
-            ? "/admin/bootstrap"
-            : "/dashboard",
-        );
+        router.replace(next);
         router.refresh();
         return;
       }
@@ -126,11 +108,11 @@ export default function RegisterPage() {
 
     setSubmitting(true);
     const normalizedEmail = email.trim().toLowerCase();
-    const nextPath = registrationNextPath(selfService, bootstrapOpen);
+    const nextPath = registrationNextPath(canonicalNextPath);
 
     const { data: currentAuth } = await supabase.auth.getUser();
     if (currentAuth.user) {
-      router.replace(selfService ? "/launch" : "/dashboard");
+      router.replace(nextPath);
       router.refresh();
       return;
     }
@@ -167,7 +149,7 @@ export default function RegisterPage() {
       existingOrHidden
         ? "Регистрация с этим email уже начиналась. Отправьте письмо повторно или перейдите ко входу."
         : selfService
-          ? "Письмо отправлено. После подтверждения мы создадим выбранный демо-сайт."
+          ? "Письмо отправлено. После подтверждения продолжится создание выбранного сайта."
           : "Письмо отправлено. После подтверждения откроется ваш личный кабинет.",
     );
     setSubmitting(false);
@@ -178,7 +160,7 @@ export default function RegisterPage() {
 
     setResending(true);
     setMessage("");
-    const nextPath = registrationNextPath(selfService, bootstrapOpen);
+    const nextPath = registrationNextPath(canonicalNextPath);
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: confirmationEmail,
@@ -218,8 +200,8 @@ export default function RegisterPage() {
     );
   }
 
-  const nextPath = registrationNextPath(selfService, bootstrapOpen);
-  const directClientRegistration = !selfService && !bootstrapOpen;
+  const nextPath = registrationNextPath(canonicalNextPath);
+  const directClientRegistration = true;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#080b10] text-[#f7f5ef]">
@@ -270,7 +252,7 @@ export default function RegisterPage() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-white/38">Следующий шаг</p>
                   <p className="mt-2 text-sm font-semibold text-white">
-                    {selfService ? "Подтвердить email и создать демо" : "Подтвердить email и открыть кабинет"}
+                    {selfService ? "Подтвердить email и продолжить создание" : "Подтвердить email и открыть кабинет"}
                   </p>
                 </div>
                 <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-lg text-[#0b0d12]">→</span>

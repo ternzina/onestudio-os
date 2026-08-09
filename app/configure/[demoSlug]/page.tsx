@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import ConfiguratorClient from "./ConfiguratorClient";
+import { notFound, redirect } from "next/navigation";
+import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
 import { DEMOS, getDemo } from "@/lib/demo-catalog";
 
 export function generateStaticParams() {
@@ -27,5 +27,5 @@ export default async function ConfigureDemoPage({
 
   if (!demo) notFound();
 
-  return <ConfiguratorClient demo={demo} />;
+  redirect(newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard"));
 }

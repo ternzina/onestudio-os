@@ -11,34 +11,11 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import {
-  equipment,
-  facts,
-  faq,
-  navigation,
-  portfolio,
-  processSteps,
-  services,
-  team,
-  testimonials,
-} from "./content";
 import { BeforeAfter, FilmStrip, ProjectViewer, usePointerGlow } from "./PremiumInteractions";
 import StudioTour from "./StudioTour";
 import styles from "./PremiumStudio.module.css";
-
-const brightBase = "/images/demos/premium-studio/bright";
-
-const images = {
-  hero: `${brightBase}/hero.webp`,
-  morning: `${brightBase}/scene-morning.webp`,
-  noon: `${brightBase}/scene-noon.webp`,
-  dusk: `${brightBase}/scene-dusk.webp`,
-  night: `${brightBase}/scene-night.webp`,
-  equipment: `${brightBase}/equipment.webp`,
-  emotional: `${brightBase}/emotional.webp`,
-  booking: `${brightBase}/booking.webp`,
-  teamGroup: `${brightBase}/team-group.webp`,
-} as const;
+import { resolvePremiumStudioContent } from "@/lib/public-site/premium-studio-content";
+import type { PublicSiteContent, PublicSiteData } from "@/lib/public-site/types";
 
 const easing = [0.16, 1, 0.3, 1] as const;
 
@@ -71,7 +48,7 @@ function Arrow() {
   );
 }
 
-function ParallaxProject({ project, index, onOpen }: { project: (typeof portfolio)[number]; index: number; onOpen: (index: number) => void }) {
+function ParallaxProject({ project, index, onOpen, action }: { project: ReturnType<typeof resolvePremiumStudioContent>["portfolio"][number]; index: number; onOpen: (index: number) => void; action: string }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const imageY = useTransform(scrollYProgress, [0, 1], ["-5%", "5%"]);
@@ -83,13 +60,16 @@ function ParallaxProject({ project, index, onOpen }: { project: (typeof portfoli
         <m.div className={styles.projectImage} data-glow layoutId={`project-${index}`}>
           <m.div className={styles.projectImageLayer} style={{ y: imageY }}><Image src={project.image} alt={project.alt} fill sizes="(max-width: 680px) 100vw, 55vw" quality={88} /></m.div>
         </m.div>
-        <m.div className={styles.projectMeta} style={{ y: metaY }}><span>{project.category} · {project.year}</span><h3>{project.title}</h3><b>Смотреть проект <Arrow /></b></m.div>
+        <m.div className={styles.projectMeta} style={{ y: metaY }}><span>{project.category} · {project.year}</span><h3>{project.title}</h3><b>{action} <Arrow /></b></m.div>
       </button>
     </m.article>
   );
 }
 
-function StudioPage() {
+function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { site?: PublicSiteData; content?: PublicSiteContent; basePath?: string }) {
+  const activeContent = site?.content ?? content;
+  const tenantContent = resolvePremiumStudioContent(activeContent);
+  const { navigation, services, portfolio, team, process: processSteps, equipment, testimonials, faq } = tenantContent;
   const [menuOpen, setMenuOpen] = useState(false);
   const isMobileNavigation = useSyncExternalStore(
     subscribeToMobileNavigation,
@@ -179,7 +159,7 @@ function StudioPage() {
       <section className={styles.hero} aria-labelledby="premium-studio-title" data-glow>
         <m.div className={styles.heroImageWrap} style={{ y: heroImageY }} aria-hidden="true">
           <Image
-            src={images.hero}
+            src={tenantContent.hero.image}
             alt=""
             fill
             priority
@@ -191,18 +171,18 @@ function StudioPage() {
         </m.div>
         <div className={styles.heroWash} aria-hidden="true" />
         <m.div className={styles.heroCut} style={{ y: heroDetailY }} aria-hidden="true">
-          <span>№ 01</span>
+          <span>{tenantContent.hero.folio}</span>
         </m.div>
 
         <header className={styles.header}>
           <Link
             className={styles.brand}
-            href="/demos/premium-studio"
-            aria-label="NOIR FRAME — главная"
+            href={basePath}
+            aria-label={`${tenantContent.brand.first} ${tenantContent.brand.second} — главная`}
           >
-            <span>NOIR</span>
+            <span>{tenantContent.brand.first}</span>
             <i aria-hidden="true" />
-            <span>FRAME</span>
+            <span>{tenantContent.brand.second}</span>
           </Link>
           <nav
             id="premium-studio-navigation"
@@ -217,9 +197,8 @@ function StudioPage() {
                 {item.label}
               </a>
             ))}
-            <Link className={styles.demoBack} href="/demos">
-              Все демо
-            </Link>
+            {activeContent?.pages?.filter(page => page.show_in_navigation !== false && page.is_visible !== false).map(page => <Link key={page.id} href={`${basePath}/p/${page.slug}`}>{page.nav_label}</Link>)}
+            {!site ? <Link className={styles.demoBack} href="/demos">Все демо</Link> : null}
           </nav>
           <button
             ref={menuButtonRef}
@@ -242,7 +221,7 @@ function StudioPage() {
             variants={reveal}
             transition={{ duration: 0.7 }}
           >
-            Фотостудия · Киев · 2026
+            {tenantContent.hero.eyebrow}
           </m.p>
           <h1 id="premium-studio-title">
             <span className={styles.heroLine}>
@@ -251,7 +230,7 @@ function StudioPage() {
                 animate={{ y: 0 }}
                 transition={{ duration: 1.05, ease: easing }}
               >
-                Свет
+                {tenantContent.hero.lines[0]}
               </m.span>
             </span>
             <span className={`${styles.heroLine} ${styles.heroLineOffset}`}>
@@ -260,7 +239,7 @@ function StudioPage() {
                 animate={{ y: 0 }}
                 transition={{ duration: 1.05, delay: 0.1, ease: easing }}
               >
-                решает
+                {tenantContent.hero.lines[1]}
               </m.span>
             </span>
             <span className={`${styles.heroLine} ${styles.heroLineLast}`}>
@@ -269,7 +248,7 @@ function StudioPage() {
                 animate={{ y: 0 }}
                 transition={{ duration: 1.05, delay: 0.2, ease: easing }}
               >
-                <i>всё.</i>
+                <i>{tenantContent.hero.lines[2]}</i>
               </m.span>
             </span>
           </h1>
@@ -282,22 +261,21 @@ function StudioPage() {
           transition={{ delay: 0.7, duration: 0.8 }}
         >
           <span>
-            Пространство для тех,
-            <br />кто видит иначе.
+            {tenantContent.hero.note}
           </span>
           <a href="#light-scene" data-glow data-magnetic>
-            Войти в свет <Arrow />
+            {tenantContent.hero.cta} <Arrow />
           </a>
         </m.div>
         <div className={styles.heroIndex} aria-hidden="true">
-          NF
+          {tenantContent.brand.monogram}
           <br />
-          <span>24—26</span>
+          <span>{tenantContent.brand.period}</span>
         </div>
       </section>
 
       <section className={styles.overture} id="space">
-        <p className={styles.sectionLabel}>Манифест / 01</p>
+        <p className={styles.sectionLabel}>{tenantContent.introduction.eyebrow}</p>
         <m.h2
           initial="hidden"
           whileInView="visible"
@@ -305,17 +283,13 @@ function StudioPage() {
           variants={reveal}
           transition={{ duration: 0.9, ease: easing }}
         >
-          Мы не сдаём
-          <br />четыре стены.
-          <br />
-          <i>Мы ставим свет.</i>
+          {tenantContent.introduction.title}
         </m.h2>
         <p className={styles.overtureText}>
-          Белая циклорама становится сценой. Утренний луч — соавтором. Тишина — частью
-          кадра. Здесь изображение сначала чувствуют, и только потом снимают.
+          {tenantContent.introduction.text}
         </p>
         <div className={styles.facts}>
-          {facts.map((fact) => (
+          {tenantContent.facts.map((fact) => (
             <div key={fact.value}>
               <b>
                 {fact.value}
@@ -335,7 +309,7 @@ function StudioPage() {
       >
         <div className={styles.sceneSticky}>
           <div className={styles.sceneTop}>
-            <span>Один зал / четыре состояния</span>
+            <span>{tenantContent.lightScene.heading}</span>
             <m.span>{sceneCount}</m.span>
           </div>
           <m.div
@@ -344,67 +318,43 @@ function StudioPage() {
           >
             <m.div className={styles.sceneLayer} style={{ opacity: morningOpacity }}>
               <Image
-                src={images.morning}
-                alt="Пространство студии NOIR FRAME в меняющемся естественном свете"
+                src={tenantContent.lightScene.scenes[0].image}
+                alt={tenantContent.lightScene.imageAlt}
                 fill
                 sizes="100vw"
                 quality={88}
               />
             </m.div>
             <m.div className={styles.sceneLayer} style={{ opacity: noonOpacity }} aria-hidden="true">
-              <Image src={images.noon} alt="" fill sizes="100vw" quality={88} />
+              <Image src={tenantContent.lightScene.scenes[1].image} alt="" fill sizes="100vw" quality={88} />
             </m.div>
             <m.div className={styles.sceneLayer} style={{ opacity: duskOpacity }} aria-hidden="true">
-              <Image src={images.dusk} alt="" fill sizes="100vw" quality={88} />
+              <Image src={tenantContent.lightScene.scenes[2].image} alt="" fill sizes="100vw" quality={88} />
             </m.div>
             <m.div className={styles.sceneLayer} style={{ opacity: nightOpacity }} aria-hidden="true">
-              <Image src={images.night} alt="" fill sizes="100vw" quality={88} />
+              <Image src={tenantContent.lightScene.scenes[3].image} alt="" fill sizes="100vw" quality={88} />
             </m.div>
             <m.div className={styles.sceneShade} style={{ opacity: sceneShade }} />
             <div className={styles.sceneAperture} aria-hidden="true" />
           </m.div>
           <div className={styles.sceneWords} aria-hidden="true">
-            <m.span style={{ opacity: morningWordOpacity }}>утро</m.span>
-            <m.i style={{ opacity: noonWordOpacity }}>полдень</m.i>
-            <m.span style={{ opacity: duskWordOpacity }}>сумерки</m.span>
-            <m.i style={{ opacity: nightWordOpacity }}>ночь</m.i>
+            <m.span style={{ opacity: morningWordOpacity }}>{tenantContent.lightScene.scenes[0].word}</m.span>
+            <m.i style={{ opacity: noonWordOpacity }}>{tenantContent.lightScene.scenes[1].word}</m.i>
+            <m.span style={{ opacity: duskWordOpacity }}>{tenantContent.lightScene.scenes[2].word}</m.span>
+            <m.i style={{ opacity: nightWordOpacity }}>{tenantContent.lightScene.scenes[3].word}</m.i>
           </div>
-          <div className={styles.sceneNotes}>
-            <span>
-              08:10
-              <br />
-              <b>мягкий контур</b>
-            </span>
-            <span>
-              12:40
-              <br />
-              <b>чистая геометрия</b>
-            </span>
-            <span>
-              18:25
-              <br />
-              <b>длинная тень</b>
-            </span>
-            <span>
-              22:15
-              <br />
-              <b>кобальтовая тишина</b>
-            </span>
-          </div>
+          <div className={styles.sceneNotes}>{tenantContent.lightScene.scenes.map(scene => <span key={scene.time}>{scene.time}<br /><b>{scene.caption}</b></span>)}</div>
         </div>
       </section>
 
       <section className={styles.services} id="sessions">
         <div className={styles.servicesMasthead}>
-          <p className={styles.sectionLabel}>Форматы / 02</p>
+          <p className={styles.sectionLabel}>{tenantContent.servicesPresentation.eyebrow}</p>
           <h2>
-            Съёмочный
-            <br />
-            <i>номер.</i>
+            {tenantContent.servicesPresentation.title.split("\n")[0]}<br /><i>{tenantContent.servicesPresentation.title.split("\n").slice(1).join(" ")}</i>
           </h2>
           <span>
-            Выберите масштаб истории.
-            <br />Остальное соберём вокруг неё.
+            {tenantContent.servicesPresentation.text.split("\n").map((line, index) => <span key={line}>{index ? <br /> : null}{line}</span>)}
           </span>
         </div>
         <div className={styles.editorialSpread}>
@@ -451,7 +401,7 @@ function StudioPage() {
                   ))}
                 </div>
                 <a href="#contact" aria-label={`Запросить ${service.title}`}>
-                  Обсудить <Arrow />
+                  {tenantContent.servicesPresentation.action} <Arrow />
                 </a>
               </div>
             </m.article>
@@ -461,40 +411,37 @@ function StudioPage() {
 
       <section className={styles.portfolio} id="portfolio">
         <div className={styles.sectionIntro}>
-          <p className={styles.sectionLabel}>Избранное / 03</p>
-          <h2>Истории,<br /><i>оставшиеся в свете.</i></h2>
-          <p>Портреты, кампании и личные серии, созданные в NOIR FRAME.</p>
+          <p className={styles.sectionLabel}>{tenantContent.portfolioPresentation.eyebrow}</p>
+          <h2>{tenantContent.portfolioPresentation.title.split("\n")[0]}<br /><i>{tenantContent.portfolioPresentation.title.split("\n").slice(1).join(" ")}</i></h2>
+          <p>{tenantContent.portfolioPresentation.text}</p>
         </div>
         <div className={styles.portfolioGrid}>
           {portfolio.map((project, index) => (
-            <ParallaxProject key={project.title} project={project} index={index} onOpen={setActiveProject} />
+            <ParallaxProject key={project.title} project={project} index={index} onOpen={setActiveProject} action={tenantContent.portfolioPresentation.projectAction} />
           ))}
         </div>
-        <a className={styles.allProjects} href="#contact" data-glow data-magnetic>Всё портфолио <Arrow /></a>
+        <a className={styles.allProjects} href="#contact" data-glow data-magnetic>{tenantContent.portfolioPresentation.allProjectsAction} <Arrow /></a>
       </section>
 
-      <BeforeAfter />
-      <FilmStrip onOpen={setActiveProject} />
+      <BeforeAfter content={tenantContent.retouch} />
+      <FilmStrip onOpen={setActiveProject} portfolio={portfolio} content={tenantContent.film} />
 
       <section className={styles.team} id="team">
-        <div className={styles.teamHeader}><p className={styles.sectionLabel}>Мастера / 04</p><h2>Люди<br /><i>по ту сторону камеры.</i></h2></div>
+        <div className={styles.teamHeader}><p className={styles.sectionLabel}>{tenantContent.teamPresentation.eyebrow}</p><h2>{tenantContent.teamPresentation.title.split("\n")[0]}<br /><i>{tenantContent.teamPresentation.title.split("\n").slice(1).join(" ")}</i></h2></div>
         <div className={styles.teamFeature}>
           <div className={styles.teamFeatureImage}>
             <Image
-              src={images.teamGroup}
-              alt="Команда фотографа, арт-директора и стилиста в светлой студии"
+              src={tenantContent.teamPresentation.image}
+              alt={tenantContent.teamPresentation.imageAlt}
               fill
               sizes="(max-width: 980px) 100vw, 46vw"
               quality={88}
             />
           </div>
           <div className={styles.teamFeatureCopy}>
-            <span>Одна команда · разные взгляды</span>
-            <h3>Собираем съёмку целиком.</h3>
-            <p>
-              Фотограф, арт-директор, стилист, визажист и продюсер работают как одна
-              система, чтобы идея не потерялась между подготовкой и последним кадром.
-            </p>
+            <span>{tenantContent.teamPresentation.featureEyebrow}</span>
+            <h3>{tenantContent.teamPresentation.featureTitle}</h3>
+            <p>{tenantContent.teamPresentation.featureText}</p>
           </div>
         </div>
         <div className={styles.teamStories}>
@@ -510,23 +457,23 @@ function StudioPage() {
       </section>
 
       <section className={styles.process} id="process">
-        <div className={styles.processHeader}><p className={styles.sectionLabel}>Процесс / 05</p><h2>От идеи<br />до <i>серии.</i></h2><p>Вы всегда знаете, что происходит сейчас и какой шаг будет следующим.</p></div>
+        <div className={styles.processHeader}><p className={styles.sectionLabel}>{tenantContent.processPresentation.eyebrow}</p><h2>{tenantContent.processPresentation.title.split("\n")[0]}<br /><i>{tenantContent.processPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.processPresentation.text}</p></div>
         <ol className={styles.processLine}>
           {processSteps.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></li>)}
         </ol>
       </section>
 
       <section className={styles.equipment} id="equipment">
-        <div className={styles.equipmentVisual}><Image src={images.equipment} alt="Оснащённое пространство фотостудии NOIR FRAME" fill sizes="(max-width: 768px) 100vw, 50vw" quality={88} /></div>
-        <div className={styles.equipmentCopy}><p className={styles.sectionLabel}>Оснащение / 06</p><h2>Всё нужное.<br /><i>Ничего лишнего.</i></h2><p>Пространство готово к работе команды любого масштаба — от личного портрета до кампании.</p>
+        <div className={styles.equipmentVisual}><Image src={tenantContent.equipmentPresentation.image} alt={tenantContent.equipmentPresentation.imageAlt} fill sizes="(max-width: 768px) 100vw, 50vw" quality={88} /></div>
+        <div className={styles.equipmentCopy}><p className={styles.sectionLabel}>{tenantContent.equipmentPresentation.eyebrow}</p><h2>{tenantContent.equipmentPresentation.title.split("\n")[0]}<br /><i>{tenantContent.equipmentPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.equipmentPresentation.text}</p>
           <ul>{equipment.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ul>
         </div>
       </section>
 
-      <StudioTour />
+      <StudioTour content={tenantContent.tour} />
 
       <section className={styles.testimonials} id="reviews" aria-labelledby="reviews-title">
-        <div className={styles.reviewTop}><p className={styles.sectionLabel}>Говорят клиенты / 07</p><div className={styles.reviewControls} aria-label="Выбор отзыва">{testimonials.map((item, index) => <button key={item.author} type="button" aria-label={`Показать отзыв ${index + 1}`} aria-pressed={activeTestimonial === index} onClick={() => setActiveTestimonial(index)}>{String(index + 1).padStart(2, "0")}</button>)}</div></div>
+        <div className={styles.reviewTop}><p className={styles.sectionLabel}>{tenantContent.reviewsPresentation.eyebrow}</p><div className={styles.reviewControls} aria-label="Выбор отзыва">{testimonials.map((item, index) => <button key={item.author} type="button" aria-label={`Показать отзыв ${index + 1}`} aria-pressed={activeTestimonial === index} onClick={() => setActiveTestimonial(index)}>{String(index + 1).padStart(2, "0")}</button>)}</div></div>
         <m.blockquote key={activeTestimonial} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
           <p id="reviews-title">“{testimonials[activeTestimonial].quote}”</p>
           <footer><b>{testimonials[activeTestimonial].author}</b><span>{testimonials[activeTestimonial].meta}</span></footer>
@@ -534,24 +481,24 @@ function StudioPage() {
       </section>
 
       <section className={styles.faq} id="faq">
-        <div className={styles.faqIntro}><p className={styles.sectionLabel}>Вопросы / 08</p><h2>Перед<br /><i>съёмкой.</i></h2><p>Если ответа нет здесь, напишите нам — ответим в течение рабочего дня.</p></div>
+        <div className={styles.faqIntro}><p className={styles.sectionLabel}>{tenantContent.faqPresentation.eyebrow}</p><h2>{tenantContent.faqPresentation.title.split("\n")[0]}<br /><i>{tenantContent.faqPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.faqPresentation.text}</p></div>
         <div className={styles.faqList}>{faq.map((item, index) => <details key={item.question}><summary><span>{String(index + 1).padStart(2, "0")}</span>{item.question}<i aria-hidden="true" /></summary><p>{item.answer}</p></details>)}</div>
       </section>
 
       <section className={styles.emotional} aria-label="Приглашение к съёмке" ref={emotionalRef} data-glow>
-        <m.div className={styles.emotionalImage} style={{ y: emotionalImageY }}><Image src={images.emotional} alt="" fill sizes="100vw" quality={88} /></m.div><div className={styles.emotionalShade} />
-        <m.p style={{ y: emotionalCopyY }} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: .4 }} transition={{ duration: .9, ease: easing }}>Приходите<br />с <i>идеей.</i><span>Уходите<br />с историей.</span></m.p>
+        <m.div className={styles.emotionalImage} style={{ y: emotionalImageY }}><Image src={tenantContent.emotional.image} alt="" fill sizes="100vw" quality={88} /></m.div><div className={styles.emotionalShade} />
+        <m.p style={{ y: emotionalCopyY }} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: .4 }} transition={{ duration: .9, ease: easing }}>{tenantContent.emotional.first}<br /><i>{tenantContent.emotional.firstAccent}</i><span>{tenantContent.emotional.second}<br />{tenantContent.emotional.secondAccent}</span></m.p>
       </section>
 
       <section className={styles.booking} id="contact">
         <div className={styles.bookingImage} aria-hidden="true">
-          <Image src={images.booking} alt="" fill sizes="100vw" quality={88} />
+          <Image src={tenantContent.contact.image} alt="" fill sizes="100vw" quality={88} />
         </div>
         <div className={styles.bookingShade} aria-hidden="true" />
         <div className={styles.bookingNumber} aria-hidden="true">
-          03
+          {tenantContent.contact.folio}
         </div>
-        <p className={styles.sectionLabel}>Бронирование / финал</p>
+        <p className={styles.sectionLabel}>{tenantContent.contact.eyebrow}</p>
         <m.h2
           initial="hidden"
           whileInView="visible"
@@ -559,56 +506,52 @@ function StudioPage() {
           variants={reveal}
           transition={{ duration: 0.9, ease: easing }}
         >
-          Ваша идея.
-          <br />
-          <i>Наш свет.</i>
-          <br />Один день.
+          {tenantContent.contact.title}
         </m.h2>
         <div className={styles.bookingAside}>
           <p>
-            Опишите задачу в нескольких строках. Мы ответим с форматом, командой и
-            свободными датами.
+            {tenantContent.contact.text}
           </p>
           <div>
-            <span>Ближайшее окно</span>
-            <b>14 / 08</b>
+            <span>{tenantContent.contact.availabilityLabel}</span>
+            <b>{tenantContent.contact.availabilityValue}</b>
           </div>
-          <a href="mailto:studio@example.com?subject=NOIR%20FRAME%20session" data-glow data-magnetic>
-            Начать проект <Arrow />
+          <a href={`mailto:${tenantContent.brand.email}?subject=${encodeURIComponent(`${tenantContent.brand.first} ${tenantContent.brand.second} session`)}`} data-glow data-magnetic>
+            {tenantContent.contact.cta} <Arrow />
           </a>
-          <small>Демо-интерфейс · откроется почтовый клиент</small>
+          <small>{tenantContent.contact.helper}</small>
         </div>
         <div className={styles.bookingMarquee} aria-hidden="true">
-          <span>NOIR FRAME · NOIR FRAME · NOIR FRAME ·</span>
+          <span>{tenantContent.brand.marquee}</span>
         </div>
       </section>
 
       <footer className={styles.footer}>
-        <Link className={styles.brand} href="/demos/premium-studio">
-          <span>NOIR</span>
+        <Link className={styles.brand} href={basePath}>
+          <span>{tenantContent.brand.first}</span>
           <i />
-          <span>FRAME</span>
+          <span>{tenantContent.brand.second}</span>
         </Link>
         <p>
-          Киев · Украина
-          <br />studio@example.com
+          {tenantContent.brand.location}
+          <br />{tenantContent.brand.email}
         </p>
         <div>
-          <a href="#premium-studio-title">Наверх ↑</a>
-          <Link href="/demos">Демо OneStudio OS</Link>
+          <a href="#premium-studio-title">{tenantContent.footer.topLabel}</a>
+          <Link href="/demos">{tenantContent.footer.demosLabel}</Link>
         </div>
-        <small>© 2026 NOIR FRAME</small>
+        <small>© {tenantContent.footer.copyrightYear} {tenantContent.brand.first} {tenantContent.brand.second}</small>
       </footer>
-      <ProjectViewer active={activeProject} onClose={closeProject} onChange={changeProject} />
+      <ProjectViewer active={activeProject} onClose={closeProject} onChange={changeProject} portfolio={portfolio} />
     </main>
   );
 }
 
-export default function PremiumStudioExperience() {
+export default function PremiumStudioExperience({ site, content, basePath }: { site?: PublicSiteData; content?: PublicSiteContent; basePath?: string }) {
   return (
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
-        <StudioPage />
+        <StudioPage site={site} content={content} basePath={basePath} />
       </MotionConfig>
     </LazyMotion>
   );

@@ -530,7 +530,7 @@ ${workspace.name}`,
 
                 {canCreateSite ? (
                   <Link
-                    href="/demos"
+                    href="/new-site"
                     className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f7f5ef] px-5 text-sm font-semibold text-[#0b0d12] transition hover:bg-white"
                   >
                     + Новый сайт

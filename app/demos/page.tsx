@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import { DEMOS, PREMIUM_DEMOS, type DemoGroup } from "@/lib/demo-catalog";
+import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
 import styles from "./DemosPage.module.css";
 
 type Lang = "ru" | "en";
@@ -137,9 +138,10 @@ export default function DemosPage() {
                   <h3>{demo.name}</h3>
                   <p>{demo.description[lang]}</p>
                 </div>
-                <Link className={styles.premiumAction} href={demo.href}>
-                  {t.premiumView} <span aria-hidden="true">↗</span>
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  <Link className={styles.premiumAction} href={demo.href}>{t.premiumView} <span aria-hidden="true">↗</span></Link>
+                  <Link className={styles.premiumAction} href={newSitePathForTemplate(demo.slug)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"}</Link>
+                </div>
               </div>
             </article>
           ))}
@@ -160,7 +162,7 @@ export default function DemosPage() {
               </div>
               <div className={styles.actions}>
                 <Link href={`/demos/${demo.slug}`}>{t.view}</Link>
-                <Link href={`/configure/${demo.slug}`}>{t.configure} ↗</Link>
+                <Link href={newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard")}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"} ↗</Link>
               </div>
             </div>
           </article>

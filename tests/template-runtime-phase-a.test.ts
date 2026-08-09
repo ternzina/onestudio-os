@@ -15,24 +15,24 @@ import {
 import type { PublicSiteContent, PublicSiteEditorData } from "../lib/public-site/types.ts";
 
 describe("Phase A executable registry", () => {
-  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center"]) {
+  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]) {
     test(`${key} has complete executable runtime support`, () => {
       assert.equal(isExecutableSiteTemplate(key), true);
       assert.deepEqual(getSiteTemplateDefinition(key)?.runtime, { editorSelectable: true, previewSelectable: true, publicRenderable: true, legacy: false });
     });
   }
 
-  test("demo-only and unknown keys are not executable", () => {
+  test("NOIR is executable and unknown keys are not", () => {
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);
     assert.equal(isPublicRenderableSiteTemplate("gloss-nail-studio"), true);
     assert.equal(getSiteTemplateDefinition("gloss-nail-studio")?.runtime.legacy, false);
-    assert.equal(isExecutableSiteTemplate("premium-studio"), false);
+    assert.equal(isExecutableSiteTemplate("premium-studio"), true);
     assert.equal(isExecutableSiteTemplate("unknown"), false);
-    assert.equal(getSiteTemplateDefinition("premium-studio"), null);
+    assert.equal(getSiteTemplateDefinition("premium-studio")?.adapter, "noir");
   });
 
-  test("legacy public resolution retains its explicit Standard fallback", () => {
-    assert.equal(resolveSiteTemplateKey("legacy-unknown"), "standard");
+  test("unknown runtime adapters fail clearly in development", () => {
+    assert.throws(() => resolveSiteTemplateKey("legacy-unknown"), /No canonical template adapter/);
   });
 });
 
@@ -64,8 +64,9 @@ describe("Phase A template selection", () => {
 
   test("required namespace is initialized once and invalid selection is rejected", () => {
     const initialized = selectExecutableTemplate({ template_id: "standard", template_content: { other: 1 } } as unknown as PublicSiteContent, "premium-kids-center");
-    assert.deepEqual(initialized.template_content, { other: 1, "premium-kids-center": {} });
-    assert.throws(() => selectExecutableTemplate(current, "premium-studio"), /not executable/);
+    assert.ok((initialized.template_content?.["premium-kids-center"] as { blocks?: unknown[] }).blocks?.length);
+    assert.equal(initialized.template_content?.other, 1);
+    assert.equal(selectExecutableTemplate(current, "premium-studio").template_id, "premium-studio");
   });
 });
 
@@ -97,7 +98,7 @@ describe("Phase A locale and preview contract", () => {
   test("stored draft is canonical and a URL mismatch redirects", () => {
     assert.deepEqual(decidePreviewTemplate({ template_id: "standard" } as PublicSiteContent, "standard"), { kind: "render", templateKey: "standard" });
     assert.deepEqual(decidePreviewTemplate({ template_id: "premium-kids-center" } as PublicSiteContent, "standard"), { kind: "redirect", templateKey: "premium-kids-center" });
-    assert.deepEqual(decidePreviewTemplate({ template_id: "premium-studio" } as PublicSiteContent, "premium-studio"), { kind: "reject", reason: "non-executable-template" });
+    assert.deepEqual(decidePreviewTemplate({ template_id: "premium-studio" } as PublicSiteContent, "premium-studio"), { kind: "render", templateKey: "premium-studio" });
   });
 
   test("generated preview URL carries locale and preserves nested runtime paths", () => {

@@ -2,15 +2,9 @@
 
 import { type PointerEvent, useEffect, useRef, useState } from "react";
 import styles from "./PremiumInteractions.module.css";
+import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
 
-const zones = [
-  { id: "cyclorama", title: "Белая циклорама", text: "8 × 6 метров с мягким бесшовным переходом для fashion и предметных серий." },
-  { id: "lights", title: "Съёмочная зона", text: "Импульсный и постоянный свет, флаги и мобильные стойки уже внутри пространства." },
-  { id: "makeup", title: "Гримёрное место", text: "Два зеркала с точным светом, рейлы и отдельная зона подготовки образов." },
-  { id: "lounge", title: "Зона ожидания", text: "Спокойный lounge для клиента и команды с обзором съёмочной площадки." },
-] as const;
-
-export default function StudioTourScene() {
+export default function StudioTourScene({ zones }: { zones: PremiumStudioContent["tour"]["zones"] }) {
   const roomRef = useRef<HTMLDivElement>(null);
   const start = useRef({ x: 0, y: 0, rx: -12, ry: -18 });
   const rotation = useRef({ x: -12, y: -18 });

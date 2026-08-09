@@ -22,7 +22,7 @@ export function safeAuthReturnPath(
     const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
     const allowed =
       parsed.pathname === "/dashboard" ||
-      parsed.pathname === "/launch" ||
+      parsed.pathname === "/new-site" ||
       parsed.pathname === "/admin" ||
       parsed.pathname.startsWith("/admin/") ||
       parsed.pathname.startsWith("/site-preview/");
