@@ -1,11 +1,13 @@
 "use client";
 
 import type { PublicSiteTypography } from "@/lib/public-site/types";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 
 const selectClass = "h-9 rounded-lg border border-black/10 bg-white px-2 text-xs text-[#403d38] outline-none focus:border-[#9a742e] disabled:opacity-40";
 const buttonClass = "h-9 min-w-9 rounded-lg border border-black/10 bg-white px-2 text-xs font-semibold text-[#403d38] aria-pressed:border-[#9a742e] aria-pressed:bg-[#fff6df] disabled:opacity-40";
 
 export default function TypographyControls({ value, disabled, title = "Заголовок блока", description, onChange }: { value?: PublicSiteTypography; disabled: boolean; title?: string; description?: string; onChange: (value: PublicSiteTypography | undefined) => void }) {
+  const { t } = useAdminI18n();
   const current = value ?? {};
   const update = (patch: Partial<PublicSiteTypography>) => onChange({ ...current, ...patch });
   return (
@@ -15,7 +17,7 @@ export default function TypographyControls({ value, disabled, title = "Заго�
           <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-[#403d38]">{title}</span>
           {description ? <span className="mt-1 block truncate text-[10px] font-normal normal-case tracking-normal text-[#817c72]" title={description}>{description}</span> : null}
         </div>
-        <button type="button" disabled={disabled || !value} onClick={() => onChange(undefined)} className="text-[10px] font-semibold text-[#8a6a2a] disabled:opacity-35">Использовать стиль сайта</button>
+        <button type="button" disabled={disabled || !value} onClick={() => onChange(undefined)} className="text-[10px] font-semibold text-[#8a6a2a] disabled:opacity-35">{t("Use site typography")}</button>
       </div>
       <div className="grid grid-cols-[1fr_86px] gap-2">
         <select aria-label="Шрифт" disabled={disabled} value={current.font_family ?? "template"} onChange={(e) => update({ font_family: e.target.value as PublicSiteTypography["font_family"] })} className={selectClass}>

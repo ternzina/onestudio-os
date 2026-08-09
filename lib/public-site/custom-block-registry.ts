@@ -63,16 +63,19 @@ export const PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY = [
   { kind: "media_text", label: "Text + image or video", description: "A split section with media on the left or right.", premiumSupported: true },
   { kind: "columns", label: "Two or three columns", description: "A row of two or three editable content cards.", premiumSupported: true },
   { kind: "slider", label: "Image slider", description: "Automatic slides with an interval from two seconds.", premiumSupported: false },
-  { kind: "collage", label: "Коллаж", description: "Несколько фотографий слева, по центру или справа.", premiumSupported: false },
+  { kind: "collage", label: "Collage", description: "Several photographs arranged on the left, center or right.", premiumSupported: false },
   { kind: "video", label: "Video block", description: "YouTube, Vimeo or a direct video file.", premiumSupported: false },
 ] as const satisfies readonly PublicSiteCustomBlockDefinition[];
 
-export const PREMIUM_UNIVERSAL_BLOCK_LIBRARY: readonly PublicSiteCustomBlockLibraryItem[] = [
-  { ...PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY[0], id: "text", label: "Текстовый блок" },
-  { ...PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY[3], id: "text-image", label: "Текст + изображение", mediaPosition: "right" },
-  { ...PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY[3], id: "image-text", label: "Изображение + текст", mediaPosition: "left" },
-  { ...PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY[4], id: "columns-3", label: "Две или три колонки" },
-] as const;
+/** Premium presentation is derived from the canonical registry plus safe runtime presets. */
+export const PREMIUM_UNIVERSAL_BLOCK_LIBRARY: readonly PublicSiteCustomBlockLibraryItem[] = PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY
+  .filter((definition) => definition.premiumSupported)
+  .flatMap((definition): PublicSiteCustomBlockLibraryItem[] => definition.kind === "media_text"
+    ? [
+        { ...definition, id: "text-image", label: "Text + image", mediaPosition: "right" },
+        { ...definition, id: "image-text", label: "Image + text", mediaPosition: "left" },
+      ]
+    : [{ ...definition, id: definition.kind === "columns" ? "columns-3" : definition.kind }]);
 
 export function defaultPublicSiteColumnCards(blockId: string): PublicSiteColumnCard[] {
   return [1, 2, 3].map((number) => ({

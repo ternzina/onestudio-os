@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import {
   decodeRichText,
   encodeRichText,
@@ -168,6 +169,7 @@ export default function RichTextEditor({
   disabled: boolean;
   onChange: (value: string) => void;
 }) {
+  const { t } = useAdminI18n();
   const editorRef = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<Range | null>(null);
   const [sourceMode, setSourceMode] = useState(false);
@@ -287,7 +289,7 @@ export default function RichTextEditor({
           onClick={() => setSourceMode((current) => !current)}
           className="text-[9px] font-semibold normal-case tracking-normal text-[#8a6a2a] disabled:opacity-35"
         >
-          {sourceMode ? "Визуально" : "Обычный текст"}
+          {sourceMode ? t("Visual editor") : t("Plain text")}
         </button>
       </div>
 

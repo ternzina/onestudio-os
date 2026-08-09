@@ -2,6 +2,7 @@
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import TypographyControls from "@/components/admin/TypographyControls";
+import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards, publicSiteCustomBlockVisualCapabilities } from "@/lib/public-site/custom-block-registry";
 import type { PublicSiteColumnCard, PublicSiteCustomBlock } from "@/lib/public-site/types";
 
@@ -10,6 +11,7 @@ const inputClass = "mt-2 w-full rounded-xl border border-black/10 bg-white px-3 
 export default function PremiumUniversalBlockSettings({ block, disabled, onChange, onChooseImage }: {
   block: PublicSiteCustomBlock; disabled: boolean; onChange: (block: PublicSiteCustomBlock, historyField?: string) => void; onChooseImage: (target: { cardIndex?: number; label: string }) => void;
 }) {
+  const { t } = useAdminI18n();
   const patch = <Key extends keyof PublicSiteCustomBlock>(key: Key, value: PublicSiteCustomBlock[Key]) => onChange({ ...block, [key]: value }, String(key));
   const cards = publicSiteBlockColumnCards(block);
   const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "premium");
@@ -21,7 +23,7 @@ export default function PremiumUniversalBlockSettings({ block, disabled, onChang
 
   return <div className="grid gap-4">
     {visual.layout ? <fieldset className="grid gap-3 rounded-xl border border-black/8 bg-[#faf9f6] p-3" data-premium-visual-controls>
-      <legend className="px-1 text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">Внешний вид</legend>
+      <legend className="px-1 text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">{t("Appearance")}</legend>
       <VisualSelect label="Ширина содержимого" value={block.content_width ?? "wide"} disabled={disabled} onChange={value => patch("content_width", value as NonNullable<PublicSiteCustomBlock["content_width"]>)} options={[["full","На всю ширину"],["wide","Широкая"],["medium","Средняя"],["narrow","Узкая"]]} />
       {visual.spacing ? <div className="grid grid-cols-2 gap-2"><VisualSelect label="Отступ сверху" value={block.padding_top ?? "normal"} disabled={disabled} onChange={value => patch("padding_top", value as NonNullable<PublicSiteCustomBlock["padding_top"]>)} options={[["none","Нет"],["compact","Малый"],["normal","Обычный"],["airy","Большой"]]} /><VisualSelect label="Отступ снизу" value={block.padding_bottom ?? "normal"} disabled={disabled} onChange={value => patch("padding_bottom", value as NonNullable<PublicSiteCustomBlock["padding_bottom"]>)} options={[["none","Нет"],["compact","Малый"],["normal","Обычный"],["airy","Большой"]]} /></div> : null}
       {visual.sectionHeight ? <VisualSelect label="Минимальная высота" value={block.section_height ?? "auto"} disabled={disabled} onChange={value => patch("section_height", value as NonNullable<PublicSiteCustomBlock["section_height"]>)} options={[["auto","По содержимому"],["compact","Невысокая"],["medium","Средняя"],["tall","Высокая"],["screen","Почти экран"]]} /> : null}

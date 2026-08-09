@@ -62,22 +62,35 @@ const editable = { add: true, reorder: true, duplicate: true, delete: true, visi
 const required = { add: false, reorder: false, duplicate: false, delete: false, visibility: false, reset: true, typography: false } as const;
 
 export const PREMIUM_KIDS_BLOCK_REGISTRY: readonly PremiumKidsBlockDefinition[] = [
-  { type: "header", label: "Header / Brand", description: "Логотип, название и глобальная подпись", defaultId: "bembi-header", fieldKeys: ["brand_name", "brand_tagline"], capabilities: required },
-  { type: "hero", label: "Hero", description: "Обязательный первый экран и основные действия", defaultId: "bembi-hero", fieldKeys: ["hero_eyebrow", "hero_title", "hero_description", "primary_cta_label", "secondary_cta_label"], capabilities: { ...required, typography: true } },
-  { type: "intro", label: "Intro", description: "Позиционирование и возрастной навигатор", defaultId: "bembi-intro", fieldKeys: ["intro_eyebrow", "intro_title", "intro_description", "age_groups"], capabilities: editable },
-  { type: "approach", label: "Approach", description: "Принципы образовательного подхода", defaultId: "bembi-approach", fieldKeys: ["approach_title", "approach_items"], capabilities: editable },
-  { type: "schedule", label: "Schedule", description: "Заголовок и пояснение расписания", defaultId: "bembi-schedule", fieldKeys: ["schedule_title", "schedule_description"], capabilities: editable },
-  { type: "teachers", label: "Teachers", description: "Команда и путь первого занятия", defaultId: "bembi-teachers", fieldKeys: ["teachers_title", "teachers"], capabilities: editable },
-  { type: "gallery", label: "Gallery", description: "Галерея и подписи", defaultId: "bembi-gallery", fieldKeys: ["gallery_title", "gallery_captions"], capabilities: editable },
-  { type: "reviews", label: "Reviews", description: "Отзывы родителей", defaultId: "bembi-reviews", fieldKeys: ["reviews_title", "reviews"], capabilities: editable },
-  { type: "faq", label: "FAQ", description: "Вопросы и ответы", defaultId: "bembi-faq", fieldKeys: ["faq_title", "faq"], capabilities: editable },
-  { type: "programs", label: "Programs", description: "Программы центра и образовательная среда", defaultId: "bembi-programs", fieldKeys: ["programs_title", "programs_description"], capabilities: editable },
-  { type: "final", label: "Final CTA", description: "Финальный призыв к действию", defaultId: "bembi-final", fieldKeys: ["final_cta_eyebrow", "final_cta_title", "final_cta_label"], capabilities: editable },
-  { type: "footer", label: "Footer", description: "Описание и контакты", defaultId: "bembi-footer", fieldKeys: ["footer_description", "contact_email", "contact_phone", "contact_address"], capabilities: required },
-  { type: "text", label: "Текстовый блок", description: "Свободный заголовок и rich text в стиле BEMBI", defaultId: "bembi-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
-  { type: "media_text", label: "Текст и изображение", description: "BEMBI-композиция с изображением слева или справа", defaultId: "bembi-media-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
-  { type: "columns", label: "Две или три колонки", description: "Редактируемые карточки в визуальной системе BEMBI", defaultId: "bembi-columns", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "header", label: "Site header", description: "Logo, business name and global tagline.", defaultId: "bembi-header", fieldKeys: ["brand_name", "brand_tagline"], capabilities: required },
+  { type: "hero", label: "Hero", description: "Required opening screen and primary actions.", defaultId: "bembi-hero", fieldKeys: ["hero_eyebrow", "hero_title", "hero_description", "primary_cta_label", "secondary_cta_label"], capabilities: { ...required, typography: true } },
+  { type: "intro", label: "Introduction", description: "Positioning and age-group navigation.", defaultId: "bembi-intro", fieldKeys: ["intro_eyebrow", "intro_title", "intro_description", "age_groups"], capabilities: editable },
+  { type: "approach", label: "Approach", description: "Principles of the educational approach.", defaultId: "bembi-approach", fieldKeys: ["approach_title", "approach_items"], capabilities: editable },
+  { type: "schedule", label: "Schedule", description: "Schedule heading and supporting text.", defaultId: "bembi-schedule", fieldKeys: ["schedule_title", "schedule_description"], capabilities: editable },
+  { type: "teachers", label: "Teachers", description: "Team members and the first-visit path.", defaultId: "bembi-teachers", fieldKeys: ["teachers_title", "teachers"], capabilities: editable },
+  { type: "gallery", label: "Gallery", description: "Template-owned gallery and captions.", defaultId: "bembi-gallery", fieldKeys: ["gallery_title", "gallery_captions"], capabilities: editable },
+  { type: "reviews", label: "Reviews", description: "Parent reviews.", defaultId: "bembi-reviews", fieldKeys: ["reviews_title", "reviews"], capabilities: editable },
+  { type: "faq", label: "FAQ", description: "Frequently asked questions and answers.", defaultId: "bembi-faq", fieldKeys: ["faq_title", "faq"], capabilities: editable },
+  { type: "programs", label: "Programs", description: "Center programs and learning environment.", defaultId: "bembi-programs", fieldKeys: ["programs_title", "programs_description"], capabilities: editable },
+  { type: "final", label: "Final call to action", description: "Final invitation to take action.", defaultId: "bembi-final", fieldKeys: ["final_cta_eyebrow", "final_cta_title", "final_cta_label"], capabilities: editable },
+  { type: "footer", label: "Site footer", description: "Description and contact details.", defaultId: "bembi-footer", fieldKeys: ["footer_description", "contact_email", "contact_phone", "contact_address"], capabilities: required },
+  { type: "text", label: "Text block", description: "A free heading and rich text in the BEMBI visual system.", defaultId: "bembi-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "media_text", label: "Text + image or video", description: "A BEMBI composition with media on the left or right.", defaultId: "bembi-media-text", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "columns", label: "Two or three columns", description: "Editable cards in the BEMBI visual system.", defaultId: "bembi-columns", fieldKeys: [], capabilities: { ...editable, typography: true } },
 ] as const;
+
+export function parsePremiumDelimitedItem(value: string, delimiter = "·", fromEnd = false) {
+  const index = fromEnd ? value.lastIndexOf(delimiter) : value.indexOf(delimiter);
+  return index < 0
+    ? { primary: value.trim(), secondary: "" }
+    : { primary: value.slice(0, index).trim(), secondary: value.slice(index + delimiter.length).trim() };
+}
+
+export function serializePremiumDelimitedItem(primary: string, secondary: string, delimiter = "·") {
+  const left = primary.trim();
+  const right = secondary.trim();
+  return right ? `${left} ${delimiter} ${right}` : left;
+}
 
 export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
   hidden_sections: [], heading_typography: {}, brand_name: "BEMBI", brand_tagline: "Discovery Platform", hero_eyebrow: "Learning ecosystem · Warszawa / online", hero_title: "Место для\nбольших\nоткрытий", hero_description: "Программы, в которых детям интересно расти, исследовать и открывать новое.", primary_cta_label: "Найти занятие", secondary_cta_label: "Открыть библиотеку заданий", intro_eyebrow: "Программы по возрастам", intro_title: "Интерес растёт вместе с ребёнком", intro_description: "Выберите возраст — мы покажем направления, в которых сейчас будет особенно интересно.", programs_title: "Живые занятия — часть большой экосистемы", programs_description: "Выберите возраст и день. После занятия ребёнок может продолжить тему дома с материалами платформы.",
