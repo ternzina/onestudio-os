@@ -1744,6 +1744,7 @@ function VisualBuilder({
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
   const isNoirHome = draft.template_id === "premium-studio" && !activePage;
+  const isNoirNativeSelection = isNoirHome && !selectedCustomBlock;
   const noirContent = resolvePremiumStudioContent(draft);
 
   useEffect(() => {
@@ -1755,7 +1756,9 @@ function VisualBuilder({
     if (!canvas) return;
     const anchor = selectedCustomBlockId
       ? `custom:${selectedCustomBlockId}`
-      : selectedSection;
+      : isNoirHome
+        ? selectedNoirSection
+        : selectedSection;
     const target = canvas.querySelector<HTMLElement>(
       `[data-editor-anchor="${anchor}"]`,
     );
@@ -1769,7 +1772,13 @@ function VisualBuilder({
       (targetRect.top - canvasRect.top) -
       Math.max(24, (canvas.clientHeight - targetRect.height) / 2);
     canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  }, [activePageId, selectedCustomBlockId, selectedSection]);
+  }, [
+    activePageId,
+    isNoirHome,
+    selectedCustomBlockId,
+    selectedNoirSection,
+    selectedSection,
+  ]);
 
   function syncSelectionFromCanvasScroll() {
     if (activePageId || Date.now() < programmaticCanvasScrollUntilRef.current) return;
@@ -1808,6 +1817,24 @@ function VisualBuilder({
         }
         return;
       }
+      if (
+        isNoirHome &&
+        NOIR_EDITOR_SECTIONS.some(([id]) => id === anchor)
+      ) {
+        const nextNoirSection = anchor as NoirEditorSection;
+        if (
+          selectedCustomBlockId ||
+          nextNoirSection !== selectedNoirSection
+        ) {
+          setSelectedCustomBlockId("");
+          setSelectedNoirSection(nextNoirSection);
+          setSettingsOpen(true);
+        } else {
+          selectionFromCanvasScrollRef.current = false;
+        }
+        return;
+      }
+
       const nextSection = anchor as CanvasSection;
       if (selectedCustomBlockId || nextSection !== selectedSection) {
         setSelectedCustomBlockId("");
@@ -2241,6 +2268,35 @@ function VisualBuilder({
     updatePage("blocks", blocks);
   }
 
+  function moveNoirCustomBlock(blockId: string, direction: -1 | 1) {
+    const blocks = [...(draft.custom_blocks ?? [])];
+    const currentIndex = blocks.findIndex((block) => block.id === blockId);
+    const nextIndex = currentIndex + direction;
+    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= blocks.length) return;
+    [blocks[currentIndex], blocks[nextIndex]] = [
+      blocks[nextIndex],
+      blocks[currentIndex],
+    ];
+
+    const customLayoutIds = blocks.map((block) => customBlockLayoutId(block.id));
+    let customLayoutIndex = 0;
+    const order = layoutOrder.map((item) =>
+      item.startsWith("custom:")
+        ? customLayoutIds[customLayoutIndex++] ?? item
+        : item,
+    );
+
+    onReplaceDraft(
+      {
+        ...draft,
+        custom_blocks: blocks,
+        layout_order: order,
+        section_order: sectionsFromLayoutOrder(order),
+      },
+      "noir-custom-block-order",
+    );
+  }
+
   function duplicateCustomBlock(targetBlock = selectedCustomBlock) {
     if (!targetBlock) return;
     const duplicate = cloneCustomBlockForDuplicate(targetBlock);
@@ -2322,12 +2378,31 @@ function VisualBuilder({
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : isNoirHome
-      ? NOIR_EDITOR_SECTIONS.map(([id, label], index) => ({
-          id: `noir:${id}`, key: `noir:${id}`, label, index,
-          selected: selectedNoirSection === id, visible: true, required: true, locked: true,
-          capabilities: { select: true },
-          onSelect: () => { setSelectedNoirSection(id); setSettingsOpen(true); },
-        }))
+      ? [
+          ...NOIR_EDITOR_SECTIONS.map(([id, label], index) => ({
+            id: `noir:${id}`, key: `noir:${id}`, label, index,
+            selected: !selectedCustomBlockId && selectedNoirSection === id, visible: true, required: true, locked: true,
+            capabilities: { select: true },
+            onSelect: () => { setSelectedCustomBlockId(""); setSelectedNoirSection(id); setSettingsOpen(true); },
+          })),
+          ...(draft.custom_blocks ?? []).map((block, index, blocks) => ({
+            id: customBlockLayoutId(block.id),
+            key: customBlockLayoutId(block.id),
+            label: block.title || t("Custom block"),
+            index: NOIR_EDITOR_SECTIONS.length + index,
+            selected: selectedCustomBlockId === block.id,
+            visible: block.is_visible !== false,
+            disabled: !canConfigure || !editingEnabled,
+            canMoveUp: index > 0,
+            canMoveDown: index < blocks.length - 1,
+            capabilities: { select: true, visibility: true, duplicate: true, delete: true, move: true },
+            onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); },
+            onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible),
+            onDuplicate: () => duplicateCustomBlock(block),
+            onDelete: () => removeCustomBlock(block),
+            onMove: (direction: -1 | 1) => moveNoirCustomBlock(block.id, direction),
+          })),
+        ]
       : [
         { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
         ...layoutOrder.flatMap((item, index) => {
@@ -2346,10 +2421,10 @@ function VisualBuilder({
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
     footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
   };
-  const inspectorActions: EditorInspectorAction[] = isNoirHome ? [] : selectedCustomBlock ? [
+  const inspectorActions: EditorInspectorAction[] = isNoirNativeSelection ? [] : selectedCustomBlock ? [
     { id: "duplicate", label: t("Duplicate block"), disabled: !canConfigure || !editingEnabled, onClick: () => duplicateCustomBlock(selectedCustomBlock) },
-    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
-    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isNoirHome ? (draft.custom_blocks ?? [])[0]?.id === selectedCustomBlock.id : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isNoirHome ? moveNoirCustomBlock(selectedCustomBlock.id, -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isNoirHome ? (draft.custom_blocks ?? []).at(-1)?.id === selectedCustomBlock.id : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isNoirHome ? moveNoirCustomBlock(selectedCustomBlock.id, 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
     { id: "delete", label: t("Remove block"), tone: "danger", disabled: !canConfigure || !editingEnabled, onClick: () => removeCustomBlock(selectedCustomBlock) },
   ] : !activePage && selectedSection !== "hero" ? [
     { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || selectedIndex <= 0, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), -1) },
@@ -2375,7 +2450,7 @@ function VisualBuilder({
       onPublish={onPublish}
       libraryOpen={libraryOpen}
       onLibraryClose={() => setLibraryOpen(false)}
-      templateLibraryItems={activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
+      templateLibraryItems={isNoirHome || activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
         id: section,
         label: sectionLabelKey[section],
         description: `${sectionLabelKey[section]} block description`,
@@ -2630,9 +2705,9 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isNoirHome ? NOIR_EDITOR_SECTIONS.find(([id]) => id === selectedNoirSection)?.[1] ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isNoirNativeSelection ? NOIR_EDITOR_SECTIONS.find(([id]) => id === selectedNoirSection)?.[1] ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         onCollapse: () => setSettingsOpen(false),
-        fields: isNoirHome ? buildNoirInspectorFields(noirContent, selectedNoirSection, !canConfigure || !editingEnabled, (next, group) => onReplaceDraft(withPremiumStudioContent(draft, next), group)) : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
+        fields: isNoirNativeSelection ? buildNoirInspectorFields(noirContent, selectedNoirSection, !canConfigure || !editingEnabled, (next, group) => onReplaceDraft(withPremiumStudioContent(draft, next), group)) : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
                 {selectedPagePart === "intro" ? (
