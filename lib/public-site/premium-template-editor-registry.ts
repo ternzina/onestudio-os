@@ -1,6 +1,5 @@
 import type { PremiumTemplateEditorAdapter } from "./premium-template-editor-adapter.ts";
-import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "./noir-premium-template-editor-adapter.ts";
-import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "./gloss-premium-template-editor-adapter.ts";
+import { PREMIUM_TEMPLATE_PACKAGES, getPremiumTemplatePackage } from "./premium-template-package-catalog.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
 
 export function validatePremiumTemplateEditorAdapterRegistry(
@@ -22,18 +21,12 @@ export function validatePremiumTemplateEditorAdapterRegistry(
   return errors;
 }
 
-export const PREMIUM_TEMPLATE_EDITOR_ADAPTERS = [
-  GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER,
-  NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER,
-] as const satisfies readonly PremiumTemplateEditorAdapter[];
+/** Compatibility view derived from the package catalog. */
+export const PREMIUM_TEMPLATE_EDITOR_ADAPTERS = PREMIUM_TEMPLATE_PACKAGES.map(({ bindings }) => bindings.editor) satisfies readonly PremiumTemplateEditorAdapter[];
 
 const registryErrors = validatePremiumTemplateEditorAdapterRegistry(PREMIUM_TEMPLATE_EDITOR_ADAPTERS);
 if (registryErrors.length) throw new Error(`Invalid premium editor adapter registry: ${registryErrors.join("; ")}`);
 
-const adaptersByKey = new Map<string, PremiumTemplateEditorAdapter>(
-  PREMIUM_TEMPLATE_EDITOR_ADAPTERS.map((adapter) => [adapter.templateKey, adapter]),
-);
-
 export function getPremiumTemplateEditorAdapter(templateKey: string | null | undefined) {
-  return templateKey ? adaptersByKey.get(templateKey) : undefined;
+  return getPremiumTemplatePackage(templateKey)?.bindings.editor;
 }

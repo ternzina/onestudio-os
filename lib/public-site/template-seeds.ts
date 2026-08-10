@@ -1,6 +1,5 @@
 import { restoreOriginalPremiumKidsContent } from "./premium-kids-content.ts";
-import { createPremiumStudioSeed } from "./premium-studio-content.ts";
-import { GLOSS_TEMPLATE, applySiteTemplate } from "./templates.ts";
+import { getPremiumTemplatePackage } from "./premium-template-package-catalog.ts";
 import type { PublicSiteContent } from "./types.ts";
 
 export const BLANK_BASE_SEED: PublicSiteContent = {
@@ -16,8 +15,8 @@ function clone<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; 
 
 export function createTemplateSeed(templateKey: string): PublicSiteContent {
   if (templateKey === "standard") return clone(BLANK_BASE_SEED);
-  if (templateKey === "gloss-nail-studio") return applySiteTemplate(clone(BLANK_BASE_SEED), GLOSS_TEMPLATE);
   if (templateKey === "premium-kids-center") return { ...clone(BLANK_BASE_SEED), template_id: templateKey, brand_name: "BEMBI", template_content: { [templateKey]: restoreOriginalPremiumKidsContent() } };
-  if (templateKey === "premium-studio") return { ...clone(BLANK_BASE_SEED), template_id: templateKey, brand_name: "NOIR FRAME", template_content: { [templateKey]: createPremiumStudioSeed() } };
+  const premiumPackage = getPremiumTemplatePackage(templateKey);
+  if (premiumPackage) return { ...clone(BLANK_BASE_SEED), ...premiumPackage.bindings.createDefaultContent(), template_id: templateKey };
   throw new Error(`No seed registered for canonical template: ${templateKey}`);
 }

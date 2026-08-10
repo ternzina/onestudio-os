@@ -1,5 +1,4 @@
-import { NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER } from "./noir-premium-template-custom-page-runtime-adapter";
-import { GLOSS_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER } from "./gloss-premium-template-custom-page-runtime-adapter";
+import { PREMIUM_TEMPLATE_PACKAGES } from "./premium-template-package-catalog";
 import {
   createPremiumTemplateCustomPageRuntimeResolver,
   validatePremiumTemplateCustomPageRuntimeRegistry,
@@ -10,10 +9,8 @@ import {
   PREMIUM_TEMPLATE_DEFINITIONS,
 } from "./premium-template-registry";
 
-export const PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS = [
-  GLOSS_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER,
-  NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER,
-] as const satisfies readonly PremiumTemplateCustomPageRuntimeAdapter[];
+/** Compatibility view derived from package bindings (formerly NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER and GLOSS_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER registrations). */
+export const PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS = PREMIUM_TEMPLATE_PACKAGES.map(({ bindings }) => bindings.customPage) satisfies readonly PremiumTemplateCustomPageRuntimeAdapter[];
 
 const registryErrors = validatePremiumTemplateCustomPageRuntimeRegistry(
   PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS,

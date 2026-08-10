@@ -1,4 +1,5 @@
 import { createTemplateSeed } from "./template-seeds.ts";
+import { PREMIUM_TEMPLATE_PACKAGES } from "./premium-template-package-catalog.ts";
 
 export const TEMPLATE_KEYS = ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"] as const;
 export type TemplateKey = typeof TEMPLATE_KEYS[number];
@@ -11,12 +12,27 @@ export type TemplateCatalogRecord = {
   seed: () => ReturnType<typeof createTemplateSeed>;
 };
 
-export const TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = [
+const CORE_TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = [
   { key: "standard", aliases: ["base", "base-onestudio"], name: "Base OneStudio", category: "business", tier: "standard", gallery: { visible: false, previewRoute: null, previewImage: null, description: "Нейтральный универсальный сайт OneStudio." }, capabilities: { customerCreatable: true, createFromScratch: true, editorSelectable: true, previewRenderable: true, publicRenderable: true, customPages: true }, adapter: "base", contentNamespace: false, seed: () => createTemplateSeed("standard") },
-  { key: "gloss-nail-studio", aliases: ["gloss"], name: "GLOSS", category: "beauty", tier: "standard", gallery: { visible: true, previewRoute: "/demos/gloss-nail-studio", previewImage: "/templates/gloss/gloss-hero.webp", description: "Полный editorial-сайт nail-студии с записью, командой, клубом и портфолио." }, capabilities: { customerCreatable: true, createFromScratch: false, editorSelectable: true, previewRenderable: true, publicRenderable: true, customPages: true }, adapter: "gloss", contentNamespace: false, seed: () => createTemplateSeed("gloss-nail-studio") },
   { key: "premium-kids-center", aliases: ["bembi"], name: "BEMBI", category: "kids-education", tier: "premium", gallery: { visible: true, previewRoute: "/demos/premium-kids-center", previewImage: "/images/demos/premium-kids-center/hero-platform.webp", description: "Kids Discovery Center с программами, заданиями и материалами." }, capabilities: { customerCreatable: true, createFromScratch: false, editorSelectable: true, previewRenderable: true, publicRenderable: true, customPages: true }, adapter: "bembi", contentNamespace: true, seed: () => createTemplateSeed("premium-kids-center") },
-  { key: "premium-studio", aliases: ["noir", "noir-frame"], name: "NOIR FRAME — Premium Photo Studio", category: "studio", tier: "premium", gallery: { visible: true, previewRoute: "/demos/premium-studio", previewImage: "/images/demos/premium-studio/bright/hero.webp", description: "Премиальная фотостудия с portfolio viewer, 3D-туром и before/after." }, capabilities: { customerCreatable: true, createFromScratch: false, editorSelectable: true, previewRenderable: true, publicRenderable: true, customPages: true }, adapter: "noir", contentNamespace: true, seed: () => createTemplateSeed("premium-studio") },
 ] as const;
+
+const PACKAGE_TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = PREMIUM_TEMPLATE_PACKAGES.map(({ manifest }) => ({
+  key: manifest.templateKey as TemplateKey,
+  aliases: manifest.aliases,
+  name: manifest.name,
+  category: manifest.category,
+  tier: manifest.library.tier,
+  gallery: { visible: manifest.library.visible, previewRoute: manifest.preview.route, previewImage: manifest.preview.image, description: manifest.description },
+  capabilities: { customerCreatable: manifest.capabilities.customerCreatable, createFromScratch: false, editorSelectable: manifest.capabilities.editorSelectable, previewRenderable: manifest.capabilities.previewRenderable, publicRenderable: manifest.capabilities.publicHome, customPages: manifest.capabilities.customPages },
+  adapter: manifest.legacyAdapter,
+  contentNamespace: manifest.persistence.contentNamespace,
+  seed: () => createTemplateSeed(manifest.templateKey),
+}));
+
+const catalogOrder = new Map<string, number>([["standard", 0], ["premium-kids-center", 20], ...PREMIUM_TEMPLATE_PACKAGES.map(({ manifest }) => [manifest.templateKey, manifest.library.order] as const)]);
+export const TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = [...CORE_TEMPLATE_CATALOG, ...PACKAGE_TEMPLATE_CATALOG]
+  .sort((left, right) => (catalogOrder.get(left.key) ?? 0) - (catalogOrder.get(right.key) ?? 0));
 
 export function getTemplateCatalogRecord(value?: string | null) { return TEMPLATE_CATALOG.find(item => item.key === value || item.aliases.includes(value ?? "")) ?? null; }
 export function getCustomerTemplateChoices() { return TEMPLATE_CATALOG.filter(item => item.gallery.visible && item.capabilities.customerCreatable); }

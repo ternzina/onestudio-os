@@ -2,23 +2,16 @@ import {
   validatePremiumTemplateContractRegistry,
   type PremiumTemplateContract,
 } from "./premium-template-contract.ts";
-import { NOIR_PREMIUM_TEMPLATE_CONTRACT } from "./noir-premium-template-contract.ts";
-import { GLOSS_PREMIUM_TEMPLATE_CONTRACT } from "./gloss-premium-template-contract.ts";
+import { PREMIUM_TEMPLATE_PACKAGES, getPremiumTemplatePackage } from "./premium-template-package-catalog.ts";
 
-export const PREMIUM_TEMPLATE_DEFINITIONS = [
-  GLOSS_PREMIUM_TEMPLATE_CONTRACT,
-  NOIR_PREMIUM_TEMPLATE_CONTRACT,
-] as const satisfies readonly PremiumTemplateContract[];
+/** Compatibility view derived from the package catalog. */
+export const PREMIUM_TEMPLATE_DEFINITIONS = PREMIUM_TEMPLATE_PACKAGES.map(({ bindings }) => bindings.contract) satisfies readonly PremiumTemplateContract[];
 
 const registryErrors = validatePremiumTemplateContractRegistry(PREMIUM_TEMPLATE_DEFINITIONS);
 if (registryErrors.length) {
   throw new Error(`Invalid premium template registry: ${registryErrors.join("; ")}`);
 }
 
-const definitionsByKey = new Map<string, PremiumTemplateContract>(
-  PREMIUM_TEMPLATE_DEFINITIONS.map((definition) => [definition.templateKey, definition]),
-);
-
 export function getPremiumTemplateDefinition(templateKey: string | null | undefined) {
-  return templateKey ? definitionsByKey.get(templateKey) : undefined;
+  return getPremiumTemplatePackage(templateKey)?.bindings.contract;
 }
