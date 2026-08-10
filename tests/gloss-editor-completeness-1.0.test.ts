@@ -1,0 +1,104 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { buildGlossInspectorFields, GLOSS_EDITOR_EDITABLE_PATHS } from "../lib/public-site/gloss-editor-schema.ts";
+import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/gloss-premium-template-editor-adapter.ts";
+import { createTemplateSeed } from "../lib/public-site/template-seeds.ts";
+import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
+import type { PublicSiteContent } from "../lib/public-site/types.ts";
+
+const requiredPaths = {
+  services: ["services_label", "services_title", "services_button_label", "services_layout", "services_columns", "services_show_description", "services_show_price", "services_show_duration", "service_image_urls", "service_card_images"],
+  portfolio: ["portfolio_label", "portfolio_title", "popular_title", "work_filters", "portfolio_layout", "portfolio_columns", "portfolio_card_aspect", "portfolio_show_filters", "portfolio_lightbox", "portfolio_show_category", "portfolio_show_title", "portfolio_show_description", "portfolio_home_limit"],
+  team: ["team_label", "team_title", "team_items", "team_image_urls"],
+  booking: ["booking_label", "booking_title", "booking_text"],
+  membership: ["membership_label", "membership_title", "membership_text", "membership_items", "membership_image_url", "membership_image_urls"],
+  safety: ["safety_label", "safety_title", "safety_items"],
+  reviews: ["reviews_label", "reviews_title", "reviews_items", "reviews"],
+  gift: ["gift_label", "gift_title", "gift_text", "gift_items", "gift_image_url", "gift_image_urls"],
+  faq: ["faq_label", "faq_title", "faq_items"],
+  about: ["about_label", "about_title", "about_text", "about_facts", "about_button_label", "about_button_url", "about_image_url"],
+  contact: ["contact_label", "contact_title", "contact_address", "contact_phone", "contact_email", "contact_hours", "contact_note", "contact_route_label", "map_query", "footer_note"],
+} as const;
+
+test("GLOSS inspector covers every editable capability of the pre-Phase-5 native editor", () => {
+  for (const [section, paths] of Object.entries(requiredPaths)) {
+    const actual = new Set(GLOSS_EDITOR_EDITABLE_PATHS[section as keyof typeof GLOSS_EDITOR_EDITABLE_PATHS]);
+    for (const path of paths) assert.ok(actual.has(path), `${section} must edit ${path}`);
+    for (const suffix of ["layout", "content_width", "text_align", "padding_top", "padding_bottom", "section_height", "heading_typography", "background_mode", "background_image_url", "background_position", "background_overlay", "animation", "animate_on_mobile", "hide_on_desktop", "hide_on_tablet", "hide_on_mobile"]) {
+      assert.ok(actual.has(`system_section_settings.${section}.${suffix}`), `${section} must edit nested ${suffix}`);
+    }
+    for (const color of ["mode", "background", "text", "accent"]) assert.ok(actual.has(`section_colors.${section}.${color}`), `${section} must edit ${color} color`);
+  }
+});
+
+test("GLOSS arrays, records, nested settings and legacy card collections edit without flattening the draft format", () => {
+  let content = {
+    ...createTemplateSeed("gloss-nail-studio"),
+    legacy_compatible_extension: { retained: true },
+    system_section_settings: { membership: { layout: "default", future_setting: "keep" } },
+    service_card_images: { manicure: "/old.webp" },
+  } as PublicSiteContent & { legacy_compatible_extension: { retained: boolean } };
+  const change = (next: PublicSiteContent) => { content = next as typeof content; };
+  const edit = (section: keyof typeof GLOSS_EDITOR_EDITABLE_PATHS, path: string, value: string | boolean) => {
+    const index = GLOSS_EDITOR_EDITABLE_PATHS[section].indexOf(path);
+    assert.notEqual(index, -1, `${path} is editable`);
+    const editor = buildGlossInspectorFields(content, section, false, change)[index] as EditorInspectorPlacedField;
+    if (editor.type === "toggle") editor.onChange(Boolean(value));
+    else if (editor.type !== "notice" && editor.type !== "button" && editor.type !== "custom" && editor.type !== "typography" && editor.type !== "richText") editor.onChange(String(value));
+  };
+
+  edit("membership", "membership_items", "GOLD · 5 визитов · Привилегии · Вступить · /club");
+  edit("membership", "membership_image_urls", "/gold.webp\n/platinum.webp");
+  edit("gift", "gift_items", "GIFT · 5000 · Подарок · Купить · /gift");
+  edit("about", "about_facts", "10+ · лет опыта");
+  edit("services", "service_card_images", "manicure | /new.webp\npedicure | /pedi.webp");
+  edit("contact", "map_query", "Киев, Крещатик 1");
+  edit("contact", "contact_route_label", "Построить маршрут");
+  edit("membership", "system_section_settings.membership.layout", "panel");
+
+  assert.equal(content.membership_items, "GOLD · 5 визитов · Привилегии · Вступить · /club");
+  assert.deepEqual(content.membership_image_urls, ["/gold.webp", "/platinum.webp"]);
+  assert.equal(content.gift_items, "GIFT · 5000 · Подарок · Купить · /gift");
+  assert.equal(content.about_facts, "10+ · лет опыта");
+  assert.deepEqual(content.service_card_images, { manicure: "/new.webp", pedicure: "/pedi.webp" });
+  assert.equal(content.system_section_settings?.membership?.layout, "panel");
+  assert.equal((content.system_section_settings?.membership as Record<string, unknown>).future_setting, "keep");
+  assert.deepEqual(content.legacy_compatible_extension, { retained: true });
+});
+
+test("GLOSS inspector uses human Russian labels instead of technical object keys", () => {
+  const content = createTemplateSeed("gloss-nail-studio");
+  const fields = GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.contract.nativeSections.flatMap(({ id }) => buildGlossInspectorFields(content, id, false, () => undefined));
+  const labels = fields.flatMap(item => "label" in item && typeof item.label === "string" ? [item.label] : []);
+  assert.ok(labels.length > 80);
+  assert.ok(labels.some(label => label.includes("маршрут")));
+  assert.ok(labels.some(label => label.includes("Изображения сертификатов")));
+  for (const label of labels) {
+    assert.doesNotMatch(label, /\b(?:services|portfolio|membership|gift|about|contact|map|label|items|image|url|show)[ _-]/i, `technical label leaked: ${label}`);
+    assert.doesNotMatch(label, /^[a-z][a-z ]+$/i, `unlocalized label leaked: ${label}`);
+  }
+});
+
+test("GLOSS edit and save normalization preserve unknown compatible legacy data, custom blocks and section order", () => {
+  const seed = createTemplateSeed("gloss-nail-studio");
+  type LegacyGlossContent = PublicSiteContent & { future_gloss_option: { nested: Array<number | { keep: string }> } };
+  const legacy: LegacyGlossContent = {
+    ...seed,
+    future_gloss_option: { nested: [1, { keep: "yes" }] },
+    layout_order: ["section:services", "custom:legacy", ...seed.layout_order!.filter(token => token !== "section:services")],
+    custom_blocks: [{ id: "legacy", kind: "text", eyebrow: "", title: "Legacy", text: "Keep", items: "", button_label: "", button_url: "", tone: "light", is_visible: true }],
+  };
+  let edited = legacy;
+  const title = buildGlossInspectorFields(edited, "services", false, next => { edited = next as LegacyGlossContent; }).find(field => field.id === "gloss-services-title");
+  assert.equal(title?.type, "textarea");
+  if (title?.type === "textarea") title.onChange("Новый заголовок услуг");
+  const normalized = {
+    ...edited,
+    layout_order: GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.normalizeLayout(edited.layout_order ?? [], (edited.custom_blocks ?? []).map(block => block.id)),
+  };
+  const savedAndLoaded = JSON.parse(JSON.stringify(normalized));
+  assert.deepEqual(savedAndLoaded.future_gloss_option, legacy.future_gloss_option);
+  assert.deepEqual(savedAndLoaded.custom_blocks, legacy.custom_blocks);
+  assert.deepEqual(savedAndLoaded.layout_order, legacy.layout_order);
+  assert.equal(savedAndLoaded.services_title, "Новый заголовок услуг");
+});

@@ -1,4 +1,4 @@
-import { buildGlossInspectorFields } from "./gloss-editor-schema.ts";
+import { buildGlossInspectorFields, resetGlossInspectorSection } from "./gloss-editor-schema.ts";
 import {
   moveLegacyGlossCompositionItem,
   normalizeLegacyGlossComposition,
@@ -15,20 +15,6 @@ const visibilityKeys: Record<GlossNativeSectionId, keyof PublicSiteContent> = {
   faq: "show_faq", about: "show_about", contact: "show_contact",
 };
 
-const resetKeys: Record<GlossNativeSectionId, readonly (keyof PublicSiteContent)[]> = {
-  services: ["services_label", "services_title", "services_layout", "services_columns", "services_show_description", "services_show_price", "services_show_duration", "services_button_label", "service_image_urls", "service_card_images"],
-  portfolio: ["portfolio_label", "portfolio_title", "popular_title", "work_filters", "portfolio_layout", "portfolio_columns", "portfolio_card_aspect", "portfolio_show_filters", "portfolio_lightbox", "portfolio_show_category", "portfolio_show_title", "portfolio_show_description", "portfolio_home_limit"],
-  team: ["team_label", "team_title", "team_items", "team_image_urls"],
-  booking: ["booking_label", "booking_title", "booking_text"],
-  membership: ["membership_label", "membership_title", "membership_text", "membership_image_url", "membership_image_urls"],
-  safety: ["safety_label", "safety_title", "safety_items"],
-  reviews: ["reviews_label", "reviews_title", "reviews_items", "reviews"],
-  gift: ["gift_label", "gift_title", "gift_text", "gift_image_url", "gift_image_urls"],
-  faq: ["faq_label", "faq_title", "faq_items"],
-  about: ["about_label", "about_title", "about_text", "about_image_url"],
-  contact: ["contact_label", "contact_title", "contact_address", "contact_phone", "contact_email", "contact_hours", "contact_note", "contact_route_label", "map_query"],
-};
-
 const seed = () => applySiteTemplate({} as PublicSiteContent, GLOSS_TEMPLATE);
 
 export const GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
@@ -43,8 +29,7 @@ export const GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
   setSectionVisibility: (content, sectionId, visible) => ({ ...content, [visibilityKeys[sectionId]]: visible }),
   resetSection: (content, sectionId) => {
     const defaults = seed();
-    const next = { ...content };
-    for (const key of resetKeys[sectionId]) (next as Record<string, unknown>)[key] = defaults[key];
+    const next = resetGlossInspectorSection(content, defaults, sectionId);
     (next as Record<string, unknown>)[visibilityKeys[sectionId]] = true;
     return next;
   },
