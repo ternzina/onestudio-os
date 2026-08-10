@@ -62,14 +62,16 @@ test("tenant NOIR runtime consumes namespace values and preserves original inter
   assert.match(scene, /data-tour-interactive/);
 });
 
-test("NOIR is a shared navigator/inspector data adapter without owned editor UI", async () => {
-  const [editor, schema, runtime] = await Promise.all([
+test("NOIR is a registered shared navigator/inspector data adapter without owned editor UI", async () => {
+  const [editor, adapter, schema, runtime] = await Promise.all([
     read("../app/admin/site/page.tsx"),
+    read("../lib/public-site/noir-premium-template-editor-adapter.ts"),
     read("../lib/public-site/noir-editor-schema.ts"),
     read("../components/admin/TemplateEditorRuntime.tsx"),
   ]);
-  assert.match(editor, /NOIR_EDITOR_SECTIONS\.map/);
-  assert.match(editor, /buildNoirInspectorFields/);
+  assert.match(editor, /getPremiumTemplateEditorAdapter/);
+  assert.doesNotMatch(editor, /noir-editor-schema|noir-premium-template-contract|noir-premium-template-compat/);
+  assert.match(adapter, /buildNoirInspectorFields/);
   assert.match(runtime, /<SharedEditorNavigator model=\{spec\.navigatorModel\}/);
   assert.match(runtime, /<SharedEditorInspector model=\{spec\.inspectorModel\}/);
   assert.doesNotMatch(schema, /<aside|<nav|<dialog|modal|sidebar|toolbar/i);

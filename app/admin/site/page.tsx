@@ -62,25 +62,12 @@ import { getActiveEditorDesigns, SITE_TEMPLATE_REGISTRY } from "@/lib/public-sit
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { selectExecutableTemplate } from "@/lib/public-site/template-selection";
 import {
-  createPremiumStudioSeed,
-  PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER,
-  PREMIUM_STUDIO_TEMPLATE_KEY,
-  resolvePremiumStudioContent,
-  withPremiumStudioContent,
-} from "@/lib/public-site/premium-studio-content";
-import {
-  isTemplateNativeSectionVisible,
-  setTemplateNativeSectionVisibility,
-} from "@/lib/public-site/template-native-section-state";
-import { buildNoirInspectorFields, NOIR_EDITOR_SECTIONS, resetNoirInspectorSection, type NoirEditorSection } from "@/lib/public-site/noir-editor-schema";
-import { getNoirNativeSection } from "@/lib/public-site/noir-premium-template-contract";
-import {
-  canLegacyNoirNativeSectionReorder,
-  canMoveLegacyNoirCompositionItem,
-  isLegacyNoirNativeTokenPinned,
-  legacyNoirVisibilityAfterReset,
-  moveLegacyNoirCompositionItem,
-} from "@/lib/public-site/noir-premium-template-compat";
+  canMovePremiumEditorLayoutItem,
+  getPremiumEditorSection,
+  getPremiumEditorSectionByAnchor,
+  isPremiumEditorSectionId,
+} from "@/lib/public-site/premium-template-editor-adapter";
+import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -189,10 +176,6 @@ const inputClass =
 
 const MAX_EDITOR_HISTORY = 80;
 const HISTORY_GROUP_WINDOW_MS = 900;
-const NOIR_EDITOR_SECTION_DEFINITIONS = NOIR_EDITOR_SECTIONS.map(([id]) =>
-  getNoirNativeSection(id),
-).filter((section) => section !== undefined);
-
 function cloneEditorValue<Value>(value: Value): Value {
   return JSON.parse(JSON.stringify(value)) as Value;
 }
@@ -1745,7 +1728,7 @@ function VisualBuilder({
     "intro" | "gallery" | "blocks" | "booking"
   >("intro");
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
-  const [selectedNoirSection, setSelectedNoirSection] = useState<NoirEditorSection>("hero");
+  const [selectedPremiumNativeSection, setSelectedPremiumNativeSection] = useState("hero");
   const [editingEnabled, setEditingEnabled] = useState(true);
   const [draggedBlockId, setDraggedBlockId] = useState("");
   const [, setDragOverBlockId] = useState("");
@@ -1785,9 +1768,15 @@ function VisualBuilder({
     : (draft.custom_blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
-  const isNoirHome = draft.template_id === "premium-studio" && !activePage;
-  const isNoirNativeSelection = isNoirHome && !selectedCustomBlock;
-  const noirContent = resolvePremiumStudioContent(draft);
+  const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
+  const isPremiumNativeHome = Boolean(premiumEditorAdapter) && !activePage;
+  const isPremiumNativeSelection = isPremiumNativeHome && !selectedCustomBlock;
+
+  useEffect(() => {
+    if (premiumEditorAdapter && !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) {
+      setSelectedPremiumNativeSection(premiumEditorAdapter.initialSectionId);
+    }
+  }, [premiumEditorAdapter, selectedPremiumNativeSection]);
 
   useEffect(() => {
     if (activePageId || selectionFromCanvasScrollRef.current) {
@@ -1798,8 +1787,9 @@ function VisualBuilder({
     if (!canvas) return;
     const anchor = selectedCustomBlockId
       ? `custom:${selectedCustomBlockId}`
-      : isNoirHome
-        ? selectedNoirSection
+      : isPremiumNativeHome
+        ? getPremiumEditorSection(premiumEditorAdapter!, selectedPremiumNativeSection)?.anchor
+          ?? premiumEditorAdapter!.initialSectionId
         : selectedSection;
     const target = canvas.querySelector<HTMLElement>(
       `[data-editor-anchor="${anchor}"]`,
@@ -1816,9 +1806,9 @@ function VisualBuilder({
     canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }, [
     activePageId,
-    isNoirHome,
+    isPremiumNativeHome,
     selectedCustomBlockId,
-    selectedNoirSection,
+    selectedPremiumNativeSection,
     selectedSection,
   ]);
 
@@ -1859,17 +1849,16 @@ function VisualBuilder({
         }
         return;
       }
-      if (
-        isNoirHome &&
-        NOIR_EDITOR_SECTIONS.some(([id]) => id === anchor)
-      ) {
-        const nextNoirSection = anchor as NoirEditorSection;
+      const anchoredPremiumSection = premiumEditorAdapter && isPremiumNativeHome
+        ? getPremiumEditorSectionByAnchor(premiumEditorAdapter, anchor)
+        : undefined;
+      if (anchoredPremiumSection) {
         if (
           selectedCustomBlockId ||
-          nextNoirSection !== selectedNoirSection
+          anchoredPremiumSection.id !== selectedPremiumNativeSection
         ) {
           setSelectedCustomBlockId("");
-          setSelectedNoirSection(nextNoirSection);
+          setSelectedPremiumNativeSection(anchoredPremiumSection.id);
           setSettingsOpen(true);
         } else {
           selectionFromCanvasScrollRef.current = false;
@@ -2155,19 +2144,8 @@ function VisualBuilder({
       setSelectedPagePart("blocks");
     } else {
       const customId = customBlockLayoutId(block.id);
-      if (isNoirHome) {
-        const order = [...layoutOrder];
-        const contactIndex = order.indexOf("noir:contact");
-        order.splice(
-          contactIndex < 0 ? Math.max(1, order.length - 1) : contactIndex,
-          0,
-          customId,
-        );
-        onReplaceDraft({
-          ...draft,
-          custom_blocks: [...(draft.custom_blocks ?? []), block],
-          layout_order: order,
-        });
+      if (premiumEditorAdapter && isPremiumNativeHome) {
+        onReplaceDraft(premiumEditorAdapter.insertCustomBlock(draft, block));
       } else {
         const order = [...layoutOrder, customId];
         onReplaceDraft({
@@ -2297,8 +2275,22 @@ function VisualBuilder({
       return;
     }
     if (scope === "home") {
-      const next = reorderItems(layoutOrder, draggedBlockId, targetId);
-      if (next !== layoutOrder) commitLayoutOrder(next);
+      if (premiumEditorAdapter && isPremiumNativeHome) {
+        const fromIndex = layoutOrder.indexOf(draggedBlockId);
+        const toIndex = layoutOrder.indexOf(targetId);
+        const next = premiumEditorAdapter.moveLayoutItem({
+          tokens: layoutOrder,
+          customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
+          fromIndex,
+          toIndex,
+        });
+        if (next.some((token, index) => token !== layoutOrder[index])) {
+          onReplaceDraft({ ...draft, layout_order: next }, premiumEditorAdapter.history.layout);
+        }
+      } else {
+        const next = reorderItems(layoutOrder, draggedBlockId, targetId);
+        if (next !== layoutOrder) commitLayoutOrder(next);
+      }
     } else if (activePage) {
       const blockIds = (activePage.blocks ?? []).map((block) => block.id);
       const nextIds = reorderItems(blockIds, draggedBlockId, targetId);
@@ -2326,10 +2318,11 @@ function VisualBuilder({
     updatePage("blocks", blocks);
   }
 
-  function moveNoirLayoutItem(itemId: string, direction: -1 | 1) {
+  function movePremiumLayoutItem(itemId: string, direction: -1 | 1) {
+    if (!premiumEditorAdapter) return;
     const currentIndex = layoutOrder.indexOf(itemId);
     if (currentIndex < 0) return;
-    const order = moveLegacyNoirCompositionItem({
+    const order = premiumEditorAdapter.moveLayoutItem({
       tokens: layoutOrder,
       customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
       fromIndex: currentIndex,
@@ -2338,35 +2331,21 @@ function VisualBuilder({
     if (order.every((token, index) => token === layoutOrder[index])) return;
     onReplaceDraft(
       { ...draft, layout_order: order },
-      "noir-layout-order",
+      premiumEditorAdapter.history.layout,
     );
   }
 
-  function resetSelectedNoirSection() {
-    if (!isNoirNativeSelection) return;
+  function resetSelectedPremiumSection() {
+    if (!premiumEditorAdapter || !isPremiumNativeSelection || !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) return;
     if (!window.confirm("Вернуть этот блок к исходному содержимому NOIR?")) return;
-    const resetDraft = withPremiumStudioContent(
-      draft,
-      resetNoirInspectorSection(noirContent, selectedNoirSection),
-    );
-    const currentVisibility = isTemplateNativeSectionVisible(
-      draft,
-      PREMIUM_STUDIO_TEMPLATE_KEY,
-      selectedNoirSection,
-    );
     onReplaceDraft(
-      setTemplateNativeSectionVisibility(
-        resetDraft,
-        PREMIUM_STUDIO_TEMPLATE_KEY,
-        selectedNoirSection,
-        legacyNoirVisibilityAfterReset(selectedNoirSection, currentVisibility),
-      ),
-      `noir:${selectedNoirSection}:reset`,
+      premiumEditorAdapter.resetSection(draft, selectedPremiumNativeSection),
+      premiumEditorAdapter.history.reset(selectedPremiumNativeSection),
     );
   }
 
-  function restoreOriginalNoir() {
-    if (!isNoirHome) return;
+  function restoreOriginalPremiumTemplate() {
+    if (!premiumEditorAdapter || !isPremiumNativeHome) return;
     if (
       !window.confirm(
         "Вернуть исходный NOIR? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
@@ -2374,18 +2353,9 @@ function VisualBuilder({
     ) {
       return;
     }
-    const nextDraft = withPremiumStudioContent(
-      {
-        ...draft,
-        custom_blocks: [],
-        layout_order: [...PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER],
-      },
-      createPremiumStudioSeed(),
-    { preserveEditorState: false },
-    );
-    onReplaceDraft(nextDraft, "noir:restore-original");
+    onReplaceDraft(premiumEditorAdapter.restoreTemplate(draft), premiumEditorAdapter.history.restore);
     setSelectedCustomBlockId("");
-    setSelectedNoirSection("hero");
+    setSelectedPremiumNativeSection(premiumEditorAdapter.initialSectionId);
     setSettingsOpen(true);
   }
 
@@ -2410,7 +2380,7 @@ function VisualBuilder({
         ...draft,
         custom_blocks: blocks,
         layout_order: order,
-        section_order: isNoirHome
+        section_order: isPremiumNativeHome
           ? draft.section_order
           : sectionsFromLayoutOrder(order),
       });
@@ -2439,7 +2409,7 @@ function VisualBuilder({
           (block) => block.id !== targetBlock.id,
         ),
         layout_order: order,
-        section_order: isNoirHome
+        section_order: isPremiumNativeHome
           ? draft.section_order
           : sectionsFromLayoutOrder(order),
       });
@@ -2473,34 +2443,28 @@ function VisualBuilder({
           : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
-    : isNoirHome
+    : premiumEditorAdapter && isPremiumNativeHome
       ? layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
           const movementInput = {
             tokens: layoutOrder,
             customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
             fromIndex: index,
           };
-          const canMoveUp = canMoveLegacyNoirCompositionItem({ ...movementInput, direction: -1 });
-          const canMoveDown = canMoveLegacyNoirCompositionItem({ ...movementInput, direction: 1 });
+          const canMoveUp = canMovePremiumEditorLayoutItem(premiumEditorAdapter, { ...movementInput, direction: -1 });
+          const canMoveDown = canMovePremiumEditorLayoutItem(premiumEditorAdapter, { ...movementInput, direction: 1 });
 
-          if (item.startsWith("noir:")) {
-            const id = item.slice("noir:".length) as NoirEditorSection;
-            const definition = NOIR_EDITOR_SECTION_DEFINITIONS.find(
-              (section) => section.id === id,
-            );
+          const id = premiumEditorAdapter.nativeSectionId(item);
+          if (id) {
+            const definition = getPremiumEditorSection(premiumEditorAdapter, id);
             if (!definition) return [];
-            const pinned = isLegacyNoirNativeTokenPinned(item);
+            const pinned = definition.pinning !== undefined;
             return [{
               id: item,
               key: item,
               label: definition.label,
               index,
-              selected: !selectedCustomBlockId && selectedNoirSection === id,
-              visible: isTemplateNativeSectionVisible(
-                draft,
-                PREMIUM_STUDIO_TEMPLATE_KEY,
-                id,
-              ),
+              selected: !selectedCustomBlockId && selectedPremiumNativeSection === id,
+              visible: premiumEditorAdapter.isSectionVisible(draft, id),
               required: true,
               locked: pinned,
               disabled: !canConfigure || !editingEnabled,
@@ -2514,18 +2478,13 @@ function VisualBuilder({
               },
               onSelect: () => {
                 setSelectedCustomBlockId("");
-                setSelectedNoirSection(id);
+                setSelectedPremiumNativeSection(id);
                 setSettingsOpen(true);
               },
             onVisibilityChange: (visible: boolean) =>
               onReplaceDraft(
-                setTemplateNativeSectionVisibility(
-                  draft,
-                  PREMIUM_STUDIO_TEMPLATE_KEY,
-                  id,
-                  visible,
-                ),
-                `noir:${id}:visibility`,
+                premiumEditorAdapter.setSectionVisibility(draft, id, visible),
+                premiumEditorAdapter.history.visibility(id),
               ),
               onDragStart: pinned
                 ? undefined
@@ -2595,39 +2554,42 @@ function VisualBuilder({
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
     footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
   };
-  const selectedNoirLayoutItem = selectedCustomBlock
+  const selectedPremiumLayoutItem = selectedCustomBlock
     ? customBlockLayoutId(selectedCustomBlock.id)
-    : `noir:${selectedNoirSection}`;
-  const selectedNoirLayoutIndex = layoutOrder.indexOf(selectedNoirLayoutItem);
-  const selectedNoirMovementInput = {
+    : premiumEditorAdapter?.nativeToken(selectedPremiumNativeSection) ?? "";
+  const selectedPremiumLayoutIndex = layoutOrder.indexOf(selectedPremiumLayoutItem);
+  const selectedPremiumMovementInput = {
     tokens: layoutOrder,
     customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
-    fromIndex: selectedNoirLayoutIndex,
+    fromIndex: selectedPremiumLayoutIndex,
   };
-  const selectedNoirCanMoveUp = canMoveLegacyNoirCompositionItem({
-    ...selectedNoirMovementInput,
+  const selectedPremiumCanMoveUp = premiumEditorAdapter ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
+    ...selectedPremiumMovementInput,
     direction: -1,
-  });
-  const selectedNoirCanMoveDown = canMoveLegacyNoirCompositionItem({
-    ...selectedNoirMovementInput,
+  }) : false;
+  const selectedPremiumCanMoveDown = premiumEditorAdapter ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
+    ...selectedPremiumMovementInput,
     direction: 1,
-  });
+  }) : false;
 
-  const inspectorActions: EditorInspectorAction[] = isNoirNativeSelection
+  const selectedPremiumDefinition = premiumEditorAdapter
+    ? getPremiumEditorSection(premiumEditorAdapter, selectedPremiumNativeSection)
+    : undefined;
+  const inspectorActions: EditorInspectorAction[] = isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition
     ? [
-        ...(canLegacyNoirNativeSectionReorder(selectedNoirSection)
+        ...(selectedPremiumDefinition.capabilities.reorder
           ? [
               {
                 id: "move-up",
                 label: `↑ ${t("Up")}`,
-                disabled: !canConfigure || !editingEnabled || !selectedNoirCanMoveUp,
-                onClick: () => moveNoirLayoutItem(selectedNoirLayoutItem, -1),
+                disabled: !canConfigure || !editingEnabled || !selectedPremiumCanMoveUp,
+                onClick: () => movePremiumLayoutItem(selectedPremiumLayoutItem, -1),
               },
               {
                 id: "move-down",
                 label: `↓ ${t("Down")}`,
-                disabled: !canConfigure || !editingEnabled || !selectedNoirCanMoveDown,
-                onClick: () => moveNoirLayoutItem(selectedNoirLayoutItem, 1),
+                disabled: !canConfigure || !editingEnabled || !selectedPremiumCanMoveDown,
+                onClick: () => movePremiumLayoutItem(selectedPremiumLayoutItem, 1),
               },
             ]
           : []),
@@ -2635,13 +2597,13 @@ function VisualBuilder({
           id: "reset",
           label: "Вернуть этот блок к оригиналу",
           disabled: !canConfigure || !editingEnabled,
-          onClick: resetSelectedNoirSection,
+          onClick: resetSelectedPremiumSection,
         },
       ]
     : selectedCustomBlock ? [
     { id: "duplicate", label: t("Duplicate block"), disabled: !canConfigure || !editingEnabled, onClick: () => duplicateCustomBlock(selectedCustomBlock) },
-    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isNoirHome ? !selectedNoirCanMoveUp : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isNoirHome ? moveNoirLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
-    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isNoirHome ? !selectedNoirCanMoveDown : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isNoirHome ? moveNoirLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isPremiumNativeHome ? !selectedPremiumCanMoveUp : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isPremiumNativeHome ? movePremiumLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isPremiumNativeHome ? !selectedPremiumCanMoveDown : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isPremiumNativeHome ? movePremiumLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
     { id: "delete", label: t("Remove block"), tone: "danger", disabled: !canConfigure || !editingEnabled, onClick: () => removeCustomBlock(selectedCustomBlock) },
   ] : !activePage && selectedSection !== "hero" ? [
     { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || selectedIndex <= 0, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), -1) },
@@ -2667,7 +2629,7 @@ function VisualBuilder({
       onPublish={onPublish}
       libraryOpen={libraryOpen}
       onLibraryClose={() => setLibraryOpen(false)}
-      templateLibraryItems={isNoirHome || activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
+      templateLibraryItems={isPremiumNativeHome || activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
         id: section,
         label: sectionLabelKey[section],
         description: `${sectionLabelKey[section]} block description`,
@@ -2686,12 +2648,12 @@ function VisualBuilder({
         addPage: { id: "add-page", label: t("+ Add page"), disabled: !canConfigure, onClick: () => setPageLibraryOpen(true) },
         design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign },
         seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
-        auxiliaryAction: isNoirHome
+        auxiliaryAction: isPremiumNativeHome
           ? {
               id: "restore-noir",
               label: "Вернуть исходный NOIR",
               disabled: !canConfigure || saving || !editingEnabled,
-              onClick: restoreOriginalNoir,
+              onClick: restoreOriginalPremiumTemplate,
             }
           : {
               id: "restore",
@@ -2934,38 +2896,28 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isNoirNativeSelection ? NOIR_EDITOR_SECTIONS.find(([id]) => id === selectedNoirSection)?.[1] ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         onCollapse: () => setSettingsOpen(false),
-        fields: isNoirNativeSelection ? [
+        fields: isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition ? [
           {
             id: "native-section-visibility",
             group: "content",
             type: "toggle",
             label: t("Show block"),
-            checked: isTemplateNativeSectionVisible(
-              draft,
-              PREMIUM_STUDIO_TEMPLATE_KEY,
-              selectedNoirSection,
-            ),
+            checked: premiumEditorAdapter.isSectionVisible(draft, selectedPremiumDefinition.id),
             disabled: !canConfigure || !editingEnabled,
             onChange: (visible: boolean) =>
               onReplaceDraft(
-                setTemplateNativeSectionVisibility(
-                  draft,
-                  PREMIUM_STUDIO_TEMPLATE_KEY,
-                  selectedNoirSection,
-                  visible,
-                ),
-                `noir:${selectedNoirSection}:visibility`,
+                premiumEditorAdapter.setSectionVisibility(draft, selectedPremiumDefinition.id, visible),
+                premiumEditorAdapter.history.visibility(selectedPremiumDefinition.id),
               ),
           },
-          ...buildNoirInspectorFields(
-            noirContent,
-            selectedNoirSection,
-            !canConfigure || !editingEnabled,
-            (next, group) =>
-              onReplaceDraft(withPremiumStudioContent(draft, next), group),
-          ),
+          ...premiumEditorAdapter.buildInspectorFields({
+            content: draft,
+            sectionId: selectedPremiumDefinition.id,
+            disabled: !canConfigure || !editingEnabled,
+            onChange: onReplaceDraft,
+          }),
         ] : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
