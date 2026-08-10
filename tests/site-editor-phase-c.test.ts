@@ -42,8 +42,8 @@ describe("OneStudio editor design contract", () => {
 
 test("active GLOSS remains connected to the public renderer", async () => {
   const publicRuntime = await read("../components/public/PublicSiteTemplateRuntime.tsx");
-  assert.match(publicRuntime, /templateKey === "gloss-nail-studio"/);
-  assert.match(publicRuntime, /<GlossBusinessSite site=\{site\}/);
+  assert.match(publicRuntime, /getPremiumTemplatePublicRuntime\(templateKey\)/);
+  assert.doesNotMatch(publicRuntime, /templateKey === "gloss-nail-studio"|GlossBusinessSite/);
 });
 
 test("one canonical runtime owns product chrome and all active adapters mount it", async () => {
@@ -53,7 +53,7 @@ test("one canonical runtime owns product chrome and all active adapters mount it
   assert.match(runtime, /OneStudio Site Editor/);
   for (const owned of ["OneStudioEditorToolbar", "OneStudioEditorCommandBar", "OneStudioEditorWorkspace", "EditorNavigatorFrame", "EditorCanvasFrame", "EditorSettingsFrame", "EditorBlockLibrary"]) assert.match(runtime, new RegExp(`<${owned}`));
   assert.match(base, /<TemplateEditorRuntime/);
-  assert.match(base, /draft\.template_id === "gloss-nail-studio" \? "GLOSS"/);
+  assert.match(base, /SITE_TEMPLATE_REGISTRY\.find\(item => item\.key === draft\.template_id\)\?\.name/);
   assert.match(bembi, /<TemplateEditorRuntime/);
   assert.doesNotMatch(runtime, /LegacyRuntimeProps|"children" in spec/);
   for (const owned of ["OneStudioEditorToolbar", "OneStudioEditorCommandBar", "OneStudioEditorWorkspace", "EditorNavigatorFrame", "EditorCanvasFrame", "EditorSettingsFrame", "EditorBlockLibrary"]) assert.doesNotMatch(base, new RegExp(`<${owned}`));

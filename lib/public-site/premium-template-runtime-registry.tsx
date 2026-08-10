@@ -1,4 +1,5 @@
 import { NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER } from "./noir-premium-template-runtime-adapter";
+import { GLOSS_PREMIUM_TEMPLATE_RUNTIME_ADAPTER } from "./gloss-premium-template-runtime-adapter";
 import {
   createPremiumTemplateRuntimeResolver,
   validatePremiumTemplateRuntimeAdapterRegistry,
@@ -10,6 +11,7 @@ import {
 } from "./premium-template-registry";
 
 export const PREMIUM_TEMPLATE_RUNTIME_ADAPTERS = [
+  GLOSS_PREMIUM_TEMPLATE_RUNTIME_ADAPTER,
   NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER,
 ] as const satisfies readonly PremiumTemplateRuntimeAdapter[];
 

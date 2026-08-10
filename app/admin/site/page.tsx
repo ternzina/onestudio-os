@@ -2334,7 +2334,7 @@ function VisualBuilder({
 
   function resetSelectedPremiumSection() {
     if (!premiumEditorAdapter || !isPremiumNativeSelection || !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) return;
-    if (!window.confirm("Вернуть этот блок к исходному содержимому NOIR?")) return;
+    if (!window.confirm("Вернуть этот блок к исходному содержимому шаблона?")) return;
     onReplaceDraft(
       premiumEditorAdapter.resetSection(draft, selectedPremiumNativeSection),
       premiumEditorAdapter.history.reset(selectedPremiumNativeSection),
@@ -2345,7 +2345,7 @@ function VisualBuilder({
     if (!premiumEditorAdapter || !isPremiumNativeHome) return;
     if (
       !window.confirm(
-        "Вернуть исходный NOIR? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
+        "Вернуть исходный шаблон? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
       )
     ) {
       return;
@@ -2610,7 +2610,7 @@ function VisualBuilder({
   return (<>
     <TemplateEditorRuntime
       templateKey={draft.template_id ?? "standard"}
-      designName={draft.template_id === "gloss-nail-studio" ? "GLOSS" : SITE_TEMPLATE_REGISTRY.find(item => item.key === draft.template_id)?.name ?? t("Base OneStudio design")}
+      designName={SITE_TEMPLATE_REGISTRY.find(item => item.key === draft.template_id)?.name ?? t("Base OneStudio design")}
       draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`}
       previewHref={buildSitePreviewHref({ templateKey: draft.template_id ?? "standard", businessSlug, locale: selectedLocale })}
       device={previewDevice}
