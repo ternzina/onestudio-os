@@ -68,6 +68,7 @@ import {
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
+import { getPremiumTemplateEditorCanvasRenderer } from "@/lib/public-site/premium-template-editor-canvas-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -82,11 +83,6 @@ const PremiumTemplateEditor = dynamic(
   () => import("@/components/admin/PremiumTemplateEditor"),
   { ssr: false },
 );
-const PremiumStudioExperience = dynamic(
-  () => import("@/app/demos/premium-studio/PremiumStudioExperience"),
-  { ssr: false },
-);
-
 type Workspace = {
   business_id: string;
   slug: string;
@@ -1769,6 +1765,7 @@ function VisualBuilder({
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
   const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
+  const PremiumEditorCanvasRenderer = getPremiumTemplateEditorCanvasRenderer(draft.template_id);
   const isPremiumNativeHome = Boolean(premiumEditorAdapter) && !activePage;
   const isPremiumNativeSelection = isPremiumNativeHome && !selectedCustomBlock;
 
@@ -2668,7 +2665,7 @@ function VisualBuilder({
       canvasRef={workspaceCanvasRef}
       canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
       canvas={<>
-          {draft.template_id === "premium-studio" && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumStudioExperience content={draft} basePath="#" /></div> : <div
+          {PremiumEditorCanvasRenderer && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumEditorCanvasRenderer content={draft} basePath="#" /></div> : <div
             className={publicSiteDesignClass(
               draft,
               `mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
