@@ -61,8 +61,18 @@ import { evaluatePublicationReadiness } from "@/lib/public-site/publication-read
 import { getActiveEditorDesigns, SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { selectExecutableTemplate } from "@/lib/public-site/template-selection";
-import { resolvePremiumStudioContent, withPremiumStudioContent } from "@/lib/public-site/premium-studio-content";
-import { buildNoirInspectorFields, NOIR_EDITOR_SECTIONS, type NoirEditorSection } from "@/lib/public-site/noir-editor-schema";
+import {
+  createPremiumStudioSeed,
+  PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER,
+  PREMIUM_STUDIO_TEMPLATE_KEY,
+  resolvePremiumStudioContent,
+  withPremiumStudioContent,
+} from "@/lib/public-site/premium-studio-content";
+import {
+  isTemplateNativeSectionVisible,
+  setTemplateNativeSectionVisibility,
+} from "@/lib/public-site/template-native-section-state";
+import { buildNoirInspectorFields, NOIR_EDITOR_SECTIONS, resetNoirInspectorSection, type NoirEditorSection } from "@/lib/public-site/noir-editor-schema";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -204,6 +214,15 @@ function templateContentRoundTripMatches(
   if (!templateId || expected === undefined) return true;
   return stableJsonSignature(saved?.template_content?.[templateId] ?? null)
     === stableJsonSignature(expected);
+}
+
+function layoutOrderRoundTripMatches(
+  draft: PublicSiteContent,
+  saved: PublicSiteContent | null,
+) {
+  if (!Array.isArray(draft.layout_order)) return true;
+  return stableJsonSignature(saved?.layout_order ?? null)
+    === stableJsonSignature(draft.layout_order);
 }
 
 function cloneCustomBlockForDuplicate(
@@ -931,8 +950,14 @@ export default function AdminSitePage() {
       return false;
     }
 
-    if (!templateContentRoundTripMatches(draftToSave, savedDraftData as PublicSiteContent | null)) {
+    const savedDraftContent = savedDraftData as PublicSiteContent | null;
+    if (!templateContentRoundTripMatches(draftToSave, savedDraftContent)) {
       setError("Черновик Premium не сохранён: сервер не вернул полную композицию шаблона. Изменения оставлены в редакторе.");
+      setSaving(false);
+      return false;
+    }
+    if (!layoutOrderRoundTripMatches(draftToSave, savedDraftContent)) {
+      setError("Черновик не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.");
       setSaving(false);
       return false;
     }
@@ -956,8 +981,14 @@ export default function AdminSitePage() {
         setSaving(false);
         return false;
       }
-      if (!templateContentRoundTripMatches(draftToSave, publishedData as PublicSiteContent | null)) {
+      const publishedContent = publishedData as PublicSiteContent | null;
+      if (!templateContentRoundTripMatches(draftToSave, publishedContent)) {
         setError("Публикация Premium не подтверждена: сервер не вернул полную композицию шаблона. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
+        setSaving(false);
+        return false;
+      }
+      if (!layoutOrderRoundTripMatches(draftToSave, publishedContent)) {
+        setError("Публикация не подтверждена: сервер изменил порядок блоков. Проверьте опубликованную версию.");
         setSaving(false);
         return false;
       }
@@ -2112,13 +2143,29 @@ function VisualBuilder({
       updatePage("blocks", [...(activePage.blocks ?? []), block]);
       setSelectedPagePart("blocks");
     } else {
-      const order = [...layoutOrder, customBlockLayoutId(block.id)];
-      onReplaceDraft({
-        ...draft,
-        custom_blocks: [...(draft.custom_blocks ?? []), block],
-        layout_order: order,
-        section_order: sectionsFromLayoutOrder(order),
-      });
+      const customId = customBlockLayoutId(block.id);
+      if (isNoirHome) {
+        const order = [...layoutOrder];
+        const contactIndex = order.indexOf("noir:contact");
+        order.splice(
+          contactIndex < 0 ? Math.max(1, order.length - 1) : contactIndex,
+          0,
+          customId,
+        );
+        onReplaceDraft({
+          ...draft,
+          custom_blocks: [...(draft.custom_blocks ?? []), block],
+          layout_order: order,
+        });
+      } else {
+        const order = [...layoutOrder, customId];
+        onReplaceDraft({
+          ...draft,
+          custom_blocks: [...(draft.custom_blocks ?? []), block],
+          layout_order: order,
+          section_order: sectionsFromLayoutOrder(order),
+        });
+      }
       setSelectedPageId("home");
     }
     setSelectedCustomBlockId(block.id);
@@ -2268,33 +2315,70 @@ function VisualBuilder({
     updatePage("blocks", blocks);
   }
 
-  function moveNoirCustomBlock(blockId: string, direction: -1 | 1) {
-    const blocks = [...(draft.custom_blocks ?? [])];
-    const currentIndex = blocks.findIndex((block) => block.id === blockId);
+  function moveNoirLayoutItem(itemId: string, direction: -1 | 1) {
+    if (itemId === "noir:hero" || itemId === "noir:footer") return;
+    const order = [...layoutOrder];
+    const currentIndex = order.indexOf(itemId);
     const nextIndex = currentIndex + direction;
-    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= blocks.length) return;
-    [blocks[currentIndex], blocks[nextIndex]] = [
-      blocks[nextIndex],
-      blocks[currentIndex],
+    if (
+      currentIndex < 0 ||
+      nextIndex < 0 ||
+      nextIndex >= order.length ||
+      order[nextIndex] === "noir:hero" ||
+      order[nextIndex] === "noir:footer"
+    ) {
+      return;
+    }
+    [order[currentIndex], order[nextIndex]] = [
+      order[nextIndex],
+      order[currentIndex],
     ];
-
-    const customLayoutIds = blocks.map((block) => customBlockLayoutId(block.id));
-    let customLayoutIndex = 0;
-    const order = layoutOrder.map((item) =>
-      item.startsWith("custom:")
-        ? customLayoutIds[customLayoutIndex++] ?? item
-        : item,
-    );
-
     onReplaceDraft(
+      { ...draft, layout_order: order },
+      "noir-layout-order",
+    );
+  }
+
+  function resetSelectedNoirSection() {
+    if (!isNoirNativeSelection) return;
+    if (!window.confirm("Вернуть этот блок к исходному содержимому NOIR?")) return;
+    const resetDraft = withPremiumStudioContent(
+      draft,
+      resetNoirInspectorSection(noirContent, selectedNoirSection),
+    );
+    onReplaceDraft(
+      setTemplateNativeSectionVisibility(
+        resetDraft,
+        PREMIUM_STUDIO_TEMPLATE_KEY,
+        selectedNoirSection,
+        true,
+      ),
+      `noir:${selectedNoirSection}:reset`,
+    );
+  }
+
+  function restoreOriginalNoir() {
+    if (!isNoirHome) return;
+    if (
+      !window.confirm(
+        "Вернуть исходный NOIR? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
+      )
+    ) {
+      return;
+    }
+    const nextDraft = withPremiumStudioContent(
       {
         ...draft,
-        custom_blocks: blocks,
-        layout_order: order,
-        section_order: sectionsFromLayoutOrder(order),
+        custom_blocks: [],
+        layout_order: [...PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER],
       },
-      "noir-custom-block-order",
+      createPremiumStudioSeed(),
+    { preserveEditorState: false },
     );
+    onReplaceDraft(nextDraft, "noir:restore-original");
+    setSelectedCustomBlockId("");
+    setSelectedNoirSection("hero");
+    setSettingsOpen(true);
   }
 
   function duplicateCustomBlock(targetBlock = selectedCustomBlock) {
@@ -2318,7 +2402,9 @@ function VisualBuilder({
         ...draft,
         custom_blocks: blocks,
         layout_order: order,
-        section_order: sectionsFromLayoutOrder(order),
+        section_order: isNoirHome
+          ? draft.section_order
+          : sectionsFromLayoutOrder(order),
       });
     }
     setSelectedCustomBlockId(duplicate.id);
@@ -2345,7 +2431,9 @@ function VisualBuilder({
           (block) => block.id !== targetBlock.id,
         ),
         layout_order: order,
-        section_order: sectionsFromLayoutOrder(order),
+        section_order: isNoirHome
+          ? draft.section_order
+          : sectionsFromLayoutOrder(order),
       });
     }
     setSelectedCustomBlockId("");
@@ -2371,38 +2459,107 @@ function VisualBuilder({
 
   const navigatorSections: EditorNavigatorModel["sections"] = activePage
     ? [
-        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
+        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: isTemplateNativeSectionVisible(draft, PREMIUM_STUDIO_TEMPLATE_KEY, id), locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
         ...(activePage.type === "portfolio"
           ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
           : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : isNoirHome
-      ? [
-          ...NOIR_EDITOR_SECTIONS.map(([id, label], index) => ({
-            id: `noir:${id}`, key: `noir:${id}`, label, index,
-            selected: !selectedCustomBlockId && selectedNoirSection === id, visible: true, required: true, locked: true,
-            capabilities: { select: true },
-            onSelect: () => { setSelectedCustomBlockId(""); setSelectedNoirSection(id); setSettingsOpen(true); },
-          })),
-          ...(draft.custom_blocks ?? []).map((block, index, blocks) => ({
-            id: customBlockLayoutId(block.id),
-            key: customBlockLayoutId(block.id),
+      ? layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
+          const previous = layoutOrder[index - 1];
+          const next = layoutOrder[index + 1];
+          const canMoveUp = index > 0 && previous !== "noir:hero";
+          const canMoveDown =
+            index < layoutOrder.length - 1 && next !== "noir:footer";
+
+          if (item.startsWith("noir:")) {
+            const id = item.slice("noir:".length) as NoirEditorSection;
+            const definition = NOIR_EDITOR_SECTIONS.find(
+              ([sectionId]) => sectionId === id,
+            );
+            if (!definition) return [];
+            const pinned = id === "hero" || id === "footer";
+            return [{
+              id: item,
+              key: item,
+              label: definition[1],
+              index,
+              selected: !selectedCustomBlockId && selectedNoirSection === id,
+              visible: true,
+              required: true,
+              locked: pinned,
+              disabled: !canConfigure || !editingEnabled,
+              canMoveUp: !pinned && canMoveUp,
+              canMoveDown: !pinned && canMoveDown,
+              capabilities: pinned
+                ? { select: true }
+                : { select: true, reorder: true, reset: true },
+              onSelect: () => {
+                setSelectedCustomBlockId("");
+                setSelectedNoirSection(id);
+                setSettingsOpen(true);
+              },
+            onVisibilityChange: (visible: boolean) =>
+              onReplaceDraft(
+                setTemplateNativeSectionVisibility(
+                  draft,
+                  PREMIUM_STUDIO_TEMPLATE_KEY,
+                  id,
+                  visible,
+                ),
+                `noir:${id}:visibility`,
+              ),
+              onDragStart: pinned
+                ? undefined
+                : () => startBlockDrag(item, "home"),
+              onDragOver: pinned
+                ? undefined
+                : () => setDragOverBlockId(item),
+              onDrop: pinned
+                ? undefined
+                : () => dropBlock(item, "home"),
+              onDragEnd: pinned ? undefined : finishBlockDrag,
+            }];
+          }
+
+          if (!item.startsWith("custom:")) return [];
+          const blockId = item.slice("custom:".length);
+          const block = (draft.custom_blocks ?? []).find(
+            (candidate) => candidate.id === blockId,
+          );
+          if (!block) return [];
+          return [{
+            id: item,
+            key: item,
             label: block.title || t("Custom block"),
-            index: NOIR_EDITOR_SECTIONS.length + index,
+            index,
             selected: selectedCustomBlockId === block.id,
             visible: block.is_visible !== false,
             disabled: !canConfigure || !editingEnabled,
-            canMoveUp: index > 0,
-            canMoveDown: index < blocks.length - 1,
-            capabilities: { select: true, visibility: true, duplicate: true, delete: true, move: true },
-            onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); },
-            onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible),
+            canMoveUp,
+            canMoveDown,
+            capabilities: {
+              select: true,
+              visibility: true,
+              duplicate: true,
+              delete: true,
+              reorder: true,
+            },
+            onSelect: () => {
+              setSelectedCustomBlockId(block.id);
+              setSettingsOpen(true);
+            },
+            onVisibilityChange: (visible: boolean) =>
+              updateCustomBlockById(block.id, "is_visible", visible),
             onDuplicate: () => duplicateCustomBlock(block),
             onDelete: () => removeCustomBlock(block),
-            onMove: (direction: -1 | 1) => moveNoirCustomBlock(block.id, direction),
-          })),
-        ]
+            onDragStart: () => startBlockDrag(item, "home"),
+            onDragOver: () => setDragOverBlockId(item),
+            onDrop: () => dropBlock(item, "home"),
+            onDragEnd: finishBlockDrag,
+          }];
+        })
       : [
         { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
         ...layoutOrder.flatMap((item, index) => {
@@ -2421,10 +2578,47 @@ function VisualBuilder({
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
     footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
   };
-  const inspectorActions: EditorInspectorAction[] = isNoirNativeSelection ? [] : selectedCustomBlock ? [
+  const selectedNoirLayoutItem = selectedCustomBlock
+    ? customBlockLayoutId(selectedCustomBlock.id)
+    : `noir:${selectedNoirSection}`;
+  const selectedNoirLayoutIndex = layoutOrder.indexOf(selectedNoirLayoutItem);
+  const selectedNoirCanMoveUp =
+    selectedNoirLayoutIndex > 0 &&
+    layoutOrder[selectedNoirLayoutIndex - 1] !== "noir:hero";
+  const selectedNoirCanMoveDown =
+    selectedNoirLayoutIndex >= 0 &&
+    selectedNoirLayoutIndex < layoutOrder.length - 1 &&
+    layoutOrder[selectedNoirLayoutIndex + 1] !== "noir:footer";
+
+  const inspectorActions: EditorInspectorAction[] = isNoirNativeSelection
+    ? [
+        ...(selectedNoirSection !== "hero" && selectedNoirSection !== "footer"
+          ? [
+              {
+                id: "move-up",
+                label: `↑ ${t("Up")}`,
+                disabled: !canConfigure || !editingEnabled || !selectedNoirCanMoveUp,
+                onClick: () => moveNoirLayoutItem(selectedNoirLayoutItem, -1),
+              },
+              {
+                id: "move-down",
+                label: `↓ ${t("Down")}`,
+                disabled: !canConfigure || !editingEnabled || !selectedNoirCanMoveDown,
+                onClick: () => moveNoirLayoutItem(selectedNoirLayoutItem, 1),
+              },
+            ]
+          : []),
+        {
+          id: "reset",
+          label: "Вернуть этот блок к оригиналу",
+          disabled: !canConfigure || !editingEnabled,
+          onClick: resetSelectedNoirSection,
+        },
+      ]
+    : selectedCustomBlock ? [
     { id: "duplicate", label: t("Duplicate block"), disabled: !canConfigure || !editingEnabled, onClick: () => duplicateCustomBlock(selectedCustomBlock) },
-    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isNoirHome ? (draft.custom_blocks ?? [])[0]?.id === selectedCustomBlock.id : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isNoirHome ? moveNoirCustomBlock(selectedCustomBlock.id, -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
-    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isNoirHome ? (draft.custom_blocks ?? []).at(-1)?.id === selectedCustomBlock.id : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isNoirHome ? moveNoirCustomBlock(selectedCustomBlock.id, 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isNoirHome ? !selectedNoirCanMoveUp : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isNoirHome ? moveNoirLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isNoirHome ? !selectedNoirCanMoveDown : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isNoirHome ? moveNoirLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
     { id: "delete", label: t("Remove block"), tone: "danger", disabled: !canConfigure || !editingEnabled, onClick: () => removeCustomBlock(selectedCustomBlock) },
   ] : !activePage && selectedSection !== "hero" ? [
     { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || selectedIndex <= 0, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), -1) },
@@ -2469,7 +2663,19 @@ function VisualBuilder({
         addPage: { id: "add-page", label: t("+ Add page"), disabled: !canConfigure, onClick: () => setPageLibraryOpen(true) },
         design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign },
         seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
-        auxiliaryAction: { id: "restore", label: "Вернуть начальное демо", disabled: !canConfigure || saving || !activeTemplate, onClick: () => { if (activeTemplate) void onTemplate(activeTemplate); } },
+        auxiliaryAction: isNoirHome
+          ? {
+              id: "restore-noir",
+              label: "Вернуть исходный NOIR",
+              disabled: !canConfigure || saving || !editingEnabled,
+              onClick: restoreOriginalNoir,
+            }
+          : {
+              id: "restore",
+              label: "Вернуть начальное демо",
+              disabled: !canConfigure || saving || !activeTemplate,
+              onClick: () => { if (activeTemplate) void onTemplate(activeTemplate); },
+            },
         contextualAction: { id: "duplicate", label: `⧉ ${t("Duplicate block")}`, disabled: !canConfigure || !editingEnabled || !selectedCustomBlock, onClick: () => { if (selectedCustomBlock) duplicateCustomBlock(); } },
       }}
       navigatorModel={navigatorModel}
@@ -2707,7 +2913,37 @@ function VisualBuilder({
         heading: t("Block settings"),
         title: activePage ? activePage.nav_label : isNoirNativeSelection ? NOIR_EDITOR_SECTIONS.find(([id]) => id === selectedNoirSection)?.[1] ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         onCollapse: () => setSettingsOpen(false),
-        fields: isNoirNativeSelection ? buildNoirInspectorFields(noirContent, selectedNoirSection, !canConfigure || !editingEnabled, (next, group) => onReplaceDraft(withPremiumStudioContent(draft, next), group)) : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
+        fields: isNoirNativeSelection ? [
+          {
+            id: "native-section-visibility",
+            group: "content",
+            type: "toggle",
+            label: t("Show block"),
+            checked: isTemplateNativeSectionVisible(
+              draft,
+              PREMIUM_STUDIO_TEMPLATE_KEY,
+              selectedNoirSection,
+            ),
+            disabled: !canConfigure || !editingEnabled,
+            onChange: (visible: boolean) =>
+              onReplaceDraft(
+                setTemplateNativeSectionVisibility(
+                  draft,
+                  PREMIUM_STUDIO_TEMPLATE_KEY,
+                  selectedNoirSection,
+                  visible,
+                ),
+                `noir:${selectedNoirSection}:visibility`,
+              ),
+          },
+          ...buildNoirInspectorFields(
+            noirContent,
+            selectedNoirSection,
+            !canConfigure || !editingEnabled,
+            (next, group) =>
+              onReplaceDraft(withPremiumStudioContent(draft, next), group),
+          ),
+        ] : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
                 {selectedPagePart === "intro" ? (

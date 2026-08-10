@@ -14,8 +14,10 @@ import {
 import { BeforeAfter, FilmStrip, ProjectViewer, usePointerGlow } from "./PremiumInteractions";
 import StudioTour from "./StudioTour";
 import styles from "./PremiumStudio.module.css";
-import { resolvePremiumStudioContent } from "@/lib/public-site/premium-studio-content";
+import { PREMIUM_STUDIO_TEMPLATE_KEY, resolvePremiumStudioContent } from "@/lib/public-site/premium-studio-content";
+import { resolvePublicSiteLayoutOrder } from "@/lib/public-site/layout";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import { isTemplateNativeSectionVisible } from "@/lib/public-site/template-native-section-state";
 import type { PublicSiteContent, PublicSiteData } from "@/lib/public-site/types";
 
 const easing = [0.16, 1, 0.3, 1] as const;
@@ -70,7 +72,36 @@ function ParallaxProject({ project, index, onOpen, action }: { project: ReturnTy
 function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { site?: PublicSiteData; content?: PublicSiteContent; basePath?: string }) {
   const activeContent = site?.content ?? content;
   const tenantContent = resolvePremiumStudioContent(activeContent);
+  const noirVisible = (sectionId: string) =>
+    isTemplateNativeSectionVisible(
+      activeContent,
+      PREMIUM_STUDIO_TEMPLATE_KEY,
+      sectionId,
+    );
+  const noirLayoutOrder = resolvePublicSiteLayoutOrder(
+    activeContent ?? {
+      template_id: "premium-studio",
+      section_order: [],
+      layout_order: [],
+      custom_blocks: [],
+    },
+  );
+  const noirOrder = (item: string) => {
+    const index = noirLayoutOrder.indexOf(item);
+    return index < 0 ? noirLayoutOrder.length * 10 : index * 10;
+  };
   const { navigation, services, portfolio, team, process: processSteps, equipment, testimonials, faq } = tenantContent;
+  const visibleNavigation = navigation.filter((item) => {
+    const nativeSectionByHref: Record<string, string> = {
+      "#space": "manifest",
+      "#sessions": "services",
+      "#portfolio": "portfolio",
+      "#team": "team",
+      "#contact": "contact",
+    };
+    const sectionId = nativeSectionByHref[item.href];
+    return !sectionId || noirVisible(sectionId);
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const isMobileNavigation = useSyncExternalStore(
     subscribeToMobileNavigation,
@@ -154,10 +185,10 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
   }, [isMobileNavigation, menuOpen]);
 
   return (
-    <main className={styles.page} ref={pageRef}>
+    <main className={styles.page} ref={pageRef} style={{ display: "flex", flexDirection: "column" }}>
       <m.div className={styles.progress} style={{ width: progress }} aria-hidden="true" />
 
-      <section className={styles.hero} aria-labelledby="premium-studio-title" data-editor-anchor="hero" data-glow>
+      <section className={styles.hero} aria-labelledby="premium-studio-title" data-editor-anchor="hero" data-glow style={{ order: noirOrder("noir:hero"), display: noirVisible("hero") ? undefined : "none" }}>
         <m.div className={styles.heroImageWrap} style={{ y: heroImageY }} aria-hidden="true">
           <Image
             src={tenantContent.hero.image}
@@ -193,7 +224,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
             aria-hidden={mobileMenuClosed ? true : undefined}
             inert={mobileMenuClosed}
           >
-            {navigation.map((item) => (
+            {visibleNavigation.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
                 {item.label}
               </a>
@@ -275,7 +306,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
       </section>
 
-      <section className={styles.overture} id="space" data-editor-anchor="manifest">
+      <section className={styles.overture} id="space" data-editor-anchor="manifest" style={{ order: noirOrder("noir:manifest"), display: noirVisible("manifest") ? undefined : "none" }}>
         <p className={styles.sectionLabel}>{tenantContent.introduction.eyebrow}</p>
         <m.h2
           initial="hidden"
@@ -308,6 +339,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         ref={sceneRef}
         aria-label="Световая история студии"
         data-editor-anchor="light"
+        style={{ order: noirOrder("noir:light"), display: noirVisible("light") ? undefined : "none" }}
       >
         <div className={styles.sceneSticky}>
           <div className={styles.sceneTop}>
@@ -349,7 +381,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
       </section>
 
-      <section className={styles.services} id="sessions" data-editor-anchor="services">
+      <section className={styles.services} id="sessions" data-editor-anchor="services" style={{ order: noirOrder("noir:services"), display: noirVisible("services") ? undefined : "none" }}>
         <div className={styles.servicesMasthead}>
           <p className={styles.sectionLabel}>{tenantContent.servicesPresentation.eyebrow}</p>
           <h2>
@@ -411,7 +443,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
       </section>
 
-      <section className={styles.portfolio} id="portfolio" data-editor-anchor="portfolio">
+      <section className={styles.portfolio} id="portfolio" data-editor-anchor="portfolio" style={{ order: noirOrder("noir:portfolio"), display: noirVisible("portfolio") ? undefined : "none" }}>
         <div className={styles.sectionIntro}>
           <p className={styles.sectionLabel}>{tenantContent.portfolioPresentation.eyebrow}</p>
           <h2>{tenantContent.portfolioPresentation.title.split("\n")[0]}<br /><i>{tenantContent.portfolioPresentation.title.split("\n").slice(1).join(" ")}</i></h2>
@@ -425,12 +457,14 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         <a className={styles.allProjects} href="#contact" data-glow data-magnetic>{tenantContent.portfolioPresentation.allProjectsAction} <Arrow /></a>
       </section>
 
-      <div data-editor-anchor="retouch" aria-hidden="true" style={{ height: 0 }} />
-      <BeforeAfter content={tenantContent.retouch} />
-      <div data-editor-anchor="film" aria-hidden="true" style={{ height: 0 }} />
-      <FilmStrip onOpen={setActiveProject} portfolio={portfolio} content={tenantContent.film} />
+      <div data-editor-anchor="retouch" style={{ order: noirOrder("noir:retouch"), display: noirVisible("retouch") ? undefined : "none", width: "100%" }}>
+        <BeforeAfter content={tenantContent.retouch} />
+      </div>
+      <div data-editor-anchor="film" style={{ order: noirOrder("noir:film"), display: noirVisible("film") ? undefined : "none", width: "100%" }}>
+        <FilmStrip onOpen={setActiveProject} portfolio={portfolio} content={tenantContent.film} />
+      </div>
 
-      <section className={styles.team} id="team" data-editor-anchor="team">
+      <section className={styles.team} id="team" data-editor-anchor="team" style={{ order: noirOrder("noir:team"), display: noirVisible("team") ? undefined : "none" }}>
         <div className={styles.teamHeader}><p className={styles.sectionLabel}>{tenantContent.teamPresentation.eyebrow}</p><h2>{tenantContent.teamPresentation.title.split("\n")[0]}<br /><i>{tenantContent.teamPresentation.title.split("\n").slice(1).join(" ")}</i></h2></div>
         <div className={styles.teamFeature}>
           <div className={styles.teamFeatureImage}>
@@ -460,24 +494,25 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
       </section>
 
-      <section className={styles.process} id="process" data-editor-anchor="process">
+      <section className={styles.process} id="process" data-editor-anchor="process" style={{ order: noirOrder("noir:process"), display: noirVisible("process") ? undefined : "none" }}>
         <div className={styles.processHeader}><p className={styles.sectionLabel}>{tenantContent.processPresentation.eyebrow}</p><h2>{tenantContent.processPresentation.title.split("\n")[0]}<br /><i>{tenantContent.processPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.processPresentation.text}</p></div>
         <ol className={styles.processLine}>
           {processSteps.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></li>)}
         </ol>
       </section>
 
-      <section className={styles.equipment} id="equipment" data-editor-anchor="equipment">
+      <section className={styles.equipment} id="equipment" data-editor-anchor="equipment" style={{ order: noirOrder("noir:equipment"), display: noirVisible("equipment") ? undefined : "none" }}>
         <div className={styles.equipmentVisual}><Image src={tenantContent.equipmentPresentation.image} alt={tenantContent.equipmentPresentation.imageAlt} fill sizes="(max-width: 768px) 100vw, 50vw" quality={88} /></div>
         <div className={styles.equipmentCopy}><p className={styles.sectionLabel}>{tenantContent.equipmentPresentation.eyebrow}</p><h2>{tenantContent.equipmentPresentation.title.split("\n")[0]}<br /><i>{tenantContent.equipmentPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.equipmentPresentation.text}</p>
           <ul>{equipment.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ul>
         </div>
       </section>
 
-      <div data-editor-anchor="tour" aria-hidden="true" style={{ height: 0 }} />
-      <StudioTour content={tenantContent.tour} />
+      <div data-editor-anchor="tour" style={{ order: noirOrder("noir:tour"), display: noirVisible("tour") ? undefined : "none", width: "100%" }}>
+        <StudioTour content={tenantContent.tour} />
+      </div>
 
-      <section className={styles.testimonials} id="reviews" aria-labelledby="reviews-title" data-editor-anchor="reviews">
+      <section className={styles.testimonials} id="reviews" aria-labelledby="reviews-title" data-editor-anchor="reviews" style={{ order: noirOrder("noir:reviews"), display: noirVisible("reviews") ? undefined : "none" }}>
         <div className={styles.reviewTop}><p className={styles.sectionLabel}>{tenantContent.reviewsPresentation.eyebrow}</p><div className={styles.reviewControls} aria-label="Выбор отзыва">{testimonials.map((item, index) => <button key={item.author} type="button" aria-label={`Показать отзыв ${index + 1}`} aria-pressed={activeTestimonial === index} onClick={() => setActiveTestimonial(index)}>{String(index + 1).padStart(2, "0")}</button>)}</div></div>
         <m.blockquote key={activeTestimonial} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
           <p id="reviews-title">“{testimonials[activeTestimonial].quote}”</p>
@@ -485,7 +520,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </m.blockquote>
       </section>
 
-      <section className={styles.faq} id="faq" data-editor-anchor="faq">
+      <section className={styles.faq} id="faq" data-editor-anchor="faq" style={{ order: noirOrder("noir:faq"), display: noirVisible("faq") ? undefined : "none" }}>
         <div className={styles.faqIntro}><p className={styles.sectionLabel}>{tenantContent.faqPresentation.eyebrow}</p><h2>{tenantContent.faqPresentation.title.split("\n")[0]}<br /><i>{tenantContent.faqPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.faqPresentation.text}</p></div>
         <div className={styles.faqList}>{faq.map((item, index) => <details key={item.question}><summary><span>{String(index + 1).padStart(2, "0")}</span>{item.question}<i aria-hidden="true" /></summary><p>{item.answer}</p></details>)}</div>
       </section>
@@ -494,13 +529,18 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         <div
           data-noir-custom-blocks
           style={{
+            display: "contents",
             "--site-accent": activeContent.theme_accent ?? "#9a742e",
             "--site-dark": activeContent.theme_dark ?? "#17191f",
             "--site-surface": activeContent.theme_surface ?? "#f3f0e9",
           } as React.CSSProperties}
         >
           {activeContent.custom_blocks.map((block) => (
-            <div key={block.id} data-editor-anchor={`custom:${block.id}`}>
+            <div
+              key={block.id}
+              data-editor-anchor={`custom:${block.id}`}
+              style={{ order: noirOrder(`custom:${block.id}`), width: "100%" }}
+            >
               <PublicCustomBlock
                 block={block}
                 bookingHref={site ? `/book/${site.business.slug}` : "#contact"}
@@ -511,12 +551,13 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
       ) : null}
 
+      <div data-editor-anchor="contact" style={{ order: noirOrder("noir:contact"), display: noirVisible("contact") ? undefined : "none", width: "100%" }}>
       <section className={styles.emotional} aria-label="Приглашение к съёмке" ref={emotionalRef} data-glow>
         <m.div className={styles.emotionalImage} style={{ y: emotionalImageY }}><Image src={tenantContent.emotional.image} alt="" fill sizes="100vw" quality={88} /></m.div><div className={styles.emotionalShade} />
         <m.p style={{ y: emotionalCopyY }} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: .4 }} transition={{ duration: .9, ease: easing }}>{tenantContent.emotional.first}<br /><i>{tenantContent.emotional.firstAccent}</i><span>{tenantContent.emotional.second}<br />{tenantContent.emotional.secondAccent}</span></m.p>
       </section>
 
-      <section className={styles.booking} id="contact" data-editor-anchor="contact">
+      <section className={styles.booking} id="contact">
         <div className={styles.bookingImage} aria-hidden="true">
           <Image src={tenantContent.contact.image} alt="" fill sizes="100vw" quality={88} />
         </div>
@@ -551,8 +592,9 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
           <span>{tenantContent.brand.marquee}</span>
         </div>
       </section>
+      </div>
 
-      <footer className={styles.footer} data-editor-anchor="footer">
+      <footer className={styles.footer} data-editor-anchor="footer" style={{ order: noirOrder("noir:footer"), display: noirVisible("footer") ? undefined : "none" }}>
         <Link className={styles.brand} href={basePath}>
           <span>{tenantContent.brand.first}</span>
           <i />
