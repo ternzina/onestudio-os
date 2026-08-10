@@ -10,28 +10,13 @@ import {
   testimonials,
 } from "../../app/demos/premium-studio/content.ts";
 import type { PublicSiteContent } from "./types.ts";
-import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state";
+import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state.ts";
+import { LEGACY_NOIR_NATIVE_LAYOUT_ORDER } from "./noir-premium-template-compat.ts";
 
 export const PREMIUM_STUDIO_TEMPLATE_KEY = "premium-studio" as const;
 export const PREMIUM_STUDIO_CONTENT_VERSION = 1 as const;
 
-export const PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER = [
-  "noir:hero",
-  "noir:manifest",
-  "noir:light",
-  "noir:services",
-  "noir:portfolio",
-  "noir:retouch",
-  "noir:film",
-  "noir:team",
-  "noir:process",
-  "noir:equipment",
-  "noir:tour",
-  "noir:reviews",
-  "noir:faq",
-  "noir:contact",
-  "noir:footer",
-] as const;
+export const PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER = LEGACY_NOIR_NATIVE_LAYOUT_ORDER;
 
 const brightBase = "/images/demos/premium-studio/bright";
 

@@ -1,15 +1,12 @@
-import type { EditorInspectorPlacedField } from "./editor-spec";
-import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content";
+import type { EditorInspectorPlacedField } from "./editor-spec.ts";
+import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content.ts";
+import { NOIR_PREMIUM_TEMPLATE_CONTRACT, type NoirNativeSectionId } from "./noir-premium-template-contract.ts";
 
-export const NOIR_EDITOR_SECTIONS = [
-  ["hero", "Обложка"], ["manifest", "Манифест"], ["light", "Световая история"],
-  ["services", "Форматы съёмки"], ["portfolio", "Портфолио"], ["retouch", "Ретушь до / после"],
-  ["film", "Контактная печать"], ["team", "Команда"], ["process", "Процесс"],
-  ["equipment", "Оснащение"], ["tour", "Интерактивный тур"], ["reviews", "Отзывы"],
-  ["faq", "Вопросы"], ["contact", "Контакт и бронирование"], ["footer", "Подвал"],
-] as const;
+export const NOIR_EDITOR_SECTIONS = NOIR_PREMIUM_TEMPLATE_CONTRACT.nativeSections.map(
+  ({ id, label }) => [id, label] as const,
+);
 
-export type NoirEditorSection = (typeof NOIR_EDITOR_SECTIONS)[number][0];
+export type NoirEditorSection = NoirNativeSectionId;
 
 type Group = EditorInspectorPlacedField["group"];
 type FieldKind = "text" | "textarea" | "url";
