@@ -31,6 +31,14 @@ export function glossIndexedMediaTarget(key: "team_image_urls" | "membership_ima
   return { kind: "list" as const, key, index, label };
 }
 
+export function glossHeroImageMediaTarget() {
+  return { kind: "content" as const, key: "hero_image_url" as const, label: "Изображение обложки" };
+}
+
+export function glossSectionBackgroundMediaTarget(section: string) {
+  return { kind: "section-background" as const, section, label: "Фоновое изображение раздела" };
+}
+
 export function setGlossServiceCardImage<T extends { service_card_images?: Record<string, string> }>(content: T, slug: string, url: string): T {
   return { ...content, service_card_images: { ...(content.service_card_images ?? {}), [slug]: url } };
 }

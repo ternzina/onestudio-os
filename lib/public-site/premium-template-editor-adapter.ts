@@ -6,7 +6,7 @@ import type {
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteProject, PublicSiteService } from "./types.ts";
 
 export type PremiumTemplateEditorMediaTarget =
-  | { kind: "content"; key: "about_image_url" | "membership_image_url" | "gift_image_url"; label: string }
+  | { kind: "content"; key: "hero_image_url" | "about_image_url" | "membership_image_url" | "gift_image_url"; label: string }
   | { kind: "list"; key: "service_image_urls" | "team_image_urls" | "membership_image_urls" | "gift_image_urls"; index: number; label: string }
   | { kind: "service-card"; slug: string; label: string }
   | { kind: "section-background"; section: string; label: string };
@@ -18,7 +18,10 @@ export type PremiumEditorSectionMetadata = PremiumTemplateNativeSection & {
 
 export type PremiumTemplateEditorAdapter<SectionId extends string = string> = {
   templateKey: string;
-  contract: PremiumTemplateContract<string, SectionId>;
+  contract: PremiumTemplateContract;
+  /** Selectable editor sections intentionally absent from persisted layout composition. */
+  fixedEditorSections?: readonly PremiumTemplateNativeSection<SectionId>[];
+  restoreLabel?: string;
   initialSectionId: SectionId;
   nativeToken(sectionId: SectionId): string;
   nativeSectionId(token: string): SectionId | null;
@@ -55,7 +58,10 @@ export function getPremiumEditorSection<SectionId extends string>(
   adapter: PremiumTemplateEditorAdapter<SectionId>,
   sectionId: string,
 ): PremiumTemplateNativeSection<SectionId> | undefined {
-  return adapter.contract.nativeSections.find((section) => section.id === sectionId);
+  return [
+    ...(adapter.fixedEditorSections ?? []),
+    ...adapter.contract.nativeSections,
+  ].find((section) => section.id === sectionId) as PremiumTemplateNativeSection<SectionId> | undefined;
 }
 
 export function isPremiumEditorSectionId<SectionId extends string>(
@@ -69,7 +75,10 @@ export function getPremiumEditorSectionByAnchor<SectionId extends string>(
   adapter: PremiumTemplateEditorAdapter<SectionId>,
   anchor: string,
 ): PremiumTemplateNativeSection<SectionId> | undefined {
-  return adapter.contract.nativeSections.find((section) => section.anchor === anchor);
+  return [
+    ...(adapter.fixedEditorSections ?? []),
+    ...adapter.contract.nativeSections,
+  ].find((section) => section.anchor === anchor) as PremiumTemplateNativeSection<SectionId> | undefined;
 }
 
 export function getPremiumEditorSectionMetadata<SectionId extends string>(
@@ -83,11 +92,11 @@ export function getPremiumEditorSectionMetadata<SectionId extends string>(
 export function getPremiumEditorNavigationMetadata<SectionId extends string>(
   adapter: PremiumTemplateEditorAdapter<SectionId>,
 ): PremiumEditorSectionMetadata[] {
-  return [...adapter.contract.nativeSections]
+  return [...(adapter.fixedEditorSections ?? []), ...adapter.contract.nativeSections]
     .sort((a, b) => a.defaultOrder - b.defaultOrder)
     .map((section) => ({
       ...section,
-      token: adapter.nativeToken(section.id),
+      token: adapter.nativeToken(section.id as SectionId),
       pinned: section.pinning !== undefined,
     }));
 }

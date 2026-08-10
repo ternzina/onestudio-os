@@ -2442,7 +2442,35 @@ function VisualBuilder({
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
-      ? layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
+      ? [
+          ...(premiumEditorAdapter.fixedEditorSections ?? []).map((definition, index) => ({
+            id: premiumEditorAdapter.nativeToken(definition.id),
+            key: premiumEditorAdapter.nativeToken(definition.id),
+            label: definition.label,
+            index,
+            selected: !selectedCustomBlockId && selectedPremiumNativeSection === definition.id,
+            visible: premiumEditorAdapter.isSectionVisible(draft, definition.id),
+            required: true,
+            locked: true,
+            disabled: !canConfigure || !editingEnabled,
+            capabilities: {
+              select: true,
+              visibility: definition.capabilities.visibility,
+              reorder: false,
+              reset: definition.capabilities.reset,
+            },
+            onSelect: () => {
+              setSelectedCustomBlockId("");
+              setSelectedPremiumNativeSection(definition.id);
+              setSettingsOpen(true);
+            },
+            onVisibilityChange: (visible: boolean) =>
+              onReplaceDraft(
+                premiumEditorAdapter.setSectionVisibility(draft, definition.id, visible),
+                premiumEditorAdapter.history.visibility(definition.id),
+              ),
+          })),
+          ...layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
           const movementInput = {
             tokens: layoutOrder,
             customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
@@ -2460,7 +2488,7 @@ function VisualBuilder({
               id: item,
               key: item,
               label: definition.label,
-              index,
+              index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
               selected: !selectedCustomBlockId && selectedPremiumNativeSection === id,
               visible: premiumEditorAdapter.isSectionVisible(draft, id),
               required: true,
@@ -2507,7 +2535,7 @@ function VisualBuilder({
             id: item,
             key: item,
             label: block.title || t("Custom block"),
-            index,
+            index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
             selected: selectedCustomBlockId === block.id,
             visible: block.is_visible !== false,
             disabled: !canConfigure || !editingEnabled,
@@ -2533,7 +2561,8 @@ function VisualBuilder({
             onDrop: () => dropBlock(item, "home"),
             onDragEnd: finishBlockDrag,
           }];
-        })
+        }),
+      ]
       : [
         { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
         ...layoutOrder.flatMap((item, index) => {
@@ -2648,8 +2677,8 @@ function VisualBuilder({
         seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
         auxiliaryAction: isPremiumNativeHome
           ? {
-              id: "restore-noir",
-              label: "Вернуть исходный NOIR",
+              id: "restore-template",
+              label: premiumEditorAdapter?.restoreLabel ?? "Вернуть исходный шаблон",
               disabled: !canConfigure || saving || !editingEnabled,
               onClick: restoreOriginalPremiumTemplate,
             }
@@ -2894,7 +2923,7 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "Шаблон" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         onCollapse: () => setSettingsOpen(false),
         fields: isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition ? [
           {

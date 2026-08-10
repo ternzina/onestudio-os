@@ -34,3 +34,5 @@ assertValidPremiumTemplateContract(GLOSS_PREMIUM_TEMPLATE_CONTRACT);
 
 export type GlossNativeSectionId =
   (typeof GLOSS_PREMIUM_TEMPLATE_CONTRACT.nativeSections)[number]["id"];
+
+export type GlossEditorSectionId = "hero" | GlossNativeSectionId;

@@ -2,13 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { buildGlossInspectorFields, GLOSS_EDITOR_EDITABLE_PATHS } from "../lib/public-site/gloss-editor-schema.ts";
-import { glossIndexedMediaTarget, mutateGlossIndexedCards, setGlossServiceCardImage } from "../lib/public-site/gloss-card-editor-model.ts";
+import { glossHeroImageMediaTarget, glossIndexedMediaTarget, glossSectionBackgroundMediaTarget, mutateGlossIndexedCards, setGlossServiceCardImage } from "../lib/public-site/gloss-card-editor-model.ts";
 import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/gloss-premium-template-editor-adapter.ts";
+import { canMovePremiumEditorLayoutItem, getPremiumEditorSection, getPremiumEditorSectionByAnchor } from "../lib/public-site/premium-template-editor-adapter.ts";
 import { createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
 import type { PublicSiteContent } from "../lib/public-site/types.ts";
 
 const requiredPaths = {
+  hero: ["show_announcement", "announcement_text", "header_sticky", "header_logo_size", "header_logo_position", "hero_layout", "hero_image_fit", "hero_image_placement", "hero_eyebrow", "hero_title", "hero_text", "hero_primary_label", "hero_primary_url", "show_hero_secondary", "hero_secondary_label", "hero_secondary_url", "hero_image_url"],
   services: ["services_label", "services_title", "services_button_label", "services_layout", "services_columns", "services_show_description", "services_show_price", "services_show_duration", "service_image_urls", "service_card_images"],
   portfolio: ["portfolio_label", "portfolio_title", "popular_title", "work_filters", "portfolio_layout", "portfolio_columns", "portfolio_card_aspect", "portfolio_show_filters", "portfolio_lightbox", "portfolio_show_category", "portfolio_show_title", "portfolio_show_description", "portfolio_home_limit"],
   team: ["team_label", "team_title", "team_items", "team_image_urls"],
@@ -31,6 +33,27 @@ test("GLOSS inspector covers every editable capability of the pre-Phase-5 native
     }
     for (const color of ["mode", "background", "text", "accent"]) assert.ok(actual.has(`section_colors.${section}.${color}`), `${section} must edit ${color} color`);
   }
+});
+
+test("GLOSS Hero is selectable fixed editor chrome outside persisted composition", () => {
+  const adapter = GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER;
+  const hero = getPremiumEditorSection(adapter, "hero");
+  assert.equal(hero?.label, "Обложка");
+  assert.equal(getPremiumEditorSectionByAnchor(adapter, "hero")?.id, "hero");
+  assert.equal(adapter.fixedEditorSections?.[0]?.id, "hero");
+  assert.equal(hero?.capabilities.reorder, false);
+  assert.equal(adapter.nativeToken("hero"), "fixed:hero");
+  assert.equal(adapter.nativeSectionId("fixed:hero"), null);
+
+  const seed = createTemplateSeed("gloss-nail-studio");
+  const hidden = adapter.setSectionVisibility(seed, "hero", false);
+  assert.equal(hidden.show_hero, false);
+  assert.deepEqual(hidden.layout_order, seed.layout_order);
+  const original = [...(seed.layout_order ?? [])];
+  const normalized = adapter.normalizeLayout(["fixed:hero", "section:hero", ...original], []);
+  assert.deepEqual(normalized, original);
+  assert.ok(!normalized.includes("section:hero"));
+  assert.equal(canMovePremiumEditorLayoutItem(adapter, { tokens: original, customBlockIds: [], fromIndex: -1, direction: 1 }), false);
 });
 
 test("GLOSS generic fields edit nested settings without flattening unknown legacy data", () => {
@@ -86,7 +109,7 @@ test("complex GLOSS sections are template-owned custom controls, never textarea 
 
 test("pre-Phase-5 rich text paths remain richText inspector fields", () => {
   const content = createTemplateSeed("gloss-nail-studio");
-  for (const [section, id] of [["about", "gloss-about-text"], ["booking", "gloss-booking-text"], ["membership", "gloss-membership-text"], ["gift", "gloss-gift-text"]] as const) {
+  for (const [section, id] of [["hero", "gloss-hero-text"], ["about", "gloss-about-text"], ["booking", "gloss-booking-text"], ["membership", "gloss-membership-text"], ["gift", "gloss-gift-text"], ["contact", "gloss-contact-note"], ["contact", "gloss-contact-footer"]] as const) {
     assert.equal(buildGlossInspectorFields(content, section, false, () => undefined).find(field => field.id === id)?.type, "richText");
   }
 });
@@ -104,6 +127,8 @@ test("card add, remove and reorder preserve string persistence and paired image 
 });
 
 test("media picker target and service slug mapping are semantic and preserve legacy fields", () => {
+  assert.deepEqual(glossHeroImageMediaTarget(), { kind: "content", key: "hero_image_url", label: "Изображение обложки" });
+  assert.deepEqual(glossSectionBackgroundMediaTarget("hero"), { kind: "section-background", section: "hero", label: "Фоновое изображение раздела" });
   let received: ReturnType<typeof glossIndexedMediaTarget> | undefined;
   const callback = (target: ReturnType<typeof glossIndexedMediaTarget>) => { received = target; };
   callback(glossIndexedMediaTarget("team_image_urls", 2, "Фотография сотрудника 3"));
@@ -118,7 +143,9 @@ test("generic orchestration has no GLOSS branches or component imports", () => {
   const shell = readFileSync(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
   assert.doesNotMatch(shell, /templateKey\s*===\s*["']gloss-nail-studio/);
   assert.doesNotMatch(shell, /GlossNativeSectionControls/);
+  assert.doesNotMatch(shell, /Вернуть исходный NOIR/);
   assert.match(shell, /getPremiumTemplateEditorControl/);
+  assert.equal(GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.restoreLabel, "Вернуть исходный шаблон");
 });
 
 test("GLOSS edit and save normalization preserve unknown compatible legacy data, custom blocks and section order", () => {
@@ -134,6 +161,15 @@ test("GLOSS edit and save normalization preserve unknown compatible legacy data,
   const title = buildGlossInspectorFields(edited, "services", false, next => { edited = next as LegacyGlossContent; }).find(field => field.id === "gloss-services-title");
   assert.equal(title?.type, "textarea");
   if (title?.type === "textarea") title.onChange("Новый заголовок услуг");
+  const editField = (section: "hero" | "contact", id: string, value: string) => {
+    const editor = buildGlossInspectorFields(edited, section, false, next => { edited = next as LegacyGlossContent; }).find(field => field.id === id);
+    assert.ok(editor && (editor.type === "text" || editor.type === "textarea" || editor.type === "richText"));
+    if (editor.type === "text" || editor.type === "textarea" || editor.type === "richText") editor.onChange(value);
+  };
+  editField("hero", "gloss-hero-title", "Новая обложка");
+  editField("hero", "gloss-hero-text", "<p>Текст <strong>обложки</strong></p>");
+  editField("contact", "gloss-contact-note", "<p>Подсказка для визита</p>");
+  editField("contact", "gloss-contact-footer", "<p>Текст подвала</p>");
   const normalized = {
     ...edited,
     layout_order: GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.normalizeLayout(edited.layout_order ?? [], (edited.custom_blocks ?? []).map(block => block.id)),
@@ -142,5 +178,10 @@ test("GLOSS edit and save normalization preserve unknown compatible legacy data,
   assert.deepEqual(savedAndLoaded.future_gloss_option, legacy.future_gloss_option);
   assert.deepEqual(savedAndLoaded.custom_blocks, legacy.custom_blocks);
   assert.deepEqual(savedAndLoaded.layout_order, legacy.layout_order);
+  assert.ok(!savedAndLoaded.layout_order.includes("section:hero"));
   assert.equal(savedAndLoaded.services_title, "Новый заголовок услуг");
+  assert.equal(savedAndLoaded.hero_title, "Новая обложка");
+  assert.equal(savedAndLoaded.hero_text, "<p>Текст <strong>обложки</strong></p>");
+  assert.equal(savedAndLoaded.contact_note, "<p>Подсказка для визита</p>");
+  assert.equal(savedAndLoaded.footer_note, "<p>Текст подвала</p>");
 });

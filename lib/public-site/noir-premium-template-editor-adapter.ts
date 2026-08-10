@@ -23,6 +23,7 @@ import {
 export const NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
   templateKey: NOIR_PREMIUM_TEMPLATE_CONTRACT.templateKey,
   contract: NOIR_PREMIUM_TEMPLATE_CONTRACT,
+  restoreLabel: "Вернуть исходный NOIR",
   initialSectionId: "hero",
   nativeToken: (sectionId) => `noir:${sectionId}`,
   nativeSectionId: (token) => parseLegacyNoirToken(token)?.sectionId ?? null,

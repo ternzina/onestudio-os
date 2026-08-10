@@ -1,5 +1,5 @@
 import type { EditorInspectorPlacedField } from "./editor-spec.ts";
-import type { GlossNativeSectionId } from "./gloss-premium-template-contract.ts";
+import type { GlossEditorSectionId } from "./gloss-premium-template-contract.ts";
 import type { PublicSiteContent, PublicSiteTypography } from "./types.ts";
 
 type Group = EditorInspectorPlacedField["group"];
@@ -24,7 +24,7 @@ const field = (
   rows?: number,
 ): FieldSpec => ({ id, label, path, kind, group, options, rows });
 
-const sectionPresentation = (section: GlossNativeSectionId): FieldSpec[] => [
+const sectionPresentation = (section: GlossEditorSectionId): FieldSpec[] => [
   field("section-layout", "Композиция раздела", `system_section_settings.${section}.layout`, "select", "layout", [
     { value: "default", label: "Обычная" }, { value: "panel", label: "Внутри панели" },
   ]),
@@ -67,7 +67,36 @@ const sectionPresentation = (section: GlossNativeSectionId): FieldSpec[] => [
   field("accent-color", "Акцентный цвет раздела", `section_colors.${section}.accent`, "color", "layout"),
 ];
 
-const specs: Record<GlossNativeSectionId, FieldSpec[]> = {
+const specs: Record<GlossEditorSectionId, FieldSpec[]> = {
+  hero: [
+    field("announcement-visible", "Показывать строку объявления", "show_announcement", "toggle"),
+    field("announcement-text", "Текст объявления", "announcement_text"),
+    field("header-sticky", "Закрепить шапку", "header_sticky", "toggle", "layout"),
+    field("logo-size", "Размер логотипа", "header_logo_size", "select", "layout", [
+      { value: "small", label: "Маленький" }, { value: "medium", label: "Средний" }, { value: "large", label: "Большой" },
+    ]),
+    field("logo-position", "Положение логотипа", "header_logo_position", "select", "layout", [
+      { value: "left", label: "Слева" }, { value: "center", label: "По центру" },
+    ]),
+    field("layout", "Композиция обложки", "hero_layout", "select", "layout", [
+      { value: "split", label: "Изображение рядом с текстом" }, { value: "cover", label: "Изображение как фон" }, { value: "text", label: "Только текст" },
+    ]),
+    field("image-fit", "Заполнение изображения", "hero_image_fit", "select", "media", [
+      { value: "cover", label: "Заполнить с обрезкой" }, { value: "contain", label: "Показать целиком" },
+    ]),
+    field("image-placement", "Сторона изображения", "hero_image_placement", "select", "media", [
+      { value: "right", label: "Справа" }, { value: "left", label: "Слева" },
+    ]),
+    field("eyebrow", "Надзаголовок", "hero_eyebrow"),
+    field("title", "Главный заголовок", "hero_title", "textarea"),
+    field("text", "Вводный текст", "hero_text", "richText"),
+    field("primary-label", "Текст основной кнопки", "hero_primary_label"),
+    field("primary-url", "Ссылка основной кнопки", "hero_primary_url", "url"),
+    field("secondary-visible", "Показывать вторую кнопку", "show_hero_secondary", "toggle"),
+    field("secondary-label", "Текст второй кнопки", "hero_secondary_label"),
+    field("secondary-url", "Ссылка второй кнопки", "hero_secondary_url", "url"),
+    field("image", "Изображение обложки", "hero_image_url", "url", "media"),
+  ],
   services: [
     field("label", "Метка раздела", "services_label"), field("title", "Заголовок", "services_title", "textarea"), field("button", "Текст кнопки", "services_button_label"),
     field("layout", "Макет услуг", "services_layout", "select", "layout", [{ value: "cards", label: "Карточки" }, { value: "list", label: "Компактный список" }]),
@@ -91,14 +120,14 @@ const specs: Record<GlossNativeSectionId, FieldSpec[]> = {
   gift: [field("label", "Метка раздела", "gift_label"), field("title", "Заголовок", "gift_title", "textarea"), field("text", "Вводный текст", "gift_text", "richText"), field("items", "Сертификаты · название · сумма · описание · кнопка · ссылка", "gift_items", "textarea", "content", undefined, 9), field("image", "Основное изображение сертификата", "gift_image_url", "url", "media"), field("images", "Изображения сертификатов · одно на строку", "gift_image_urls", "textarea", "media", undefined, 7)],
   faq: [field("label", "Метка раздела", "faq_label"), field("title", "Заголовок", "faq_title", "textarea"), field("items", "Вопросы и ответы · вопрос | ответ", "faq_items", "textarea", "content", undefined, 9)],
   about: [field("label", "Метка раздела", "about_label"), field("title", "Заголовок", "about_title", "textarea"), field("text", "Текст о студии", "about_text", "richText"), field("facts", "Факты · значение · подпись", "about_facts", "textarea", "content", undefined, 7), field("button", "Текст кнопки", "about_button_label"), field("button-url", "Ссылка кнопки", "about_button_url", "url"), field("image", "Изображение о студии", "about_image_url", "url", "media")],
-  contact: [field("label", "Метка раздела", "contact_label"), field("title", "Заголовок", "contact_title", "textarea"), field("email", "Email для посетителей", "contact_email"), field("phone", "Телефон для посетителей", "contact_phone"), field("hours", "Часы работы", "contact_hours", "textarea"), field("address", "Адрес на сайте", "contact_address", "textarea"), field("map", "Адрес для поиска на карте", "map_query", "textarea"), field("note", "Подсказка посетителю", "contact_note", "textarea"), field("route", "Текст кнопки маршрута", "contact_route_label"), field("footer", "Короткий текст в подвале", "footer_note", "textarea")],
+  contact: [field("label", "Метка раздела", "contact_label"), field("title", "Заголовок", "contact_title", "textarea"), field("email", "Email для посетителей", "contact_email"), field("phone", "Телефон для посетителей", "contact_phone"), field("hours", "Часы работы", "contact_hours", "textarea"), field("address", "Адрес на сайте", "contact_address", "textarea"), field("map", "Адрес для поиска на карте", "map_query", "textarea"), field("note", "Подсказка посетителю", "contact_note", "richText"), field("route", "Текст кнопки маршрута", "contact_route_label"), field("footer", "Короткий текст в подвале", "footer_note", "richText")],
 };
 
-for (const section of Object.keys(specs) as GlossNativeSectionId[]) specs[section].push(...sectionPresentation(section));
+for (const section of Object.keys(specs) as GlossEditorSectionId[]) specs[section].push(...sectionPresentation(section));
 
 export const GLOSS_EDITOR_EDITABLE_PATHS = Object.fromEntries(
-  (Object.keys(specs) as GlossNativeSectionId[]).map(section => [section, specs[section].map(({ path }) => path)]),
-) as Record<GlossNativeSectionId, string[]>;
+  (Object.keys(specs) as GlossEditorSectionId[]).map(section => [section, specs[section].map(({ path }) => path)]),
+) as Record<GlossEditorSectionId, string[]>;
 
 function atPath(root: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((value, key) => value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined, root);
@@ -149,12 +178,13 @@ function decodeValue(content: PublicSiteContent, spec: FieldSpec, value: string 
 }
 
 const customPaths = new Set([
+  "hero_image_url",
   "team_items", "team_image_urls", "membership_items", "membership_image_url", "membership_image_urls",
   "gift_items", "gift_image_url", "gift_image_urls", "safety_items", "reviews", "reviews_items", "faq_items",
   "about_facts", "about_image_url", "service_image_urls", "service_card_images",
 ]);
 
-export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossNativeSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void): EditorInspectorPlacedField[] {
+export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossEditorSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void): EditorInspectorPlacedField[] {
   const fields: EditorInspectorPlacedField[] = specs[sectionId].filter(spec => !customPaths.has(spec.path) && !spec.path.endsWith(".background_image_url")).map(spec => {
     const current = atPath(content, spec.path);
     const update = (value: string | boolean) => onChange(setPath(content, spec.path, decodeValue(content, spec, value)), `gloss:${sectionId}:${spec.id}`);
@@ -169,7 +199,7 @@ export function buildGlossInspectorFields(content: PublicSiteContent, sectionId:
   return fields;
 }
 
-export function resetGlossInspectorSection(content: PublicSiteContent, defaults: PublicSiteContent, sectionId: GlossNativeSectionId) {
+export function resetGlossInspectorSection(content: PublicSiteContent, defaults: PublicSiteContent, sectionId: GlossEditorSectionId) {
   return specs[sectionId].reduce(
     (next, spec) => setPath(next, spec.path, structuredClone(atPath(defaults, spec.path))),
     content,
