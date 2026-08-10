@@ -47,7 +47,7 @@ test("one wizard sends design and Client Launch business setup in one canonical 
   for (const field of ["creation_mode", "template_key", "template_seed", "business_type", "timezone", "country_code", "email", "phone", "address", "service_title", "resource_name", "work_days", "enabled_modules"]) {
     assert.match(wizard, new RegExp(`${field}:`));
   }
-  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]) {
+  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]) {
     assert.ok(TEMPLATE_CATALOG.some(item => item.key === key));
   }
 });

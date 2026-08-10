@@ -15,7 +15,7 @@ import {
 import type { PublicSiteContent, PublicSiteEditorData } from "../lib/public-site/types.ts";
 
 describe("Phase A executable registry", () => {
-  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]) {
+  for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]) {
     test(`${key} has complete executable runtime support`, () => {
       assert.equal(isExecutableSiteTemplate(key), true);
       assert.deepEqual(getSiteTemplateDefinition(key)?.runtime, { editorSelectable: true, previewSelectable: true, publicRenderable: true, legacy: false });

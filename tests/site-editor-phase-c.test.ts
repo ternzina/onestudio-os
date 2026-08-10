@@ -15,7 +15,7 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("OneStudio editor design contract", () => {
   test("Base OneStudio, GLOSS, BEMBI, and NOIR are active editor designs", () => {
-    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]);
+    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]);
     assert.equal(isExecutableSiteTemplate("standard"), true);
     assert.equal(isExecutableSiteTemplate("premium-kids-center"), true);
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);
