@@ -2459,7 +2459,7 @@ function VisualBuilder({
 
   const navigatorSections: EditorNavigatorModel["sections"] = activePage
     ? [
-        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: isTemplateNativeSectionVisible(draft, PREMIUM_STUDIO_TEMPLATE_KEY, id), locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
+        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
         ...(activePage.type === "portfolio"
           ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
           : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
@@ -2486,15 +2486,19 @@ function VisualBuilder({
               label: definition[1],
               index,
               selected: !selectedCustomBlockId && selectedNoirSection === id,
-              visible: true,
+              visible: isTemplateNativeSectionVisible(
+                draft,
+                PREMIUM_STUDIO_TEMPLATE_KEY,
+                id,
+              ),
               required: true,
               locked: pinned,
               disabled: !canConfigure || !editingEnabled,
               canMoveUp: !pinned && canMoveUp,
               canMoveDown: !pinned && canMoveDown,
               capabilities: pinned
-                ? { select: true }
-                : { select: true, reorder: true, reset: true },
+                ? { select: true, visibility: true }
+                : { select: true, visibility: true, reorder: true, reset: true },
               onSelect: () => {
                 setSelectedCustomBlockId("");
                 setSelectedNoirSection(id);
