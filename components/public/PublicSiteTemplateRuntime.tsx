@@ -1,7 +1,7 @@
 import PublicBusinessSite from "@/components/public/PublicBusinessSite";
 import GlossBusinessSite from "@/components/public/GlossBusinessSite";
 import HomeExperience from "@/app/demos/premium-kids-center/HomeExperience";
-import PremiumStudioExperience from "@/app/demos/premium-studio/PremiumStudioExperience";
+import { getPremiumTemplatePublicRuntime } from "@/lib/public-site/premium-template-runtime-registry";
 import { resolveSiteTemplateKey } from "@/lib/public-site/template-registry";
 import type { PublicSiteData } from "@/lib/public-site/types";
 
@@ -17,11 +17,13 @@ export default function PublicSiteTemplateRuntime({
   if (templateKey === "premium-kids-center") {
     return <HomeExperience basePath={basePath} site={site} />;
   }
+  const premiumRuntime = getPremiumTemplatePublicRuntime(templateKey);
+  if (premiumRuntime) {
+    const PremiumHomeRenderer = premiumRuntime.publicHomeRenderer;
+    return <PremiumHomeRenderer site={site} basePath={basePath} />;
+  }
   if (templateKey === "gloss-nail-studio") {
     return <GlossBusinessSite site={site} basePath={basePath} />;
-  }
-  if (templateKey === "premium-studio") {
-    return <PremiumStudioExperience site={site} basePath={basePath} />;
   }
   return <PublicBusinessSite site={site} />;
 }

@@ -50,16 +50,20 @@ test("BEMBI and NOIR seeds contain editable template namespaces", () => {
 });
 
 test("gallery, editor, Preview and public runtime derive or dispatch all canonical designs", async () => {
-  const [dialog, preview, runtime, demoCatalog, editor] = await Promise.all([
+  const [dialog, preview, runtime, premiumRuntime, noirRuntime, demoCatalog, editor] = await Promise.all([
     readFile(new URL("../components/admin/OneStudioSystemDialogs.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-preview/[templateKey]/[businessSlug]/[[...templatePath]]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/PublicSiteTemplateRuntime.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/premium-template-runtime-registry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/noir-premium-template-runtime-adapter.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/demo-catalog.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(dialog, /activeDesigns\.map/);
   assert.match(preview, /getSiteTemplateDefinition/);
-  assert.match(runtime, /PremiumStudioExperience/);
+  assert.match(runtime, /getPremiumTemplatePublicRuntime/);
+  assert.match(premiumRuntime, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
+  assert.match(noirRuntime, /PremiumStudioExperience/);
   assert.match(demoCatalog, /TEMPLATE_CATALOG\.filter/);
   assert.match(editor, /OneStudio Site Editor|TemplateEditorRuntime/);
 });
