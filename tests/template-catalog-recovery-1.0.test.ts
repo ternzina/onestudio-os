@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { TEMPLATE_CATALOG, TEMPLATE_KEYS, resolveCreationContract } from "../lib/public-site/template-catalog.ts";
+import { TEMPLATE_CATALOG, TEMPLATE_KEYS } from "../lib/public-site/template-catalog.ts";
+import { resolveCreationContract } from "../lib/public-site/template-creation.ts";
 import { BLANK_BASE_SEED, createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import { getActiveEditorDesigns, isPublicRenderableSiteTemplate } from "../lib/public-site/template-registry.ts";
 import { selectExecutableTemplate } from "../lib/public-site/template-selection.ts";
@@ -54,8 +55,8 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
     readFile(new URL("../components/admin/OneStudioSystemDialogs.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-preview/[templateKey]/[businessSlug]/[[...templatePath]]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/PublicSiteTemplateRuntime.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../lib/public-site/premium-template-runtime-registry.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../lib/public-site/noir-premium-template-runtime-adapter.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/premium-template-runtime-registry.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/noir-premium-template-runtime-adapter.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/demo-catalog.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
@@ -63,8 +64,9 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
   assert.match(preview, /getSiteTemplateDefinition/);
   assert.match(runtime, /getPremiumTemplatePublicRuntime/);
   assert.match(premiumRuntime, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
-  assert.match(noirRuntime, /PremiumStudioExperience/);
-  assert.match(demoCatalog, /TEMPLATE_CATALOG\.filter/);
+  assert.match(noirRuntime, /import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)/);
+  assert.match(noirRuntime, /publicHomeRenderer: NoirHome/);
+  assert.match(demoCatalog, /createPremiumPackageDemos\(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS\)/);
   assert.match(editor, /OneStudio Site Editor|TemplateEditorRuntime/);
 });
 

@@ -1,4 +1,5 @@
 import { getTemplateCatalogRecord } from "./template-catalog.ts";
+import { resolveCreationContract } from "./template-creation.ts";
 import { GLOSS_TEMPLATE } from "./templates.ts";
 import type { PublicSiteData } from "./types.ts";
 
@@ -6,7 +7,7 @@ export const GLOSS_DEMO_BASE_PATH = "/demos/gloss-nail-studio";
 
 export function createCanonicalGlossDemoSite(): PublicSiteData {
   const catalogTemplate = getTemplateCatalogRecord("gloss-nail-studio");
-  if (!catalogTemplate || catalogTemplate.adapter !== "gloss") {
+  if (!catalogTemplate || catalogTemplate.integration.kind !== "premium-package") {
     throw new Error("Canonical GLOSS template is unavailable");
   }
 
@@ -20,7 +21,7 @@ export function createCanonicalGlossDemoSite(): PublicSiteData {
       currency: "EUR",
       timezone: "Europe/Warsaw",
     },
-    content: catalogTemplate.seed(),
+    content: resolveCreationContract({ creation_mode: "template", template_key: catalogTemplate.key }).seed,
     company: { display_name: GLOSS_TEMPLATE.name },
     services: GLOSS_TEMPLATE.services.map((service) => ({
       id: service.slug,

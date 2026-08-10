@@ -1,4 +1,5 @@
-import { TEMPLATE_CATALOG, type TemplateKey } from "./public-site/template-catalog";
+import { PREMIUM_TEMPLATE_PACKAGE_MANIFESTS } from "./public-site/premium-template-package-catalog.ts";
+import type { PremiumTemplatePackageManifest } from "./public-site/premium-template-package.ts";
 
 export type DemoGroup = "studio" | "beauty" | "wellness" | "education" | "events";
 
@@ -25,9 +26,10 @@ export type DemoDefinition = {
 };
 
 export type PremiumDemoDefinition = {
-  slug: TemplateKey;
+  slug: string;
   href: string;
-  tier: "premium";
+  collection: "premium-template-package" | "protected-template";
+  order: number;
   group: DemoGroup;
   name: string;
   title: { ru: string; en: string };
@@ -36,13 +38,25 @@ export type PremiumDemoDefinition = {
   previewAlt: { ru: string; en: string };
 };
 
-export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = TEMPLATE_CATALOG.filter(item => item.tier === "premium" && item.gallery.previewRoute).map(item => ({
-  slug: item.key, href: item.gallery.previewRoute!, tier: "premium" as const,
-  group: item.key === "premium-studio" ? "studio" as const : "education" as const,
-  name: item.name, title: item.key === "premium-studio" ? { ru: "Фотостудия", en: "Photo studio" } : { ru: "Детский развивающий центр", en: "Kids discovery center" },
-  description: { ru: item.gallery.description, en: item.gallery.description }, previewImage: item.gallery.previewImage!,
-  previewAlt: { ru: item.name, en: item.name },
-}));
+const BEMBI_DEMO: PremiumDemoDefinition = {
+  slug: "premium-kids-center", href: "/demos/premium-kids-center", collection: "protected-template", order: 20,
+  group: "education", name: "BEMBI", title: { ru: "Детский развивающий центр", en: "Kids discovery center" },
+  description: { ru: "Kids Discovery Center с программами, заданиями и материалами.", en: "Kids Discovery Center with programs, activities and learning materials." },
+  previewImage: "/images/demos/premium-kids-center/hero-platform.webp", previewAlt: { ru: "Детский развивающий центр BEMBI", en: "BEMBI kids discovery center" },
+};
+
+export function createPremiumPackageDemos(manifests: readonly PremiumTemplatePackageManifest[]): PremiumDemoDefinition[] {
+  return manifests.filter(({ preview }) => preview.collectionVisible).map((manifest) => ({
+    slug: manifest.templateKey, href: manifest.preview.route, collection: "premium-template-package" as const,
+    order: manifest.preview.order, group: manifest.preview.group, name: manifest.name, title: manifest.preview.title,
+    description: manifest.preview.description, previewImage: manifest.preview.image, previewAlt: manifest.preview.alt,
+  }));
+}
+
+export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
+  ...createPremiumPackageDemos(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS),
+  BEMBI_DEMO,
+].sort((left, right) => left.order - right.order);
 
 export const DEMOS: readonly DemoDefinition[] = [
   {

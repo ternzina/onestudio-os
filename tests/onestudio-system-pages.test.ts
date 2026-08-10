@@ -43,7 +43,7 @@ test("Base, GLOSS, and BEMBI receive the same system add-page command", async ()
 test("BEMBI preview and published custom pages use its design renderer", async () => {
   const [runtime, registry, preview, renderer] = await Promise.all([
     readFile(new URL("../components/public/PublicCustomPageRuntime.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../lib/public-site/premium-template-custom-page-runtime-registry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/premium-template-custom-page-runtime-registry.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/site-preview/[templateKey]/[businessSlug]/[[...templatePath]]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/BembiCustomPage.tsx", import.meta.url), "utf8"),
   ]);

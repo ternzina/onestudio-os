@@ -28,7 +28,7 @@ describe("Phase A executable registry", () => {
     assert.equal(getSiteTemplateDefinition("gloss-nail-studio")?.runtime.legacy, false);
     assert.equal(isExecutableSiteTemplate("premium-studio"), true);
     assert.equal(isExecutableSiteTemplate("unknown"), false);
-    assert.equal(getSiteTemplateDefinition("premium-studio")?.adapter, "noir");
+    assert.deepEqual(getSiteTemplateDefinition("premium-studio")?.integration, { kind: "premium-package" });
   });
 
   test("unknown runtime adapters fail clearly in development", () => {

@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:premium-templates": "node scripts/generate-premium-template-packages.mjs",
+    "check:premium-templates": "node scripts/generate-premium-template-packages.mjs --check",
+    "prebuild": "npm run check:premium-templates",
+    "pretest": "npm run check:premium-templates",
+    "test": "node --test tests/*.test.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

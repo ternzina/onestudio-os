@@ -13,7 +13,7 @@ test("catalog exposes one canonical customer-facing GLOSS identity and premium r
   assert.equal(gloss.length, 1);
   assert.equal(gloss[0].key, "gloss-nail-studio");
   assert.equal(gloss[0].gallery.previewRoute, GLOSS_DEMO_BASE_PATH);
-  assert.equal(gloss[0].adapter, "gloss");
+  assert.deepEqual(gloss[0].integration, { kind: "premium-package" });
 });
 
 test("standalone GLOSS demo uses the canonical full seed and runtime", async () => {
@@ -42,7 +42,7 @@ test("new-site preview is catalog-derived, read-only, and selection keeps canoni
   assert.doesNotMatch(wizard, /previewRoute.*\.rpc|onClick=.*create_template_workspace/s);
   assert.match(wizard, /chooseTemplate\("template", item\.key\)/);
   assert.match(wizard, /template_key: templateKey/);
-  assert.match(wizard, /template_seed: createTemplateSeed\(templateKey\)/);
+  assert.match(wizard, /template_seed: creation\.seed/);
 });
 
 test("unified editor and other canonical designs remain registered", async () => {

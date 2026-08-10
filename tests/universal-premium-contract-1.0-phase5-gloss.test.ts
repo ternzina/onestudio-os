@@ -66,7 +66,7 @@ test("old drafts stay compatible and GLOSS is registered exactly once", () => {
 
 test("gallery, Preview, public home and custom pages resolve GLOSS through registries", async () => {
   const [homeRegistry, pageRegistry, homeRuntime, pageRuntime, demo] = await Promise.all([
-    read("../lib/public-site/premium-template-runtime-registry.tsx"), read("../lib/public-site/premium-template-custom-page-runtime-registry.tsx"),
+    read("../lib/public-site/premium-template-runtime-registry.ts"), read("../lib/public-site/premium-template-custom-page-runtime-registry.ts"),
     read("../components/public/PublicSiteTemplateRuntime.tsx"), read("../components/public/PublicCustomPageRuntime.tsx"),
     read("../app/demos/gloss-nail-studio/[[...templatePath]]/page.tsx"),
   ]);
