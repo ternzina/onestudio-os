@@ -13,7 +13,7 @@ test("catalog exposes one canonical customer-facing GLOSS identity and premium r
   assert.equal(gloss.length, 1);
   assert.equal(gloss[0].key, "gloss-nail-studio");
   assert.equal(gloss[0].gallery.previewRoute, GLOSS_DEMO_BASE_PATH);
-  assert.equal(gloss[0].adapter, "gloss");
+  assert.deepEqual(gloss[0].integration, { kind: "premium-package" });
 });
 
 test("standalone GLOSS demo uses the canonical full seed and runtime", async () => {

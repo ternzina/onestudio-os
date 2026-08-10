@@ -39,7 +39,7 @@ const routeCopy: Record<PremiumIndexRoute, { title: string; description: string 
 
 function supportsPremiumRoute(site: PublicSiteData, route: string) {
   const template = getSiteTemplateDefinition(site.content.template_id);
-  return template?.adapter === "bembi" && ["tasks", "workbooks", "experiments", "articles"].includes(route);
+  return template?.integration.kind === "core" && template.integration.adapter === "bembi" && ["tasks", "workbooks", "experiments", "articles"].includes(route);
 }
 
 export function resolvePremiumPublicRoute(

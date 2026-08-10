@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import { DEMOS, PREMIUM_DEMOS, type DemoGroup } from "@/lib/demo-catalog";
-import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
+import { newSitePathForTemplate, type TemplateKey } from "@/lib/public-site/template-catalog";
 import styles from "./DemosPage.module.css";
 
 type Lang = "ru" | "en";
@@ -127,7 +127,7 @@ export default function DemosPage() {
                   fill
                   sizes="(max-width: 900px) 100vw, 66vw"
                 />
-                <span aria-hidden="true">{demo.slug === "premium-studio" ? "NF" : "BM"} / 0{index + 1}</span>
+                <span aria-hidden="true">{demo.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()} / {String(index + 1).padStart(2, "0")}</span>
               </Link>
               <div className={styles.premiumCopy}>
                 <div className={styles.premiumMeta}>
@@ -140,7 +140,7 @@ export default function DemosPage() {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Link className={styles.premiumAction} href={demo.href}>{t.premiumView} <span aria-hidden="true">↗</span></Link>
-                  <Link className={styles.premiumAction} href={newSitePathForTemplate(demo.slug)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"}</Link>
+                  <Link className={styles.premiumAction} href={newSitePathForTemplate(demo.slug as TemplateKey)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"}</Link>
                 </div>
               </div>
             </article>

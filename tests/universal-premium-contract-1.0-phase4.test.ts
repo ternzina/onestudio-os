@@ -27,7 +27,7 @@ const futureAdapter = {
 
 test("real premium definition and public runtime registry keep NOIR registered", async () => {
   const [registry, noirAdapter] = await Promise.all([
-    read("../lib/public-site/premium-template-runtime-registry.tsx"),
+    read("../lib/public-site/premium-template-runtime-registry.ts"),
     read("../lib/public-site/noir-premium-template-runtime-adapter.tsx"),
   ]);
   assert.equal(getPremiumTemplateDefinition("premium-studio")?.templateKey, "premium-studio");

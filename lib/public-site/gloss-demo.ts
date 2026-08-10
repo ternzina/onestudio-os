@@ -6,7 +6,7 @@ export const GLOSS_DEMO_BASE_PATH = "/demos/gloss-nail-studio";
 
 export function createCanonicalGlossDemoSite(): PublicSiteData {
   const catalogTemplate = getTemplateCatalogRecord("gloss-nail-studio");
-  if (!catalogTemplate || catalogTemplate.adapter !== "gloss") {
+  if (!catalogTemplate || catalogTemplate.integration.kind !== "premium-package") {
     throw new Error("Canonical GLOSS template is unavailable");
   }
 
