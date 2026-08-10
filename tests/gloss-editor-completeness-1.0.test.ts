@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { buildGlossInspectorFields, GLOSS_EDITOR_EDITABLE_PATHS } from "../lib/public-site/gloss-editor-schema.ts";
+import { glossIndexedMediaTarget, mutateGlossIndexedCards, setGlossServiceCardImage } from "../lib/public-site/gloss-card-editor-model.ts";
 import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/gloss-premium-template-editor-adapter.ts";
 import { createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
@@ -31,7 +33,7 @@ test("GLOSS inspector covers every editable capability of the pre-Phase-5 native
   }
 });
 
-test("GLOSS arrays, records, nested settings and legacy card collections edit without flattening the draft format", () => {
+test("GLOSS generic fields edit nested settings without flattening unknown legacy data", () => {
   let content = {
     ...createTemplateSeed("gloss-nail-studio"),
     legacy_compatible_extension: { retained: true },
@@ -39,28 +41,18 @@ test("GLOSS arrays, records, nested settings and legacy card collections edit wi
     service_card_images: { manicure: "/old.webp" },
   } as PublicSiteContent & { legacy_compatible_extension: { retained: boolean } };
   const change = (next: PublicSiteContent) => { content = next as typeof content; };
-  const edit = (section: keyof typeof GLOSS_EDITOR_EDITABLE_PATHS, path: string, value: string | boolean) => {
-    const index = GLOSS_EDITOR_EDITABLE_PATHS[section].indexOf(path);
-    assert.notEqual(index, -1, `${path} is editable`);
-    const editor = buildGlossInspectorFields(content, section, false, change)[index] as EditorInspectorPlacedField;
+  const edit = (section: keyof typeof GLOSS_EDITOR_EDITABLE_PATHS, id: string, value: string | boolean) => {
+    const editor = buildGlossInspectorFields(content, section, false, change).find(field => field.id === `gloss-${section}-${id}`) as EditorInspectorPlacedField;
+    assert.ok(editor, `${id} is editable`);
     if (editor.type === "toggle") editor.onChange(Boolean(value));
     else if (editor.type !== "notice" && editor.type !== "button" && editor.type !== "custom" && editor.type !== "typography" && editor.type !== "richText") editor.onChange(String(value));
   };
 
-  edit("membership", "membership_items", "GOLD · 5 визитов · Привилегии · Вступить · /club");
-  edit("membership", "membership_image_urls", "/gold.webp\n/platinum.webp");
-  edit("gift", "gift_items", "GIFT · 5000 · Подарок · Купить · /gift");
-  edit("about", "about_facts", "10+ · лет опыта");
-  edit("services", "service_card_images", "manicure | /new.webp\npedicure | /pedi.webp");
-  edit("contact", "map_query", "Киев, Крещатик 1");
-  edit("contact", "contact_route_label", "Построить маршрут");
-  edit("membership", "system_section_settings.membership.layout", "panel");
+  edit("contact", "map", "Киев, Крещатик 1");
+  edit("contact", "route", "Построить маршрут");
+  edit("membership", "section-layout", "panel");
 
-  assert.equal(content.membership_items, "GOLD · 5 визитов · Привилегии · Вступить · /club");
-  assert.deepEqual(content.membership_image_urls, ["/gold.webp", "/platinum.webp"]);
-  assert.equal(content.gift_items, "GIFT · 5000 · Подарок · Купить · /gift");
-  assert.equal(content.about_facts, "10+ · лет опыта");
-  assert.deepEqual(content.service_card_images, { manicure: "/new.webp", pedicure: "/pedi.webp" });
+  assert.deepEqual(content.service_card_images, { manicure: "/old.webp" });
   assert.equal(content.system_section_settings?.membership?.layout, "panel");
   assert.equal((content.system_section_settings?.membership as Record<string, unknown>).future_setting, "keep");
   assert.deepEqual(content.legacy_compatible_extension, { retained: true });
@@ -72,11 +64,61 @@ test("GLOSS inspector uses human Russian labels instead of technical object keys
   const labels = fields.flatMap(item => "label" in item && typeof item.label === "string" ? [item.label] : []);
   assert.ok(labels.length > 80);
   assert.ok(labels.some(label => label.includes("маршрут")));
-  assert.ok(labels.some(label => label.includes("Изображения сертификатов")));
+  assert.ok(labels.some(label => label.includes("Цвет фона")));
   for (const label of labels) {
     assert.doesNotMatch(label, /\b(?:services|portfolio|membership|gift|about|contact|map|label|items|image|url|show)[ _-]/i, `technical label leaked: ${label}`);
     assert.doesNotMatch(label, /^[a-z][a-z ]+$/i, `unlocalized label leaked: ${label}`);
   }
+});
+
+test("complex GLOSS sections are template-owned custom controls, never textarea fallbacks", () => {
+  const schema = readFileSync(new URL("../lib/public-site/gloss-editor-schema.ts", import.meta.url), "utf8");
+  const registry = readFileSync(new URL("../lib/public-site/premium-template-editor-controls-registry.tsx", import.meta.url), "utf8");
+  const control = readFileSync(new URL("../components/admin/gloss/GlossNativeSectionControls.tsx", import.meta.url), "utf8");
+  for (const path of ["team_items", "membership_items", "gift_items", "safety_items", "reviews_items", "faq_items", "service_card_images"]) {
+    assert.match(schema, new RegExp(`customPaths[\\s\\S]*${path}`));
+  }
+  assert.match(registry, /GlossNativeSectionControls/);
+  assert.match(control, /CardsEditor/);
+  assert.match(control, /Управлять работами/);
+  assert.match(control, /Открыть каталог услуг/);
+});
+
+test("pre-Phase-5 rich text paths remain richText inspector fields", () => {
+  const content = createTemplateSeed("gloss-nail-studio");
+  for (const [section, id] of [["about", "gloss-about-text"], ["booking", "gloss-booking-text"], ["membership", "gloss-membership-text"], ["gift", "gloss-gift-text"]] as const) {
+    assert.equal(buildGlossInspectorFields(content, section, false, () => undefined).find(field => field.id === id)?.type, "richText");
+  }
+});
+
+test("card add, remove and reorder preserve string persistence and paired image indexes", () => {
+  const model = { delimiter: "·", fields: ["name", "role"], defaults: { name: "Новый", role: "" } };
+  const input = { items: "Анна · nail\nМария · brow\nЕлена · hair", images: ["/anna.webp", "/maria.webp", "/elena.webp"], model };
+  const moved = mutateGlossIndexedCards({ ...input, action: { type: "move", index: 2, to: 0 } });
+  assert.equal(moved.items, "Елена · hair\nАнна · nail\nМария · brow");
+  assert.deepEqual(moved.images, ["/elena.webp", "/anna.webp", "/maria.webp"]);
+  const removed = mutateGlossIndexedCards({ items: moved.items, images: moved.images, model, action: { type: "remove", index: 1 } });
+  assert.equal(removed.items, "Елена · hair\nМария · brow");
+  assert.deepEqual(removed.images, ["/elena.webp", "/maria.webp"]);
+  assert.equal(typeof mutateGlossIndexedCards({ items: removed.items, images: removed.images, model, action: { type: "add" } }).items, "string");
+});
+
+test("media picker target and service slug mapping are semantic and preserve legacy fields", () => {
+  let received: ReturnType<typeof glossIndexedMediaTarget> | undefined;
+  const callback = (target: ReturnType<typeof glossIndexedMediaTarget>) => { received = target; };
+  callback(glossIndexedMediaTarget("team_image_urls", 2, "Фотография сотрудника 3"));
+  assert.deepEqual(received, { kind: "list", key: "team_image_urls", index: 2, label: "Фотография сотрудника 3" });
+  const content = { service_card_images: { manicure: "/old.webp" }, unknown_legacy: { keep: true } };
+  const updated = setGlossServiceCardImage(content, "spa-pedicure", "/spa.webp");
+  assert.deepEqual(updated.service_card_images, { manicure: "/old.webp", "spa-pedicure": "/spa.webp" });
+  assert.deepEqual(updated.unknown_legacy, { keep: true });
+});
+
+test("generic orchestration has no GLOSS branches or component imports", () => {
+  const shell = readFileSync(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(shell, /templateKey\s*===\s*["']gloss-nail-studio/);
+  assert.doesNotMatch(shell, /GlossNativeSectionControls/);
+  assert.match(shell, /getPremiumTemplateEditorControl/);
 });
 
 test("GLOSS edit and save normalization preserve unknown compatible legacy data, custom blocks and section order", () => {

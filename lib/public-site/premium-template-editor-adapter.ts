@@ -3,7 +3,13 @@ import type {
   PremiumTemplateContract,
   PremiumTemplateNativeSection,
 } from "./premium-template-contract.ts";
-import type { PublicSiteContent, PublicSiteCustomBlock } from "./types.ts";
+import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteProject, PublicSiteService } from "./types.ts";
+
+export type PremiumTemplateEditorMediaTarget =
+  | { kind: "content"; key: "about_image_url" | "membership_image_url" | "gift_image_url"; label: string }
+  | { kind: "list"; key: "service_image_urls" | "team_image_urls" | "membership_image_urls" | "gift_image_urls"; index: number; label: string }
+  | { kind: "service-card"; slug: string; label: string }
+  | { kind: "section-background"; section: string; label: string };
 
 export type PremiumEditorSectionMetadata = PremiumTemplateNativeSection & {
   token: string;
@@ -31,6 +37,9 @@ export type PremiumTemplateEditorAdapter<SectionId extends string = string> = {
     content: PublicSiteContent;
     sectionId: SectionId;
     disabled: boolean;
+    services?: readonly PublicSiteService[];
+    portfolio?: readonly PublicSiteProject[];
+    onChooseMedia?(target: PremiumTemplateEditorMediaTarget): void;
     onChange(content: PublicSiteContent, historyGroup: string): void;
   }): EditorInspectorPlacedField[];
   insertCustomBlock(content: PublicSiteContent, block: PublicSiteCustomBlock): PublicSiteContent;

@@ -3,7 +3,7 @@ import type { GlossNativeSectionId } from "./gloss-premium-template-contract.ts"
 import type { PublicSiteContent, PublicSiteTypography } from "./types.ts";
 
 type Group = EditorInspectorPlacedField["group"];
-type FieldKind = "text" | "textarea" | "url" | "number" | "color" | "toggle" | "select" | "typography";
+type FieldKind = "text" | "textarea" | "richText" | "url" | "number" | "color" | "toggle" | "select" | "typography";
 type FieldSpec = {
   id: string;
   label: string;
@@ -84,13 +84,13 @@ const specs: Record<GlossNativeSectionId, FieldSpec[]> = {
     field("limit", "Работ на главной", "portfolio_home_limit", "number", "layout"), field("show-filters", "Показывать фильтры", "portfolio_show_filters", "toggle", "layout"), field("lightbox", "Открывать изображения в галерее", "portfolio_lightbox", "toggle", "layout"), field("show-category", "Показывать категорию", "portfolio_show_category", "toggle", "layout"), field("show-title", "Показывать название работы", "portfolio_show_title", "toggle", "layout"), field("show-description", "Показывать описание работы", "portfolio_show_description", "toggle", "layout"),
   ],
   team: [field("label", "Метка раздела", "team_label"), field("title", "Заголовок", "team_title", "textarea"), field("items", "Мастера · имя · роль · описание", "team_items", "textarea", "content", undefined, 8), field("images", "Фотографии мастеров · одна на строку", "team_image_urls", "textarea", "media", undefined, 7)],
-  booking: [field("label", "Метка раздела", "booking_label"), field("title", "Заголовок", "booking_title", "textarea"), field("text", "Текст", "booking_text", "textarea")],
-  membership: [field("label", "Метка раздела", "membership_label"), field("title", "Заголовок", "membership_title", "textarea"), field("text", "Вводный текст клуба", "membership_text", "textarea"), field("items", "Уровни клуба · название · условие · описание · кнопка · ссылка", "membership_items", "textarea", "content", undefined, 9), field("image", "Основное изображение клуба", "membership_image_url", "url", "media"), field("images", "Изображения уровней · одно на строку", "membership_image_urls", "textarea", "media", undefined, 7)],
+  booking: [field("label", "Метка раздела", "booking_label"), field("title", "Заголовок", "booking_title", "textarea"), field("text", "Текст", "booking_text", "richText")],
+  membership: [field("label", "Метка раздела", "membership_label"), field("title", "Заголовок", "membership_title", "textarea"), field("text", "Вводный текст клуба", "membership_text", "richText"), field("items", "Уровни клуба · название · условие · описание · кнопка · ссылка", "membership_items", "textarea", "content", undefined, 9), field("image", "Основное изображение клуба", "membership_image_url", "url", "media"), field("images", "Изображения уровней · одно на строку", "membership_image_urls", "textarea", "media", undefined, 7)],
   safety: [field("label", "Метка раздела", "safety_label"), field("title", "Заголовок", "safety_title", "textarea"), field("items", "Карточки безопасности · заголовок · текст", "safety_items", "textarea", "content", undefined, 7)],
   reviews: [field("label", "Метка раздела", "reviews_label"), field("title", "Заголовок", "reviews_title", "textarea"), field("items", "Отзывы · текст · автор · подпись", "reviews_items", "textarea", "content", undefined, 7), field("reviews", "Отзывы · текст | автор | оценка | источник | ссылка", "reviews", "textarea", "content", undefined, 7)],
-  gift: [field("label", "Метка раздела", "gift_label"), field("title", "Заголовок", "gift_title", "textarea"), field("text", "Вводный текст", "gift_text", "textarea"), field("items", "Сертификаты · название · сумма · описание · кнопка · ссылка", "gift_items", "textarea", "content", undefined, 9), field("image", "Основное изображение сертификата", "gift_image_url", "url", "media"), field("images", "Изображения сертификатов · одно на строку", "gift_image_urls", "textarea", "media", undefined, 7)],
+  gift: [field("label", "Метка раздела", "gift_label"), field("title", "Заголовок", "gift_title", "textarea"), field("text", "Вводный текст", "gift_text", "richText"), field("items", "Сертификаты · название · сумма · описание · кнопка · ссылка", "gift_items", "textarea", "content", undefined, 9), field("image", "Основное изображение сертификата", "gift_image_url", "url", "media"), field("images", "Изображения сертификатов · одно на строку", "gift_image_urls", "textarea", "media", undefined, 7)],
   faq: [field("label", "Метка раздела", "faq_label"), field("title", "Заголовок", "faq_title", "textarea"), field("items", "Вопросы и ответы · вопрос | ответ", "faq_items", "textarea", "content", undefined, 9)],
-  about: [field("label", "Метка раздела", "about_label"), field("title", "Заголовок", "about_title", "textarea"), field("text", "Текст о студии", "about_text", "textarea"), field("facts", "Факты · значение · подпись", "about_facts", "textarea", "content", undefined, 7), field("button", "Текст кнопки", "about_button_label"), field("button-url", "Ссылка кнопки", "about_button_url", "url"), field("image", "Изображение о студии", "about_image_url", "url", "media")],
+  about: [field("label", "Метка раздела", "about_label"), field("title", "Заголовок", "about_title", "textarea"), field("text", "Текст о студии", "about_text", "richText"), field("facts", "Факты · значение · подпись", "about_facts", "textarea", "content", undefined, 7), field("button", "Текст кнопки", "about_button_label"), field("button-url", "Ссылка кнопки", "about_button_url", "url"), field("image", "Изображение о студии", "about_image_url", "url", "media")],
   contact: [field("label", "Метка раздела", "contact_label"), field("title", "Заголовок", "contact_title", "textarea"), field("email", "Email для посетителей", "contact_email"), field("phone", "Телефон для посетителей", "contact_phone"), field("hours", "Часы работы", "contact_hours", "textarea"), field("address", "Адрес на сайте", "contact_address", "textarea"), field("map", "Адрес для поиска на карте", "map_query", "textarea"), field("note", "Подсказка посетителю", "contact_note", "textarea"), field("route", "Текст кнопки маршрута", "contact_route_label"), field("footer", "Короткий текст в подвале", "footer_note", "textarea")],
 };
 
@@ -148,17 +148,25 @@ function decodeValue(content: PublicSiteContent, spec: FieldSpec, value: string 
   return String(value);
 }
 
+const customPaths = new Set([
+  "team_items", "team_image_urls", "membership_items", "membership_image_url", "membership_image_urls",
+  "gift_items", "gift_image_url", "gift_image_urls", "safety_items", "reviews", "reviews_items", "faq_items",
+  "about_facts", "about_image_url", "service_image_urls", "service_card_images",
+]);
+
 export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossNativeSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void): EditorInspectorPlacedField[] {
-  return specs[sectionId].map(spec => {
+  const fields: EditorInspectorPlacedField[] = specs[sectionId].filter(spec => !customPaths.has(spec.path) && !spec.path.endsWith(".background_image_url")).map(spec => {
     const current = atPath(content, spec.path);
     const update = (value: string | boolean) => onChange(setPath(content, spec.path, decodeValue(content, spec, value)), `gloss:${sectionId}:${spec.id}`);
     if (spec.kind === "toggle") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "toggle", label: spec.label, checked: current === true, disabled, onChange: update };
     if (spec.kind === "select") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "select", label: spec.label, value: String(current ?? spec.options?.[0]?.value ?? ""), options: spec.options ?? [], disabled, onChange: update };
     if (spec.kind === "typography") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "typography", type: "typography", title: spec.label, description: "Заголовок выбранного раздела", value: current && typeof current === "object" ? current as PublicSiteTypography : undefined, disabled, onChange: value => onChange(setPath(content, spec.path, value), `gloss:${sectionId}:${spec.id}`) } as EditorInspectorPlacedField;
+    if (spec.kind === "richText") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "richText", label: spec.label, value: String(current ?? ""), disabled, onChange: update };
     const value = encodeValue(current, spec.path);
     if (spec.kind === "textarea") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "textarea", label: spec.label, value, rows: spec.rows ?? 3, disabled, onChange: update };
     return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : spec.kind === "number" ? "number" : spec.kind === "color" ? "color" : "text", label: spec.label, value, disabled, onChange: update };
-  });
+  }) as EditorInspectorPlacedField[];
+  return fields;
 }
 
 export function resetGlossInspectorSection(content: PublicSiteContent, defaults: PublicSiteContent, sectionId: GlossNativeSectionId) {

@@ -69,6 +69,7 @@ import {
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
 import { getPremiumTemplateEditorCanvasRenderer } from "@/lib/public-site/premium-template-editor-canvas-registry";
+import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -2913,8 +2914,26 @@ function VisualBuilder({
             content: draft,
             sectionId: selectedPremiumDefinition.id,
             disabled: !canConfigure || !editingEnabled,
+            services: previewServices,
+            portfolio: previewPortfolio,
+            onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
             onChange: onReplaceDraft,
           }),
+          {
+            id: "premium-template-native-control",
+            group: "content",
+            type: "custom",
+            customContent: getPremiumTemplateEditorControl({
+              templateKey: premiumEditorAdapter.templateKey,
+              sectionId: selectedPremiumDefinition.id,
+              content: draft,
+              disabled: !canConfigure || !editingEnabled,
+              services: previewServices,
+              portfolio: previewPortfolio,
+              onChange: onReplaceDraft,
+              onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
+            }),
+          },
         ] : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
