@@ -1,5 +1,6 @@
 import type { PremiumTemplateEditorAdapter } from "./premium-template-editor-adapter.ts";
 import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "./noir-premium-template-editor-adapter.ts";
+import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "./gloss-premium-template-editor-adapter.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
 
 export function validatePremiumTemplateEditorAdapterRegistry(
@@ -22,6 +23,7 @@ export function validatePremiumTemplateEditorAdapterRegistry(
 }
 
 export const PREMIUM_TEMPLATE_EDITOR_ADAPTERS = [
+  GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER,
   NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER,
 ] as const satisfies readonly PremiumTemplateEditorAdapter[];
 

@@ -26,7 +26,7 @@ test("runtime exclusively mounts the shared navigator and inspector", async () =
     assert.doesNotMatch(adapter, /inspector=\{/);
     assert.doesNotMatch(adapter, /<SharedEditorNavigator|<SharedEditorInspector/);
   }
-  assert.match(base, /draft\.template_id === "gloss-nail-studio" \? "GLOSS"/);
+  assert.match(base, /SITE_TEMPLATE_REGISTRY\.find\(item => item\.key === draft\.template_id\)\?\.name/);
 });
 
 test("templates cannot override OneStudio editor chrome or geometry", async () => {

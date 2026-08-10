@@ -25,7 +25,7 @@ const futureAdapter = {
   publicHomeRenderer: noopRenderer,
 } satisfies PremiumTemplateRuntimeAdapter;
 
-test("real premium definition and public runtime registry resolve NOIR only", async () => {
+test("real premium definition and public runtime registry keep NOIR registered", async () => {
   const [registry, noirAdapter] = await Promise.all([
     read("../lib/public-site/premium-template-runtime-registry.tsx"),
     read("../lib/public-site/noir-premium-template-runtime-adapter.tsx"),
@@ -33,7 +33,7 @@ test("real premium definition and public runtime registry resolve NOIR only", as
   assert.equal(getPremiumTemplateDefinition("premium-studio")?.templateKey, "premium-studio");
   assert.equal(getPremiumTemplateDefinition("unknown"), undefined);
   assert.match(registry, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
-  assert.doesNotMatch(registry, /premium-kids-center|gloss-nail-studio|standard/);
+  assert.doesNotMatch(registry, /premium-kids-center|standard/);
   assert.match(noirAdapter, /templateKey: NOIR_PREMIUM_TEMPLATE_CONTRACT\.templateKey/);
   assert.match(noirAdapter, /publicHomeRenderer: PremiumStudioExperience/);
 });

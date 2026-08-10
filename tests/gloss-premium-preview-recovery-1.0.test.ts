@@ -29,7 +29,8 @@ test("standalone GLOSS demo uses the canonical full seed and runtime", async () 
   assert.ok(demo.portfolio.length >= 10);
   assert.ok((demo.content.section_order ?? []).includes("membership"));
   assert.match(route, /PublicSiteTemplateRuntime/);
-  assert.match(runtime, /GlossBusinessSite/);
+  assert.match(runtime, /getPremiumTemplatePublicRuntime/);
+  assert.doesNotMatch(runtime, /GlossBusinessSite|gloss-nail-studio/);
   assert.equal(getSiteTemplateDefinition(demo.content.template_id)?.key, "gloss-nail-studio");
 });
 

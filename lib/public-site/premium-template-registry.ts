@@ -3,8 +3,10 @@ import {
   type PremiumTemplateContract,
 } from "./premium-template-contract.ts";
 import { NOIR_PREMIUM_TEMPLATE_CONTRACT } from "./noir-premium-template-contract.ts";
+import { GLOSS_PREMIUM_TEMPLATE_CONTRACT } from "./gloss-premium-template-contract.ts";
 
 export const PREMIUM_TEMPLATE_DEFINITIONS = [
+  GLOSS_PREMIUM_TEMPLATE_CONTRACT,
   NOIR_PREMIUM_TEMPLATE_CONTRACT,
 ] as const satisfies readonly PremiumTemplateContract[];
 

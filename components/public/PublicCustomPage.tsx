@@ -17,9 +17,11 @@ import { publicTypographyStyle } from "@/lib/public-site/typography";
 export default function PublicCustomPage({
   site,
   page,
+  brandTagline,
 }: {
   site: PublicSiteData;
   page: PublicSitePage;
+  brandTagline?: string;
 }) {
   const { business, company, content, capabilities } = site;
   const localized =
@@ -52,9 +54,9 @@ export default function PublicCustomPage({
             <span className="font-serif text-[30px] tracking-[0.04em]">
               {content.brand_name || company.display_name || business.name}
             </span>
-            {content.template_id === "gloss-nail-studio" ? (
+            {brandTagline ? (
               <span className="mt-1 pl-1 text-[8px] font-semibold tracking-[0.42em] opacity-65">
-                NAIL STUDIO
+                {brandTagline}
               </span>
             ) : null}
           </Link>

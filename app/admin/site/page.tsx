@@ -69,6 +69,7 @@ import {
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
 import { getPremiumTemplateEditorCanvasRenderer } from "@/lib/public-site/premium-template-editor-canvas-registry";
+import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -2334,7 +2335,7 @@ function VisualBuilder({
 
   function resetSelectedPremiumSection() {
     if (!premiumEditorAdapter || !isPremiumNativeSelection || !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) return;
-    if (!window.confirm("Вернуть этот блок к исходному содержимому NOIR?")) return;
+    if (!window.confirm("Вернуть этот блок к исходному содержимому шаблона?")) return;
     onReplaceDraft(
       premiumEditorAdapter.resetSection(draft, selectedPremiumNativeSection),
       premiumEditorAdapter.history.reset(selectedPremiumNativeSection),
@@ -2345,7 +2346,7 @@ function VisualBuilder({
     if (!premiumEditorAdapter || !isPremiumNativeHome) return;
     if (
       !window.confirm(
-        "Вернуть исходный NOIR? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
+        "Вернуть исходный шаблон? Тексты, изображения, порядок родных секций и добавленные блоки текущего черновика будут сброшены. Опубликованный сайт не изменится, пока вы не нажмёте «Опубликовать».",
       )
     ) {
       return;
@@ -2441,7 +2442,35 @@ function VisualBuilder({
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
-      ? layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
+      ? [
+          ...(premiumEditorAdapter.fixedEditorSections ?? []).map((definition, index) => ({
+            id: premiumEditorAdapter.nativeToken(definition.id),
+            key: premiumEditorAdapter.nativeToken(definition.id),
+            label: definition.label,
+            index,
+            selected: !selectedCustomBlockId && selectedPremiumNativeSection === definition.id,
+            visible: premiumEditorAdapter.isSectionVisible(draft, definition.id),
+            required: true,
+            locked: true,
+            disabled: !canConfigure || !editingEnabled,
+            capabilities: {
+              select: true,
+              visibility: definition.capabilities.visibility,
+              reorder: false,
+              reset: definition.capabilities.reset,
+            },
+            onSelect: () => {
+              setSelectedCustomBlockId("");
+              setSelectedPremiumNativeSection(definition.id);
+              setSettingsOpen(true);
+            },
+            onVisibilityChange: (visible: boolean) =>
+              onReplaceDraft(
+                premiumEditorAdapter.setSectionVisibility(draft, definition.id, visible),
+                premiumEditorAdapter.history.visibility(definition.id),
+              ),
+          })),
+          ...layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
           const movementInput = {
             tokens: layoutOrder,
             customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
@@ -2459,7 +2488,7 @@ function VisualBuilder({
               id: item,
               key: item,
               label: definition.label,
-              index,
+              index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
               selected: !selectedCustomBlockId && selectedPremiumNativeSection === id,
               visible: premiumEditorAdapter.isSectionVisible(draft, id),
               required: true,
@@ -2506,7 +2535,7 @@ function VisualBuilder({
             id: item,
             key: item,
             label: block.title || t("Custom block"),
-            index,
+            index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
             selected: selectedCustomBlockId === block.id,
             visible: block.is_visible !== false,
             disabled: !canConfigure || !editingEnabled,
@@ -2532,7 +2561,8 @@ function VisualBuilder({
             onDrop: () => dropBlock(item, "home"),
             onDragEnd: finishBlockDrag,
           }];
-        })
+        }),
+      ]
       : [
         { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
         ...layoutOrder.flatMap((item, index) => {
@@ -2610,7 +2640,7 @@ function VisualBuilder({
   return (<>
     <TemplateEditorRuntime
       templateKey={draft.template_id ?? "standard"}
-      designName={draft.template_id === "gloss-nail-studio" ? "GLOSS" : SITE_TEMPLATE_REGISTRY.find(item => item.key === draft.template_id)?.name ?? t("Base OneStudio design")}
+      designName={SITE_TEMPLATE_REGISTRY.find(item => item.key === draft.template_id)?.name ?? t("Base OneStudio design")}
       draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`}
       previewHref={buildSitePreviewHref({ templateKey: draft.template_id ?? "standard", businessSlug, locale: selectedLocale })}
       device={previewDevice}
@@ -2647,8 +2677,8 @@ function VisualBuilder({
         seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
         auxiliaryAction: isPremiumNativeHome
           ? {
-              id: "restore-noir",
-              label: "Вернуть исходный NOIR",
+              id: "restore-template",
+              label: premiumEditorAdapter?.restoreLabel ?? "Вернуть исходный шаблон",
               disabled: !canConfigure || saving || !editingEnabled,
               onClick: restoreOriginalPremiumTemplate,
             }
@@ -2893,7 +2923,7 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "NOIR FRAME" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "Шаблон" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         onCollapse: () => setSettingsOpen(false),
         fields: isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition ? [
           {
@@ -2913,8 +2943,26 @@ function VisualBuilder({
             content: draft,
             sectionId: selectedPremiumDefinition.id,
             disabled: !canConfigure || !editingEnabled,
+            services: previewServices,
+            portfolio: previewPortfolio,
+            onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
             onChange: onReplaceDraft,
           }),
+          {
+            id: "premium-template-native-control",
+            group: "content",
+            type: "custom",
+            customContent: getPremiumTemplateEditorControl({
+              templateKey: premiumEditorAdapter.templateKey,
+              sectionId: selectedPremiumDefinition.id,
+              content: draft,
+              disabled: !canConfigure || !editingEnabled,
+              services: previewServices,
+              portfolio: previewPortfolio,
+              onChange: onReplaceDraft,
+              onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
+            }),
+          },
         ] : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
             {activePage ? (
               <>
