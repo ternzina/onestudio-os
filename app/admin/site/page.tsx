@@ -73,6 +73,14 @@ import {
   setTemplateNativeSectionVisibility,
 } from "@/lib/public-site/template-native-section-state";
 import { buildNoirInspectorFields, NOIR_EDITOR_SECTIONS, resetNoirInspectorSection, type NoirEditorSection } from "@/lib/public-site/noir-editor-schema";
+import { getNoirNativeSection } from "@/lib/public-site/noir-premium-template-contract";
+import {
+  canLegacyNoirNativeSectionReorder,
+  canMoveLegacyNoirCompositionItem,
+  isLegacyNoirNativeTokenPinned,
+  legacyNoirVisibilityAfterReset,
+  moveLegacyNoirCompositionItem,
+} from "@/lib/public-site/noir-premium-template-compat";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
   PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
@@ -181,6 +189,9 @@ const inputClass =
 
 const MAX_EDITOR_HISTORY = 80;
 const HISTORY_GROUP_WINDOW_MS = 900;
+const NOIR_EDITOR_SECTION_DEFINITIONS = NOIR_EDITOR_SECTIONS.map(([id]) =>
+  getNoirNativeSection(id),
+).filter((section) => section !== undefined);
 
 function cloneEditorValue<Value>(value: Value): Value {
   return JSON.parse(JSON.stringify(value)) as Value;
@@ -2316,23 +2327,15 @@ function VisualBuilder({
   }
 
   function moveNoirLayoutItem(itemId: string, direction: -1 | 1) {
-    if (itemId === "noir:hero" || itemId === "noir:footer") return;
-    const order = [...layoutOrder];
-    const currentIndex = order.indexOf(itemId);
-    const nextIndex = currentIndex + direction;
-    if (
-      currentIndex < 0 ||
-      nextIndex < 0 ||
-      nextIndex >= order.length ||
-      order[nextIndex] === "noir:hero" ||
-      order[nextIndex] === "noir:footer"
-    ) {
-      return;
-    }
-    [order[currentIndex], order[nextIndex]] = [
-      order[nextIndex],
-      order[currentIndex],
-    ];
+    const currentIndex = layoutOrder.indexOf(itemId);
+    if (currentIndex < 0) return;
+    const order = moveLegacyNoirCompositionItem({
+      tokens: layoutOrder,
+      customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
+      fromIndex: currentIndex,
+      toIndex: currentIndex + direction,
+    });
+    if (order.every((token, index) => token === layoutOrder[index])) return;
     onReplaceDraft(
       { ...draft, layout_order: order },
       "noir-layout-order",
@@ -2346,12 +2349,17 @@ function VisualBuilder({
       draft,
       resetNoirInspectorSection(noirContent, selectedNoirSection),
     );
+    const currentVisibility = isTemplateNativeSectionVisible(
+      draft,
+      PREMIUM_STUDIO_TEMPLATE_KEY,
+      selectedNoirSection,
+    );
     onReplaceDraft(
       setTemplateNativeSectionVisibility(
         resetDraft,
         PREMIUM_STUDIO_TEMPLATE_KEY,
         selectedNoirSection,
-        true,
+        legacyNoirVisibilityAfterReset(selectedNoirSection, currentVisibility),
       ),
       `noir:${selectedNoirSection}:reset`,
     );
@@ -2467,23 +2475,25 @@ function VisualBuilder({
       ]
     : isNoirHome
       ? layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
-          const previous = layoutOrder[index - 1];
-          const next = layoutOrder[index + 1];
-          const canMoveUp = index > 0 && previous !== "noir:hero";
-          const canMoveDown =
-            index < layoutOrder.length - 1 && next !== "noir:footer";
+          const movementInput = {
+            tokens: layoutOrder,
+            customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
+            fromIndex: index,
+          };
+          const canMoveUp = canMoveLegacyNoirCompositionItem({ ...movementInput, direction: -1 });
+          const canMoveDown = canMoveLegacyNoirCompositionItem({ ...movementInput, direction: 1 });
 
           if (item.startsWith("noir:")) {
             const id = item.slice("noir:".length) as NoirEditorSection;
-            const definition = NOIR_EDITOR_SECTIONS.find(
-              ([sectionId]) => sectionId === id,
+            const definition = NOIR_EDITOR_SECTION_DEFINITIONS.find(
+              (section) => section.id === id,
             );
             if (!definition) return [];
-            const pinned = id === "hero" || id === "footer";
+            const pinned = isLegacyNoirNativeTokenPinned(item);
             return [{
               id: item,
               key: item,
-              label: definition[1],
+              label: definition.label,
               index,
               selected: !selectedCustomBlockId && selectedNoirSection === id,
               visible: isTemplateNativeSectionVisible(
@@ -2496,9 +2506,12 @@ function VisualBuilder({
               disabled: !canConfigure || !editingEnabled,
               canMoveUp: !pinned && canMoveUp,
               canMoveDown: !pinned && canMoveDown,
-              capabilities: pinned
-                ? { select: true, visibility: true }
-                : { select: true, visibility: true, reorder: true, reset: true },
+              capabilities: {
+                select: true,
+                visibility: definition.capabilities.visibility,
+                reorder: definition.capabilities.reorder,
+                reset: definition.capabilities.reset,
+              },
               onSelect: () => {
                 setSelectedCustomBlockId("");
                 setSelectedNoirSection(id);
@@ -2586,17 +2599,23 @@ function VisualBuilder({
     ? customBlockLayoutId(selectedCustomBlock.id)
     : `noir:${selectedNoirSection}`;
   const selectedNoirLayoutIndex = layoutOrder.indexOf(selectedNoirLayoutItem);
-  const selectedNoirCanMoveUp =
-    selectedNoirLayoutIndex > 0 &&
-    layoutOrder[selectedNoirLayoutIndex - 1] !== "noir:hero";
-  const selectedNoirCanMoveDown =
-    selectedNoirLayoutIndex >= 0 &&
-    selectedNoirLayoutIndex < layoutOrder.length - 1 &&
-    layoutOrder[selectedNoirLayoutIndex + 1] !== "noir:footer";
+  const selectedNoirMovementInput = {
+    tokens: layoutOrder,
+    customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
+    fromIndex: selectedNoirLayoutIndex,
+  };
+  const selectedNoirCanMoveUp = canMoveLegacyNoirCompositionItem({
+    ...selectedNoirMovementInput,
+    direction: -1,
+  });
+  const selectedNoirCanMoveDown = canMoveLegacyNoirCompositionItem({
+    ...selectedNoirMovementInput,
+    direction: 1,
+  });
 
   const inspectorActions: EditorInspectorAction[] = isNoirNativeSelection
     ? [
-        ...(selectedNoirSection !== "hero" && selectedNoirSection !== "footer"
+        ...(canLegacyNoirNativeSectionReorder(selectedNoirSection)
           ? [
               {
                 id: "move-up",
