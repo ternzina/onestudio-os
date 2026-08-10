@@ -11,7 +11,7 @@ import {
   type TemplateCreationMode,
   type TemplateKey,
 } from "@/lib/public-site/template-catalog";
-import { createTemplateSeed } from "@/lib/public-site/template-seeds";
+import { resolveCreationContract } from "@/lib/public-site/template-creation";
 import { supabase } from "@/lib/supabase";
 
 type BusinessType = "photo_studio" | "beauty_salon" | "school" | "venue" | "creative_service" | "other";
@@ -152,10 +152,11 @@ export default function CanonicalSiteCreationWizard({ initialMode, initialTempla
       return;
     }
     setSubmitting(true);
+    const creation = resolveCreationContract({ creation_mode: mode, template_key: templateKey });
     const enabledModules = [...requiredModules, ...form.enabled_modules];
     const { data, error } = await supabase.rpc("create_template_workspace", { p_request: {
-      launch_id: window.crypto.randomUUID(), creation_mode: mode, template_key: templateKey,
-      template_seed: createTemplateSeed(templateKey), business_name: form.business_name.trim(),
+      launch_id: window.crypto.randomUUID(), creation_mode: creation.creation_mode, template_key: creation.template_key,
+      template_seed: creation.seed, business_name: form.business_name.trim(),
       business_type: form.business_type, timezone: form.timezone.trim(), locale: form.locale.trim().toLowerCase(),
       locales: [form.locale.trim().toLowerCase(), form.locale.trim().toLowerCase() === "ru" ? "en" : "ru"],
       primary_locale: form.locale.trim().toLowerCase(), currency: form.currency.trim().toUpperCase(),

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { TEMPLATE_CATALOG, TEMPLATE_KEYS, resolveCreationContract } from "../lib/public-site/template-catalog.ts";
+import { TEMPLATE_CATALOG, TEMPLATE_KEYS } from "../lib/public-site/template-catalog.ts";
+import { resolveCreationContract } from "../lib/public-site/template-creation.ts";
 import { BLANK_BASE_SEED, createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import { getActiveEditorDesigns, isPublicRenderableSiteTemplate } from "../lib/public-site/template-registry.ts";
 import { selectExecutableTemplate } from "../lib/public-site/template-selection.ts";

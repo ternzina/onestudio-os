@@ -36,9 +36,11 @@ The small deterministic generator in `scripts/premium-template-package-generator
 
 ## Capability and Next.js boundaries
 
-The registration source contains strings and data, never runtime imports. The generated manifest entrypoint imports only manifest helpers. Public adapter modules own top-level, literal `next/dynamic` calls, keeping renderer paths statically analyzable and lazy. Public registries do not reach editor adapters, editor schemas or admin components; the editor registry does not reach public renderers. Seed lookup stays synchronous for the creation wizard.
+The registration source contains strings and data, never runtime imports. The generated manifest entrypoint imports only manifest helpers. `template-catalog.ts` is a serializable metadata/capability view: catalog records contain no seed functions and its runtime graph cannot reach seed, editor or public-renderer implementations. Navigation helpers such as `newSitePathForTemplate` therefore remain safe for Client Component catalog consumers.
 
-`tests/premium-template-import-graph.test.ts` walks transitive local static and literal dynamic imports. It excludes `import type`/`export type` edges and verifies the manifest, public-home, custom-page and editor graphs rather than checking only direct file text.
+Creation and seed orchestration lives separately in `template-creation.ts`. Its `resolveCreationContract` validates catalog capabilities and resolves `createTemplateSeed` synchronously, preserving the wizard's synchronous seed payload without exposing that capability through the catalog module. Public adapter modules own top-level, literal `next/dynamic` calls, keeping renderer paths statically analyzable and lazy. Public registries do not reach editor adapters, editor schemas or admin components; the editor registry does not reach public renderers.
+
+`tests/premium-template-import-graph.test.ts` uses the TypeScript compiler AST to walk the real transitive local graph. It recognizes single-line and multiline static imports, value re-exports, mixed type/value clauses and literal dynamic imports, while excluding `import type`, `export type` and type-only specifiers. Relative paths and `@/` aliases are resolved. Dedicated fixtures prove multiline and dynamic edges are followed and type-only edges are omitted. Assertions cover both catalogs, the `/demos` Client Component entry, both public runtime registries and the editor registry, including exclusion of the canonical source/generator from client runtime graphs.
 
 ## Third-package proof
 

@@ -41,6 +41,8 @@ test("registration and auth preserve explicit canonical template intent", async 
 test("one wizard sends design and Client Launch business setup in one canonical call", async () => {
   const wizard = await read("../app/new-site/CanonicalSiteCreationWizard.tsx");
   assert.equal((wizard.match(/\.rpc\("create_template_workspace"/g) ?? []).length, 1);
+  assert.match(wizard, /resolveCreationContract/);
+  assert.doesNotMatch(wizard, /from "@\/lib\/public-site\/template-seeds"/);
   assert.doesNotMatch(wizard, /create_configured_workspace|launch_first_workspace/);
   for (const field of ["creation_mode", "template_key", "template_seed", "business_type", "timezone", "country_code", "email", "phone", "address", "service_title", "resource_name", "work_days", "enabled_modules"]) {
     assert.match(wizard, new RegExp(`${field}:`));
