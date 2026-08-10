@@ -1,5 +1,5 @@
 import type { EditorInspectorPlacedField } from "./editor-spec";
-import type { PremiumStudioContent } from "./premium-studio-content";
+import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content";
 
 export const NOIR_EDITOR_SECTIONS = [
   ["hero", "Обложка"], ["manifest", "Манифест"], ["light", "Световая история"],
@@ -125,4 +125,20 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
       ? { id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows ?? 3, disabled, value, onChange: update }
       : { id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, onChange: update };
   });
+}
+
+
+export function resetNoirInspectorSection(
+  content: PremiumStudioContent,
+  section: NoirEditorSection,
+) {
+  let next = structuredClone(content);
+  for (const spec of specs[section]) {
+    next = setPath(
+      next,
+      spec.path,
+      structuredClone(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path)),
+    );
+  }
+  return next;
 }

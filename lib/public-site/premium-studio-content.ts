@@ -10,9 +10,28 @@ import {
   testimonials,
 } from "../../app/demos/premium-studio/content.ts";
 import type { PublicSiteContent } from "./types.ts";
+import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state";
 
 export const PREMIUM_STUDIO_TEMPLATE_KEY = "premium-studio" as const;
 export const PREMIUM_STUDIO_CONTENT_VERSION = 1 as const;
+
+export const PREMIUM_STUDIO_NATIVE_LAYOUT_ORDER = [
+  "noir:hero",
+  "noir:manifest",
+  "noir:light",
+  "noir:services",
+  "noir:portfolio",
+  "noir:retouch",
+  "noir:film",
+  "noir:team",
+  "noir:process",
+  "noir:equipment",
+  "noir:tour",
+  "noir:reviews",
+  "noir:faq",
+  "noir:contact",
+  "noir:footer",
+] as const;
 
 const brightBase = "/images/demos/premium-studio/bright";
 
@@ -132,8 +151,17 @@ export function resolvePremiumStudioContent(content?: PublicSiteContent): Premiu
   };
 }
 
-export function withPremiumStudioContent(content: PublicSiteContent, premium: PremiumStudioContent): PublicSiteContent {
-  return { ...content, template_content: { ...(content.template_content ?? {}), [PREMIUM_STUDIO_TEMPLATE_KEY]: clone(premium) } };
+export function withPremiumStudioContent(
+  content: PublicSiteContent,
+  premium: PremiumStudioContent,
+  options?: { preserveEditorState?: boolean },
+): PublicSiteContent {
+  return replaceTemplateContentPreservingEditorState(
+    content,
+    PREMIUM_STUDIO_TEMPLATE_KEY,
+    clone(premium) as unknown as Record<string, unknown>,
+    options?.preserveEditorState !== false,
+  );
 }
 
 export function createPremiumStudioSeed() { return clone(DEFAULT_PREMIUM_STUDIO_CONTENT); }
