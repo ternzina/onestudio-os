@@ -91,11 +91,12 @@ test("NOIR keeps common pages, design, SEO, Preview and universal blocks", async
   }
   const [customRuntime, customAdapter, noirPage] = await Promise.all([
     read("../components/public/PublicCustomPageRuntime.tsx"),
-    read("../lib/public-site/noir-premium-template-custom-page-runtime-adapter.tsx"),
+    read("../lib/public-site/noir-premium-template-custom-page-runtime-adapter.ts"),
     read("../components/public/NoirCustomPage.tsx"),
   ]);
   assert.match(customRuntime, /getPremiumTemplateCustomPageRuntime\(templateKey\)/);
   assert.doesNotMatch(customRuntime, /import NoirCustomPage|templateKey === ["']premium-studio/);
-  assert.match(customAdapter, /customPageRenderer: NoirCustomPage/);
+  assert.match(customAdapter, /import\("@\/components\/public\/NoirCustomPage"\)/);
+  assert.match(customAdapter, /customPageRenderer: NoirPage/);
   assert.match(noirPage, /resolvePremiumStudioContent|PublicCustomBlock|show_in_navigation/);
 });

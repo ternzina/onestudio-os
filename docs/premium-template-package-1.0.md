@@ -1,31 +1,51 @@
 # Premium Template Package 1.0
 
-The canonical registration is the serializable `PREMIUM_TEMPLATE_PACKAGE_MANIFESTS` catalog in `premium-template-package-catalog.ts`. A manifest owns the stable template key, aliases, library behavior, persistence compatibility, capabilities, native section IDs, assets and all `/demos` preview copy. It contains data only: no functions, React components, Next.js helpers, seeds, editor schemas or runtime adapters.
+## Single registration source
 
-## Registration and keys
+`lib/public-site/premium-template-package-source.mjs` is the only manually maintained package list. Each entry contains a serializable manifest and five project-root-relative module/export bindings: synchronous seed, contract, editor adapter, public-home runtime adapter and custom-page runtime adapter. `PremiumTemplateKey`, `TemplateKey`, `TEMPLATE_KEYS`, package lookup, library/new-site choices and `/demos` metadata are derived from its generated manifest tuple.
 
-`PremiumTemplateKey` is inferred from the manifest tuple. `TemplateKey`, `TEMPLATE_KEYS`, the general template catalog, library choices, new-site choices and package lookup are derived from that source. Package templates use `{ kind: "premium-package" }`; there is no closed GLOSS/NOIR adapter union and no `legacyAdapter` that can misroute a new design through an existing implementation. Unknown identities fail closed.
+Adding a package requires creating its package-owned implementation modules and adding exactly one entry to `PREMIUM_TEMPLATE_PACKAGE_SOURCE`. For example, a package normally adds:
 
-Adding a third package means adding one manifest entry with its own stable key and implementing the capabilities declared by it. Capability registries are exhaustive `Record<PremiumTemplateKey, …>` values, so TypeScript reports every missing seed, contract, editor, public-home or custom-page binding as soon as the manifest is registered. No second hand-maintained key union or permissive fallback exists.
+- `<package>-premium-template-seed.ts`
+- `<package>-premium-template-contract.ts`
+- `<package>-premium-template-editor-adapter.ts`
+- `<package>-premium-template-runtime-adapter.ts`
+- `<package>-premium-template-custom-page-runtime-adapter.ts`
 
-## Capability boundaries
+The package key is not added manually to any central capability map. The previous `satisfies Record<PremiumTemplateKey, …>` maps only reported missing keys after a manifest edit; they did not create or connect bindings and therefore were not automatic registration.
 
-Bindings are split by execution capability:
+## Deterministic generated registries
 
-- `premium-template-seed-registry.ts` contains synchronous seed factories used by the current creation wizard.
-- `premium-template-registry.ts` contains universal contracts only.
-- `premium-template-editor-registry.ts` contains editor adapters and schemas only.
-- `premium-template-runtime-registry.ts` contains public-home adapters and statically analyzable `next/dynamic` renderer loaders.
-- `premium-template-custom-page-runtime-registry.ts` does the same for public custom pages.
+Run:
 
-Manifest consumers therefore cannot pull React or implementation code. Public runtime entrypoints have no import path to editor adapters, editor schemas or admin components; editor lookup does not import public renderers. The public renderer imports remain lazy. This split also avoids circular imports: capability registries depend on the manifest-derived key type and contracts, never on each other.
+```sh
+npm run generate:premium-templates
+npm run check:premium-templates
+```
 
-## Demo metadata
+The small deterministic generator in `scripts/premium-template-package-generator.mjs` produces these checked-in files:
 
-`preview` explicitly defines `collectionVisible`, `group`, localized title/description/alt text, route, image and stable order, alongside palette metadata. `/demos` derives package cards from these fields, not from commercial `library.tier` and not from template-key branches. Thus standard-tier GLOSS and premium-tier NOIR both appear with their own copy. A future package cannot inherit NOIR, GLOSS or BEMBI labels accidentally.
+- `premium-template-package-catalog.ts` — data-only manifests and inferred key union
+- `premium-template-seed-registry.ts` — synchronous seed imports only
+- `premium-template-registry.ts` — contract imports only
+- `premium-template-editor-registry.ts` — editor adapter imports only
+- `premium-template-runtime-registry.ts` — public-home runtime imports only
+- `premium-template-custom-page-runtime-registry.ts` — custom-page runtime imports only
 
-## Persistence and BEMBI
+`npm run check:premium-templates` fails when any generated output is stale. It runs before `npm test` and `npm run build`; the package test also compares every generated file byte-for-byte, so direct `node --test tests/*.test.ts` fails on stale output too.
 
-GLOSS and NOIR keep their existing keys, routes, seed implementations, contract behavior and persistence formats. No migration is involved; `layout_order`, custom blocks and `template_content` remain round-trippable.
+## Capability and Next.js boundaries
 
-BEMBI (`premium-kids-center`) intentionally remains outside the premium package manifest registry. Its protected runtime, routes, content and `bembi.biz` behavior are unchanged. A separate explicit demo record preserves its existing catalog presence without claiming package membership.
+The registration source contains strings and data, never runtime imports. The generated manifest entrypoint imports only manifest helpers. Public adapter modules own top-level, literal `next/dynamic` calls, keeping renderer paths statically analyzable and lazy. Public registries do not reach editor adapters, editor schemas or admin components; the editor registry does not reach public renderers. Seed lookup stays synchronous for the creation wizard.
+
+`tests/premium-template-import-graph.test.ts` walks transitive local static and literal dynamic imports. It excludes `import type`/`export type` edges and verifies the manifest, public-home, custom-page and editor graphs rather than checking only direct file text.
+
+## Third-package proof
+
+`tests/premium-template-package-1.0.test.ts` defines one temporary AURORA source entry whose bindings point to package-owned fixture modules and appends that one entry to the real NOIR/GLOSS source. The production generator creates temporary capability registries from the resulting source. The test imports those generated registries and calls the production manifest, contract, editor, public-home, custom-page, seed, catalog and demo builders/lookups. It verifies AURORA metadata and implementations, fail-closed unknown keys, isolation from NOIR/GLOSS and exclusion of BEMBI.
+
+## Compatibility and BEMBI
+
+GLOSS and NOIR retain their keys, routes, preview copy, seed behavior, contracts, editor controls, lazy public renderers and persistence formats. `layout_order`, custom blocks and `template_content` continue to round-trip without a migration.
+
+BEMBI (`premium-kids-center`) remains intentionally outside this registry because it is a separate protected template/runtime with its own lifecycle and `bembi.biz` behavior. Its explicit protected demo entry remains unchanged; it is not a universal premium package.

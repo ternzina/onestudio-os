@@ -1,5 +1,6 @@
 import { createTemplateSeed } from "./template-seeds.ts";
 import { PREMIUM_TEMPLATE_PACKAGE_MANIFESTS, type PremiumTemplateKey } from "./premium-template-package-catalog.ts";
+import type { PremiumTemplatePackageManifest } from "./premium-template-package.ts";
 
 type CoreTemplateKey = "standard" | "premium-kids-center";
 export type TemplateKey = CoreTemplateKey | PremiumTemplateKey;
@@ -17,18 +18,25 @@ const CORE_TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = [
   { key: "premium-kids-center", aliases: ["bembi"], name: "BEMBI", category: "kids-education", tier: "premium", gallery: { visible: true, previewRoute: "/demos/premium-kids-center", previewImage: "/images/demos/premium-kids-center/hero-platform.webp", description: "Kids Discovery Center с программами, заданиями и материалами." }, capabilities: { customerCreatable: true, createFromScratch: false, editorSelectable: true, previewRenderable: true, publicRenderable: true, customPages: true }, integration: { kind: "core", adapter: "bembi" }, contentNamespace: true, seed: () => createTemplateSeed("premium-kids-center") },
 ] as const;
 
-const PACKAGE_TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.map((manifest) => ({
-  key: manifest.templateKey,
-  aliases: manifest.aliases,
-  name: manifest.name,
-  category: manifest.category,
-  tier: manifest.library.tier,
-  gallery: { visible: manifest.library.visible, previewRoute: manifest.preview.route, previewImage: manifest.preview.image, description: manifest.description },
-  capabilities: { customerCreatable: manifest.capabilities.customerCreatable, createFromScratch: false, editorSelectable: manifest.capabilities.editorSelectable, previewRenderable: manifest.capabilities.previewRenderable, publicRenderable: manifest.capabilities.publicHome, customPages: manifest.capabilities.customPages },
-  integration: { kind: "premium-package" },
-  contentNamespace: manifest.persistence.contentNamespace,
-  seed: () => createTemplateSeed(manifest.templateKey),
-}));
+export function createPremiumPackageTemplateCatalog(
+  manifests: readonly PremiumTemplatePackageManifest[],
+  seedResolver: (templateKey: string) => ReturnType<typeof createTemplateSeed> = createTemplateSeed,
+): readonly TemplateCatalogRecord[] {
+  return manifests.map((manifest) => ({
+    key: manifest.templateKey,
+    aliases: manifest.aliases,
+    name: manifest.name,
+    category: manifest.category,
+    tier: manifest.library.tier,
+    gallery: { visible: manifest.library.visible, previewRoute: manifest.preview.route, previewImage: manifest.preview.image, description: manifest.description },
+    capabilities: { customerCreatable: manifest.capabilities.customerCreatable, createFromScratch: false, editorSelectable: manifest.capabilities.editorSelectable, previewRenderable: manifest.capabilities.previewRenderable, publicRenderable: manifest.capabilities.publicHome, customPages: manifest.capabilities.customPages },
+    integration: { kind: "premium-package" },
+    contentNamespace: manifest.persistence.contentNamespace,
+    seed: () => seedResolver(manifest.templateKey),
+  })) as readonly TemplateCatalogRecord[];
+}
+
+const PACKAGE_TEMPLATE_CATALOG = createPremiumPackageTemplateCatalog(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS);
 
 const catalogOrder = new Map<string, number>([["standard", 0], ["premium-kids-center", 20], ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.map((manifest) => [manifest.templateKey, manifest.library.order] as const)]);
 export const TEMPLATE_CATALOG: readonly TemplateCatalogRecord[] = [...CORE_TEMPLATE_CATALOG, ...PACKAGE_TEMPLATE_CATALOG]

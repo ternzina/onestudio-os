@@ -129,13 +129,14 @@ test("unknown and empty template keys resolve to no custom-page runtime", () => 
 test("real registry owns the NOIR custom-page renderer and keeps BEMBI/base separate", async () => {
   const [registry, adapter] = await Promise.all([
     read("../lib/public-site/premium-template-custom-page-runtime-registry.ts"),
-    read("../lib/public-site/noir-premium-template-custom-page-runtime-adapter.tsx"),
+    read("../lib/public-site/noir-premium-template-custom-page-runtime-adapter.ts"),
   ]);
   assert.equal(getPremiumTemplateDefinition("premium-studio")?.templateKey, "premium-studio");
   assert.match(registry, /NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER/);
   assert.doesNotMatch(registry, /premium-kids-center|standard/);
   assert.match(adapter, /definition: NOIR_PREMIUM_TEMPLATE_CONTRACT/);
-  assert.match(adapter, /customPageRenderer: NoirCustomPage/);
+  assert.match(adapter, /import\("@\/components\/public\/NoirCustomPage"\)/);
+  assert.match(adapter, /customPageRenderer: NoirPage/);
 });
 
 test("a second fixed-native custom-page renderer registers without central runtime dispatch changes", async () => {

@@ -14,11 +14,21 @@ export const BLANK_BASE_SEED: PublicSiteContent = {
 
 function clone<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
 
+export function createPremiumTemplateSeedResolver(
+  packageLookup: (templateKey: string) => unknown,
+  factoryLookup: (templateKey: string) => (() => PublicSiteContent) | undefined,
+) {
+  return (templateKey: string): PublicSiteContent => {
+    const seedFactory = factoryLookup(templateKey);
+    if (packageLookup(templateKey) && seedFactory) return { ...clone(BLANK_BASE_SEED), ...seedFactory(), template_id: templateKey };
+    throw new Error(`No seed registered for canonical template: ${templateKey}`);
+  };
+}
+
+const createPremiumPackageSeed = createPremiumTemplateSeedResolver(getPremiumTemplatePackage, getPremiumTemplateSeedFactory);
+
 export function createTemplateSeed(templateKey: string): PublicSiteContent {
   if (templateKey === "standard") return clone(BLANK_BASE_SEED);
   if (templateKey === "premium-kids-center") return { ...clone(BLANK_BASE_SEED), template_id: templateKey, brand_name: "BEMBI", template_content: { [templateKey]: restoreOriginalPremiumKidsContent() } };
-  const premiumPackage = getPremiumTemplatePackage(templateKey);
-  const seedFactory = getPremiumTemplateSeedFactory(templateKey);
-  if (premiumPackage && seedFactory) return { ...clone(BLANK_BASE_SEED), ...seedFactory(), template_id: templateKey };
-  throw new Error(`No seed registered for canonical template: ${templateKey}`);
+  return createPremiumPackageSeed(templateKey);
 }

@@ -55,7 +55,7 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
     readFile(new URL("../app/site-preview/[templateKey]/[businessSlug]/[[...templatePath]]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/PublicSiteTemplateRuntime.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/public-site/premium-template-runtime-registry.ts", import.meta.url), "utf8"),
-    readFile(new URL("../lib/public-site/noir-premium-template-runtime-adapter.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/noir-premium-template-runtime-adapter.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/demo-catalog.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
@@ -63,8 +63,8 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
   assert.match(preview, /getSiteTemplateDefinition/);
   assert.match(runtime, /getPremiumTemplatePublicRuntime/);
   assert.match(premiumRuntime, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
-  assert.match(premiumRuntime, /PremiumStudioExperience/);
-  assert.match(noirRuntime, /premium-template-runtime-registry/);
+  assert.match(noirRuntime, /import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)/);
+  assert.match(noirRuntime, /publicHomeRenderer: NoirHome/);
   assert.match(demoCatalog, /createPremiumPackageDemos\(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS\)/);
   assert.match(editor, /OneStudio Site Editor|TemplateEditorRuntime/);
 });

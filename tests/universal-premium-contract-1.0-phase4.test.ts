@@ -28,14 +28,15 @@ const futureAdapter = {
 test("real premium definition and public runtime registry keep NOIR registered", async () => {
   const [registry, noirAdapter] = await Promise.all([
     read("../lib/public-site/premium-template-runtime-registry.ts"),
-    read("../lib/public-site/noir-premium-template-runtime-adapter.tsx"),
+    read("../lib/public-site/noir-premium-template-runtime-adapter.ts"),
   ]);
   assert.equal(getPremiumTemplateDefinition("premium-studio")?.templateKey, "premium-studio");
   assert.equal(getPremiumTemplateDefinition("unknown"), undefined);
   assert.match(registry, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
   assert.doesNotMatch(registry, /premium-kids-center|standard/);
   assert.match(noirAdapter, /templateKey: NOIR_PREMIUM_TEMPLATE_CONTRACT\.templateKey/);
-  assert.match(noirAdapter, /publicHomeRenderer: PremiumStudioExperience/);
+  assert.match(noirAdapter, /import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)/);
+  assert.match(noirAdapter, /publicHomeRenderer: NoirHome/);
 });
 
 test("generic runtime validation rejects duplicate, mismatched, and definitionless adapters", () => {
@@ -77,7 +78,7 @@ test("a future second template registers, resolves, and identifies its renderer 
 
 test("NOIR public runtime preserves site and basePath renderer props without central dispatch", async () => {
   const [adapter, runtime] = await Promise.all([
-    read("../lib/public-site/noir-premium-template-runtime-adapter.tsx"),
+    read("../lib/public-site/noir-premium-template-runtime-adapter.ts"),
     read("../components/public/PublicSiteTemplateRuntime.tsx"),
   ]);
   assert.match(adapter, /PremiumStudioExperience/);

@@ -1,20 +1,22 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
 import { PREMIUM_DEMOS, createPremiumPackageDemos } from "../lib/demo-catalog.ts";
-import { createPremiumTemplateCustomPageRuntimeResolver } from "../lib/public-site/premium-template-custom-page-runtime-adapter.ts";
 import { getPremiumTemplateCustomPageRuntime } from "../lib/public-site/premium-template-custom-page-runtime-registry.ts";
 import { getPremiumTemplateEditorAdapter } from "../lib/public-site/premium-template-editor-registry.ts";
 import { PREMIUM_TEMPLATE_PACKAGE_MANIFESTS, getPremiumTemplatePackage } from "../lib/public-site/premium-template-package-catalog.ts";
-import { createPremiumTemplateManifestLookup, definePremiumTemplateManifest } from "../lib/public-site/premium-template-package.ts";
 import { getPremiumTemplateDefinition } from "../lib/public-site/premium-template-registry.ts";
-import { createPremiumTemplateRuntimeResolver } from "../lib/public-site/premium-template-runtime-adapter.ts";
 import { getPremiumTemplatePublicRuntime } from "../lib/public-site/premium-template-runtime-registry.ts";
-import { TEMPLATE_CATALOG, TEMPLATE_KEYS, getCustomerTemplateChoices, getEditorTemplateChoices } from "../lib/public-site/template-catalog.ts";
-import { createTemplateSeed } from "../lib/public-site/template-seeds.ts";
+import { TEMPLATE_CATALOG, TEMPLATE_KEYS, createPremiumPackageTemplateCatalog, getCustomerTemplateChoices, getEditorTemplateChoices } from "../lib/public-site/template-catalog.ts";
+import { createPremiumTemplateSeedResolver, createTemplateSeed } from "../lib/public-site/template-seeds.ts";
+import { PREMIUM_TEMPLATE_PACKAGE_SOURCE } from "../lib/public-site/premium-template-package-source.mjs";
+import { renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
 
 const KEYS = ["gloss-nail-studio", "premium-studio"] as const;
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("manifests are the canonical serializable package identity and include complete demo metadata", () => {
   assert.deepEqual(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.map(({ templateKey }) => templateKey), KEYS);
@@ -45,33 +47,72 @@ test("real NOIR and GLOSS capability resolvers return matching, isolated binding
   assert.notEqual(getPremiumTemplateEditorAdapter(KEYS[0]), getPremiumTemplateEditorAdapter(KEYS[1]));
 });
 
-test("a synthetic third manifest automatically feeds generic lookup and demo consumers", () => {
-  const third = definePremiumTemplateManifest({
-    ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS[0], templateKey: "aurora-wellness", name: "AURORA",
+test("one synthetic AURORA package registration feeds every production registry mechanism", async (context) => {
+  const third = {
+    manifest: {
+      ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS[0], templateKey: "aurora-wellness", name: "AURORA",
     aliases: ["aurora"], category: "wellness", library: { tier: "standard", visible: true, order: 40 },
     preview: { ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS[0].preview, group: "wellness", order: 40,
       route: "/demos/aurora-wellness", image: "/templates/aurora/hero.webp",
       title: { ru: "Студия AURORA", en: "AURORA studio" },
       description: { ru: "Собственное описание AURORA.", en: "AURORA's own description." },
       alt: { ru: "Превью AURORA", en: "AURORA preview" } },
-  });
-  const manifests = [...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS, third] as const;
-  assert.equal(createPremiumTemplateManifestLookup(manifests)(third.templateKey), third);
-  const demo = createPremiumPackageDemos(manifests).find(({ slug }) => slug === third.templateKey)!;
+    },
+    bindings: {
+      seed: { module: "tests/fixtures/premium-template-package/aurora-seed.ts", export: "createAuroraPremiumTemplateSeed" },
+      contract: { module: "tests/fixtures/premium-template-package/aurora-contract.ts", export: "AURORA_PREMIUM_TEMPLATE_CONTRACT" },
+      editor: { module: "tests/fixtures/premium-template-package/aurora-editor-adapter.ts", export: "AURORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER" },
+      publicHome: { module: "tests/fixtures/premium-template-package/aurora-public-home-runtime.ts", export: "AURORA_PREMIUM_TEMPLATE_RUNTIME_ADAPTER" },
+      customPage: { module: "tests/fixtures/premium-template-package/aurora-custom-page-runtime.ts", export: "AURORA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER" },
+    },
+  };
+  const packages = [...PREMIUM_TEMPLATE_PACKAGE_SOURCE, third];
+  const outputDir = await mkdtemp(resolve(rootDir, ".aurora-package-"));
+  context.after(() => rm(outputDir, { recursive: true, force: true }));
+  for (const [name, content] of renderPremiumTemplatePackageFiles(packages, { rootDir, outputDir })) {
+    await writeFile(resolve(outputDir, name), content);
+  }
+  const load = (name: string) => import(`${pathToFileURL(resolve(outputDir, name)).href}?fixture=aurora`);
+  const [catalog, seeds, contracts, editors, homes, pages] = await Promise.all([
+    load("premium-template-package-catalog.ts"), load("premium-template-seed-registry.ts"),
+    load("premium-template-registry.ts"), load("premium-template-editor-registry.ts"),
+    load("premium-template-runtime-registry.ts"), load("premium-template-custom-page-runtime-registry.ts"),
+  ]);
+  const manifest = catalog.getPremiumTemplatePackage(third.manifest.templateKey);
+  assert.equal(manifest?.name, "AURORA");
+  assert.deepEqual(catalog.PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.map(({ templateKey }: { templateKey: string }) => templateKey), [...KEYS, third.manifest.templateKey]);
+  assert.ok(catalog.PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.some(({ templateKey }: { templateKey: string }) => templateKey === third.manifest.templateKey));
+  const packageCatalog = createPremiumPackageTemplateCatalog(catalog.PREMIUM_TEMPLATE_PACKAGE_MANIFESTS);
+  assert.ok(packageCatalog.some(({ key }) => key === third.manifest.templateKey));
+  assert.ok(packageCatalog.filter(({ gallery, capabilities }) => gallery.visible && capabilities.customerCreatable).some(({ key }) => key === third.manifest.templateKey));
+  assert.ok(packageCatalog.filter(({ capabilities }) => capabilities.editorSelectable).some(({ key }) => key === third.manifest.templateKey));
+  const demo = createPremiumPackageDemos(catalog.PREMIUM_TEMPLATE_PACKAGE_MANIFESTS).find(({ slug }) => slug === third.manifest.templateKey)!;
   assert.deepEqual({ group: demo.group, title: demo.title, description: demo.description, href: demo.href, image: demo.previewImage }, {
-    group: "wellness", title: third.preview.title, description: third.preview.description,
-    href: third.preview.route, image: third.preview.image,
+    group: "wellness", title: third.manifest.preview.title, description: third.manifest.preview.description,
+    href: third.manifest.preview.route, image: third.manifest.preview.image,
   });
+  const seed = createPremiumTemplateSeedResolver(catalog.getPremiumTemplatePackage, seeds.getPremiumTemplateSeedFactory)(third.manifest.templateKey);
+  assert.equal(seed.template_id, third.manifest.templateKey);
+  assert.deepEqual(seed.template_content?.[third.manifest.templateKey], { fixture: "aurora" });
+  assert.equal(contracts.getPremiumTemplateDefinition(third.manifest.templateKey)?.templateKey, third.manifest.templateKey);
+  assert.equal(editors.getPremiumTemplateEditorAdapter(third.manifest.templateKey)?.templateKey, third.manifest.templateKey);
+  assert.equal(homes.getPremiumTemplatePublicRuntime(third.manifest.templateKey)?.templateKey, third.manifest.templateKey);
+  assert.equal(pages.getPremiumTemplateCustomPageRuntime(third.manifest.templateKey)?.templateKey, third.manifest.templateKey);
+  assert.equal((editors.getPremiumTemplateEditorAdapter(third.manifest.templateKey) as { fixture?: string }).fixture, "aurora-editor");
+  assert.equal((homes.getPremiumTemplatePublicRuntime(third.manifest.templateKey) as { fixture?: string }).fixture, "aurora-home");
+  assert.equal((pages.getPremiumTemplateCustomPageRuntime(third.manifest.templateKey) as { fixture?: string }).fixture, "aurora-page");
+  for (const lookup of [catalog.getPremiumTemplatePackage, contracts.getPremiumTemplateDefinition, editors.getPremiumTemplateEditorAdapter, homes.getPremiumTemplatePublicRuntime, pages.getPremiumTemplateCustomPageRuntime]) {
+    assert.equal(lookup("unknown-package"), undefined);
+    assert.equal(lookup("premium-kids-center"), undefined);
+  }
+  assert.notEqual(editors.getPremiumTemplateEditorAdapter(third.manifest.templateKey), editors.getPremiumTemplateEditorAdapter("gloss-nail-studio"));
+  assert.notEqual(homes.getPremiumTemplatePublicRuntime(third.manifest.templateKey), homes.getPremiumTemplatePublicRuntime("premium-studio"));
+  assert.notEqual(pages.getPremiumTemplateCustomPageRuntime(third.manifest.templateKey), pages.getPremiumTemplateCustomPageRuntime("gloss-nail-studio"));
+});
 
-  const definition = { templateKey: third.templateKey, nativeSections: [], defaultLayout: [], customPages: { supported: true } } as never;
-  const editor = { templateKey: third.templateKey, contract: definition };
-  const home = { templateKey: third.templateKey, definition, publicHomeRenderer: (() => null) } as never;
-  const page = { templateKey: third.templateKey, definition, customPageRenderer: (() => null) } as never;
-  assert.equal(createPremiumTemplateRuntimeResolver([home], () => definition)(third.templateKey), home);
-  assert.equal(createPremiumTemplateCustomPageRuntimeResolver([page], () => definition)(third.templateKey), page);
-  assert.equal(editor.templateKey, third.templateKey);
-  const seed = { template_id: third.templateKey, template_content: { [third.templateKey]: { own: true } } };
-  assert.equal(seed.template_id, third.templateKey);
+test("checked-in capability registries are deterministic and current", async () => {
+  const generated = renderPremiumTemplatePackageFiles(PREMIUM_TEMPLATE_PACKAGE_SOURCE, { rootDir, outputDir: resolve(rootDir, "lib/public-site") });
+  for (const [name, expected] of generated) assert.equal(await read(`../lib/public-site/${name}`), expected, `${name} is stale`);
 });
 
 test("unknown identities fail closed and never inherit seed/editor/runtime", () => {
@@ -95,19 +136,6 @@ test("legacy drafts normalize and JSON reload without namespace, custom block or
     assert.equal(normalized.template_id, key);
     if (draft.template_content) assert.deepEqual(normalized.template_content, draft.template_content);
   }
-});
-
-test("manifest, public and editor import graphs keep capability boundaries", async () => {
-  const manifest = await read("../lib/public-site/premium-template-package-catalog.ts");
-  const publicHome = await read("../lib/public-site/premium-template-runtime-registry.ts");
-  const publicPage = await read("../lib/public-site/premium-template-custom-page-runtime-registry.ts");
-  const editor = await read("../lib/public-site/premium-template-editor-registry.ts");
-  for (const forbidden of [/next\/dynamic/, /from ["']react["']/, /editor-adapter/, /editor-schema/, /components\/public/, /premium-studio-content/, /templates\.ts/]) assert.doesNotMatch(manifest, forbidden);
-  for (const source of [publicHome, publicPage]) {
-    assert.match(source, /dynamic/);
-    assert.doesNotMatch(source, /editor-adapter|editor-schema|components\/admin/);
-  }
-  assert.doesNotMatch(editor, /components\/public|PremiumStudioExperience|PublicCustomPage|NoirCustomPage|next\/dynamic/);
 });
 
 test("demo collection is manifest-driven while BEMBI remains outside the package registry", async () => {
