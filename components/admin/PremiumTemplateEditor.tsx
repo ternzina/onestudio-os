@@ -15,6 +15,7 @@ import { PREMIUM_UNIVERSAL_BLOCK_LIBRARY } from "@/lib/public-site/custom-block-
 import {
   PREMIUM_KIDS_BLOCK_REGISTRY,
   addPremiumKidsBlock,
+  createPremiumKidsDefaultBlock,
   deletePremiumKidsBlock,
   duplicatePremiumKidsBlock,
   getPremiumKidsBlockDefinition,
@@ -82,6 +83,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const activePage = selectedPageId === "home" ? null : pages.find(page => page.id === selectedPageId) ?? null;
   const selectedPageBlock = activePage?.blocks?.find(block => block.id === selected) ?? null;
   const definition = getPremiumKidsBlockDefinition(selectedBlock.type);
+  const originalBlock = createPremiumKidsDefaultBlock(selectedBlock.type);
   const site: PublicSiteData = { business: { id: businessId, slug: businessSlug, name: businessName, locale, primary_locale: locale, currency: "PLN", timezone: "Europe/Warsaw" }, content: draft, company: {}, services: [], portfolio: [], capabilities: { booking: true, catalog: true, portfolio: true }, available_locales: [locale], published_at: null };
 
   function commit(next: PremiumKidsContent, historyGroup = "") { onChange(withPremiumKidsContent(draft, next), historyGroup); }
@@ -214,12 +216,14 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     for (const [key, label, kind] of fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key))) {
       const raw = selectedBlock.props[key];
       const value = Array.isArray(raw) ? raw.join("\n") : raw ?? "";
+      const originalRaw = originalBlock.props[key];
+      const originalValue = Array.isArray(originalRaw) ? originalRaw.join("\n") : originalRaw ?? "";
       const rich = kind === "text" && ["hero_description", "intro_description", "programs_description", "schedule_description", "footer_description"].includes(key);
       contentFields.push(rich
-        ? { id: key, type: "richText", label: t(label), value, disabled: controlsDisabled, onChange: next => update(key, next) }
+        ? { id: key, type: "richText", label: t(label), value, originalValue, disabled: controlsDisabled, onChange: next => update(key, next) }
         : kind === "input"
-          ? { id: key, type: "text", label: t(label), value, disabled: controlsDisabled, onChange: next => update(key, next) }
-          : { id: key, type: "textarea", label: t(label), rows: kind === "lines" ? 6 : 3, value, disabled: controlsDisabled, onChange: next => update(key, next) });
+          ? { id: key, type: "text", label: t(label), value, originalValue, disabled: controlsDisabled, onChange: next => update(key, next) }
+          : { id: key, type: "textarea", label: t(label), rows: kind === "lines" ? 6 : 3, value, originalValue, disabled: controlsDisabled, onChange: next => update(key, next) });
     }
     const structured = selectedBlock.type === "faq" ? <PremiumDelimitedListEditor values={(selectedBlock.props.faq as string[]) ?? []} primaryLabel="Question" secondaryLabel="Answer" disabled={controlsDisabled} onChange={values => updateList("faq", values)} /> : selectedBlock.type === "reviews" ? <PremiumDelimitedListEditor values={(selectedBlock.props.reviews as string[]) ?? []} primaryLabel="Review text" secondaryLabel="Author" splitFromEnd disabled={controlsDisabled} onChange={values => updateList("reviews", values)} /> : selectedBlock.type === "teachers" ? <PremiumDelimitedListEditor values={(selectedBlock.props.teachers as string[]) ?? []} primaryLabel="Person name" secondaryLabel="Role" disabled={controlsDisabled} onChange={values => updateList("teachers", values)} /> : null;
     if (structured) contentFields.push({ id: "structured-content", type: "custom", customContent: structured });

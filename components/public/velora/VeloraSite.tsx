@@ -9,6 +9,8 @@ import {
   VELORA_TEMPLATE_KEY,
 } from "@/lib/public-site/velora-premium-template-content";
 import type { PublicSiteData } from "@/lib/public-site/types";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
+import type { VeloraNativeSectionId } from "@/lib/public-site/velora-premium-template-contract";
 import VeloraFooter from "./VeloraFooter";
 import {
   VeloraAvailability,
@@ -32,10 +34,10 @@ import {
 } from "./VeloraInteractions";
 import styles from "./Velora.module.css";
 
-const title = (eyebrow: string, heading: string, text?: string) => (
+const title = (eyebrow: string, heading: string, text?: string, headingStyle?: CSSProperties) => (
   <VeloraReveal className={styles.sectionTitle}>
     <span>{eyebrow}</span>
-    <h2>{heading}</h2>
+    <h2 style={headingStyle}>{heading}</h2>
     {text ? <PublicRichText value={text} /> : null}
   </VeloraReveal>
 );
@@ -48,6 +50,7 @@ export default function VeloraSite({
   basePath: string;
 }) {
   const content = resolveVeloraContent(site.content);
+  const headingStyle = (section: VeloraNativeSectionId) => publicTypographyStyle(content.headingTypography[section]);
   const visible = (id: string) =>
     isTemplateNativeSectionVisible(site.content, VELORA_TEMPLATE_KEY, id);
   const pageHref = (slug: string) =>
@@ -128,7 +131,7 @@ export default function VeloraSite({
           <VeloraFestiveRibbon />
           <VeloraReveal className={styles.heroContent}>
             <span>{content.hero.eyebrow}</span>
-            <VeloraHeroTitle title={content.hero.title} />
+            <VeloraHeroTitle title={content.hero.title} style={headingStyle("hero")} />
             <PublicRichText value={content.hero.text} />
             <div className={styles.actions}>
               <Link href={content.hero.primaryUrl}>
@@ -172,6 +175,7 @@ export default function VeloraSite({
           content.venuesPresentation.eyebrow,
           content.venuesPresentation.title,
           content.venuesPresentation.text,
+          headingStyle("venues"),
         )}
         <div className={styles.venueGrid}>
           {content.venues.map((venue, index) => (
@@ -211,6 +215,8 @@ export default function VeloraSite({
         {title(
           content.formatsPresentation.eyebrow,
           content.formatsPresentation.title,
+          undefined,
+          headingStyle("formats"),
         )}
         <div className={styles.formatRail}>
           {content.formats.map((item, index) => (
@@ -237,6 +243,7 @@ export default function VeloraSite({
           content.transformation.eyebrow,
           content.transformation.title,
           content.transformation.text,
+          headingStyle("transformation"),
         )}
         <VeloraTransformation copy={content.transformation} />
       </section>
@@ -247,6 +254,7 @@ export default function VeloraSite({
           content.storyPresentation.eyebrow,
           content.storyPresentation.title,
           content.storyPresentation.text,
+          headingStyle("story"),
         )}
         <VeloraStoryFilm
           items={content.story}
@@ -270,6 +278,7 @@ export default function VeloraSite({
           content.packagesPresentation.eyebrow,
           content.packagesPresentation.title,
           content.packagesPresentation.text,
+          headingStyle("packages"),
         )}
         <div className={styles.packageGrid}>
           {content.packages.map((item, index) => (
@@ -306,6 +315,7 @@ export default function VeloraSite({
           content.includedPresentation.eyebrow,
           content.includedPresentation.title,
           content.includedPresentation.text,
+          headingStyle("included"),
         )}
         <ol>
           {content.included.map((item) => (
@@ -335,6 +345,7 @@ export default function VeloraSite({
             content.cateringPresentation.eyebrow,
             content.cateringPresentation.title,
             content.cateringPresentation.text,
+            headingStyle("catering"),
           )}
           <div className={styles.menuList}>
             {content.catering.map((item) => (
@@ -361,6 +372,7 @@ export default function VeloraSite({
             content.decor.eyebrow,
             content.decor.title,
             content.decor.text,
+            headingStyle("decor"),
           )}
         </div>
         <div className={styles.collageImage}>
@@ -391,6 +403,7 @@ export default function VeloraSite({
             content.coordinator.eyebrow,
             content.coordinator.title,
             content.coordinator.text,
+            headingStyle("coordinator"),
           )}
           <blockquote>{content.coordinator.promise}</blockquote>
         </div>
@@ -404,6 +417,8 @@ export default function VeloraSite({
         {title(
           content.reviewsPresentation.eyebrow,
           content.reviewsPresentation.title,
+          undefined,
+          headingStyle("reviews"),
         )}
         <p className={styles.disclaimer}>
           {content.reviewsPresentation.disclaimer}
@@ -438,6 +453,8 @@ export default function VeloraSite({
         {title(
           content.galleryPresentation.eyebrow,
           content.galleryPresentation.title,
+          undefined,
+          headingStyle("gallery"),
         )}
         <VeloraGallery
           items={content.gallery}
@@ -454,6 +471,7 @@ export default function VeloraSite({
           content.plannerPresentation.eyebrow,
           content.plannerPresentation.title,
           content.plannerPresentation.text,
+          headingStyle("planner"),
         )}
         <div className={styles.timeline}>
           {content.planner.map((item, index) => (
@@ -471,7 +489,7 @@ export default function VeloraSite({
         id="faq"
         className={`${styles.section} ${styles.lightSection} ${styles.faqSection}`}
       >
-        {title(content.faqPresentation.eyebrow, content.faqPresentation.title)}
+        {title(content.faqPresentation.eyebrow, content.faqPresentation.title, undefined, headingStyle("faq"))}
         <div className={styles.faq}>
           {content.faq.map((item) => (
             <details key={item.question}>
@@ -491,6 +509,7 @@ export default function VeloraSite({
           content.availability.eyebrow,
           content.availability.title,
           content.availability.text,
+          headingStyle("availability"),
         )}
         <VeloraAvailability
           businessSlug={site.business.slug}

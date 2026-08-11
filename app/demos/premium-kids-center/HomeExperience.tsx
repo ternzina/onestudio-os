@@ -17,6 +17,7 @@ import {
 } from "@/lib/public-site/premium-kids-content";
 import BembiTemplateImage from "./BembiTemplateImage";
 import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
 
 function DiscoveryPrelude({ basePath, nativeMedia }: { basePath: string; nativeMedia?: PremiumKidsNativeMedia }) {
   return <>
@@ -35,9 +36,10 @@ function IntroBlock({ block, content, basePath }: { block: PremiumKidsBlock; con
 
 function ProgramsBlock({ content, block }: { content: PremiumKidsContent; block: PremiumKidsBlock }) {
   const blockId = block.id;
+  const headingStyle = publicTypographyStyle(content.heading_typography[blockId] ?? content.heading_typography.programs);
   return <div data-premium-block-id={blockId}>
     <EditorialMotion className={styles.platformScene} distance={24}><BembiTemplateImage src={premiumKidsNativeMediaUrl(block.props.native_media, "programs", "/images/demos/premium-kids-center/studio-interior.webp")} alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" sizes="100vw" media={block.props.native_media} /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
-    <section className={`${styles.section} ${styles.offline}`} id={blockId === "bembi-programs" ? "offline" : undefined}><SectionLead index="07" eyebrow="Программы центра" title={content.programs_title} text={content.programs_description} /><OfflineExplorer /></section>
+    <section className={`${styles.section} ${styles.offline}`} id={blockId === "bembi-programs" ? "offline" : undefined}><SectionLead index="07" eyebrow="Программы центра" title={content.programs_title} text={content.programs_description} headingStyle={headingStyle} /><OfflineExplorer /></section>
   </div>;
 }
 
@@ -46,11 +48,12 @@ function TeachersBlock({ content, block }: { content: PremiumKidsContent; block:
 }
 
 function FinalBlock({ content, blockId, basePath, demo }: { content: PremiumKidsContent; blockId: string; basePath: string; demo: boolean }) {
+  const headingStyle = publicTypographyStyle(content.heading_typography[blockId] ?? content.heading_typography.final);
   return <div data-premium-block-id={blockId}>
     <section className={styles.parentSupport}><div><p>Родителям тоже нужна опора</p><h2>Спокойный взрослый — часть образовательной среды.</h2></div><ol>{["Как выбрать занятие", "Как поддержать интерес", "Как заниматься дома без давления", "Как понять, что программа подходит", "Как сохранить баланс занятий и отдыха"].map((item, index) => <li key={item}><span>0{index + 1}</span><h3>{item}</h3><Arrow /></li>)}</ol></section>
     <TodayDiscovery />
-    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2>{content.final_cta_title}</h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
-    <CenterFinalCta content={content} />
+    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2 style={headingStyle}>{content.final_cta_title}</h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
+    <CenterFinalCta content={content} headingStyle={headingStyle} />
   </div>;
 }
 

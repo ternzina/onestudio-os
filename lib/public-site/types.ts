@@ -1,3 +1,5 @@
+import type { SiteEditorFontFamily } from "./site-editor-fonts";
+
 export type PublicSiteSection =
   | "services"
   | "portfolio"
@@ -37,9 +39,10 @@ export type PublicSiteSystemSectionBackgroundOverlay =
   | "strong";
 
 export type PublicSiteDesignFont = "template" | "system" | "humanist" | "editorial";
+export type PublicSiteTypographyFont = PublicSiteDesignFont | SiteEditorFontFamily;
 export type PublicSiteTextAlign = "left" | "center" | "right" | "justify";
 export type PublicSiteTypography = {
-  font_family?: PublicSiteDesignFont;
+  font_family?: PublicSiteTypographyFont;
   font_size?: number;
   font_weight?: 400 | 500 | 600 | 700;
   italic?: boolean;

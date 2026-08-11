@@ -11,6 +11,7 @@ import {
   useTransform,
 } from "motion/react";
 import {
+  type CSSProperties,
   createContext,
   useCallback,
   useContext,
@@ -132,11 +133,11 @@ export function VeloraCursorTrail() {
   );
 }
 
-export function VeloraHeroTitle({ title }: { title: string }) {
+export function VeloraHeroTitle({ title, style }: { title: string; style?: CSSProperties }) {
   const reduced = useReducedMotion();
   const [firstLine, secondLine] = splitHeroTitle(title);
   return (
-    <h1 className={styles.heroTitle} aria-label={title}>
+    <h1 className={styles.heroTitle} style={style} aria-label={title}>
       {[firstLine, secondLine].filter(Boolean).map((line, index) => (
         <span className={index === 1 ? styles.heroTitleAccent : ""} key={line}>
           <motion.i

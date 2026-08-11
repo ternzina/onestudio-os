@@ -44,6 +44,10 @@ const itemFields = (
     ),
   );
 
+const headingSections = new Set<VeloraNativeSectionId>([
+  "hero", "availability", "venues", "formats", "transformation", "story", "packages", "included", "gallery", "catering", "decor", "coordinator", "planner", "reviews", "faq",
+]);
+
 export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
   hero: [
     field("brand", "Название", "brand"),
@@ -323,8 +327,9 @@ export function buildVeloraInspectorFields(
   onChange: (next: VeloraContent, group: string) => void,
   onChooseMedia?: (target: PremiumTemplateEditorMediaTarget) => void,
 ): EditorInspectorPlacedField[] {
-  return VELORA_EDITOR_SPECS[section].flatMap((spec) => {
+  const fields = VELORA_EDITOR_SPECS[section].flatMap((spec) => {
     const value = String(at(content, spec.path) ?? "");
+    const originalValue = String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? "");
     const update = (next: string) =>
       onChange(
         setVeloraPath(content, spec.path, next),
@@ -338,6 +343,7 @@ export function buildVeloraInspectorFields(
             type: "richText" as const,
             label: spec.label,
             value,
+            originalValue,
             disabled,
             onChange: update,
           }
@@ -349,6 +355,7 @@ export function buildVeloraInspectorFields(
               label: spec.label,
               rows: 3,
               value,
+              originalValue,
               disabled,
               onChange: update,
             }
@@ -358,6 +365,7 @@ export function buildVeloraInspectorFields(
               type: spec.kind === "url" ? ("url" as const) : ("text" as const),
               label: spec.label,
               value,
+              ...(spec.kind === "url" ? {} : { originalValue }),
               disabled,
               onChange: update,
             };
@@ -379,6 +387,17 @@ export function buildVeloraInspectorFields(
       }),
     } as EditorInspectorPlacedField];
   });
+  if (headingSections.has(section)) fields.push({
+    id: `velora-${section}-heading-typography`,
+    group: "typography",
+    type: "typography",
+    title: "Оформление заголовка",
+    description: "Главный заголовок выбранного раздела",
+    value: content.headingTypography[section],
+    disabled,
+    onChange: (value) => onChange({ ...content, headingTypography: { ...content.headingTypography, [section]: value } }, `velora:${section}:heading-typography`),
+  });
+  return fields;
 }
 
 export function resetVeloraSection(
@@ -392,5 +411,10 @@ export function resetVeloraSection(
       spec.path,
       String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? ""),
     );
+  if (headingSections.has(section)) {
+    const headingTypography = { ...next.headingTypography };
+    delete headingTypography[section];
+    next = { ...next, headingTypography };
+  }
   return next;
 }

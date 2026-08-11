@@ -49,7 +49,7 @@ export const GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
     return { ...restored, custom_blocks: [], pages: content.pages };
   },
   buildInspectorFields: ({ content, sectionId, disabled, onChange }) =>
-    buildGlossInspectorFields(content, sectionId, disabled, onChange),
+    buildGlossInspectorFields(content, sectionId, disabled, onChange, seed()),
   insertCustomBlock: (content, block) => ({
     ...content,
     custom_blocks: [...(content.custom_blocks ?? []), block],

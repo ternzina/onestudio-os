@@ -13,35 +13,14 @@ import {
   type RichTextDocument,
   type RichTextNode,
 } from "@/lib/public-site/rich-text";
+import { SITE_EDITOR_FONT_OPTIONS } from "@/lib/public-site/site-editor-fonts";
 
 const EMPTY_DOC: RichTextDocument = {
   version: 1,
   root: { type: "root", children: [{ type: "p", children: [] }] },
 };
 
-const FONT_OPTIONS = [
-  { value: "", label: "Шрифт сайта" },
-  { value: "Arial", label: "Arial" },
-  { value: "Helvetica", label: "Helvetica" },
-  { value: "Verdana", label: "Verdana" },
-  { value: "Tahoma", label: "Tahoma" },
-  { value: "Trebuchet MS", label: "Trebuchet MS" },
-  { value: "Gill Sans", label: "Gill Sans" },
-  { value: "Century Gothic", label: "Century Gothic" },
-  { value: "Georgia", label: "Georgia" },
-  { value: "Times New Roman", label: "Times New Roman" },
-  { value: "Palatino Linotype", label: "Palatino" },
-  { value: "Garamond", label: "Garamond" },
-  { value: "Baskerville", label: "Baskerville" },
-  { value: "Book Antiqua", label: "Book Antiqua" },
-  { value: "Courier New", label: "Courier New" },
-  { value: "Lucida Console", label: "Lucida Console" },
-  { value: "Monaco", label: "Monaco" },
-  { value: "Impact", label: "Impact" },
-  { value: "Arial Black", label: "Arial Black" },
-  { value: "Comic Sans MS", label: "Comic Sans" },
-  { value: "Brush Script MT", label: "Brush Script" },
-];
+const FONT_OPTIONS = [{ value: "", label: "Шрифт сайта" }, ...SITE_EDITOR_FONT_OPTIONS];
 
 const SIZE_OPTIONS = [12, 14, 16, 18, 20, 24, 28, 32];
 
@@ -160,11 +139,13 @@ function ToolbarButton({ label, title, disabled, onClick, wide = false }: { labe
 
 export default function RichTextEditor({
   label,
+  ariaLabel,
   value,
   disabled,
   onChange,
 }: {
   label?: string;
+  ariaLabel?: string;
   value: string;
   disabled: boolean;
   onChange: (value: string) => void;
@@ -295,6 +276,7 @@ export default function RichTextEditor({
 
       {sourceMode ? (
         <textarea
+          aria-label={ariaLabel ?? label ?? "Текст"}
           rows={6}
           disabled={disabled}
           value={richTextPlainText(value)}
@@ -357,6 +339,7 @@ export default function RichTextEditor({
             contentEditable={!disabled}
             suppressContentEditableWarning
             role="textbox"
+            aria-label={ariaLabel ?? label ?? "Текст"}
             aria-multiline="true"
             onInput={commit}
             onKeyUp={saveSelection}
@@ -367,7 +350,7 @@ export default function RichTextEditor({
         </div>
       )}
       <p className="text-[9px] font-normal normal-case tracking-normal text-[#918b80]">
-        Заголовки, SEO, ссылки кнопок и контактные данные остаются обычными полями.
+        Заголовки используют тот же список шрифтов в своих настройках. SEO, ссылки кнопок и контактные данные остаются обычными полями.
       </p>
     </div>
   );

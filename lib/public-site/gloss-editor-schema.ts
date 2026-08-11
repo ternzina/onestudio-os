@@ -184,17 +184,18 @@ const customPaths = new Set([
   "about_facts", "about_image_url", "service_image_urls", "service_card_images",
 ]);
 
-export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossEditorSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void): EditorInspectorPlacedField[] {
+export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossEditorSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void, defaults?: PublicSiteContent): EditorInspectorPlacedField[] {
   const fields: EditorInspectorPlacedField[] = specs[sectionId].filter(spec => !customPaths.has(spec.path) && !spec.path.endsWith(".background_image_url")).map(spec => {
     const current = atPath(content, spec.path);
     const update = (value: string | boolean) => onChange(setPath(content, spec.path, decodeValue(content, spec, value)), `gloss:${sectionId}:${spec.id}`);
     if (spec.kind === "toggle") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "toggle", label: spec.label, checked: current === true, disabled, onChange: update };
     if (spec.kind === "select") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "select", label: spec.label, value: String(current ?? spec.options?.[0]?.value ?? ""), options: spec.options ?? [], disabled, onChange: update };
     if (spec.kind === "typography") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "typography", type: "typography", title: spec.label, description: "Заголовок выбранного раздела", value: current && typeof current === "object" ? current as PublicSiteTypography : undefined, disabled, onChange: value => onChange(setPath(content, spec.path, value), `gloss:${sectionId}:${spec.id}`) } as EditorInspectorPlacedField;
-    if (spec.kind === "richText") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "richText", label: spec.label, value: String(current ?? ""), disabled, onChange: update };
     const value = encodeValue(current, spec.path);
-    if (spec.kind === "textarea") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "textarea", label: spec.label, value, rows: spec.rows ?? 3, disabled, onChange: update };
-    return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : spec.kind === "number" ? "number" : spec.kind === "color" ? "color" : "text", label: spec.label, value, disabled, onChange: update };
+    const originalValue = defaults ? encodeValue(atPath(defaults, spec.path), spec.path) : undefined;
+    if (spec.kind === "richText") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "richText", label: spec.label, value: String(current ?? ""), originalValue, disabled, onChange: update };
+    if (spec.kind === "textarea") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "textarea", label: spec.label, value, originalValue, rows: spec.rows ?? 3, disabled, onChange: update };
+    return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : spec.kind === "number" ? "number" : spec.kind === "color" ? "color" : "text", label: spec.label, value, ...(spec.kind === "text" ? { originalValue } : {}), disabled, onChange: update };
   }) as EditorInspectorPlacedField[];
   return fields;
 }

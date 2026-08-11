@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import styles from "./Platform.module.css";
 import PlatformMotionRuntime from "./PlatformMotionRuntime";
 import type { PremiumKidsContent } from "@/lib/public-site/premium-kids-content";
@@ -45,6 +45,6 @@ export function PlatformLayout({ children, basePath = BEMBI_DEMO_BASE_PATH, demo
   return <div className={styles.platform} data-premium-runtime><style>{hidden.map((section) => `[data-premium-runtime] #${section === "teachers" ? "team" : section}{display:none!important}`).join("")}</style><PlatformMotionRuntime /><PlatformHeader basePath={basePath} demo={demo} content={content} blockId={headerBlockId} pages={pages} />{children}<PlatformFooter basePath={basePath} demo={demo} content={content} blockId={footerBlockId} /></div>;
 }
 
-export function SectionLead({ index, eyebrow, title, text }: { index: string; eyebrow: string; title: string; text?: string }) {
-  return <div className={styles.sectionLead}><p><span>{index}</span>{eyebrow}</p><h2>{title}</h2>{text ? <PublicRichText value={text} /> : null}</div>;
+export function SectionLead({ index, eyebrow, title, text, headingStyle }: { index: string; eyebrow: string; title: string; text?: string; headingStyle?: CSSProperties }) {
+  return <div className={styles.sectionLead}><p><span>{index}</span>{eyebrow}</p><h2 style={headingStyle}>{title}</h2>{text ? <PublicRichText value={text} /> : null}</div>;
 }

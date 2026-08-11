@@ -1171,6 +1171,7 @@ const ruMessages = {
   "Changed": "Изменено",
   "Original": "Оригинал",
   "Restore original image": "Вернуть оригинал",
+  "Restore original text": "Вернуть оригинальный текст",
   "Use the video field for this link": "Для этой ссылки используйте поле видео",
   "Move image up": "Поднять изображение",
   "Move image down": "Опустить изображение",

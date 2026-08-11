@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import type { PublicSiteTypography } from "@/lib/public-site/types";
+import type { PublicSiteTypography } from "./types";
+import { normalizeSiteEditorFontFamily, siteEditorFontStack } from "./site-editor-fonts.ts";
 
 const FONT_STACKS = {
   system: 'Inter, ui-sans-serif, system-ui, sans-serif',
@@ -13,7 +14,11 @@ export function normalizeTypography(value?: PublicSiteTypography | null): Public
   const lineHeight = Number(value.line_height);
   const letterSpacing = Number(value.letter_spacing);
   return {
-    ...(value.font_family && ["template", "system", "humanist", "editorial"].includes(value.font_family) ? { font_family: value.font_family } : {}),
+    ...(value.font_family && ["template", "system", "humanist", "editorial"].includes(value.font_family)
+      ? { font_family: value.font_family }
+      : normalizeSiteEditorFontFamily(value.font_family)
+        ? { font_family: normalizeSiteEditorFontFamily(value.font_family) }
+        : {}),
     ...(fontSize >= 10 && fontSize <= 160 ? { font_size: fontSize } : {}),
     ...([400, 500, 600, 700].includes(Number(value.font_weight)) ? { font_weight: Number(value.font_weight) as 400 | 500 | 600 | 700 } : {}),
     ...(value.italic === true ? { italic: true } : {}),
@@ -27,8 +32,13 @@ export function normalizeTypography(value?: PublicSiteTypography | null): Public
 
 export function publicTypographyStyle(value?: PublicSiteTypography | null): CSSProperties {
   const typography = normalizeTypography(value);
+  const namedFont = normalizeSiteEditorFontFamily(typography.font_family);
   return {
-    ...(typography.font_family && typography.font_family !== "template" ? { fontFamily: FONT_STACKS[typography.font_family] } : {}),
+    ...(namedFont
+      ? { fontFamily: siteEditorFontStack(namedFont) }
+      : typography.font_family && typography.font_family !== "template"
+        ? { fontFamily: FONT_STACKS[typography.font_family as keyof typeof FONT_STACKS] }
+        : {}),
     ...(typography.font_size ? { fontSize: `${typography.font_size}px` } : {}),
     ...(typography.font_weight ? { fontWeight: typography.font_weight } : {}),
     ...(typography.italic ? { fontStyle: "italic" } : {}),

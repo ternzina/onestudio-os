@@ -72,7 +72,7 @@ export function usePointerGlow() {
   return ref;
 }
 
-export function BeforeAfter({ content }: { content: PremiumStudioContent["retouch"] }) {
+export function BeforeAfter({ content, headingStyle }: { content: PremiumStudioContent["retouch"]; headingStyle?: CSSProperties }) {
   const [value, setValue] = useState(50);
   const title = content.title.split("\n");
 
@@ -80,7 +80,7 @@ export function BeforeAfter({ content }: { content: PremiumStudioContent["retouc
     <section className={styles.beforeAfter} id="retouch" aria-labelledby="retouch-title">
       <div className={styles.interactionIntro}>
         <p>{content.eyebrow}</p>
-        <h2 id="retouch-title">{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2>
+        <h2 id="retouch-title" style={headingStyle}>{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2>
         <span>{content.text}</span>
       </div>
       <div className={styles.compare} style={{ "--position": `${value}%` } as CSSProperties}>
@@ -110,7 +110,7 @@ export function BeforeAfter({ content }: { content: PremiumStudioContent["retouc
   );
 }
 
-export function FilmStrip({ onOpen, portfolio, content }: { onOpen: OpenProject; portfolio: PremiumStudioContent["portfolio"]; content: PremiumStudioContent["film"] }) {
+export function FilmStrip({ onOpen, portfolio, content, headingStyle }: { onOpen: OpenProject; portfolio: PremiumStudioContent["portfolio"]; content: PremiumStudioContent["film"]; headingStyle?: CSSProperties }) {
   const railRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const paused = useRef(false);
@@ -207,7 +207,7 @@ export function FilmStrip({ onOpen, portfolio, content }: { onOpen: OpenProject;
   return (
     <section className={styles.film} id="film" aria-labelledby="film-title">
       <div className={styles.filmHeader}>
-        <div><p>{content.eyebrow}</p><h2 id="film-title">{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2></div>
+        <div><p>{content.eyebrow}</p><h2 id="film-title" style={headingStyle}>{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2></div>
         <div className={styles.filmControls} aria-label="Управление галереей">
           <button type="button" onClick={() => moveRail(-1)} aria-label="Предыдущие фотографии">←</button>
           <button type="button" onClick={() => moveRail(1)} aria-label="Следующие фотографии">→</button>

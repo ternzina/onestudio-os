@@ -1,10 +1,12 @@
-import type { PublicSiteContent } from "./types.ts";
+import type { PublicSiteContent, PublicSiteTypography } from "./types.ts";
+import type { VeloraNativeSectionId } from "./velora-premium-template-contract.ts";
 import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state.ts";
 
 export const VELORA_TEMPLATE_KEY = "velora-event-venue" as const;
 export type VeloraItem = Record<string, string>;
 export type VeloraContent = {
   version: 1;
+  headingTypography: Partial<Record<VeloraNativeSectionId, PublicSiteTypography>>;
   brand: string;
   plum: string;
   muted: string;
@@ -50,6 +52,7 @@ const asset = (name: string) => `/templates/velora/${name}.webp`;
 
 export const DEFAULT_VELORA_CONTENT: VeloraContent = {
   version: 1,
+  headingTypography: {},
   brand: "VELORA",
   plum: "#2D394F",
   muted: "#B7B4AE",
@@ -581,6 +584,9 @@ export function resolveVeloraContent(
     warm: text(source.warm, defaults.warm),
     overlay: text(source.overlay, defaults.overlay),
     buttonForeground: text(source.buttonForeground, defaults.buttonForeground),
+    headingTypography: isObject(source.headingTypography)
+      ? source.headingTypography as Partial<Record<VeloraNativeSectionId, PublicSiteTypography>>
+      : {},
   };
   for (const key of objectKeys)
     result[key] = mergeObject(defaults[key], source[key]);

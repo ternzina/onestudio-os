@@ -51,11 +51,12 @@ export type EditorNavigatorModel = {
 };
 
 export type EditorInspectorField =
-  | { id: string; type: "text" | "url" | "number" | "color"; label: string; value: string | number; disabled?: boolean; onChange: (value: string) => void }
-  | { id: string; type: "textarea"; label: string; value: string; rows?: number; disabled?: boolean; onChange: (value: string) => void }
+  | { id: string; type: "text"; label: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
+  | { id: string; type: "url" | "number" | "color"; label: string; value: string | number; disabled?: boolean; onChange: (value: string) => void }
+  | { id: string; type: "textarea"; label: string; value: string; originalValue?: string; rows?: number; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "toggle"; label: string; checked: boolean; disabled?: boolean; onChange: (checked: boolean) => void }
   | { id: string; type: "select"; label: string; value: string; options: readonly { value: string; label: string }[]; disabled?: boolean; onChange: (value: string) => void }
-  | { id: string; type: "richText"; label?: string; value: string; disabled?: boolean; onChange: (value: string) => void }
+  | { id: string; type: "richText"; label?: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "typography"; title: string; description: string; value?: PublicSiteTypography; disabled?: boolean; onChange: (value: PublicSiteTypography | undefined) => void }
   | { id: string; type: "button"; label: string; disabled?: boolean; tone?: "default" | "quiet"; onClick: () => void }
   | { id: string; type: "notice"; text: string }

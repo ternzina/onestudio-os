@@ -9,7 +9,8 @@ import {
   team,
   testimonials,
 } from "../../app/demos/premium-studio/content.ts";
-import type { PublicSiteContent } from "./types.ts";
+import type { PublicSiteContent, PublicSiteTypography } from "./types.ts";
+import type { NoirNativeSectionId } from "./noir-premium-template-contract.ts";
 import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state.ts";
 import { LEGACY_NOIR_NATIVE_LAYOUT_ORDER } from "./noir-premium-template-compat.ts";
 
@@ -25,6 +26,7 @@ type TourZone = { id: string; title: string; text: string };
 
 export type PremiumStudioContent = {
   version: typeof PREMIUM_STUDIO_CONTENT_VERSION;
+  headingTypography: Partial<Record<NoirNativeSectionId, PublicSiteTypography>>;
   brand: { first: string; second: string; location: string; email: string; monogram: string; period: string; marquee: string };
   hero: { eyebrow: string; lines: [string, string, string]; note: string; cta: string; image: string; folio: string };
   introduction: { eyebrow: string; title: string; text: string };
@@ -55,6 +57,7 @@ export type PremiumStudioContent = {
 
 export const DEFAULT_PREMIUM_STUDIO_CONTENT: PremiumStudioContent = {
   version: PREMIUM_STUDIO_CONTENT_VERSION,
+  headingTypography: {},
   brand: { first: "NOIR", second: "FRAME", location: "Киев · Украина", email: "studio@example.com", monogram: "NF", period: "24—26", marquee: "NOIR FRAME · NOIR FRAME · NOIR FRAME ·" },
   hero: { eyebrow: "Фотостудия · Киев · 2026", lines: ["Свет", "решает", "всё."], note: "Пространство для тех, кто видит иначе.", cta: "Войти в свет", image: `${brightBase}/hero.webp`, folio: "№ 01" },
   introduction: { eyebrow: "Манифест / 01", title: "Мы не сдаём четыре стены. Мы ставим свет.", text: "Белая циклорама становится сценой. Утренний луч — соавтором. Тишина — частью кадра. Здесь изображение сначала чувствуют, и только потом снимают." },
@@ -111,6 +114,7 @@ export function resolvePremiumStudioContent(content?: PublicSiteContent): Premiu
     ...defaults,
     ...source,
     version: PREMIUM_STUDIO_CONTENT_VERSION,
+    headingTypography: source.headingTypography && typeof source.headingTypography === "object" && !Array.isArray(source.headingTypography) ? source.headingTypography : {},
     brand: { ...defaults.brand, ...source.brand },
     hero: { ...defaults.hero, ...source.hero },
     introduction: { ...defaults.introduction, ...source.introduction },

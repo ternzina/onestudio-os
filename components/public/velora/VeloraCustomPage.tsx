@@ -5,6 +5,7 @@ import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicRichText from "@/components/public/PublicRichText";
 import { resolveVeloraContent } from "@/lib/public-site/velora-premium-template-content";
 import { buildVeloraAvailabilityHref } from "@/lib/public-site/velora-availability-selection";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
 import type { PublicSiteData, PublicSitePage } from "@/lib/public-site/types";
 import {
   VeloraCursorTrail,
@@ -150,7 +151,7 @@ export default function VeloraCustomPage({
         <VeloraFestiveRibbon />
         <VeloraReveal className={styles.customHeroContent}>
           <span>{hero.eyebrow}</span>
-          <VeloraHeroTitle title={hero.title} />
+          <VeloraHeroTitle title={hero.title} style={publicTypographyStyle(page.title_typography)} />
           <PublicRichText value={hero.intro} />
         </VeloraReveal>
       </section>

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import styles from "./PremiumInteractions.module.css";
 import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
 
@@ -20,7 +20,7 @@ function TourFallback({ status, content }: { status: string; content: PremiumStu
   );
 }
 
-export default function StudioTour({ content }: { content: PremiumStudioContent["tour"] }) {
+export default function StudioTour({ content, headingStyle }: { content: PremiumStudioContent["tour"]; headingStyle?: CSSProperties }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [near, setNear] = useState(false);
   const [fallback, setFallback] = useState(true);
@@ -52,7 +52,7 @@ export default function StudioTour({ content }: { content: PremiumStudioContent[
     <section className={styles.tour} id="tour" ref={sectionRef} aria-labelledby="tour-title">
       <div className={styles.tourIntro}>
         <p>{content.eyebrow}</p>
-        <h2 id="tour-title">{content.title.split("\n")[0]}<br /><i>{content.title.split("\n").slice(1).join(" ")}</i></h2>
+        <h2 id="tour-title" style={headingStyle}>{content.title.split("\n")[0]}<br /><i>{content.title.split("\n").slice(1).join(" ")}</i></h2>
         <span>{content.text}</span>
       </div>
       {near && !fallback ? <DynamicStudioTour zones={content.zones} /> : <TourFallback content={content} status={near ? content.loadingText : content.deferredText} />}

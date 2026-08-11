@@ -2,6 +2,7 @@
 
 import type { PublicSiteTypography } from "@/lib/public-site/types";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import { SITE_EDITOR_FONT_OPTIONS, typographyFontSelectValue, type SiteEditorFontFamily } from "@/lib/public-site/site-editor-fonts";
 
 const selectClass = "h-9 rounded-lg border border-black/10 bg-white px-2 text-xs text-[#403d38] outline-none focus:border-[#9a742e] disabled:opacity-40";
 const buttonClass = "h-9 min-w-9 rounded-lg border border-black/10 bg-white px-2 text-xs font-semibold text-[#403d38] aria-pressed:border-[#9a742e] aria-pressed:bg-[#fff6df] disabled:opacity-40";
@@ -20,8 +21,8 @@ export default function TypographyControls({ value, disabled, title = "Заго�
         <button type="button" disabled={disabled || !value} onClick={() => onChange(undefined)} className="text-[10px] font-semibold text-[#8a6a2a] disabled:opacity-35">{t("Use site typography")}</button>
       </div>
       <div className="grid grid-cols-[1fr_86px] gap-2">
-        <select aria-label="Шрифт" disabled={disabled} value={current.font_family ?? "template"} onChange={(e) => update({ font_family: e.target.value as PublicSiteTypography["font_family"] })} className={selectClass}>
-          <option value="template">Шрифт сайта</option><option value="system">System / Inter</option><option value="humanist">Trebuchet</option><option value="editorial">Georgia / Serif</option>
+        <select aria-label="Шрифт" disabled={disabled} value={typographyFontSelectValue(current.font_family)} onChange={(e) => update({ font_family: e.target.value as "template" | SiteEditorFontFamily })} className={selectClass}>
+          <option value="template">Шрифт сайта</option>{SITE_EDITOR_FONT_OPTIONS.map((option) => <option key={option.value} value={option.value} style={{ fontFamily: option.stack }}>{option.label}</option>)}
         </select>
         <label className="flex items-center rounded-lg border border-black/10 bg-white px-2 text-xs"><input aria-label="Размер шрифта в px" type="number" min={10} max={160} disabled={disabled} value={current.font_size ?? ""} placeholder="px" onChange={(e) => update({ font_size: e.target.value ? Number(e.target.value) : undefined })} className="w-full bg-transparent outline-none" /><span className="text-black/45">px</span></label>
       </div>

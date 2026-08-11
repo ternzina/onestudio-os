@@ -16,6 +16,7 @@ type ListSpec = { id: string; label: string; path: string; keys: string[]; rows?
 
 const text = (id: string, label: string, path: string, kind: FieldKind = "text", group: Group = "content", rows?: number): FieldSpec => ({ id, label, path, kind, group, rows });
 const list = (id: string, label: string, path: string, keys: string[], rows = 7, group: Group = "content"): ListSpec => ({ id, label, path, keys, rows, group });
+const headingSections = new Set<NoirEditorSection>(["hero", "manifest", "light", "services", "portfolio", "retouch", "film", "team", "process", "equipment", "tour", "faq", "contact"]);
 
 const specs: Record<NoirEditorSection, Array<FieldSpec | ListSpec>> = {
   hero: [
@@ -115,7 +116,7 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
   const fields: EditorInspectorPlacedField[] = [];
   for (const spec of specs[section]) {
     if ("keys" in spec) {
-      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows, disabled, value: encodeList(atPath(content, spec.path), spec.keys), onChange: (value: string) => onChange(setPath(content, spec.path, decodeList(value, spec.keys)), `noir:${section}:${spec.id}`) });
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows, disabled, value: encodeList(atPath(content, spec.path), spec.keys), originalValue: encodeList(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path), spec.keys), onChange: (value: string) => onChange(setPath(content, spec.path, decodeList(value, spec.keys)), `noir:${section}:${spec.id}`) });
       const mediaKeys = spec.keys.filter(key => key === "image" || key === "hoverImage");
       if (!mediaKeys.length || !onChooseMedia) continue;
       const items = atPath(content, spec.path);
@@ -139,15 +140,27 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
     }
     const raw = atPath(content, spec.path);
     const value = Array.isArray(raw) ? raw.join("\n") : String(raw ?? "");
+    const originalRaw = atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path);
+    const originalValue = Array.isArray(originalRaw) ? originalRaw.join("\n") : String(originalRaw ?? "");
     const update = (next: string) => onChange(setPath(content, spec.path, Array.isArray(raw) ? next.split("\n").map(item => item.trim()).filter(Boolean) : next), `noir:${section}:${spec.id}`);
     if (spec.kind === "url" && (spec.group ?? "content") === "media" && onChooseMedia) {
       fields.push({ id: spec.id, group: "media", type: "media", label: spec.label, value, originalValue: String(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path) ?? ""), disabled, onChange: update, onChoose: () => onChooseMedia({ kind: "template-content", templateKey: "premium-studio", path: spec.path, label: spec.label }) });
     } else if (spec.kind === "textarea") {
-      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows ?? 3, disabled, value, onChange: update });
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows ?? 3, disabled, value, originalValue, onChange: update });
     } else {
-      fields.push({ id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, onChange: update });
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, ...(spec.kind === "url" ? {} : { originalValue }), onChange: update });
     }
   }
+  if (headingSections.has(section)) fields.push({
+    id: `noir-${section}-heading-typography`,
+    group: "typography",
+    type: "typography",
+    title: "Оформление заголовка",
+    description: "Главный заголовок выбранного раздела",
+    value: content.headingTypography[section],
+    disabled,
+    onChange: (value) => onChange({ ...content, headingTypography: { ...content.headingTypography, [section]: value } }, `noir:${section}:heading-typography`),
+  });
   return fields;
 }
 
@@ -163,6 +176,11 @@ export function resetNoirInspectorSection(
       spec.path,
       structuredClone(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path)),
     );
+  }
+  if (headingSections.has(section)) {
+    const headingTypography = { ...next.headingTypography };
+    delete headingTypography[section];
+    next = { ...next, headingTypography };
   }
   return next;
 }

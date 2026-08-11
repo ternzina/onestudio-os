@@ -19,6 +19,8 @@ import { resolvePublicSiteLayoutOrder } from "@/lib/public-site/layout";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import { isTemplateNativeSectionVisible } from "@/lib/public-site/template-native-section-state";
 import type { PublicSiteContent, PublicSiteData } from "@/lib/public-site/types";
+import { publicTypographyStyle } from "@/lib/public-site/typography";
+import type { NoirNativeSectionId } from "@/lib/public-site/noir-premium-template-contract";
 
 const easing = [0.16, 1, 0.3, 1] as const;
 
@@ -72,6 +74,7 @@ function ParallaxProject({ project, index, onOpen, action }: { project: ReturnTy
 function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { site?: PublicSiteData; content?: PublicSiteContent; basePath?: string }) {
   const activeContent = site?.content ?? content;
   const tenantContent = resolvePremiumStudioContent(activeContent);
+  const headingStyle = (section: NoirNativeSectionId) => publicTypographyStyle(tenantContent.headingTypography[section]);
   const noirVisible = (sectionId: string) =>
     isTemplateNativeSectionVisible(
       activeContent,
@@ -255,7 +258,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
           >
             {tenantContent.hero.eyebrow}
           </m.p>
-          <h1 id="premium-studio-title">
+          <h1 id="premium-studio-title" style={headingStyle("hero")}>
             <span className={styles.heroLine}>
               <m.span
                 initial={{ y: "110%" }}
@@ -309,6 +312,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       <section className={styles.overture} id="space" data-editor-anchor="manifest" style={{ order: noirOrder("noir:manifest"), display: noirVisible("manifest") ? undefined : "none" }}>
         <p className={styles.sectionLabel}>{tenantContent.introduction.eyebrow}</p>
         <m.h2
+          style={headingStyle("manifest")}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
@@ -343,7 +347,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       >
         <div className={styles.sceneSticky}>
           <div className={styles.sceneTop}>
-            <span>{tenantContent.lightScene.heading}</span>
+            <span style={headingStyle("light")}>{tenantContent.lightScene.heading}</span>
             <m.span>{sceneCount}</m.span>
           </div>
           <m.div
@@ -384,7 +388,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       <section className={styles.services} id="sessions" data-editor-anchor="services" style={{ order: noirOrder("noir:services"), display: noirVisible("services") ? undefined : "none" }}>
         <div className={styles.servicesMasthead}>
           <p className={styles.sectionLabel}>{tenantContent.servicesPresentation.eyebrow}</p>
-          <h2>
+          <h2 style={headingStyle("services")}>
             {tenantContent.servicesPresentation.title.split("\n")[0]}<br /><i>{tenantContent.servicesPresentation.title.split("\n").slice(1).join(" ")}</i>
           </h2>
           <span>
@@ -446,7 +450,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       <section className={styles.portfolio} id="portfolio" data-editor-anchor="portfolio" style={{ order: noirOrder("noir:portfolio"), display: noirVisible("portfolio") ? undefined : "none" }}>
         <div className={styles.sectionIntro}>
           <p className={styles.sectionLabel}>{tenantContent.portfolioPresentation.eyebrow}</p>
-          <h2>{tenantContent.portfolioPresentation.title.split("\n")[0]}<br /><i>{tenantContent.portfolioPresentation.title.split("\n").slice(1).join(" ")}</i></h2>
+          <h2 style={headingStyle("portfolio")}>{tenantContent.portfolioPresentation.title.split("\n")[0]}<br /><i>{tenantContent.portfolioPresentation.title.split("\n").slice(1).join(" ")}</i></h2>
           <p>{tenantContent.portfolioPresentation.text}</p>
         </div>
         <div className={styles.portfolioGrid}>
@@ -458,14 +462,14 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       </section>
 
       <div data-editor-anchor="retouch" style={{ order: noirOrder("noir:retouch"), display: noirVisible("retouch") ? undefined : "none", width: "100%" }}>
-        <BeforeAfter content={tenantContent.retouch} />
+        <BeforeAfter content={tenantContent.retouch} headingStyle={headingStyle("retouch")} />
       </div>
       <div data-editor-anchor="film" style={{ order: noirOrder("noir:film"), display: noirVisible("film") ? undefined : "none", width: "100%" }}>
-        <FilmStrip onOpen={setActiveProject} portfolio={portfolio} content={tenantContent.film} />
+        <FilmStrip onOpen={setActiveProject} portfolio={portfolio} content={tenantContent.film} headingStyle={headingStyle("film")} />
       </div>
 
       <section className={styles.team} id="team" data-editor-anchor="team" style={{ order: noirOrder("noir:team"), display: noirVisible("team") ? undefined : "none" }}>
-        <div className={styles.teamHeader}><p className={styles.sectionLabel}>{tenantContent.teamPresentation.eyebrow}</p><h2>{tenantContent.teamPresentation.title.split("\n")[0]}<br /><i>{tenantContent.teamPresentation.title.split("\n").slice(1).join(" ")}</i></h2></div>
+        <div className={styles.teamHeader}><p className={styles.sectionLabel}>{tenantContent.teamPresentation.eyebrow}</p><h2 style={headingStyle("team")}>{tenantContent.teamPresentation.title.split("\n")[0]}<br /><i>{tenantContent.teamPresentation.title.split("\n").slice(1).join(" ")}</i></h2></div>
         <div className={styles.teamFeature}>
           <div className={styles.teamFeatureImage}>
             <Image
@@ -495,7 +499,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       </section>
 
       <section className={styles.process} id="process" data-editor-anchor="process" style={{ order: noirOrder("noir:process"), display: noirVisible("process") ? undefined : "none" }}>
-        <div className={styles.processHeader}><p className={styles.sectionLabel}>{tenantContent.processPresentation.eyebrow}</p><h2>{tenantContent.processPresentation.title.split("\n")[0]}<br /><i>{tenantContent.processPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.processPresentation.text}</p></div>
+        <div className={styles.processHeader}><p className={styles.sectionLabel}>{tenantContent.processPresentation.eyebrow}</p><h2 style={headingStyle("process")}>{tenantContent.processPresentation.title.split("\n")[0]}<br /><i>{tenantContent.processPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.processPresentation.text}</p></div>
         <ol className={styles.processLine}>
           {processSteps.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.text}</p></div></li>)}
         </ol>
@@ -503,13 +507,13 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
 
       <section className={styles.equipment} id="equipment" data-editor-anchor="equipment" style={{ order: noirOrder("noir:equipment"), display: noirVisible("equipment") ? undefined : "none" }}>
         <div className={styles.equipmentVisual}><Image src={tenantContent.equipmentPresentation.image} alt={tenantContent.equipmentPresentation.imageAlt} fill sizes="(max-width: 768px) 100vw, 50vw" quality={88} /></div>
-        <div className={styles.equipmentCopy}><p className={styles.sectionLabel}>{tenantContent.equipmentPresentation.eyebrow}</p><h2>{tenantContent.equipmentPresentation.title.split("\n")[0]}<br /><i>{tenantContent.equipmentPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.equipmentPresentation.text}</p>
+        <div className={styles.equipmentCopy}><p className={styles.sectionLabel}>{tenantContent.equipmentPresentation.eyebrow}</p><h2 style={headingStyle("equipment")}>{tenantContent.equipmentPresentation.title.split("\n")[0]}<br /><i>{tenantContent.equipmentPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.equipmentPresentation.text}</p>
           <ul>{equipment.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ul>
         </div>
       </section>
 
       <div data-editor-anchor="tour" style={{ order: noirOrder("noir:tour"), display: noirVisible("tour") ? undefined : "none", width: "100%" }}>
-        <StudioTour content={tenantContent.tour} />
+        <StudioTour content={tenantContent.tour} headingStyle={headingStyle("tour")} />
       </div>
 
       <section className={styles.testimonials} id="reviews" aria-labelledby="reviews-title" data-editor-anchor="reviews" style={{ order: noirOrder("noir:reviews"), display: noirVisible("reviews") ? undefined : "none" }}>
@@ -521,7 +525,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
       </section>
 
       <section className={styles.faq} id="faq" data-editor-anchor="faq" style={{ order: noirOrder("noir:faq"), display: noirVisible("faq") ? undefined : "none" }}>
-        <div className={styles.faqIntro}><p className={styles.sectionLabel}>{tenantContent.faqPresentation.eyebrow}</p><h2>{tenantContent.faqPresentation.title.split("\n")[0]}<br /><i>{tenantContent.faqPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.faqPresentation.text}</p></div>
+        <div className={styles.faqIntro}><p className={styles.sectionLabel}>{tenantContent.faqPresentation.eyebrow}</p><h2 style={headingStyle("faq")}>{tenantContent.faqPresentation.title.split("\n")[0]}<br /><i>{tenantContent.faqPresentation.title.split("\n").slice(1).join(" ")}</i></h2><p>{tenantContent.faqPresentation.text}</p></div>
         <div className={styles.faqList}>{faq.map((item, index) => <details key={item.question}><summary><span>{String(index + 1).padStart(2, "0")}</span>{item.question}<i aria-hidden="true" /></summary><p>{item.answer}</p></details>)}</div>
       </section>
 
@@ -567,6 +571,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
         </div>
         <p className={styles.sectionLabel}>{tenantContent.contact.eyebrow}</p>
         <m.h2
+          style={headingStyle("contact")}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}

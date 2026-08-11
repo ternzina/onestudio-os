@@ -1,3 +1,5 @@
+import { normalizeSiteEditorFontFamily } from "./site-editor-fonts.ts";
+
 export const RICH_TEXT_PREFIX = "__osrt1__:";
 
 export type RichTextNode = {
@@ -19,28 +21,6 @@ export type RichTextDocument = {
 const HEX = /^#[0-9a-f]{6}$/i;
 const RGB = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i;
 const SAFE_LINK = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
-const SAFE_FONT_FAMILY = new Set([
-  "Arial",
-  "Arial Black",
-  "Baskerville",
-  "Book Antiqua",
-  "Brush Script MT",
-  "Century Gothic",
-  "Comic Sans MS",
-  "Garamond",
-  "Georgia",
-  "Gill Sans",
-  "Helvetica",
-  "Impact",
-  "Lucida Console",
-  "Monaco",
-  "Palatino Linotype",
-  "Tahoma",
-  "Times New Roman",
-  "Verdana",
-  "Trebuchet MS",
-  "Courier New",
-]);
 const SAFE_FONT_SIZES = new Set([12, 14, 16, 18, 20, 24, 28, 32]);
 
 export function isRichTextValue(value?: string | null): value is string {
@@ -95,8 +75,7 @@ export function richTextPlainText(value?: string | null): string {
 
 
 export function normalizeRichTextFontFamily(value?: string | null) {
-  const family = value?.replace(/["']/g, "").trim() ?? "";
-  return SAFE_FONT_FAMILY.has(family) ? family : undefined;
+  return normalizeSiteEditorFontFamily(value);
 }
 
 export function normalizeRichTextFontSize(value?: string | number | null) {
