@@ -489,8 +489,8 @@ test("VELORA conversion motion layer keeps every promised effect and degrades sa
     "VeloraStickyHeader",
     "VeloraPageEntrance",
     "VeloraHeroTitle",
+    "VeloraFestiveRibbon",
     "VeloraVenueReveal",
-    "heroRibbon",
   ]) {
     assert.match(site, new RegExp(marker));
   }
@@ -499,11 +499,15 @@ test("VELORA conversion motion layer keeps every promised effect and degrades sa
     "VeloraStickyHeader",
     "VeloraPageEntrance",
     "VeloraHeroTitle",
+    "VeloraFestiveRibbon",
   ]) {
     assert.match(customPage, new RegExp(marker));
   }
   assert.match(interactions, /\(hover: hover\) and \(pointer: fine\)/);
   assert.match(interactions, /galleryGhostSet/);
+  assert.match(interactions, /ribbonBody/);
+  assert.match(interactions, /ribbonTail/);
+  assert.doesNotMatch(css, /clip-path:\s*polygon\(0 43%/);
   assert.match(interactions, /useSpring/);
   assert.match(css, /\.headerScrolled\s*\{/);
   assert.match(css, /@keyframes velora-gallery-travel/);

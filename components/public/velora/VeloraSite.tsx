@@ -12,6 +12,7 @@ import type { PublicSiteData } from "@/lib/public-site/types";
 import {
   VeloraAvailability,
   VeloraCursorTrail,
+  VeloraFestiveRibbon,
   VeloraGallery,
   VeloraHeroMedia,
   VeloraHeroTitle,
@@ -123,11 +124,7 @@ export default function VeloraSite({
         </VeloraStickyHeader>
         <section id="hero" className={styles.hero}>
           <VeloraHeroMedia image={content.hero.image} alt={content.hero.alt} />
-          <div className={styles.heroRibbon} aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
+          <VeloraFestiveRibbon />
           <VeloraReveal className={styles.heroContent}>
             <span>{content.hero.eyebrow}</span>
             <VeloraHeroTitle title={content.hero.title} />

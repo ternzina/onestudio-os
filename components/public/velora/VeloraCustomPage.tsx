@@ -8,6 +8,7 @@ import { buildVeloraAvailabilityHref } from "@/lib/public-site/velora-availabili
 import type { PublicSiteData, PublicSitePage } from "@/lib/public-site/types";
 import {
   VeloraCursorTrail,
+  VeloraFestiveRibbon,
   VeloraHeroTitle,
   VeloraPageEntrance,
   VeloraReveal,
@@ -145,11 +146,7 @@ export default function VeloraCustomPage({
           <Image src={heroImage} alt={heroAlt} fill priority sizes="100vw" />
         </div>
         <div className={styles.customHeroShade} />
-        <div className={styles.heroRibbon} aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </div>
+        <VeloraFestiveRibbon />
         <VeloraReveal className={styles.customHeroContent}>
           <span>{hero.eyebrow}</span>
           <VeloraHeroTitle title={hero.title} />
