@@ -290,6 +290,13 @@ export function createVeloraEnglishContent(): VeloraContent {
   });
   Object.assign(content.footer, {
     note: "Event house · Kyiv",
+    tagline:
+      "We create evenings that stay with you — in the light, the flavour and every quiet detail.",
+    cta: "Begin with your date",
+    navigationLabel: "Explore",
+    contactLabel: "Contact",
+    languageLabel: "Language",
+    topLabel: "Back to top",
     copyright: "© 2026 VELORA · fictional demonstration brand",
   });
   Object.assign(content.customPages, {

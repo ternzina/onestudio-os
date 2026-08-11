@@ -15,6 +15,7 @@ import {
   VeloraScrollProgress,
   VeloraStickyHeader,
 } from "./VeloraInteractions";
+import VeloraFooter from "./VeloraFooter";
 import styles from "./Velora.module.css";
 
 const BUILTIN_VENUES_ID = "velora-venues";
@@ -141,7 +142,7 @@ export default function VeloraCustomPage({
           {content.header.availabilityLabel}
         </Link>
       </VeloraStickyHeader>
-      <section className={styles.customHero}>
+      <section id="hero" className={styles.customHero}>
         <div className={styles.customHeroMedia}>
           <Image src={heroImage} alt={heroAlt} fill priority sizes="100vw" />
         </div>
@@ -214,11 +215,18 @@ export default function VeloraCustomPage({
             />
           ))}
       </section>
-      <footer className={styles.footer}>
-        <Link href={basePath}>{content.brand}</Link>
-        <span>{content.footer.note}</span>
-        <span>{content.footer.copyright}</span>
-      </footer>
+      <VeloraFooter
+        brand={content.brand}
+        footer={content.footer}
+        contact={content.contact}
+        navigation={content.navigation}
+        basePath={basePath}
+        currentLocale={currentLocale}
+        localeLinks={site.available_locales.map((locale) => ({
+          locale,
+          href: localePageHref(locale),
+        }))}
+      />
     </main>
   );
 }

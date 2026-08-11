@@ -254,6 +254,49 @@ test("VELORA image slots are independent media fields with adjacent alt paths", 
     );
 });
 
+test("VELORA transformation uses a distinct aligned before and after pair", () => {
+  assert.equal(
+    DEFAULT_VELORA_CONTENT.transformation.beforeImage,
+    "/templates/velora/transformation-before-v2.webp",
+  );
+  assert.equal(
+    DEFAULT_VELORA_CONTENT.transformation.afterImage,
+    "/templates/velora/transformation-after-v2.webp",
+  );
+  assert.notEqual(
+    DEFAULT_VELORA_CONTENT.transformation.beforeImage,
+    DEFAULT_VELORA_CONTENT.transformation.afterImage,
+  );
+});
+
+test("VELORA has a complete reusable footer on home and custom pages", async () => {
+  const footer = await readFile(
+    new URL("../components/public/velora/VeloraFooter.tsx", import.meta.url),
+    "utf8",
+  );
+  const site = await readFile(
+    new URL("../components/public/velora/VeloraSite.tsx", import.meta.url),
+    "utf8",
+  );
+  const customPage = await readFile(
+    new URL(
+      "../components/public/velora/VeloraCustomPage.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  for (const marker of [
+    "footerBrand",
+    "footerNav",
+    "footerContact",
+    "footerLanguages",
+    "footerTop",
+  ])
+    assert.match(footer, new RegExp(marker));
+  assert.match(site, /<VeloraFooter/);
+  assert.match(customPage, /<VeloraFooter/);
+});
+
 test("VELORA inspector uses the shared media picker and palette reset restores package defaults", () => {
   const seed = createTemplateSeed(KEY);
   const adapter = getPremiumTemplateEditorAdapter(KEY)!;

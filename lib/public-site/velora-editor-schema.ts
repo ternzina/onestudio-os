@@ -280,6 +280,12 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
   ],
   footer: [
     field("note", "Подпись", "footer.note"),
+    field("tagline", "Фраза в футере", "footer.tagline", "textarea"),
+    field("cta", "Кнопка в футере", "footer.cta"),
+    field("navigation-label", "Заголовок навигации", "footer.navigationLabel"),
+    field("contact-label", "Заголовок контактов", "footer.contactLabel"),
+    field("language-label", "Подпись языков", "footer.languageLabel"),
+    field("top-label", "Ссылка наверх", "footer.topLabel"),
     field("copyright", "Копирайт", "footer.copyright"),
     field("home", "Страница · главная", "customPages.homeLabel"),
     field("venues", "Страница · залы", "customPages.venuesLabel"),

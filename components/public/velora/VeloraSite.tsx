@@ -9,6 +9,7 @@ import {
   VELORA_TEMPLATE_KEY,
 } from "@/lib/public-site/velora-premium-template-content";
 import type { PublicSiteData } from "@/lib/public-site/types";
+import VeloraFooter from "./VeloraFooter";
 import {
   VeloraAvailability,
   VeloraCursorTrail,
@@ -502,11 +503,18 @@ export default function VeloraSite({
       </section>
     ) : null,
     footer: visible("footer") ? (
-      <footer className={styles.footer}>
-        <Link href={basePath}>{content.brand}</Link>
-        <span>{content.footer.note}</span>
-        <span>{content.footer.copyright}</span>
-      </footer>
+      <VeloraFooter
+        brand={content.brand}
+        footer={content.footer}
+        contact={content.contact}
+        navigation={content.navigation}
+        basePath={basePath}
+        currentLocale={currentLocale}
+        localeLinks={site.available_locales.map((locale) => ({
+          locale,
+          href: localeHref(locale),
+        }))}
+      />
     ) : null,
   };
   const custom = new Map(

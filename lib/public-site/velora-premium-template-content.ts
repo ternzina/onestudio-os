@@ -161,9 +161,9 @@ export const DEFAULT_VELORA_CONTENT: VeloraContent = {
     text: "Передвиньте ползунок и посмотрите, как свет, текстиль и флористика превращают пустое пространство в готовый вечер.",
     beforeLabel: "До",
     afterLabel: "После",
-    beforeImage: asset("empty-hall"),
+    beforeImage: asset("transformation-before-v2"),
     beforeAlt: "Пустой зал до подготовки события",
-    afterImage: asset("dressed-hall"),
+    afterImage: asset("transformation-after-v2"),
     afterAlt: "Тот же зал после полной подготовки события",
   },
   storyPresentation: {
@@ -469,6 +469,13 @@ export const DEFAULT_VELORA_CONTENT: VeloraContent = {
   },
   footer: {
     note: "Event house · Киев",
+    tagline:
+      "Создаём вечера, которые остаются с вами — в свете, вкусе и каждой тихой детали.",
+    cta: "Начать с вашей даты",
+    navigationLabel: "Исследовать",
+    contactLabel: "Связаться",
+    languageLabel: "Язык",
+    topLabel: "Наверх",
     copyright: "© 2026 VELORA · вымышленный демонстрационный бренд",
   },
   customPages: {
