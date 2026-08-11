@@ -6,6 +6,7 @@ import type {
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteProject, PublicSiteService } from "./types.ts";
 
 export type PremiumTemplateEditorMediaTarget =
+  | { kind: "template-content"; templateKey: string; path: string; label: string }
   | { kind: "content"; key: "hero_image_url" | "about_image_url" | "membership_image_url" | "gift_image_url"; label: string }
   | { kind: "list"; key: "service_image_urls" | "team_image_urls" | "membership_image_urls" | "gift_image_urls"; index: number; label: string }
   | { kind: "service-card"; slug: string; label: string }

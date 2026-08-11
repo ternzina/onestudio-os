@@ -14,13 +14,13 @@ import { createPremiumTemplateSeedResolver, createTemplateSeed } from "../lib/pu
 import { PREMIUM_TEMPLATE_PACKAGE_SOURCE } from "../lib/public-site/premium-template-package-source.mjs";
 import { renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
 
-const KEYS = ["gloss-nail-studio", "premium-studio"] as const;
+const KEYS = ["gloss-nail-studio", "premium-studio", "velora-event-venue"] as const;
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("manifests are the canonical serializable package identity and include complete demo metadata", () => {
   assert.deepEqual(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS.map(({ templateKey }) => templateKey), KEYS);
-  assert.equal(JSON.parse(JSON.stringify(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS)).length, 2);
+  assert.equal(JSON.parse(JSON.stringify(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS)).length, 3);
   for (const manifest of PREMIUM_TEMPLATE_PACKAGE_MANIFESTS) {
     assert.equal(Object.values(manifest).some((value) => typeof value === "function"), false);
     assert.ok(manifest.preview.title.ru && manifest.preview.title.en);

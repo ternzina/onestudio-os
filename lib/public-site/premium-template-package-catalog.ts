@@ -143,6 +143,87 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
     "assets": [
       "/images/demos/premium-studio/bright/hero.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "velora-event-venue",
+    "name": "VELORA HOUSE",
+    "description": "Премиальная event-площадка с проверкой даты, выбором зала, пакета и заявкой.",
+    "category": "events",
+    "aliases": [
+      "velora",
+      "velora-house"
+    ],
+    "library": {
+      "tier": "premium",
+      "visible": true,
+      "order": 40
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "events",
+      "order": 40,
+      "title": {
+        "ru": "Площадка для событий",
+        "en": "Private event venue"
+      },
+      "description": {
+        "ru": "Свадьбы, частные ужины и корпоративные события в трёх выразительных залах.",
+        "en": "Weddings, private dinners and corporate events across three distinctive halls."
+      },
+      "alt": {
+        "ru": "Вечерний зал VELORA HOUSE",
+        "en": "VELORA HOUSE event hall at night"
+      },
+      "route": "/demos/velora-event-venue",
+      "image": "/templates/velora/hero-cinematic.webp",
+      "accent": "#D6B56E",
+      "dark": "#07101E",
+      "surface": "#F6F0E5"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "velora-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "facts",
+      "venues",
+      "formats",
+      "transformation",
+      "story",
+      "packages",
+      "included",
+      "catering",
+      "decor",
+      "coordinator",
+      "reviews",
+      "gallery",
+      "planner",
+      "faq",
+      "availability",
+      "footer"
+    ],
+    "assets": [
+      "/templates/velora/hero-cinematic.webp",
+      "/templates/velora/grand-hall-cinematic.webp",
+      "/templates/velora/garden-room-cinematic.webp",
+      "/templates/velora/atelier-cinematic.webp",
+      "/templates/velora/celebration-cinematic.webp",
+      "/templates/velora/menu-cinematic.webp",
+      "/templates/velora/coordinator-cinematic.webp"
+    ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;

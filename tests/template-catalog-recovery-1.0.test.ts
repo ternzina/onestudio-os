@@ -7,9 +7,9 @@ import { BLANK_BASE_SEED, createTemplateSeed } from "../lib/public-site/template
 import { getActiveEditorDesigns, isPublicRenderableSiteTemplate } from "../lib/public-site/template-registry.ts";
 import { selectExecutableTemplate } from "../lib/public-site/template-selection.ts";
 
-test("one canonical catalog owns exactly the four executable customer designs", () => {
+test("one canonical catalog owns all executable customer designs", () => {
   assert.deepEqual(TEMPLATE_CATALOG.map(item => item.key), [...TEMPLATE_KEYS]);
-  assert.deepEqual(TEMPLATE_KEYS, ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio"]);
+  assert.deepEqual(TEMPLATE_KEYS, ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]);
   for (const item of TEMPLATE_CATALOG) {
     assert.equal(item.capabilities.customerCreatable, true);
     assert.equal(item.capabilities.editorSelectable, true);
