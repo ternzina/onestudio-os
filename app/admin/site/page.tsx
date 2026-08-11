@@ -9,6 +9,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
 import MediaListEditor from "@/components/admin/MediaListEditor";
 import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
+import SiteEditorActionField from "@/components/admin/SiteEditorActionField";
 import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector";
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
@@ -3308,11 +3309,35 @@ function VisualBuilder({
                   onChange={updateSystemSectionSettings}
                 />
                 <RichTextEditor label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} />
-                <CompactField label={t("Primary button label")} value={draft.hero_primary_label ?? draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_label", value)} />
-                <CompactField label={t("Primary button link")} value={draft.hero_primary_url ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_url", value)} />
+                <SiteEditorActionField
+                  label={t("Primary button")}
+                  text={draft.hero_primary_label ?? draft.booking_label}
+                  href={draft.hero_primary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled}
+                  destinations={[
+                    { value: "#contact", label: t("Contact") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#about", label: t("About") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_primary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_primary_url", value)}
+                />
                 <Toggle label={t("Show secondary button")} checked={draft.show_hero_secondary !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_hero_secondary", value)} />
-                <CompactField label={t("Secondary button label")} value={draft.hero_secondary_label ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_label", value)} />
-                <CompactField label={t("Secondary button link")} value={draft.hero_secondary_url ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_url", value)} />
+                <SiteEditorActionField
+                  label={t("Secondary button")}
+                  text={draft.hero_secondary_label ?? ""}
+                  href={draft.hero_secondary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false}
+                  destinations={[
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#about", label: t("About") },
+                    { value: "#contact", label: t("Contact") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_secondary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_secondary_url", value)}
+                />
                 <ImageEditor
                   label={t("Hero image")}
                   value={draft.hero_image_url ?? ""}
@@ -3418,17 +3443,18 @@ function VisualBuilder({
                     <p className="-mt-2 text-[11px] leading-5 text-[#817c72]">
                       {"5+ · лет опыта / 5+ · years of experience"}
                     </p>
-                    <CompactField
+                    <SiteEditorActionField
                       label={t("Button")}
-                      value={draft.about_button_label ?? ""}
+                      text={draft.about_button_label ?? ""}
+                      href={draft.about_button_url ?? ""}
                       disabled={!canConfigure || !editingEnabled}
-                      onChange={(value) => onUpdate("about_button_label", value)}
-                    />
-                    <CompactField
-                      label={t("Button link")}
-                      value={draft.about_button_url ?? ""}
-                      disabled={!canConfigure || !editingEnabled}
-                      onChange={(value) => onUpdate("about_button_url", value)}
+                      destinations={[
+                        { value: "#contact", label: t("Contact") },
+                        { value: "#services", label: t("Services") },
+                        { value: "#portfolio", label: t("Portfolio") },
+                      ]}
+                      onTextChange={(value) => onUpdate("about_button_label", value)}
+                      onHrefChange={(value) => onUpdate("about_button_url", value)}
                     />
                   </>
                 ) : null}
@@ -6348,22 +6374,17 @@ function MembershipCardsEditor({
             }
           />
 
-          <CompactField
-            label="Текст кнопки"
-            value={membership.buttonLabel}
+          <SiteEditorActionField
+            label="Кнопка уровня"
+            text={membership.buttonLabel}
+            href={membership.buttonUrl}
             disabled={disabled}
-            onChange={(value) =>
-              updateMembership(index, { buttonLabel: value })
-            }
-          />
-
-          <CompactField
-            label="Ссылка кнопки"
-            value={membership.buttonUrl}
-            disabled={disabled}
-            onChange={(value) =>
-              updateMembership(index, { buttonUrl: value })
-            }
+            destinations={[
+              { value: "#contact", label: "Контакты" },
+              { value: "#services", label: "Услуги" },
+            ]}
+            onTextChange={(value) => updateMembership(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateMembership(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -6735,22 +6756,17 @@ function GiftCertificatesEditor({
             }
           />
 
-          <CompactField
-            label="Текст кнопки"
-            value={certificate.buttonLabel}
+          <SiteEditorActionField
+            label="Кнопка сертификата"
+            text={certificate.buttonLabel}
+            href={certificate.buttonUrl}
             disabled={disabled}
-            onChange={(value) =>
-              updateCertificate(index, { buttonLabel: value })
-            }
-          />
-
-          <CompactField
-            label="Ссылка кнопки"
-            value={certificate.buttonUrl}
-            disabled={disabled}
-            onChange={(value) =>
-              updateCertificate(index, { buttonUrl: value })
-            }
+            destinations={[
+              { value: "#contact", label: "Контакты" },
+              { value: "#services", label: "Услуги" },
+            ]}
+            onTextChange={(value) => updateCertificate(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateCertificate(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -7405,10 +7421,20 @@ function CustomBlockSettings({
         </label>
       ) : null}
       {block.kind === "cta" || block.kind === "media_text" ? (
-        <>
-          <CompactField label={t("Button")} value={block.button_label} disabled={disabled} onChange={(value) => onChange("button_label", value)} />
-          <CompactField label={t("Button link")} value={block.button_url} disabled={disabled} onChange={(value) => onChange("button_url", value)} />
-        </>
+        <SiteEditorActionField
+          label={t("Button")}
+          text={block.button_label}
+          href={block.button_url}
+          disabled={disabled}
+          destinations={[
+            { value: "#contact", label: t("Contact") },
+            { value: "#services", label: t("Services") },
+            { value: "#portfolio", label: t("Portfolio") },
+            { value: "#about", label: t("About") },
+          ]}
+          onTextChange={(value) => onChange("button_label", value)}
+          onHrefChange={(value) => onChange("button_url", value)}
+        />
       ) : null}
       {block.kind === "media_text" ? (
         <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">

@@ -19,6 +19,7 @@ import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -162,21 +163,6 @@ function SafetyIcon({ index }: { index: number }) {
   );
 }
 
-function safeActionHref(value: string | undefined, fallback: string) {
-  const href = value?.trim() ?? "";
-  if (!href) return fallback;
-  if (
-    href.startsWith("#") ||
-    href.startsWith("/") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:") ||
-    /^https:\/\//i.test(href)
-  ) {
-    return href;
-  }
-  return fallback;
-}
-
 function heroObjectClass(
   fit: "cover" | "contain" | undefined,
   position: "top" | "center" | "bottom" | undefined,
@@ -265,13 +251,13 @@ export default function GlossBusinessSite({
   const headerLogoPosition = content.header_logo_position ?? "left";
   const headerLogoSize = content.header_logo_size ?? "medium";
   const menuText = menuCopy(business.locale);
-  const primaryHref = safeActionHref(
+  const primaryHref = safePublicActionHref(
     content.hero_primary_url,
     capabilities.booking ? bookingHref : `/request/${business.slug}`,
   );
   const primaryLabel =
     content.hero_primary_label?.trim() || content.booking_label || "Записаться";
-  const secondaryHref = safeActionHref(
+  const secondaryHref = safePublicActionHref(
     content.hero_secondary_url,
     "#portfolio",
   );
@@ -709,7 +695,7 @@ export default function GlossBusinessSite({
                         <div className="mt-6">
                           {buttonUrl && !buttonUrl.startsWith("#") ? (
                             <a
-                              href={buttonUrl}
+                              href={safePublicActionHref(buttonUrl, "#contact")}
                               target="_blank"
                               rel="noreferrer"
                               className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
@@ -904,7 +890,7 @@ export default function GlossBusinessSite({
                         <div className="mt-6">
                           {buttonUrl && !buttonUrl.startsWith("#") ? (
                             <a
-                              href={buttonUrl}
+                              href={safePublicActionHref(buttonUrl, "#contact")}
                               target="_blank"
                               rel="noreferrer"
                               className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
@@ -1018,7 +1004,7 @@ export default function GlossBusinessSite({
                   ) : null}
                   {content.about_button_label ? (
                     <a
-                      href={content.about_button_url || "#contact"}
+                      href={safePublicActionHref(content.about_button_url, "#contact")}
                       className="os-site-button mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
                     >
                       {content.about_button_label}
