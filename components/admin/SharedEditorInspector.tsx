@@ -19,13 +19,13 @@ function SharedEditorInspectorField({ field }: { field: EditorInspectorField }) 
 }
 
 export default function SharedEditorInspector({ model }: { model: EditorInspectorModel }) {
-  const labels: Record<OneStudioInspectorGroup, string> = {
-    content: "Содержимое и оформление",
-    typography: "Типографика",
-    media: "Медиа",
-    layout: "Размеры и расположение",
-  };
   const { t } = useAdminI18n();
+  const labels: Record<OneStudioInspectorGroup, string> = {
+    content: t("Content and appearance"),
+    typography: t("Typography"),
+    media: t("Block media"),
+    layout: t("Size and position"),
+  };
   return <div data-shared-editor-inspector>
     <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{model.heading}</p>{model.onCollapse ? <button type="button" onClick={model.onCollapse} className="rounded-lg border border-black/10 px-2 py-1.5 text-[10px] font-semibold text-[#716d65] transition hover:bg-[#f6f4ef]" aria-label={t("Collapse settings")}>{t("Collapse")} →</button> : null}</div>
     <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em]">{model.title}</h2>

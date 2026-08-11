@@ -17,8 +17,8 @@ test("runtime exclusively mounts the shared navigator and inspector", async () =
   const runtime = await read("../components/admin/TemplateEditorRuntime.tsx");
   const base = await read("../app/admin/site/page.tsx");
   const bembi = await read("../components/admin/PremiumTemplateEditor.tsx");
-  assert.match(runtime, /<SharedEditorNavigator model=\{spec\.navigatorModel\}/);
-  assert.match(runtime, /<SharedEditorInspector model=\{spec\.inspectorModel\}/);
+  assert.match(runtime, /<SharedEditorNavigator model=\{navigatorModel\}/);
+  assert.match(runtime, /<SharedEditorInspector model=\{inspectorModel\}/);
   for (const adapter of [base, bembi]) {
     assert.match(adapter, /navigatorModel=/);
     assert.match(adapter, /inspectorModel=/);

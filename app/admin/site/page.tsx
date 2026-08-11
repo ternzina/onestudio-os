@@ -2484,7 +2484,7 @@ function VisualBuilder({
         { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
         ...(activePage.type === "portfolio"
           ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
-          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
+          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
@@ -2621,12 +2621,12 @@ function VisualBuilder({
         ...layoutOrder.flatMap((item, index) => {
           if (item.startsWith("section:")) {
             const section = item.slice("section:".length) as PublicSiteSection;
-            return [{ id: item, key: item, label: t(sectionLabelKey[section]), index: index + 1, selected: !selectedCustomBlockId && selectedSection === section, visible: Boolean(draft[sectionVisibilityKey[section]]), disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true }, onSelect: () => chooseSection(section), onVisibilityChange: (visible: boolean) => onUpdate(sectionVisibilityKey[section], visible), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+            return [{ id: item, key: item, label: t(sectionLabelKey[section]), index: index + 1, selected: !selectedCustomBlockId && selectedSection === section, visible: Boolean(draft[sectionVisibilityKey[section]]), disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true }, onSelect: () => chooseSection(section), onVisibilityChange: (visible: boolean) => onUpdate(sectionVisibilityKey[section], visible), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
           }
           const blockId = item.slice("custom:".length);
           const block = (draft.custom_blocks ?? []).find(candidate => candidate.id === blockId);
           if (!block) return [];
-          return [{ id: item, key: item, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+          return [{ id: item, key: item, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
         }),
       ];
   const premiumEditorPreviewSite: PublicSiteData = {
@@ -2661,8 +2661,7 @@ function VisualBuilder({
             return {
               id: definition.token,
               label: definition.label,
-              description:
-                "A native section of this design. Select it or reveal it without creating a duplicate.",
+              description: t("A native section of this design. Select it or reveal it without creating a duplicate."),
               stateLabel: visible ? "On page" : "Hidden",
               onAdd: () =>
                 choosePremiumTemplateLibrarySection(definition.id),
@@ -2671,7 +2670,7 @@ function VisualBuilder({
         )
       : [];
   const navigatorModel: EditorNavigatorModel = {
-    heading: t("Page blocks"), sections: navigatorSections, onCollapse: () => setBlocksOpen(false),
+    heading: t("Page blocks"), sections: navigatorSections, expanded: blocksOpen, onExpandedChange: setBlocksOpen, onCollapse: () => setBlocksOpen(false),
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
     footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
   };
@@ -2716,7 +2715,7 @@ function VisualBuilder({
           : []),
         {
           id: "reset",
-          label: "Вернуть этот блок к оригиналу",
+          label: t("Restore this block to the original"),
           disabled: !canConfigure || !editingEnabled,
           onClick: resetSelectedPremiumSection,
         },
@@ -2776,13 +2775,13 @@ function VisualBuilder({
         auxiliaryAction: isPremiumNativeHome
           ? {
               id: "restore-template",
-              label: premiumEditorAdapter?.restoreLabel ?? "Вернуть исходный шаблон",
+              label: premiumEditorAdapter?.restoreLabel ?? t("Restore original template"),
               disabled: !canConfigure || saving || !editingEnabled,
               onClick: restoreOriginalPremiumTemplate,
             }
           : {
               id: "restore",
-              label: "Вернуть начальное демо",
+              label: t("Restore initial demo"),
               disabled: !canConfigure || saving || !activeTemplate,
               onClick: () => { if (activeTemplate) void onTemplate(activeTemplate); },
             },
@@ -2946,7 +2945,7 @@ function VisualBuilder({
                     <div className={publicSystemSectionContentClass(draft, section)}>
                       {!publicSystemSectionVisibleOnDevice(draft, section, previewDevice) ? (
                         <p className="mb-4 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[9px] font-semibold text-amber-800">
-                          Скрыто на выбранном устройстве
+                          {t("Hidden on selected device")}
                         </p>
                       ) : null}
                       <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
@@ -3006,7 +3005,7 @@ function VisualBuilder({
                   {draft.contact_email ? <p>{draft.contact_email}</p> : null}
                   {draft.contact_phone ? <p>{draft.contact_phone}</p> : null}
                   {draft.show_social_icons && draft.social_links?.length ? (
-                    <p>Социальные сети · {draft.social_links.length}</p>
+                    <p>{t("Social networks · {count}", { count: draft.social_links.length })}</p>
                   ) : null}
                 </div>
               </div>
@@ -3021,7 +3020,9 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? "Шаблон" : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        expanded: settingsOpen,
+        onExpandedChange: setSettingsOpen,
         onCollapse: () => setSettingsOpen(false),
         fields: isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition ? [
           {
@@ -3086,7 +3087,7 @@ function VisualBuilder({
                     ) : null}
                     <CompactField label={t("Eyebrow")} value={activePage.eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("eyebrow", value)} />
                     <CompactField label={t("Main title")} value={activePage.title} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title", value)} multiline />
-                    <TypographyControls title="Заголовок страницы" description={activePage.title || "Без названия"} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
+                    <TypographyControls title={t("Page title")} description={activePage.title || t("Untitled")} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
                     <RichTextEditor label={t("Introduction")} value={activePage.intro} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("intro", value)} />
                     <Toggle
                       label={t("Show page on site")}

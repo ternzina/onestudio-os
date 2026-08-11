@@ -42,6 +42,8 @@ export type EditorSectionRecord = {
 export type EditorNavigatorModel = {
   heading: string;
   sections: readonly EditorSectionRecord[];
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   onCollapse?: () => void;
   addBlock?: { label: string; disabled?: boolean; onClick: () => void };
   emptyState?: string;
@@ -77,6 +79,8 @@ export type EditorInspectorModel = {
   description?: string;
   fields: readonly EditorInspectorPlacedField[];
   actions?: readonly EditorInspectorAction[];
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   onCollapse?: () => void;
 };
 

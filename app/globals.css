@@ -32,6 +32,7 @@ html {
 
 /* The primary editor shell follows the browser viewport, never a nested canvas. */
 .template-editor-compact-controls { display: flex; }
+.template-editor-desktop-panel-toggle { display: none; }
 .template-editor-columns { display: grid; min-width: 0; min-height: 760px; grid-template-columns: minmax(0, 1fr); }
 .template-editor-navigator { order: 2; }
 .template-editor-canvas { order: 1; }
@@ -47,9 +48,15 @@ html {
   [data-template-editor-runtime] [data-compact-panel="settings"] [data-template-editor-canvas] { display: none; }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .template-editor-compact-controls { display: none; }
+  .template-editor-desktop-panel-toggle { display: inline-flex; }
   .template-editor-columns { grid-template-columns: clamp(170px, 18vw, 240px) minmax(0, 1fr) clamp(240px, 24vw, 350px); }
+  .template-editor-columns[data-navigator-open="false"][data-settings-open="true"] { grid-template-columns: minmax(0, 1fr) clamp(240px, 24vw, 350px); }
+  .template-editor-columns[data-navigator-open="true"][data-settings-open="false"] { grid-template-columns: clamp(170px, 18vw, 240px) minmax(0, 1fr); }
+  .template-editor-columns[data-navigator-open="false"][data-settings-open="false"] { grid-template-columns: minmax(0, 1fr); }
+  .template-editor-columns[data-navigator-open="false"] [data-template-editor-navigator],
+  .template-editor-columns[data-settings-open="false"] [data-template-editor-settings] { display: none; }
   .template-editor-navigator,
   .template-editor-canvas,
   .template-editor-settings { display: block; order: initial; max-height: calc(100vh - 110px); overflow-y: auto; }

@@ -159,7 +159,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   // Transitional source-contract markers: id: "content", id: "typography". Actual outer groups are OneStudio-owned.
   const inspectorFields: EditorInspectorPlacedField[] = visibilityFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField));
   if (selectedBlock.props.universal_block) {
-    inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: setMediaTarget }));
+    inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: setMediaTarget, t }));
   } else {
     const contentFields: EditorInspectorField[] = [];
     for (const [key, label, kind] of fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key))) {
@@ -191,7 +191,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     heading: t("Page blocks"),
     sections: [
       { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: !selectedPageBlock, visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelected("") },
-      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
+      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
     ],
     addBlock: { label: t("+ Add block"), disabled: controlsDisabled, onClick: () => setShowLibrary(true) },
     footerNotice: t("This is a separate public page with its own address and navigation item."),
@@ -199,7 +199,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const pageInspectorModel: EditorInspectorModel | null = activePage ? {
     heading: t("Block settings"), title: selectedPageBlock?.title || activePage.nav_label,
     fields: selectedPageBlock
-      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: setMediaTarget })
+      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: setMediaTarget, t })
       : [
           { id: "nav-label", group: "content", type: "text", label: t("Navigation label"), value: activePage.nav_label, disabled: controlsDisabled, onChange: value => updatePage({ nav_label: value }, "nav-label") },
           { id: "slug", group: "content", type: "url", label: t("Page address"), value: activePage.slug, disabled: controlsDisabled, onChange: value => updatePage({ slug: value }, "slug") },

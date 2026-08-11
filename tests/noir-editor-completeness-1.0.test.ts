@@ -77,8 +77,8 @@ test("NOIR is a registered shared navigator/inspector data adapter without owned
   assert.match(adapter, /buildNoirInspectorFields/);
   assert.match(canvasRegistry, /PremiumStudioExperience/);
   assert.match(canvasRegistry, /ssr: false/);
-  assert.match(runtime, /<SharedEditorNavigator model=\{spec\.navigatorModel\}/);
-  assert.match(runtime, /<SharedEditorInspector model=\{spec\.inspectorModel\}/);
+  assert.match(runtime, /<SharedEditorNavigator model=\{navigatorModel\}/);
+  assert.match(runtime, /<SharedEditorInspector model=\{inspectorModel\}/);
   assert.doesNotMatch(schema, /<aside|<nav|<dialog|modal|sidebar|toolbar/i);
   assert.doesNotMatch(editor, /<Noir(Editor|Inspector|Navigator|Sidebar|Modal)(?:\s|>)/);
 });

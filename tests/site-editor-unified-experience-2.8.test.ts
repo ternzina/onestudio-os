@@ -47,7 +47,8 @@ test("shared chrome, localized editor dependencies and independent scroll remain
   const runtime = await read("../components/admin/TemplateEditorRuntime.tsx");
   const globals = await read("../app/globals.css");
   for (const component of ["PremiumDelimitedListEditor", "navigatorModel", "inspectorModel"]) assert.match(premium, new RegExp(component));
-  for (const file of ["RichTextEditor.tsx", "TypographyControls.tsx", "MediaLibraryPicker.tsx", "PremiumUniversalBlockSettings.tsx"]) assert.match(await read(`../components/admin/${file}`), /useAdminI18n/);
+  for (const file of ["RichTextEditor.tsx", "TypographyControls.tsx", "MediaLibraryPicker.tsx"]) assert.match(await read(`../components/admin/${file}`), /useAdminI18n/);
+  assert.match(await read("../components/admin/PremiumUniversalBlockSettings.tsx"), /t: Translate/);
   assert.match(runtime, /useAdminI18n/);
   assert.doesNotMatch(premium, /TemplateEditorShell/);
   assert.match(premium, /<TemplateEditorRuntime/);

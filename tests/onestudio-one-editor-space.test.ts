@@ -12,7 +12,7 @@ test("OneStudio fixes inspector taxonomy and adapters only place fields", async 
   assert.match(spec, /ONESTUDIO_INSPECTOR_GROUPS = \["content", "typography", "media", "layout"\]/);
   assert.match(spec, /fields: readonly EditorInspectorPlacedField\[\]/);
   assert.match(inspector, /ONESTUDIO_INSPECTOR_GROUPS\.map/);
-  assert.match(inspector, /Содержимое и оформление/);
+  assert.match(inspector, /content: t\("Content and appearance"\)/);
   assert.doesNotMatch(premium, /id: "visibility", title: "Видимость"/);
   assert.doesNotMatch(base, /groups: \[\{ id: "content"/);
 });
