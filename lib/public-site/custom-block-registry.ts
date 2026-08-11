@@ -20,6 +20,10 @@ export type PublicSiteVisualCapabilities = {
   animation: boolean;
   mediaSizing: boolean;
   mediaPosition: boolean;
+  mediaFocalPoint: boolean;
+  mediaSurface: boolean;
+  responsiveMedia: boolean;
+  multiMediaLayout: boolean;
 };
 
 const UNIVERSAL_VISUAL_CAPABILITIES = {
@@ -36,7 +40,8 @@ export function publicSiteCustomBlockVisualCapabilities(
   runtime: "standard" | "premium" = "standard",
 ): PublicSiteVisualCapabilities {
   const supported = runtime === "standard" || runtime === "premium";
-  const mediaSizing = kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage";
+  const mediaSizing = kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage" || kind === "columns";
+  const multiMediaLayout = kind === "collage";
   return {
     layout: supported && UNIVERSAL_VISUAL_CAPABILITIES.layout,
     spacing: supported && UNIVERSAL_VISUAL_CAPABILITIES.spacing,
@@ -45,6 +50,10 @@ export function publicSiteCustomBlockVisualCapabilities(
     animation: supported && UNIVERSAL_VISUAL_CAPABILITIES.animation,
     mediaSizing: supported && mediaSizing,
     mediaPosition: supported && (kind === "media_text" || kind === "collage"),
+    mediaFocalPoint: supported && mediaSizing,
+    mediaSurface: supported && mediaSizing,
+    responsiveMedia: supported && mediaSizing,
+    multiMediaLayout: supported && multiMediaLayout,
   };
 }
 
@@ -124,6 +133,15 @@ export function createPublicSiteCustomBlock(kind: PublicSiteCustomBlockKind, id 
     media_aspect: hasMedia ? "landscape" : undefined,
     media_fit: hasMedia ? "cover" : undefined,
     media_frame: hasMedia ? "line" : undefined,
+    media_radius: hasMedia ? "soft" : undefined,
+    media_focal_x: hasMedia ? 50 : undefined,
+    media_focal_y: hasMedia ? 50 : undefined,
+    media_opacity: hasMedia ? 100 : undefined,
+    media_overlay: hasMedia ? 0 : undefined,
+    media_gap: hasMedia ? "normal" : undefined,
+    media_columns: kind === "collage" ? 4 : undefined,
+    media_mobile_position: kind === "media_text" ? "after" : undefined,
+    media_mobile_columns: kind === "collage" ? 2 : undefined,
     content_width: "wide", padding_top: "normal", padding_bottom: "normal", section_height: "auto",
     media_height: hasMedia ? "auto" : undefined, animation: "none", animate_on_mobile: true,
   };

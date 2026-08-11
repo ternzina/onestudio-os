@@ -128,7 +128,7 @@ export type PublicSiteSystemSectionSettings = {
   hide_on_desktop?: boolean;
   hide_on_tablet?: boolean;
   hide_on_mobile?: boolean;
-};
+} & PublicSiteMediaLayoutSettings;
 
 export type PublicSiteContent = {
   template_id?: string;
@@ -275,6 +275,11 @@ export type PublicSiteMediaAspect =
   | "portrait";
 export type PublicSiteMediaFit = "cover" | "contain";
 export type PublicSiteMediaFrame = "none" | "line" | "card";
+export type PublicSiteMediaRadius = "none" | "soft" | "rounded" | "pill";
+export type PublicSiteMediaGap = "none" | "compact" | "normal" | "airy";
+export type PublicSiteMediaColumns = 2 | 3 | 4;
+export type PublicSiteMobileMediaColumns = 1 | 2;
+export type PublicSiteMobileMediaPosition = "before" | "after";
 export type PublicSiteBlockWidth = "full" | "wide" | "medium" | "narrow";
 export type PublicSiteBlockSpacing = "none" | "compact" | "normal" | "airy";
 export type PublicSiteSectionHeight = "auto" | "compact" | "medium" | "tall" | "screen";
@@ -284,6 +289,33 @@ export type PublicSiteMediaType = "image" | "video" | "calendar";
 export type PublicSiteMediaPosition = "left" | "center" | "right";
 export type PublicSiteColumnsCount = 2 | 3;
 export type PublicSiteColumnCardMediaType = "none" | "image" | "video";
+
+/**
+ * Canonical media presentation shared by system sections and universal blocks.
+ * Desktop values keep the established flat JSON keys. Optional mobile values
+ * override them below the public mobile breakpoint without forking a renderer.
+ */
+export type PublicSiteMediaLayoutSettings = {
+  media_size?: PublicSiteMediaSize;
+  media_aspect?: PublicSiteMediaAspect;
+  media_height?: PublicSiteMediaHeight;
+  media_fit?: PublicSiteMediaFit;
+  media_frame?: PublicSiteMediaFrame;
+  media_radius?: PublicSiteMediaRadius;
+  media_focal_x?: number;
+  media_focal_y?: number;
+  media_opacity?: number;
+  media_overlay?: number;
+  media_gap?: PublicSiteMediaGap;
+  media_columns?: PublicSiteMediaColumns;
+  media_mobile_aspect?: PublicSiteMediaAspect;
+  media_mobile_height?: PublicSiteMediaHeight;
+  media_mobile_fit?: PublicSiteMediaFit;
+  media_mobile_focal_x?: number;
+  media_mobile_focal_y?: number;
+  media_mobile_position?: PublicSiteMobileMediaPosition;
+  media_mobile_columns?: PublicSiteMobileMediaColumns;
+};
 
 export type PublicSiteColumnCard = {
   id: string;
@@ -319,18 +351,13 @@ export type PublicSiteCustomBlock = {
   media_position?: PublicSiteMediaPosition;
   columns_count?: PublicSiteColumnsCount;
   cards?: PublicSiteColumnCard[];
-  media_size?: PublicSiteMediaSize;
-  media_aspect?: PublicSiteMediaAspect;
-  media_fit?: PublicSiteMediaFit;
-  media_frame?: PublicSiteMediaFrame;
   content_width?: PublicSiteBlockWidth;
   padding_top?: PublicSiteBlockSpacing;
   padding_bottom?: PublicSiteBlockSpacing;
   section_height?: PublicSiteSectionHeight;
-  media_height?: PublicSiteMediaHeight;
   animation?: PublicSiteBlockAnimation;
   animate_on_mobile?: boolean;
-};
+} & PublicSiteMediaLayoutSettings;
 
 export type PublicSiteSocialLink = {
   id: string;

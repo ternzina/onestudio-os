@@ -7,6 +7,10 @@ import PublicSliderBlock from "@/components/public/PublicSliderBlock";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
+import {
+  publicSiteCustomBlockMediaStyle,
+  publicSiteMediaVariables,
+} from "@/lib/public-site/visual-tokens";
 import type {
   PublicSiteColumnCard,
   PublicSiteCustomBlock,
@@ -48,20 +52,6 @@ const sectionHeightClass = {
   medium: "min-h-[480px]",
   tall: "min-h-[640px]",
   screen: "min-h-[85vh]",
-} as const;
-
-const mediaHeightClass = {
-  auto: "",
-  compact: "h-56 sm:h-72",
-  medium: "h-72 sm:h-[420px]",
-  tall: "h-[420px] sm:h-[560px]",
-} as const;
-
-const mediaAspectClass = {
-  landscape: "aspect-video",
-  classic: "aspect-[4/3]",
-  square: "aspect-square",
-  portrait: "aspect-[4/5]",
 } as const;
 
 const mediaFrameClass = {
@@ -171,22 +161,15 @@ export default function PublicCustomBlock({
   const sliderImages = (block.media_urls ?? []).filter(Boolean);
   const embedUrl = videoEmbedUrl(block.video_url);
   const mediaSize = block.media_size ?? "wide";
-  const mediaAspect = block.media_aspect ?? "landscape";
-  const mediaFit = block.media_fit ?? "cover";
   const mediaFrame = block.media_frame ?? "line";
   const contentWidth = block.content_width ?? "wide";
   const paddingTop = block.padding_top ?? "normal";
   const paddingBottom = block.padding_bottom ?? "normal";
   const sectionHeight = block.section_height ?? "auto";
-  const mediaHeight = block.media_height ?? "auto";
   const animation = block.animation ?? "none";
+  const mediaStyle = publicSiteCustomBlockMediaStyle(block);
+  const mediaVariables = publicSiteMediaVariables(block);
   const sectionClass = `flex items-center px-5 ${paddingTopClass[paddingTop]} ${paddingBottomClass[paddingBottom]} ${sectionHeightClass[sectionHeight]} ${style}`;
-  const mediaDisplayClass = mediaHeight === "auto"
-    ? mediaAspectClass[mediaAspect]
-    : mediaHeightClass[mediaHeight];
-  const collageHeightClass = mediaHeight === "auto"
-    ? ""
-    : `${mediaHeightClass[mediaHeight]} [grid-auto-rows:minmax(0,1fr)]`;
 
   if (block.kind === "collage") {
     const collageImages = (block.media_urls ?? []).filter(Boolean).slice(0, 8);
@@ -229,10 +212,13 @@ export default function PublicCustomBlock({
             className={`${alignClass} mt-10 ${mediaSizeClass[mediaSize]} ${
               mediaFrameClass[mediaFrame]
             }`}
+            style={mediaStyle}
           >
             {collageImages.length ? (
               <div
-                className={`grid grid-cols-2 gap-2 overflow-hidden sm:grid-cols-4 ${collageHeightClass} ${
+                data-os-media-columns={block.media_columns ?? 4}
+                data-os-media-mobile-columns={block.media_mobile_columns ?? 2}
+                className={`os-managed-media-grid overflow-hidden ${
                   mediaFrame === "none" ? "" : "rounded-2xl"
                 }`}
               >
@@ -241,15 +227,7 @@ export default function PublicCustomBlock({
                   return (
                     <div
                       key={`${block.id}-collage-${index}`}
-                      className={`relative overflow-hidden bg-black/10 ${
-                        mediaHeight === "auto"
-                          ? isLead
-                            ? "col-span-2 row-span-2 aspect-square"
-                            : "aspect-square"
-                          : isLead
-                            ? "col-span-2 row-span-2 h-full min-h-0"
-                            : "h-full min-h-0"
-                      }`}
+                      className={`os-managed-media-surface relative aspect-square bg-black/10 ${isLead ? "os-managed-media-lead col-span-2 row-span-2" : ""}`}
                     >
                       <Image
                         src={image}
@@ -261,11 +239,7 @@ export default function PublicCustomBlock({
                             ? "(max-width: 640px) 100vw, 50vw"
                             : "(max-width: 640px) 50vw, 25vw"
                         }
-                        className={
-                          mediaFit === "contain"
-                            ? "object-contain"
-                            : "object-cover"
-                        }
+                        className="os-managed-media"
                       />
                     </div>
                   );
@@ -294,8 +268,12 @@ export default function PublicCustomBlock({
         className={sectionClass}
         style={blockStyle}
       >
-        <div className={`mx-auto grid w-full ${contentWidthClass[contentWidth]} gap-10 lg:grid-cols-2 lg:items-center lg:gap-16`}>
-          <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
+        <div
+          className={`mx-auto grid w-full ${contentWidthClass[contentWidth]} gap-10 lg:grid-cols-2 lg:items-center lg:gap-16`}
+          style={mediaVariables}
+          data-os-media-mobile-position={block.media_mobile_position ?? "after"}
+        >
+          <div data-os-media-slot className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
             {mediaIsCalendar && bookingHref && services.length ? (
               <GlossBookingPanel
                 bookingHref={bookingHref}
@@ -308,11 +286,12 @@ export default function PublicCustomBlock({
                 className={`mx-auto ${mediaSizeClass[mediaSize]} ${mediaFrameClass[mediaFrame]} ${
                   mediaFrame === "none" ? "" : "overflow-hidden"
                 }`}
+                style={mediaStyle}
               >
                 <div
-                  className={`relative overflow-hidden bg-black/10 ${
+                  className={`os-managed-media-frame relative bg-black/10 ${
                     mediaFrame === "none" ? "" : "rounded-xl"
-                  } ${mediaDisplayClass}`}
+                  }`}
                 >
                   {mediaIsVideo && block.video_url ? (
                   embedUrl ? (
@@ -322,7 +301,7 @@ export default function PublicCustomBlock({
                       loading="lazy"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
-                      className="h-full w-full border-0"
+                      className="os-managed-media h-full w-full border-0"
                     />
                   ) : (
                     <video
@@ -330,9 +309,7 @@ export default function PublicCustomBlock({
                       poster={block.video_poster_url || undefined}
                       controls
                       preload="metadata"
-                      className={`h-full w-full ${
-                        mediaFit === "contain" ? "object-contain" : "object-cover"
-                      }`}
+                      className="os-managed-media h-full w-full"
                     />
                   )
                   ) : block.media_url ? (
@@ -343,9 +320,7 @@ export default function PublicCustomBlock({
                       unoptimized
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       loading="lazy"
-                      className={
-                        mediaFit === "contain" ? "object-contain" : "object-cover"
-                      }
+                      className="os-managed-media"
                     />
                   ) : (
                     <div className="grid h-full place-items-center text-sm opacity-45">
@@ -356,7 +331,7 @@ export default function PublicCustomBlock({
               </div>
             )}
           </div>
-          <div className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
+          <div data-os-media-body className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
             {block.eyebrow ? (
               <p
                 className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
@@ -457,14 +432,14 @@ export default function PublicCustomBlock({
                     }`}
                   >
                     {card?.media_type === "image" && card.media_url ? (
-                      <div className="relative aspect-[4/3] bg-black/8">
+                      <div className="os-managed-media-surface relative aspect-[4/3] bg-black/8" style={mediaVariables}>
                         <Image
                           src={card.media_url}
                           alt={card.media_alt || card.title}
                           fill
                           unoptimized
                           sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover"
+                          className="os-managed-media"
                         />
                       </div>
                     ) : null}
@@ -511,11 +486,7 @@ export default function PublicCustomBlock({
             images={sliderImages}
             intervalSeconds={block.slide_interval_seconds ?? 4}
             title={block.title}
-            size={mediaSize}
-            aspect={mediaAspect}
-            fit={mediaFit}
-            frame={mediaFrame}
-            height={mediaHeight}
+            media={block}
           />
         ) : null}
 
@@ -524,11 +495,12 @@ export default function PublicCustomBlock({
             className={`mx-auto mt-10 ${mediaSizeClass[mediaSize]} ${
               mediaFrameClass[mediaFrame]
             }`}
+            style={mediaStyle}
           >
             <div
-              className={`overflow-hidden bg-black ${
+              className={`os-managed-media-frame bg-black ${
                 mediaFrame === "none" ? "" : "rounded-xl"
-              } ${mediaDisplayClass}`}
+              }`}
             >
               {embedUrl ? (
                 <iframe
@@ -537,7 +509,7 @@ export default function PublicCustomBlock({
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
-                  className="h-full w-full border-0"
+                  className="os-managed-media h-full w-full border-0"
                 />
               ) : (
                 <video
@@ -545,9 +517,7 @@ export default function PublicCustomBlock({
                   poster={block.video_poster_url || undefined}
                   controls
                   preload="metadata"
-                  className={`h-full w-full ${
-                    mediaFit === "contain" ? "object-contain" : "object-cover"
-                  }`}
+                  className="os-managed-media h-full w-full"
                 />
               )}
             </div>

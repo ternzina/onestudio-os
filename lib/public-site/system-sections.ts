@@ -6,6 +6,7 @@ import type {
   PublicSiteSystemSectionSettings,
 } from "@/lib/public-site/types";
 import { normalizeTypography, publicTypographyStyle } from "@/lib/public-site/typography";
+import { publicSiteMediaVariables } from "@/lib/public-site/visual-tokens";
 
 const widthClass = {
   full: "max-w-none",
@@ -117,6 +118,29 @@ export function publicSystemSectionSettings(
     hide_on_desktop: settings.hide_on_desktop === true,
     hide_on_tablet: settings.hide_on_tablet === true,
     hide_on_mobile: settings.hide_on_mobile === true,
+    media_size: settings.media_size ?? "wide",
+    media_aspect: settings.media_aspect ?? "landscape",
+    media_height: settings.media_height ?? "auto",
+    media_fit: settings.media_fit ?? "cover",
+    media_frame: settings.media_frame ?? "none",
+    media_radius: settings.media_radius ?? "none",
+    media_focal_x: Number.isFinite(settings.media_focal_x) ? Math.min(100, Math.max(0, Number(settings.media_focal_x))) : 50,
+    media_focal_y: Number.isFinite(settings.media_focal_y)
+      ? Math.min(100, Math.max(0, Number(settings.media_focal_y)))
+      : settings.background_position === "top" ? 0 : settings.background_position === "bottom" ? 100 : 50,
+    media_opacity: Number.isFinite(settings.media_opacity) ? Math.min(100, Math.max(0, Number(settings.media_opacity))) : 100,
+    media_overlay: Number.isFinite(settings.media_overlay)
+      ? Math.min(100, Math.max(0, Number(settings.media_overlay)))
+      : settings.background_overlay === "strong" ? 62 : settings.background_overlay === "none" ? 0 : 32,
+    media_gap: settings.media_gap ?? "normal",
+    media_columns: settings.media_columns === 2 || settings.media_columns === 3 ? settings.media_columns : 4,
+    media_mobile_aspect: settings.media_mobile_aspect ?? settings.media_aspect ?? "landscape",
+    media_mobile_height: settings.media_mobile_height ?? settings.media_height ?? "auto",
+    media_mobile_fit: settings.media_mobile_fit ?? settings.media_fit ?? "cover",
+    media_mobile_focal_x: Number.isFinite(settings.media_mobile_focal_x) ? Math.min(100, Math.max(0, Number(settings.media_mobile_focal_x))) : Number.isFinite(settings.media_focal_x) ? Number(settings.media_focal_x) : 50,
+    media_mobile_focal_y: Number.isFinite(settings.media_mobile_focal_y) ? Math.min(100, Math.max(0, Number(settings.media_mobile_focal_y))) : Number.isFinite(settings.media_focal_y) ? Number(settings.media_focal_y) : settings.background_position === "top" ? 0 : settings.background_position === "bottom" ? 100 : 50,
+    media_mobile_position: settings.media_mobile_position === "before" ? "before" : "after",
+    media_mobile_columns: settings.media_mobile_columns === 2 ? 2 : 1,
   };
 }
 
@@ -170,6 +194,9 @@ export function publicSystemSectionClass(
     "os-system-section relative isolate px-5",
     baseClass,
     includeDeviceVisibility ? deviceVisibilityClass[visibilityKey] : "",
+    settings.background_mode === "image" && settings.background_image_url
+      ? "os-system-section-has-media"
+      : "",
     alignment,
   ]
     .filter(Boolean)
@@ -240,22 +267,15 @@ export function publicSystemSectionStyle(
   }
 
   if (settings.background_mode === "image" && settings.background_image_url) {
-    const overlay =
-      settings.background_overlay === "strong"
-        ? "rgba(10, 10, 14, 0.62)"
-        : settings.background_overlay === "none"
-          ? "rgba(0, 0, 0, 0)"
-          : "rgba(10, 10, 14, 0.32)";
     const escapedUrl = settings.background_image_url.replace(/["\\]/g, "\\$&");
     return {
       ...baseStyle,
       ...layoutStyle,
       ...colorStyle,
-      backgroundImage: `linear-gradient(${overlay}, ${overlay}), url("${escapedUrl}")`,
-      backgroundPosition: settings.background_position,
-      backgroundRepeat: "no-repeat",
-      backgroundSize: "cover",
-    };
+      ...publicSiteMediaVariables(settings),
+      "--os-system-media-image": `url("${escapedUrl}")`,
+      backgroundImage: "none",
+    } as CSSProperties;
   }
 
   return {

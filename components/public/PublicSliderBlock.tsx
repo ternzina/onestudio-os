@@ -4,31 +4,17 @@
 
 import { useEffect, useState } from "react";
 import type {
-  PublicSiteMediaAspect,
-  PublicSiteMediaFit,
   PublicSiteMediaFrame,
-  PublicSiteMediaHeight,
+  PublicSiteMediaLayoutSettings,
   PublicSiteMediaSize,
 } from "@/lib/public-site/types";
+import { publicSiteMediaVariables } from "@/lib/public-site/visual-tokens";
 
 const sizeClass: Record<PublicSiteMediaSize, string> = {
   full: "w-full",
   wide: "w-full max-w-5xl",
   medium: "w-full max-w-3xl",
   compact: "w-full max-w-xl",
-};
-
-const aspectClass: Record<PublicSiteMediaAspect, string> = {
-  landscape: "aspect-video",
-  classic: "aspect-[4/3]",
-  square: "aspect-square",
-  portrait: "aspect-[4/5]",
-};
-
-const heightClass: Record<Exclude<PublicSiteMediaHeight, "auto">, string> = {
-  compact: "h-56 sm:h-72",
-  medium: "h-72 sm:h-[420px]",
-  tall: "h-[420px] sm:h-[560px]",
 };
 
 const frameClass: Record<PublicSiteMediaFrame, string> = {
@@ -41,23 +27,17 @@ export default function PublicSliderBlock({
   images,
   intervalSeconds,
   title,
-  size = "wide",
-  aspect = "landscape",
-  fit = "cover",
-  frame = "line",
-  height = "auto",
+  media = {},
 }: {
   images: string[];
   intervalSeconds: number;
   title: string;
-  size?: PublicSiteMediaSize;
-  aspect?: PublicSiteMediaAspect;
-  fit?: PublicSiteMediaFit;
-  frame?: PublicSiteMediaFrame;
-  height?: PublicSiteMediaHeight;
+  media?: PublicSiteMediaLayoutSettings;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const safeInterval = Math.min(30, Math.max(2, intervalSeconds || 4));
+  const size: PublicSiteMediaSize = media.media_size ?? "wide";
+  const frame: PublicSiteMediaFrame = media.media_frame ?? "line";
 
   useEffect(() => {
     if (images.length < 2) return;
@@ -75,11 +55,14 @@ export default function PublicSliderBlock({
   if (!images.length) return null;
 
   return (
-    <div className={`mx-auto mt-10 ${sizeClass[size]} ${frameClass[frame]}`}>
+    <div
+      className={`mx-auto mt-10 ${sizeClass[size]} ${frameClass[frame]}`}
+      style={publicSiteMediaVariables(media)}
+    >
       <div
-        className={`relative overflow-hidden bg-black/10 ${
+        className={`os-managed-media-frame relative bg-black/10 ${
           frame === "none" ? "" : "rounded-xl"
-        } ${height === "auto" ? aspectClass[aspect] : heightClass[height]}`}
+        }`}
       >
         {images.map((image, index) => (
           <img
@@ -87,15 +70,14 @@ export default function PublicSliderBlock({
             src={image}
             alt={`${title} — слайд ${index + 1}`}
             loading={index === 0 ? "eager" : "lazy"}
-            className={`absolute inset-0 h-full w-full ${
-              fit === "contain" ? "object-contain" : "object-cover"
-            } transition-opacity duration-700 ${
+            data-active={index === activeIndex}
+            className={`os-managed-media os-managed-media-slider absolute inset-0 h-full w-full transition-opacity duration-700 ${
               index === activeIndex ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
           />
         ))}
         {images.length > 1 ? (
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/55 to-transparent px-4 pb-4 pt-12">
+          <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 bg-gradient-to-t from-black/55 to-transparent px-4 pb-4 pt-12">
           {images.map((_, index) => (
             <button
               key={index}

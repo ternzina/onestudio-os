@@ -6,6 +6,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
+import MediaListEditor from "@/components/admin/MediaListEditor";
+import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector";
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
@@ -85,6 +87,14 @@ import {
 } from "@/lib/public-site/custom-block-registry";
 import { supabase } from "@/lib/supabase";
 import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
+import {
+  buildBlockLayoutInspectorFields,
+  buildMediaLayoutInspectorFields,
+} from "@/lib/public-site/media-layout-inspector";
+import {
+  publicSiteCustomBlockMediaStyle,
+  publicSiteMediaVariables,
+} from "@/lib/public-site/visual-tokens";
 
 const PremiumTemplateEditor = dynamic(
   () => import("@/components/admin/PremiumTemplateEditor"),
@@ -4389,6 +4399,8 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       ? "bg-[#9d3151] text-white"
       : "border-y border-black/8 bg-white/70 text-[#321722]";
   const inlineStyle = colorOverrideStyle(block.colors);
+  const mediaStyle = publicSiteCustomBlockMediaStyle(block);
+  const mediaVariables = publicSiteMediaVariables(block);
   const mediaSize = {
     full: "w-full",
     wide: "w-full max-w-4xl",
@@ -4448,11 +4460,11 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`}
         style={inlineStyle}
       >
-        <div className={`mx-auto grid w-full ${contentWidth} gap-7 lg:grid-cols-2 lg:items-center`}>
-        <div className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
-          <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`}>
+        <div className={`mx-auto grid w-full ${contentWidth} gap-7 lg:grid-cols-2 lg:items-center`} style={mediaVariables} data-os-media-mobile-position={block.media_mobile_position ?? "after"}>
+        <div data-os-media-slot className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
+          <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`} style={mediaStyle}>
             <div
-              className={`relative grid place-items-center overflow-hidden bg-black/10 ${
+              className={`os-managed-media-frame relative grid place-items-center bg-black/10 ${
                 block.media_frame === "none" ? "" : "rounded-lg"
               } ${mediaHeight}`}
             >
@@ -4483,7 +4495,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
                     <img
                       src={block.video_poster_url}
                       alt=""
-                      className={`h-full w-full ${mediaFit} opacity-70`}
+                      className={`os-managed-media h-full w-full ${mediaFit}`}
                     />
                   ) : null}
                   <span className="absolute text-4xl text-white">▶</span>
@@ -4492,7 +4504,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
                 <img
                   src={block.media_url}
                   alt=""
-                  className={`h-full w-full ${mediaFit}`}
+                  className={`os-managed-media h-full w-full ${mediaFit}`}
                 />
               ) : (
                 <span className="text-xs opacity-45">Фото или видео</span>
@@ -4500,7 +4512,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
             </div>
           </div>
         </div>
-        <div className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
+        <div data-os-media-body className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
           <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
             {block.eyebrow}
           </p>
@@ -4558,8 +4570,8 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
               className="overflow-hidden rounded-xl border border-current/15 text-[10px] leading-5"
             >
               {card.image ? (
-                <span className="relative block aspect-[4/3] overflow-hidden bg-black/10">
-                  <img src={card.image} alt="" className="h-full w-full object-cover" />
+                <span className="os-managed-media-surface relative block aspect-[4/3] overflow-hidden bg-black/10" style={mediaVariables}>
+                  <img src={card.image} alt="" className="os-managed-media h-full w-full object-cover" />
                   {card.video ? (
                     <span className="absolute inset-0 grid place-items-center text-2xl text-white">
                       ▶
@@ -4590,9 +4602,12 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
                 ? "ml-auto"
                 : "mx-auto"
           } ${mediaSize} ${mediaFrame}`}
+          style={mediaStyle}
         >
           <div
-            className={`grid grid-cols-2 gap-2 overflow-hidden ${
+            data-os-media-columns={block.media_columns ?? 4}
+            data-os-media-mobile-columns={block.media_mobile_columns ?? 2}
+            className={`os-managed-media-grid overflow-hidden ${
               mediaHeightMode === "auto"
                 ? ""
                 : `${mediaHeight} [grid-auto-rows:minmax(0,1fr)]`
@@ -4601,7 +4616,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
             {(block.media_urls ?? []).slice(0, 8).map((image, index) => (
               <div
                 key={`${block.id}-collage-preview-${index}`}
-                className={`relative overflow-hidden bg-black/10 ${
+                className={`os-managed-media-surface relative overflow-hidden bg-black/10 ${
                   mediaHeightMode === "auto"
                     ? index === 0 && (block.media_urls ?? []).length >= 3
                       ? "row-span-2 min-h-40"
@@ -4615,7 +4630,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
                   <img
                     src={image}
                     alt=""
-                    className={`absolute inset-0 h-full w-full ${mediaFit}`}
+                    className={`os-managed-media absolute inset-0 h-full w-full ${mediaFit}`}
                   />
                 ) : null}
               </div>
@@ -4625,13 +4640,13 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       ) : null}
 
       {block.kind === "slider" ? (
-        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}>
-          <div className={`relative overflow-hidden bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={mediaStyle}>
+          <div className={`os-managed-media-frame relative bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {(block.media_urls ?? [])[0] ? (
               <img
                 src={(block.media_urls ?? [])[0]}
                 alt=""
-                className={`h-full w-full ${mediaFit}`}
+                className={`os-managed-media h-full w-full ${mediaFit}`}
               />
             ) : null}
             <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
@@ -4651,13 +4666,13 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         </div>
       ) : null}
       {block.kind === "video" ? (
-        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}>
-          <div className={`relative grid place-items-center overflow-hidden bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={mediaStyle}>
+          <div className={`os-managed-media-frame relative grid place-items-center bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {block.video_poster_url ? (
               <img
                 src={block.video_poster_url}
                 alt=""
-                className={`h-full w-full ${mediaFit} opacity-70`}
+                className={`os-managed-media h-full w-full ${mediaFit}`}
               />
             ) : null}
             <span className="absolute text-4xl">▶</span>
@@ -5383,6 +5398,23 @@ function SystemSectionSettingsEditor({
   onChange: (changes: Partial<PublicSiteSystemSectionSettings>) => void;
   onChooseImage: () => void;
 }) {
+  const backgroundMediaFields = buildMediaLayoutInspectorFields({
+    value: settings,
+    disabled,
+    t,
+    idPrefix: "system-background-media",
+    capabilities: {
+      fit: true,
+      focalPoint: true,
+      opacity: true,
+      overlay: true,
+      responsive: true,
+    },
+    onChange: (key, value) => {
+      if (key === "media_position") return;
+      onChange({ [key]: value } as Partial<PublicSiteSystemSectionSettings>);
+    },
+  });
   return (
     <div className="grid gap-4 rounded-2xl border border-[#9d3151]/15 bg-[#fff9fb] p-4">
       <div>
@@ -5543,40 +5575,7 @@ function SystemSectionSettingsEditor({
                 }
                 onChoose={onChooseImage}
               />
-              <div className="grid grid-cols-2 gap-3">
-                <CompactSelect
-                  label="Положение фона"
-                  value={settings.background_position}
-                  disabled={disabled}
-                  options={[
-                    { value: "top", label: "Сверху" },
-                    { value: "center", label: "По центру" },
-                    { value: "bottom", label: "Снизу" },
-                  ]}
-                  onChange={(value) =>
-                    onChange({
-                      background_position:
-                        value === "top" || value === "bottom" ? value : "center",
-                    })
-                  }
-                />
-                <CompactSelect
-                  label="Затемнение"
-                  value={settings.background_overlay}
-                  disabled={disabled}
-                  options={[
-                    { value: "none", label: "Без затемнения" },
-                    { value: "soft", label: "Мягкое" },
-                    { value: "strong", label: "Сильное" },
-                  ]}
-                  onChange={(value) =>
-                    onChange({
-                      background_overlay:
-                        value === "none" || value === "strong" ? value : "soft",
-                    })
-                  }
-                />
-              </div>
+              <SharedEditorFieldList fields={backgroundMediaFields} />
             </>
           ) : null}
         </>
@@ -7302,9 +7301,41 @@ function CustomBlockSettings({
     label: string,
   ) => void;
 }) {
-  const sliderImages = block.media_urls ?? [];
-  const collageImages = block.media_urls ?? [];
   const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "standard");
+  const patchInspector = (key: keyof PublicSiteCustomBlock, value: unknown) =>
+    onChange(key, value as PublicSiteCustomBlock[typeof key]);
+  const layoutFields = buildBlockLayoutInspectorFields({
+    value: block,
+    disabled,
+    t,
+    idPrefix: `standard-${block.id}-layout`,
+    onChange: patchInspector,
+  });
+  const mediaLayoutFields = buildMediaLayoutInspectorFields({
+    value: block,
+    disabled,
+    t,
+    idPrefix: `standard-${block.id}-media`,
+    capabilities: {
+      size: block.kind !== "columns",
+      aspect: block.kind !== "columns",
+      height: block.kind !== "columns",
+      fit: true,
+      frame: block.kind !== "columns",
+      radius: visual.mediaSurface,
+      focalPoint: visual.mediaFocalPoint,
+      opacity: visual.mediaSurface,
+      overlay: visual.mediaSurface,
+      placement: visual.mediaPosition
+        ? block.kind === "collage"
+          ? "align"
+          : "split"
+        : undefined,
+      responsive: visual.responsiveMedia,
+      multiMedia: visual.multiMediaLayout,
+    },
+    onChange: patchInspector,
+  });
   const colorDefaults = block.tone === "dark"
     ? { background: siteDark, text: "#ffffff", accent: siteAccent }
     : block.tone === "accent"
@@ -7319,117 +7350,14 @@ function CustomBlockSettings({
         disabled={disabled}
         onChange={(value) => onChange("is_visible", value)}
       />
-      {visual.layout ? <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
+      {visual.layout ? (
+        <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f531f]">
           Размеры и анимация
         </p>
-        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-          Ширина содержимого
-          <select
-            value={block.content_width ?? "wide"}
-            disabled={disabled}
-            onChange={(event) =>
-              onChange(
-                "content_width",
-                event.target.value as NonNullable<PublicSiteCustomBlock["content_width"]>,
-              )
-            }
-            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-          >
-            <option value="full">На всю ширину</option>
-            <option value="wide">Широкая</option>
-            <option value="medium">Средняя</option>
-            <option value="narrow">Узкая</option>
-          </select>
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            Отступ сверху
-            <select
-              value={block.padding_top ?? "normal"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "padding_top",
-                  event.target.value as NonNullable<PublicSiteCustomBlock["padding_top"]>,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="none">Нет</option>
-              <option value="compact">Маленький</option>
-              <option value="normal">Обычный</option>
-              <option value="airy">Большой</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            Отступ снизу
-            <select
-              value={block.padding_bottom ?? "normal"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "padding_bottom",
-                  event.target.value as NonNullable<PublicSiteCustomBlock["padding_bottom"]>,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="none">Нет</option>
-              <option value="compact">Маленький</option>
-              <option value="normal">Обычный</option>
-              <option value="airy">Большой</option>
-            </select>
-          </label>
+          <SharedEditorFieldList fields={layoutFields} />
         </div>
-        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-          Минимальная высота секции
-          <select
-            value={block.section_height ?? "auto"}
-            disabled={disabled}
-            onChange={(event) =>
-              onChange(
-                "section_height",
-                event.target.value as NonNullable<PublicSiteCustomBlock["section_height"]>,
-              )
-            }
-            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-          >
-            <option value="auto">По содержимому</option>
-            <option value="compact">Невысокая</option>
-            <option value="medium">Средняя</option>
-            <option value="tall">Высокая</option>
-            <option value="screen">Почти на экран</option>
-          </select>
-        </label>
-        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-          Анимация появления
-          <select
-            value={block.animation ?? "none"}
-            disabled={disabled}
-            onChange={(event) =>
-              onChange(
-                "animation",
-                event.target.value as NonNullable<PublicSiteCustomBlock["animation"]>,
-              )
-            }
-            className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-          >
-            <option value="none">Без анимации</option>
-            <option value="fade">Мягкое появление</option>
-            <option value="rise">Появление снизу</option>
-            <option value="scale">Лёгкое увеличение</option>
-          </select>
-        </label>
-        {block.animation && block.animation !== "none" ? (
-          <Toggle
-            label="Показывать анимацию на телефоне"
-            checked={block.animate_on_mobile !== false}
-            disabled={disabled}
-            onChange={(value) => onChange("animate_on_mobile", value)}
-          />
-        ) : null}
-      </div> : null}
+      ) : null}
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
       <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
       <TypographyControls title="Заголовок блока" description={block.title || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
@@ -7507,23 +7435,6 @@ function CustomBlockSettings({
               <option value="calendar">{t("Booking calendar")}</option>
             </select>
           </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {t("Media position")}
-            <select
-              value={block.media_position ?? "right"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_position",
-                  event.target.value === "left" ? "left" : "right",
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="left">{t("Left")}</option>
-              <option value="right">{t("Right")}</option>
-            </select>
-          </label>
           {block.media_type === "calendar" ? (
             <p className="rounded-xl border border-[#9d3151]/20 bg-[#fff8fa] px-4 py-3 text-xs leading-6 text-[#77515d]">
               {t("The live booking calendar will appear beside the text and use real services and availability.")}
@@ -7591,45 +7502,14 @@ function CustomBlockSettings({
               className="mt-2 min-h-11 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 text-sm outline-none"
             />
           </label>
-          {sliderImages.map((image, index) => (
-            <div key={`${block.id}-slide-${index}`} className="grid gap-2">
-              <ImageEditor
-                label={`${t("Slide")} ${index + 1}`}
-                value={image}
-                disabled={disabled}
-                t={t}
-                onChange={(value) => {
-                  const values = [...sliderImages];
-                  values[index] = value;
-                  onChange("media_urls", values);
-                }}
-                onChoose={() =>
-                  onChooseListImage(index, `${t("Slide")} ${index + 1}`)
-                }
-              />
-              <button
-                type="button"
-                disabled={disabled || sliderImages.length <= 2}
-                onClick={() =>
-                  onChange(
-                    "media_urls",
-                    sliderImages.filter((_, itemIndex) => itemIndex !== index),
-                  )
-                }
-                className="justify-self-end text-[10px] font-semibold text-red-600 disabled:opacity-35"
-              >
-                {t("Remove slide")}
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            disabled={disabled || sliderImages.length >= 12}
-            onClick={() => onChange("media_urls", [...sliderImages, ""])}
-            className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
-          >
-            {t("+ Add slide")}
-          </button>
+          <MediaListEditor
+            items={block.media_urls ?? []}
+            disabled={disabled}
+            minItems={2}
+            maxItems={12}
+            onChange={(items) => onChange("media_urls", items)}
+            onChoose={onChooseListImage}
+          />
         </div>
       ) : null}
       {block.kind === "collage" ? (
@@ -7637,101 +7517,14 @@ function CustomBlockSettings({
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
             Коллаж
           </p>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            Расположение
-            <select
-              value={block.media_position ?? "center"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_position",
-                  event.target.value === "left"
-                    ? "left"
-                    : event.target.value === "right"
-                      ? "right"
-                      : "center",
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="left">Слева</option>
-              <option value="center">По центру</option>
-              <option value="right">Справа</option>
-            </select>
-          </label>
-          {collageImages.slice(0, 8).map((image, index) => (
-            <div key={`${block.id}-collage-${index}`} className="grid gap-2">
-              <ImageEditor
-                label={`Фото ${index + 1}`}
-                value={image}
-                disabled={disabled}
-                t={t}
-                onChange={(value) => {
-                  const values = [...collageImages];
-                  values[index] = value;
-                  onChange("media_urls", values);
-                }}
-                onChoose={() =>
-                  onChooseListImage(index, `Фото коллажа ${index + 1}`)
-                }
-              />
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  disabled={disabled || index === 0}
-                  onClick={() => {
-                    const values = [...collageImages];
-                    [values[index - 1], values[index]] = [
-                      values[index],
-                      values[index - 1],
-                    ];
-                    onChange("media_urls", values);
-                  }}
-                  className="text-[10px] font-semibold text-[#4f3a12] disabled:opacity-30"
-                >
-                  Выше
-                </button>
-                <button
-                  type="button"
-                  disabled={disabled || index >= collageImages.length - 1}
-                  onClick={() => {
-                    const values = [...collageImages];
-                    [values[index], values[index + 1]] = [
-                      values[index + 1],
-                      values[index],
-                    ];
-                    onChange("media_urls", values);
-                  }}
-                  className="text-[10px] font-semibold text-[#4f3a12] disabled:opacity-30"
-                >
-                  Ниже
-                </button>
-                <button
-                  type="button"
-                  disabled={disabled || collageImages.length <= 2}
-                  onClick={() =>
-                    onChange(
-                      "media_urls",
-                      collageImages.filter((_, itemIndex) => itemIndex !== index),
-                    )
-                  }
-                  className="text-[10px] font-semibold text-red-600 disabled:opacity-35"
-                >
-                  Удалить
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            disabled={disabled || collageImages.length >= 8}
-            onClick={() =>
-              onChange("media_urls", [...collageImages, ""])
-            }
-            className="rounded-xl border border-dashed border-[#9d3151]/30 bg-white px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40"
-          >
-            + Добавить фотографию
-          </button>
+          <MediaListEditor
+            items={block.media_urls ?? []}
+            disabled={disabled}
+            minItems={2}
+            maxItems={8}
+            onChange={(items) => onChange("media_urls", items)}
+            onChoose={onChooseListImage}
+          />
           <p className="text-[11px] leading-5 text-[#716d65]">
             Можно добавить от 2 до 8 фотографий. Первый кадр становится главным.
           </p>
@@ -7764,106 +7557,7 @@ function CustomBlockSettings({
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
             {t("Media display")}
           </p>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {t("Size")}
-            <select
-              value={block.media_size ?? "wide"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_size",
-                  event.target.value as NonNullable<
-                    PublicSiteCustomBlock["media_size"]
-                  >,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="full">{t("Full width")}</option>
-              <option value="wide">{t("Large")}</option>
-              <option value="medium">{t("Medium")}</option>
-              <option value="compact">{t("Small")}</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {t("Proportions")}
-            <select
-              value={block.media_aspect ?? "landscape"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_aspect",
-                  event.target.value as NonNullable<
-                    PublicSiteCustomBlock["media_aspect"]
-                  >,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="landscape">16:9</option>
-              <option value="classic">4:3</option>
-              <option value="square">1:1</option>
-              <option value="portrait">4:5</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            Высота медиа
-            <select
-              value={block.media_height ?? "auto"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_height",
-                  event.target.value as NonNullable<PublicSiteCustomBlock["media_height"]>,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="auto">По пропорциям</option>
-              <option value="compact">Низкая</option>
-              <option value="medium">Средняя</option>
-              <option value="tall">Высокая</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {t("Image fit")}
-            <select
-              value={block.media_fit ?? "cover"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_fit",
-                  event.target.value as NonNullable<
-                    PublicSiteCustomBlock["media_fit"]
-                  >,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="cover">{t("Fill and crop")}</option>
-              <option value="contain">{t("Show whole image")}</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {t("Frame")}
-            <select
-              value={block.media_frame ?? "line"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "media_frame",
-                  event.target.value as NonNullable<
-                    PublicSiteCustomBlock["media_frame"]
-                  >,
-                )
-              }
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm"
-            >
-              <option value="none">{t("No frame")}</option>
-              <option value="line">{t("Thin frame")}</option>
-              <option value="card">{t("Card with shadow")}</option>
-            </select>
-          </label>
+          <SharedEditorFieldList fields={mediaLayoutFields} />
         </div>
       ) : null}
       <BlockColorsEditor

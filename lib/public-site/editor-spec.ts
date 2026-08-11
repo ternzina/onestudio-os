@@ -59,6 +59,7 @@ export type EditorInspectorField =
   | { id: string; type: "typography"; title: string; description: string; value?: PublicSiteTypography; disabled?: boolean; onChange: (value: PublicSiteTypography | undefined) => void }
   | { id: string; type: "button"; label: string; disabled?: boolean; tone?: "default" | "quiet"; onClick: () => void }
   | { id: string; type: "notice"; text: string }
+  | { id: string; type: "mediaList"; items: readonly string[]; disabled?: boolean; minItems?: number; maxItems?: number; onChange: (items: string[]) => void; onChoose: (index: number, label: string) => void }
   | { id: string; type: "custom"; customContent: ReactNode };
 
 export const ONESTUDIO_INSPECTOR_GROUPS = ["content", "typography", "media", "layout"] as const;

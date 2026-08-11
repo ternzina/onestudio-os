@@ -6,6 +6,7 @@ import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards, publicSiteCus
 import type { EditorInspectorField, EditorInspectorPlacedField, OneStudioInspectorGroup } from "@/lib/public-site/editor-spec";
 import type { AdminMessage, AdminMessageValues } from "@/lib/i18n/admin";
 import type { PublicSiteColumnCard, PublicSiteCustomBlock } from "@/lib/public-site/types";
+import { buildBlockLayoutInspectorFields, buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
 
 type Translate = (message: AdminMessage, values?: AdminMessageValues) => string;
 
@@ -13,7 +14,7 @@ type SettingsOptions = {
   block: PublicSiteCustomBlock;
   disabled: boolean;
   onChange: (block: PublicSiteCustomBlock, historyField?: string) => void;
-  onChooseImage: (target: { cardIndex?: number; label: string }) => void;
+  onChooseImage: (target: { cardIndex?: number; listIndex?: number; label: string }) => void;
   t: Translate;
 };
 
@@ -24,17 +25,9 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
   const patch = <Key extends keyof PublicSiteCustomBlock>(key: Key, value: PublicSiteCustomBlock[Key]) => onChange({ ...block, [key]: value }, String(key));
   const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "premium");
   const groups: { id: string; title?: string; card?: boolean; fields: EditorInspectorField[] }[] = [];
-  const appearance: EditorInspectorField[] = [];
-  if (visual.layout) appearance.push({ id: "content-width", type: "select", label: t("Content width"), value: block.content_width ?? "wide", disabled, onChange: value => patch("content_width", value as NonNullable<PublicSiteCustomBlock["content_width"]>), options: options(t, [["full", "Full width"], ["wide", "Wide"], ["medium", "Medium"], ["narrow", "Narrow"]]) });
-  if (visual.spacing) appearance.push(
-    { id: "padding-top", type: "select", label: t("Top spacing"), value: block.padding_top ?? "normal", disabled, onChange: value => patch("padding_top", value as NonNullable<PublicSiteCustomBlock["padding_top"]>), options: options(t, [["none", "None"], ["compact", "Small"], ["normal", "Normal"], ["airy", "Airy"]]) },
-    { id: "padding-bottom", type: "select", label: t("Bottom spacing"), value: block.padding_bottom ?? "normal", disabled, onChange: value => patch("padding_bottom", value as NonNullable<PublicSiteCustomBlock["padding_bottom"]>), options: options(t, [["none", "None"], ["compact", "Small"], ["normal", "Normal"], ["airy", "Airy"]]) },
-  );
-  if (visual.sectionHeight) appearance.push({ id: "section-height", type: "select", label: t("Minimum height"), value: block.section_height ?? "auto", disabled, onChange: value => patch("section_height", value as NonNullable<PublicSiteCustomBlock["section_height"]>), options: options(t, [["auto", "Fit content"], ["compact", "Low"], ["medium", "Medium"], ["tall", "Tall"], ["screen", "Almost full screen"]]) });
-  if (visual.animation) {
-    appearance.push({ id: "animation", type: "select", label: t("Animation"), value: block.animation ?? "none", disabled, onChange: value => patch("animation", value as NonNullable<PublicSiteCustomBlock["animation"]>), options: options(t, [["none", "None"], ["fade", "Fade in"], ["rise", "Rise in"], ["scale", "Scale in"]]) });
-    if (block.animation && block.animation !== "none") appearance.push({ id: "animate-mobile", type: "toggle", label: t("Animation on phone"), checked: block.animate_on_mobile !== false, disabled, onChange: value => patch("animate_on_mobile", value) });
-  }
+  const appearance: EditorInspectorField[] = visual.layout || visual.spacing || visual.sectionHeight || visual.animation
+    ? buildBlockLayoutInspectorFields({ value: block, disabled, t, idPrefix: "universal-layout", onChange: (key, value) => onChange({ ...block, [key]: value }, String(key)) })
+    : [];
   if (appearance.length) groups.push({ id: "layout-spacing", fields: appearance, card: true });
 
   if (visual.colors) groups.push({ id: "appearance-colors", card: true, fields: [
@@ -58,25 +51,47 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
   ] });
 
   const media: EditorInspectorField[] = [];
-  if (block.kind === "slider" || block.kind === "collage") media.push({ id: "media-urls", type: "textarea", label: t("Image URLs (one per line)"), rows: 6, value: (block.media_urls ?? []).join("\n"), disabled, onChange: value => patch("media_urls", value.split("\n").map(item => item.trim()).filter(Boolean)) });
+  if (block.kind === "slider" || block.kind === "collage") media.push({
+    id: "media-list",
+    type: "mediaList",
+    items: block.media_urls ?? [],
+    disabled,
+    minItems: 2,
+    maxItems: block.kind === "collage" ? 8 : 12,
+    onChange: items => patch("media_urls", items),
+    onChoose: (listIndex, label) => onChooseImage({ listIndex, label }),
+  });
   if (block.kind === "slider") media.push({ id: "interval", type: "number", label: t("Interval, seconds"), value: block.slide_interval_seconds ?? 4, disabled, onChange: value => patch("slide_interval_seconds", Math.max(2, Number(value) || 2)) });
   if (block.kind === "video") media.push(
     { id: "video-url", type: "url", label: t("Video URL"), value: block.video_url ?? "", disabled, onChange: value => patch("video_url", value) },
     { id: "poster-url", type: "url", label: t("Poster URL"), value: block.video_poster_url ?? "", disabled, onChange: value => patch("video_poster_url", value) },
   );
   if (block.kind === "media_text") media.push(
-    { id: "media-position", type: "select", label: t("Image position"), value: block.media_position ?? "right", disabled, onChange: value => patch("media_position", value === "left" ? "left" : "right"), options: options(t, [["right", "Text + image"], ["left", "Image + text"]]) },
     { id: "media-url", type: "url", label: t("Image URL"), value: block.media_url ?? "", disabled, onChange: value => patch("media_url", value) },
     { id: "choose-media", type: "button", label: t("Choose from media"), disabled, onClick: () => onChooseImage({ label: t("Block image") }) },
     { id: "media-alt", type: "text", label: t("Alternative text"), value: block.media_alt ?? "", disabled, onChange: value => patch("media_alt", value.slice(0, 180)) },
   );
-  if (visual.mediaSizing) media.push(
-    { id: "media-size", type: "select", label: t("Media size"), value: block.media_size ?? "wide", disabled, onChange: value => patch("media_size", value as NonNullable<PublicSiteCustomBlock["media_size"]>), options: options(t, [["full", "Full width"], ["wide", "Large"], ["medium", "Medium"], ["compact", "Small"]]) },
-    { id: "media-aspect", type: "select", label: t("Proportions"), value: block.media_aspect ?? "landscape", disabled, onChange: value => patch("media_aspect", value as NonNullable<PublicSiteCustomBlock["media_aspect"]>), options: [["landscape", "16:9"], ["classic", "4:3"], ["square", "1:1"], ["portrait", "4:5"]].map(([value, label]) => ({ value, label })) },
-    { id: "media-height", type: "select", label: t("Media height"), value: block.media_height ?? "auto", disabled, onChange: value => patch("media_height", value as NonNullable<PublicSiteCustomBlock["media_height"]>), options: options(t, [["auto", "Fit content"], ["compact", "Low"], ["medium", "Medium"], ["tall", "Tall"]]) },
-    { id: "media-fit", type: "select", label: t("Image fit"), value: block.media_fit ?? "cover", disabled, onChange: value => patch("media_fit", value as NonNullable<PublicSiteCustomBlock["media_fit"]>), options: options(t, [["cover", "Fill"], ["contain", "Whole image"]]) },
-    { id: "media-frame", type: "select", label: t("Frame"), value: block.media_frame ?? "line", disabled, onChange: value => patch("media_frame", value as NonNullable<PublicSiteCustomBlock["media_frame"]>), options: options(t, [["none", "None"], ["line", "Line"], ["card", "Card with shadow"]]) },
-  );
+  if (visual.mediaSizing) media.push(...buildMediaLayoutInspectorFields({
+    value: block,
+    disabled,
+    t,
+    idPrefix: "universal-media",
+    capabilities: {
+      size: block.kind !== "columns",
+      aspect: block.kind !== "columns",
+      height: block.kind !== "columns",
+      fit: true,
+      frame: block.kind !== "columns",
+      radius: visual.mediaSurface,
+      focalPoint: visual.mediaFocalPoint,
+      opacity: visual.mediaSurface,
+      overlay: visual.mediaSurface,
+      placement: visual.mediaPosition ? (block.kind === "collage" ? "align" : "split") : undefined,
+      responsive: visual.responsiveMedia,
+      multiMedia: visual.multiMediaLayout,
+    },
+    onChange: (key, value) => onChange({ ...block, [key]: value }, String(key)),
+  }));
   if (media.length) groups.push({ id: "media", card: true, fields: media });
 
   if (block.kind === "columns") groups.push({ id: "columns", card: true, fields: [
