@@ -111,6 +111,12 @@ type MediaItem = {
 };
 type ImageTarget =
   | {
+      kind: "template-content";
+      templateKey: string;
+      path: string;
+      label: string;
+    }
+  | {
       kind: "content";
       key:
         | "hero_image_url"
@@ -2040,7 +2046,14 @@ function VisualBuilder({
 
   function selectMedia(url: string) {
     if (!imageTarget) return;
-    if (imageTarget.kind === "logo") {
+    if (imageTarget.kind === "template-content") {
+      const namespace = structuredClone(draft.template_content?.[imageTarget.templateKey] ?? {}) as Record<string, unknown>;
+      const keys = imageTarget.path.split(".");
+      let target = namespace;
+      for (const key of keys.slice(0, -1)) target = target[key] as Record<string, unknown>;
+      target[keys.at(-1)!] = url;
+      onUpdate("template_content", { ...(draft.template_content ?? {}), [imageTarget.templateKey]: namespace });
+    } else if (imageTarget.kind === "logo") {
       onLogoChange(url);
     } else if (imageTarget.kind === "content") {
       onUpdate(imageTarget.key, url);
