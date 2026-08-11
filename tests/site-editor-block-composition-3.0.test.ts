@@ -11,6 +11,7 @@ import {
 } from "../lib/public-site/block-composition.ts";
 import { createPublicSiteCustomBlock } from "../lib/public-site/custom-block-registry.ts";
 import type { PublicSiteCustomBlock } from "../lib/public-site/types.ts";
+import { publicSiteMediaContainerStyle } from "../lib/public-site/visual-tokens.ts";
 
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
@@ -61,6 +62,32 @@ test("composition capabilities and order normalization stay kind-aware", () => {
     normalizePublicSiteCompositionOrder("cta", ["action", "title", "action", "media"]),
     ["action", "title", "eyebrow", "text"],
   );
+});
+
+test("composed media sizes stay visible without changing legacy block geometry", () => {
+  const legacy = createPublicSiteCustomBlock("media_text", "legacy-media-size");
+  const legacyStyle = publicSiteMediaContainerStyle(legacy);
+  assert.equal(legacyStyle.width, undefined);
+  assert.equal(legacyStyle.maxWidth, "100%");
+
+  const widths = {
+    full: "100%",
+    wide: "88%",
+    medium: "72%",
+    compact: "56%",
+  } as const;
+  for (const [media_size, width] of Object.entries(widths)) {
+    const style = publicSiteMediaContainerStyle({
+      ...legacy,
+      composition_enabled: true,
+      media_size: media_size as keyof typeof widths,
+      media_aspect: "square",
+      media_fit: "contain",
+    });
+    assert.equal(style.width, width);
+    assert.equal(style["--os-media-aspect"], "1 / 1");
+    assert.equal(style["--os-media-fit"], "contain");
+  }
 });
 
 test("Standard, Premium, preview, public runtime and persistence share Block Composition 3.0", async () => {

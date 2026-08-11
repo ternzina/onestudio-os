@@ -8,7 +8,7 @@ import type {
   PublicSiteMediaLayoutSettings,
   PublicSiteMediaSize,
 } from "@/lib/public-site/types";
-import { publicSiteMediaVariables } from "@/lib/public-site/visual-tokens";
+import { publicSiteMediaContainerStyle } from "@/lib/public-site/visual-tokens";
 
 const sizeClass: Record<PublicSiteMediaSize, string> = {
   full: "w-full",
@@ -32,7 +32,7 @@ export default function PublicSliderBlock({
   images: string[];
   intervalSeconds: number;
   title: string;
-  media?: PublicSiteMediaLayoutSettings;
+  media?: PublicSiteMediaLayoutSettings & { composition_enabled?: boolean };
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const safeInterval = Math.min(30, Math.max(2, intervalSeconds || 4));
@@ -57,7 +57,7 @@ export default function PublicSliderBlock({
   return (
     <div
       className={`mx-auto mt-10 ${sizeClass[size]} ${frameClass[frame]}`}
-      style={publicSiteMediaVariables(media)}
+      style={publicSiteMediaContainerStyle(media)}
     >
       <div
         className={`os-managed-media-frame relative bg-black/10 ${

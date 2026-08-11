@@ -116,7 +116,7 @@ test("Standard, Premium, preview and public runtime share the 2.9 contract", asy
   assert.match(premium, /type: "mediaList"/);
   assert.match(runtime, /os-managed-media-grid/);
   assert.match(runtime, /data-os-media-mobile-position/);
-  assert.match(slider, /publicSiteMediaVariables/);
+  assert.match(slider, /publicSiteMediaContainerStyle/);
   assert.match(globals, /--os-media-mobile-position/);
   assert.match(migration, /normalize_public_site_media_layout/);
   assert.match(migration, /normalize_public_site_system_section_settings_v29_base/);
