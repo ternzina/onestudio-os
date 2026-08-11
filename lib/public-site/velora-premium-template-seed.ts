@@ -1,11 +1,81 @@
 import type { PublicSiteContent } from "./types.ts";
-import { DEFAULT_VELORA_CONTENT, VELORA_TEMPLATE_KEY, withVeloraContent } from "./velora-premium-template-content.ts";
+import {
+  DEFAULT_VELORA_CONTENT,
+  VELORA_TEMPLATE_KEY,
+  withVeloraContent,
+} from "./velora-premium-template-content.ts";
 import { VELORA_PREMIUM_TEMPLATE_CONTRACT } from "./velora-premium-template-contract.ts";
-export const VELORA_NATIVE_LAYOUT_ORDER = VELORA_PREMIUM_TEMPLATE_CONTRACT.nativeSections.map(({ id }) => `native:${VELORA_TEMPLATE_KEY}:${id}`);
+export const VELORA_NATIVE_LAYOUT_ORDER =
+  VELORA_PREMIUM_TEMPLATE_CONTRACT.nativeSections.map(
+    ({ id }) => `native:${VELORA_TEMPLATE_KEY}:${id}`,
+  );
 export function createVeloraPremiumTemplateSeed(): PublicSiteContent {
-  const base = { template_id: VELORA_TEMPLATE_KEY, brand_name: "VELORA HOUSE", theme_dark: "#101827", theme_accent: "#C6A66B", theme_surface: "#F4EFE6", hero_eyebrow: "PRIVATE EVENT HOUSE · KYIV", hero_title: DEFAULT_VELORA_CONTENT.hero.title, hero_text: DEFAULT_VELORA_CONTENT.hero.text, about_title: "Дом для событий", about_text: "Три пространства, авторская кухня и единая команда.", services_title: "Залы", portfolio_title: "Галерея", contact_title: DEFAULT_VELORA_CONTENT.contact.title, booking_label: "Проверить дату", services_label: "Залы", portfolio_label: "Галерея", about_label: "О площадке", contact_label: "Контакты", show_services: true, show_portfolio: true, show_about: true, show_contact: true, seo_title: "VELORA HOUSE — премиальная площадка для частных событий", seo_description: "Свадьбы, частные ужины и корпоративные события в трёх залах VELORA HOUSE в Киеве.", seo_image_url: "/templates/velora/hero.svg", seo_keywords: "event venue, свадьба, площадка Киев, частные события", layout_order: [...VELORA_NATIVE_LAYOUT_ORDER], custom_blocks: [], pages: [
-    { id: "velora-venues", type: "custom" as const, slug: "venues", nav_label: "Залы", eyebrow: "ТРИ ПРОСТРАНСТВА", title: "Выберите архитектуру вашего вечера", intro: "Сравните вместимость, характер и возможности каждого зала VELORA HOUSE.", is_visible: true, show_in_navigation: true, show_booking_cta: true, seo_title: "Залы VELORA HOUSE — сравнение площадок", seo_description: "Grand Hall, Garden Hall и Private Salon: вместимость, площадь и особенности.", seo_image_url: "/templates/velora/grand-hall.svg", blocks: [] },
-    { id: "velora-packages", type: "custom" as const, slug: "packages", nav_label: "Пакеты", eyebrow: "ФОРМАТЫ СОБЫТИЙ", title: "Пакет — начало, событие — всегда ваше", intro: "Прозрачная основа и свобода персонализировать меню, декор и production.", is_visible: true, show_in_navigation: true, show_booking_cta: true, seo_title: "Пакеты событий VELORA HOUSE", seo_description: "Сравнение Essential, Signature и Grand Celebration.", seo_image_url: "/templates/velora/gallery-dinner.svg", blocks: [] },
-  ] } as PublicSiteContent;
+  const base = {
+    template_id: VELORA_TEMPLATE_KEY,
+    brand_name: "VELORA",
+    theme_dark: "#07101E",
+    theme_accent: "#D6B56E",
+    theme_surface: "#F6F0E5",
+    hero_eyebrow: "VELORA · EVENT HOUSE · WARSZAWA",
+    hero_title: DEFAULT_VELORA_CONTENT.hero.title,
+    hero_text: DEFAULT_VELORA_CONTENT.hero.text,
+    about_title: "Dom dla wydarzeń",
+    about_text: "Trzy przestrzenie, autorska kuchnia i jeden zespół.",
+    services_title: "Przestrzenie",
+    portfolio_title: "Galeria",
+    contact_title: DEFAULT_VELORA_CONTENT.contact.title,
+    booking_label: "Sprawdź termin",
+    services_label: "Sale",
+    portfolio_label: "Galeria",
+    about_label: "O VELORA",
+    contact_label: "Kontakt",
+    show_services: true,
+    show_portfolio: true,
+    show_about: true,
+    show_contact: true,
+    seo_title: "VELORA — premium event venue w Warszawie",
+    seo_description:
+      "Wesela, prywatne kolacje i wydarzenia firmowe w trzech filmowych przestrzeniach VELORA.",
+    seo_image_url: "/templates/velora/hero.webp",
+    seo_keywords: "event venue, wesele, sala Warszawa, prywatne wydarzenia",
+    layout_order: [...VELORA_NATIVE_LAYOUT_ORDER],
+    custom_blocks: [],
+    pages: [
+      {
+        id: "velora-venues",
+        type: "custom" as const,
+        slug: "venues",
+        nav_label: "Przestrzenie",
+        eyebrow: "TRZY PRZESTRZENIE",
+        title: "Wybierz architekturę swojego wieczoru",
+        intro: "Porównaj skalę, atmosferę i zaplecze każdej sali.",
+        is_visible: true,
+        show_in_navigation: true,
+        show_booking_cta: true,
+        seo_title: "Przestrzenie VELORA — Grand Hall, Garden Room i Atelier",
+        seo_description:
+          "Trzy sale VELORA: pojemność, układ, plan deszczowy i dostępność.",
+        seo_image_url: "/templates/velora/grand-hall.webp",
+        blocks: [],
+      },
+      {
+        id: "velora-packages",
+        type: "custom" as const,
+        slug: "packages",
+        nav_label: "Pakiety",
+        eyebrow: "TRZY POZIOMY OPIEKI",
+        title: "Piękna baza albo pełna reżyseria",
+        intro: "Wybierz skalę oprawy i ilość czasu, którą chcesz odzyskać.",
+        is_visible: true,
+        show_in_navigation: true,
+        show_booking_cta: true,
+        seo_title: "Pakiety wydarzeń VELORA — Essential, Signature, Iconic",
+        seo_description:
+          "Trzy poziomy oprawy wydarzenia z możliwością pełnej personalizacji.",
+        seo_image_url: "/templates/velora/dinner.webp",
+        blocks: [],
+      },
+    ],
+  } as PublicSiteContent;
   return withVeloraContent(base, DEFAULT_VELORA_CONTENT, false);
 }

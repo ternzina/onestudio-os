@@ -32,9 +32,16 @@ test("template media paths immutably create hero objects and venue/gallery array
   assert.equal(venue.untouched, true);
   assert.notEqual(venue, partial);
   assert.notEqual(venue.venues, partial.venues);
-  assert.deepEqual(partial, { venues: [{ name: "Existing" }], untouched: true });
+  assert.deepEqual(partial, {
+    venues: [{ name: "Existing" }],
+    untouched: true,
+  });
 
-  const gallery = setImmutableDeepPath({}, "gallery.4.image", "/gallery.jpg") as {
+  const gallery = setImmutableDeepPath(
+    {},
+    "gallery.4.image",
+    "/gallery.jpg",
+  ) as {
     gallery: Array<unknown>;
   };
   assert.ok(Array.isArray(gallery.gallery));
@@ -57,11 +64,17 @@ test("template media updates preserve every other template_content namespace", (
     updated["gloss-nail-studio"],
     templateContent["gloss-nail-studio"],
   );
-  assert.strictEqual(updated["premium-studio"], templateContent["premium-studio"]);
+  assert.strictEqual(
+    updated["premium-studio"],
+    templateContent["premium-studio"],
+  );
   assert.deepEqual(updated["velora-event-venue"], {
     venues: [{ image: "/venue.jpg" }],
   });
-  assert.equal(templateContent["velora-event-venue" as keyof typeof templateContent], undefined);
+  assert.equal(
+    templateContent["velora-event-venue" as keyof typeof templateContent],
+    undefined,
+  );
 });
 
 test("template media paths reject prototype-pollution segments", () => {
@@ -98,7 +111,11 @@ test("availability href and parser select only normalized venue/package names", 
     { venue: "Белый зал & сад", packageName: "" },
   );
 
-  const packageHref = buildVeloraAvailabilityHref("/site", "packageName", "Всё включено");
+  const packageHref = buildVeloraAvailabilityHref(
+    "/site",
+    "packageName",
+    "Всё включено",
+  );
   assert.deepEqual(
     parseVeloraAvailabilitySelection(
       new URL(packageHref, "https://example.test").searchParams,
@@ -108,7 +125,11 @@ test("availability href and parser select only normalized venue/package names", 
     { venue: "", packageName: "Всё включено" },
   );
   assert.deepEqual(
-    parseVeloraAvailabilitySelection("?venue=unknown&package=invalid", ["Белый зал"], ["Премиум"]),
+    parseVeloraAvailabilitySelection(
+      "?venue=unknown&package=invalid",
+      ["Белый зал"],
+      ["Премиум"],
+    ),
     { venue: "", packageName: "" },
   );
 });
@@ -122,5 +143,8 @@ test("VELORA root never masks horizontal overflow", async () => {
     css,
     /\.site\s*\{[^}]*overflow-x\s*:\s*(?:hidden|clip)/is,
   );
-  assert.doesNotMatch(css, /(?:html|body|:global\([^)]*\))[^{}]*\{[^}]*overflow-x\s*:\s*(?:hidden|clip)/is);
+  assert.doesNotMatch(
+    css,
+    /(?:html|body|:global\([^)]*\))[^{}]*\{[^}]*overflow-x\s*:\s*(?:hidden|clip)/is,
+  );
 });

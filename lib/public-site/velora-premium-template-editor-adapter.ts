@@ -76,14 +76,22 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
       id,
     );
     const resetContent = resetVeloraSection(resolveVeloraContent(content), id);
-    if (id === "hero") resetContent.plum = "#6D4055";
+    if (id === "hero") {
+      resetContent.plum = "#2D394F";
+      resetContent.muted = "#B7B4AE";
+      resetContent.secondary = "#7F96B8";
+      resetContent.border = "#6D5B39";
+      resetContent.warm = "#F2D59B";
+      resetContent.overlay = "#050912";
+      resetContent.buttonForeground = "#09111F";
+    }
     const next = withVeloraContent(
       id === "hero"
         ? {
             ...content,
-            theme_dark: "#101827",
-            theme_accent: "#C6A66B",
-            theme_surface: "#F4EFE6",
+            theme_dark: "#07101E",
+            theme_accent: "#D6B56E",
+            theme_surface: "#F6F0E5",
           }
         : content,
       resetContent,
@@ -141,14 +149,19 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
     });
     return [
       ...fields,
-      color("theme-dark", "Midnight navy", "theme_dark", "#101827"),
-      color("theme-accent", "Champagne gold", "theme_accent", "#C6A66B"),
-      color("theme-surface", "Ivory", "theme_surface", "#F4EFE6"),
+      color("theme-dark", "Background · midnight", "theme_dark", "#07101E"),
+      color(
+        "theme-accent",
+        "Accent · champagne gold",
+        "theme_accent",
+        "#D6B56E",
+      ),
+      color("theme-surface", "Foreground · ivory", "theme_surface", "#F6F0E5"),
       {
         id: "theme-plum",
         group: "media",
         type: "color",
-        label: "Plum",
+        label: "Background elevated · slate",
         value: resolveVeloraContent(content).plum,
         disabled,
         onChange: (value) =>
@@ -160,6 +173,31 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
             "velora:palette:plum",
           ),
       },
+      ...(
+        [
+          ["theme-muted", "Muted foreground", "muted"],
+          ["theme-secondary", "Secondary accent", "secondary"],
+          ["theme-border", "Border", "border"],
+          ["theme-warm", "Warm light", "warm"],
+          ["theme-overlay", "Overlay", "overlay"],
+          ["theme-button", "Button foreground", "buttonForeground"],
+        ] as const
+      ).map(([id, label, key]) => ({
+        id,
+        group: "media" as const,
+        type: "color" as const,
+        label,
+        value: resolveVeloraContent(content)[key],
+        disabled,
+        onChange: (value: string) =>
+          onChange(
+            withVeloraContent(content, {
+              ...resolveVeloraContent(content),
+              [key]: value,
+            }),
+            `velora:palette:${key}`,
+          ),
+      })),
     ];
   },
   insertCustomBlock: (content, block) => {

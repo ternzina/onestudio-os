@@ -7,6 +7,12 @@ export type VeloraContent = {
   version: 1;
   brand: string;
   plum: string;
+  muted: string;
+  secondary: string;
+  border: string;
+  warm: string;
+  overlay: string;
+  buttonForeground: string;
   navigation: VeloraItem[];
   header: VeloraItem;
   hero: VeloraItem;
@@ -15,12 +21,19 @@ export type VeloraContent = {
   venues: VeloraItem[];
   formatsPresentation: VeloraItem;
   formats: VeloraItem[];
+  transformation: VeloraItem;
+  storyPresentation: VeloraItem;
+  story: VeloraItem[];
   packagesPresentation: VeloraItem;
   packages: VeloraItem[];
+  includedPresentation: VeloraItem;
+  included: VeloraItem[];
   galleryPresentation: VeloraItem;
   gallery: VeloraItem[];
   cateringPresentation: VeloraItem;
   catering: VeloraItem[];
+  decor: VeloraItem;
+  coordinator: VeloraItem;
   plannerPresentation: VeloraItem;
   planner: VeloraItem[];
   facts: VeloraItem[];
@@ -33,293 +46,446 @@ export type VeloraContent = {
   customPages: VeloraItem;
 };
 
-const asset = (name: string) => `/templates/velora/${name}.svg`;
+const asset = (name: string) => `/templates/velora/${name}.webp`;
 
 export const DEFAULT_VELORA_CONTENT: VeloraContent = {
   version: 1,
-  brand: "VELORA HOUSE",
-  plum: "#6D4055",
+  brand: "VELORA",
+  plum: "#2D394F",
+  muted: "#B7B4AE",
+  secondary: "#7F96B8",
+  border: "#6D5B39",
+  warm: "#F2D59B",
+  overlay: "#050912",
+  buttonForeground: "#09111F",
   navigation: [
-    { label: "Залы", href: "#venues" },
-    { label: "Пакеты", href: "#packages" },
-    { label: "Галерея", href: "#gallery" },
-    { label: "Контакты", href: "#contact" },
+    { label: "Przestrzenie", href: "#venues" },
+    { label: "Doświadczenia", href: "#packages" },
+    { label: "Historie", href: "#stories" },
+    { label: "Galeria", href: "#gallery" },
   ],
   header: {
-    venuesPageLabel: "Сравнить залы",
-    availabilityLabel: "Проверить дату",
+    venuesPageLabel: "Poznaj sale",
+    availabilityLabel: "Sprawdź termin",
+    menuLabel: "Menu",
   },
   hero: {
-    eyebrow: "PRIVATE EVENT HOUSE · KYIV",
-    title: "События, которым нужен свой дом.",
-    text: "Три выразительных пространства, авторская кухня и команда, которая собирает вечер как цельную историю.",
-    primaryLabel: "Проверить дату",
+    eyebrow: "VELORA · EVENT HOUSE · WARSZAWA",
+    title: "Wieczór, który zostaje z Wami na zawsze.",
+    text: "Światło, smak i przestrzeń prowadzone przez jeden zespół — od pierwszego szkicu aż po ostatni toast.",
+    primaryLabel: "Sprawdź dostępność",
     primaryUrl: "#availability",
-    secondaryLabel: "Посмотреть залы",
+    secondaryLabel: "Zobacz przestrzenie",
     secondaryUrl: "#venues",
     image: asset("hero"),
-    alt: "Вечерний зал VELORA HOUSE с мягким золотым светом",
-    traits: "до 220 гостей · 3 зала · центр города",
+    alt: "Wieczorna sala VELORA rozświetlona żyrandolami i świecami",
+    traits: "Warszawa · 3 przestrzenie · 12–220 gości",
+    scrollLabel: "Odkryj VELORA",
   },
-  availability: {
-    eyebrow: "ВАША ДАТА",
-    title: "Начнём с главного",
-    text: "Укажите детали — координатор проверит дату и вернётся с подходящими залами в течение рабочего дня.",
-    dateLabel: "Дата",
-    formatLabel: "Тип события",
-    formatPlaceholder: "Выберите формат",
-    guestsLabel: "Количество гостей",
-    guestsPlaceholder: "80",
-    venueLabel: "Зал",
-    venuePlaceholder: "Выберите зал",
-    packageLabel: "Пакет",
-    packagePlaceholder: "Выберите пакет",
-    nameLabel: "Ваше имя",
-    emailLabel: "Email",
-    phoneLabel: "Телефон",
-    submit: "Отправить заявку",
-    pending: "Отправляем…",
-    idle: "Заявка не фиксирует дату без подтверждения координатора.",
-    success: "Спасибо. Координатор свяжется с вами в течение рабочего дня.",
-    error:
-      "Не удалось отправить заявку. Проверьте данные или свяжитесь с нами по телефону.",
-    ariaLabel: "Проверить свободную дату",
-    subject: "Проверка даты",
-  },
+  facts: [
+    { value: "640+", label: "zrealizowanych wieczorów" },
+    { value: "11", label: "lat doświadczenia" },
+    { value: "4,9/5", label: "ocena gości demo" },
+    { value: "220", label: "gości bez kompromisów" },
+  ],
   venuesPresentation: {
-    eyebrow: "ПРОСТРАНСТВА",
-    title: "Три зала. Три характера.",
-    pageLabel: "Подробное сравнение залов",
+    eyebrow: "SIGNATURE VENUES",
+    title: "Jedno miejsce. Trzy zupełnie różne nastroje.",
+    pageLabel: "Porównaj wszystkie przestrzenie",
+    text: "Wybierz skalę i charakter. My dopasujemy światło, układ oraz tempo wieczoru.",
   },
   venues: [
     {
       name: "Grand Hall",
-      capacity: "80–220 гостей",
-      area: "420 м²",
-      features: "Сцена · панорамные окна · отдельный вход",
+      mood: "Filmowy rozmach",
+      capacity: "80–220 gości",
+      area: "420 m²",
+      features: "Wysokie sklepienie · scena · panoramiczne okna",
+      formats: "Wesela · gale · premiery",
+      seating: "bankiet 220 · teatr 300",
       image: asset("grand-hall"),
-      alt: "Grand Hall с банкетной сервировкой",
-      cta: "Выбрать Grand Hall",
+      alt: "Grand Hall przygotowany na elegancki wieczorny bankiet",
+      cta: "Wybieram Grand Hall",
     },
     {
-      name: "Garden Hall",
-      capacity: "40–110 гостей",
-      area: "240 м²",
-      features: "Терраса · живые растения · дневной свет",
-      image: asset("garden-hall"),
-      alt: "Garden Hall с зеленью и террасой",
-      cta: "Выбрать Garden Hall",
+      name: "Garden Room",
+      mood: "Światło i ogród",
+      capacity: "40–110 gości",
+      area: "240 m²",
+      features: "Oranżeria · taras · plan deszczowy pod dachem",
+      formats: "Ceremonie · kolacje · urodziny",
+      seating: "bankiet 110 · koktajl 160",
+      image: asset("garden-room"),
+      alt: "Garden Room z zielenią i stołami przy naturalnym świetle",
+      cta: "Wybieram Garden Room",
     },
     {
-      name: "Private Salon",
-      capacity: "12–36 гостей",
-      area: "96 м²",
-      features: "Камин · библиотека · приватный бар",
-      image: asset("private-salon"),
-      alt: "Камерный Private Salon",
-      cta: "Выбрать Private Salon",
+      name: "Atelier",
+      mood: "Prywatnie i blisko",
+      capacity: "12–48 gości",
+      area: "110 m²",
+      features: "Prywatny bar · kominek · osobne wejście",
+      formats: "Kolacje · jubileusze · spotkania",
+      seating: "stół 32 · koktajl 48",
+      image: asset("atelier"),
+      alt: "Kameralne Atelier ze stołem przygotowanym na prywatną kolację",
+      cta: "Wybieram Atelier",
     },
   ],
   formatsPresentation: {
-    eyebrow: "ФОРМАТЫ",
-    title: "Сценарий начинается с вас",
+    eyebrow: "TWÓJ FORMAT",
+    title: "Zobacz swój wieczór, zanim zaczniemy go planować.",
   },
   formats: [
-    "Свадьбы",
-    "Дни рождения",
-    "Корпоративы",
-    "Камерные ужины",
-    "Презентации",
+    "Wesele",
+    "Kolacja prywatna",
+    "Urodziny",
+    "Event firmowy",
+    "Pokaz i premiera",
+    "Ceremonia",
   ].map((title, index) => ({
     number: `0${index + 1}`,
     title,
     text: [
-      "Церемония, ужин и танцы в единой драматургии.",
-      "Личный сценарий — от семейного обеда до большой вечеринки.",
-      "Командные вечера и приёмы с точным продакшеном.",
-      "Chef’s table, свечи и приватность для самых близких.",
-      "Свет, звук и архитектура для сильного первого впечатления.",
+      "Ceremonia, kolacja i taniec w jednej płynnej historii.",
+      "Jeden stół, autorskie menu i pełna prywatność.",
+      "Świętowanie w rytmie, który pasuje do Was.",
+      "Gościnność połączona z precyzyjną produkcją.",
+      "Scenografia, światło i zaplecze dla mocnego debiutu.",
+      "W ogrodzie lub pod dachem — bez stresu o pogodę.",
+    ][index],
+  })),
+  transformation: {
+    eyebrow: "TRANSFORMACJA",
+    title: "Ta sama sala. Zupełnie inna opowieść.",
+    text: "Przesuń, aby zobaczyć, jak światło, tekstylia i florystyka zmieniają pustą architekturę w gotowy wieczór.",
+    beforeLabel: "Przed",
+    afterLabel: "Po",
+    beforeImage: asset("empty-hall"),
+    beforeAlt: "Pusta sala przed przygotowaniem wydarzenia",
+    afterImage: asset("dressed-hall"),
+    afterAlt: "Ta sama sala po pełnej aranżacji wydarzenia",
+  },
+  storyPresentation: {
+    eyebrow: "OD CISZY DO OSTATNIEGO TAŃCA",
+    title: "Przestrzeń budzi się krok po kroku.",
+    text: "Nie dokładamy dekoracji. Budujemy napięcie: światło, stół, kwiaty, ludzie, muzyka.",
+  },
+  story: [
+    "Pusta sala",
+    "Pierwsze światło",
+    "Nakryty stół",
+    "Kwiaty",
+    "Goście",
+    "Wieczór",
+  ].map((title, index) => ({
+    number: `0${index + 1}`,
+    title,
+    text: [
+      "Architektura daje rytm.",
+      "Ciepło wydobywa detale.",
+      "Każde miejsce czeka na gościa.",
+      "Kolor nadaje ton.",
+      "Przestrzeń zaczyna żyć.",
+      "Wszystko płynie bez wysiłku.",
     ][index],
   })),
   packagesPresentation: {
-    eyebrow: "ПАКЕТЫ",
-    title: "Основа, которую можно сделать личной",
-    pageLabel: "Сравнить всё включённое",
+    eyebrow: "GOTOWE DOŚWIADCZENIA",
+    title: "Wybierz, ile chcemy wziąć na siebie.",
+    pageLabel: "Poznaj pakiety w szczegółach",
+    text: "Każdy poziom można spersonalizować — różni je skala oprawy i czas, który odzyskujecie.",
   },
   packages: [
     {
       name: "Essential",
-      price: "от €3 900",
-      for: "до 50 гостей",
-      includes: "Зал 8 часов · базовая сервировка · координатор · звук",
-      cta: "Запросить Essential",
+      result: "Piękna, spokojna podstawa",
+      price: "od 16 900 zł",
+      for: "dla kameralnych wydarzeń",
+      includes: "Przestrzeń · meble · podstawowe światło · opieka gospodarza",
+      decor: "subtelne akcenty",
+      menu: "menu sezonowe",
+      image: asset("atelier"),
+      alt: "Kameralny stół w pakiecie Essential",
+      cta: "Wybieram Essential",
     },
     {
       name: "Signature",
-      price: "от €7 500",
-      for: "до 100 гостей",
-      includes: "Зал 12 часов · welcome-зона · свет · меню Signature · декор",
-      cta: "Запросить Signature",
+      result: "Spójna atmosfera od wejścia",
+      price: "od 31 900 zł",
+      for: "dla wesel i większych kolacji",
+      includes:
+        "Pełna sala · welcome drink · światło · koordynacja · florystyka",
+      decor: "indywidualna paleta",
+      menu: "menu Signature i pairing",
+      image: asset("dinner"),
+      alt: "Kolacja przy świecach w pakiecie Signature",
+      cta: "Wybieram Signature",
     },
     {
-      name: "Grand Celebration",
-      price: "от €13 900",
-      for: "до 220 гостей",
+      name: "Iconic",
+      result: "Wieczór z pełną reżyserią",
+      price: "od 57 900 zł",
+      for: "dla wydarzeń o dużej skali",
       includes:
-        "Эксклюзивный день · два зала · полная команда · персональное меню",
-      cta: "Запросить Grand",
+        "Wyłączność · scenografia · produkcja · pełny zespół · próba generalna",
+      decor: "autorska instalacja",
+      menu: "menu tworzone od zera",
+      image: asset("event"),
+      alt: "Duże wieczorne wydarzenie w pakiecie Iconic",
+      cta: "Wybieram Iconic",
     },
   ],
-  galleryPresentation: {
-    eyebrow: "ГАЛЕРЕЯ",
-    title: "Свет, детали, движение",
-    dialogLabel: "Просмотр галереи",
-    closeLabel: "Закрыть",
-    openLabel: "Открыть",
+  includedPresentation: {
+    eyebrow: "W CENIE SPOKOJU",
+    title: "Dziesięć rzeczy, których nie musicie koordynować.",
+    text: "Jedna odpowiedzialna ekipa, jeden harmonogram i zero telefonów do pięciu podwykonawców.",
   },
-  gallery: [
-    "gallery-ceremony",
-    "gallery-dinner",
-    "gallery-detail",
-    "gallery-dance",
-    "gallery-table",
-    "gallery-night",
-  ].map((name, index) => ({
-    image: asset(name),
-    alt: [
-      "Церемония в Grand Hall",
-      "Ужин при свечах",
-      "Детали сервировки",
-      "Танцевальный вечер",
-      "Праздничный стол",
-      "Ночной фасад VELORA HOUSE",
-    ][index],
+  included: [
+    "Przestrzeń",
+    "Meble",
+    "Światło",
+    "Dźwięk",
+    "Zastawa",
+    "Dekor",
+    "Koordynacja",
+    "Montaż",
+    "Sprzątanie",
+    "Opieka zespołu",
+  ].map((title, index) => ({
+    number: String(index + 1).padStart(2, "0"),
+    title,
   })),
   cateringPresentation: {
-    eyebrow: "КУХНЯ",
-    title: "Меню следует за настроением вечера",
+    eyebrow: "MENU & DRINKS",
+    title: "Smak, który pasuje do tempa wieczoru.",
+    text: "Sezonowe menu, autorskie koktajle i serwis, który pojawia się dokładnie wtedy, kiedy powinien.",
+    image: asset("menu"),
+    alt: "Eleganckie danie serwowane podczas kolacji w VELORA",
+    cta: "Porozmawiajmy o menu",
   },
   catering: [
     {
-      title: "Seasonal",
-      text: "Четыре курса и сезонные продукты",
-      meta: "от €68 / гость",
+      title: "Menu sezonowe",
+      text: "Cztery lub sześć dań, także w wersjach roślinnych.",
+      meta: "od 290 zł / osoba",
     },
     {
-      title: "Signature",
-      text: "Шесть курсов от шефа VELORA",
-      meta: "от €96 / гость",
+      title: "Welcome ritual",
+      text: "Champagne, koktajl autorski lub bezalkoholowy pairing.",
+      meta: "dopasowany do okazji",
     },
     {
-      title: "Beverage atelier",
-      text: "Вино, коктейльная карта и безалкогольные пары",
-      meta: "индивидуально",
-    },
-    {
-      title: "Cake & sweets",
-      text: "Торт, dessert table и подача",
-      meta: "от €12 / гость",
+      title: "Wasze smaki",
+      text: "Degustacja i personalizacja przed wydarzeniem.",
+      meta: "bez sztywnego schematu",
     },
   ],
-  plannerPresentation: {
-    eyebrow: "ПЛАНИРОВЩИК",
-    title: "Спокойная подготовка, точный вечер",
-    text: "Личный координатор объединит декор, кейтеринг и техническое оснащение в один понятный план.",
+  decor: {
+    eyebrow: "DESIGN & DECOR",
+    title: "Nie dekorujemy sali. Projektujemy nastrój.",
+    text: "Florystyka, światło, tekstylia, papeteria i plan stołów powstają jako jeden moodboard — z Waszym stylem, nie katalogowym zestawem.",
+    image: asset("decor"),
+    alt: "Moodboard dekoracji z florystyką, światłem i elegancką zastawą",
   },
-  planner: [
-    {
-      number: "01",
-      title: "Знакомство",
-      text: "Дата, формат, гости и атмосфера.",
-    },
-    {
-      number: "02",
-      title: "Концепция",
-      text: "Зал, меню, декор и технический план.",
-    },
-    {
-      number: "03",
-      title: "Подготовка",
-      text: "Координатор ведёт подрядчиков и тайминг.",
-    },
-    {
-      number: "04",
-      title: "Событие",
-      text: "Команда встречает гостей и держит ритм вечера.",
-    },
-  ],
-  facts: [
-    { value: "220", label: "гостей" },
-    { value: "3", label: "зала" },
-    { value: "640+", label: "событий" },
-    { value: "11", label: "лет опыта" },
-  ],
+  coordinator: {
+    eyebrow: "TWÓJ KOORDYNATOR",
+    title: "Ktoś, kto pamięta o wszystkim — żebyście Wy nie musieli.",
+    text: "Marta prowadzi spotkania, zbiera decyzje i pilnuje dostawców. W dniu wydarzenia jest pół kroku przed harmonogramem, a dla Was po prostu dostępna.",
+    promise: "Jeden kontakt od pierwszej rozmowy do końca wieczoru.",
+    image: asset("team"),
+    alt: "Zespół koordynatorów wydarzeń podczas przygotowań",
+  },
   reviewsPresentation: {
-    eyebrow: "ОТЗЫВЫ",
-    title: "Что остаётся после вечера",
+    eyebrow: "VELORA DEMO STORIES",
+    title: "Prawdziwe potrzeby. Demonstracyjne historie.",
+    disclaimer:
+      "Historie i imiona poniżej są fikcyjną treścią prezentacyjną VELORA.",
   },
   reviews: [
     {
       quote:
-        "VELORA услышала нас с первой встречи. В день свадьбы мы просто жили моментом.",
-      author: "Анна и Марк",
-      meta: "Свадьба · 96 гостей",
-    },
-    {
-      quote: "Редкий баланс эстетики и безупречной операционной работы.",
-      author: "Elena Kovalska",
-      meta: "Brand dinner · 140 гостей",
+        "Chcieliśmy kolacji, która po deserze naturalnie zmieni się w imprezę. Nie sprawdzaliśmy zegarka ani razu.",
+      author: "Ola & Michał · historia demo",
+      meta: "Wesele · Grand Hall · 126 gości",
+      task: "ceremonia i taniec bez przerw",
+      image: asset("story"),
+      alt: "Goście demonstracyjnego wesela podczas wieczornego przyjęcia",
     },
     {
       quote:
-        "Private Salon оказался идеальным пространством для нашей семейной даты.",
-      author: "Семья Левченко",
-      meta: "Юбилей · 28 гостей",
+        "Zespół dostał krótkie założenia, a oddał nam kompletny wieczór — od światła po ostatni drink.",
+      author: "Studio North · historia demo",
+      meta: "Premiera · Garden Room · 84 gości",
+      task: "marka miała być obecna, lecz subtelna",
+      image: asset("event"),
+      alt: "Demonstracyjne wydarzenie premierowe w Garden Room",
+    },
+    {
+      quote:
+        "Atelier miało domową bliskość, ale serwis restauracji na najwyższym poziomie.",
+      author: "Rodzina W. · historia demo",
+      meta: "Jubileusz · Atelier · 28 gości",
+      task: "prywatnie, bez sztywnego protokołu",
+      image: asset("atelier"),
+      alt: "Demonstracyjna kameralna kolacja jubileuszowa",
     },
   ],
-  faqPresentation: { eyebrow: "FAQ", title: "До первой встречи" },
-  faq: [
-    {
-      question: "Можно ли провести церемонию на территории?",
-      answer:
-        "Да. Доступны Grand Hall, терраса Garden Hall и камерная церемония в Private Salon.",
-    },
-    {
-      question: "Есть ли пробное меню?",
-      answer:
-        "Для подтверждённых событий проводим дегустацию и финальную настройку подачи.",
-    },
-    {
-      question: "Можно пригласить своих подрядчиков?",
-      answer:
-        "Да. Координатор заранее согласует доступ, монтаж и технические требования.",
-    },
-    {
-      question: "Как бронируется дата?",
-      answer:
-        "После предложения дата фиксируется договором и депозитом. Форма на сайте создаёт заявку, но не блокирует календарь автоматически.",
-    },
-  ],
-  contact: {
-    eyebrow: "КОНТАКТ",
-    title: "Ваш вечер может начаться здесь.",
-    text: "Приходите увидеть свет, почувствовать масштаб и выбрать пространство.",
-    address: "вул. Велика Житомирська, 24 · Київ",
-    phone: "+380 44 555 24 24",
-    email: "events@velora.house",
-    hours: "Ежедневно · 10:00–21:00",
-    map: "VELORA HOUSE · карта появится после подключения адреса",
-    mapAria: "Местоположение площадки",
-    cta: "Проверить дату",
+  galleryPresentation: {
+    eyebrow: "PO ZMROKU",
+    title: "Zobacz, jak VELORA żyje.",
+    dialogLabel: "Galeria wydarzeń VELORA",
+    closeLabel: "Zamknij galerię",
+    openLabel: "Otwórz zdjęcie",
+    previousLabel: "Poprzednie zdjęcie",
+    nextLabel: "Następne zdjęcie",
   },
-  footer: { note: "Private events · Kyiv", copyright: "© 2026 VELORA HOUSE" },
+  gallery: [
+    { image: asset("grand-hall"), alt: "Wieczorny bankiet w Grand Hall" },
+    { image: asset("dinner"), alt: "Goście przy stole oświetlonym świecami" },
+    { image: asset("menu"), alt: "Detal sezonowego menu VELORA" },
+    { image: asset("garden-room"), alt: "Ceremonia w jasnym Garden Room" },
+    { image: asset("decor"), alt: "Florystyka i złote detale stołu" },
+    {
+      image: asset("event"),
+      alt: "Tłum podczas dużego wieczornego wydarzenia",
+    },
+  ],
+  plannerPresentation: {
+    eyebrow: "JAK TO DZIAŁA",
+    title: "Od daty do gotowego wieczoru — bez chaosu.",
+    text: "Zaczynamy od krótkiej rozmowy. Dopiero potem powstaje propozycja dopasowana do ludzi, miejsca i budżetu.",
+  },
+  planner: [
+    {
+      number: "01",
+      title: "Sprawdzamy termin",
+      text: "Odpowiedź w ciągu jednego dnia roboczego.",
+    },
+    {
+      number: "02",
+      title: "Rozmawiamy",
+      text: "30 minut o gościach, rytmie i priorytetach.",
+    },
+    {
+      number: "03",
+      title: "Dostajecie propozycję",
+      text: "Sala, menu, oprawa i jasny budżet.",
+    },
+    {
+      number: "04",
+      title: "Planujemy",
+      text: "Decyzje trafiają do jednego harmonogramu.",
+    },
+    {
+      number: "05",
+      title: "Świętujecie",
+      text: "Zespół prowadzi dzień, Wy jesteście z gośćmi.",
+    },
+  ],
+  faqPresentation: {
+    eyebrow: "BEZ NIEDOMÓWIEŃ",
+    title: "Pytania, które warto zadać przed rezerwacją.",
+  },
+  faq: [
+    [
+      "Co dokładnie obejmuje cena?",
+      "Zakres zależy od pakietu, ale zawsze otrzymujecie przestrzeń, wyposażenie, przygotowanie i opiekę zespołu. Oferta pokazuje każdą pozycję.",
+    ],
+    [
+      "Czy możemy zmienić pakiet?",
+      "Tak. Pakiet jest punktem startu, a menu, dekor i produkcję konfigurujemy indywidualnie.",
+    ],
+    [
+      "Co, jeśli pada?",
+      "Garden Room ma pełny wariant ceremonii pod dachem. Decyzję o planie pogodowym podejmujemy bez dopłat 24 godziny wcześniej.",
+    ],
+    [
+      "Czy możemy mieć własnych podwykonawców?",
+      "Tak, po wcześniejszym uzgodnieniu montażu, bezpieczeństwa i harmonogramu z koordynatorem.",
+    ],
+    [
+      "Kiedy najlepiej rezerwować?",
+      "Soboty w sezonie warto rezerwować 10–14 miesięcy wcześniej. Kolacje i eventy firmowe często mieszczą się w 6–10 tygodniach.",
+    ],
+    [
+      "Jak działa zaliczka?",
+      "Termin potwierdza umowa i zaliczka opisana w indywidualnej ofercie. Sama wiadomość z formularza nie blokuje daty.",
+    ],
+    [
+      "Czy można przełożyć wydarzenie?",
+      "Warunki zmiany i anulacji zapisujemy jasno w umowie; zawsze najpierw szukamy nowego dostępnego terminu.",
+    ],
+    [
+      "Czy obiekt jest dostępny?",
+      "Wszystkie sale mają bezprogowy dostęp, windę i dostępną toaletę. Indywidualne potrzeby omawiamy przed wizytą.",
+    ],
+    [
+      "Czy jest parking?",
+      "Tak, dostępnych jest 46 miejsc oraz strefa bezpiecznego podjazdu dla taxi.",
+    ],
+    [
+      "Do której może trwać wydarzenie?",
+      "Standardowo do 2:00, z możliwością przedłużenia po uzgodnieniu serwisu i ochrony.",
+    ],
+  ].map(([question, answer]) => ({ question, answer })),
+  availability: {
+    eyebrow: "OSTATNI KROK",
+    title: "Zacznijmy od Waszej daty.",
+    text: "To niezobowiązujące zapytanie. Marta sprawdzi kalendarz i wróci z dwiema najlepiej dopasowanymi opcjami.",
+    dateLabel: "Data",
+    formatLabel: "Format",
+    formatPlaceholder: "Wybierz format",
+    guestsLabel: "Liczba gości",
+    guestsPlaceholder: "np. 80",
+    venueLabel: "Przestrzeń",
+    venuePlaceholder: "Wybierz salę",
+    packageLabel: "Pakiet",
+    packagePlaceholder: "Wybierz pakiet",
+    nameLabel: "Imię i nazwisko",
+    emailLabel: "E-mail",
+    phoneLabel: "Telefon",
+    submit: "Sprawdź dostępność",
+    pending: "Wysyłamy…",
+    idle: "Odpowiemy w ciągu jednego dnia roboczego. Formularz nie blokuje daty.",
+    success:
+      "Dziękujemy. Koordynator wróci z dostępnością w ciągu jednego dnia roboczego.",
+    error:
+      "Nie udało się wysłać zapytania. Sprawdź dane lub skontaktuj się telefonicznie.",
+    ariaLabel: "Formularz sprawdzenia dostępności VELORA",
+    subject: "Sprawdzenie terminu VELORA",
+  },
+  contact: {
+    eyebrow: "ODWIEDŹ NAS",
+    title: "Najlepiej poczuć tę przestrzeń na żywo.",
+    text: "Umów prywatne oprowadzanie i zobacz trzy sale w ich naturalnym świetle.",
+    address: "ul. Wieczorna 24 · Warszawa",
+    phone: "+48 22 555 24 24",
+    email: "events@velora.house",
+    hours: "codziennie · 10:00–21:00",
+    map: "VELORA · Warszawa",
+    mapAria: "Lokalizacja demonstracyjna VELORA",
+    cta: "Sprawdź termin",
+  },
+  footer: {
+    note: "Event house · Warszawa",
+    copyright: "© 2026 VELORA · fikcyjna marka demonstracyjna",
+  },
   customPages: {
-    homeLabel: "Главная",
-    venuesLabel: "Залы",
-    packagesLabel: "Пакеты",
-    areaLabel: "Площадь",
-    formatLabel: "Формат",
-    requestLabel: "Запросить предложение",
+    homeLabel: "Strona główna",
+    venuesLabel: "Przestrzenie",
+    packagesLabel: "Pakiety",
+    areaLabel: "Powierzchnia",
+    formatLabel: "Najlepszy format",
+    requestLabel: "Sprawdź ten wariant",
+    venuesEyebrow: "TRZY CHARAKTERY",
+    venuesTitle: "Przestrzeń, która pracuje dla Waszego scenariusza.",
+    venuesIntro:
+      "Od wielkiego wejścia po kolację przy jednym stole. Porównaj atmosferę, skalę i zaplecze bez przekopywania tabel.",
+    packagesEyebrow: "TRZY POZIOMY OPIEKI",
+    packagesTitle: "Im większa oprawa, tym mniej decyzji po Waszej stronie.",
+    packagesIntro:
+      "Każdy pakiet daje piękne wydarzenie. Wybieracie skalę produkcji i ilość czasu, którą chcecie odzyskać.",
   },
 };
 
@@ -328,25 +494,68 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value && typeof value === "object" && !Array.isArray(value));
 const text = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim() ? value : fallback;
-const mergeObject = (fallback: VeloraItem, value: unknown): VeloraItem => {
-  if (!isObject(value)) return clone(fallback);
-  return Object.fromEntries(
-    Object.entries(fallback).map(([key, defaultValue]) => [
-      key,
-      text(value[key], defaultValue),
-    ]),
-  );
-};
-const mergeItems = (fallback: VeloraItem[], value: unknown): VeloraItem[] => {
-  if (!Array.isArray(value)) return clone(fallback);
-  return fallback.map((item, index) => mergeObject(item, value[index]));
-};
-
+const mergeObject = (fallback: VeloraItem, value: unknown): VeloraItem =>
+  !isObject(value)
+    ? clone(fallback)
+    : Object.fromEntries(
+        Object.entries(fallback).map(([key, defaultValue]) => [
+          key,
+          text(value[key], defaultValue),
+        ]),
+      );
+const mergeItems = (fallback: VeloraItem[], value: unknown): VeloraItem[] =>
+  !Array.isArray(value)
+    ? clone(fallback)
+    : fallback.map((item, index) => mergeObject(item, value[index]));
 export function isSafeVeloraImageSrc(value: unknown): value is string {
   if (typeof value !== "string") return false;
   const src = value.trim();
   return src.startsWith("/") || /^https:\/\//i.test(src);
 }
+
+const objectKeys = [
+  "header",
+  "hero",
+  "availability",
+  "venuesPresentation",
+  "formatsPresentation",
+  "transformation",
+  "storyPresentation",
+  "packagesPresentation",
+  "includedPresentation",
+  "galleryPresentation",
+  "cateringPresentation",
+  "decor",
+  "coordinator",
+  "plannerPresentation",
+  "reviewsPresentation",
+  "faqPresentation",
+  "contact",
+  "footer",
+  "customPages",
+] as const;
+const listKeys = [
+  "navigation",
+  "venues",
+  "formats",
+  "story",
+  "packages",
+  "included",
+  "gallery",
+  "catering",
+  "planner",
+  "facts",
+  "reviews",
+  "faq",
+] as const;
+const imageSlots: Array<[keyof VeloraContent, string]> = [
+  ["hero", "image"],
+  ["transformation", "beforeImage"],
+  ["transformation", "afterImage"],
+  ["cateringPresentation", "image"],
+  ["decor", "image"],
+  ["coordinator", "image"],
+];
 
 export function resolveVeloraContent(
   content?: PublicSiteContent,
@@ -355,58 +564,35 @@ export function resolveVeloraContent(
   const raw = content?.template_content?.[VELORA_TEMPLATE_KEY];
   if (!isObject(raw)) return defaults;
   const source = raw as Partial<VeloraContent>;
-  const objectKeys = [
-    "header",
-    "hero",
-    "availability",
-    "venuesPresentation",
-    "formatsPresentation",
-    "packagesPresentation",
-    "galleryPresentation",
-    "cateringPresentation",
-    "plannerPresentation",
-    "reviewsPresentation",
-    "faqPresentation",
-    "contact",
-    "footer",
-    "customPages",
-  ] as const;
-  const listKeys = [
-    "navigation",
-    "venues",
-    "formats",
-    "packages",
-    "gallery",
-    "catering",
-    "planner",
-    "facts",
-    "reviews",
-    "faq",
-  ] as const;
   const result = {
     ...defaults,
     brand: text(source.brand, defaults.brand),
     plum: text(source.plum, defaults.plum),
+    muted: text(source.muted, defaults.muted),
+    secondary: text(source.secondary, defaults.secondary),
+    border: text(source.border, defaults.border),
+    warm: text(source.warm, defaults.warm),
+    overlay: text(source.overlay, defaults.overlay),
+    buttonForeground: text(source.buttonForeground, defaults.buttonForeground),
   };
   for (const key of objectKeys)
     result[key] = mergeObject(defaults[key], source[key]);
   for (const key of listKeys)
     result[key] = mergeItems(defaults[key], source[key]);
-  result.hero.image = isSafeVeloraImageSrc(result.hero.image)
-    ? result.hero.image
-    : defaults.hero.image;
-  result.venues = result.venues.map((item, index) => ({
-    ...item,
-    image: isSafeVeloraImageSrc(item.image)
-      ? item.image
-      : defaults.venues[index].image,
-  }));
-  result.gallery = result.gallery.map((item, index) => ({
-    ...item,
-    image: isSafeVeloraImageSrc(item.image)
-      ? item.image
-      : defaults.gallery[index].image,
-  }));
+  for (const [key, field] of imageSlots) {
+    const item = result[key] as VeloraItem;
+    const fallback = defaults[key] as VeloraItem;
+    item[field] = isSafeVeloraImageSrc(item[field])
+      ? item[field]
+      : fallback[field];
+  }
+  for (const key of ["venues", "packages", "gallery", "reviews"] as const)
+    result[key] = result[key].map((item, index) => ({
+      ...item,
+      image: isSafeVeloraImageSrc(item.image)
+        ? item.image
+        : defaults[key][index].image,
+    }));
   return result;
 }
 

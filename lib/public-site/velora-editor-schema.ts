@@ -123,6 +123,49 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
       ["text", "Описание", "richText"],
     ]),
   ],
+  transformation: [
+    ...headings("transformation"),
+    field("text", "Пояснение", "transformation.text", "richText"),
+    field("before-label", "Подпись до", "transformation.beforeLabel"),
+    field(
+      "before-image",
+      "Фото до",
+      "transformation.beforeImage",
+      "url",
+      "media",
+    ),
+    field(
+      "before-alt",
+      "Alt фото до",
+      "transformation.beforeAlt",
+      "text",
+      "media",
+    ),
+    field("after-label", "Подпись после", "transformation.afterLabel"),
+    field(
+      "after-image",
+      "Фото после",
+      "transformation.afterImage",
+      "url",
+      "media",
+    ),
+    field(
+      "after-alt",
+      "Alt фото после",
+      "transformation.afterAlt",
+      "text",
+      "media",
+    ),
+  ],
+  story: [
+    ...headings("storyPresentation"),
+    field("text", "Пояснение", "storyPresentation.text", "richText"),
+    ...itemFields("story", DEFAULT_VELORA_CONTENT.story, [
+      ["number", "Номер"],
+      ["title", "Этап"],
+      ["text", "Описание", "richText"],
+    ]),
+  ],
   packages: [
     ...headings("packagesPresentation"),
     field(
@@ -132,10 +175,23 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
     ),
     ...itemFields("packages", DEFAULT_VELORA_CONTENT.packages, [
       ["name", "Название"],
+      ["result", "Результат"],
       ["price", "Цена"],
       ["for", "Вместимость"],
       ["includes", "Состав", "richText"],
+      ["decor", "Декор"],
+      ["menu", "Меню"],
+      ["image", "Изображение", "url"],
+      ["alt", "Alt-текст"],
       ["cta", "CTA"],
+    ]),
+  ],
+  included: [
+    ...headings("includedPresentation"),
+    field("text", "Пояснение", "includedPresentation.text", "richText"),
+    ...itemFields("included", DEFAULT_VELORA_CONTENT.included, [
+      ["number", "Номер"],
+      ["title", "Состав"],
     ]),
   ],
   gallery: [
@@ -150,11 +206,40 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
   ],
   catering: [
     ...headings("cateringPresentation"),
+    field("text", "Пояснение", "cateringPresentation.text", "richText"),
+    field(
+      "image",
+      "Изображение меню",
+      "cateringPresentation.image",
+      "url",
+      "media",
+    ),
+    field(
+      "alt",
+      "Alt изображения меню",
+      "cateringPresentation.alt",
+      "text",
+      "media",
+    ),
+    field("cta", "CTA меню", "cateringPresentation.cta"),
     ...itemFields("catering", DEFAULT_VELORA_CONTENT.catering, [
       ["title", "Название"],
       ["text", "Описание", "richText"],
       ["meta", "Цена"],
     ]),
+  ],
+  decor: [
+    ...headings("decor"),
+    field("text", "Описание", "decor.text", "richText"),
+    field("image", "Фото декора", "decor.image", "url", "media"),
+    field("alt", "Alt фото декора", "decor.alt", "text", "media"),
+  ],
+  coordinator: [
+    ...headings("coordinator"),
+    field("text", "Описание", "coordinator.text", "richText"),
+    field("promise", "Обещание", "coordinator.promise"),
+    field("image", "Фото команды", "coordinator.image", "url", "media"),
+    field("alt", "Alt фото команды", "coordinator.alt", "text", "media"),
   ],
   planner: [
     ...headings("plannerPresentation"),
@@ -171,10 +256,19 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
   ]),
   reviews: [
     ...headings("reviewsPresentation"),
+    field(
+      "disclaimer",
+      "Пометка demo",
+      "reviewsPresentation.disclaimer",
+      "textarea",
+    ),
     ...itemFields("reviews", DEFAULT_VELORA_CONTENT.reviews, [
       ["quote", "Цитата", "richText"],
       ["author", "Автор"],
       ["meta", "Событие"],
+      ["task", "Задача"],
+      ["image", "Изображение", "url"],
+      ["alt", "Alt-текст"],
     ]),
   ],
   faq: [
@@ -183,13 +277,6 @@ export const VELORA_EDITOR_SPECS: Record<VeloraNativeSectionId, FieldSpec[]> = {
       ["question", "Вопрос"],
       ["answer", "Ответ", "richText"],
     ]),
-  ],
-  contact: [
-    ...headings("contact"),
-    field("text", "Вводный текст", "contact.text", "richText"),
-    ...["address", "phone", "email", "hours", "map", "mapAria", "cta"].map(
-      (key) => field(key, `Контакт · ${key}`, `contact.${key}`),
-    ),
   ],
   footer: [
     field("note", "Подпись", "footer.note"),

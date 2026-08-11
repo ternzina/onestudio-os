@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion, useReducedMotion } from "motion/react";
 import {
   createContext,
   useCallback,
@@ -22,6 +23,79 @@ const SelectionContext = createContext<{
   selection: Selection;
   choose(kind: keyof Selection, value: string): void;
 } | null>(null);
+
+export function VeloraReveal({
+  children,
+  className,
+  as = "div",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  as?: "div" | "article";
+}) {
+  const reduced = useReducedMotion();
+  const Component = as === "article" ? motion.article : motion.div;
+  return (
+    <Component
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 42 }}
+      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </Component>
+  );
+}
+
+export function VeloraTransformation({ copy }: { copy: VeloraItem }) {
+  const [position, setPosition] = useState(56);
+  return (
+    <div
+      className={styles.transformation}
+      style={{ "--reveal": `${position}%` } as React.CSSProperties}
+    >
+      <Image
+        src={copy.beforeImage}
+        alt={copy.beforeAlt}
+        fill
+        sizes="(max-width: 768px) 94vw, 86vw"
+      />
+      <div className={styles.afterImage}>
+        <Image
+          src={copy.afterImage}
+          alt={copy.afterAlt}
+          fill
+          sizes="(max-width: 768px) 94vw, 86vw"
+        />
+      </div>
+      <span className={styles.beforeLabel}>{copy.beforeLabel}</span>
+      <span className={styles.afterLabel}>{copy.afterLabel}</span>
+      <label>
+        <span className="sr-only">{copy.title}</span>
+        <input
+          aria-label={copy.title}
+          type="range"
+          min="0"
+          max="100"
+          value={position}
+          onChange={(event) => setPosition(Number(event.target.value))}
+        />
+      </label>
+    </div>
+  );
+}
+
+export function VeloraMobileCta({ label }: { label: string }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const targets = [document.getElementById("availability"), document.querySelector("footer")].filter(Boolean) as Element[];
+    const observer = new IntersectionObserver((entries) => setHidden(entries.some((entry) => entry.isIntersecting)), { threshold: 0.05 });
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, []);
+  return <a className={`${styles.mobileCta} ${hidden ? styles.mobileCtaHidden : ""}`} href="#availability" aria-hidden={hidden ? "true" : undefined} tabIndex={hidden ? -1 : undefined}>{label}</a>;
+}
 
 export function VeloraInteractiveShell({
   children,
@@ -263,6 +337,8 @@ export function VeloraGallery({
 
   useEffect(() => {
     if (active === null || !items.length) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     dialogRef.current?.querySelector<HTMLElement>("button")?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
@@ -293,7 +369,10 @@ export function VeloraGallery({
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [active, close, items.length]);
 
   useEffect(() => {
@@ -338,6 +417,16 @@ export function VeloraGallery({
           <button type="button" onClick={close} aria-label={copy.closeLabel}>
             ×
           </button>
+          <button
+            className={styles.lightboxPrevious}
+            type="button"
+            onClick={() =>
+              setActive((active - 1 + items.length) % items.length)
+            }
+            aria-label={copy.previousLabel}
+          >
+            ←
+          </button>
           <Image
             src={items[active].image}
             alt={items[active].alt}
@@ -345,6 +434,14 @@ export function VeloraGallery({
             height={1100}
             sizes="90vw"
           />
+          <button
+            className={styles.lightboxNext}
+            type="button"
+            onClick={() => setActive((active + 1) % items.length)}
+            aria-label={copy.nextLabel}
+          >
+            →
+          </button>
           <p>
             {items[active].alt} · {active + 1}/{items.length}
           </p>

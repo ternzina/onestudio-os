@@ -1,38 +1,41 @@
-# VELORA HOUSE — Premium Template Package 1.0
+# VELORA — Premium Template Package 1.0
 
-`velora-event-venue` — третий универсальный premium package OneStudio OS для площадки свадеб, частных событий и корпоративных мероприятий.
+`velora-event-venue` is the canonical OneStudio premium package for an event venue. The 2026-08 visual revision keeps the Package 1.0 runtime/editor/persistence boundaries and replaces the former document-like presentation with a cinematic, Polish-language sales story.
 
-## Регистрация и границы
+## Implemented public experience
 
-Единственная ручная регистрация находится в `lib/public-site/premium-template-package-source.mjs`. Она содержит сериализуемый manifest и bindings; `npm run generate:premium-templates` создаёт catalog, seed, contract, editor, public-home и custom-page registries. Центральные capability maps вручную не изменяются. Каталог `/demos` зависит только от manifest и не импортирует seed, editor или runtime implementations.
+The home route contains 17 native, reorderable/visible/resettable scenes: cinematic hero, proof, three signature venues, six event formats, keyboard/touch before-and-after transformation, staged space story, Essential/Signature/Iconic packages, included-service mosaic, menu and drinks, decor direction, personal coordinator, explicitly fictional demo stories, accessible gallery/lightbox, five-step process, ten-question FAQ, availability form, and footer. The narrative moves from aspiration and trust through venue choice and concrete scope to the existing availability request.
 
-Public home и custom pages загружаются через `next/dynamic`. Editor schema не попадает в public runtime, а seed не попадает в `/demos` catalog graph. BEMBI остаётся отдельным protected template.
+`/venues` and `/packages` use dedicated editorial heroes and large photographic comparisons rather than tables. Every venue/package CTA returns to home with the existing allow-listed query selection and focuses the relevant form field. Arbitrary custom pages still render their own blocks and are not treated as a built-in route.
 
-## Реализация
+## Media and licensing context
 
-- `velora-premium-template-seed.ts` и `velora-premium-template-content.ts`: namespaced seed, defensive normalization, две custom pages и editor-state-safe replacement. Media picker безопасно и иммутабельно достраивает отсутствующие object/array segments в частично сохранённом namespace, не затрагивая другие template namespaces.
-- `velora-premium-template-contract.ts`: 13 native sections с pinned hero/footer.
-- `velora-editor-schema.ts` и `velora-premium-template-editor-adapter.ts`: отдельные поля для всего публичного copy, ссылок и каждого свойства item; rich text использует общий OneStudio editor/runtime, а hero, три зала и шесть gallery slots — общий media picker. Pipe-delimited сериализации нет. Palette связывает `theme_dark`, `theme_accent`, `theme_surface` и namespaced plum с CSS variables; reset/restore возвращают defaults.
-- `velora-premium-template-runtime-adapter.ts` и `velora-premium-template-custom-page-runtime-adapter.ts`: lazy public capabilities.
-- `components/public/velora/*`: server-rendered home/custom-page renderers и небольшая client boundary для формы, CTA и lightbox.
-- `app/demos/velora-event-venue/[[...templatePath]]/page.tsx`: route-aware metadata и canonical demo home, `/venues` и `/packages`; системный `/p/...` alias получает тот же чистый canonical.
+Twelve local WebP files under `public/templates/velora/` total approximately 2.5 MB. They were downloaded through Unsplash's image CDN (not hotlinked) from the following Unsplash photo IDs: `1519167758481-83f550bb49b3`, `1507504031003-b417219a0fde`, `1464366400600-7168b8af9bc3`, `1519225421980-715cb0215aed`, `1511795409834-ef04bbd61622`, `1515003197210-e0cd71810b5f`, `1492684223066-81342ee5ff30`, and `1521737711867-e3b97375f902`. Use is subject to the Unsplash License: <https://unsplash.com/license>. No temporary originals are tracked.
 
-## Контент и взаимодействия
+All public image slots have an independent URL and alt field in the canonical VELORA inspector. They use the shared OneStudio media picker. Normalization repairs missing/unsafe sources from local defaults and merges partially saved list items without discarding Unicode or unrelated namespaces. `next/image` receives responsive `sizes`; only the hero LCP image is priority-loaded.
 
-Home включает hero, проверку даты, три зала, пять форматов, три пакета, editorial gallery, catering, event planner, цифры, отзывы, FAQ, контакты и footer. Форма требует дату (не ранее текущего дня), формат, гостей, зал, пакет, имя, email и телефон. CTA конкретного зала или пакета на home выбирает его, прокручивает к форме и переводит фокус; карточки `/venues` и `/packages` возвращают к home с проверенным query selection без автоматического scroll/focus после загрузки. Заявка использует фактический business slug и существующий RPC `create_public_request`; pending блокирует повторную отправку, а результат сообщается через `aria-live`. Ошибка RPC или неожиданный exception переводят форму в error state.
+## Motion, mobile, and accessibility
 
-Custom pages `/venues` и `/packages` определяются стабильными встроенными page IDs, поэтому изменение slug не меняет тип сравнения. Произвольная custom page не получает список пакетов и выводит свои blocks через общий `PublicCustomBlock` runtime. Навигация строится из редактируемых page/navigation данных.
+Small client boundaries use Motion for cinematic hero/scene reveals while server components retain the page structure. CSS provides depth hover, image crop transitions, ambient gradients, asymmetric collage assembly, horizontal mobile rails, and route-consistent visual transitions. `prefers-reduced-motion` disables movement and transitions; Motion's `useReducedMotion` prevents reveal transforms. There is no scroll hijacking or WebGL.
 
-## SEO и assets
+The 390px composition shortens the hero, changes venue photography to portrait crops, turns format/story/gallery sequences into touch rails, stacks photographic split scenes deliberately, expands controls, and provides an IntersectionObserver-managed fixed availability CTA which hides over the form/footer. Root overflow is never hidden or clipped.
 
-Seed задаёт title, description, keywords и image через существующую модель public content; custom pages имеют отдельные SEO title/description/image. Demo `generateMetadata` вызывает route-aware resolver: home, venues и packages получают собственные title, description, image, canonical, Open Graph и Twitter; неизвестные/скрытые slugs fail closed.
+There is one `h1` per route, semantic sections and landmarks, a skip link, visible focus, labelled form controls, `aria-live` status, touch-size controls, and a modal lightbox with focus entry, trap, return, Escape, ArrowLeft/ArrowRight, explicit previous/next controls, body scroll lock, and responsive media. The before/after range is native keyboard and touch input and shows both images when JavaScript is unavailable.
 
-Все изображения — локальные оптимизированные SVG-композиции в `public/templates/velora/`. Они являются понятными media slots и заменяются через Site Editor. Внешние URL и assets GLOSS/NOIR/BEMBI не используются.
+## Editor and runtime contracts
 
-## Accessibility и performance
+The canonical contract declares the 17 native sections. All meaningful Polish copy, lists, CTA labels, statistics, package/venue attributes, FAQ, image URLs and alt text have individual inspector paths; prose uses the shared rich-text field/runtime. No pipe-delimited or bulk JSON editor is used.
 
-Использованы semantic landmarks, последовательная иерархия заголовков, видимый `:focus-visible`, alt-тексты, нативные form controls и `details`. Lightbox имеет modal dialog semantics, focus trap, Escape/ArrowLeft/ArrowRight и возврат фокуса opener; пустая gallery безопасна. CSS отключает motion при `prefers-reduced-motion`; изображения проходят item-level fallback normalization, имеют intrinsic dimensions и responsive `sizes`. Тяжёлые библиотеки не добавлены.
+The palette inspector drives runtime CSS variables for background, elevated background, foreground, muted foreground, champagne accent, secondary accent, border, warm light, overlay, and button foreground. Reset restores the package palette. Layout order, visibility, custom blocks/pages, immutable deep media paths, namespace isolation, restore behavior, lazy public runtime, editor/public import boundaries, route SEO/canonical, and `create_public_request` remain unchanged.
 
-## Проверка
+## Verification
 
-Package-тесты проверяют canonical registration, manifest/generated lookups, 13 sections, editor paths, rich text/media fields, palette CSS variables, item normalization, сохранение Unicode и `|`, layout/custom blocks, полный payload формы, поведенческие media deep paths и query selection, защиту от prototype pollution/root overflow masking, route-aware metadata, stable custom-page identity, lightbox focus/keyboard behavior и lazy/import boundaries. Общая матрица дополнительно проверяется repository-wide тестами.
+- `npm ci`: pass, 403 packages, 0 vulnerabilities.
+- package generation/check: pass.
+- `node --test tests/*.test.ts`: pass, 206 tests.
+- `npx tsc --noEmit`: pass.
+- `npm run build`: pass on Next.js 16.3.0/Turbopack.
+- changed-file ESLint: pass after fixes.
+- full `npm run lint`: existing baseline remains (2 errors, 8 warnings) in `app/admin/site/page.tsx`, `tests/universal-premium-contract-1.0-phase3.test.ts`, booking/GLOSS/base files; none is changed by this revision.
+
+Browser verification is blocked in this sandbox. The `agent-browser` executable is absent; Playwright Chromium was attempted as the local fallback but macOS terminated it with `MachPortRendezvousServer ... Permission denied (1100)`. Therefore no route, interaction, console, overflow, visual/editor, or screenshot claim is made here. The dev server itself started successfully at `http://localhost:3000`. No screenshot files are tracked.

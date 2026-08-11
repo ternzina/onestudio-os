@@ -49,7 +49,7 @@ test("VELORA is one canonical package entry with complete manifest metadata", ()
       name: "VELORA HOUSE",
       category: "events",
       route: "/demos/velora-event-venue",
-      image: "/templates/velora/hero.svg",
+      image: "/templates/velora/hero.webp",
     },
   );
   const demo = PREMIUM_DEMOS.find((item) => item.slug === KEY)!;
@@ -90,7 +90,7 @@ test("VELORA seed, normalization and JSON reload preserve namespace, layout, pag
   const seed = createTemplateSeed(KEY);
   assert.equal(seed.template_id, KEY);
   const velora = resolveVeloraContent(seed);
-  assert.equal(velora.brand, "VELORA HOUSE");
+  assert.equal(velora.brand, "VELORA");
   assert.equal(seed.pages?.length, 2);
   assert.deepEqual(
     seed.pages?.map((page) => page.slug),
@@ -150,23 +150,27 @@ test("VELORA public graph is lazy and demo catalog graph cannot reach implementa
   assert.doesNotMatch(runtime, /velora-premium-template-seed/);
 });
 
-test("VELORA owns all 13 native sections and exposes complete non-delimited inspector paths", () => {
-  assert.equal(VELORA_PREMIUM_TEMPLATE_CONTRACT.nativeSections.length, 13);
+test("VELORA owns all 17 native scenes and exposes complete non-delimited inspector paths", () => {
+  assert.equal(VELORA_PREMIUM_TEMPLATE_CONTRACT.nativeSections.length, 17);
   assert.deepEqual(
     VELORA_PREMIUM_TEMPLATE_CONTRACT.nativeSections.map((item) => item.id),
     [
       "hero",
-      "availability",
+      "facts",
       "venues",
       "formats",
+      "transformation",
+      "story",
       "packages",
-      "gallery",
+      "included",
       "catering",
-      "planner",
-      "facts",
+      "decor",
+      "coordinator",
       "reviews",
+      "gallery",
+      "planner",
       "faq",
-      "contact",
+      "availability",
       "footer",
     ],
   );
@@ -174,7 +178,9 @@ test("VELORA owns all 13 native sections and exposes complete non-delimited insp
   for (const presentation of [
     "venuesPresentation",
     "formatsPresentation",
+    "storyPresentation",
     "packagesPresentation",
+    "includedPresentation",
     "galleryPresentation",
     "cateringPresentation",
     "plannerPresentation",
@@ -201,14 +207,34 @@ test("VELORA image slots are independent media fields with adjacent alt paths", 
   const specs = Object.values(VELORA_EDITOR_SPECS).flat();
   const imagePaths = [
     "hero.image",
+    "transformation.beforeImage",
+    "transformation.afterImage",
+    "cateringPresentation.image",
+    "decor.image",
+    "coordinator.image",
     ...DEFAULT_VELORA_CONTENT.venues.map((_, index) => `venues.${index}.image`),
+    ...DEFAULT_VELORA_CONTENT.packages.map(
+      (_, index) => `packages.${index}.image`,
+    ),
+    ...DEFAULT_VELORA_CONTENT.reviews.map(
+      (_, index) => `reviews.${index}.image`,
+    ),
     ...DEFAULT_VELORA_CONTENT.gallery.map(
       (_, index) => `gallery.${index}.image`,
     ),
   ];
   const altPaths = [
     "hero.alt",
+    "transformation.beforeAlt",
+    "transformation.afterAlt",
+    "cateringPresentation.alt",
+    "decor.alt",
+    "coordinator.alt",
     ...DEFAULT_VELORA_CONTENT.venues.map((_, index) => `venues.${index}.alt`),
+    ...DEFAULT_VELORA_CONTENT.packages.map(
+      (_, index) => `packages.${index}.alt`,
+    ),
+    ...DEFAULT_VELORA_CONTENT.reviews.map((_, index) => `reviews.${index}.alt`),
     ...DEFAULT_VELORA_CONTENT.gallery.map((_, index) => `gallery.${index}.alt`),
   ];
   for (const path of imagePaths)
@@ -233,16 +259,50 @@ test("VELORA inspector uses the shared media picker and palette reset restores p
   const adapter = getPremiumTemplateEditorAdapter(KEY)!;
   const targets: Array<{ kind: string; path?: string }> = [];
   for (const sectionId of ["hero", "venues", "gallery"] as const) {
-    const fields = adapter.buildInspectorFields({ content: seed, sectionId, disabled: false, onChange() {}, onChooseMedia(target) { targets.push(target); } });
-    for (const field of fields) if (field.type === "button" && field.id.endsWith("-picker")) field.onClick();
+    const fields = adapter.buildInspectorFields({
+      content: seed,
+      sectionId,
+      disabled: false,
+      onChange() {},
+      onChooseMedia(target) {
+        targets.push(target);
+      },
+    });
+    for (const field of fields)
+      if (field.type === "button" && field.id.endsWith("-picker"))
+        field.onClick();
   }
-  assert.deepEqual(targets.filter(target => target.kind === "template-content").map(target => target.path), ["hero.image", "venues.0.image", "venues.1.image", "venues.2.image", "gallery.0.image", "gallery.1.image", "gallery.2.image", "gallery.3.image", "gallery.4.image", "gallery.5.image"]);
-  const changed = withVeloraContent({ ...seed, theme_dark: "#000001", theme_accent: "#000002", theme_surface: "#000003" }, { ...resolveVeloraContent(seed), plum: "#000004" });
+  assert.deepEqual(
+    targets
+      .filter((target) => target.kind === "template-content")
+      .map((target) => target.path),
+    [
+      "hero.image",
+      "venues.0.image",
+      "venues.1.image",
+      "venues.2.image",
+      "gallery.0.image",
+      "gallery.1.image",
+      "gallery.2.image",
+      "gallery.3.image",
+      "gallery.4.image",
+      "gallery.5.image",
+    ],
+  );
+  const changed = withVeloraContent(
+    {
+      ...seed,
+      theme_dark: "#000001",
+      theme_accent: "#000002",
+      theme_surface: "#000003",
+    },
+    { ...resolveVeloraContent(seed), plum: "#000004" },
+  );
   const reset = adapter.resetSection(changed, "hero");
-  assert.equal(reset.theme_dark, "#101827");
-  assert.equal(reset.theme_accent, "#C6A66B");
-  assert.equal(reset.theme_surface, "#F4EFE6");
-  assert.equal(resolveVeloraContent(reset).plum, "#6D4055");
+  assert.equal(reset.theme_dark, "#07101E");
+  assert.equal(reset.theme_accent, "#D6B56E");
+  assert.equal(reset.theme_surface, "#F6F0E5");
+  assert.equal(resolveVeloraContent(reset).plum, "#2D394F");
 });
 
 test("VELORA normalization repairs partial items and invalid images without changing saved symbols", () => {
@@ -278,19 +338,26 @@ test("VELORA palette reaches CSS variables and public copy uses safe rich-text r
     new URL("../components/public/velora/Velora.module.css", import.meta.url),
     "utf8",
   );
-  assert.match(siteSource, /"--navy": site\.content\.theme_dark/);
-  assert.match(siteSource, /"--gold": site\.content\.theme_accent/);
-  assert.match(siteSource, /"--ivory": site\.content\.theme_surface/);
-  assert.match(siteSource, /"--plum": content\.plum/);
+  assert.match(siteSource, /"--velora-bg": site\.content\.theme_dark/);
+  assert.match(siteSource, /"--velora-gold": site\.content\.theme_accent/);
+  assert.match(siteSource, /"--velora-fg": site\.content\.theme_surface/);
+  assert.match(siteSource, /"--velora-elevated": content\.plum/);
+  assert.match(siteSource, /"--velora-warm": content\.warm/);
   assert.match(siteSource, /PublicRichText/);
   assert.doesNotMatch(siteSource, /dangerouslySetInnerHTML/);
-  assert.doesNotMatch(
-    css.replace(
-      /--navy:[^;]+;|--gold:[^;]+;|--ivory:[^;]+;|--plum:[^;]+;/g,
-      "",
-    ),
-    /#101827|#c6a66b|#f4efe6|#6d4055/i,
-  );
+  for (const variable of [
+    "bg",
+    "elevated",
+    "fg",
+    "muted",
+    "gold",
+    "secondary",
+    "border",
+    "warm",
+    "overlay",
+    "button-fg",
+  ])
+    assert.match(css, new RegExp(`var\\(--velora-${variable}\\)`));
 });
 
 test("VELORA form carries the complete request and CTA selection behavior", async () => {

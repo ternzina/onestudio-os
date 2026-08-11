@@ -176,10 +176,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
         "en": "VELORA HOUSE event hall at night"
       },
       "route": "/demos/velora-event-venue",
-      "image": "/templates/velora/hero.svg",
-      "accent": "#C6A66B",
-      "dark": "#101827",
-      "surface": "#F4EFE6"
+      "image": "/templates/velora/hero.webp",
+      "accent": "#D6B56E",
+      "dark": "#07101E",
+      "surface": "#F6F0E5"
     },
     "persistence": {
       "schemaVersion": "1.0",
@@ -198,24 +198,28 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
     },
     "nativeSectionIds": [
       "hero",
-      "availability",
+      "facts",
       "venues",
       "formats",
+      "transformation",
+      "story",
       "packages",
-      "gallery",
+      "included",
       "catering",
-      "planner",
-      "facts",
+      "decor",
+      "coordinator",
       "reviews",
+      "gallery",
+      "planner",
       "faq",
-      "contact",
+      "availability",
       "footer"
     ],
     "assets": [
-      "/templates/velora/hero.svg",
-      "/templates/velora/grand-hall.svg",
-      "/templates/velora/garden-hall.svg",
-      "/templates/velora/private-salon.svg"
+      "/templates/velora/hero.webp",
+      "/templates/velora/grand-hall.webp",
+      "/templates/velora/garden-room.webp",
+      "/templates/velora/atelier.webp"
     ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];

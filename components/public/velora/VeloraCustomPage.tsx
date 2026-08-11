@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicRichText from "@/components/public/PublicRichText";
 import { resolveVeloraContent } from "@/lib/public-site/velora-premium-template-content";
@@ -38,11 +39,33 @@ export default function VeloraCustomPage({
         ? content.packages
         : [];
   const theme = {
-    "--navy": site.content.theme_dark ?? "#101827",
-    "--gold": site.content.theme_accent ?? "#C6A66B",
-    "--ivory": site.content.theme_surface ?? "#F4EFE6",
-    "--plum": content.plum || "#6D4055",
+    "--velora-bg": site.content.theme_dark ?? "#07101E",
+    "--velora-gold": site.content.theme_accent ?? "#D6B56E",
+    "--velora-fg": site.content.theme_surface ?? "#F6F0E5",
+    "--velora-elevated": content.plum,
+    "--velora-muted": content.muted,
+    "--velora-secondary": content.secondary,
+    "--velora-border": content.border,
+    "--velora-warm": content.warm,
+    "--velora-overlay": content.overlay,
+    "--velora-button-fg": content.buttonForeground,
   } as CSSProperties;
+  const builtin =
+    page.id === BUILTIN_VENUES_ID || page.id === BUILTIN_PACKAGES_ID;
+  const hero =
+    page.id === BUILTIN_VENUES_ID
+      ? {
+          eyebrow: content.customPages.venuesEyebrow,
+          title: content.customPages.venuesTitle,
+          intro: content.customPages.venuesIntro,
+        }
+      : page.id === BUILTIN_PACKAGES_ID
+        ? {
+            eyebrow: content.customPages.packagesEyebrow,
+            title: content.customPages.packagesTitle,
+            intro: content.customPages.packagesIntro,
+          }
+        : { eyebrow: page.eyebrow, title: page.title, intro: page.intro };
   return (
     <main className={`${styles.site} ${styles.customPage}`} style={theme}>
       <header className={styles.header}>
@@ -62,18 +85,30 @@ export default function VeloraCustomPage({
         </Link>
       </header>
       <section className={styles.customHero}>
-        <span>{page.eyebrow}</span>
-        <h1>{page.title}</h1>
-        <PublicRichText value={page.intro} />
+        <span>{hero.eyebrow}</span>
+        <h1>{hero.title}</h1>
+        <PublicRichText value={hero.intro} />
       </section>
       <section className={`${styles.section} ${styles.ivory}`}>
         {items.length ? (
           <div className={styles.compare}>
             {items.map((item, index) => (
               <article key={`${item.name}-${index}`}>
+                <div>
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    width={1200}
+                    height={900}
+                    sizes="(max-width: 768px) 92vw, 55vw"
+                  />
+                </div>
                 <h2>{item.name}</h2>
-                <strong>{item.price ?? item.capacity}</strong>
+                <strong>{item.result ?? item.mood}</strong>
+                <p>{item.price ?? `${item.capacity} · ${item.area}`}</p>
                 <PublicRichText value={item.includes ?? item.features} />
+                <p>{item.decor ?? item.seating}</p>
+                <p>{item.menu ?? item.formats}</p>
                 <dl>
                   {Object.entries(item)
                     .filter(([key]) => ["area", "for"].includes(key))
@@ -101,14 +136,15 @@ export default function VeloraCustomPage({
             ))}
           </div>
         ) : null}
-        {page.blocks?.map((block) => (
-          <PublicCustomBlock
-            key={block.id}
-            block={block}
-            services={site.services}
-            bookingHref={`${basePath}#availability`}
-          />
-        ))}
+        {!builtin &&
+          page.blocks?.map((block) => (
+            <PublicCustomBlock
+              key={block.id}
+              block={block}
+              services={site.services}
+              bookingHref={`${basePath}#availability`}
+            />
+          ))}
       </section>
       <footer className={styles.footer}>
         <Link href={basePath}>{content.brand}</Link>
