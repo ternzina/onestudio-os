@@ -9,6 +9,7 @@ const pinned = { visibility: true, reorder: false, reset: true } as const;
 export const NOIR_PREMIUM_TEMPLATE_CONTRACT = {
   templateKey: "premium-studio",
   contractVersion: "1.0",
+  compositionMode: "legacy-noir",
   nativeSections: [
     { id: "hero", label: "Обложка", anchor: "hero", defaultOrder: 0, pinning: "start", capabilities: pinned, visibilityAfterReset: "visible" },
     { id: "manifest", label: "Манифест", anchor: "manifest", defaultOrder: 1, capabilities: editable, visibilityAfterReset: "visible" },

@@ -1094,6 +1094,7 @@ const ruMessages = {
   "Choose design": "Выбрать дизайн",
   "Selected": "Выбран",
   "Template sections": "Секции шаблона",
+  "A native section of this design. Select it or reveal it without creating a duplicate.": "Родная секция этого дизайна. Выберите её или верните на страницу без создания копии.",
   "Universal blocks": "Универсальные блоки",
   "Restore original BEMBI": "Вернуть исходный BEMBI",
   "Show this block": "Показывать блок",

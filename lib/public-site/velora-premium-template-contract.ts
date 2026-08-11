@@ -9,6 +9,7 @@ const pinned = { visibility: true, reorder: false, reset: true } as const;
 export const VELORA_PREMIUM_TEMPLATE_CONTRACT = {
   templateKey: "velora-event-venue",
   contractVersion: "1.0",
+  compositionMode: "canonical",
   nativeSections: [
     {
       id: "hero",

@@ -66,6 +66,7 @@ import {
   canMovePremiumEditorLayoutItem,
   getPremiumEditorSection,
   getPremiumEditorSectionByAnchor,
+  getPremiumEditorNavigationMetadata,
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
@@ -2123,6 +2124,27 @@ function VisualBuilder({
     setLibraryOpen(false);
   }
 
+  function choosePremiumTemplateLibrarySection(sectionId: string) {
+    if (
+      !premiumEditorAdapter ||
+      !isPremiumEditorSectionId(premiumEditorAdapter, sectionId)
+    ) {
+      return;
+    }
+    if (!premiumEditorAdapter.isSectionVisible(draft, sectionId)) {
+      onReplaceDraft(
+        premiumEditorAdapter.setSectionVisibility(draft, sectionId, true),
+        premiumEditorAdapter.history.visibility(sectionId),
+      );
+    }
+    setSelectedPageId("home");
+    setSelectedCustomBlockId("");
+    setSelectedPremiumNativeSection(sectionId);
+    setLibraryOpen(false);
+    setSettingsOpen(true);
+    setEditingEnabled(true);
+  }
+
   function chooseSection(section: CanvasSection) {
     setSelectedCustomBlockId("");
     onSectionChange(section);
@@ -2524,6 +2546,7 @@ function VisualBuilder({
                 select: true,
                 visibility: definition.capabilities.visibility,
                 reorder: definition.capabilities.reorder,
+                move: definition.capabilities.reorder,
                 reset: definition.capabilities.reset,
               },
               onSelect: () => {
@@ -2546,6 +2569,9 @@ function VisualBuilder({
                 ? undefined
                 : () => dropBlock(item, "home"),
               onDragEnd: pinned ? undefined : finishBlockDrag,
+              onMove: pinned
+                ? undefined
+                : (direction: -1 | 1) => movePremiumLayoutItem(item, direction),
             }];
           }
 
@@ -2571,6 +2597,7 @@ function VisualBuilder({
               duplicate: true,
               delete: true,
               reorder: true,
+              move: true,
             },
             onSelect: () => {
               setSelectedCustomBlockId(block.id);
@@ -2584,6 +2611,8 @@ function VisualBuilder({
             onDragOver: () => setDragOverBlockId(item),
             onDrop: () => dropBlock(item, "home"),
             onDragEnd: finishBlockDrag,
+            onMove: (direction: -1 | 1) =>
+              movePremiumLayoutItem(item, direction),
           }];
         }),
       ]
@@ -2621,6 +2650,26 @@ function VisualBuilder({
     available_locales: locales,
     published_at: null,
   };
+  const premiumTemplateLibraryItems =
+    premiumEditorAdapter && isPremiumNativeHome
+      ? getPremiumEditorNavigationMetadata(premiumEditorAdapter).map(
+          (definition) => {
+            const visible = premiumEditorAdapter.isSectionVisible(
+              draft,
+              definition.id,
+            );
+            return {
+              id: definition.token,
+              label: definition.label,
+              description:
+                "A native section of this design. Select it or reveal it without creating a duplicate.",
+              stateLabel: visible ? "On page" : "Hidden",
+              onAdd: () =>
+                choosePremiumTemplateLibrarySection(definition.id),
+            };
+          },
+        )
+      : [];
   const navigatorModel: EditorNavigatorModel = {
     heading: t("Page blocks"), sections: navigatorSections, onCollapse: () => setBlocksOpen(false),
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
@@ -2701,13 +2750,17 @@ function VisualBuilder({
       onPublish={onPublish}
       libraryOpen={libraryOpen}
       onLibraryClose={() => setLibraryOpen(false)}
-      templateLibraryItems={isPremiumNativeHome || activePage?.type === "custom" ? [] : defaultSectionOrder.map(section => ({
-        id: section,
-        label: sectionLabelKey[section],
-        description: `${sectionLabelKey[section]} block description`,
-        stateLabel: Boolean(draft[sectionVisibilityKey[section]]) ? "On page" : "Add",
-        onAdd: () => addBlock(section),
-      }))}
+      templateLibraryItems={isPremiumNativeHome
+        ? premiumTemplateLibraryItems
+        : activePage?.type === "custom"
+          ? []
+          : defaultSectionOrder.map(section => ({
+              id: section,
+              label: sectionLabelKey[section],
+              description: `${sectionLabelKey[section]} block description`,
+              stateLabel: Boolean(draft[sectionVisibilityKey[section]]) ? "On page" : "Add",
+              onAdd: () => addBlock(section),
+            }))}
       universalLibraryItems={PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(({ kind, label, description }) => ({
         id: kind,
         label,

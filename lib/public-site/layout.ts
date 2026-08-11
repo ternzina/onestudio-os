@@ -3,6 +3,8 @@ import type {
   PublicSiteSection,
 } from "./types.ts";
 import { normalizeLegacyNoirComposition } from "./noir-premium-template-compat.ts";
+import { normalizePremiumTemplateComposition } from "./premium-template-composition.ts";
+import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
 
 export const PUBLIC_SITE_SECTION_ORDER: PublicSiteSection[] = [
   "services",
@@ -32,11 +34,28 @@ export function resolvePublicSiteLayoutOrder(
     "section_order" | "layout_order" | "custom_blocks"
   > & { template_id?: string | null },
 ) {
-  if (content.template_id === "premium-studio") {
+  const premiumDefinition = getPremiumTemplateDefinition(content.template_id);
+  const customBlockIds = (content.custom_blocks ?? []).map((block) => block.id);
+  const requestedLayout = Array.isArray(content.layout_order)
+    ? content.layout_order
+    : [];
+
+  if (premiumDefinition?.compositionMode === "legacy-noir") {
     return normalizeLegacyNoirComposition(
-      Array.isArray(content.layout_order) ? content.layout_order : [],
-      (content.custom_blocks ?? []).map((block) => block.id),
+      requestedLayout,
+      customBlockIds,
     );
+  }
+
+  if (
+    premiumDefinition &&
+    premiumDefinition.compositionMode !== "legacy-section"
+  ) {
+    return normalizePremiumTemplateComposition({
+      contract: premiumDefinition,
+      tokens: requestedLayout,
+      customBlockIds,
+    });
   }
 
   const sectionOrder = Array.isArray(content.section_order)

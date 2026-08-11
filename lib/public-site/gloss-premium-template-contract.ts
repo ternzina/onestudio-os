@@ -13,6 +13,7 @@ const editable = { visibility: true, reorder: true, reset: true } as const;
 export const GLOSS_PREMIUM_TEMPLATE_CONTRACT = {
   templateKey: "gloss-nail-studio",
   contractVersion: "1.0",
+  compositionMode: "legacy-section",
   nativeSections: [
     { id: "services", label: "Услуги", anchor: "services", defaultOrder: 0, capabilities: editable, visibilityAfterReset: "visible" },
     { id: "portfolio", label: "Портфолио", anchor: "portfolio", defaultOrder: 1, capabilities: editable, visibilityAfterReset: "visible" },

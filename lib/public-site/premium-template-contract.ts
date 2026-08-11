@@ -31,6 +31,16 @@ export type PremiumTemplateInternalRouteCapability = {
 };
 
 /**
+ * New premium templates use canonical `native:<template>:<section>` tokens.
+ * The legacy modes exist only so the shared editor can preserve older sites
+ * without making future template packages add another layout special case.
+ */
+export type PremiumTemplateCompositionMode =
+  | "canonical"
+  | "legacy-section"
+  | "legacy-noir";
+
+/**
  * Durable metadata only. Rendering components and client callbacks belong in
  * runtime adapters, not in this application-layer contract.
  */
@@ -40,6 +50,7 @@ export type PremiumTemplateContract<
 > = {
   templateKey: TemplateKey;
   contractVersion: typeof PREMIUM_TEMPLATE_CONTRACT_VERSION;
+  compositionMode?: PremiumTemplateCompositionMode;
   nativeSections: readonly PremiumTemplateNativeSection<SectionId>[];
   customPages?: PremiumTemplateCustomPageCapability;
   internalRoutes?: PremiumTemplateInternalRouteCapability;
@@ -73,6 +84,14 @@ export function validatePremiumTemplateContract(
   const errors: string[] = [];
   if (!isValidPremiumTemplateIdentifier(contract.templateKey)) {
     errors.push("templateKey must be a non-empty canonical identifier");
+  }
+  if (
+    contract.compositionMode !== undefined &&
+    !["canonical", "legacy-section", "legacy-noir"].includes(
+      contract.compositionMode,
+    )
+  ) {
+    errors.push("compositionMode is invalid");
   }
 
   const ids = new Set<string>();
