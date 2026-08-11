@@ -1168,6 +1168,8 @@ const ruMessages = {
   "Four columns": "Четыре колонки",
   "Add image": "Добавить изображение",
   "Replace image": "Заменить изображение",
+  "Changed": "Изменено",
+  "Restore demo image": "Вернуть демо-фото",
   "Move image up": "Поднять изображение",
   "Move image down": "Опустить изображение",
   "Image {count}": "Изображение {count}",

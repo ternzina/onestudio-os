@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { useRef, useState, type PointerEvent, type ReactNode } from "react";
@@ -9,10 +8,12 @@ import { Arrow } from "./PlatformShell";
 import styles from "./Platform.module.css";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import PublicRichText from "@/components/public/PublicRichText";
+import BembiTemplateImage from "./BembiTemplateImage";
+import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", content }: { tasksHref?: string; content?: import("@/lib/public-site/premium-kids-content").PremiumKidsContent }) {
+export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", content, nativeMedia }: { tasksHref?: string; content?: import("@/lib/public-site/premium-kids-content").PremiumKidsContent; nativeMedia?: PremiumKidsNativeMedia }) {
   const reduced = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
@@ -42,7 +43,7 @@ export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", 
       <motion.ul className={styles.heroCategories} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}><li>Практика</li><li>Эксперименты</li><li>Журнал</li><li>Офлайн-программы</li></motion.ul>
     </motion.div>
     <div ref={stageRef} className={styles.heroVisual} onPointerMove={trackPointer} onPointerLeave={() => { pointerX.set(0); pointerY.set(0); }}>
-      <motion.div className={styles.heroImageMask} initial={{ clipPath: "inset(0 0 100% 0 round 48% 48% 24px 24px)" }} animate={{ clipPath: "inset(0 0 0% 0 round 48% 48% 24px 24px)" }} transition={{ duration: reduced ? 0 : 1.05, delay: reduced ? 0 : .12, ease }} style={{ y: imageY }}><Image src="/images/demos/premium-kids-center/hero-platform.webp" alt="Дети вместе с педагогом создают геометрический город в образовательной лаборатории" fill priority sizes="(max-width: 760px) 92vw, 44vw" /></motion.div>
+      <motion.div className={styles.heroImageMask} initial={{ clipPath: "inset(0 0 100% 0 round 48% 48% 24px 24px)" }} animate={{ clipPath: "inset(0 0 0% 0 round 48% 48% 24px 24px)" }} transition={{ duration: reduced ? 0 : 1.05, delay: reduced ? 0 : .12, ease }} style={{ y: imageY }}><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, "hero", "/images/demos/premium-kids-center/hero-platform.webp")} alt="Дети вместе с педагогом создают геометрический город в образовательной лаборатории" priority sizes="(max-width: 760px) 92vw, 44vw" media={nativeMedia} /></motion.div>
       <motion.div className={styles.heroPaper} style={{ x, y }} initial={{ opacity: 0, rotate: -8, scale: .92 }} animate={{ opacity: 1, rotate: -3, scale: 1 }} transition={{ delay: reduced ? 0 : .7, duration: .6, ease }}>наблюдай<br />пробуй<br /><b>объясняй</b></motion.div>
       <motion.div className={styles.heroFormula} style={{ x: formulaX, y: detailY }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .65 }}>12 × ? = idea</motion.div>
       <motion.div className={styles.heroShape} style={{ x: shapeX, y: shapeY }} aria-hidden="true"><span>∑</span><i /></motion.div>
@@ -76,12 +77,12 @@ export function ExperimentPreview({ id }: { id: string }) {
   return <div className={`${styles.experimentPreview} ${styles[`experimentPreview_${id}`]}`} aria-hidden="true"><i /><i /><i /><b /><span /></div>;
 }
 
-export function WorkbookExperience() {
+export function WorkbookExperience({ nativeMedia }: { nativeMedia?: PremiumKidsNativeMedia } = {}) {
   const reduced = useReducedMotion();
   const [active, setActive] = useState(0);
   const book = workbooks[active];
   return <div className={styles.workbookLayout}>
-    <div className={styles.bookStage}><motion.div className={styles.bookStack} key={book.title} initial={{ opacity: 0, rotateY: -8 }} animate={{ opacity: 1, rotateY: 0 }} transition={{ duration: reduced ? 0 : .55, ease }}><i /><i /><motion.div initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }} transition={{ delay: reduced ? 0 : .15, duration: reduced ? 0 : .55, ease }}><Image src="/images/demos/premium-kids-center/workbook-cover.webp" alt={`Обложка программы «${book.title}»`} fill sizes="(max-width: 760px) 90vw, 38vw" /></motion.div><span>{String(active + 1).padStart(2, "0")} / 04</span></motion.div></div>
+    <div className={styles.bookStage}><motion.div className={styles.bookStack} key={book.title} initial={{ opacity: 0, rotateY: -8 }} animate={{ opacity: 1, rotateY: 0 }} transition={{ duration: reduced ? 0 : .55, ease }}><i /><i /><motion.div initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }} transition={{ delay: reduced ? 0 : .15, duration: reduced ? 0 : .55, ease }}><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, "workbook-cover", "/images/demos/premium-kids-center/workbook-cover.webp")} alt={`Обложка программы «${book.title}»`} sizes="(max-width: 760px) 90vw, 38vw" media={nativeMedia} /></motion.div><span>{String(active + 1).padStart(2, "0")} / 04</span></motion.div></div>
     <ol>{workbooks.map((item, index) => <li key={item.title} className={index === active ? styles.activeWorkbook : ""}><button onClick={() => setActive(index)} aria-pressed={index === active}><span>0{index + 1}</span><div><p>{item.age} · {item.tasks} заданий · {item.duration}</p><h3>{item.title}</h3><small>{item.pace}</small><ul>{item.skills.map(skill => <li key={skill}>{skill}</li>)}</ul></div></button></li>)}</ol>
   </div>;
 }

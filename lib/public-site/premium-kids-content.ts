@@ -1,5 +1,6 @@
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteCustomBlockKind, PublicSiteMediaPosition, PublicSiteTypography } from "./types.ts";
 import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "./custom-block-registry.ts";
+import { normalizePremiumKidsNativeMedia, type PremiumKidsNativeMedia } from "./premium-kids-native-media.ts";
 
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
@@ -45,7 +46,11 @@ type PremiumKidsLegacyContent = {
 };
 
 export type PremiumKidsEditableKey = Exclude<keyof PremiumKidsLegacyContent, "hidden_sections" | "heading_typography">;
-export type PremiumKidsBlockProps = Partial<Record<PremiumKidsEditableKey, string | string[]>> & { heading_typography?: PublicSiteTypography; universal_block?: PublicSiteCustomBlock };
+export type PremiumKidsBlockProps = Partial<Record<PremiumKidsEditableKey, string | string[]>> & {
+  heading_typography?: PublicSiteTypography;
+  universal_block?: PublicSiteCustomBlock;
+  native_media?: PremiumKidsNativeMedia;
+};
 export type PremiumKidsBlock = { id: string; type: PremiumKidsBlockType; visible: boolean; props: PremiumKidsBlockProps };
 export type PremiumKidsContent = PremiumKidsLegacyContent & { blocks: PremiumKidsBlock[] };
 
@@ -174,6 +179,8 @@ function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
       else if (typeof value === "string") defaults.props[key] = value;
     }
     if (isTypography(rawProps.heading_typography)) defaults.props.heading_typography = rawProps.heading_typography;
+    const nativeMedia = normalizePremiumKidsNativeMedia(rawProps.native_media, type);
+    if (nativeMedia) defaults.props.native_media = nativeMedia;
     if (isPremiumKidsUniversalBlockType(type) && rawProps.universal_block && typeof rawProps.universal_block === "object" && !Array.isArray(rawProps.universal_block)) {
       const universal = rawProps.universal_block as PublicSiteCustomBlock;
       if (universal.kind === type) defaults.props.universal_block = { ...createPublicSiteCustomBlock(type, id), ...cloneValue(universal), id, kind: type };

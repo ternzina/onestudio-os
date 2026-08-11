@@ -1,24 +1,25 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { experiments, interests, offlinePrograms, schedule, tasks, type InterestId, type Task } from "./content";
 import { ageRangesOverlap } from "./ageRanges";
 import { ExperimentPreview, TaskMicroPreview } from "./PremiumMotion";
 import styles from "./Platform.module.css";
+import BembiTemplateImage from "./BembiTemplateImage";
+import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 
 const WorksheetViewer = dynamic(() => import("./WorksheetViewer"), { ssr: false, loading: () => <div className={styles.viewerLoading} role="status">Открываем лист…</div> });
 
-export function InterestNavigator() {
+export function InterestNavigator({ nativeMedia }: { nativeMedia?: PremiumKidsNativeMedia } = {}) {
   const [active, setActive] = useState<InterestId>("math");
   const current = interests.find((item) => item.id === active) ?? interests[0];
   return <div className={styles.interestExplorer}>
     <div className={styles.interestTabs} role="tablist" aria-label="Интересы ребёнка">{interests.map((item) => <button key={item.id} role="tab" aria-selected={active === item.id} aria-controls="interest-panel" onClick={() => setActive(item.id)}>{item.label}</button>)}</div>
     <AnimatePresence mode="wait"><motion.div id="interest-panel" role="tabpanel" key={current.id} className={styles.interestPanel} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
       <div><p>Подборка дня / {current.label}</p><h3>{current.title}</h3><span>{current.note}</span><ul>{current.links.map((link) => <li key={link}>{link}<i aria-hidden="true">↗</i></li>)}</ul></div>
-      <div className={styles.interestImage}><Image src={current.image} alt={`Ребёнок исследует направление «${current.label}»`} fill sizes="(max-width: 760px) 100vw, 48vw" /></div>
+      <div className={styles.interestImage}><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, `interest-${current.id}`, current.image)} alt={`Ребёнок исследует направление «${current.label}»`} sizes="(max-width: 760px) 100vw, 48vw" media={nativeMedia} /></div>
     </motion.div></AnimatePresence>
   </div>;
 }
@@ -32,7 +33,7 @@ const filterOptions = {
   time: ["Все", "до 15 минут", "15–20 минут", "более 20 минут"],
 } as const;
 
-export function TaskExplorer({ compact = false }: { compact?: boolean }) {
+export function TaskExplorer({ compact = false, nativeMedia }: { compact?: boolean; nativeMedia?: PremiumKidsNativeMedia }) {
   const [filters, setFilters] = useState({ age: "Все", grade: "Все", subject: "Все", skill: "Все", format: "Все", time: "Все" });
   const [selected, setSelected] = useState<Task | null>(null);
   const visible = useMemo(() => tasks.filter((task) => {
@@ -44,17 +45,17 @@ export function TaskExplorer({ compact = false }: { compact?: boolean }) {
   return <>
     <div className={styles.taskFilters} aria-label="Фильтры заданий">{Object.entries(filterOptions).map(([key, options]) => <label key={key}><span>{{ age: "Возраст", grade: "Класс", subject: "Предмет", skill: "Навык", format: "Формат", time: "Время" }[key]}</span><select value={filters[key as keyof typeof filters]} onChange={(event) => setFilters((old) => ({ ...old, [key]: event.target.value }))}>{options.map((option) => <option key={option}>{option}</option>)}</select></label>)}</div>
     <div className={styles.taskGrid}>{display.map((task, index) => <article className={`${styles.taskCard} ${styles[task.accent]}`} key={task.id}>
-      <div className={styles.taskPreview}><Image src={task.image} alt="" fill sizes="(max-width: 700px) 100vw, 32vw" /><span>{String(index + 1).padStart(2, "0")}</span><TaskMicroPreview task={task} /></div>
+      <div className={styles.taskPreview}><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, `task-${task.id}`, task.image)} alt="" sizes="(max-width: 700px) 100vw, 32vw" media={nativeMedia} /><span>{String(index + 1).padStart(2, "0")}</span><TaskMicroPreview task={task} /></div>
       <div><p>{task.age} · {task.time}</p><h3>{task.title}</h3><ul><li>{task.level}</li><li>{task.skill}</li><li>{task.format}</li></ul><button onClick={() => setSelected(task)}>Открыть задание <span aria-hidden="true">↗</span></button></div>
     </article>)}</div>
     {selected ? <WorksheetViewer task={selected} onClose={() => setSelected(null)} /> : null}
   </>;
 }
 
-export function ExperimentExplorer({ limit }: { limit?: number }) {
+export function ExperimentExplorer({ limit, nativeMedia }: { limit?: number; nativeMedia?: PremiumKidsNativeMedia }) {
   const [open, setOpen] = useState<string | null>(null);
   return <div className={styles.experimentGrid}>{experiments.slice(0, limit).map((item, index) => <article key={item.id} className={styles.experimentCard}>
-    <div className={styles.experimentImage}><Image src={item.image} alt={`Материалы для эксперимента «${item.title}»`} fill sizes="(max-width: 700px) 100vw, 45vw" /><span>0{index + 1}</span><ExperimentPreview id={item.id} /></div>
+    <div className={styles.experimentImage}><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, `experiment-${item.id}`, item.image)} alt={`Материалы для эксперимента «${item.title}»`} sizes="(max-width: 700px) 100vw, 45vw" media={nativeMedia} /><span>0{index + 1}</span><ExperimentPreview id={item.id} /></div>
     <div><p>{item.category} · {item.age}</p><h3>{item.title}</h3><ul><li>{item.time}</li><li>{item.level}</li><li>{item.adult}</li></ul><button aria-expanded={open === item.id} aria-controls={`experiment-${item.id}`} onClick={() => setOpen(open === item.id ? null : item.id)}>{open === item.id ? "Свернуть" : "Что понадобится"}<span aria-hidden="true">{open === item.id ? "−" : "+"}</span></button>
       <AnimatePresence>{open === item.id ? <motion.div id={`experiment-${item.id}`} className={styles.experimentDetails} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}><h4>Материалы</h4><p>{item.materials.join(" · ")}</p><h4>Как проходит эксперимент</h4><ol>{item.steps.map((step) => <li key={step}>{step}</li>)}</ol></motion.div> : null}</AnimatePresence>
     </div>

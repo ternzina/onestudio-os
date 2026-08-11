@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { articles, teachers } from "./content";
 import { DiscoveryProgress, ExperimentExplorer, InterestNavigator, OfflineExplorer, TaskExplorer } from "./InteractiveBlocks";
@@ -16,31 +15,34 @@ import {
   type PremiumKidsBlock,
   type PremiumKidsContent,
 } from "@/lib/public-site/premium-kids-content";
+import BembiTemplateImage from "./BembiTemplateImage";
+import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 
-function DiscoveryPrelude({ basePath }: { basePath: string }) {
+function DiscoveryPrelude({ basePath, nativeMedia }: { basePath: string; nativeMedia?: PremiumKidsNativeMedia }) {
   return <>
     <section className={styles.manifesto}><p>Не ещё один кружок.<br />Не ещё одна папка с распечатками.</p><h2>BEMBI соединяет живые занятия, домашнюю практику и понятные материалы для родителей в одну <em>систему открытий.</em></h2><DiscoveryProgress /></section>
-    <section className={`${styles.section} ${styles.interests}`} id="interests"><SectionLead index="02" eyebrow="Навигатор по интересам" title="Что интересно вашему ребёнку сегодня?" text="Выберите направление — платформа соберёт подходящие задания, истории и занятия." /><InterestNavigator /></section>
-    <section className={`${styles.section} ${styles.tasksSection}`} id="tasks"><SectionLead index="03" eyebrow="Библиотека практики" title="Практические задания" text="Материалы, которые можно открыть, выполнить вместе или распечатать." /><TaskExplorer compact /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "tasks")}>Вся библиотека заданий <Arrow /></Link></div></section>
-    <section className={`${styles.section} ${styles.workbookSection}`} id="workbooks"><SectionLead index="04" eyebrow="Рабочие тетради и программы" title="Учимся последовательно" text="Не случайный набор листов, а спокойный маршрут: одна идея становится уверенностью через короткую регулярную практику." /><WorkbookExperience /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "workbooks")}>Открыть все программы <Arrow /></Link></div></section>
-    <section className={`${styles.section} ${styles.experiments}`} id="experiments"><SectionLead index="05" eyebrow="Домашняя лаборатория" title="Эксперименты и творчество" text="Проекты с понятными материалами, временем и ролью взрослого — от первого вопроса до собственного вывода." /><ExperimentExplorer limit={4} /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "experiments")}>Все эксперименты <Arrow /></Link></div></section>
-    <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? bembiHref(basePath, `articles/${article.slug}`) : bembiHref(basePath, "articles")}><div><Image src={article.image} alt={`Обложка статьи «${article.title}»`} fill sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href={bembiHref(basePath, "articles")}>Открыть журнал <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.interests}`} id="interests"><SectionLead index="02" eyebrow="Навигатор по интересам" title="Что интересно вашему ребёнку сегодня?" text="Выберите направление — платформа соберёт подходящие задания, истории и занятия." /><InterestNavigator nativeMedia={nativeMedia} /></section>
+    <section className={`${styles.section} ${styles.tasksSection}`} id="tasks"><SectionLead index="03" eyebrow="Библиотека практики" title="Практические задания" text="Материалы, которые можно открыть, выполнить вместе или распечатать." /><TaskExplorer compact nativeMedia={nativeMedia} /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "tasks")}>Вся библиотека заданий <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.workbookSection}`} id="workbooks"><SectionLead index="04" eyebrow="Рабочие тетради и программы" title="Учимся последовательно" text="Не случайный набор листов, а спокойный маршрут: одна идея становится уверенностью через короткую регулярную практику." /><WorkbookExperience nativeMedia={nativeMedia} /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "workbooks")}>Открыть все программы <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.experiments}`} id="experiments"><SectionLead index="05" eyebrow="Домашняя лаборатория" title="Эксперименты и творчество" text="Проекты с понятными материалами, временем и ролью взрослого — от первого вопроса до собственного вывода." /><ExperimentExplorer limit={4} nativeMedia={nativeMedia} /><div className={styles.sectionLink}><Link href={bembiHref(basePath, "experiments")}>Все эксперименты <Arrow /></Link></div></section>
+    <section className={`${styles.section} ${styles.journal}`} id="journal"><SectionLead index="06" eyebrow="Editorial / для взрослых" title="Журнал для родителей" text="Понятно о развитии, обучении и поддержке ребёнка." /><div className={styles.articleGrid}>{articles.map((article, index) => <article key={article.slug} className={index === 0 ? styles.featureArticle : ""}><Link href={article.slug === "add-subtract-within-100" ? bembiHref(basePath, `articles/${article.slug}`) : bembiHref(basePath, "articles")}><div><BembiTemplateImage src={premiumKidsNativeMediaUrl(nativeMedia, `article-${article.slug}`, article.image)} alt={`Обложка статьи «${article.title}»`} sizes={index === 0 ? "(max-width: 760px) 100vw, 58vw" : "(max-width: 760px) 100vw, 28vw"} media={nativeMedia} /></div><p>{article.category} · {article.read}</p><h3>{article.title}</h3><span>{article.subtitle}</span><b>Читать <Arrow /></b></Link></article>)}</div><div className={styles.sectionLink}><Link href={bembiHref(basePath, "articles")}>Открыть журнал <Arrow /></Link></div></section>
   </>;
 }
 
 function IntroBlock({ block, content, basePath }: { block: PremiumKidsBlock; content: PremiumKidsContent; basePath: string }) {
-  return <div data-premium-block-id={block.id}><DiscoveryRoute /><DiscoveryPrelude basePath={basePath} /><CenterExperience content={content} blockType="intro" blockId={block.id} anchored={false} /></div>;
+  return <div data-premium-block-id={block.id}><DiscoveryRoute /><DiscoveryPrelude basePath={basePath} nativeMedia={block.props.native_media} /><CenterExperience content={content} blockType="intro" blockId={block.id} anchored={false} nativeMedia={block.props.native_media} /></div>;
 }
 
-function ProgramsBlock({ content, blockId }: { content: PremiumKidsContent; blockId: string }) {
+function ProgramsBlock({ content, block }: { content: PremiumKidsContent; block: PremiumKidsBlock }) {
+  const blockId = block.id;
   return <div data-premium-block-id={blockId}>
-    <EditorialMotion className={styles.platformScene} distance={24}><Image src="/images/demos/premium-kids-center/studio-interior.webp" alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" fill sizes="100vw" /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
+    <EditorialMotion className={styles.platformScene} distance={24}><BembiTemplateImage src={premiumKidsNativeMediaUrl(block.props.native_media, "programs", "/images/demos/premium-kids-center/studio-interior.webp")} alt="Современная образовательная студия с лабораторией, библиотекой и мастерской" sizes="100vw" media={block.props.native_media} /><div><p>Пространство / online + offline</p><h2>Материал дома.<br />Открытие — вместе.</h2><span>Один визуальный язык соединяет тетрадь на кухонном столе, научную лабораторию и разговор с педагогом.</span></div></EditorialMotion>
     <section className={`${styles.section} ${styles.offline}`} id={blockId === "bembi-programs" ? "offline" : undefined}><SectionLead index="07" eyebrow="Программы центра" title={content.programs_title} text={content.programs_description} /><OfflineExplorer /></section>
   </div>;
 }
 
-function TeachersBlock({ content, blockId }: { content: PremiumKidsContent; blockId: string }) {
-  return <div data-premium-block-id={blockId}><CenterExperience content={content} blockType="teachers" blockId={blockId} anchored={false} /><section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><Image src={teacher.image} alt={`Педагог ${teacher.name}`} fill sizes="(max-width: 700px) 100vw, 34vw" /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section></div>;
+function TeachersBlock({ content, block }: { content: PremiumKidsContent; block: PremiumKidsBlock }) {
+  return <div data-premium-block-id={block.id}><CenterExperience content={content} blockType="teachers" blockId={block.id} anchored={false} nativeMedia={block.props.native_media} /><section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><BembiTemplateImage src={premiumKidsNativeMediaUrl(block.props.native_media, `teacher-${index}`, teacher.image)} alt={`Педагог ${teacher.name}`} sizes="(max-width: 700px) 100vw, 34vw" media={block.props.native_media} /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section></div>;
 }
 
 function FinalBlock({ content, blockId, basePath, demo }: { content: PremiumKidsContent; blockId: string; basePath: string; demo: boolean }) {
@@ -57,7 +59,7 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
   const blockContent = premiumKidsContentForBlock(content, block);
   switch (block.type) {
     case "hero":
-      return <div data-premium-block-id={block.id}><HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={blockContent} /><CenterStickyNav /></div>;
+      return <div data-premium-block-id={block.id}><HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={blockContent} nativeMedia={block.props.native_media} /><CenterStickyNav /></div>;
     case "intro":
       return <IntroBlock block={block} content={blockContent} basePath={basePath} />;
     case "approach":
@@ -65,11 +67,11 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
     case "gallery":
     case "reviews":
     case "faq":
-      return <CenterExperience content={blockContent} blockType={block.type} blockId={block.id} />;
+      return <CenterExperience content={blockContent} blockType={block.type} blockId={block.id} nativeMedia={block.props.native_media} />;
     case "teachers":
-      return <TeachersBlock content={blockContent} blockId={block.id} />;
+      return <TeachersBlock content={blockContent} block={block} />;
     case "programs":
-      return <ProgramsBlock content={blockContent} blockId={block.id} />;
+      return <ProgramsBlock content={blockContent} block={block} />;
     case "final":
       return <FinalBlock content={blockContent} blockId={block.id} basePath={basePath} demo={demo} />;
     case "text":

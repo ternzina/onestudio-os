@@ -7,6 +7,7 @@ import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
 import type { EditorInspectorField, EditorInspectorModel, EditorInspectorPlacedField, EditorNavigatorModel, TemplateEditorDevice, TemplateEditorSection } from "@/lib/public-site/editor-spec";
 import TemplatePreviewViewport, { type TemplatePreviewViewportHandle } from "@/components/admin/TemplatePreviewViewport";
 import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
+import PremiumKidsNativeMediaEditor from "@/components/admin/PremiumKidsNativeMediaEditor";
 import { buildPremiumUniversalInspectorGroups } from "@/components/admin/PremiumUniversalBlockSettings";
 import PremiumDelimitedListEditor from "@/components/admin/PremiumDelimitedListEditor";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -31,12 +32,17 @@ import {
   type PremiumKidsContent,
   type PremiumKidsEditableKey,
 } from "@/lib/public-site/premium-kids-content";
-import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteData, PublicSiteMediaPosition, PublicSiteTypography } from "@/lib/public-site/types";
+import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteData, PublicSiteMediaLayoutSettings, PublicSiteMediaPosition, PublicSiteTypography } from "@/lib/public-site/types";
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { addOneStudioPage, createOneStudioPage, removeOneStudioPage, updateOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import { createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
+import { buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
+import { getPremiumKidsNativeMediaSlots, type PremiumKidsNativeMedia, type PremiumKidsNativeMediaSlot } from "@/lib/public-site/premium-kids-native-media";
 
 type Field = [PremiumKidsEditableKey, AdminMessage, "input" | "text" | "lines"];
+type MediaTarget =
+  | { kind: "universal"; cardIndex?: number; listIndex?: number; label: string }
+  | { kind: "native"; slotId: string; label: string };
 
 const fields: Record<PremiumKidsBlockType, Field[]> = {
   header: [["brand_name", "Site name", "input"], ["brand_tagline", "Brand tagline", "input"]],
@@ -70,7 +76,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const [editingEnabled, setEditingEnabled] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [mediaTarget, setMediaTarget] = useState<{ cardIndex?: number; listIndex?: number; label: string } | null>(null);
+  const [mediaTarget, setMediaTarget] = useState<MediaTarget | null>(null);
   const viewportRef = useRef<TemplatePreviewViewportHandle>(null);
   const selectedBlock = premium.blocks.find(block => block.id === selected) ?? premium.blocks[0];
   const pages = draft.pages ?? [];
@@ -94,6 +100,24 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, heading_typography: value } } : block);
     commit(replacePremiumKidsBlocks(premium, blocks), `premium-typography:${selected}`);
   }
+  function updateNativeMedia(nextMedia: PremiumKidsNativeMedia | undefined, historyField: string) {
+    const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, native_media: nextMedia } } : block);
+    commit(replacePremiumKidsBlocks(premium, blocks), `premium-native-media:${selected}:${historyField}`);
+  }
+  function updateNativeMediaUrl(slotId: string, url: string | undefined) {
+    const current = selectedBlock.props.native_media ?? {};
+    const urls = { ...(current.urls ?? {}) };
+    if (url?.trim()) urls[slotId] = url.trim();
+    else delete urls[slotId];
+    updateNativeMedia({ ...current, urls: Object.keys(urls).length ? urls : undefined }, `url:${slotId}`);
+  }
+  function updateNativeMediaLayout(key: keyof PublicSiteMediaLayoutSettings | "media_position", value: unknown) {
+    if (key === "media_position") return;
+    const next = { ...(selectedBlock.props.native_media ?? {}) } as Record<string, unknown>;
+    if (value === undefined) delete next[key];
+    else next[key] = value;
+    updateNativeMedia(next as PremiumKidsNativeMedia, String(key));
+  }
   function selectBlock(id: string) {
     setSelected(id);
     requestAnimationFrame(() => requestAnimationFrame(() => viewportRef.current?.scrollTo(`[data-premium-block-id="${id}"]`)));
@@ -103,7 +127,30 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function duplicate(block: PremiumKidsBlock) { const id = newBlockId(block.type); const next = duplicatePremiumKidsBlock(premium, block.id, id); if (next !== premium) { commit(next); selectBlock(id); } }
   function add(type: PremiumKidsBlockType, mediaPosition?: PublicSiteMediaPosition) { const id = newBlockId(type); const next = addPremiumKidsBlock(premium, type, id, mediaPosition, selectedBlock.id); if (next !== premium) { commit(next); setShowLibrary(false); selectBlock(id); } }
   function updateUniversal(nextBlock: PublicSiteCustomBlock, historyField = "content") { const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, universal_block: nextBlock } } : block); commit(replacePremiumKidsBlocks(premium, blocks), `premium-universal:${selected}:${historyField}`); }
-  function selectMedia(url: string) { const universal = selectedPageBlock ?? selectedBlock.props.universal_block; if (!universal || !mediaTarget) return; const save = (block: PublicSiteCustomBlock, field: string) => activePage ? updatePageBlock(block) : updateUniversal(block, field); if (mediaTarget.listIndex !== undefined) { const mediaUrls = [...(universal.media_urls ?? [])]; while (mediaUrls.length <= mediaTarget.listIndex) mediaUrls.push(""); mediaUrls[mediaTarget.listIndex] = url; save({ ...universal, media_urls: mediaUrls }, `media-urls-${mediaTarget.listIndex}`); } else if (mediaTarget.cardIndex === undefined) save({ ...universal, media_url: url }, "media-url"); else { const cards = [...(universal.cards ?? [])]; const card = cards[mediaTarget.cardIndex]; if (card) cards[mediaTarget.cardIndex] = { ...card, media_type: "image", media_url: url }; save({ ...universal, cards }, `card-${mediaTarget.cardIndex}-media-url`); } setMediaTarget(null); }
+  function selectMedia(url: string) {
+    if (!mediaTarget) return;
+    if (mediaTarget.kind === "native") {
+      updateNativeMediaUrl(mediaTarget.slotId, url);
+      setMediaTarget(null);
+      return;
+    }
+    const universal = selectedPageBlock ?? selectedBlock.props.universal_block;
+    if (!universal) return;
+    const save = (block: PublicSiteCustomBlock, field: string) => activePage ? updatePageBlock(block) : updateUniversal(block, field);
+    if (mediaTarget.listIndex !== undefined) {
+      const mediaUrls = [...(universal.media_urls ?? [])];
+      while (mediaUrls.length <= mediaTarget.listIndex) mediaUrls.push("");
+      mediaUrls[mediaTarget.listIndex] = url;
+      save({ ...universal, media_urls: mediaUrls }, `media-urls-${mediaTarget.listIndex}`);
+    } else if (mediaTarget.cardIndex === undefined) save({ ...universal, media_url: url }, "media-url");
+    else {
+      const cards = [...(universal.cards ?? [])];
+      const card = cards[mediaTarget.cardIndex];
+      if (card) cards[mediaTarget.cardIndex] = { ...card, media_type: "image", media_url: url };
+      save({ ...universal, cards }, `card-${mediaTarget.cardIndex}-media-url`);
+    }
+    setMediaTarget(null);
+  }
   function remove(block: PremiumKidsBlock) { if (!window.confirm(t("Delete block confirmation", { name: t(getPremiumKidsBlockDefinition(block.type).label as AdminMessage) }))) return; const next = deletePremiumKidsBlock(premium, block.id); if (next !== premium) { const index = premium.blocks.findIndex(item => item.id === block.id); commit(next); if (selected === block.id) setSelected(next.blocks[Math.min(index, next.blocks.length - 1)].id); } }
   function reset(block: PremiumKidsBlock) { if (window.confirm(t("Reset BEMBI block confirmation"))) commit(resetPremiumKidsBlock(premium, block.id)); }
   function restoreOriginal() { if (window.confirm(t("Restore BEMBI draft confirmation"))) { const next = restoreOriginalPremiumKidsContent(); commit(next); setSelected(next.blocks.find(block => block.type === "hero")!.id); } }
@@ -159,7 +206,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   // Transitional source-contract markers: id: "content", id: "typography". Actual outer groups are OneStudio-owned.
   const inspectorFields: EditorInspectorPlacedField[] = visibilityFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField));
   if (selectedBlock.props.universal_block) {
-    inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: setMediaTarget, t }));
+    inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t }));
   } else {
     const contentFields: EditorInspectorField[] = [];
     for (const [key, label, kind] of fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key))) {
@@ -176,6 +223,29 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     if (structured) contentFields.push({ id: "structured-content", type: "custom", customContent: structured });
     if (contentFields.length) inspectorFields.push(...contentFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField)));
     if (definition.capabilities.typography) inspectorFields.push({ id: "typography-controls", group: "typography", type: "typography", title: t("Section title"), description: t("Limited Site Editor 2.6 settings"), value: selectedBlock.props.heading_typography, disabled: controlsDisabled, onChange: updateTypography });
+    const nativeMediaSlots = getPremiumKidsNativeMediaSlots(selectedBlock.type);
+    if (nativeMediaSlots.length) {
+      inspectorFields.push({
+        id: "premium-native-media",
+        group: "media",
+        type: "custom",
+        customContent: <PremiumKidsNativeMediaEditor
+          slots={nativeMediaSlots}
+          media={selectedBlock.props.native_media}
+          disabled={controlsDisabled}
+          onChange={updateNativeMediaUrl}
+          onChoose={(slot: PremiumKidsNativeMediaSlot, label: string) => setMediaTarget({ kind: "native", slotId: slot.id, label })}
+        />,
+      });
+      inspectorFields.push(...buildMediaLayoutInspectorFields({
+        value: selectedBlock.props.native_media ?? {},
+        disabled: controlsDisabled,
+        t,
+        idPrefix: "premium-native-media-layout",
+        capabilities: { size: true, fit: true, focalPoint: true, opacity: true, responsive: true },
+        onChange: (key, value) => updateNativeMediaLayout(key, value),
+      }).map(field => ({ ...field, group: "media" } as EditorInspectorPlacedField)));
+    }
   }
   const homeInspectorModel: EditorInspectorModel = {
     heading: t("Block settings"), title: selectedSection.label, description: t(definition.description as AdminMessage),
@@ -199,7 +269,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const pageInspectorModel: EditorInspectorModel | null = activePage ? {
     heading: t("Block settings"), title: selectedPageBlock?.title || activePage.nav_label,
     fields: selectedPageBlock
-      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: setMediaTarget, t })
+      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t })
       : [
           { id: "nav-label", group: "content", type: "text", label: t("Navigation label"), value: activePage.nav_label, disabled: controlsDisabled, onChange: value => updatePage({ nav_label: value }, "nav-label") },
           { id: "slug", group: "content", type: "url", label: t("Page address"), value: activePage.slug, disabled: controlsDisabled, onChange: value => updatePage({ slug: value }, "slug") },

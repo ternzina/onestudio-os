@@ -92,3 +92,10 @@
 .premiumUniversal{display:flex;align-items:center}.premiumUniversalInner{width:calc(100% - 40px);margin:auto;scroll-margin-top:60px}.premiumUniversalText>.premiumUniversalInner{display:grid;grid-template-columns:.75fr 1.25fr;gap:clamp(36px,7vw,100px);align-items:start}.premiumUniversalMedia img{object-fit:var(--premium-media-fit,cover)}.premiumUniversalMediaNoFrame{border-radius:0;box-shadow:none}.premiumUniversalMediaLine{border:1px solid currentColor}.premiumUniversalMediaCard{padding:8px;border-radius:28px;background:#fffdf8;box-shadow:0 22px 65px rgba(0,0,0,.16)}
 @media(max-width:760px){.premiumUniversalSplit[data-os-media-mobile-position="before"] .premiumUniversalBody{order:2}.premiumUniversalSplit[data-os-media-mobile-position="before"] .premiumUniversalMedia{order:1}.premiumUniversalSplit[data-os-media-mobile-position="after"] .premiumUniversalBody{order:1}.premiumUniversalSplit[data-os-media-mobile-position="after"] .premiumUniversalMedia{order:2}}
 @media(max-width:760px){.premiumUniversalText>.premiumUniversalInner{grid-template-columns:minmax(0,1fr)}.premiumUniversalInner{scroll-margin-top:188px}}
+
+/* Native BEMBI media stays visually unchanged until a block receives an
+   explicit Site Editor media setting. External library images use the same
+   fill geometry as the bundled Next images. */
+.templateImage{position:absolute;inset:0;width:100%;height:100%}
+.templateImageManaged{object-fit:var(--bembi-media-fit,cover)!important;object-position:var(--bembi-media-position,var(--bembi-default-position,50% 50%))!important;opacity:var(--bembi-media-opacity,1);transform:scale(var(--bembi-media-scale,1))!important;transform-origin:center;transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .25s}
+@media(max-width:760px){.templateImageManaged{object-fit:var(--bembi-media-mobile-fit,var(--bembi-media-fit,cover))!important;object-position:var(--bembi-media-mobile-position,var(--bembi-media-position,var(--bembi-default-position,50% 50%)))!important}}
