@@ -152,13 +152,14 @@ export default function CanonicalSiteCreationWizard({ initialMode, initialTempla
       return;
     }
     setSubmitting(true);
-    const creation = resolveCreationContract({ creation_mode: mode, template_key: templateKey });
+    const requestedLocales = [form.locale.trim().toLowerCase(), form.locale.trim().toLowerCase() === "ru" ? "en" : "ru"];
+    const creation = resolveCreationContract({ creation_mode: mode, template_key: templateKey, locales: requestedLocales });
     const enabledModules = [...requiredModules, ...form.enabled_modules];
     const { data, error } = await supabase.rpc("create_template_workspace", { p_request: {
       launch_id: window.crypto.randomUUID(), creation_mode: creation.creation_mode, template_key: creation.template_key,
-      template_seed: creation.seed, business_name: form.business_name.trim(),
+      template_seed: creation.seed, template_seeds: creation.localizedSeeds, business_name: form.business_name.trim(),
       business_type: form.business_type, timezone: form.timezone.trim(), locale: form.locale.trim().toLowerCase(),
-      locales: [form.locale.trim().toLowerCase(), form.locale.trim().toLowerCase() === "ru" ? "en" : "ru"],
+      locales: requestedLocales,
       primary_locale: form.locale.trim().toLowerCase(), currency: form.currency.trim().toUpperCase(),
       country_code: form.country_code.trim().toUpperCase(), email: form.email.trim().toLowerCase(),
       phone: form.phone.trim(), address: form.address.trim(), service_title: form.service_title.trim(),
