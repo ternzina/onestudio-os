@@ -6,11 +6,11 @@ import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRun
 import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
 import {
   createCanonicalVeloraDemoSite,
-  VELORA_DEMO_BASE_PATH,
+  veloraDemoBasePath,
 } from "@/lib/public-site/velora-demo";
 import {
+  resolveVeloraDemoPath,
   resolveVeloraDemoMetadata,
-  resolveVeloraDemoSlug,
 } from "@/lib/public-site/velora-demo-metadata";
 
 type Params = { templatePath?: string[] };
@@ -30,8 +30,11 @@ export default async function VeloraDemoPage({
   params: Promise<Params>;
 }) {
   const { templatePath = [] } = await params;
-  const site = createCanonicalVeloraDemoSite();
-  const slug = resolveVeloraDemoSlug(templatePath);
+  const resolved = resolveVeloraDemoPath(templatePath);
+  if (!resolved) notFound();
+  const site = createCanonicalVeloraDemoSite(resolved.locale);
+  const basePath = veloraDemoBasePath(resolved.locale);
+  const slug = resolved.slug;
   let view: React.ReactNode;
   if (slug) {
     const page = site.content.pages?.find(
@@ -45,14 +48,14 @@ export default async function VeloraDemoPage({
       <PublicCustomPageRuntime
         site={site}
         page={page}
-        basePath={VELORA_DEMO_BASE_PATH}
+        basePath={basePath}
       />
     );
-  } else if (templatePath.length) notFound();
-  else
+  } else {
     view = (
-      <PublicSiteTemplateRuntime site={site} basePath={VELORA_DEMO_BASE_PATH} />
+      <PublicSiteTemplateRuntime site={site} basePath={basePath} />
     );
+  }
   return (
     <>
       <div className="fixed right-3 bottom-5 left-3 z-[90] flex justify-end sm:left-auto sm:right-5">
@@ -60,7 +63,9 @@ export default async function VeloraDemoPage({
           className="max-w-full rounded-full bg-[#C6A66B] px-5 py-3 text-center text-sm font-semibold break-words text-[#101827] shadow-2xl"
           href={newSitePathForTemplate("velora-event-venue")}
         >
-          Использовать шаблон
+          {resolved.locale === "en"
+            ? "Use this template"
+            : "Использовать шаблон"}
         </Link>
       </div>
       {view}

@@ -49,7 +49,7 @@ test("VELORA is one canonical package entry with complete manifest metadata", ()
       name: "VELORA HOUSE",
       category: "events",
       route: "/demos/velora-event-venue",
-      image: "/templates/velora/hero.webp",
+      image: "/templates/velora/hero-cinematic.webp",
     },
   );
   const demo = PREMIUM_DEMOS.find((item) => item.slug === KEY)!;
@@ -389,7 +389,9 @@ test("VELORA form carries the complete request and CTA selection behavior", asyn
 
 test("VELORA metadata resolver is route-aware and aliases share canonical URLs", () => {
   const home = resolveVeloraDemoMetadata([])!;
+  const englishHome = resolveVeloraDemoMetadata(["en"])!;
   const venues = resolveVeloraDemoMetadata(["venues"])!;
+  const englishVenues = resolveVeloraDemoMetadata(["en", "venues"])!;
   const packages = resolveVeloraDemoMetadata(["packages"])!;
   const alias = resolveVeloraDemoMetadata(["p", "venues"])!;
   assert.equal(String(home.alternates?.canonical), "/demos/velora-event-venue");
@@ -405,6 +407,20 @@ test("VELORA metadata resolver is route-aware and aliases share canonical URLs",
     String(alias.alternates?.canonical),
     String(venues.alternates?.canonical),
   );
+  assert.equal(
+    String(englishHome.alternates?.canonical),
+    "/demos/velora-event-venue/en",
+  );
+  assert.equal(
+    String(englishVenues.alternates?.canonical),
+    "/demos/velora-event-venue/en/venues",
+  );
+  assert.equal(englishHome.openGraph?.locale, "en_GB");
+  assert.equal(
+    englishVenues.alternates?.languages?.ru,
+    "/demos/velora-event-venue/venues",
+  );
+  assert.notEqual(home.title, englishHome.title);
   assert.notEqual(home.title, venues.title);
   assert.notEqual(venues.title, packages.title);
   assert.equal(venues.twitter?.title, venues.openGraph?.title);

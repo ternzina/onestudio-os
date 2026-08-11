@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "motion/react";
 import {
   createContext,
   useCallback,
@@ -28,23 +36,169 @@ export function VeloraReveal({
   children,
   className,
   as = "div",
+  delay = 0,
+  direction = "up",
 }: {
   children: React.ReactNode;
   className?: string;
   as?: "div" | "article";
+  delay?: number;
+  direction?: "up" | "left" | "right";
 }) {
   const reduced = useReducedMotion();
   const Component = as === "article" ? motion.article : motion.div;
+  const offset =
+    direction === "left"
+      ? { x: -54, y: 0 }
+      : direction === "right"
+        ? { x: 54, y: 0 }
+        : { x: 0, y: 42 };
   return (
     <Component
       className={className}
-      initial={reduced ? false : { opacity: 0, y: 42 }}
-      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+      initial={reduced ? false : { opacity: 0, ...offset }}
+      whileInView={reduced ? undefined : { opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.18 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </Component>
+  );
+}
+
+export function VeloraScrollProgress() {
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  return reduced ? null : (
+    <motion.div
+      aria-hidden="true"
+      className={styles.scrollProgress}
+      style={{ scaleX: scrollYProgress }}
+    />
+  );
+}
+
+export function VeloraHeroMedia({
+  image,
+  alt,
+}: {
+  image: string;
+  alt: string;
+}) {
+  const target = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1.01, 1.1]);
+  const glowX = useTransform(scrollYProgress, [0, 1], ["4%", "24%"]);
+  return (
+    <div ref={target} className={styles.heroMedia}>
+      <motion.div
+        className={styles.heroMediaInner}
+        style={reduced ? undefined : { y, scale }}
+      >
+        <Image src={image} alt={alt} fill priority sizes="100vw" />
+      </motion.div>
+      <motion.div
+        aria-hidden="true"
+        className={styles.heroGlow}
+        style={reduced ? undefined : { left: glowX }}
+      />
+      <div className={styles.heroShade} />
+      <div aria-hidden="true" className={styles.heroGrain} />
+    </div>
+  );
+}
+
+export function VeloraTiltCard({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const reduced = useReducedMotion();
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springX = useSpring(rotateX, { stiffness: 170, damping: 20 });
+  const springY = useSpring(rotateY, { stiffness: 170, damping: 20 });
+  const onMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (reduced || event.pointerType === "touch") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    rotateY.set(((event.clientX - rect.left) / rect.width - 0.5) * 6);
+    rotateX.set(((event.clientY - rect.top) / rect.height - 0.5) * -6);
+  };
+  const reset = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+  return (
+    <motion.article
+      className={className}
+      onPointerMove={onMove}
+      onPointerLeave={reset}
+      style={
+        reduced
+          ? undefined
+          : { rotateX: springX, rotateY: springY, transformPerspective: 1100 }
+      }
+    >
+      {children}
+    </motion.article>
+  );
+}
+
+export function VeloraStoryFilm({
+  items,
+  images,
+}: {
+  items: VeloraItem[];
+  images: Array<{ image: string; alt: string }>;
+}) {
+  const reduced = useReducedMotion();
+  const [active, setActive] = useState(0);
+  const current = images[active % images.length];
+  return (
+    <div className={styles.storyFilm}>
+      <div className={styles.storyVisual}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={current.image}
+            initial={reduced ? false : { opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={reduced ? undefined : { opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Image
+              src={current.image}
+              alt={current.alt}
+              fill
+              sizes="(max-width: 900px) 100vw, 58vw"
+            />
+          </motion.div>
+        </AnimatePresence>
+        <span aria-hidden="true">0{active + 1}</span>
+      </div>
+      <div className={styles.storyChapters}>
+        {items.map((item, index) => (
+          <motion.article
+            key={item.number}
+            className={index === active ? styles.storyChapterActive : ""}
+            onViewportEnter={() => setActive(index)}
+            viewport={{ amount: 0.65 }}
+            initial={reduced ? false : { opacity: 0.35 }}
+            whileInView={{ opacity: 1 }}
+          >
+            <span>{item.number}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </motion.article>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -106,6 +260,7 @@ export function VeloraInteractiveShell({
   venues: VeloraItem[];
   packages: VeloraItem[];
 }) {
+  const reduced = useReducedMotion();
   const [selection, setSelection] = useState<Selection>({
     venue: "",
     packageName: "",
@@ -115,7 +270,10 @@ export function VeloraInteractiveShell({
     requestAnimationFrame(() => {
       document
         .getElementById("availability")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        ?.scrollIntoView({
+          behavior: reduced ? "auto" : "smooth",
+          block: "start",
+        });
       requestAnimationFrame(() =>
         document
           .querySelector<HTMLElement>(
@@ -124,7 +282,7 @@ export function VeloraInteractiveShell({
           ?.focus(),
       );
     });
-  }, []);
+  }, [reduced]);
   useEffect(() => {
     setSelection(
       parseVeloraAvailabilitySelection(
@@ -183,12 +341,14 @@ export function VeloraAvailability({
   packages,
   formats,
   copy,
+  locale,
 }: {
   businessSlug: string;
   venues: VeloraItem[];
   packages: VeloraItem[];
   formats: VeloraItem[];
   copy: VeloraItem;
+  locale: string;
 }) {
   const context = useContext(SelectionContext);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
@@ -202,7 +362,10 @@ export function VeloraAvailability({
     if (status === "sending") return;
     setStatus("sending");
     const data = new FormData(event.currentTarget);
-    const message = `Дата: ${data.get("date")}. Формат: ${data.get("eventType")}. Гостей: ${data.get("guests")}. Зал: ${data.get("venue")}. Пакет: ${data.get("package")}.`;
+    const message =
+      locale === "en"
+        ? `Date: ${data.get("date")}. Format: ${data.get("eventType")}. Guests: ${data.get("guests")}. Space: ${data.get("venue")}. Package: ${data.get("package")}.`
+        : `Дата: ${data.get("date")}. Формат: ${data.get("eventType")}. Гостей: ${data.get("guests")}. Зал: ${data.get("venue")}. Пакет: ${data.get("package")}.`;
     try {
       const { error } = await getSupabaseBrowserClient().rpc(
         "create_public_request",
@@ -211,7 +374,7 @@ export function VeloraAvailability({
           p_client_name: String(data.get("name") ?? ""),
           p_client_email: String(data.get("email") ?? ""),
           p_client_phone: String(data.get("phone") ?? ""),
-          p_client_locale: "ru",
+          p_client_locale: locale,
           p_business_type: "event_venue",
           p_subject: copy.subject,
           p_message: message,

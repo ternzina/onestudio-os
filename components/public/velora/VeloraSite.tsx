@@ -12,10 +12,14 @@ import type { PublicSiteData } from "@/lib/public-site/types";
 import {
   VeloraAvailability,
   VeloraGallery,
+  VeloraHeroMedia,
   VeloraInteractiveShell,
   VeloraMobileCta,
   VeloraPackageCta,
   VeloraReveal,
+  VeloraScrollProgress,
+  VeloraStoryFilm,
+  VeloraTiltCard,
   VeloraTransformation,
   VeloraVenueCta,
 } from "./VeloraInteractions";
@@ -43,6 +47,17 @@ export default function VeloraSite({
     basePath.startsWith("/demos/")
       ? `${basePath}/${slug}`
       : `${basePath}/p/${slug}`;
+  const currentLocale = site.business.locale;
+  const primaryLocale = site.business.primary_locale;
+  const currentSuffix = `/${currentLocale}`;
+  const localizedRoot =
+    currentLocale !== primaryLocale && basePath.endsWith(currentSuffix)
+      ? basePath.slice(0, -currentSuffix.length) || "/"
+      : basePath;
+  const localeHref = (locale: string) =>
+    locale === primaryLocale
+      ? localizedRoot
+      : `${localizedRoot.replace(/\/$/, "")}/${locale}`;
   const pages =
     site.content.pages?.filter(
       (page) =>
@@ -66,13 +81,15 @@ export default function VeloraSite({
     hero: visible("hero") ? (
       <>
         <a className={styles.skip} href="#main-story">
-          Przejdź do treści
+          {currentLocale === "en" ? "Skip to content" : "Перейти к содержанию"}
         </a>
         <header className={styles.header}>
           <Link href={basePath} className={styles.logo}>
             {content.brand}
           </Link>
-          <nav aria-label="Główna nawigacja">
+          <nav
+            aria-label={currentLocale === "en" ? "Main navigation" : "Главная навигация"}
+          >
             {content.navigation.map((item) => (
               <Link key={item.href} href={`${basePath}${item.href}`}>
                 {item.label}
@@ -84,22 +101,26 @@ export default function VeloraSite({
               </Link>
             ))}
           </nav>
+          <div className={styles.languageSwitch} aria-label="Language">
+            {site.available_locales.map((locale) => (
+              <Link
+                key={locale}
+                href={localeHref(locale)}
+                aria-current={locale === currentLocale ? "page" : undefined}
+              >
+                {locale.toUpperCase()}
+              </Link>
+            ))}
+          </div>
           <Link className={styles.headerCta} href="#availability">
             {content.header.availabilityLabel}
           </Link>
         </header>
         <section id="hero" className={styles.hero}>
-          <Image
-            src={content.hero.image}
-            alt={content.hero.alt}
-            fill
-            priority
-            sizes="100vw"
-          />
-          <div className={styles.heroShade} />
+          <VeloraHeroMedia image={content.hero.image} alt={content.hero.alt} />
           <VeloraReveal className={styles.heroContent}>
             <span>{content.hero.eyebrow}</span>
-            <h1>{content.hero.title}</h1>
+            <h1 className={styles.heroTitle}>{content.hero.title}</h1>
             <PublicRichText value={content.hero.text} />
             <div className={styles.actions}>
               <Link href={content.hero.primaryUrl}>
@@ -133,7 +154,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     venues: visible("venues") ? (
-      <section id="venues" className={styles.section}>
+      <section
+        id="venues"
+        className={`${styles.section} ${styles.lightSection} ${styles.venueSection}`}
+      >
         {title(
           content.venuesPresentation.eyebrow,
           content.venuesPresentation.title,
@@ -141,29 +165,26 @@ export default function VeloraSite({
         )}
         <div className={styles.venueGrid}>
           {content.venues.map((venue, index) => (
-            <VeloraReveal
-              as="article"
-              key={venue.name}
-              className={styles.venueCard}
-            >
-              <div className={styles.venueImage}>
-                <Image
-                  src={venue.image}
-                  alt={venue.alt}
-                  fill
-                  sizes="(max-width: 768px) 92vw, 55vw"
-                />
-              </div>
-              <span>
-                0{index + 1} · {venue.mood}
-              </span>
-              <h3>{venue.name}</h3>
-              <strong>
-                {venue.capacity} · {venue.area}
-              </strong>
-              <PublicRichText value={venue.features} />
-              <small>{venue.formats}</small>
-              <VeloraVenueCta venue={venue.name} label={venue.cta} />
+            <VeloraReveal key={venue.name} delay={index * 0.08}>
+              <VeloraTiltCard className={styles.venueCard}>
+                <div className={styles.venueImage}>
+                  <Image
+                    src={venue.image}
+                    alt={venue.alt}
+                    fill
+                    sizes="(max-width: 768px) 92vw, 55vw"
+                  />
+                  <span className={styles.venueNumber}>0{index + 1}</span>
+                </div>
+                <span>{venue.mood}</span>
+                <h3>{venue.name}</h3>
+                <strong>
+                  {venue.capacity} · {venue.area}
+                </strong>
+                <PublicRichText value={venue.features} />
+                <small>{venue.formats}</small>
+                <VeloraVenueCta venue={venue.name} label={venue.cta} />
+              </VeloraTiltCard>
             </VeloraReveal>
           ))}
         </div>
@@ -173,7 +194,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     formats: visible("formats") ? (
-      <section id="formats" className={`${styles.section} ${styles.elevated}`}>
+      <section
+        id="formats"
+        className={`${styles.section} ${styles.elevated} ${styles.formatSection}`}
+      >
         {title(
           content.formatsPresentation.eyebrow,
           content.formatsPresentation.title,
@@ -190,7 +214,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     transformation: visible("transformation") ? (
-      <section id="transformation" className={styles.section}>
+      <section
+        id="transformation"
+        className={`${styles.section} ${styles.transformationSection}`}
+      >
         {title(
           content.transformation.eyebrow,
           content.transformation.title,
@@ -206,19 +233,24 @@ export default function VeloraSite({
           content.storyPresentation.title,
           content.storyPresentation.text,
         )}
-        <div className={styles.storyTrack}>
-          {content.story.map((item) => (
-            <VeloraReveal as="article" key={item.number}>
-              <span>{item.number}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </VeloraReveal>
-          ))}
-        </div>
+        <VeloraStoryFilm
+          items={content.story}
+          images={[
+            { image: content.transformation.beforeImage, alt: content.transformation.beforeAlt },
+            { image: content.hero.image, alt: content.hero.alt },
+            { image: content.cateringPresentation.image, alt: content.cateringPresentation.alt },
+            { image: content.decor.image, alt: content.decor.alt },
+            { image: content.gallery[1].image, alt: content.gallery[1].alt },
+            { image: content.gallery[0].image, alt: content.gallery[0].alt },
+          ]}
+        />
       </section>
     ) : null,
     packages: visible("packages") ? (
-      <section id="packages" className={styles.section}>
+      <section
+        id="packages"
+        className={`${styles.section} ${styles.lightSection} ${styles.packagesSection}`}
+      >
         {title(
           content.packagesPresentation.eyebrow,
           content.packagesPresentation.title,
@@ -226,7 +258,7 @@ export default function VeloraSite({
         )}
         <div className={styles.packageGrid}>
           {content.packages.map((item, index) => (
-            <article
+            <VeloraTiltCard
               key={item.name}
               className={index === 1 ? styles.featured : ""}
             >
@@ -244,7 +276,7 @@ export default function VeloraSite({
               <strong>{item.price}</strong>
               <PublicRichText value={item.includes} />
               <VeloraPackageCta packageName={item.name} label={item.cta} />
-            </article>
+            </VeloraTiltCard>
           ))}
         </div>
         <Link className={styles.textLink} href={pageHref("packages")}>
@@ -304,7 +336,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     decor: visible("decor") ? (
-      <section id="decor" className={`${styles.section} ${styles.collage}`}>
+      <section
+        id="decor"
+        className={`${styles.section} ${styles.lightSection} ${styles.collage}`}
+      >
         <div>
           {title(
             content.decor.eyebrow,
@@ -346,7 +381,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     reviews: visible("reviews") ? (
-      <section id="stories" className={styles.section}>
+      <section
+        id="stories"
+        className={`${styles.section} ${styles.storiesSection}`}
+      >
         {title(
           content.reviewsPresentation.eyebrow,
           content.reviewsPresentation.title,
@@ -388,7 +426,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     planner: visible("planner") ? (
-      <section id="planner" className={styles.section}>
+      <section
+        id="planner"
+        className={`${styles.section} ${styles.lightSection}`}
+      >
         {title(
           content.plannerPresentation.eyebrow,
           content.plannerPresentation.title,
@@ -406,7 +447,10 @@ export default function VeloraSite({
       </section>
     ) : null,
     faq: visible("faq") ? (
-      <section id="faq" className={`${styles.section} ${styles.elevated}`}>
+      <section
+        id="faq"
+        className={`${styles.section} ${styles.lightSection} ${styles.faqSection}`}
+      >
         {title(content.faqPresentation.eyebrow, content.faqPresentation.title)}
         <div className={styles.faq}>
           {content.faq.map((item) => (
@@ -434,6 +478,7 @@ export default function VeloraSite({
           packages={content.packages}
           formats={content.formats}
           copy={content.availability}
+          locale={currentLocale}
         />
       </section>
     ) : null,
@@ -455,7 +500,13 @@ export default function VeloraSite({
     ? site.content.layout_order
     : Object.keys(sections).map((id) => `native:${VELORA_TEMPLATE_KEY}:${id}`);
   return (
-    <main className={styles.site} style={theme}>
+    <main
+      className={styles.site}
+      style={theme}
+      data-locale={currentLocale}
+      lang={currentLocale}
+    >
+      <VeloraScrollProgress />
       <VeloraInteractiveShell
         venues={content.venues}
         packages={content.packages}
