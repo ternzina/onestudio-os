@@ -55,9 +55,9 @@ export default async function VeloraDemoPage({
     );
   return (
     <>
-      <div className="fixed bottom-5 right-5 z-[90]">
+      <div className="fixed right-3 bottom-5 left-3 z-[90] flex justify-end sm:left-auto sm:right-5">
         <Link
-          className="rounded-full bg-[#C6A66B] px-5 py-3 text-sm font-semibold text-[#101827] shadow-2xl"
+          className="max-w-full rounded-full bg-[#C6A66B] px-5 py-3 text-center text-sm font-semibold break-words text-[#101827] shadow-2xl"
           href={newSitePathForTemplate("velora-event-venue")}
         >
           Использовать шаблон

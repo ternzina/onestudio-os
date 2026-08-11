@@ -11,9 +11,13 @@ import {
 } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { VeloraItem } from "@/lib/public-site/velora-premium-template-content";
+import {
+  parseVeloraAvailabilitySelection,
+  type VeloraAvailabilitySelection,
+} from "@/lib/public-site/velora-availability-selection";
 import styles from "./Velora.module.css";
 
-type Selection = { venue: string; packageName: string };
+type Selection = VeloraAvailabilitySelection;
 const SelectionContext = createContext<{
   selection: Selection;
   choose(kind: keyof Selection, value: string): void;
@@ -21,8 +25,12 @@ const SelectionContext = createContext<{
 
 export function VeloraInteractiveShell({
   children,
+  venues,
+  packages,
 }: {
   children: React.ReactNode;
+  venues: VeloraItem[];
+  packages: VeloraItem[];
 }) {
   const [selection, setSelection] = useState<Selection>({
     venue: "",
@@ -43,6 +51,15 @@ export function VeloraInteractiveShell({
       );
     });
   }, []);
+  useEffect(() => {
+    setSelection(
+      parseVeloraAvailabilitySelection(
+        window.location.search,
+        venues.map((item) => item.name),
+        packages.map((item) => item.name),
+      ),
+    );
+  }, [packages, venues]);
   return (
     <SelectionContext.Provider value={{ selection, choose }}>
       {children}
@@ -112,21 +129,25 @@ export function VeloraAvailability({
     setStatus("sending");
     const data = new FormData(event.currentTarget);
     const message = `Дата: ${data.get("date")}. Формат: ${data.get("eventType")}. Гостей: ${data.get("guests")}. Зал: ${data.get("venue")}. Пакет: ${data.get("package")}.`;
-    const { error } = await getSupabaseBrowserClient().rpc(
-      "create_public_request",
-      {
-        p_business_slug: businessSlug,
-        p_client_name: String(data.get("name") ?? ""),
-        p_client_email: String(data.get("email") ?? ""),
-        p_client_phone: String(data.get("phone") ?? ""),
-        p_client_locale: "ru",
-        p_business_type: "event_venue",
-        p_subject: copy.subject,
-        p_message: message,
-        p_request_key: crypto.randomUUID(),
-      },
-    );
-    setStatus(error ? "error" : "sent");
+    try {
+      const { error } = await getSupabaseBrowserClient().rpc(
+        "create_public_request",
+        {
+          p_business_slug: businessSlug,
+          p_client_name: String(data.get("name") ?? ""),
+          p_client_email: String(data.get("email") ?? ""),
+          p_client_phone: String(data.get("phone") ?? ""),
+          p_client_locale: "ru",
+          p_business_type: "event_venue",
+          p_subject: copy.subject,
+          p_message: message,
+          p_request_key: crypto.randomUUID(),
+        },
+      );
+      setStatus(error ? "error" : "sent");
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (

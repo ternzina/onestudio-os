@@ -3,6 +3,7 @@ import Link from "next/link";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicRichText from "@/components/public/PublicRichText";
 import { resolveVeloraContent } from "@/lib/public-site/velora-premium-template-content";
+import { buildVeloraAvailabilityHref } from "@/lib/public-site/velora-availability-selection";
 import type { PublicSiteData, PublicSitePage } from "@/lib/public-site/types";
 import styles from "./Velora.module.css";
 
@@ -87,7 +88,13 @@ export default function VeloraCustomPage({
                       </div>
                     ))}
                 </dl>
-                <Link href={`${basePath}#availability`}>
+                <Link
+                  href={buildVeloraAvailabilityHref(
+                    basePath,
+                    page.id === BUILTIN_VENUES_ID ? "venue" : "packageName",
+                    item.name,
+                  )}
+                >
                   {content.customPages.requestLabel} →
                 </Link>
               </article>

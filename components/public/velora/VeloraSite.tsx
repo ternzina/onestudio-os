@@ -351,7 +351,7 @@ export default function VeloraSite({
     : Object.keys(sections).map((id) => `native:${VELORA_TEMPLATE_KEY}:${id}`);
   return (
     <main className={styles.site} style={theme}>
-      <VeloraInteractiveShell>
+      <VeloraInteractiveShell venues={content.venues} packages={content.packages}>
         {order.map((token) => {
           const prefix = `native:${VELORA_TEMPLATE_KEY}:`;
           if (token.startsWith(prefix))

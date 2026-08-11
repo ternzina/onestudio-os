@@ -79,6 +79,7 @@ import {
   publicSiteCustomBlockVisualCapabilities,
 } from "@/lib/public-site/custom-block-registry";
 import { supabase } from "@/lib/supabase";
+import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
 
 const PremiumTemplateEditor = dynamic(
   () => import("@/components/admin/PremiumTemplateEditor"),
@@ -2047,12 +2048,15 @@ function VisualBuilder({
   function selectMedia(url: string) {
     if (!imageTarget) return;
     if (imageTarget.kind === "template-content") {
-      const namespace = structuredClone(draft.template_content?.[imageTarget.templateKey] ?? {}) as Record<string, unknown>;
-      const keys = imageTarget.path.split(".");
-      let target = namespace;
-      for (const key of keys.slice(0, -1)) target = target[key] as Record<string, unknown>;
-      target[keys.at(-1)!] = url;
-      onUpdate("template_content", { ...(draft.template_content ?? {}), [imageTarget.templateKey]: namespace });
+      onUpdate(
+        "template_content",
+        setTemplateContentPath(
+          draft.template_content,
+          imageTarget.templateKey,
+          imageTarget.path,
+          url,
+        ),
+      );
     } else if (imageTarget.kind === "logo") {
       onLogoChange(url);
     } else if (imageTarget.kind === "content") {

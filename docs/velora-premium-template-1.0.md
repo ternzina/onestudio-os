@@ -10,7 +10,7 @@ Public home и custom pages загружаются через `next/dynamic`. Ed
 
 ## Реализация
 
-- `velora-premium-template-seed.ts` и `velora-premium-template-content.ts`: namespaced seed, defensive normalization, две custom pages и editor-state-safe replacement.
+- `velora-premium-template-seed.ts` и `velora-premium-template-content.ts`: namespaced seed, defensive normalization, две custom pages и editor-state-safe replacement. Media picker безопасно и иммутабельно достраивает отсутствующие object/array segments в частично сохранённом namespace, не затрагивая другие template namespaces.
 - `velora-premium-template-contract.ts`: 13 native sections с pinned hero/footer.
 - `velora-editor-schema.ts` и `velora-premium-template-editor-adapter.ts`: отдельные поля для всего публичного copy, ссылок и каждого свойства item; rich text использует общий OneStudio editor/runtime, а hero, три зала и шесть gallery slots — общий media picker. Pipe-delimited сериализации нет. Palette связывает `theme_dark`, `theme_accent`, `theme_surface` и namespaced plum с CSS variables; reset/restore возвращают defaults.
 - `velora-premium-template-runtime-adapter.ts` и `velora-premium-template-custom-page-runtime-adapter.ts`: lazy public capabilities.
@@ -19,7 +19,7 @@ Public home и custom pages загружаются через `next/dynamic`. Ed
 
 ## Контент и взаимодействия
 
-Home включает hero, проверку даты, три зала, пять форматов, три пакета, editorial gallery, catering, event planner, цифры, отзывы, FAQ, контакты и footer. Форма требует дату (не ранее текущего дня), формат, гостей, зал, пакет, имя, email и телефон. CTA конкретного зала или пакета выбирает его, прокручивает к форме и переводит фокус. Заявка использует фактический business slug и существующий RPC `create_public_request`; pending блокирует повторную отправку, а результат сообщается через `aria-live`. Ошибка RPC не маскируется успехом.
+Home включает hero, проверку даты, три зала, пять форматов, три пакета, editorial gallery, catering, event planner, цифры, отзывы, FAQ, контакты и footer. Форма требует дату (не ранее текущего дня), формат, гостей, зал, пакет, имя, email и телефон. CTA конкретного зала или пакета на home выбирает его, прокручивает к форме и переводит фокус; карточки `/venues` и `/packages` возвращают к home с проверенным query selection без автоматического scroll/focus после загрузки. Заявка использует фактический business slug и существующий RPC `create_public_request`; pending блокирует повторную отправку, а результат сообщается через `aria-live`. Ошибка RPC или неожиданный exception переводят форму в error state.
 
 Custom pages `/venues` и `/packages` определяются стабильными встроенными page IDs, поэтому изменение slug не меняет тип сравнения. Произвольная custom page не получает список пакетов и выводит свои blocks через общий `PublicCustomBlock` runtime. Навигация строится из редактируемых page/navigation данных.
 
@@ -35,4 +35,4 @@ Seed задаёт title, description, keywords и image через сущест�
 
 ## Проверка
 
-Package-тест `tests/velora-premium-template-1.0.test.ts` проверяет canonical registration, manifest/generated lookups, 13 sections, editor paths, rich text/media fields, palette CSS variables, item normalization, сохранение Unicode и `|`, layout/custom blocks, полный payload формы, CTA selection markers, поведенческий metadata resolver, stable custom-page identity, lightbox focus/keyboard behavior и lazy/import boundaries. Общая матрица дополнительно проверяется repository-wide тестами.
+Package-тесты проверяют canonical registration, manifest/generated lookups, 13 sections, editor paths, rich text/media fields, palette CSS variables, item normalization, сохранение Unicode и `|`, layout/custom blocks, полный payload формы, поведенческие media deep paths и query selection, защиту от prototype pollution/root overflow masking, route-aware metadata, stable custom-page identity, lightbox focus/keyboard behavior и lazy/import boundaries. Общая матрица дополнительно проверяется repository-wide тестами.
