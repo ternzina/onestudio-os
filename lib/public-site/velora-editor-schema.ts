@@ -391,6 +391,7 @@ export function buildVeloraInspectorFields(
     id: `velora-${section}-heading-typography`,
     group: "typography",
     type: "typography",
+    forFieldId: "title",
     title: "Оформление заголовка",
     description: "Главный заголовок выбранного раздела",
     value: content.headingTypography[section],

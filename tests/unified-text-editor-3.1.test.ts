@@ -19,6 +19,11 @@ const textField = (fields: readonly EditorInspectorPlacedField[], id: string) =>
   assert.ok(field && (field.type === "text" || field.type === "textarea" || field.type === "richText"), `${id} must use the shared text contract`);
   return field;
 };
+const typographyField = (fields: readonly EditorInspectorPlacedField[]) => {
+  const field = fields.find(item => item.type === "typography");
+  assert.ok(field && field.type === "typography", "section must expose shared heading typography");
+  return field;
+};
 
 test("rich text and headings use one twenty-font allow-list", async () => {
   assert.equal(SITE_EDITOR_FONT_OPTIONS.length, 20);
@@ -42,9 +47,13 @@ test("the shared inspector owns demo and manually assembled text UI", async () =
     read("../components/admin/PremiumTemplateEditor.tsx"),
   ]);
   assert.match(spec, /originalValue\?: string/);
+  assert.match(spec, /forFieldId\?: string/);
   assert.match(inspector, /SiteEditorTextField/);
+  assert.match(inspector, /typographyByField/);
   assert.match(universal, /type: "richText"/);
+  assert.match(universal, /forFieldId: "title"/);
   assert.match(bembi, /originalValue/);
+  assert.match(bembi, /forFieldId: headingFieldId/);
 });
 
 test("GLOSS and every editable BEMBI native heading opt into the shared contract", () => {
@@ -54,7 +63,7 @@ test("GLOSS and every editable BEMBI native heading opt into the shared contract
     disabled: false,
     onChange() {},
   });
-  assert.ok(glossFields.some(field => field.type === "typography"));
+  assert.equal(typographyField(glossFields).forFieldId, "gloss-hero-title");
   assert.equal(textField(glossFields, "gloss-hero-title").value, textField(glossFields, "gloss-hero-title").originalValue);
 
   const editableNative = PREMIUM_KIDS_BLOCK_REGISTRY.filter(definition =>
@@ -79,8 +88,8 @@ test("NOIR restores one demo text and stores sparse native heading typography", 
   assert.ok(changed);
   title.onChange(title.originalValue!);
   assert.equal(textField(NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER.buildInspectorFields({ content: changed!, sectionId: "hero", disabled: false, onChange() {} }), "hero-lines").value, title.originalValue);
-  const typography = fields.find(field => field.type === "typography");
-  assert.ok(typography && typography.type === "typography");
+  const typography = typographyField(fields);
+  assert.equal(typography.forFieldId, "hero-lines");
   typography.onChange({ font_family: "Impact", font_size: 72 });
   assert.ok(changed?.template_content?.["premium-studio"]);
 });
@@ -94,5 +103,5 @@ test("VELORA demo fields expose originals and use the same heading typography fi
   });
   const title = textField(fields, "title");
   assert.equal(title.value, title.originalValue);
-  assert.ok(fields.some(field => field.type === "typography"));
+  assert.equal(typographyField(fields).forFieldId, "title");
 });

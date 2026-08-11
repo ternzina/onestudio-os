@@ -17,6 +17,11 @@ type ListSpec = { id: string; label: string; path: string; keys: string[]; rows?
 const text = (id: string, label: string, path: string, kind: FieldKind = "text", group: Group = "content", rows?: number): FieldSpec => ({ id, label, path, kind, group, rows });
 const list = (id: string, label: string, path: string, keys: string[], rows = 7, group: Group = "content"): ListSpec => ({ id, label, path, keys, rows, group });
 const headingSections = new Set<NoirEditorSection>(["hero", "manifest", "light", "services", "portfolio", "retouch", "film", "team", "process", "equipment", "tour", "faq", "contact"]);
+const headingFieldIds: Partial<Record<NoirEditorSection, string>> = {
+  hero: "hero-lines", manifest: "intro-title", light: "light-heading", services: "services-title", portfolio: "portfolio-title",
+  retouch: "retouch-title", film: "film-title", team: "team-title", process: "process-title", equipment: "equipment-title",
+  tour: "tour-title", faq: "faq-title", contact: "contact-title",
+};
 
 const specs: Record<NoirEditorSection, Array<FieldSpec | ListSpec>> = {
   hero: [
@@ -155,6 +160,7 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
     id: `noir-${section}-heading-typography`,
     group: "typography",
     type: "typography",
+    forFieldId: headingFieldIds[section],
     title: "Оформление заголовка",
     description: "Главный заголовок выбранного раздела",
     value: content.headingTypography[section],

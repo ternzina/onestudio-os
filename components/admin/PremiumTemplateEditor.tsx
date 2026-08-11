@@ -213,6 +213,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     inspectorFields.push(...buildPremiumUniversalInspectorGroups({ block: selectedBlock.props.universal_block, disabled: controlsDisabled, onChange: updateUniversal, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t }));
   } else {
     const contentFields: EditorInspectorField[] = [];
+    const headingFieldId = fields[selectedBlock.type].find(([, label]) => label === "Heading")?.[0];
     for (const [key, label, kind] of fields[selectedBlock.type].filter(([key]) => !["faq", "reviews", "teachers"].includes(key))) {
       const raw = selectedBlock.props[key];
       const value = Array.isArray(raw) ? raw.join("\n") : raw ?? "";
@@ -228,7 +229,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     const structured = selectedBlock.type === "faq" ? <PremiumDelimitedListEditor values={(selectedBlock.props.faq as string[]) ?? []} primaryLabel="Question" secondaryLabel="Answer" disabled={controlsDisabled} onChange={values => updateList("faq", values)} /> : selectedBlock.type === "reviews" ? <PremiumDelimitedListEditor values={(selectedBlock.props.reviews as string[]) ?? []} primaryLabel="Review text" secondaryLabel="Author" splitFromEnd disabled={controlsDisabled} onChange={values => updateList("reviews", values)} /> : selectedBlock.type === "teachers" ? <PremiumDelimitedListEditor values={(selectedBlock.props.teachers as string[]) ?? []} primaryLabel="Person name" secondaryLabel="Role" disabled={controlsDisabled} onChange={values => updateList("teachers", values)} /> : null;
     if (structured) contentFields.push({ id: "structured-content", type: "custom", customContent: structured });
     if (contentFields.length) inspectorFields.push(...contentFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField)));
-    if (definition.capabilities.typography) inspectorFields.push({ id: "typography-controls", group: "typography", type: "typography", title: t("Section title"), description: t("Limited Site Editor 2.6 settings"), value: selectedBlock.props.heading_typography, disabled: controlsDisabled, onChange: updateTypography });
+    if (definition.capabilities.typography) inspectorFields.push({ id: "typography-controls", group: "typography", type: "typography", forFieldId: headingFieldId, title: t("Section title"), description: t("Limited Site Editor 2.6 settings"), value: selectedBlock.props.heading_typography, disabled: controlsDisabled, onChange: updateTypography });
     const nativeMediaSlots = getPremiumKidsNativeMediaSlots(selectedBlock.type);
     if (nativeMediaSlots.length) {
       inspectorFields.push(...nativeMediaSlots.map((slot, index) => {
@@ -286,7 +287,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
           { id: "intro", group: "content", type: "richText", label: t("Introduction"), value: activePage.intro, disabled: controlsDisabled, onChange: value => updatePage({ intro: value }, "intro") },
           { id: "visibility", group: "content", type: "toggle", label: t("Show page on site"), checked: activePage.is_visible !== false, disabled: controlsDisabled, onChange: value => updatePage({ is_visible: value }, "visibility") },
           { id: "navigation", group: "content", type: "toggle", label: t("Show in navigation"), checked: activePage.show_in_navigation, disabled: controlsDisabled, onChange: value => updatePage({ show_in_navigation: value }, "navigation") },
-          { id: "title-typography", group: "typography", type: "typography", title: t("Main title"), description: activePage.title, value: activePage.title_typography, disabled: controlsDisabled, onChange: value => updatePage({ title_typography: value }, "typography") },
+          { id: "title-typography", group: "typography", type: "typography", forFieldId: "title", title: t("Main title"), description: activePage.title, value: activePage.title_typography, disabled: controlsDisabled, onChange: value => updatePage({ title_typography: value }, "typography") },
         ],
     actions: selectedPageBlock ? [{ id: "delete", label: t("Remove block"), tone: "danger", disabled: controlsDisabled, onClick: removePageBlock }] : [{ id: "delete-page", label: t("Remove page"), tone: "danger", disabled: controlsDisabled, onClick: deletePage }],
   } : null;

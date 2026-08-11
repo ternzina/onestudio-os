@@ -185,12 +185,15 @@ const customPaths = new Set([
 ]);
 
 export function buildGlossInspectorFields(content: PublicSiteContent, sectionId: GlossEditorSectionId, disabled: boolean, onChange: (content: PublicSiteContent, historyGroup: string) => void, defaults?: PublicSiteContent): EditorInspectorPlacedField[] {
+  const headingFieldId = specs[sectionId].some(spec => spec.id === "title" && (spec.group ?? "content") === "content")
+    ? `gloss-${sectionId}-title`
+    : undefined;
   const fields: EditorInspectorPlacedField[] = specs[sectionId].filter(spec => !customPaths.has(spec.path) && !spec.path.endsWith(".background_image_url")).map(spec => {
     const current = atPath(content, spec.path);
     const update = (value: string | boolean) => onChange(setPath(content, spec.path, decodeValue(content, spec, value)), `gloss:${sectionId}:${spec.id}`);
     if (spec.kind === "toggle") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "toggle", label: spec.label, checked: current === true, disabled, onChange: update };
     if (spec.kind === "select") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "select", label: spec.label, value: String(current ?? spec.options?.[0]?.value ?? ""), options: spec.options ?? [], disabled, onChange: update };
-    if (spec.kind === "typography") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "typography", type: "typography", title: spec.label, description: "Заголовок выбранного раздела", value: current && typeof current === "object" ? current as PublicSiteTypography : undefined, disabled, onChange: value => onChange(setPath(content, spec.path, value), `gloss:${sectionId}:${spec.id}`) } as EditorInspectorPlacedField;
+    if (spec.kind === "typography") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "typography", type: "typography", forFieldId: headingFieldId, title: spec.label, description: "Заголовок выбранного раздела", value: current && typeof current === "object" ? current as PublicSiteTypography : undefined, disabled, onChange: value => onChange(setPath(content, spec.path, value), `gloss:${sectionId}:${spec.id}`) } as EditorInspectorPlacedField;
     const value = encodeValue(current, spec.path);
     const originalValue = defaults ? encodeValue(atPath(defaults, spec.path), spec.path) : undefined;
     if (spec.kind === "richText") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "richText", label: spec.label, value: String(current ?? ""), originalValue, disabled, onChange: update };

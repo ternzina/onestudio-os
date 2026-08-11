@@ -50,7 +50,7 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     { id: "text", type: "richText", label: block.kind === "columns" ? t("Intro text") : t("Text"), value: block.text, disabled, onChange: value => patch("text", value) },
     ...(block.kind === "features" ? [{ id: "items", type: "textarea" as const, label: t("Advantages (title · description)"), rows: 6, value: block.items, disabled, onChange: (value: string) => patch("items", value) }] : []),
   ] });
-  groups.push({ id: "typography", card: true, fields: [{ id: "title-typography", type: "typography", title: t("Block title"), description: t("Limited Site Editor 2.6 settings"), value: block.title_typography, disabled, onChange: value => patch("title_typography", value) }] });
+  groups.push({ id: "typography", card: true, fields: [{ id: "title-typography", type: "typography", forFieldId: "title", title: t("Block title"), description: t("Limited Site Editor 2.6 settings"), value: block.title_typography, disabled, onChange: value => patch("title_typography", value) }] });
 
   if (block.kind === "cta" || block.kind === "media_text") groups.push({ id: "actions-content", card: true, fields: [
     { id: "button-label", type: "text", label: t("Button text"), value: block.button_label, disabled, onChange: value => patch("button_label", value) },
