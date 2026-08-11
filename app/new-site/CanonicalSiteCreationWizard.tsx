@@ -170,9 +170,17 @@ export default function CanonicalSiteCreationWizard({ initialMode, initialTempla
       work_days: form.work_days, enabled_modules: enabledModules,
     }});
     if (error) { setMessage(error.message.includes("workspace_limit_reached") ? "У вас уже 3 активных сайта. Архивируйте рабочий сайт или удалите пустой." : error.message || "Не удалось создать сайт."); setSubmitting(false); return; }
-    const result = (Array.isArray(data) ? data[0] : data) as { business_slug?: string } | null;
+    const result = (Array.isArray(data) ? data[0] : data) as {
+      business_id?: string;
+      business_slug?: string;
+    } | null;
     if (result?.business_slug) window.localStorage.setItem("onestudio:last-created-business-slug", result.business_slug);
-    router.replace("/admin/site"); router.refresh();
+    router.replace(
+      result?.business_id
+        ? `/admin/site?business=${encodeURIComponent(result.business_id)}`
+        : "/admin/site",
+    );
+    router.refresh();
   }
 
   return <main className="min-h-screen bg-[#0b0d12] px-5 py-10 text-white"><section className="mx-auto max-w-6xl rounded-[34px] border border-white/10 bg-white/[.04] p-6 sm:p-10">

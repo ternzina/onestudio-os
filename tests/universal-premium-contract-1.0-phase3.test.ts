@@ -57,8 +57,9 @@ test("NOIR metadata, boundaries, normalization, movement, and insertion retain p
   assert.equal(canMovePremiumEditorLayoutItem(adapter, { tokens: normalized, customBlockIds: ["one"], fromIndex: 0, direction: 1 }), false);
 
   const inserted = adapter.insertCustomBlock(content({ layout_order: normalized, custom_blocks: [block("one")] }), block("two"));
-  assert.equal(inserted.layout_order?.indexOf("custom:two"), inserted.layout_order?.indexOf("noir:contact")! - 1);
-  assert.ok(inserted.layout_order?.every((token) => !token.startsWith("native:")));
+  const insertedLayout = inserted.layout_order ?? [];
+  assert.equal(insertedLayout.indexOf("custom:two"), insertedLayout.indexOf("noir:contact") - 1);
+  assert.ok(insertedLayout.every((token) => !token.startsWith("native:")));
 });
 
 test("NOIR visibility, section reset, and full restore preserve compatibility boundaries", () => {

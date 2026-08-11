@@ -97,7 +97,7 @@ test("NOIR editor canvas remains a client-only dynamic registration with the sam
   assert.match(registry, /\["premium-studio", NoirEditorCanvasRenderer\]/);
   assert.match(registry, /content: PublicSiteContent;[\s\S]*basePath: string/);
   assert.match(editor, /getPremiumTemplateEditorCanvasRenderer\(draft\.template_id\)/);
-  assert.match(editor, /<PremiumEditorCanvasRenderer content=\{draft\} basePath="#"/);
+  assert.match(editor, /<PremiumTemplateEditorCanvas templateKey=\{draft\.template_id\} content=\{draft\} basePath="#"/);
   assert.doesNotMatch(editor, /import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)/);
   assert.doesNotMatch(editor, /draft\.template_id === ["']premium-studio["']/);
 });

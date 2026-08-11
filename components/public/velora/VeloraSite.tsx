@@ -542,18 +542,23 @@ export default function VeloraSite({
       >
         {order.map((token) => {
           const prefix = `native:${VELORA_TEMPLATE_KEY}:`;
-          if (token.startsWith(prefix))
+          if (token.startsWith(prefix)) {
+            const sectionId = token.slice(prefix.length);
             return (
-              <div key={token}>{sections[token.slice(prefix.length)]}</div>
+              <div key={token} data-editor-anchor={sectionId}>
+                {sections[sectionId]}
+              </div>
             );
+          }
           const block = custom.get(token);
           return block ? (
-            <PublicCustomBlock
-              key={token}
-              block={block}
-              services={site.services}
-              bookingHref="#availability"
-            />
+            <div key={token} data-editor-anchor={token}>
+              <PublicCustomBlock
+                block={block}
+                services={site.services}
+                bookingHref="#availability"
+              />
+            </div>
           ) : null;
         })}
         <VeloraMobileCta label={content.header.availabilityLabel} />

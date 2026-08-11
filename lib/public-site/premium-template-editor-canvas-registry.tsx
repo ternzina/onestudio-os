@@ -1,12 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { ComponentType } from "react";
-import type { PublicSiteContent } from "./types";
+import { createElement, type ComponentType } from "react";
+import type { PublicSiteContent, PublicSiteData } from "./types";
 
 export type PremiumTemplateEditorCanvasRendererProps = {
   content: PublicSiteContent;
   basePath: string;
+  site?: PublicSiteData;
 };
 
 export type PremiumTemplateEditorCanvasRenderer = ComponentType<PremiumTemplateEditorCanvasRendererProps>;
@@ -20,12 +21,52 @@ const NoirEditorCanvasRenderer: PremiumTemplateEditorCanvasRenderer = ({ content
   <NoirEditorCanvas content={content} basePath={basePath} />
 );
 
+const VeloraEditorCanvas = dynamic(
+  () => import("@/components/public/velora/VeloraSite"),
+  { ssr: false },
+);
+
+const VeloraEditorCanvasRenderer: PremiumTemplateEditorCanvasRenderer = ({ content, basePath, site }) => (
+  <VeloraEditorCanvas
+    site={site ?? {
+      business: {
+        id: "velora-editor-preview",
+        slug: "velora-editor-preview",
+        name: content.brand_name || "VELORA",
+        locale: "ru",
+        primary_locale: "ru",
+        currency: "EUR",
+        timezone: "Europe/Kyiv",
+      },
+      content,
+      company: { display_name: content.brand_name || "VELORA" },
+      services: [],
+      portfolio: [],
+      capabilities: { booking: true, catalog: true, portfolio: true },
+      available_locales: ["ru", "en"],
+      published_at: null,
+    }}
+    basePath={basePath}
+  />
+);
+
 const editorCanvasRenderers = new Map<string, PremiumTemplateEditorCanvasRenderer>([
   ["premium-studio", NoirEditorCanvasRenderer],
+  ["velora-event-venue", VeloraEditorCanvasRenderer],
 ]);
 
 export function getPremiumTemplateEditorCanvasRenderer(
   templateKey: string | null | undefined,
 ) {
   return templateKey ? editorCanvasRenderers.get(templateKey) : undefined;
+}
+
+export function PremiumTemplateEditorCanvas({
+  templateKey,
+  ...props
+}: PremiumTemplateEditorCanvasRendererProps & {
+  templateKey: string | null | undefined;
+}) {
+  const renderer = getPremiumTemplateEditorCanvasRenderer(templateKey);
+  return renderer ? createElement(renderer, props) : null;
 }

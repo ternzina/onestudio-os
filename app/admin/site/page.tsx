@@ -18,6 +18,7 @@ import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   PublicSiteContent,
+  PublicSiteData,
   PublicSiteBlockColors,
   PublicSiteColumnCard,
   PublicSiteCustomBlock,
@@ -68,7 +69,10 @@ import {
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
-import { getPremiumTemplateEditorCanvasRenderer } from "@/lib/public-site/premium-template-editor-canvas-registry";
+import {
+  getPremiumTemplateEditorCanvasRenderer,
+  PremiumTemplateEditorCanvas,
+} from "@/lib/public-site/premium-template-editor-canvas-registry";
 import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
@@ -1773,7 +1777,9 @@ function VisualBuilder({
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
   const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
-  const PremiumEditorCanvasRenderer = getPremiumTemplateEditorCanvasRenderer(draft.template_id);
+  const hasPremiumEditorCanvas = Boolean(
+    getPremiumTemplateEditorCanvasRenderer(draft.template_id),
+  );
   const isPremiumNativeHome = Boolean(premiumEditorAdapter) && !activePage;
   const isPremiumNativeSelection = isPremiumNativeHome && !selectedCustomBlock;
 
@@ -1812,6 +1818,7 @@ function VisualBuilder({
   }, [
     activePageId,
     isPremiumNativeHome,
+    premiumEditorAdapter,
     selectedCustomBlockId,
     selectedPremiumNativeSection,
     selectedSection,
@@ -2593,6 +2600,27 @@ function VisualBuilder({
           return [{ id: item, key: item, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
         }),
       ];
+  const premiumEditorPreviewSite: PublicSiteData = {
+    business: {
+      id: businessId,
+      slug: businessSlug,
+      name: businessName,
+      locale: selectedLocale,
+      primary_locale: primaryLocale,
+      currency: "EUR",
+      timezone: "UTC",
+    },
+    content: draft,
+    company: {
+      display_name: businessName,
+      logo_url: logoUrl || undefined,
+    },
+    services: previewServices,
+    portfolio: previewPortfolio,
+    capabilities: { booking: true, catalog: true, portfolio: true },
+    available_locales: locales,
+    published_at: null,
+  };
   const navigatorModel: EditorNavigatorModel = {
     heading: t("Page blocks"), sections: navigatorSections, onCollapse: () => setBlocksOpen(false),
     addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
@@ -2712,7 +2740,7 @@ function VisualBuilder({
       canvasRef={workspaceCanvasRef}
       canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
       canvas={<>
-          {PremiumEditorCanvasRenderer && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumEditorCanvasRenderer content={draft} basePath="#" /></div> : <div
+          {hasPremiumEditorCanvas && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumTemplateEditorCanvas templateKey={draft.template_id} content={draft} basePath="#" site={premiumEditorPreviewSite} /></div> : <div
             className={publicSiteDesignClass(
               draft,
               `mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
