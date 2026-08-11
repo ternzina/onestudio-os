@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import SiteEditorActionField from "@/components/admin/SiteEditorActionField";
 import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 import type { PremiumTemplateEditorMediaTarget } from "../../../lib/public-site/premium-template-editor-adapter.ts";
 import type { GlossEditorSectionId } from "../../../lib/public-site/gloss-premium-template-contract.ts";
@@ -34,7 +35,32 @@ function MediaField({ label, value, originalValue, disabled, onChange, onChoose 
 function CardsEditor({ value, images, originalImages, model, labels, imageLabel, disabled, onChange, onChooseImage }: { value: string; images?: readonly string[]; originalImages?: readonly string[]; model: CardModel; labels: Record<string, string>; imageLabel?: string; disabled: boolean; onChange(value: string, images?: string[]): void; onChooseImage?(index: number): void }) {
   const cards = parseGlossCards(value, model);
   const run = (action: Parameters<typeof mutateGlossIndexedCards>[0]["action"]) => { const next = mutateGlossIndexedCards({ items: value, images, model, action }); onChange(next.items, next.images); };
-  return <div className="grid gap-3">{cards.map((card, index) => <article key={index} className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"><div className="flex items-center justify-between"><b className="text-xs">Карточка {index + 1}</b><button type="button" disabled={disabled} onClick={() => run({ type: "remove", index })} className="text-xs font-semibold text-red-600 disabled:opacity-40">Удалить</button></div>{imageLabel && onChooseImage ? <MediaField label={imageLabel} value={images?.[index] ?? ""} originalValue={originalImages?.[index]} disabled={disabled} onChoose={() => onChooseImage(index)} onChange={image => { const nextImages = [...(images ?? [])]; while (nextImages.length <= index) nextImages.push(""); nextImages[index] = image; onChange(value, nextImages); }} /> : null}{model.fields.map(field => <label key={field} className="grid gap-1 text-[10px] font-semibold uppercase tracking-[.12em] text-[#716d65]">{labels[field] ?? field}<textarea rows={field === "description" || field === "answer" || field === "text" ? 3 : 1} className={inputClass} disabled={disabled} value={card[field] ?? ""} onChange={event => run({ type: "update", index, field, value: event.target.value })} /></label>)}<div className="flex justify-end gap-2"><button type="button" aria-label="Поднять карточку" disabled={disabled || index === 0} onClick={() => run({ type: "move", index, to: index - 1 })} className="h-8 w-8 rounded-full border border-black/10 disabled:opacity-25">↑</button><button type="button" aria-label="Опустить карточку" disabled={disabled || index === cards.length - 1} onClick={() => run({ type: "move", index, to: index + 1 })} className="h-8 w-8 rounded-full border border-black/10 disabled:opacity-25">↓</button></div></article>)}<button type="button" disabled={disabled || cards.length >= 12} onClick={() => run({ type: "add" })} className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40">+ Добавить карточку</button></div>;
+  const hasAction = model.fields.includes("buttonLabel") && model.fields.includes("buttonUrl");
+  const visibleFields = hasAction
+    ? model.fields.filter((field) => field !== "buttonLabel" && field !== "buttonUrl")
+    : model.fields;
+  return <div className="grid gap-3">
+    {cards.map((card, index) => <article key={index} className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4">
+      <div className="flex items-center justify-between"><b className="text-xs">Карточка {index + 1}</b><button type="button" disabled={disabled} onClick={() => run({ type: "remove", index })} className="text-xs font-semibold text-red-600 disabled:opacity-40">Удалить</button></div>
+      {imageLabel && onChooseImage ? <MediaField label={imageLabel} value={images?.[index] ?? ""} originalValue={originalImages?.[index]} disabled={disabled} onChoose={() => onChooseImage(index)} onChange={image => { const nextImages = [...(images ?? [])]; while (nextImages.length <= index) nextImages.push(""); nextImages[index] = image; onChange(value, nextImages); }} /> : null}
+      {visibleFields.map(field => <label key={field} className="grid gap-1 text-[10px] font-semibold uppercase tracking-[.12em] text-[#716d65]">{labels[field] ?? field}<textarea rows={field === "description" || field === "answer" || field === "text" ? 3 : 1} className={inputClass} disabled={disabled} value={card[field] ?? ""} onChange={event => run({ type: "update", index, field, value: event.target.value })} /></label>)}
+      {hasAction ? <SiteEditorActionField
+        label="Кнопка карточки"
+        text={card.buttonLabel ?? ""}
+        href={card.buttonUrl ?? ""}
+        disabled={disabled}
+        destinations={[
+          { value: "#contact", label: "Контакты" },
+          { value: "#booking", label: "Запись" },
+          { value: "#services", label: "Услуги" },
+        ]}
+        onTextChange={next => run({ type: "update", index, field: "buttonLabel", value: next })}
+        onHrefChange={next => run({ type: "update", index, field: "buttonUrl", value: next })}
+      /> : null}
+      <div className="flex justify-end gap-2"><button type="button" aria-label="Поднять карточку" disabled={disabled || index === 0} onClick={() => run({ type: "move", index, to: index - 1 })} className="h-8 w-8 rounded-full border border-black/10 disabled:opacity-25">↑</button><button type="button" aria-label="Опустить карточку" disabled={disabled || index === cards.length - 1} onClick={() => run({ type: "move", index, to: index + 1 })} className="h-8 w-8 rounded-full border border-black/10 disabled:opacity-25">↓</button></div>
+    </article>)}
+    <button type="button" disabled={disabled || cards.length >= 12} onClick={() => run({ type: "add" })} className="rounded-xl border border-dashed border-[#9d3151]/45 bg-[#fff8fa] px-4 py-3 text-xs font-semibold text-[#8d2d4a] disabled:opacity-40">+ Добавить карточку</button>
+  </div>;
 }
 
 function ReviewsEditor({ reviews, disabled, onChange }: { reviews: readonly PublicSiteReview[]; disabled: boolean; onChange(reviews: PublicSiteReview[]): void }) {

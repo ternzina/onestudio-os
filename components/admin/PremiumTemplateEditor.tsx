@@ -221,6 +221,26 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
       const originalRaw = originalBlock.props[key];
       const originalValue = Array.isArray(originalRaw) ? originalRaw.join("\n") : originalRaw ?? "";
       const rich = kind === "text" && ["hero_description", "intro_description", "programs_description", "schedule_description", "footer_description"].includes(key);
+      const fixedActionDestination = key === "primary_cta_label"
+        ? t("Programs")
+        : key === "secondary_cta_label"
+          ? t("Task library")
+          : key === "final_cta_label"
+            ? t("Schedule")
+            : null;
+      if (fixedActionDestination) {
+        contentFields.push({
+          id: key,
+          type: "action",
+          label: t(label),
+          text: value,
+          originalText: originalValue,
+          disabled: controlsDisabled,
+          destinationHint: fixedActionDestination,
+          onTextChange: next => update(key, next),
+        });
+        continue;
+      }
       contentFields.push(rich
         ? { id: key, type: "richText", label: t(label), value, originalValue, disabled: controlsDisabled, onChange: next => update(key, next) }
         : kind === "input"

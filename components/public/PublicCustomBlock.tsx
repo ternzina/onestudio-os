@@ -12,6 +12,7 @@ import {
   resolvePublicSiteBlockComposition,
 } from "@/lib/public-site/block-composition";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import {
   publicSiteCustomBlockMediaStyle,
@@ -388,7 +389,7 @@ export default function PublicCustomBlock({
             {block.button_label && block.button_url ? (
               <Link
                 data-os-composition-slot="action"
-                href={block.button_url}
+                href={safePublicActionHref(block.button_url, "#contact")}
                 className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
                   hasCustomColors
                     ? ""
@@ -576,7 +577,7 @@ export default function PublicCustomBlock({
         {block.kind === "cta" && block.button_label && block.button_url ? (
           <Link
             data-os-composition-slot="action"
-            href={block.button_url}
+            href={safePublicActionHref(block.button_url, "#contact")}
             className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
               hasCustomColors
                 ? ""
