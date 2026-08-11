@@ -270,6 +270,7 @@ export type PublicSiteCustomBlockKind =
   | "media_text"
   | "columns";
 export type PublicSiteCustomBlockTone = "light" | "accent" | "dark";
+export type PublicSiteButtonSize = "small" | "medium" | "large";
 export type PublicSiteMediaSize = "full" | "wide" | "medium" | "compact";
 export type PublicSiteMediaAspect =
   | "landscape"
@@ -379,6 +380,9 @@ export type PublicSiteCustomBlock = {
   items: string;
   button_label: string;
   button_url: string;
+  button_size?: PublicSiteButtonSize;
+  button_background?: string;
+  button_text_color?: string;
   tone: PublicSiteCustomBlockTone;
   colors?: PublicSiteBlockColors;
   is_visible?: boolean;

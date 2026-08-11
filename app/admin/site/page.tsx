@@ -19,6 +19,7 @@ import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-s
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -4446,6 +4447,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
     "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
   } : {};
   const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(block, element);
+  const buttonStyle = publicSiteButtonStyle(block);
   const mediaSize = {
     full: "w-full",
     wide: "w-full max-w-4xl",
@@ -4571,7 +4573,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
           {composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />}
           {block.button_label ? (
-            <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+            <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
               {block.button_label}
             </span>
           ) : null}
@@ -4742,7 +4744,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         </div>
       ) : null}
       {block.kind === "cta" && block.button_label ? (
-        <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+        <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
           {block.button_label}
         </span>
       ) : null}
@@ -7432,6 +7434,14 @@ function CustomBlockSettings({
             { value: "#portfolio", label: t("Portfolio") },
             { value: "#about", label: t("About") },
           ]}
+          appearance={{
+            size: block.button_size ?? "medium",
+            backgroundColor: block.button_background ?? (block.tone === "dark" || block.tone === "accent" ? "#ffffff" : colorDefaults.accent),
+            textColor: block.button_text_color ?? (block.tone === "dark" || block.tone === "accent" ? siteDark : "#ffffff"),
+            onSizeChange: (value) => onChange("button_size", value),
+            onBackgroundColorChange: (value) => onChange("button_background", value),
+            onTextColorChange: (value) => onChange("button_text_color", value),
+          }}
           onTextChange={(value) => onChange("button_label", value)}
           onHrefChange={(value) => onChange("button_url", value)}
         />

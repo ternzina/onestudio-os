@@ -5,6 +5,8 @@ import {
   editorActionHrefKind,
   safePublicActionHref,
 } from "../lib/public-site/editor-actions.ts";
+import { publicSiteButtonStyle } from "../lib/public-site/button-style.ts";
+import { createPublicSiteCustomBlock } from "../lib/public-site/custom-block-registry.ts";
 import { buildGlossInspectorFields } from "../lib/public-site/gloss-editor-schema.ts";
 import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/noir-premium-template-editor-adapter.ts";
 import { createNoirPremiumTemplateSeed } from "../lib/public-site/noir-premium-template-seed.ts";
@@ -94,6 +96,50 @@ test("one shared component owns Standard, Premium and structured card button UI"
   assert.match(inspector, /field\.type === "action"[^\n]+SiteEditorActionField/);
   for (const source of [standard, gloss]) assert.match(source, /SiteEditorActionField/);
   for (const source of [bembi, universal]) assert.match(source, /type: "action"/);
+});
+
+test("universal button appearance keeps BEMBI visible and accepts saved overrides", () => {
+  const block = createPublicSiteCustomBlock("cta", "visible-button");
+  const bembiTheme = {
+    size: "large" as const,
+    backgroundColor: "var(--ink)",
+    textColor: "var(--paper)",
+  };
+  assert.deepEqual(publicSiteButtonStyle(block, bembiTheme), {
+    minHeight: 56,
+    paddingInline: 30,
+    fontSize: 16,
+    backgroundColor: "var(--ink)",
+    color: "var(--paper)",
+  });
+
+  block.button_size = "small";
+  block.button_background = "#1746d1";
+  block.button_text_color = "#fff9f4";
+  assert.deepEqual(publicSiteButtonStyle(block, bembiTheme), {
+    minHeight: 40,
+    paddingInline: 16,
+    fontSize: 12,
+    backgroundColor: "#1746d1",
+    color: "#fff9f4",
+  });
+});
+
+test("appearance controls are exposed only when an action supplies the shared appearance contract", async () => {
+  const [field, inspector, universal, bembi] = await Promise.all([
+    read("../components/admin/SiteEditorActionField.tsx"),
+    read("../components/admin/SharedEditorInspector.tsx"),
+    read("../components/admin/PremiumUniversalBlockSettings.tsx"),
+    read("../app/demos/premium-kids-center/PremiumUniversalBlock.tsx"),
+  ]);
+  assert.match(field, /data-site-editor-action-appearance/);
+  assert.match(field, /BUTTON_SIZE_OPTIONS/);
+  assert.match(inspector, /appearance=\{field\.appearance\}/);
+  for (const key of ["button_size", "button_background", "button_text_color"]) {
+    assert.match(universal, new RegExp(key));
+  }
+  assert.match(bembi, /BEMBI_BUTTON_THEME/);
+  assert.match(bembi, /buttonTheme=\{BEMBI_BUTTON_THEME\}/);
 });
 
 test("public button runtimes reject unsafe stored destinations", async () => {

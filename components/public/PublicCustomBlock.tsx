@@ -12,6 +12,10 @@ import {
   resolvePublicSiteBlockComposition,
 } from "@/lib/public-site/block-composition";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
+import {
+  publicSiteButtonStyle,
+  type PublicSiteButtonTheme,
+} from "@/lib/public-site/button-style";
 import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import {
@@ -144,10 +148,12 @@ export default function PublicCustomBlock({
   block,
   bookingHref = "",
   services = [],
+  buttonTheme,
 }: {
   block: PublicSiteCustomBlock;
   bookingHref?: string;
   services?: PublicSiteService[];
+  buttonTheme?: PublicSiteButtonTheme;
 }) {
   if (block.is_visible === false) return null;
 
@@ -162,9 +168,7 @@ export default function PublicCustomBlock({
       ? "bg-[var(--site-accent)] text-white"
       : "border-y border-black/8 bg-white/60 text-[#3b211f]";
   const blockStyle = colorOverrideStyle(block.colors);
-  const customButtonStyle = hasCustomColors
-    ? { backgroundColor: "var(--site-accent)", color: "#ffffff" }
-    : undefined;
+  const buttonStyle = publicSiteButtonStyle(block, buttonTheme);
   const sliderImages = (block.media_urls ?? []).filter(Boolean);
   const embedUrl = videoEmbedUrl(block.video_url);
   const mediaSize = block.media_size ?? "wide";
@@ -390,14 +394,8 @@ export default function PublicCustomBlock({
               <Link
                 data-os-composition-slot="action"
                 href={safePublicActionHref(block.button_url, "#contact")}
-                className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
-                  hasCustomColors
-                    ? ""
-                    : isDark || isAccent
-                      ? "bg-white text-[var(--site-dark)]"
-                      : "bg-[var(--site-dark)] text-white"
-                }`}
-                style={{ ...customButtonStyle, ...itemStyle("action") }}
+                className="mt-8 inline-flex items-center rounded-lg font-semibold"
+                style={{ ...buttonStyle, ...itemStyle("action") }}
               >
                 {block.button_label}
                 <span className="ml-8" aria-hidden="true">
@@ -578,14 +576,8 @@ export default function PublicCustomBlock({
           <Link
             data-os-composition-slot="action"
             href={safePublicActionHref(block.button_url, "#contact")}
-            className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
-              hasCustomColors
-                ? ""
-                : isDark || isAccent
-                  ? "bg-white text-[var(--site-dark)]"
-                  : "bg-[var(--site-dark)] text-white"
-            }`}
-            style={{ ...customButtonStyle, ...itemStyle("action") }}
+            className="mt-8 inline-flex items-center rounded-lg font-semibold"
+            style={{ ...buttonStyle, ...itemStyle("action") }}
           >
             {block.button_label}
             <span className="ml-8" aria-hidden="true">

@@ -1,6 +1,15 @@
 import type { HTMLAttributes, ReactNode, Ref } from "react";
 import type { EditorBlockLibraryItem } from "@/components/admin/EditorBlockLibrary";
-import type { PublicSiteTypography } from "@/lib/public-site/types";
+import type { PublicSiteButtonSize, PublicSiteTypography } from "@/lib/public-site/types";
+
+export type EditorActionAppearance = {
+  size: PublicSiteButtonSize;
+  backgroundColor: string;
+  textColor: string;
+  onSizeChange: (value: PublicSiteButtonSize) => void;
+  onBackgroundColorChange: (value: string) => void;
+  onTextColorChange: (value: string) => void;
+};
 
 export type TemplateEditorDevice = "desktop" | "tablet" | "mobile";
 export type EditorSectionCapabilities = {
@@ -73,6 +82,7 @@ export type EditorInspectorField =
       disabled?: boolean;
       destinations?: readonly { value: string; label: string }[];
       destinationHint?: string;
+      appearance?: EditorActionAppearance;
       onTextChange: (value: string) => void;
       onHrefChange?: (value: string) => void;
     }
