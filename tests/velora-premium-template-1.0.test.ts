@@ -462,3 +462,55 @@ test("VELORA lightbox traps and restores focus with complete keyboard semantics"
     assert.match(source, new RegExp(marker));
   assert.match(source, /if \(!items\.length\) return null/);
 });
+
+test("VELORA conversion motion layer keeps every promised effect and degrades safely", async () => {
+  const site = await readFile(
+    new URL("../components/public/velora/VeloraSite.tsx", import.meta.url),
+    "utf8",
+  );
+  const customPage = await readFile(
+    new URL("../components/public/velora/VeloraCustomPage.tsx", import.meta.url),
+    "utf8",
+  );
+  const interactions = await readFile(
+    new URL(
+      "../components/public/velora/VeloraInteractions.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const css = await readFile(
+    new URL("../components/public/velora/Velora.module.css", import.meta.url),
+    "utf8",
+  );
+
+  for (const marker of [
+    "VeloraCursorTrail",
+    "VeloraStickyHeader",
+    "VeloraPageEntrance",
+    "VeloraHeroTitle",
+    "VeloraVenueReveal",
+    "heroRibbon",
+  ]) {
+    assert.match(site, new RegExp(marker));
+  }
+  for (const marker of [
+    "VeloraCursorTrail",
+    "VeloraStickyHeader",
+    "VeloraPageEntrance",
+    "VeloraHeroTitle",
+  ]) {
+    assert.match(customPage, new RegExp(marker));
+  }
+  assert.match(interactions, /\(hover: hover\) and \(pointer: fine\)/);
+  assert.match(interactions, /galleryGhostSet/);
+  assert.match(interactions, /useSpring/);
+  assert.match(css, /\.headerScrolled\s*\{/);
+  assert.match(css, /@keyframes velora-gallery-travel/);
+  assert.match(css, /@keyframes velora-ribbon-drift/);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)/);
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.galleryRail[\s\S]*?animation:\s*none/s,
+  );
+});

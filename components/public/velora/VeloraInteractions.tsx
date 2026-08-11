@@ -32,6 +32,165 @@ const SelectionContext = createContext<{
   choose(kind: keyof Selection, value: string): void;
 } | null>(null);
 
+function splitHeroTitle(title: string) {
+  const words = title
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length < 4) return [title, ""] as const;
+  const splitAt = Math.max(2, Math.ceil(words.length * 0.56));
+  return [
+    words.slice(0, splitAt).join(" "),
+    words.slice(splitAt).join(" "),
+  ] as const;
+}
+
+export function VeloraPageEntrance() {
+  const reduced = useReducedMotion();
+  if (reduced) return null;
+  return (
+    <motion.div
+      aria-hidden="true"
+      className={styles.pageEntrance}
+      initial={{ scaleY: 1 }}
+      animate={{ scaleY: 0 }}
+      transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
+    >
+      <motion.i
+        initial={{ opacity: 0.9, scaleX: 0.18 }}
+        animate={{ opacity: 0, scaleX: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      />
+    </motion.div>
+  );
+}
+
+export function VeloraStickyHeader({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 36);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return (
+    <header
+      className={`${className ?? ""} ${scrolled ? styles.headerScrolled : ""}`}
+    >
+      {children}
+    </header>
+  );
+}
+
+export function VeloraCursorTrail() {
+  const reduced = useReducedMotion();
+  const x = useMotionValue(-120);
+  const y = useMotionValue(-120);
+  const trailX = useSpring(x, { stiffness: 115, damping: 19, mass: 0.55 });
+  const trailY = useSpring(y, { stiffness: 115, damping: 19, mass: 0.55 });
+  const auraX = useSpring(x, { stiffness: 58, damping: 18, mass: 0.85 });
+  const auraY = useSpring(y, { stiffness: 58, damping: 18, mass: 0.85 });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (reduced) return;
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const move = (event: PointerEvent) => {
+      if (!pointer.matches) return;
+      x.set(event.clientX);
+      y.set(event.clientY);
+      setVisible(true);
+    };
+    const leave = () => setVisible(false);
+    window.addEventListener("pointermove", move, { passive: true });
+    document.documentElement.addEventListener("mouseleave", leave);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      document.documentElement.removeEventListener("mouseleave", leave);
+    };
+  }, [reduced, x, y]);
+
+  if (reduced) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className={`${styles.cursorLayer} ${visible ? styles.cursorVisible : ""}`}
+    >
+      <motion.i className={styles.cursorAura} style={{ x: auraX, y: auraY }} />
+      <motion.i
+        className={styles.cursorTrail}
+        style={{ x: trailX, y: trailY }}
+      />
+      <motion.i className={styles.cursorCore} style={{ x, y }} />
+    </div>
+  );
+}
+
+export function VeloraHeroTitle({ title }: { title: string }) {
+  const reduced = useReducedMotion();
+  const [firstLine, secondLine] = splitHeroTitle(title);
+  return (
+    <h1 className={styles.heroTitle} aria-label={title}>
+      {[firstLine, secondLine].filter(Boolean).map((line, index) => (
+        <span className={index === 1 ? styles.heroTitleAccent : ""} key={line}>
+          <motion.i
+            aria-hidden="true"
+            initial={reduced ? false : { y: "115%", rotate: index ? 2 : -1 }}
+            animate={{ y: 0, rotate: 0 }}
+            transition={{
+              duration: 1.05,
+              delay: 0.25 + index * 0.16,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            {line}
+          </motion.i>
+        </span>
+      ))}
+    </h1>
+  );
+}
+
+export function VeloraVenueReveal({
+  children,
+  index,
+}: {
+  children: React.ReactNode;
+  index: number;
+}) {
+  const reduced = useReducedMotion();
+  const entrances = [
+    { x: -90, y: 55, rotate: -2.5 },
+    { x: 75, y: 125, rotate: 2.5 },
+    { x: 120, y: 70, rotate: 1.5 },
+  ];
+  return (
+    <motion.div
+      className={styles.venueReveal}
+      initial={
+        reduced
+          ? false
+          : { opacity: 0, ...entrances[index % entrances.length] }
+      }
+      whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
+      viewport={{ once: true, amount: 0.14 }}
+      transition={{
+        duration: 1.05,
+        delay: index * 0.08,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function VeloraReveal({
   children,
   className,
@@ -493,6 +652,7 @@ export function VeloraGallery({
   items: VeloraItem[];
   copy: VeloraItem;
 }) {
+  const reduced = useReducedMotion();
   const [active, setActive] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
@@ -543,73 +703,115 @@ export function VeloraGallery({
   }, [active]);
 
   if (!items.length) return null;
+  const galleryItem = (item: VeloraItem, index: number) => (
+    <button
+      type="button"
+      onClick={(event) => {
+        openerRef.current = event.currentTarget;
+        setActive(index);
+      }}
+      key={`${item.image}-${index}`}
+      aria-label={`${copy.openLabel}: ${item.alt}`}
+    >
+      <Image
+        src={item.image}
+        alt={item.alt}
+        width={1200}
+        height={900}
+        sizes="(max-width: 768px) 78vw, 38vw"
+      />
+      <span aria-hidden="true">0{index + 1}</span>
+    </button>
+  );
   return (
     <>
-      <div className={styles.galleryGrid}>
-        {items.map((item, index) => (
-          <button
-            type="button"
-            onClick={(event) => {
-              openerRef.current = event.currentTarget;
-              setActive(index);
-            }}
-            key={`${item.image}-${index}`}
-            aria-label={`${copy.openLabel}: ${item.alt}`}
-          >
-            <Image
-              src={item.image}
-              alt={item.alt}
-              width={1200}
-              height={900}
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </button>
-        ))}
-      </div>
-      {active !== null && items[active] ? (
-        <div
-          ref={dialogRef}
-          className={styles.lightbox}
-          role="dialog"
-          aria-modal="true"
-          aria-label={copy.dialogLabel}
-          onMouseDown={(event) =>
-            event.currentTarget === event.target && close()
-          }
-        >
-          <button type="button" onClick={close} aria-label={copy.closeLabel}>
-            ×
-          </button>
-          <button
-            className={styles.lightboxPrevious}
-            type="button"
-            onClick={() =>
-              setActive((active - 1 + items.length) % items.length)
-            }
-            aria-label={copy.previousLabel}
-          >
-            ←
-          </button>
-          <Image
-            src={items[active].image}
-            alt={items[active].alt}
-            width={1600}
-            height={1100}
-            sizes="90vw"
-          />
-          <button
-            className={styles.lightboxNext}
-            type="button"
-            onClick={() => setActive((active + 1) % items.length)}
-            aria-label={copy.nextLabel}
-          >
-            →
-          </button>
-          <p>
-            {items[active].alt} · {active + 1}/{items.length}
-          </p>
+      <div className={styles.galleryViewport}>
+        <div className={styles.galleryRail}>
+          <div className={styles.galleryGrid}>
+            {items.map(galleryItem)}
+          </div>
+          <div className={styles.galleryGhostSet} aria-hidden="true">
+            {items.map((item, index) => (
+              <div key={`ghost-${item.image}-${index}`}>
+                <Image
+                  src={item.image}
+                  alt=""
+                  width={1200}
+                  height={900}
+                  sizes="38vw"
+                />
+                <span>0{index + 1}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      ) : null}
+      </div>
+      <AnimatePresence>
+        {active !== null && items[active] ? (
+          <motion.div
+            initial={
+              reduced
+                ? false
+                : { opacity: 0, backdropFilter: "blur(0px)" }
+            }
+            animate={{ opacity: 1, backdropFilter: "blur(18px)" }}
+            exit={
+              reduced
+                ? undefined
+                : { opacity: 0, backdropFilter: "blur(0px)" }
+            }
+            transition={{ duration: 0.35 }}
+            ref={dialogRef}
+            className={styles.lightbox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={copy.dialogLabel}
+            onMouseDown={(event) =>
+              event.currentTarget === event.target && close()
+            }
+          >
+            <button type="button" onClick={close} aria-label={copy.closeLabel}>
+              ×
+            </button>
+            <button
+              className={styles.lightboxPrevious}
+              type="button"
+              onClick={() =>
+                setActive((active - 1 + items.length) % items.length)
+              }
+              aria-label={copy.previousLabel}
+            >
+              ←
+            </button>
+            <motion.div
+              className={styles.lightboxImage}
+              initial={reduced ? false : { scale: 0.92, y: 24 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={reduced ? undefined : { scale: 0.96, y: 12 }}
+              transition={{ duration: 0.58, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Image
+                src={items[active].image}
+                alt={items[active].alt}
+                width={1600}
+                height={1100}
+                sizes="90vw"
+              />
+            </motion.div>
+            <button
+              className={styles.lightboxNext}
+              type="button"
+              onClick={() => setActive((active + 1) % items.length)}
+              aria-label={copy.nextLabel}
+            >
+              →
+            </button>
+            <p>
+              {items[active].alt} · {active + 1}/{items.length}
+            </p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

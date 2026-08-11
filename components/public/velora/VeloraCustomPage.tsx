@@ -6,6 +6,14 @@ import PublicRichText from "@/components/public/PublicRichText";
 import { resolveVeloraContent } from "@/lib/public-site/velora-premium-template-content";
 import { buildVeloraAvailabilityHref } from "@/lib/public-site/velora-availability-selection";
 import type { PublicSiteData, PublicSitePage } from "@/lib/public-site/types";
+import {
+  VeloraCursorTrail,
+  VeloraHeroTitle,
+  VeloraPageEntrance,
+  VeloraReveal,
+  VeloraScrollProgress,
+  VeloraStickyHeader,
+} from "./VeloraInteractions";
 import styles from "./Velora.module.css";
 
 const BUILTIN_VENUES_ID = "velora-venues";
@@ -102,7 +110,10 @@ export default function VeloraCustomPage({
       data-locale={currentLocale}
       lang={currentLocale}
     >
-      <header className={styles.header}>
+      <VeloraPageEntrance />
+      <VeloraScrollProgress />
+      <VeloraCursorTrail />
+      <VeloraStickyHeader className={styles.header}>
         <Link className={styles.logo} href={basePath}>
           {content.brand}
         </Link>
@@ -128,23 +139,32 @@ export default function VeloraCustomPage({
         <Link className={styles.headerCta} href={`${basePath}#availability`}>
           {content.header.availabilityLabel}
         </Link>
-      </header>
+      </VeloraStickyHeader>
       <section className={styles.customHero}>
         <div className={styles.customHeroMedia}>
           <Image src={heroImage} alt={heroAlt} fill priority sizes="100vw" />
         </div>
         <div className={styles.customHeroShade} />
-        <div className={styles.customHeroContent}>
-          <span>{hero.eyebrow}</span>
-          <h1>{hero.title}</h1>
-          <PublicRichText value={hero.intro} />
+        <div className={styles.heroRibbon} aria-hidden="true">
+          <i />
+          <i />
+          <i />
         </div>
+        <VeloraReveal className={styles.customHeroContent}>
+          <span>{hero.eyebrow}</span>
+          <VeloraHeroTitle title={hero.title} />
+          <PublicRichText value={hero.intro} />
+        </VeloraReveal>
       </section>
       <section className={`${styles.section} ${styles.ivory}`}>
         {items.length ? (
           <div className={styles.compare}>
             {items.map((item, index) => (
-              <article key={`${item.name}-${index}`}>
+              <VeloraReveal
+                as="article"
+                key={`${item.name}-${index}`}
+                direction={index % 2 ? "right" : "left"}
+              >
                 <div>
                   <Image
                     src={item.image}
@@ -183,7 +203,7 @@ export default function VeloraCustomPage({
                 >
                   {content.customPages.requestLabel} →
                 </Link>
-              </article>
+              </VeloraReveal>
             ))}
           </div>
         ) : null}

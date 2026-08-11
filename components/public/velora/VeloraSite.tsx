@@ -11,26 +11,31 @@ import {
 import type { PublicSiteData } from "@/lib/public-site/types";
 import {
   VeloraAvailability,
+  VeloraCursorTrail,
   VeloraGallery,
   VeloraHeroMedia,
+  VeloraHeroTitle,
   VeloraInteractiveShell,
   VeloraMobileCta,
+  VeloraPageEntrance,
   VeloraPackageCta,
   VeloraReveal,
   VeloraScrollProgress,
+  VeloraStickyHeader,
   VeloraStoryFilm,
   VeloraTiltCard,
   VeloraTransformation,
+  VeloraVenueReveal,
   VeloraVenueCta,
 } from "./VeloraInteractions";
 import styles from "./Velora.module.css";
 
 const title = (eyebrow: string, heading: string, text?: string) => (
-  <div className={styles.sectionTitle}>
+  <VeloraReveal className={styles.sectionTitle}>
     <span>{eyebrow}</span>
     <h2>{heading}</h2>
     {text ? <PublicRichText value={text} /> : null}
-  </div>
+  </VeloraReveal>
 );
 
 export default function VeloraSite({
@@ -83,7 +88,7 @@ export default function VeloraSite({
         <a className={styles.skip} href="#main-story">
           {currentLocale === "en" ? "Skip to content" : "Перейти к содержанию"}
         </a>
-        <header className={styles.header}>
+        <VeloraStickyHeader className={styles.header}>
           <Link href={basePath} className={styles.logo}>
             {content.brand}
           </Link>
@@ -115,12 +120,17 @@ export default function VeloraSite({
           <Link className={styles.headerCta} href="#availability">
             {content.header.availabilityLabel}
           </Link>
-        </header>
+        </VeloraStickyHeader>
         <section id="hero" className={styles.hero}>
           <VeloraHeroMedia image={content.hero.image} alt={content.hero.alt} />
+          <div className={styles.heroRibbon} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
           <VeloraReveal className={styles.heroContent}>
             <span>{content.hero.eyebrow}</span>
-            <h1 className={styles.heroTitle}>{content.hero.title}</h1>
+            <VeloraHeroTitle title={content.hero.title} />
             <PublicRichText value={content.hero.text} />
             <div className={styles.actions}>
               <Link href={content.hero.primaryUrl}>
@@ -143,13 +153,15 @@ export default function VeloraSite({
       <section
         id="main-story"
         className={styles.facts}
-        aria-label="VELORA w liczbach"
+        aria-label={
+          currentLocale === "en" ? "VELORA in numbers" : "VELORA в цифрах"
+        }
       >
-        {content.facts.map((item) => (
-          <div key={item.label}>
+        {content.facts.map((item, index) => (
+          <VeloraReveal key={item.label} delay={index * 0.08}>
             <strong>{item.value}</strong>
             <span>{item.label}</span>
-          </div>
+          </VeloraReveal>
         ))}
       </section>
     ) : null,
@@ -165,7 +177,7 @@ export default function VeloraSite({
         )}
         <div className={styles.venueGrid}>
           {content.venues.map((venue, index) => (
-            <VeloraReveal key={venue.name} delay={index * 0.08}>
+            <VeloraVenueReveal key={venue.name} index={index}>
               <VeloraTiltCard className={styles.venueCard}>
                 <div className={styles.venueImage}>
                   <Image
@@ -185,7 +197,7 @@ export default function VeloraSite({
                 <small>{venue.formats}</small>
                 <VeloraVenueCta venue={venue.name} label={venue.cta} />
               </VeloraTiltCard>
-            </VeloraReveal>
+            </VeloraVenueReveal>
           ))}
         </div>
         <Link className={styles.textLink} href={pageHref("venues")}>
@@ -203,12 +215,17 @@ export default function VeloraSite({
           content.formatsPresentation.title,
         )}
         <div className={styles.formatRail}>
-          {content.formats.map((item) => (
-            <article key={item.title}>
+          {content.formats.map((item, index) => (
+            <VeloraReveal
+              as="article"
+              key={item.title}
+              delay={index * 0.06}
+              direction={index % 2 ? "right" : "left"}
+            >
               <span>{item.number}</span>
               <h3>{item.title}</h3>
               <PublicRichText value={item.text} />
-            </article>
+            </VeloraReveal>
           ))}
         </div>
       </section>
@@ -258,25 +275,26 @@ export default function VeloraSite({
         )}
         <div className={styles.packageGrid}>
           {content.packages.map((item, index) => (
-            <VeloraTiltCard
-              key={item.name}
-              className={index === 1 ? styles.featured : ""}
-            >
-              <div className={styles.packageImage}>
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  fill
-                  sizes="(max-width: 768px) 90vw, 33vw"
-                />
-              </div>
-              <span>{item.for}</span>
-              <h3>{item.name}</h3>
-              <h4>{item.result}</h4>
-              <strong>{item.price}</strong>
-              <PublicRichText value={item.includes} />
-              <VeloraPackageCta packageName={item.name} label={item.cta} />
-            </VeloraTiltCard>
+            <VeloraReveal key={item.name} delay={index * 0.1}>
+              <VeloraTiltCard
+                className={index === 1 ? styles.featured : ""}
+              >
+                <div className={styles.packageImage}>
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    fill
+                    sizes="(max-width: 768px) 90vw, 33vw"
+                  />
+                </div>
+                <span>{item.for}</span>
+                <h3>{item.name}</h3>
+                <h4>{item.result}</h4>
+                <strong>{item.price}</strong>
+                <PublicRichText value={item.includes} />
+                <VeloraPackageCta packageName={item.name} label={item.cta} />
+              </VeloraTiltCard>
+            </VeloraReveal>
           ))}
         </div>
         <Link className={styles.textLink} href={pageHref("packages")}>
@@ -314,7 +332,7 @@ export default function VeloraSite({
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
-        <div>
+        <VeloraReveal direction="right">
           {title(
             content.cateringPresentation.eyebrow,
             content.cateringPresentation.title,
@@ -332,7 +350,7 @@ export default function VeloraSite({
           <a className={styles.goldButton} href="#availability">
             {content.cateringPresentation.cta}
           </a>
-        </div>
+        </VeloraReveal>
       </section>
     ) : null,
     decor: visible("decor") ? (
@@ -393,8 +411,12 @@ export default function VeloraSite({
           {content.reviewsPresentation.disclaimer}
         </p>
         <div className={styles.stories}>
-          {content.reviews.map((item) => (
-            <article key={item.author}>
+          {content.reviews.map((item, index) => (
+            <VeloraReveal
+              as="article"
+              key={item.author}
+              direction={index % 2 ? "right" : "left"}
+            >
               <div>
                 <Image
                   src={item.image}
@@ -408,7 +430,7 @@ export default function VeloraSite({
               <h3>{item.task}</h3>
               <blockquote>“{item.quote}”</blockquote>
               <small>{item.author}</small>
-            </article>
+            </VeloraReveal>
           ))}
         </div>
       </section>
@@ -436,12 +458,12 @@ export default function VeloraSite({
           content.plannerPresentation.text,
         )}
         <div className={styles.timeline}>
-          {content.planner.map((item) => (
-            <article key={item.number}>
+          {content.planner.map((item, index) => (
+            <VeloraReveal as="article" key={item.number} delay={index * 0.08}>
               <span>{item.number}</span>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
-            </article>
+            </VeloraReveal>
           ))}
         </div>
       </section>
@@ -506,7 +528,9 @@ export default function VeloraSite({
       data-locale={currentLocale}
       lang={currentLocale}
     >
+      <VeloraPageEntrance />
       <VeloraScrollProgress />
+      <VeloraCursorTrail />
       <VeloraInteractiveShell
         venues={content.venues}
         packages={content.packages}
