@@ -311,11 +311,7 @@ export default function RichTextEditor({
                 onChange={(event) => applyFontSize(event.target.value)}
                 className="h-8 w-[72px] rounded-lg border border-black/10 bg-white px-2 text-xs text-[#403d38] outline-none disabled:opacity-35"
               >
-                {sizeOptions.map((size) => (
-                  <option key={size} value={size}>
-                    {heading ? `${Math.round((size / RICH_HEADING_FONT_SIZE_BASE_PX) * 100)}%` : `${size}px`}
-                  </option>
-                ))}
+                {sizeOptions.map((size) => <option key={size} value={size}>{size}px</option>)}
               </select>
             </div>
             <div className="flex flex-wrap gap-1">

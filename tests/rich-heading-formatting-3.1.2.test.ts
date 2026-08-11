@@ -57,6 +57,8 @@ test("shared inspector upgrades every typography-paired title to the heading edi
   assert.match(editor, /contentEditable=\{!disabled\}/);
   assert.match(editor, /onMouseDown=\{saveSelection\}/);
   assert.match(editor, /HEADING_SIZE_OPTIONS/);
+  assert.match(editor, /\{size\}px/);
+  assert.doesNotMatch(editor, /Math\.round\(\(size \/ RICH_HEADING_FONT_SIZE_BASE_PX\) \* 100\)/);
 });
 
 test("NOIR array-backed hero title round-trips a rich document as one value", () => {

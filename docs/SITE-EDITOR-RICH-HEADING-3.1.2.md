@@ -6,6 +6,7 @@ Rich Heading 3.1.2 extends the existing shared text editor. It does not introduc
 
 - A heading paired with a typography field automatically uses the heading variant of `RichTextEditor`.
 - The user can select a letter, word, or phrase and apply a safe color, font family, font size, bold, italic, or underline.
+- The size picker keeps the editor's familiar pixel labels while the public renderer converts those values to a scale of the responsive heading size.
 - Whole-heading typography controls remain directly below the field and continue to define the base style.
 - Plain-text mode intentionally removes fragment formatting when the value is edited there.
 
