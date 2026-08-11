@@ -160,81 +160,40 @@ export function VeloraHeroTitle({ title }: { title: string }) {
 export function VeloraFestiveRibbon() {
   return (
     <div className={styles.heroRibbon} aria-hidden="true">
-      <svg viewBox="0 0 960 420" focusable="false">
+      <svg viewBox="0 0 1200 240" preserveAspectRatio="none" focusable="false">
         <defs>
           <linearGradient
-            id="velora-ribbon-silk"
+            id="velora-ribbon-iridescent"
             x1="0"
             y1="0"
-            x2="1"
-            y2="0.72"
+            x2="1200"
+            y2="0"
+            gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0" stopColor="var(--velora-gold)" stopOpacity="0" />
-            <stop
-              offset="0.18"
-              stopColor="var(--velora-gold)"
-              stopOpacity="0.72"
-            />
-            <stop
-              offset="0.48"
-              stopColor="var(--velora-warm)"
-              stopOpacity="0.92"
-            />
-            <stop
-              offset="0.7"
-              stopColor="var(--velora-gold)"
-              stopOpacity="0.68"
-            />
-            <stop offset="1" stopColor="var(--velora-warm)" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient
-            id="velora-ribbon-fold"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
-            <stop offset="0" stopColor="white" stopOpacity="0.26" />
-            <stop
-              offset="0.46"
-              stopColor="var(--velora-warm)"
-              stopOpacity="0.05"
-            />
-            <stop offset="1" stopColor="var(--velora-bg)" stopOpacity="0.42" />
+            <stop offset="0" stopColor="#ff277f" stopOpacity="0" />
+            <stop offset="0.12" stopColor="#ff277f" />
+            <stop offset="0.34" stopColor="#ff477e" />
+            <stop offset="0.52" stopColor="#ffbf4b" />
+            <stop offset="0.68" stopColor="#45ded2" />
+            <stop offset="0.84" stopColor="#9065ff" />
+            <stop offset="1" stopColor="#f52f8b" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <g className={styles.ribbonSilk}>
-          <path
-            className={styles.ribbonBody}
-            d="M-72 180C79 35 232 24 374 113c139 88 269 102 431-19 49-36 96-58 168-72l-49 105c-42 12-78 31-115 59-185 139-354 126-493 39-124-78-231-55-353 58Z"
-            fill="url(#velora-ribbon-silk)"
-          />
-          <path
-            className={styles.ribbonFold}
-            d="M319 76c17 9 36 20 55 32 139 88 269 102 431-19 32-24 64-42 104-56-47 42-91 94-100 153-185 139-354 126-493 39 34-41 41-95 3-149Z"
-            fill="url(#velora-ribbon-fold)"
-          />
-          <path
-            className={styles.ribbonTail}
-            d="M802 95c57-43 106-65 173-78l-31 67 29 44c-63 5-110 22-164 58 5-32 2-62-7-91Z"
-            fill="var(--velora-gold)"
-            opacity="0.52"
-          />
-          <path
-            className={styles.ribbonHighlight}
-            d="M-38 202C93 80 231 65 365 147c148 91 289 100 451-23 42-31 81-52 132-68"
-            fill="none"
-          />
-        </g>
         <path
-          className={styles.ribbonStreamer}
-          d="M28 111c160-102 290-69 393 8 119 90 256 125 445 12"
+          className={styles.ribbonGlow}
+          d="M-80 151C84 39 230 57 365 135c142 82 270 75 401-22 132-98 274-97 514 22"
           fill="none"
+          pathLength="1"
+          stroke="url(#velora-ribbon-iridescent)"
+          vectorEffect="non-scaling-stroke"
         />
         <path
-          className={`${styles.ribbonStreamer} ${styles.ribbonStreamerLower}`}
-          d="M91 298c153-72 263-50 379 8 106 53 221 55 353-22"
+          className={styles.ribbonTrace}
+          d="M-80 151C84 39 230 57 365 135c142 82 270 75 401-22 132-98 274-97 514 22"
           fill="none"
+          pathLength="1"
+          stroke="url(#velora-ribbon-iridescent)"
+          vectorEffect="non-scaling-stroke"
         />
       </svg>
     </div>

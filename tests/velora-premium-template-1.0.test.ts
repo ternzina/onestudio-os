@@ -505,16 +505,20 @@ test("VELORA conversion motion layer keeps every promised effect and degrades sa
   }
   assert.match(interactions, /\(hover: hover\) and \(pointer: fine\)/);
   assert.match(interactions, /galleryGhostSet/);
-  assert.match(interactions, /ribbonBody/);
-  assert.match(interactions, /ribbonTail/);
+  assert.match(interactions, /velora-ribbon-iridescent/);
+  assert.match(interactions, /ribbonTrace/);
+  assert.match(interactions, /pathLength="1"/);
+  assert.doesNotMatch(interactions, /ribbonTail/);
   assert.doesNotMatch(css, /clip-path:\s*polygon\(0 43%/);
+  assert.doesNotMatch(css, /velora-ribbon-(?:pass|draw)[^}]*infinite/);
   assert.match(interactions, /useSpring/);
   assert.match(css, /\.headerScrolled\s*\{/);
   assert.match(css, /@keyframes velora-gallery-travel/);
-  assert.match(css, /@keyframes velora-ribbon-drift/);
+  assert.match(css, /@keyframes velora-ribbon-pass/);
+  assert.match(css, /@keyframes velora-ribbon-draw/);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)/);
   assert.match(
     css,
-    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.galleryRail[\s\S]*?animation:\s*none/s,
+    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.heroRibbon[\s\S]*?display:\s*none/s,
   );
 });

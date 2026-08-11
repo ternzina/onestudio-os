@@ -2268,101 +2268,58 @@
 .heroRibbon {
   position: absolute;
   z-index: 3;
-  top: 7%;
-  right: -7vw;
-  width: min(64vw, 980px);
-  height: min(72%, 650px);
-  transform: rotate(-7deg);
-  opacity: 0.88;
+  top: 54%;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 24%;
+  opacity: 0;
   pointer-events: none;
+  animation: velora-ribbon-pass 4.6s 1.05s cubic-bezier(0.16, 1, 0.3, 1) 1 both;
 }
 .heroRibbon svg {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 12px 30px #d6b56e4f);
 }
-.heroRibbon::before,
-.heroRibbon::after {
-  position: absolute;
-  content: "";
-  border-radius: 50%;
-  background: var(--velora-warm);
-  box-shadow:
-    90px 32px 0 -2px color-mix(in srgb, var(--velora-warm) 78%, white),
-    190px 8px 0 -3px var(--velora-gold),
-    280px 62px 0 -2px color-mix(in srgb, var(--velora-warm) 78%, white),
-    380px 18px 0 -3px var(--velora-gold);
-  animation: velora-sparkle 3.2s ease-in-out infinite alternate;
-}
-.heroRibbon::before {
-  top: 13%;
-  left: 8%;
-  width: 5px;
-  height: 5px;
-}
-.heroRibbon::after {
-  right: 20%;
-  bottom: 17%;
-  width: 3px;
-  height: 3px;
-  animation-delay: -1.4s;
-}
-.ribbonSilk {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: velora-ribbon-drift 8s ease-in-out infinite alternate;
-}
-.ribbonBody,
-.ribbonFold,
-.ribbonTail {
-  filter: drop-shadow(0 6px 16px #07101e5e);
-}
-.ribbonHighlight {
-  stroke: color-mix(in srgb, white 42%, var(--velora-warm));
-  stroke-width: 2.4;
+.ribbonGlow,
+.ribbonTrace {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
   stroke-linecap: round;
-  opacity: 0.6;
+  animation: velora-ribbon-draw 3.25s 1.05s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
 }
-.ribbonStreamer {
-  stroke: color-mix(in srgb, var(--velora-warm) 76%, transparent);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-dasharray: 9 13;
-  filter: drop-shadow(0 0 8px var(--velora-gold));
-  animation: velora-ribbon-arc 9s ease-in-out infinite alternate;
+.ribbonGlow {
+  stroke-width: 9;
+  opacity: 0.16;
+  filter: blur(4px);
 }
-.ribbonStreamerLower {
-  opacity: 0.64;
-  animation-delay: -3s;
+.ribbonTrace {
+  stroke-width: 2.75;
+  filter: drop-shadow(0 0 5px #ff3a8c8c);
 }
-@keyframes velora-ribbon-drift {
-  from {
-    transform: rotate(-1.5deg) translate3d(-2%, -7px, 0) scaleY(0.97);
+@keyframes velora-ribbon-pass {
+  0% {
+    opacity: 0;
+    transform: translate3d(-5vw, 9px, 0);
   }
-  to {
-    transform: rotate(1.4deg) translate3d(3%, 13px, 0) scaleY(1.03);
+  12%,
+  72% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(3vw, -5px, 0);
   }
 }
-@keyframes velora-ribbon-arc {
-  from {
-    transform: translate3d(-2%, -7px, 0);
+@keyframes velora-ribbon-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  82%,
+  100% {
     stroke-dashoffset: 0;
-  }
-  to {
-    transform: translate3d(3%, 11px, 0);
-    stroke-dashoffset: -44;
-  }
-}
-@keyframes velora-sparkle {
-  from {
-    opacity: 0.28;
-    transform: scale(0.72);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1.28);
   }
 }
 .heroTitle {
@@ -2491,10 +2448,8 @@
 
 @media (max-width: 900px) {
   .heroRibbon {
-    top: 18%;
-    right: -26vw;
-    width: 88vw;
-    opacity: 0.62;
+    top: 55%;
+    height: 20%;
   }
 }
 
@@ -2507,11 +2462,8 @@
     backdrop-filter: blur(16px);
   }
   .heroRibbon {
-    top: 15%;
-    right: -47vw;
-    width: 132vw;
-    height: 58%;
-    opacity: 0.5;
+    top: 53%;
+    height: 18%;
   }
   .heroTitle {
     gap: 0.08em;
@@ -2559,13 +2511,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pageEntrance,
-  .cursorLayer {
+  .cursorLayer,
+  .heroRibbon {
     display: none;
   }
-  .ribbonSilk,
-  .ribbonStreamer,
-  .heroRibbon::before,
-  .heroRibbon::after,
   .galleryRail {
     animation: none !important;
   }
