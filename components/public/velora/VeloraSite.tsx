@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import { isTemplateNativeSectionVisible } from "@/lib/public-site/template-native-section-state";
 import {
@@ -37,7 +38,7 @@ import styles from "./Velora.module.css";
 const title = (eyebrow: string, heading: string, text?: string, headingStyle?: CSSProperties) => (
   <VeloraReveal className={styles.sectionTitle}>
     <span>{eyebrow}</span>
-    <h2 style={headingStyle}>{heading}</h2>
+    <h2 style={headingStyle}><PublicRichHeading value={heading} /></h2>
     {text ? <PublicRichText value={text} /> : null}
   </VeloraReveal>
 );

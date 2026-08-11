@@ -3,6 +3,8 @@ import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
 import PublicSocialLinks from "@/components/public/PublicSocialLinks";
 import PublicPortfolioGallery from "@/components/public/PublicPortfolioGallery";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
+import PublicRichText from "@/components/public/PublicRichText";
 import {
   publicSitePagePath,
   publicSitePath,
@@ -104,11 +106,9 @@ export default function PublicPortfolioPage({
           </p>
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
             <h1 className="max-w-4xl text-5xl font-semibold tracking-[-0.065em] sm:text-7xl lg:text-[88px] lg:leading-[0.96]">
-              {page.title}
+              <PublicRichHeading value={page.title} />
             </h1>
-            <p className="max-w-xl text-base leading-8 text-black/55 sm:text-lg">
-              {page.intro}
-            </p>
+            <PublicRichText value={page.intro} className="max-w-xl text-base leading-8 text-black/55 sm:text-lg" />
           </div>
         </div>
       </section>

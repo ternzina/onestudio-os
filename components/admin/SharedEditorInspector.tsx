@@ -8,24 +8,25 @@ import { EditorToggle, editorCompactFieldClass } from "@/components/admin/Editor
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import { ONESTUDIO_INSPECTOR_GROUPS, type EditorInspectorField, type EditorInspectorModel, type EditorInspectorPlacedField, type OneStudioInspectorGroup } from "@/lib/public-site/editor-spec";
 
-export function SharedEditorInspectorField({ field }: { field: EditorInspectorField }) {
+export function SharedEditorInspectorField({ field, headingRichText = false }: { field: EditorInspectorField; headingRichText?: boolean }) {
   if (field.type === "composition") return <div data-editor-composition-field>{field.editor}</div>;
   if (field.type === "custom") return <div data-editor-custom-field>{field.customContent}</div>;
   if (field.type === "mediaList") return <MediaListEditor items={field.items} disabled={field.disabled ?? false} minItems={field.minItems} maxItems={field.maxItems} onChange={field.onChange} onChoose={field.onChoose} />;
   if (field.type === "media") return <SiteEditorMediaField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} onChange={field.onChange} onChoose={field.onChoose} />;
   if (field.type === "toggle") return <EditorToggle label={field.label} checked={field.checked} disabled={field.disabled} onChange={field.onChange} />;
-  if (field.type === "richText") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled ?? false} richText onChange={field.onChange} />;
+  if (field.type === "richText") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled ?? false} richText={!headingRichText} headingRichText={headingRichText} onChange={field.onChange} />;
   if (field.type === "typography") return <TypographyControls title={field.title} description={field.description} value={field.value} disabled={field.disabled ?? false} onChange={field.onChange} />;
   if (field.type === "button") return <button type="button" disabled={field.disabled} onClick={field.onClick} className={field.tone === "quiet" ? "text-left text-[10px] font-semibold text-[#716d65] underline disabled:opacity-40" : "rounded-xl border border-black/10 bg-white px-3 py-2.5 text-xs font-semibold disabled:opacity-40"}>{field.label}</button>;
   if (field.type === "notice") return <p className="text-[11px] leading-5 text-[#716d65]">{field.text}</p>;
   if (field.type === "select") return <label className="text-xs font-semibold text-[#4f4b45]">{field.label}<select className={editorCompactFieldClass} value={field.value} disabled={field.disabled} onChange={event => field.onChange(event.target.value)}>{field.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
-  if (field.type === "textarea") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} multiline rows={field.rows ?? 3} onChange={field.onChange} />;
-  if (field.type === "text") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} onChange={field.onChange} />;
+  if (field.type === "textarea") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} multiline={!headingRichText} headingRichText={headingRichText} rows={field.rows ?? 3} onChange={field.onChange} />;
+  if (field.type === "text") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} headingRichText={headingRichText} onChange={field.onChange} />;
   return <label className="text-xs font-semibold text-[#4f4b45]">{field.label}<input type={field.type} className={editorCompactFieldClass} value={field.value} disabled={field.disabled} onChange={event => field.onChange(event.target.value)} /></label>;
 }
 
 export function SharedEditorFieldList({ fields }: { fields: readonly EditorInspectorField[] }) {
-  return <div className="grid gap-4">{fields.map(field => <SharedEditorInspectorField key={field.id} field={field} />)}</div>;
+  const headingFieldIds = new Set(fields.flatMap(field => field.type === "typography" && field.forFieldId ? [field.forFieldId] : []));
+  return <div className="grid gap-4">{fields.map(field => <SharedEditorInspectorField key={field.id} field={field} headingRichText={headingFieldIds.has(field.id)} />)}</div>;
 }
 
 function fieldsForInspectorGroup(fields: readonly EditorInspectorPlacedField[], group: OneStudioInspectorGroup) {

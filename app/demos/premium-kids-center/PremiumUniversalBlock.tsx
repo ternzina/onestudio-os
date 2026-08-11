@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import PublicRichText from "@/components/public/PublicRichText";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicReveal from "@/components/public/PublicReveal";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
@@ -45,7 +46,7 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
   } : {};
   const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(content, element);
   const mediaClass = `${styles.premiumUniversalMedia} ${content.media_frame === "none" ? styles.premiumUniversalMediaNoFrame : content.media_frame === "card" ? styles.premiumUniversalMediaCard : styles.premiumUniversalMediaLine}`;
-  const heading = <><p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className={styles.premiumUniversalEyebrow}>{content.eyebrow}</p><h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(content.title_typography), ...itemStyle("title") }}>{content.title}</h2></>;
+  const heading = <><p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className={styles.premiumUniversalEyebrow}>{content.eyebrow}</p><h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(content.title_typography), ...itemStyle("title") }}><PublicRichHeading value={content.title} /></h2></>;
 
   if (content.kind === "text") {
     return <PublicReveal {...reveal} className={`${styles.premiumUniversal} ${styles.premiumUniversalText}`} style={sectionStyle}>

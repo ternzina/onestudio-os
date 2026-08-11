@@ -11,6 +11,7 @@ import {
 } from "@/lib/public-site/metadata";
 import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
@@ -411,7 +412,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <div className={publicSystemSectionContentClass(content, "hero", "flex min-h-[520px] items-center")}>
               <div className="max-w-3xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">{content.hero_eyebrow}</p>
-                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-8 max-w-xl text-base leading-8 text-white/75 sm:text-lg" />
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full bg-[var(--site-accent)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(0,0,0,0.22)]">{primaryLabel}</Link>
@@ -429,7 +430,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <div className={publicSystemSectionContentClass(content, "hero", `grid gap-12 ${heroLayout === "text" || !content.hero_image_url ? "lg:grid-cols-1" : "lg:grid-cols-[0.86fr_1.14fr] lg:items-stretch"}`)}>
               <div className={content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--site-accent)]">{content.hero_eyebrow}</p>
-                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 max-w-4xl break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-7 max-w-4xl break-words font-semibold tracking-[-0.065em] [overflow-wrap:anywhere] sm:text-7xl lg:text-[92px] lg:leading-[0.96] ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-8 max-w-xl text-base leading-8 text-[#656159] sm:text-lg" />
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-14 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(25,27,32,0.18)]">{primaryLabel}</Link>
@@ -468,7 +469,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               {content.services_label}
             </p>
             <h2 style={publicSystemSectionHeadingStyle(content, "services")} className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-              {content.services_title}
+              <PublicRichHeading value={content.services_title} />
             </h2>
             <div className={`mt-14 grid ${content.services_layout === "list" ? "grid-cols-1 gap-4" : `border-l border-t border-white/12 ${serviceGridClass(content.services_columns)}`}`}>
               {services.map((service, index) => {
@@ -521,7 +522,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               {content.portfolio_label}
             </p>
             <h2 style={publicSystemSectionHeadingStyle(content, "portfolio")} className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-              {content.portfolio_title}
+              <PublicRichHeading value={content.portfolio_title} />
             </h2>
             <div className="mt-14">
               <PublicPortfolioGallery
@@ -559,14 +560,14 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={content.about_image_url}
-                    alt={content.about_title}
+                    alt={richTextPlainText(content.about_title)}
                     className="aspect-[4/3] h-full w-full object-cover"
                   />
                 </div>
               ) : null}
               <div>
                 <h2 style={publicSystemSectionHeadingStyle(content, "about")} className="text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                  {content.about_title}
+                  <PublicRichHeading value={content.about_title} />
                 </h2>
                 {content.about_text ? (
                   <PublicRichText value={content.about_text} className="mt-8 max-w-3xl text-base leading-8 text-[#656159] sm:text-lg" />
@@ -616,7 +617,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
               {content.team_label}
             </p>
             <h2 style={publicSystemSectionHeadingStyle(content, "team")} className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-              {content.team_title}
+              <PublicRichHeading value={content.team_title} />
             </h2>
             <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {lines(content.team_items).map((item, index) => {
@@ -680,7 +681,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 </p>
               ) : null}
               <h2 style={publicSystemSectionHeadingStyle(content, "safety")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                {content.safety_title || "Безопасность и гарантии"}
+                <PublicRichHeading value={content.safety_title || "Безопасность и гарантии"} />
               </h2>
             </div>
 
@@ -725,7 +726,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
           >
           <div className={publicSystemSectionContentClass(content, "reviews")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">{content.reviews_label}</p>
-            <h2 style={publicSystemSectionHeadingStyle(content, "reviews")} className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.reviews_title}</h2>
+            <h2 style={publicSystemSectionHeadingStyle(content, "reviews")} className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.055em] sm:text-6xl"><PublicRichHeading value={content.reviews_title} /></h2>
             <div className="mt-14 grid gap-4 lg:grid-cols-3">
               {reviews.map((review) => (
                 <blockquote key={review.id} className="os-site-card rounded-[28px] border border-white/12 bg-white/5 p-7 text-base leading-8 text-white/75">
@@ -758,7 +759,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                   {content.membership_label}
                 </p>
                 <h2 style={publicSystemSectionHeadingStyle(content, "membership")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                  {content.membership_title}
+                  <PublicRichHeading value={content.membership_title} />
                 </h2>
               </div>
               {content.membership_text ? (
@@ -837,7 +838,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.gift_label}</p>
-                <h2 style={publicSystemSectionHeadingStyle(content, "gift")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.gift_title}</h2>
+                <h2 style={publicSystemSectionHeadingStyle(content, "gift")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl"><PublicRichHeading value={content.gift_title} /></h2>
               </div>
               <PublicRichText value={content.gift_text} className="text-base leading-8 text-black/60" />
             </div>
@@ -879,7 +880,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
           <div className={publicSystemSectionContentClass(content, "faq", "grid gap-12 lg:grid-cols-[0.8fr_1.2fr]")}>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--site-accent)]">{content.faq_label}</p>
-              <h2 style={publicSystemSectionHeadingStyle(content, "faq")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">{content.faq_title}</h2>
+              <h2 style={publicSystemSectionHeadingStyle(content, "faq")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl"><PublicRichHeading value={content.faq_title} /></h2>
             </div>
             <div className="divide-y divide-black/10 border-y border-black/10">
               {lines(content.faq_items).map((item, index) => {
@@ -911,7 +912,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 {content.contact_label}
               </p>
               <h2 style={publicSystemSectionHeadingStyle(content, "contact")} className="mt-5 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
-                {content.contact_title}
+                <PublicRichHeading value={content.contact_title} />
               </h2>
               <address className="mt-8 grid content-start gap-4 not-italic">
                 {contactEmail ? (
@@ -955,7 +956,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
             <div className="min-h-[340px] overflow-hidden bg-[#cfc7b8]">
               {mapQuery ? (
                 <iframe
-                  title={`${content.contact_title}: ${contactAddress || mapQuery}`}
+                  title={`${richTextPlainText(content.contact_title)}: ${contactAddress || mapQuery}`}
                   src={`https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

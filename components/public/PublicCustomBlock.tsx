@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import PublicReveal from "@/components/public/PublicReveal";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
@@ -226,7 +227,7 @@ export default function PublicCustomBlock({
           ) : null}
           {block.title ? (
             <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
-              {block.title}
+              <PublicRichHeading value={block.title} />
             </h2>
           ) : null}
           {block.text ? (
@@ -257,7 +258,7 @@ export default function PublicCustomBlock({
                     >
                       <Image
                         src={image}
-                        alt={`${block.title || "Коллаж"} — фото ${index + 1}`}
+                        alt={`${richTextPlainText(block.title) || "Коллаж"} — фото ${index + 1}`}
                         fill
                         unoptimized
                         sizes={
@@ -325,7 +326,7 @@ export default function PublicCustomBlock({
                   {mediaIsVideo && block.video_url ? (
                   embedUrl ? (
                     <iframe
-                      title={block.media_alt || block.title}
+                      title={block.media_alt || richTextPlainText(block.title)}
                       src={embedUrl}
                       loading="lazy"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -344,7 +345,7 @@ export default function PublicCustomBlock({
                   ) : block.media_url ? (
                     <Image
                       src={block.media_url}
-                      alt={block.media_alt || block.title}
+                      alt={block.media_alt || richTextPlainText(block.title)}
                       fill
                       unoptimized
                       sizes="(max-width: 1024px) 100vw, 50vw"
@@ -379,7 +380,7 @@ export default function PublicCustomBlock({
               </p>
             ) : null}
             <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
-              {block.title}
+              <PublicRichHeading value={block.title} />
             </h2>
             {block.text ? (
               composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" /></div> : <PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" />
@@ -433,7 +434,7 @@ export default function PublicCustomBlock({
           </p>
         ) : null}
         <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
-          {block.title}
+          <PublicRichHeading value={block.title} />
         </h2>
 
         {composition.enabled && block.kind === "columns" && block.text ? (
@@ -534,7 +535,7 @@ export default function PublicCustomBlock({
         ) : null}
 
         {block.kind === "slider" ? (
-          composition.enabled ? <div data-os-composition-slot="media" style={itemStyle("media")}><PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={block.title} media={block} /></div> : <PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={block.title} media={block} />
+          composition.enabled ? <div data-os-composition-slot="media" style={itemStyle("media")}><PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={richTextPlainText(block.title)} media={block} /></div> : <PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={richTextPlainText(block.title)} media={block} />
         ) : null}
 
         {block.kind === "video" && block.video_url ? (
@@ -552,7 +553,7 @@ export default function PublicCustomBlock({
             >
               {embedUrl ? (
                 <iframe
-                  title={block.title}
+                  title={richTextPlainText(block.title)}
                   src={embedUrl}
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

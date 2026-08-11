@@ -21,9 +21,12 @@ export type RichTextDocument = {
 const HEX = /^#[0-9a-f]{6}$/i;
 const RGB = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i;
 const SAFE_LINK = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
-const SAFE_FONT_SIZES = new Set([12, 14, 16, 18, 20, 24, 28, 32]);
+const SAFE_FONT_SIZES = new Set([
+  10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96,
+  104, 120, 144, 160,
+]);
 
-export function isRichTextValue(value?: string | null): value is string {
+export function isRichTextValue(value?: string | null): boolean {
   return Boolean(value?.startsWith(RICH_TEXT_PREFIX));
 }
 
@@ -32,7 +35,7 @@ export function encodeRichText(document: RichTextDocument): string {
 }
 
 export function decodeRichText(value?: string | null): RichTextDocument | null {
-  if (!isRichTextValue(value)) return null;
+  if (!value?.startsWith(RICH_TEXT_PREFIX)) return null;
   try {
     const parsed = JSON.parse(value.slice(RICH_TEXT_PREFIX.length)) as RichTextDocument;
     if (parsed?.version !== 1 || parsed.root?.type !== "root") return null;

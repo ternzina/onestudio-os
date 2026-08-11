@@ -15,6 +15,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
 import { OneStudioDesignDialog, OneStudioSeoDialog } from "@/components/admin/OneStudioSystemDialogs";
 import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-site/editor-spec";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
@@ -252,7 +253,7 @@ function cloneCustomBlockForDuplicate(
   return {
     ...cloneEditorValue(block),
     id: nextId,
-    title: block.title ? `${block.title} · копия` : "Копия блока",
+    title: richTextPlainText(block.title) ? `${richTextPlainText(block.title)} · копия` : "Копия блока",
     cards: block.cards?.map((card, index) => ({
       ...card,
       id: `${nextId}-card-${index + 1}`,
@@ -366,12 +367,12 @@ function findInvalidDraftImage(content: PublicSiteContent) {
   }
 
   for (const block of content.custom_blocks ?? []) {
-    if (block.media_url && isInvalidImageUrl(block.media_url)) return `изображение блока «${block.title || block.id}»`;
-    if (block.video_poster_url && isInvalidImageUrl(block.video_poster_url)) return `обложка видео «${block.title || block.id}»`;
-    if ((block.media_urls ?? []).some(isInvalidImageUrl)) return `фотография блока «${block.title || block.id}»`;
+    if (block.media_url && isInvalidImageUrl(block.media_url)) return `изображение блока «${richTextPlainText(block.title) || block.id}»`;
+    if (block.video_poster_url && isInvalidImageUrl(block.video_poster_url)) return `обложка видео «${richTextPlainText(block.title) || block.id}»`;
+    if ((block.media_urls ?? []).some(isInvalidImageUrl)) return `фотография блока «${richTextPlainText(block.title) || block.id}»`;
     for (const card of block.cards ?? []) {
-      if (card.media_url && isInvalidImageUrl(card.media_url)) return `изображение карточки «${card.title || block.title || block.id}»`;
-      if (card.video_poster_url && isInvalidImageUrl(card.video_poster_url)) return `обложка видео карточки «${card.title || block.title || block.id}»`;
+      if (card.media_url && isInvalidImageUrl(card.media_url)) return `изображение карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
+      if (card.video_poster_url && isInvalidImageUrl(card.video_poster_url)) return `обложка видео карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
     }
   }
 
@@ -2501,7 +2502,7 @@ function VisualBuilder({
         { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
         ...(activePage.type === "portfolio"
           ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
-          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
+          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
@@ -2601,7 +2602,7 @@ function VisualBuilder({
           return [{
             id: item,
             key: item,
-            label: block.title || t("Custom block"),
+            label: richTextPlainText(block.title) || t("Custom block"),
             index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
             selected: selectedCustomBlockId === block.id,
             visible: block.is_visible !== false,
@@ -2643,7 +2644,7 @@ function VisualBuilder({
           const blockId = item.slice("custom:".length);
           const block = (draft.custom_blocks ?? []).find(candidate => candidate.id === blockId);
           if (!block) return [];
-          return [{ id: item, key: item, label: block.title || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+          return [{ id: item, key: item, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
         }),
       ];
   const premiumEditorPreviewSite: PublicSiteData = {
@@ -2898,7 +2899,7 @@ function VisualBuilder({
                   <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
                   <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{draft.hero_eyebrow}</p>
-                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}>{draft.hero_title}</h2>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
                     <div className="mt-7 flex flex-wrap gap-3">
                       <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
@@ -2911,7 +2912,7 @@ function VisualBuilder({
                   <div className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}>
                     <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
                     <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
-                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}>{draft.hero_title}</h2>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
                     <div className="relative mt-7 flex flex-wrap gap-3">
                       <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
@@ -2969,7 +2970,7 @@ function VisualBuilder({
                         {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
                       </p>
                       <h3 data-editor-heading={section} style={publicSystemSectionHeadingStyle(draft, section)} className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
-                        {(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
+                        <PublicRichHeading value={(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])} />
                       </h3>
                       <CanvasSectionPreview
                         section={section}
@@ -3037,7 +3038,7 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedCustomBlock ? selectedCustomBlock.title : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedCustomBlock ? richTextPlainText(selectedCustomBlock.title) : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         expanded: settingsOpen,
         onExpandedChange: setSettingsOpen,
         onCollapse: () => setSettingsOpen(false),
@@ -3103,8 +3104,8 @@ function VisualBuilder({
                       />
                     ) : null}
                     <CompactField label={t("Eyebrow")} value={activePage.eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("eyebrow", value)} />
-                    <CompactField label={t("Main title")} value={activePage.title} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title", value)} multiline />
-                    <TypographyControls title={t("Page title")} description={activePage.title || t("Untitled")} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
+                    <RichTextEditor label={t("Main title")} value={activePage.title} disabled={!canConfigure || !editingEnabled} variant="heading" onChange={(value) => updatePage("title", value)} />
+                    <TypographyControls title={t("Page title")} description={richTextPlainText(activePage.title) || t("Untitled")} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
                     <RichTextEditor label={t("Introduction")} value={activePage.intro} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("intro", value)} />
                     <Toggle
                       label={t("Show page on site")}
@@ -3299,10 +3300,10 @@ function VisualBuilder({
                   onChange={(value) => onUpdate("hero_image_placement", value as "left" | "right")}
                 />
                 <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_eyebrow", value)} />
-                <CompactField label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_title", value)} multiline />
+                <RichTextEditor label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} variant="heading" onChange={(value) => onUpdate("hero_title", value)} />
                 <SectionHeadingTypographyEditor
                   settings={selectedSystemSectionSettings}
-                  heading={draft.hero_title}
+                  heading={richTextPlainText(draft.hero_title)}
                   disabled={!canConfigure || !editingEnabled}
                   onChange={updateSystemSectionSettings}
                 />
@@ -3372,16 +3373,16 @@ function VisualBuilder({
                   t={t}
                   onChange={updateSectionColors}
                 />
-                <CompactField
+                <RichTextEditor
                   label={t("Heading")}
                   value={(draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? ""}
                   disabled={!canConfigure || !editingEnabled}
                   onChange={(value) => onUpdate(`${selectedSection}_title` as keyof PublicSiteContent, value)}
-                  multiline
+                  variant="heading"
                 />
                 <SectionHeadingTypographyEditor
                   settings={selectedSystemSectionSettings}
-                  heading={(draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[selectedSection])}
+                  heading={richTextPlainText((draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[selectedSection]))}
                   disabled={!canConfigure || !editingEnabled}
                   onChange={updateSystemSectionSettings}
                 />
@@ -4173,7 +4174,7 @@ function PortfolioPagePreview({
         </p>
         <div className="relative mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <h2 style={publicTypographyStyle(page.title_typography)} className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">
-            {page.title}
+            <PublicRichHeading value={page.title} />
           </h2>
           <PublicRichText value={page.intro} className="text-xs leading-6 text-black/55" />
         </div>
@@ -4345,7 +4346,7 @@ function CustomPagePreview({
           {page.eyebrow}
         </p>
         <h2 className="mt-5 max-w-3xl font-serif text-4xl leading-tight sm:text-6xl">
-          {page.title}
+          <PublicRichHeading value={page.title} />
         </h2>
         <p className="mt-6 max-w-xl text-xs leading-6 text-black/55">
           {page.intro}
@@ -4541,7 +4542,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
             {block.eyebrow}
           </p>
-          <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl">{block.title}</h3>
+          <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
           {composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />}
           {block.button_label ? (
             <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
@@ -4560,7 +4561,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
         {block.eyebrow}
       </p>
-      <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl">{block.title}</h3>
+      <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
       {composition.enabled && block.kind === "columns" && block.text ? (
         <div data-os-composition-slot="text" style={itemStyle("text")}>
           <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />
@@ -7357,8 +7358,8 @@ function CustomBlockSettings({
         onChange={onChange}
       />
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
-      <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
-      <TypographyControls title="Заголовок блока" description={block.title || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
+      <RichTextEditor label={t("Heading")} value={block.title} disabled={disabled} variant="heading" onChange={(value) => onChange("title", value)} />
+      <TypographyControls title="Заголовок блока" description={richTextPlainText(block.title) || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
       {block.kind === "features" ? (
         <DelimitedItemsEditor
           label={t("Feature cards")}

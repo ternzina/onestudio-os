@@ -20,6 +20,8 @@ import {
   useState,
 } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
+import { isRichTextValue, richTextPlainText } from "@/lib/public-site/rich-text";
 import type { VeloraItem } from "@/lib/public-site/velora-premium-template-content";
 import {
   parseVeloraAvailabilitySelection,
@@ -135,10 +137,11 @@ export function VeloraCursorTrail() {
 
 export function VeloraHeroTitle({ title, style }: { title: string; style?: CSSProperties }) {
   const reduced = useReducedMotion();
-  const [firstLine, secondLine] = splitHeroTitle(title);
+  const rich = isRichTextValue(title);
+  const [firstLine, secondLine] = rich ? ["", ""] : splitHeroTitle(title);
   return (
-    <h1 className={styles.heroTitle} style={style} aria-label={title}>
-      {[firstLine, secondLine].filter(Boolean).map((line, index) => (
+    <h1 className={styles.heroTitle} style={style} aria-label={richTextPlainText(title)}>
+      {rich ? <PublicRichHeading value={title} lineClassName={(index) => index === 1 ? styles.heroTitleAccent : ""} /> : [firstLine, secondLine].filter(Boolean).map((line, index) => (
         <span className={index === 1 ? styles.heroTitleAccent : ""} key={line}>
           <motion.i
             aria-hidden="true"

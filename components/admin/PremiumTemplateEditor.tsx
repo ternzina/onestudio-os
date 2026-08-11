@@ -37,6 +37,7 @@ import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { addOneStudioPage, createOneStudioPage, removeOneStudioPage, updateOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import { createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
 import { buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
+import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { getPremiumKidsNativeMediaSlots, premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 
 type Field = [PremiumKidsEditableKey, AdminMessage, "input" | "text" | "lines"];
@@ -270,13 +271,13 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     heading: t("Page blocks"),
     sections: [
       { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: !selectedPageBlock, visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelected("") },
-      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: block.title || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
+      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
     ],
     addBlock: { label: t("+ Add block"), disabled: controlsDisabled, onClick: () => setShowLibrary(true) },
     footerNotice: t("This is a separate public page with its own address and navigation item."),
   } : null;
   const pageInspectorModel: EditorInspectorModel | null = activePage ? {
-    heading: t("Block settings"), title: selectedPageBlock?.title || activePage.nav_label,
+    heading: t("Block settings"), title: richTextPlainText(selectedPageBlock?.title) || activePage.nav_label,
     fields: selectedPageBlock
       ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t })
       : [
@@ -287,7 +288,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
           { id: "intro", group: "content", type: "richText", label: t("Introduction"), value: activePage.intro, disabled: controlsDisabled, onChange: value => updatePage({ intro: value }, "intro") },
           { id: "visibility", group: "content", type: "toggle", label: t("Show page on site"), checked: activePage.is_visible !== false, disabled: controlsDisabled, onChange: value => updatePage({ is_visible: value }, "visibility") },
           { id: "navigation", group: "content", type: "toggle", label: t("Show in navigation"), checked: activePage.show_in_navigation, disabled: controlsDisabled, onChange: value => updatePage({ show_in_navigation: value }, "navigation") },
-          { id: "title-typography", group: "typography", type: "typography", forFieldId: "title", title: t("Main title"), description: activePage.title, value: activePage.title_typography, disabled: controlsDisabled, onChange: value => updatePage({ title_typography: value }, "typography") },
+          { id: "title-typography", group: "typography", type: "typography", forFieldId: "title", title: t("Main title"), description: richTextPlainText(activePage.title), value: activePage.title_typography, disabled: controlsDisabled, onChange: value => updatePage({ title_typography: value }, "typography") },
         ],
     actions: selectedPageBlock ? [{ id: "delete", label: t("Remove block"), tone: "danger", disabled: controlsDisabled, onClick: removePageBlock }] : [{ id: "delete-page", label: t("Remove page"), tone: "danger", disabled: controlsDisabled, onClick: deletePage }],
   } : null;

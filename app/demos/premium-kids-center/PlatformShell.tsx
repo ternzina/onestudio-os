@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import styles from "./Platform.module.css";
 import PlatformMotionRuntime from "./PlatformMotionRuntime";
 import type { PremiumKidsContent } from "@/lib/public-site/premium-kids-content";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import type { PublicSitePage } from "@/lib/public-site/types";
 
@@ -46,5 +47,5 @@ export function PlatformLayout({ children, basePath = BEMBI_DEMO_BASE_PATH, demo
 }
 
 export function SectionLead({ index, eyebrow, title, text, headingStyle }: { index: string; eyebrow: string; title: string; text?: string; headingStyle?: CSSProperties }) {
-  return <div className={styles.sectionLead}><p><span>{index}</span>{eyebrow}</p><h2 style={headingStyle}>{title}</h2>{text ? <PublicRichText value={text} /> : null}</div>;
+  return <div className={styles.sectionLead}><p><span>{index}</span>{eyebrow}</p><h2 style={headingStyle}><PublicRichHeading value={title} /></h2>{text ? <PublicRichText value={text} /> : null}</div>;
 }

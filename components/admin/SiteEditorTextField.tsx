@@ -12,6 +12,7 @@ export default function SiteEditorTextField({
   disabled = false,
   multiline = false,
   richText = false,
+  headingRichText = false,
   rows = 3,
   onChange,
 }: {
@@ -21,6 +22,7 @@ export default function SiteEditorTextField({
   disabled?: boolean;
   multiline?: boolean;
   richText?: boolean;
+  headingRichText?: boolean;
   rows?: number;
   onChange: (value: string) => void;
 }) {
@@ -33,14 +35,14 @@ export default function SiteEditorTextField({
   return <div data-site-editor-text-field className="grid gap-2">
     <div className="flex items-center justify-between gap-3">
       {label
-        ? richText
+        ? richText || headingRichText
           ? <span className="text-xs font-semibold text-[#4f4b45]">{label}</span>
           : <label htmlFor={fieldId} className="text-xs font-semibold text-[#4f4b45]">{label}</label>
         : <span />}
       {hasOriginal ? <span className={`text-[9px] font-semibold uppercase tracking-[0.12em] ${changed ? "text-[#9a742e]" : "text-[#8b877e]"}`}>{changed ? t("Changed") : t("Original")}</span> : null}
     </div>
-    {richText
-      ? <RichTextEditor ariaLabel={label} value={value} disabled={disabled} onChange={onChange} />
+    {richText || headingRichText
+      ? <RichTextEditor ariaLabel={label} value={value} disabled={disabled} variant={headingRichText ? "heading" : "body"} onChange={onChange} />
       : multiline
         ? <textarea id={fieldId} aria-label={label ?? "Текст"} className={editorCompactFieldClass} rows={rows} value={value} disabled={disabled} onChange={event => onChange(event.target.value)} />
         : <input id={fieldId} aria-label={label ?? "Текст"} className={editorCompactFieldClass} value={value} disabled={disabled} onChange={event => onChange(event.target.value)} />}

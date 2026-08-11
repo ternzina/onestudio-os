@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import styles from "./PremiumInteractions.module.css";
 import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 
 const DynamicStudioTour = dynamic(() => import("./StudioTourScene"), {
   ssr: false,
@@ -52,7 +53,7 @@ export default function StudioTour({ content, headingStyle }: { content: Premium
     <section className={styles.tour} id="tour" ref={sectionRef} aria-labelledby="tour-title">
       <div className={styles.tourIntro}>
         <p>{content.eyebrow}</p>
-        <h2 id="tour-title" style={headingStyle}>{content.title.split("\n")[0]}<br /><i>{content.title.split("\n").slice(1).join(" ")}</i></h2>
+        <h2 id="tour-title" style={headingStyle}><PublicRichHeading value={content.title} accentAfterFirst /></h2>
         <span>{content.text}</span>
       </div>
       {near && !fallback ? <DynamicStudioTour zones={content.zones} /> : <TourFallback content={content} status={near ? content.loadingText : content.deferredText} />}

@@ -16,6 +16,7 @@ import {
   type PremiumKidsContent,
 } from "@/lib/public-site/premium-kids-content";
 import BembiTemplateImage from "./BembiTemplateImage";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 
@@ -52,7 +53,7 @@ function FinalBlock({ content, blockId, basePath, demo }: { content: PremiumKids
   return <div data-premium-block-id={blockId}>
     <section className={styles.parentSupport}><div><p>Родителям тоже нужна опора</p><h2>Спокойный взрослый — часть образовательной среды.</h2></div><ol>{["Как выбрать занятие", "Как поддержать интерес", "Как заниматься дома без давления", "Как понять, что программа подходит", "Как сохранить баланс занятий и отдыха"].map((item, index) => <li key={item}><span>0{index + 1}</span><h3>{item}</h3><Arrow /></li>)}</ol></section>
     <TodayDiscovery />
-    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2 style={headingStyle}>{content.final_cta_title}</h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
+    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2 style={headingStyle}><PublicRichHeading value={content.final_cta_title} /></h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
     <CenterFinalCta content={content} headingStyle={headingStyle} />
   </div>;
 }

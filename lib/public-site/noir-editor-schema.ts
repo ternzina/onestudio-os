@@ -2,6 +2,7 @@ import type { EditorInspectorPlacedField } from "./editor-spec.ts";
 import type { PremiumTemplateEditorMediaTarget } from "./premium-template-editor-adapter.ts";
 import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content.ts";
 import { NOIR_PREMIUM_TEMPLATE_CONTRACT, type NoirNativeSectionId } from "./noir-premium-template-contract.ts";
+import { isRichTextValue } from "./rich-text.ts";
 
 export const NOIR_EDITOR_SECTIONS = NOIR_PREMIUM_TEMPLATE_CONTRACT.nativeSections.map(
   ({ id, label }) => [id, label] as const,
@@ -147,7 +148,7 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
     const value = Array.isArray(raw) ? raw.join("\n") : String(raw ?? "");
     const originalRaw = atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path);
     const originalValue = Array.isArray(originalRaw) ? originalRaw.join("\n") : String(originalRaw ?? "");
-    const update = (next: string) => onChange(setPath(content, spec.path, Array.isArray(raw) ? next.split("\n").map(item => item.trim()).filter(Boolean) : next), `noir:${section}:${spec.id}`);
+    const update = (next: string) => onChange(setPath(content, spec.path, Array.isArray(raw) ? (isRichTextValue(next) ? [next] : next.split("\n").map(item => item.trim()).filter(Boolean)) : next), `noir:${section}:${spec.id}`);
     if (spec.kind === "url" && (spec.group ?? "content") === "media" && onChooseMedia) {
       fields.push({ id: spec.id, group: "media", type: "media", label: spec.label, value, originalValue: String(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path) ?? ""), disabled, onChange: update, onChoose: () => onChooseMedia({ kind: "template-content", templateKey: "premium-studio", path: spec.path, label: spec.label }) });
     } else if (spec.kind === "textarea") {

@@ -11,6 +11,7 @@ import {
 } from "react";
 import styles from "./PremiumInteractions.module.css";
 import type { PremiumStudioContent } from "@/lib/public-site/premium-studio-content";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 
 type OpenProject = (index: number) => void;
 
@@ -74,13 +75,11 @@ export function usePointerGlow() {
 
 export function BeforeAfter({ content, headingStyle }: { content: PremiumStudioContent["retouch"]; headingStyle?: CSSProperties }) {
   const [value, setValue] = useState(50);
-  const title = content.title.split("\n");
-
   return (
     <section className={styles.beforeAfter} id="retouch" aria-labelledby="retouch-title">
       <div className={styles.interactionIntro}>
         <p>{content.eyebrow}</p>
-        <h2 id="retouch-title" style={headingStyle}>{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2>
+        <h2 id="retouch-title" style={headingStyle}><PublicRichHeading value={content.title} accentAfterFirst /></h2>
         <span>{content.text}</span>
       </div>
       <div className={styles.compare} style={{ "--position": `${value}%` } as CSSProperties}>
@@ -203,11 +202,10 @@ export function FilmStrip({ onOpen, portfolio, content, headingStyle }: { onOpen
     onOpen(index);
   };
 
-  const title = content.title.split("\n");
   return (
     <section className={styles.film} id="film" aria-labelledby="film-title">
       <div className={styles.filmHeader}>
-        <div><p>{content.eyebrow}</p><h2 id="film-title" style={headingStyle}>{title[0]}<br /><i>{title.slice(1).join(" ")}</i></h2></div>
+        <div><p>{content.eyebrow}</p><h2 id="film-title" style={headingStyle}><PublicRichHeading value={content.title} accentAfterFirst /></h2></div>
         <div className={styles.filmControls} aria-label="Управление галереей">
           <button type="button" onClick={() => moveRail(-1)} aria-label="Предыдущие фотографии">←</button>
           <button type="button" onClick={() => moveRail(1)} aria-label="Следующие фотографии">→</button>

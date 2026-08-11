@@ -3,6 +3,7 @@ import BackToDashboardButton from "@/components/public/BackToDashboardButton";
 import GlossBookingPanel from "@/components/public/GlossBookingPanel";
 import GlossLeadDialog from "@/components/public/GlossLeadDialog";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicReveal from "@/components/public/PublicReveal";
 import PublicSiteAnalytics from "@/components/public/PublicSiteAnalytics";
@@ -386,7 +387,7 @@ export default function GlossBusinessSite({
             <div className={publicSystemSectionContentClass(content, "hero", "relative flex min-h-[620px] items-center py-20")}>
               <div className="max-w-2xl">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{content.hero_eyebrow}</p>
-                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-xl text-base leading-7 text-white/78" />
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
@@ -402,7 +403,7 @@ export default function GlossBusinessSite({
             <div className={publicSystemSectionContentClass(content, "hero", `grid ${heroLayout === "text" ? "" : "lg:grid-cols-[0.92fr_1.08fr]"}`)}>
               <div className={`flex flex-col justify-center px-5 py-16 sm:px-9 lg:py-20 ${content.hero_image_placement === "left" ? "lg:order-2" : "lg:order-1"}`}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#765b57]">{content.hero_eyebrow}</p>
-                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}>{content.hero_title}</h1>
+                <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-md text-base leading-7 text-[#6a5551]" />
                 <div className="mt-7 flex flex-wrap gap-4">
                   <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
@@ -437,7 +438,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "services")}>
               <h2 style={publicSystemSectionHeadingStyle(content, "services")} className="text-center font-serif text-4xl sm:text-5xl">
-                {content.services_title}
+                <PublicRichHeading value={content.services_title} />
               </h2>
               <div className={`mt-8 grid gap-4 ${servicesLayout === "list" ? "grid-cols-1" : serviceGridClass(content.services_columns)}`}>
                 {services.map((service, index) => {
@@ -491,7 +492,7 @@ export default function GlossBusinessSite({
             <div className={publicSystemSectionContentClass(content, "portfolio", "grid gap-8 lg:grid-cols-[1.45fr_0.72fr]")}>
               <div>
                 <h2 style={publicSystemSectionHeadingStyle(content, "portfolio")} className="font-serif text-4xl sm:text-5xl">
-                  {content.portfolio_title}
+                  <PublicRichHeading value={content.portfolio_title} />
                 </h2>
                 <div className="mt-5">
                   <PublicPortfolioGallery
@@ -564,7 +565,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "team")}>
               <h2 style={publicSystemSectionHeadingStyle(content, "team")} className="font-serif text-4xl sm:text-5xl">
-                {content.team_title}
+                <PublicRichHeading value={content.team_title} />
               </h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {team.map((item, index) => {
@@ -652,7 +653,7 @@ export default function GlossBusinessSite({
                     {content.membership_label}
                   </p>
                   <h2 style={publicSystemSectionHeadingStyle(content, "membership")} className="mt-4 font-serif text-4xl sm:text-5xl">
-                    {content.membership_title}
+                    <PublicRichHeading value={content.membership_title} />
                   </h2>
                 </div>
                 {content.membership_text ? (
@@ -747,7 +748,7 @@ export default function GlossBusinessSite({
                 </p>
               ) : null}
               <h2 style={publicSystemSectionHeadingStyle(content, "safety")} className="mt-3 text-center font-serif text-4xl">
-                {content.safety_title || "Красиво и безопасно"}
+                <PublicRichHeading value={content.safety_title || "Красиво и безопасно"} />
               </h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {safety.map((item, index) => {
@@ -794,7 +795,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "reviews", "os-site-card rounded-2xl border border-[#3b211f]/10 bg-white p-8 text-center sm:p-12")}>
               <h2 style={publicSystemSectionHeadingStyle(content, "reviews")} className="font-serif text-4xl">
-                {content.reviews_title}
+                <PublicRichHeading value={content.reviews_title} />
               </h2>
               <div className="mt-8 grid gap-4 text-left md:grid-cols-3">
                 {reviews.map((review) => (
@@ -854,7 +855,7 @@ export default function GlossBusinessSite({
                     {content.gift_label}
                   </p>
                   <h2 style={publicSystemSectionHeadingStyle(content, "gift")} className="mt-4 font-serif text-4xl sm:text-5xl">
-                    {content.gift_title}
+                    <PublicRichHeading value={content.gift_title} />
                   </h2>
                 </div>
                 <PublicRichText value={content.gift_text} className="text-sm leading-7 text-[#77635f]" />
@@ -937,7 +938,7 @@ export default function GlossBusinessSite({
           >
             <div className={publicSystemSectionContentClass(content, "faq", "grid gap-10 lg:grid-cols-[0.7fr_1.3fr]")}>
               <h2 style={publicSystemSectionHeadingStyle(content, "faq")} className="font-serif text-4xl sm:text-5xl">
-                {content.faq_title}
+                <PublicRichHeading value={content.faq_title} />
               </h2>
               <div className="divide-y divide-[#3b211f]/10 border-y border-[#3b211f]/10">
                 {lines(content.faq_items).map((item) => {
@@ -983,14 +984,14 @@ export default function GlossBusinessSite({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={content.about_image_url}
-                      alt={content.about_title}
+                      alt={richTextPlainText(content.about_title)}
                       className="aspect-[4/3] h-full w-full object-cover"
                     />
                   </div>
                 ) : null}
                 <div>
                   <h2 style={publicSystemSectionHeadingStyle(content, "about")} className="font-serif text-4xl sm:text-5xl">
-                    {content.about_title}
+                    <PublicRichHeading value={content.about_title} />
                   </h2>
                   {content.about_text ? (
                     <PublicRichText value={content.about_text} className="mt-5 max-w-3xl text-base leading-8 text-[#6c5753]" />
@@ -1052,7 +1053,7 @@ export default function GlossBusinessSite({
             <div className={publicSystemSectionContentClass(content, "contact", "os-site-card grid overflow-hidden rounded-2xl border border-[#3b211f]/10 bg-white lg:grid-cols-[0.8fr_1.2fr]")}>
               <div className="p-8 sm:p-10">
                 <h2 style={publicSystemSectionHeadingStyle(content, "contact")} className="font-serif text-4xl">
-                  {content.contact_title || "Ждём вас"}
+                  <PublicRichHeading value={content.contact_title || "Ждём вас"} />
                 </h2>
                 <address className="mt-6 space-y-3 text-sm not-italic text-[#67534f]">
                   <p>◷ {hours}</p>

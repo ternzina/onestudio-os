@@ -22,7 +22,8 @@ const EMPTY_DOC: RichTextDocument = {
 
 const FONT_OPTIONS = [{ value: "", label: "Шрифт сайта" }, ...SITE_EDITOR_FONT_OPTIONS];
 
-const SIZE_OPTIONS = [12, 14, 16, 18, 20, 24, 28, 32];
+const BODY_SIZE_OPTIONS = [12, 14, 16, 18, 20, 24, 28, 32];
+const HEADING_SIZE_OPTIONS = [12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 104, 120, 144, 160];
 
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (char) => ({
@@ -142,12 +143,14 @@ export default function RichTextEditor({
   ariaLabel,
   value,
   disabled,
+  variant = "body",
   onChange,
 }: {
   label?: string;
   ariaLabel?: string;
   value: string;
   disabled: boolean;
+  variant?: "body" | "heading";
   onChange: (value: string) => void;
 }) {
   const { t } = useAdminI18n();
@@ -157,6 +160,8 @@ export default function RichTextEditor({
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("16");
   const lastEmittedRef = useRef(value);
+  const heading = variant === "heading";
+  const sizeOptions = heading ? HEADING_SIZE_OPTIONS : BODY_SIZE_OPTIONS;
 
   function saveSelection() {
     const editor = editorRef.current;
@@ -277,7 +282,7 @@ export default function RichTextEditor({
       {sourceMode ? (
         <textarea
           aria-label={ariaLabel ?? label ?? "Текст"}
-          rows={6}
+          rows={heading ? 3 : 6}
           disabled={disabled}
           value={richTextPlainText(value)}
           onChange={(event) => onChange(event.target.value)}
@@ -305,21 +310,23 @@ export default function RichTextEditor({
                 onChange={(event) => applyFontSize(event.target.value)}
                 className="h-8 w-[72px] rounded-lg border border-black/10 bg-white px-2 text-xs text-[#403d38] outline-none disabled:opacity-35"
               >
-                {SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}px</option>)}
+                {sizeOptions.map((size) => <option key={size} value={size}>{size}px</option>)}
               </select>
             </div>
             <div className="flex flex-wrap gap-1">
               <ToolbarButton label="B" title="Жирный" disabled={disabled} onClick={() => command("bold")} />
               <ToolbarButton label="I" title="Курсив" disabled={disabled} onClick={() => command("italic")} />
               <ToolbarButton label="U" title="Подчёркивание" disabled={disabled} onClick={() => command("underline")} />
-              <span className="mx-0.5 h-8 w-px bg-black/10" />
-              <ToolbarButton label="•≡" title="Маркированный список" disabled={disabled} onClick={() => command("insertUnorderedList")} />
-              <ToolbarButton label="1≡" title="Нумерованный список" disabled={disabled} onClick={() => command("insertOrderedList")} />
-              <span className="mx-0.5 h-8 w-px bg-black/10" />
-              <ToolbarButton label="≡←" title="По левому краю" disabled={disabled} onClick={() => command("justifyLeft")} />
-              <ToolbarButton label="≡" title="По центру" disabled={disabled} onClick={() => command("justifyCenter")} />
-              <ToolbarButton label="→≡" title="По правому краю" disabled={disabled} onClick={() => command("justifyRight")} />
-              <ToolbarButton label="🔗" title="Ссылка" disabled={disabled} onClick={addLink} />
+              {!heading ? <>
+                <span className="mx-0.5 h-8 w-px bg-black/10" />
+                <ToolbarButton label="•≡" title="Маркированный список" disabled={disabled} onClick={() => command("insertUnorderedList")} />
+                <ToolbarButton label="1≡" title="Нумерованный список" disabled={disabled} onClick={() => command("insertOrderedList")} />
+                <span className="mx-0.5 h-8 w-px bg-black/10" />
+                <ToolbarButton label="≡←" title="По левому краю" disabled={disabled} onClick={() => command("justifyLeft")} />
+                <ToolbarButton label="≡" title="По центру" disabled={disabled} onClick={() => command("justifyCenter")} />
+                <ToolbarButton label="→≡" title="По правому краю" disabled={disabled} onClick={() => command("justifyRight")} />
+                <ToolbarButton label="🔗" title="Ссылка" disabled={disabled} onClick={addLink} />
+              </> : null}
               <label title="Цвет текста" className="relative grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-black/10 bg-white text-[11px] font-semibold text-[#403d38]">
                 A
                 <input
@@ -345,12 +352,14 @@ export default function RichTextEditor({
             onKeyUp={saveSelection}
             onMouseUp={saveSelection}
             onBlur={() => { saveSelection(); commit(); }}
-            className="os-rich-text-editor min-h-28 px-3 py-3 text-sm font-normal leading-6 normal-case tracking-normal text-[#332f29] outline-none"
+            className={`os-rich-text-editor px-3 py-3 text-sm font-normal leading-6 normal-case tracking-normal text-[#332f29] outline-none ${heading ? "min-h-16" : "min-h-28"}`}
           />
         </div>
       )}
       <p className="text-[9px] font-normal normal-case tracking-normal text-[#918b80]">
-        Заголовки используют тот же список шрифтов в своих настройках. SEO, ссылки кнопок и контактные данные остаются обычными полями.
+        {heading
+          ? "Выделите слово или букву, затем примените цвет, шрифт, размер или начертание. Настройки ниже меняют заголовок целиком."
+          : "SEO, ссылки кнопок и контактные данные остаются обычными полями."}
       </p>
     </div>
   );
