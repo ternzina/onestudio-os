@@ -82,7 +82,8 @@ test("BEMBI inspector and preview/public runtime share native media controls", a
     read("../supabase/migrations/20260808143000_premium_template_editor_runtime_1_0.sql"),
   ]);
 
-  assert.match(editor, /PremiumKidsNativeMediaEditor/);
+  assert.match(editor, /type: "media"/);
+  assert.doesNotMatch(editor, /PremiumKidsNativeMediaEditor/);
   assert.match(editor, /buildMediaLayoutInspectorFields/);
   for (const source of [home, center, motion, interactions]) assert.match(source, /BembiTemplateImage/);
   assert.match(image, /media_mobile_fit/);

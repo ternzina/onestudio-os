@@ -361,25 +361,23 @@ export function buildVeloraInspectorFields(
               disabled,
               onChange: update,
             };
-    if (spec.group !== "media" || spec.kind !== "url" || !onChooseMedia)
-      return [base];
-    return [
-      base,
-      {
-        id: `${spec.id}-picker`,
-        group: "media",
-        type: "button",
-        label: `Выбрать: ${spec.label}`,
-        disabled,
-        onClick: () =>
-          onChooseMedia({
-            kind: "template-content",
-            templateKey: "velora-event-venue",
-            path: spec.path,
-            label: spec.label,
-          }),
-      } as EditorInspectorPlacedField,
-    ];
+    if (spec.group !== "media" || spec.kind !== "url" || !onChooseMedia) return [base];
+    return [{
+      id: spec.id,
+      group: "media",
+      type: "media",
+      label: spec.label,
+      value,
+      originalValue: String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? ""),
+      disabled,
+      onChange: update,
+      onChoose: () => onChooseMedia({
+        kind: "template-content",
+        templateKey: "velora-event-venue",
+        path: spec.path,
+        label: spec.label,
+      }),
+    } as EditorInspectorPlacedField];
   });
 }
 

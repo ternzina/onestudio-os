@@ -25,3 +25,5 @@ Native media settings are sparse and opt-in. An untouched BEMBI block follows th
 - TypeScript passes.
 - Production build passes with 67 generated routes/pages.
 - ESLint reports zero errors and the same seven pre-existing repository warnings.
+
+The BEMBI-only inspector widget described by this milestone was superseded by the OneStudio-owned shared media field in Site Editor 3.0.2; its persisted data and runtime behavior remain compatible.

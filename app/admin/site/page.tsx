@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
 import MediaListEditor from "@/components/admin/MediaListEditor";
+import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector";
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
@@ -4824,63 +4825,7 @@ function ImageEditor({
   onChange: (value: string) => void;
   onChoose: () => void;
 }) {
-  return (
-    <div className="rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
-        {label}
-      </p>
-      <div className="mt-3 grid grid-cols-[76px_1fr] gap-3">
-        <div className="aspect-square overflow-hidden rounded-xl bg-[#eee9e4]">
-          {value && !isInvalidImageUrl(value) ? (
-            <img src={value} alt="" className="h-full w-full object-cover" />
-          ) : isInvalidImageUrl(value) ? (
-            <span className="grid h-full place-items-center px-2 text-center text-[10px] font-semibold leading-4 text-red-600">
-              Это ссылка на видео
-            </span>
-          ) : (
-            <span className="grid h-full place-items-center text-xl text-black/20">＋</span>
-          )}
-        </div>
-        <div className="min-w-0">
-          <input
-            value={value}
-            disabled={disabled}
-            onChange={(event) => onChange(event.target.value)}
-            placeholder="/images/photo.webp"
-            aria-invalid={isInvalidImageUrl(value)}
-            className={`min-h-10 w-full rounded-xl border bg-white px-3 text-xs outline-none ${
-              isInvalidImageUrl(value)
-                ? "border-red-400 focus:border-red-500"
-                : "border-black/10 focus:border-[#9d3151]"
-            }`}
-          />
-          {isInvalidImageUrl(value) ? (
-            <p className="mt-2 text-[11px] leading-5 text-red-600">
-              YouTube, Vimeo и видеофайлы нужно вставлять в поле «Ссылка на видео».
-            </p>
-          ) : null}
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={onChoose}
-              disabled={disabled}
-              className="rounded-lg bg-[#321722] px-3 py-2 text-[10px] font-semibold text-white disabled:opacity-40"
-            >
-              {t("Choose from media")}
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange("")}
-              disabled={disabled || !value}
-              className="rounded-lg border border-black/10 bg-white px-3 py-2 text-[10px] font-semibold disabled:opacity-35"
-            >
-              {t("Clear")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <SiteEditorMediaField label={label || t("Image")} value={value} disabled={disabled} onChange={onChange} onChoose={onChoose} />;
 }
 
 function DelimitedItemsEditor({

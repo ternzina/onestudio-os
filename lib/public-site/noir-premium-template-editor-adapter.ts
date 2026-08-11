@@ -58,12 +58,13 @@ export const NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
     createPremiumStudioSeed(),
     { preserveEditorState: false },
   ),
-  buildInspectorFields: ({ content, sectionId, disabled, onChange }) =>
+  buildInspectorFields: ({ content, sectionId, disabled, onChange, onChooseMedia }) =>
     buildNoirInspectorFields(
       resolvePremiumStudioContent(content),
       sectionId,
       disabled,
       (next, historyGroup) => onChange(withPremiumStudioContent(content, next), historyGroup),
+      onChooseMedia,
     ),
   insertCustomBlock: (content, block) => {
     const customBlockIds = [...(content.custom_blocks ?? []).map((item) => item.id), block.id];

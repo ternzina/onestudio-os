@@ -2,6 +2,7 @@
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
+import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 import { editorCompactFieldClass } from "@/components/admin/EditorChrome";
 import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards, publicSiteCustomBlockVisualCapabilities } from "@/lib/public-site/custom-block-registry";
 import type { EditorInspectorField, EditorInspectorPlacedField, OneStudioInspectorGroup } from "@/lib/public-site/editor-spec";
@@ -15,7 +16,7 @@ type SettingsOptions = {
   block: PublicSiteCustomBlock;
   disabled: boolean;
   onChange: (block: PublicSiteCustomBlock, historyField?: string) => void;
-  onChooseImage: (target: { cardIndex?: number; listIndex?: number; label: string }) => void;
+  onChooseImage: (target: { cardIndex?: number; listIndex?: number; field?: "media_url" | "video_poster_url"; label: string }) => void;
   t: Translate;
 };
 
@@ -70,11 +71,10 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
   if (block.kind === "slider") media.push({ id: "interval", type: "number", label: t("Interval, seconds"), value: block.slide_interval_seconds ?? 4, disabled, onChange: value => patch("slide_interval_seconds", Math.max(2, Number(value) || 2)) });
   if (block.kind === "video") media.push(
     { id: "video-url", type: "url", label: t("Video URL"), value: block.video_url ?? "", disabled, onChange: value => patch("video_url", value) },
-    { id: "poster-url", type: "url", label: t("Poster URL"), value: block.video_poster_url ?? "", disabled, onChange: value => patch("video_poster_url", value) },
+    { id: "poster-url", type: "media", label: t("Poster URL"), value: block.video_poster_url ?? "", disabled, onChange: value => patch("video_poster_url", value), onChoose: () => onChooseImage({ field: "video_poster_url", label: t("Poster URL") }) },
   );
   if (block.kind === "media_text") media.push(
-    { id: "media-url", type: "url", label: t("Image URL"), value: block.media_url ?? "", disabled, onChange: value => patch("media_url", value) },
-    { id: "choose-media", type: "button", label: t("Choose from media"), disabled, onClick: () => onChooseImage({ label: t("Block image") }) },
+    { id: "media-url", type: "media", label: t("Image URL"), value: block.media_url ?? "", disabled, onChange: value => patch("media_url", value), onChoose: () => onChooseImage({ field: "media_url", label: t("Block image") }) },
     { id: "media-alt", type: "text", label: t("Alternative text"), value: block.media_alt ?? "", disabled, onChange: value => patch("media_alt", value.slice(0, 180)) },
   );
   if (visual.mediaSizing) media.push(...buildMediaLayoutInspectorFields({
@@ -123,7 +123,7 @@ function PremiumColumnCardsWidget({ block, disabled, onChange, onChooseImage, t 
     [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
     onChange({ ...block, cards: next }, `card-${index}-order`);
   };
-  return <div data-premium-column-cards-widget className="grid gap-3">{cards.slice(0, count).map((card, index) => <section key={card.id} className="grid gap-3 border-t border-black/8 pt-3 first:border-0 first:pt-0"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">{t("Card {count}", { count: index + 1 })}</p><span className="flex gap-1"><button type="button" aria-label={`${t("Move up")} · ${index + 1}`} disabled={disabled || index === 0} onClick={() => moveCard(index, -1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↑</button><button type="button" aria-label={`${t("Move down")} · ${index + 1}`} disabled={disabled || index === count - 1} onClick={() => moveCard(index, 1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↓</button></span></div><label className="text-xs font-semibold text-[#4f4b45]">{t("Heading")}<input className={editorCompactFieldClass} value={card.title} disabled={disabled} onChange={event => updateCard(index, { title: event.target.value }, "title")} /></label><RichTextEditor label={t("Description")} value={card.text} disabled={disabled} onChange={value => updateCard(index, { text: value }, "text")} /><label className="text-xs font-semibold text-[#4f4b45]">{t("Card content")}<select className={editorCompactFieldClass} value={card.media_type} disabled={disabled} onChange={event => updateCard(index, { media_type: event.target.value === "image" ? "image" : "none" }, "media-type")}><option value="none">{t("Text only")}</option><option value="image">{t("Image and text")}</option></select></label>{card.media_type === "image" ? <><label className="text-xs font-semibold text-[#4f4b45]">{t("Image URL")}<input className={editorCompactFieldClass} value={card.media_url ?? ""} disabled={disabled} onChange={event => updateCard(index, { media_url: event.target.value }, "media-url")} /></label><button type="button" disabled={disabled} onClick={() => onChooseImage({ cardIndex: index, label: t("Image for card {count}", { count: index + 1 }) })} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">{t("Choose from media")}</button></> : null}</section>)}</div>;
+  return <div data-premium-column-cards-widget className="grid gap-3">{cards.slice(0, count).map((card, index) => <section key={card.id} className="grid gap-3 border-t border-black/8 pt-3 first:border-0 first:pt-0"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">{t("Card {count}", { count: index + 1 })}</p><span className="flex gap-1"><button type="button" aria-label={`${t("Move up")} · ${index + 1}`} disabled={disabled || index === 0} onClick={() => moveCard(index, -1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↑</button><button type="button" aria-label={`${t("Move down")} · ${index + 1}`} disabled={disabled || index === count - 1} onClick={() => moveCard(index, 1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↓</button></span></div><label className="text-xs font-semibold text-[#4f4b45]">{t("Heading")}<input className={editorCompactFieldClass} value={card.title} disabled={disabled} onChange={event => updateCard(index, { title: event.target.value }, "title")} /></label><RichTextEditor label={t("Description")} value={card.text} disabled={disabled} onChange={value => updateCard(index, { text: value }, "text")} /><label className="text-xs font-semibold text-[#4f4b45]">{t("Card content")}<select className={editorCompactFieldClass} value={card.media_type} disabled={disabled} onChange={event => updateCard(index, { media_type: event.target.value === "image" ? "image" : "none" }, "media-type")}><option value="none">{t("Text only")}</option><option value="image">{t("Image and text")}</option></select></label>{card.media_type === "image" ? <SiteEditorMediaField label={t("Image for card {count}", { count: index + 1 })} value={card.media_url ?? ""} disabled={disabled} onChange={value => updateCard(index, { media_url: value }, "media-url")} onChoose={() => onChooseImage({ cardIndex: index, field: "media_url", label: t("Image for card {count}", { count: index + 1 }) })} /> : null}</section>)}</div>;
 }
 
 export default buildPremiumUniversalInspectorFields;

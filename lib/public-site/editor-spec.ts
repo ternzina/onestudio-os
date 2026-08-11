@@ -60,6 +60,7 @@ export type EditorInspectorField =
   | { id: string; type: "button"; label: string; disabled?: boolean; tone?: "default" | "quiet"; onClick: () => void }
   | { id: string; type: "notice"; text: string }
   | { id: string; type: "mediaList"; items: readonly string[]; disabled?: boolean; minItems?: number; maxItems?: number; onChange: (items: string[]) => void; onChoose: (index: number, label: string) => void }
+  | { id: string; type: "media"; label: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void; onChoose: () => void }
   | { id: string; type: "composition"; editor: ReactNode }
   | { id: string; type: "custom"; customContent: ReactNode };
 

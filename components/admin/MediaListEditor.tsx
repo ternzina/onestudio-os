@@ -1,9 +1,7 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
-import { editorCompactFieldClass } from "@/components/admin/EditorChrome";
+import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 
 export default function MediaListEditor({
   items,
@@ -42,10 +40,8 @@ export default function MediaListEditor({
             <button type="button" aria-label={t("Move image down")} title={t("Move image down")} disabled={disabled || index === items.length - 1} onClick={() => move(index, 1)} className="h-8 w-8 rounded-lg border border-black/10 disabled:opacity-25">↓</button>
           </div>
         </div>
-        {item ? <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-black/8"><img src={item} alt="" className="h-full w-full object-cover" /></div> : null}
-        <label className="text-xs font-semibold text-[#4f4b45]">{t("Image URL")}<input className={editorCompactFieldClass} value={item} disabled={disabled} onChange={event => update(index, event.target.value)} /></label>
-        <div className="flex flex-wrap justify-between gap-2">
-          <button type="button" disabled={disabled} onClick={() => onChoose(index, label)} className="rounded-xl border border-black/10 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-40">{item ? t("Replace image") : t("Choose from media")}</button>
+        <SiteEditorMediaField label={label} value={item} disabled={disabled} onChange={value => update(index, value)} onChoose={() => onChoose(index, label)} />
+        <div className="flex flex-wrap justify-end gap-2">
           <button type="button" disabled={disabled || items.length <= minItems} onClick={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))} className="text-xs font-semibold text-red-600 disabled:opacity-35">{t("Remove")}</button>
         </div>
       </section>;

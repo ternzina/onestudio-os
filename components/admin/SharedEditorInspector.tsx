@@ -2,6 +2,7 @@
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import MediaListEditor from "@/components/admin/MediaListEditor";
+import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 import TypographyControls from "@/components/admin/TypographyControls";
 import { EditorToggle, editorCompactFieldClass } from "@/components/admin/EditorChrome";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -11,6 +12,7 @@ export function SharedEditorInspectorField({ field }: { field: EditorInspectorFi
   if (field.type === "composition") return <div data-editor-composition-field>{field.editor}</div>;
   if (field.type === "custom") return <div data-editor-custom-field>{field.customContent}</div>;
   if (field.type === "mediaList") return <MediaListEditor items={field.items} disabled={field.disabled ?? false} minItems={field.minItems} maxItems={field.maxItems} onChange={field.onChange} onChoose={field.onChoose} />;
+  if (field.type === "media") return <SiteEditorMediaField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} onChange={field.onChange} onChoose={field.onChoose} />;
   if (field.type === "toggle") return <EditorToggle label={field.label} checked={field.checked} disabled={field.disabled} onChange={field.onChange} />;
   if (field.type === "richText") return <RichTextEditor label={field.label} value={field.value} disabled={field.disabled ?? false} onChange={field.onChange} />;
   if (field.type === "typography") return <TypographyControls title={field.title} description={field.description} value={field.value} disabled={field.disabled ?? false} onChange={field.onChange} />;

@@ -1,4 +1,5 @@
 import type { EditorInspectorPlacedField } from "./editor-spec.ts";
+import type { PremiumTemplateEditorMediaTarget } from "./premium-template-editor-adapter.ts";
 import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content.ts";
 import { NOIR_PREMIUM_TEMPLATE_CONTRACT, type NoirNativeSectionId } from "./noir-premium-template-contract.ts";
 
@@ -110,18 +111,44 @@ function decodeList(value: string, keys: string[]) {
   });
 }
 
-export function buildNoirInspectorFields(content: PremiumStudioContent, section: NoirEditorSection, disabled: boolean, onChange: (content: PremiumStudioContent, group: string) => void): EditorInspectorPlacedField[] {
-  return specs[section].map(spec => {
+export function buildNoirInspectorFields(content: PremiumStudioContent, section: NoirEditorSection, disabled: boolean, onChange: (content: PremiumStudioContent, group: string) => void, onChooseMedia?: (target: PremiumTemplateEditorMediaTarget) => void): EditorInspectorPlacedField[] {
+  const fields: EditorInspectorPlacedField[] = [];
+  for (const spec of specs[section]) {
     if ("keys" in spec) {
-      return { id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows, disabled, value: encodeList(atPath(content, spec.path), spec.keys), onChange: value => onChange(setPath(content, spec.path, decodeList(value, spec.keys)), `noir:${section}:${spec.id}`) };
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows, disabled, value: encodeList(atPath(content, spec.path), spec.keys), onChange: (value: string) => onChange(setPath(content, spec.path, decodeList(value, spec.keys)), `noir:${section}:${spec.id}`) });
+      const mediaKeys = spec.keys.filter(key => key === "image" || key === "hoverImage");
+      if (!mediaKeys.length || !onChooseMedia) continue;
+      const items = atPath(content, spec.path);
+      if (!Array.isArray(items)) continue;
+      items.forEach((_, index) => mediaKeys.forEach((key) => {
+        const path = `${spec.path}.${index}.${key}`;
+        const label = `${key === "hoverImage" ? "Второе изображение" : "Изображение"} · ${index + 1}`;
+        fields.push({
+          id: `${spec.id}-${index}-${key}`,
+          group: "media",
+          type: "media",
+          label,
+          value: String(atPath(content, path) ?? ""),
+          originalValue: String(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, path) ?? ""),
+          disabled,
+          onChange: (value: string) => onChange(setPath(content, path, value), `noir:${section}:${spec.id}:${index}:${key}`),
+          onChoose: () => onChooseMedia({ kind: "template-content", templateKey: "premium-studio", path, label }),
+        });
+      }));
+      continue;
     }
     const raw = atPath(content, spec.path);
     const value = Array.isArray(raw) ? raw.join("\n") : String(raw ?? "");
     const update = (next: string) => onChange(setPath(content, spec.path, Array.isArray(raw) ? next.split("\n").map(item => item.trim()).filter(Boolean) : next), `noir:${section}:${spec.id}`);
-    return spec.kind === "textarea"
-      ? { id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows ?? 3, disabled, value, onChange: update }
-      : { id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, onChange: update };
-  });
+    if (spec.kind === "url" && (spec.group ?? "content") === "media" && onChooseMedia) {
+      fields.push({ id: spec.id, group: "media", type: "media", label: spec.label, value, originalValue: String(atPath(DEFAULT_PREMIUM_STUDIO_CONTENT, spec.path) ?? ""), disabled, onChange: update, onChoose: () => onChooseMedia({ kind: "template-content", templateKey: "premium-studio", path: spec.path, label: spec.label }) });
+    } else if (spec.kind === "textarea") {
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: "textarea", label: spec.label, rows: spec.rows ?? 3, disabled, value, onChange: update });
+    } else {
+      fields.push({ id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, onChange: update });
+    }
+  }
+  return fields;
 }
 
 

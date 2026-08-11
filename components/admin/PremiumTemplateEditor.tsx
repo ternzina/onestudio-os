@@ -7,7 +7,6 @@ import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
 import type { EditorInspectorField, EditorInspectorModel, EditorInspectorPlacedField, EditorNavigatorModel, TemplateEditorDevice, TemplateEditorSection } from "@/lib/public-site/editor-spec";
 import TemplatePreviewViewport, { type TemplatePreviewViewportHandle } from "@/components/admin/TemplatePreviewViewport";
 import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
-import PremiumKidsNativeMediaEditor from "@/components/admin/PremiumKidsNativeMediaEditor";
 import { buildPremiumUniversalInspectorGroups } from "@/components/admin/PremiumUniversalBlockSettings";
 import PremiumDelimitedListEditor from "@/components/admin/PremiumDelimitedListEditor";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -37,11 +36,11 @@ import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { addOneStudioPage, createOneStudioPage, removeOneStudioPage, updateOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import { createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-registry";
 import { buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
-import { getPremiumKidsNativeMediaSlots, type PremiumKidsNativeMedia, type PremiumKidsNativeMediaSlot } from "@/lib/public-site/premium-kids-native-media";
+import { getPremiumKidsNativeMediaSlots, premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 
 type Field = [PremiumKidsEditableKey, AdminMessage, "input" | "text" | "lines"];
 type MediaTarget =
-  | { kind: "universal"; cardIndex?: number; listIndex?: number; label: string }
+  | { kind: "universal"; cardIndex?: number; listIndex?: number; field?: "media_url" | "video_poster_url"; label: string }
   | { kind: "native"; slotId: string; label: string };
 
 const fields: Record<PremiumKidsBlockType, Field[]> = {
@@ -69,7 +68,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   onChange: (draft: PublicSiteContent, historyGroup?: string) => void; onDeviceChange: (device: TemplateEditorDevice) => void; onUndo: () => void; onRedo: () => void; onSave: () => void; onPublish: () => void;
   onOpenDesign: () => void; onOpenSeo: () => void;
 }) {
-  const { t } = useAdminI18n();
+  const { locale: adminLocale, t } = useAdminI18n();
   const premium = resolvePremiumKidsContent(draft);
   const [selected, setSelected] = useState(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id);
   const [selectedPageId, setSelectedPageId] = useState("home");
@@ -142,7 +141,10 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
       while (mediaUrls.length <= mediaTarget.listIndex) mediaUrls.push("");
       mediaUrls[mediaTarget.listIndex] = url;
       save({ ...universal, media_urls: mediaUrls }, `media-urls-${mediaTarget.listIndex}`);
-    } else if (mediaTarget.cardIndex === undefined) save({ ...universal, media_url: url }, "media-url");
+    } else if (mediaTarget.cardIndex === undefined) {
+      const field = mediaTarget.field ?? "media_url";
+      save({ ...universal, [field]: url }, field);
+    }
     else {
       const cards = [...(universal.cards ?? [])];
       const card = cards[mediaTarget.cardIndex];
@@ -225,18 +227,20 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     if (definition.capabilities.typography) inspectorFields.push({ id: "typography-controls", group: "typography", type: "typography", title: t("Section title"), description: t("Limited Site Editor 2.6 settings"), value: selectedBlock.props.heading_typography, disabled: controlsDisabled, onChange: updateTypography });
     const nativeMediaSlots = getPremiumKidsNativeMediaSlots(selectedBlock.type);
     if (nativeMediaSlots.length) {
-      inspectorFields.push({
-        id: "premium-native-media",
-        group: "media",
-        type: "custom",
-        customContent: <PremiumKidsNativeMediaEditor
-          slots={nativeMediaSlots}
-          media={selectedBlock.props.native_media}
-          disabled={controlsDisabled}
-          onChange={updateNativeMediaUrl}
-          onChoose={(slot: PremiumKidsNativeMediaSlot, label: string) => setMediaTarget({ kind: "native", slotId: slot.id, label })}
-        />,
-      });
+      inspectorFields.push(...nativeMediaSlots.map((slot, index) => {
+        const label = adminLocale === "ru" ? slot.label : t("Image {count}", { count: index + 1 });
+        return {
+          id: `premium-native-media-${slot.id}`,
+          group: "media" as const,
+          type: "media" as const,
+          label,
+          value: premiumKidsNativeMediaUrl(selectedBlock.props.native_media, slot.id, slot.defaultUrl),
+          originalValue: slot.defaultUrl,
+          disabled: controlsDisabled,
+          onChange: (value: string) => updateNativeMediaUrl(slot.id, value === slot.defaultUrl ? undefined : value),
+          onChoose: () => setMediaTarget({ kind: "native", slotId: slot.id, label }),
+        };
+      }));
       inspectorFields.push(...buildMediaLayoutInspectorFields({
         value: selectedBlock.props.native_media ?? {},
         disabled: controlsDisabled,

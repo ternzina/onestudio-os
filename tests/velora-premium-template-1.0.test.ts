@@ -312,8 +312,7 @@ test("VELORA inspector uses the shared media picker and palette reset restores p
       },
     });
     for (const field of fields)
-      if (field.type === "button" && field.id.endsWith("-picker"))
-        field.onClick();
+      if (field.type === "media") field.onChoose();
   }
   assert.deepEqual(
     targets
