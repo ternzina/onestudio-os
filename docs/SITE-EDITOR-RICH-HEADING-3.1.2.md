@@ -12,6 +12,7 @@ Rich Heading 3.1.2 extends the existing shared text editor. It does not introduc
 ## Public rendering
 
 - `PublicRichHeading` renders validated Rich Text 2.6 nodes as safe inline elements inside the existing semantic `h1`–`h3` elements.
+- Fragment sizes are rendered as a scale of the heading's responsive base size, so a fragment that is larger in the editor cannot become smaller in preview or on the published site.
 - No raw HTML is stored or rendered, and no `dangerouslySetInnerHTML` path is added.
 - Existing untouched headings remain plain strings and preserve their template CSS and motion treatment.
 - Standard, GLOSS, BEMBI, NOIR, VELORA, custom blocks, and custom pages share the same fragment renderer.

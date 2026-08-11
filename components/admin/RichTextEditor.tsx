@@ -9,6 +9,7 @@ import {
   normalizeRichTextFontFamily,
   normalizeRichTextFontSize,
   normalizeRichTextHref,
+  RICH_HEADING_FONT_SIZE_BASE_PX,
   richTextPlainText,
   type RichTextDocument,
   type RichTextNode,
@@ -158,7 +159,7 @@ export default function RichTextEditor({
   const selectionRef = useRef<Range | null>(null);
   const [sourceMode, setSourceMode] = useState(false);
   const [fontFamily, setFontFamily] = useState("");
-  const [fontSize, setFontSize] = useState("16");
+  const [fontSize, setFontSize] = useState(String(RICH_HEADING_FONT_SIZE_BASE_PX));
   const lastEmittedRef = useRef(value);
   const heading = variant === "heading";
   const sizeOptions = heading ? HEADING_SIZE_OPTIONS : BODY_SIZE_OPTIONS;
@@ -260,7 +261,7 @@ export default function RichTextEditor({
     runCommand("removeFormat");
     runCommand("unlink");
     setFontFamily("");
-    setFontSize("16");
+    setFontSize(String(RICH_HEADING_FONT_SIZE_BASE_PX));
     saveSelection();
     commit();
   };
@@ -310,7 +311,11 @@ export default function RichTextEditor({
                 onChange={(event) => applyFontSize(event.target.value)}
                 className="h-8 w-[72px] rounded-lg border border-black/10 bg-white px-2 text-xs text-[#403d38] outline-none disabled:opacity-35"
               >
-                {sizeOptions.map((size) => <option key={size} value={size}>{size}px</option>)}
+                {sizeOptions.map((size) => (
+                  <option key={size} value={size}>
+                    {heading ? `${Math.round((size / RICH_HEADING_FONT_SIZE_BASE_PX) * 100)}%` : `${size}px`}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -352,7 +357,7 @@ export default function RichTextEditor({
             onKeyUp={saveSelection}
             onMouseUp={saveSelection}
             onBlur={() => { saveSelection(); commit(); }}
-            className={`os-rich-text-editor px-3 py-3 text-sm font-normal leading-6 normal-case tracking-normal text-[#332f29] outline-none ${heading ? "min-h-16" : "min-h-28"}`}
+            className={`os-rich-text-editor px-3 py-3 font-normal leading-6 normal-case tracking-normal text-[#332f29] outline-none ${heading ? "min-h-16 text-base" : "min-h-28 text-sm"}`}
           />
         </div>
       )}

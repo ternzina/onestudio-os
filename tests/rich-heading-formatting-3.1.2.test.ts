@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { encodeRichText, normalizeRichTextFontSize, richTextPlainText } from "../lib/public-site/rich-text.ts";
+import {
+  encodeRichText,
+  normalizeRichTextFontSize,
+  richHeadingFontSizeScale,
+  richTextPlainText,
+} from "../lib/public-site/rich-text.ts";
 import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/noir-premium-template-editor-adapter.ts";
 import { createNoirPremiumTemplateSeed } from "../lib/public-site/noir-premium-template-seed.ts";
 import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
@@ -35,6 +40,9 @@ test("heading rich text keeps one-letter formatting and heading-scale sizes", ()
   assert.equal(normalizeRichTextFontSize(72), 72);
   assert.equal(normalizeRichTextFontSize(160), 160);
   assert.equal(normalizeRichTextFontSize(161), undefined);
+  assert.equal(richHeadingFontSizeScale(16), 1);
+  assert.equal(richHeadingFontSizeScale(32), 2);
+  assert.equal(richHeadingFontSizeScale(12), 0.75);
 });
 
 test("shared inspector upgrades every typography-paired title to the heading editor", async () => {
@@ -76,7 +84,9 @@ test("public runtimes use the semantic rich-heading renderer while plain titles 
   assert.match(renderer, /decodeRichText\(value\)/);
   assert.match(renderer, /normalizeRichTextColor/);
   assert.match(renderer, /normalizeRichTextFontFamily/);
-  assert.match(renderer, /normalizeRichTextFontSize/);
+  assert.match(renderer, /richHeadingFontSizeScale/);
+  assert.match(renderer, /fontSize: `\$\{fontSizeScale \/ inheritedFontSizeScale\}em`/);
+  assert.match(renderer, /renderNode\(child, `\$\{key\}-\$\{index\}`, fontSizeScale\)/);
   assert.match(renderer, /emphasizeAfterFirst/);
   assert.match(renderer, /italicizeLast/);
   assert.doesNotMatch(renderer, /dangerouslySetInnerHTML/);

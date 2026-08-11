@@ -3,21 +3,21 @@ import {
   decodeRichText,
   normalizeRichTextColor,
   normalizeRichTextFontFamily,
-  normalizeRichTextFontSize,
   normalizeRichTextHref,
+  richHeadingFontSizeScale,
   type RichTextNode,
 } from "@/lib/public-site/rich-text";
 
 type HeadingLine = RichTextNode[];
 
-function nodeStyle(node: RichTextNode): CSSProperties {
+function nodeStyle(node: RichTextNode, inheritedFontSizeScale: number): CSSProperties {
   const color = normalizeRichTextColor(node.color);
   const fontFamily = normalizeRichTextFontFamily(node.fontFamily);
-  const fontSize = normalizeRichTextFontSize(node.fontSize);
+  const fontSizeScale = richHeadingFontSizeScale(node.fontSize);
   return {
     ...(color ? { color } : {}),
     ...(fontFamily ? { fontFamily } : {}),
-    ...(fontSize ? { fontSize: `${fontSize}px` } : {}),
+    ...(fontSizeScale ? { fontSize: `${fontSizeScale / inheritedFontSizeScale}em` } : {}),
   };
 }
 
@@ -68,10 +68,11 @@ function headingLines(value: string): HeadingLine[] {
   return lines.length ? lines : [[]];
 }
 
-function renderNode(node: RichTextNode, key: string): ReactNode {
+function renderNode(node: RichTextNode, key: string, inheritedFontSizeScale = 1): ReactNode {
   if (node.type === "text") return node.text ?? "";
-  const children = (node.children ?? []).map((child, index) => renderNode(child, `${key}-${index}`));
-  const style = nodeStyle(node);
+  const fontSizeScale = richHeadingFontSizeScale(node.fontSize) ?? inheritedFontSizeScale;
+  const children = (node.children ?? []).map((child, index) => renderNode(child, `${key}-${index}`, fontSizeScale));
+  const style = nodeStyle(node, inheritedFontSizeScale);
   if (node.type === "strong") return <strong key={key}>{children}</strong>;
   if (node.type === "em") return <em key={key}>{children}</em>;
   if (node.type === "u") return <u key={key}>{children}</u>;

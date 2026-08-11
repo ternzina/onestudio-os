@@ -26,6 +26,8 @@ const SAFE_FONT_SIZES = new Set([
   104, 120, 144, 160,
 ]);
 
+export const RICH_HEADING_FONT_SIZE_BASE_PX = 16;
+
 export function isRichTextValue(value?: string | null): boolean {
   return Boolean(value?.startsWith(RICH_TEXT_PREFIX));
 }
@@ -84,4 +86,9 @@ export function normalizeRichTextFontFamily(value?: string | null) {
 export function normalizeRichTextFontSize(value?: string | number | null) {
   const size = typeof value === "number" ? value : Number.parseInt(value ?? "", 10);
   return SAFE_FONT_SIZES.has(size) ? size : undefined;
+}
+
+export function richHeadingFontSizeScale(value?: string | number | null) {
+  const size = normalizeRichTextFontSize(value);
+  return size ? size / RICH_HEADING_FONT_SIZE_BASE_PX : undefined;
 }
