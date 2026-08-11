@@ -6,6 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
+import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
 import MediaListEditor from "@/components/admin/MediaListEditor";
 import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector";
 import TypographyControls from "@/components/admin/TypographyControls";
@@ -95,6 +96,11 @@ import {
   publicSiteCustomBlockMediaStyle,
   publicSiteMediaVariables,
 } from "@/lib/public-site/visual-tokens";
+import {
+  publicSiteBlockCompositionStyle,
+  publicSiteCompositionItemStyle,
+  resolvePublicSiteBlockComposition,
+} from "@/lib/public-site/block-composition";
 
 const PremiumTemplateEditor = dynamic(
   () => import("@/components/admin/PremiumTemplateEditor"),
@@ -4401,6 +4407,17 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
   const inlineStyle = colorOverrideStyle(block.colors);
   const mediaStyle = publicSiteCustomBlockMediaStyle(block);
   const mediaVariables = publicSiteMediaVariables(block);
+  const composition = resolvePublicSiteBlockComposition(block);
+  const compositionStyle = publicSiteBlockCompositionStyle(block);
+  const compositionAttributes = composition.enabled ? {
+    "data-os-composition": "enabled" as const,
+    "data-os-composition-layout": composition.layout,
+    "data-os-composition-mobile-layout": composition.mobileLayout,
+    "data-os-composition-kind": block.kind,
+    "data-os-composition-card-layout": composition.cardLayout,
+    "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
+  } : {};
+  const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(block, element);
   const mediaSize = {
     full: "w-full",
     wide: "w-full max-w-4xl",
@@ -4460,8 +4477,15 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`}
         style={inlineStyle}
       >
-        <div className={`mx-auto grid w-full ${contentWidth} gap-7 lg:grid-cols-2 lg:items-center`} style={mediaVariables} data-os-media-mobile-position={block.media_mobile_position ?? "after"}>
-        <div data-os-media-slot className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
+        <div
+          className={`os-block-composition mx-auto grid w-full ${contentWidth} gap-7 lg:grid-cols-2 lg:items-center`}
+          style={{ ...mediaVariables, ...compositionStyle }}
+          data-os-media-mobile-position={block.media_mobile_position ?? "after"}
+          data-os-composition-media-position={mediaOnRight ? "right" : "left"}
+          data-os-composition-mobile-media-position={block.media_mobile_position ?? "after"}
+          {...compositionAttributes}
+        >
+        <div data-os-media-slot data-os-composition-slot="media" className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
           <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`} style={mediaStyle}>
             <div
               className={`os-managed-media-frame relative grid place-items-center bg-black/10 ${
@@ -4512,14 +4536,14 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
             </div>
           </div>
         </div>
-        <div data-os-media-body className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
-          <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
+        <div data-os-media-body className={`os-composition-sequence ${mediaOnRight ? "lg:order-1" : "lg:order-2"}`} data-os-composition={composition.enabled ? "enabled" : undefined}>
+          <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
             {block.eyebrow}
           </p>
-          <h3 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-3xl">{block.title}</h3>
-          <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />
+          <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl">{block.title}</h3>
+          {composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />}
           {block.button_label ? (
-            <span className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+            <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
               {block.button_label}
             </span>
           ) : null}
@@ -4531,13 +4555,20 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
 
   return (
     <div className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`} style={inlineStyle}>
-      <div className={`mx-auto w-full ${contentWidth}`}>
-      <p className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
+      <div className={`os-block-composition mx-auto w-full ${contentWidth}`} style={compositionStyle} {...compositionAttributes}>
+      <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
         {block.eyebrow}
       </p>
-      <h3 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-3xl">{block.title}</h3>
+      <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl">{block.title}</h3>
+      {composition.enabled && block.kind === "columns" && block.text ? (
+        <div data-os-composition-slot="text" style={itemStyle("text")}>
+          <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />
+        </div>
+      ) : null}
       {block.kind === "features" || block.kind === "columns" ? (
         <div
+          data-os-composition-slot="cards"
+          style={itemStyle("cards")}
           className={`mt-6 grid gap-2 ${
             block.kind === "columns" && block.columns_count === 2
               ? "sm:grid-cols-2"
@@ -4567,10 +4598,12 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           ).map((card) => (
             <span
               key={card.key}
+              data-os-composition-card
+              data-os-composition-has-media={card.image ? "true" : "false"}
               className="overflow-hidden rounded-xl border border-current/15 text-[10px] leading-5"
             >
               {card.image ? (
-                <span className="os-managed-media-surface relative block aspect-[4/3] overflow-hidden bg-black/10" style={mediaVariables}>
+                <span data-os-composition-card-media className="os-managed-media-surface relative block aspect-[4/3] overflow-hidden bg-black/10" style={mediaVariables}>
                   <img src={card.image} alt="" className="os-managed-media h-full w-full object-cover" />
                   {card.video ? (
                     <span className="absolute inset-0 grid place-items-center text-2xl text-white">
@@ -4589,12 +4622,13 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           ))}
         </div>
       ) : block.kind !== "slider" && block.kind !== "video" ? (
-        <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
+        composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
       ) : block.text ? (
-        <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
+        composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
       ) : null}
       {block.kind === "collage" ? (
         <div
+          data-os-composition-slot="media"
           className={`mt-6 ${
             block.media_position === "left"
               ? "mr-auto"
@@ -4602,7 +4636,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
                 ? "ml-auto"
                 : "mx-auto"
           } ${mediaSize} ${mediaFrame}`}
-          style={mediaStyle}
+          style={{ ...mediaStyle, ...itemStyle("media") }}
         >
           <div
             data-os-media-columns={block.media_columns ?? 4}
@@ -4640,7 +4674,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
       ) : null}
 
       {block.kind === "slider" ? (
-        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={mediaStyle}>
+        <div data-os-composition-slot="media" className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={{ ...mediaStyle, ...itemStyle("media") }}>
           <div className={`os-managed-media-frame relative bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {(block.media_urls ?? [])[0] ? (
               <img
@@ -4666,7 +4700,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         </div>
       ) : null}
       {block.kind === "video" ? (
-        <div className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={mediaStyle}>
+        <div data-os-composition-slot="media" className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={{ ...mediaStyle, ...itemStyle("media") }}>
           <div className={`os-managed-media-frame relative grid place-items-center bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
             {block.video_poster_url ? (
               <img
@@ -4680,7 +4714,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         </div>
       ) : null}
       {block.kind === "cta" && block.button_label ? (
-        <span className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+        <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
           {block.button_label}
         </span>
       ) : null}
@@ -7159,6 +7193,13 @@ function ColumnCardsEditor({
     next[index] = { ...next[index], ...changes };
     onChange(next);
   };
+  const moveCard = (index: number, direction: -1 | 1) => {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= count) return;
+    const next = [...cards];
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    onChange(next);
+  };
 
   return (
     <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
@@ -7170,9 +7211,15 @@ function ColumnCardsEditor({
           key={card.id}
           className="grid gap-3 rounded-xl border border-black/8 bg-white p-3"
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9d3151]">
-            {t("Content card")} {index + 1}
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9d3151]">
+              {t("Content card")} {index + 1}
+            </p>
+            <span className="flex gap-1">
+              <button type="button" aria-label={`${t("Move up")} · ${index + 1}`} disabled={disabled || index === 0} onClick={() => moveCard(index, -1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↑</button>
+              <button type="button" aria-label={`${t("Move down")} · ${index + 1}`} disabled={disabled || index === count - 1} onClick={() => moveCard(index, 1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↓</button>
+            </span>
+          </div>
           <CompactField
             label={t("Heading")}
             value={card.title}
@@ -7358,6 +7405,12 @@ function CustomBlockSettings({
           <SharedEditorFieldList fields={layoutFields} />
         </div>
       ) : null}
+      <BlockCompositionEditor
+        block={block}
+        disabled={disabled}
+        t={t}
+        onChange={onChange}
+      />
       <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
       <CompactField label={t("Heading")} value={block.title} disabled={disabled} onChange={(value) => onChange("title", value)} multiline />
       <TypographyControls title="Заголовок блока" description={block.title || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
@@ -7373,13 +7426,16 @@ function CustomBlockSettings({
           onChange={(value) => onChange("items", value)}
         />
       ) : block.kind === "columns" ? (
-        <ColumnCardsEditor
-          block={block}
-          disabled={disabled}
-          t={t}
-          onChange={(cards) => onChange("cards", cards)}
-          onChooseImage={onChooseCardImage}
-        />
+        <>
+          <RichTextEditor label={t("Intro text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
+          <ColumnCardsEditor
+            block={block}
+            disabled={disabled}
+            t={t}
+            onChange={(cards) => onChange("cards", cards)}
+            onChooseImage={onChooseCardImage}
+          />
+        </>
       ) : (
         <RichTextEditor label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
       )}

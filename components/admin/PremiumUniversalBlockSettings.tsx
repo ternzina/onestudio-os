@@ -1,6 +1,7 @@
 "use client";
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
 import { editorCompactFieldClass } from "@/components/admin/EditorChrome";
 import { defaultPublicSiteColumnCards, publicSiteBlockColumnCards, publicSiteCustomBlockVisualCapabilities } from "@/lib/public-site/custom-block-registry";
 import type { EditorInspectorField, EditorInspectorPlacedField, OneStudioInspectorGroup } from "@/lib/public-site/editor-spec";
@@ -29,6 +30,11 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     ? buildBlockLayoutInspectorFields({ value: block, disabled, t, idPrefix: "universal-layout", onChange: (key, value) => onChange({ ...block, [key]: value }, String(key)) })
     : [];
   if (appearance.length) groups.push({ id: "layout-spacing", fields: appearance, card: true });
+  groups.push({ id: "layout-composition", card: true, fields: [{
+    id: "block-composition",
+    type: "composition",
+    editor: <BlockCompositionEditor block={block} disabled={disabled} t={t} onChange={(key, value) => onChange({ ...block, [key]: value }, String(key))} />,
+  }] });
 
   if (visual.colors) groups.push({ id: "appearance-colors", card: true, fields: [
     { id: "background", type: "color", label: t("Background"), value: block.colors?.background ?? "#f5f0e6", disabled, onChange: background => patch("colors", { ...block.colors, mode: "custom", background }) },
@@ -98,7 +104,7 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     { id: "columns-count", type: "select", label: t("Number of columns"), value: String(block.columns_count ?? 3), disabled, onChange: value => patch("columns_count", value === "2" ? 2 : 3), options: options(t, [["2", "Two columns"], ["3", "Three columns"]]) },
     { id: "column-cards", type: "custom", customContent: <PremiumColumnCardsWidget block={block} disabled={disabled} onChange={onChange} onChooseImage={onChooseImage} t={t} /> },
   ] });
-  const placement = (id: string): OneStudioInspectorGroup => id === "typography" ? "typography" : id === "media" ? "media" : id === "layout-spacing" ? "layout" : "content";
+  const placement = (id: string): OneStudioInspectorGroup => id === "typography" ? "typography" : id === "media" ? "media" : id.startsWith("layout-") ? "layout" : "content";
   return groups.flatMap(group => group.fields.map(field => ({ ...field, group: placement(group.id) } as EditorInspectorPlacedField)));
 }
 
@@ -109,7 +115,15 @@ function PremiumColumnCardsWidget({ block, disabled, onChange, onChooseImage, t 
   const cards = publicSiteBlockColumnCards(block);
   while (cards.length < 3) cards.push(defaultPublicSiteColumnCards(block.id)[cards.length]);
   const updateCard = (index: number, changes: Partial<PublicSiteColumnCard>, field: string) => onChange({ ...block, cards: cards.map((card, cardIndex) => cardIndex === index ? { ...card, ...changes } : card) }, `card-${index}-${field}`);
-  return <div data-premium-column-cards-widget className="grid gap-3">{cards.slice(0, block.columns_count ?? 3).map((card, index) => <section key={card.id} className="grid gap-3 border-t border-black/8 pt-3 first:border-0 first:pt-0"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">{t("Card {count}", { count: index + 1 })}</p><label className="text-xs font-semibold text-[#4f4b45]">{t("Heading")}<input className={editorCompactFieldClass} value={card.title} disabled={disabled} onChange={event => updateCard(index, { title: event.target.value }, "title")} /></label><RichTextEditor label={t("Description")} value={card.text} disabled={disabled} onChange={value => updateCard(index, { text: value }, "text")} /><label className="text-xs font-semibold text-[#4f4b45]">{t("Card content")}<select className={editorCompactFieldClass} value={card.media_type} disabled={disabled} onChange={event => updateCard(index, { media_type: event.target.value === "image" ? "image" : "none" }, "media-type")}><option value="none">{t("Text only")}</option><option value="image">{t("Image and text")}</option></select></label>{card.media_type === "image" ? <><label className="text-xs font-semibold text-[#4f4b45]">{t("Image URL")}<input className={editorCompactFieldClass} value={card.media_url ?? ""} disabled={disabled} onChange={event => updateCard(index, { media_url: event.target.value }, "media-url")} /></label><button type="button" disabled={disabled} onClick={() => onChooseImage({ cardIndex: index, label: t("Image for card {count}", { count: index + 1 }) })} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">{t("Choose from media")}</button></> : null}</section>)}</div>;
+  const count = block.columns_count ?? 3;
+  const moveCard = (index: number, direction: -1 | 1) => {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= count) return;
+    const next = [...cards];
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    onChange({ ...block, cards: next }, `card-${index}-order`);
+  };
+  return <div data-premium-column-cards-widget className="grid gap-3">{cards.slice(0, count).map((card, index) => <section key={card.id} className="grid gap-3 border-t border-black/8 pt-3 first:border-0 first:pt-0"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#9a742e]">{t("Card {count}", { count: index + 1 })}</p><span className="flex gap-1"><button type="button" aria-label={`${t("Move up")} · ${index + 1}`} disabled={disabled || index === 0} onClick={() => moveCard(index, -1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↑</button><button type="button" aria-label={`${t("Move down")} · ${index + 1}`} disabled={disabled || index === count - 1} onClick={() => moveCard(index, 1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↓</button></span></div><label className="text-xs font-semibold text-[#4f4b45]">{t("Heading")}<input className={editorCompactFieldClass} value={card.title} disabled={disabled} onChange={event => updateCard(index, { title: event.target.value }, "title")} /></label><RichTextEditor label={t("Description")} value={card.text} disabled={disabled} onChange={value => updateCard(index, { text: value }, "text")} /><label className="text-xs font-semibold text-[#4f4b45]">{t("Card content")}<select className={editorCompactFieldClass} value={card.media_type} disabled={disabled} onChange={event => updateCard(index, { media_type: event.target.value === "image" ? "image" : "none" }, "media-type")}><option value="none">{t("Text only")}</option><option value="image">{t("Image and text")}</option></select></label>{card.media_type === "image" ? <><label className="text-xs font-semibold text-[#4f4b45]">{t("Image URL")}<input className={editorCompactFieldClass} value={card.media_url ?? ""} disabled={disabled} onChange={event => updateCard(index, { media_url: event.target.value }, "media-url")} /></label><button type="button" disabled={disabled} onClick={() => onChooseImage({ cardIndex: index, label: t("Image for card {count}", { count: index + 1 }) })} className="rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold disabled:opacity-40">{t("Choose from media")}</button></> : null}</section>)}</div>;
 }
 
 export default buildPremiumUniversalInspectorFields;

@@ -8,6 +8,7 @@ import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import { ONESTUDIO_INSPECTOR_GROUPS, type EditorInspectorField, type EditorInspectorModel, type OneStudioInspectorGroup } from "@/lib/public-site/editor-spec";
 
 export function SharedEditorInspectorField({ field }: { field: EditorInspectorField }) {
+  if (field.type === "composition") return <div data-editor-composition-field>{field.editor}</div>;
   if (field.type === "custom") return <div data-editor-custom-field>{field.customContent}</div>;
   if (field.type === "mediaList") return <MediaListEditor items={field.items} disabled={field.disabled ?? false} minItems={field.minItems} maxItems={field.maxItems} onChange={field.onChange} onChoose={field.onChoose} />;
   if (field.type === "toggle") return <EditorToggle label={field.label} checked={field.checked} disabled={field.disabled} onChange={field.onChange} />;

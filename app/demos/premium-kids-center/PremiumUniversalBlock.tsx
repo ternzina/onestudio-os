@@ -4,6 +4,11 @@ import PublicRichText from "@/components/public/PublicRichText";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicReveal from "@/components/public/PublicReveal";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
+import {
+  publicSiteBlockCompositionStyle,
+  publicSiteCompositionItemStyle,
+  resolvePublicSiteBlockComposition,
+} from "@/lib/public-site/block-composition";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import { publicSiteBlockColumnCards } from "@/lib/public-site/custom-block-registry";
 import { publicSiteCustomBlockContentStyle, publicSiteCustomBlockMediaStyle, publicSiteCustomBlockVisualStyle, publicSiteMediaVariables } from "@/lib/public-site/visual-tokens";
@@ -28,21 +33,32 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
   const contentStyle = publicSiteCustomBlockContentStyle(content);
   const mediaStyle = publicSiteCustomBlockMediaStyle(content);
   const mediaVariables = publicSiteMediaVariables(content);
+  const composition = resolvePublicSiteBlockComposition(content);
+  const compositionStyle = publicSiteBlockCompositionStyle(content);
+  const compositionAttributes = composition.enabled ? {
+    "data-os-composition": "enabled" as const,
+    "data-os-composition-layout": composition.layout,
+    "data-os-composition-mobile-layout": composition.mobileLayout,
+    "data-os-composition-kind": content.kind,
+    "data-os-composition-card-layout": composition.cardLayout,
+    "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
+  } : {};
+  const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(content, element);
   const mediaClass = `${styles.premiumUniversalMedia} ${content.media_frame === "none" ? styles.premiumUniversalMediaNoFrame : content.media_frame === "card" ? styles.premiumUniversalMediaCard : styles.premiumUniversalMediaLine}`;
-  const heading = <><p className={styles.premiumUniversalEyebrow}>{content.eyebrow}</p><h2 style={publicTypographyStyle(content.title_typography)}>{content.title}</h2></>;
+  const heading = <><p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className={styles.premiumUniversalEyebrow}>{content.eyebrow}</p><h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(content.title_typography), ...itemStyle("title") }}>{content.title}</h2></>;
 
   if (content.kind === "text") {
     return <PublicReveal {...reveal} className={`${styles.premiumUniversal} ${styles.premiumUniversalText}`} style={sectionStyle}>
-      <div data-premium-block-id={block.id} className={styles.premiumUniversalInner} style={contentStyle}>{heading}<div className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div></div>
+      <div data-premium-block-id={block.id} className={`${styles.premiumUniversalInner} os-block-composition`} style={{ ...contentStyle, ...compositionStyle }} {...compositionAttributes}>{heading}<div data-os-composition-slot="text" style={itemStyle("text")} className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div></div>
     </PublicReveal>;
   }
 
   if (content.kind === "media_text") {
     const mediaFirst = content.media_position === "left";
     return <PublicReveal {...reveal} className={styles.premiumUniversal} style={sectionStyle}>
-      <div data-premium-block-id={block.id} data-os-media-mobile-position={content.media_mobile_position ?? "after"} style={{ ...contentStyle, ...mediaVariables }} className={`${styles.premiumUniversalInner} ${styles.premiumUniversalSplit} ${mediaFirst ? styles.premiumUniversalMediaFirst : ""}`}>
-        <div data-os-media-body className={styles.premiumUniversalBody}>{heading}<div className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div>{content.button_label ? <a href={content.button_url || "#top"}>{content.button_label}<span aria-hidden="true">↗</span></a> : null}</div>
-        <div data-os-media-slot className={`${mediaClass} os-managed-media-frame`} style={{ ...mediaStyle, minHeight: (content.media_height && content.media_height !== "auto") || (content.media_mobile_height && content.media_mobile_height !== "auto") ? 0 : undefined }}>{content.media_url ? <PremiumImage src={content.media_url} alt={content.media_alt || ""} sizes="(max-width: 760px) 100vw, 48vw" /> : <span>Добавьте изображение</span>}</div>
+      <div data-premium-block-id={block.id} data-os-media-mobile-position={content.media_mobile_position ?? "after"} data-os-composition-media-position={mediaFirst ? "left" : "right"} data-os-composition-mobile-media-position={content.media_mobile_position ?? "after"} style={{ ...contentStyle, ...mediaVariables, ...compositionStyle }} className={`${styles.premiumUniversalInner} ${styles.premiumUniversalSplit} ${mediaFirst ? styles.premiumUniversalMediaFirst : ""} os-block-composition`} {...compositionAttributes}>
+        <div data-os-media-body className={`${styles.premiumUniversalBody} os-composition-sequence`} data-os-composition={composition.enabled ? "enabled" : undefined}>{heading}<div data-os-composition-slot="text" style={itemStyle("text")} className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div>{content.button_label ? <a data-os-composition-slot="action" style={itemStyle("action")} href={content.button_url || "#top"}>{content.button_label}<span aria-hidden="true">↗</span></a> : null}</div>
+        <div data-os-media-slot data-os-composition-slot="media" className={`${mediaClass} os-managed-media-frame`} style={{ ...mediaStyle, minHeight: (content.media_height && content.media_height !== "auto") || (content.media_mobile_height && content.media_mobile_height !== "auto") ? 0 : undefined }}>{content.media_url ? <PremiumImage src={content.media_url} alt={content.media_alt || ""} sizes="(max-width: 760px) 100vw, 48vw" /> : <span>Добавьте изображение</span>}</div>
       </div>
     </PublicReveal>;
   }
@@ -51,8 +67,8 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
     const columnCount = content.columns_count === 2 ? 2 : 3;
     const cards = publicSiteBlockColumnCards(content).slice(0, columnCount);
     return <PublicReveal {...reveal} className={styles.premiumUniversal} style={sectionStyle}>
-      <div data-premium-block-id={block.id} style={contentStyle} className={`${styles.premiumUniversalInner} ${styles.premiumUniversalColumns}`}>{heading}{content.text ? <div className={styles.premiumUniversalIntro}><PublicRichText value={content.text} /></div> : null}<div data-premium-columns={columnCount} className={`${styles.premiumUniversalCards} ${columnCount === 2 ? styles.premiumUniversalCardsTwo : ""}`}>{cards.map((card, index) => <article key={card.id}>
-        {card.media_type === "image" && card.media_url ? <div className={`${styles.premiumUniversalCardMedia} os-managed-media-surface`} style={mediaVariables}><PremiumImage src={card.media_url} alt={card.media_alt || ""} sizes="(max-width: 760px) 100vw, 31vw" /></div> : null}
+      <div data-premium-block-id={block.id} style={{ ...contentStyle, ...compositionStyle }} className={`${styles.premiumUniversalInner} ${styles.premiumUniversalColumns} os-block-composition`} {...compositionAttributes}>{heading}{content.text ? <div data-os-composition-slot="text" style={itemStyle("text")} className={styles.premiumUniversalIntro}><PublicRichText value={content.text} /></div> : null}<div data-os-composition-slot="cards" style={itemStyle("cards")} data-premium-columns={columnCount} className={`${styles.premiumUniversalCards} ${columnCount === 2 ? styles.premiumUniversalCardsTwo : ""}`}>{cards.map((card, index) => <article key={card.id} data-os-composition-card data-os-composition-has-media={card.media_type === "image" ? "true" : "false"}>
+        {card.media_type === "image" && card.media_url ? <div data-os-composition-card-media className={`${styles.premiumUniversalCardMedia} os-managed-media-surface`} style={mediaVariables}><PremiumImage src={card.media_url} alt={card.media_alt || ""} sizes="(max-width: 760px) 100vw, 31vw" /></div> : null}
         <span>0{index + 1}</span><h3>{card.title}</h3><PublicRichText value={card.text} />
       </article>)}</div></div>
     </PublicReveal>;

@@ -68,7 +68,7 @@ test("GLOSS generic fields edit nested settings without flattening unknown legac
     const editor = buildGlossInspectorFields(content, section, false, change).find(field => field.id === `gloss-${section}-${id}`) as EditorInspectorPlacedField;
     assert.ok(editor, `${id} is editable`);
     if (editor.type === "toggle") editor.onChange(Boolean(value));
-    else if (editor.type !== "notice" && editor.type !== "button" && editor.type !== "custom" && editor.type !== "typography" && editor.type !== "richText" && editor.type !== "mediaList") editor.onChange(String(value));
+    else if (editor.type !== "notice" && editor.type !== "button" && editor.type !== "custom" && editor.type !== "composition" && editor.type !== "typography" && editor.type !== "richText" && editor.type !== "mediaList") editor.onChange(String(value));
   };
 
   edit("contact", "map", "Киев, Крещатик 1");

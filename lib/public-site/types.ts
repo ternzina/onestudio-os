@@ -289,6 +289,20 @@ export type PublicSiteMediaType = "image" | "video" | "calendar";
 export type PublicSiteMediaPosition = "left" | "center" | "right";
 export type PublicSiteColumnsCount = 2 | 3;
 export type PublicSiteColumnCardMediaType = "none" | "image" | "video";
+export type PublicSiteCompositionLayout = "stack" | "split" | "grid";
+export type PublicSiteCompositionColumns = 1 | 2 | 3 | 4;
+export type PublicSiteCompositionMobileColumns = 1 | 2;
+export type PublicSiteCompositionAlign = "start" | "center" | "end" | "stretch";
+export type PublicSiteCompositionTextAlign = "left" | "center" | "right";
+export type PublicSiteCompositionSplitRatio = "balanced" | "content_wide" | "media_wide";
+export type PublicSiteCompositionCardLayout = "vertical" | "horizontal";
+export type PublicSiteCompositionElement =
+  | "eyebrow"
+  | "title"
+  | "text"
+  | "media"
+  | "cards"
+  | "action";
 
 /**
  * Canonical media presentation shared by system sections and universal blocks.
@@ -315,6 +329,30 @@ export type PublicSiteMediaLayoutSettings = {
   media_mobile_focal_y?: number;
   media_mobile_position?: PublicSiteMobileMediaPosition;
   media_mobile_columns?: PublicSiteMobileMediaColumns;
+};
+
+/**
+ * Optional internal composition for universal blocks. Missing or disabled
+ * values deliberately preserve the renderer that existed before Site Editor
+ * 3.0; the advanced layout is activated for one block at a time.
+ */
+export type PublicSiteBlockCompositionSettings = {
+  composition_enabled?: boolean;
+  composition_layout?: PublicSiteCompositionLayout;
+  composition_columns?: PublicSiteCompositionColumns;
+  composition_gap?: PublicSiteMediaGap;
+  composition_align?: PublicSiteCompositionAlign;
+  composition_text_align?: PublicSiteCompositionTextAlign;
+  composition_split_ratio?: PublicSiteCompositionSplitRatio;
+  composition_card_layout?: PublicSiteCompositionCardLayout;
+  composition_order?: PublicSiteCompositionElement[];
+  composition_mobile_layout?: PublicSiteCompositionLayout;
+  composition_mobile_columns?: PublicSiteCompositionMobileColumns;
+  composition_mobile_gap?: PublicSiteMediaGap;
+  composition_mobile_align?: PublicSiteCompositionAlign;
+  composition_mobile_text_align?: PublicSiteCompositionTextAlign;
+  composition_mobile_card_layout?: PublicSiteCompositionCardLayout;
+  composition_mobile_order?: PublicSiteCompositionElement[];
 };
 
 export type PublicSiteColumnCard = {
@@ -357,7 +395,7 @@ export type PublicSiteCustomBlock = {
   section_height?: PublicSiteSectionHeight;
   animation?: PublicSiteBlockAnimation;
   animate_on_mobile?: boolean;
-} & PublicSiteMediaLayoutSettings;
+} & PublicSiteMediaLayoutSettings & PublicSiteBlockCompositionSettings;
 
 export type PublicSiteSocialLink = {
   id: string;

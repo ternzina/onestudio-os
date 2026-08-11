@@ -5,6 +5,11 @@ import PublicReveal from "@/components/public/PublicReveal";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
 import { colorOverrideStyle } from "@/lib/public-site/colors";
+import {
+  publicSiteBlockCompositionStyle,
+  publicSiteCompositionItemStyle,
+  resolvePublicSiteBlockComposition,
+} from "@/lib/public-site/block-composition";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import {
@@ -169,6 +174,20 @@ export default function PublicCustomBlock({
   const animation = block.animation ?? "none";
   const mediaStyle = publicSiteCustomBlockMediaStyle(block);
   const mediaVariables = publicSiteMediaVariables(block);
+  const composition = resolvePublicSiteBlockComposition(block);
+  const compositionStyle = publicSiteBlockCompositionStyle(block);
+  const compositionAttributes = composition.enabled
+    ? {
+        "data-os-composition": "enabled" as const,
+        "data-os-composition-layout": composition.layout,
+        "data-os-composition-mobile-layout": composition.mobileLayout,
+        "data-os-composition-kind": block.kind,
+        "data-os-composition-card-layout": composition.cardLayout,
+        "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
+      }
+    : {};
+  const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) =>
+    publicSiteCompositionItemStyle(block, element);
   const sectionClass = `flex items-center px-5 ${paddingTopClass[paddingTop]} ${paddingBottomClass[paddingBottom]} ${sectionHeightClass[sectionHeight]} ${style}`;
 
   if (block.kind === "collage") {
@@ -187,9 +206,15 @@ export default function PublicCustomBlock({
         className={sectionClass}
         style={blockStyle}
       >
-        <div className={`mx-auto w-full ${contentWidthClass[contentWidth]}`}>
+        <div
+          className={`os-block-composition mx-auto w-full ${contentWidthClass[contentWidth]}`}
+          style={compositionStyle}
+          {...compositionAttributes}
+        >
           {block.eyebrow ? (
             <p
+              data-os-composition-slot="eyebrow"
+              style={itemStyle("eyebrow")}
               className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
                 isDark || isAccent
                   ? "text-white/60"
@@ -200,19 +225,20 @@ export default function PublicCustomBlock({
             </p>
           ) : null}
           {block.title ? (
-            <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
+            <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
               {block.title}
             </h2>
           ) : null}
           {block.text ? (
-            <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
+            composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" /></div> : <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
           ) : null}
 
           <div
+            data-os-composition-slot="media"
             className={`${alignClass} mt-10 ${mediaSizeClass[mediaSize]} ${
               mediaFrameClass[mediaFrame]
             }`}
-            style={mediaStyle}
+            style={{ ...mediaStyle, ...itemStyle("media") }}
           >
             {collageImages.length ? (
               <div
@@ -269,11 +295,14 @@ export default function PublicCustomBlock({
         style={blockStyle}
       >
         <div
-          className={`mx-auto grid w-full ${contentWidthClass[contentWidth]} gap-10 lg:grid-cols-2 lg:items-center lg:gap-16`}
-          style={mediaVariables}
+          className={`os-block-composition mx-auto grid w-full ${contentWidthClass[contentWidth]} gap-10 lg:grid-cols-2 lg:items-center lg:gap-16`}
+          style={{ ...mediaVariables, ...compositionStyle }}
           data-os-media-mobile-position={block.media_mobile_position ?? "after"}
+          data-os-composition-media-position={mediaOnRight ? "right" : "left"}
+          data-os-composition-mobile-media-position={block.media_mobile_position ?? "after"}
+          {...compositionAttributes}
         >
-          <div data-os-media-slot className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
+          <div data-os-media-slot data-os-composition-slot="media" className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
             {mediaIsCalendar && bookingHref && services.length ? (
               <GlossBookingPanel
                 bookingHref={bookingHref}
@@ -331,9 +360,15 @@ export default function PublicCustomBlock({
               </div>
             )}
           </div>
-          <div data-os-media-body className={mediaOnRight ? "lg:order-1" : "lg:order-2"}>
+          <div
+            data-os-media-body
+            className={`os-composition-sequence ${mediaOnRight ? "lg:order-1" : "lg:order-2"}`}
+            data-os-composition={composition.enabled ? "enabled" : undefined}
+          >
             {block.eyebrow ? (
               <p
+                data-os-composition-slot="eyebrow"
+                style={itemStyle("eyebrow")}
                 className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
                   isDark || isAccent
                     ? "text-white/60"
@@ -343,14 +378,15 @@ export default function PublicCustomBlock({
                 {block.eyebrow}
               </p>
             ) : null}
-            <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
+            <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
               {block.title}
             </h2>
             {block.text ? (
-              <PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" />
+              composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" /></div> : <PublicRichText value={block.text} className="mt-7 text-base leading-8 opacity-70" />
             ) : null}
             {block.button_label && block.button_url ? (
               <Link
+                data-os-composition-slot="action"
                 href={block.button_url}
                 className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
                   hasCustomColors
@@ -359,7 +395,7 @@ export default function PublicCustomBlock({
                       ? "bg-white text-[var(--site-dark)]"
                       : "bg-[var(--site-dark)] text-white"
                 }`}
-                style={customButtonStyle}
+                style={{ ...customButtonStyle, ...itemStyle("action") }}
               >
                 {block.button_label}
                 <span className="ml-8" aria-hidden="true">
@@ -380,9 +416,15 @@ export default function PublicCustomBlock({
       className={sectionClass}
       style={blockStyle}
     >
-      <div className={`mx-auto w-full ${contentWidthClass[contentWidth]}`}>
+      <div
+        className={`os-block-composition mx-auto w-full ${contentWidthClass[contentWidth]}`}
+        style={compositionStyle}
+        {...compositionAttributes}
+      >
         {block.eyebrow ? (
           <p
+            data-os-composition-slot="eyebrow"
+            style={itemStyle("eyebrow")}
             className={`text-[10px] font-semibold uppercase tracking-[0.24em] ${
               isDark || isAccent ? "text-white/60" : "text-[var(--site-accent)]"
             }`}
@@ -390,12 +432,20 @@ export default function PublicCustomBlock({
             {block.eyebrow}
           </p>
         ) : null}
-        <h2 style={publicTypographyStyle(block.title_typography)} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
+        <h2 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 max-w-4xl font-serif text-4xl leading-tight sm:text-6xl">
           {block.title}
         </h2>
 
+        {composition.enabled && block.kind === "columns" && block.text ? (
+          <div data-os-composition-slot="text" style={itemStyle("text")}>
+            <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
+          </div>
+        ) : null}
+
         {block.kind === "features" || block.kind === "columns" ? (
           <div
+            data-os-composition-slot="cards"
+            style={itemStyle("cards")}
             className={`mt-10 grid gap-3 ${
               block.kind === "columns" && block.columns_count === 2
                 ? "md:grid-cols-2"
@@ -425,6 +475,8 @@ export default function PublicCustomBlock({
                 return (
                   <article
                     key={key}
+                    data-os-composition-card
+                    data-os-composition-has-media={card?.media_type === "image" || card?.media_type === "video" ? "true" : "false"}
                     className={`overflow-hidden rounded-2xl border ${
                       hasCustomColors || isDark || isAccent
                         ? "border-white/18 bg-white/8"
@@ -432,7 +484,7 @@ export default function PublicCustomBlock({
                     }`}
                   >
                     {card?.media_type === "image" && card.media_url ? (
-                      <div className="os-managed-media-surface relative aspect-[4/3] bg-black/8" style={mediaVariables}>
+                      <div data-os-composition-card-media className="os-managed-media-surface relative aspect-[4/3] bg-black/8" style={mediaVariables}>
                         <Image
                           src={card.media_url}
                           alt={card.media_alt || card.title}
@@ -444,7 +496,7 @@ export default function PublicCustomBlock({
                       </div>
                     ) : null}
                     {card?.media_type === "video" && card.video_url ? (
-                      <div className="aspect-video overflow-hidden bg-black">
+                      <div data-os-composition-card-media className="aspect-video overflow-hidden bg-black">
                         {cardEmbedUrl ? (
                           <iframe
                             title={card.media_alt || card.title}
@@ -476,26 +528,22 @@ export default function PublicCustomBlock({
               })}
           </div>
         ) : block.kind !== "slider" && block.kind !== "video" ? (
-          <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
+          composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" /></div> : <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
         ) : block.text ? (
-          <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
+          composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" /></div> : <PublicRichText value={block.text} className="mt-7 max-w-3xl text-base leading-8 opacity-70" />
         ) : null}
 
         {block.kind === "slider" ? (
-          <PublicSliderBlock
-            images={sliderImages}
-            intervalSeconds={block.slide_interval_seconds ?? 4}
-            title={block.title}
-            media={block}
-          />
+          composition.enabled ? <div data-os-composition-slot="media" style={itemStyle("media")}><PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={block.title} media={block} /></div> : <PublicSliderBlock images={sliderImages} intervalSeconds={block.slide_interval_seconds ?? 4} title={block.title} media={block} />
         ) : null}
 
         {block.kind === "video" && block.video_url ? (
           <div
+            data-os-composition-slot="media"
             className={`mx-auto mt-10 ${mediaSizeClass[mediaSize]} ${
               mediaFrameClass[mediaFrame]
             }`}
-            style={mediaStyle}
+            style={{ ...mediaStyle, ...itemStyle("media") }}
           >
             <div
               className={`os-managed-media-frame bg-black ${
@@ -526,6 +574,7 @@ export default function PublicCustomBlock({
 
         {block.kind === "cta" && block.button_label && block.button_url ? (
           <Link
+            data-os-composition-slot="action"
             href={block.button_url}
             className={`mt-8 inline-flex min-h-12 items-center rounded-lg px-6 text-sm font-semibold ${
               hasCustomColors
@@ -534,7 +583,7 @@ export default function PublicCustomBlock({
                   ? "bg-white text-[var(--site-dark)]"
                   : "bg-[var(--site-dark)] text-white"
             }`}
-            style={customButtonStyle}
+            style={{ ...customButtonStyle, ...itemStyle("action") }}
           >
             {block.button_label}
             <span className="ml-8" aria-hidden="true">
