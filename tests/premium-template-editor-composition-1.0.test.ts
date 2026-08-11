@@ -10,6 +10,7 @@ import {
   PREMIUM_TEMPLATE_EDITOR_ADAPTERS,
   getPremiumTemplateEditorAdapter,
 } from "../lib/public-site/premium-template-editor-registry.ts";
+import { translateAdminText } from "../lib/i18n/admin.ts";
 import { resolvePublicSiteLayoutOrder } from "../lib/public-site/layout.ts";
 import { createVeloraPremiumTemplateSeed } from "../lib/public-site/velora-premium-template-seed.ts";
 
@@ -37,6 +38,10 @@ test("every registered premium editor exposes its template sections to one libra
       librarySections.length,
       adapter.templateKey,
     );
+    for (const section of librarySections) {
+      assert.ok(translateAdminText("ru", section.label).trim(), `${adapter.templateKey}:${section.id}:ru`);
+      assert.ok(translateAdminText("en", section.label).trim(), `${adapter.templateKey}:${section.id}:en`);
+    }
   }
 });
 

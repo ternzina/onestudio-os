@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { translateAdmin } from "../lib/i18n/admin.ts";
+import { translateAdmin, translateAdminText } from "../lib/i18n/admin.ts";
 
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
@@ -58,4 +58,19 @@ test("block library behaves as an accessible modal", async () => {
   assert.match(library, /document\.body\.style\.overflow = "hidden"/);
   assert.match(library, /previousActiveRef\.current\?\.focus\(\)/);
   assert.match(library, /role="dialog" aria-modal="true" aria-labelledby="editor-block-library-title"/);
+});
+
+test("block library preserves template-provided labels and translates registered keys", async () => {
+  assert.equal(translateAdminText("ru", "Cover"), "Обложка");
+  assert.equal(translateAdminText("ru", "Обложка"), "Обложка");
+  assert.equal(translateAdminText("en", "Обложка"), "Обложка");
+  assert.equal(
+    translateAdminText("ru", "Родная секция этого дизайна."),
+    "Родная секция этого дизайна.",
+  );
+
+  const library = await read("../components/admin/EditorBlockLibrary.tsx");
+  assert.match(library, /translateAdminText\(locale, item\.label\)/);
+  assert.match(library, /translateAdminText\(locale, item\.description\)/);
+  assert.match(library, /text-\[#17191f\]/);
 });

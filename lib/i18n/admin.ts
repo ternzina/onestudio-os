@@ -1596,6 +1596,10 @@ const ruMessages = {
 export type AdminMessage = keyof typeof ruMessages;
 export type AdminMessageValues = Record<string, string | number>;
 
+export function isAdminMessage(message: string): message is AdminMessage {
+  return Object.prototype.hasOwnProperty.call(ruMessages, message);
+}
+
 export function isAdminLocale(value: unknown): value is AdminLocale {
   return typeof value === "string" && ADMIN_LOCALES.includes(value as AdminLocale);
 }
@@ -1614,4 +1618,12 @@ export function translateAdmin(
     (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
     template,
   );
+}
+
+export function translateAdminText(
+  locale: AdminLocale,
+  text: string,
+  values: AdminMessageValues = {},
+) {
+  return isAdminMessage(text) ? translateAdmin(locale, text, values) : text;
 }

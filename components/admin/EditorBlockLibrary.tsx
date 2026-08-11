@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
-import type { AdminMessage } from "@/lib/i18n/admin";
+import { translateAdminText, type AdminMessage } from "@/lib/i18n/admin";
 
 export type EditorBlockLibraryItem = {
   id: string;
@@ -13,9 +13,9 @@ export type EditorBlockLibraryItem = {
 };
 
 function LibrarySection({ heading, items, universal = false }: { heading: string; items: readonly EditorBlockLibraryItem[]; universal?: boolean }) {
-  const { t } = useAdminI18n();
+  const { locale, t } = useAdminI18n();
   if (!items.length) return null;
-  return <section className="mt-6"><h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b877e]">{t(heading as AdminMessage)}</h3><div className="mt-3 grid gap-3 sm:grid-cols-2">{items.map(item => <button key={item.id} type="button" onClick={item.onAdd} className={`group rounded-2xl border p-5 text-left transition hover:-translate-y-0.5 hover:shadow-lg ${universal ? "border-[#9d3151]/15 bg-[#fff8fa] hover:border-[#9d3151]/40" : "border-black/8 bg-white hover:border-[#9a742e]/40"}`}><div className="flex items-center justify-between gap-3"><span className="text-lg font-semibold">{t(item.label as AdminMessage)}</span><span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${universal ? "bg-[#f5e5ea] text-[#8d2d4a]" : "bg-[#f4ead6] text-[#4f3a12]"}`}>{item.stateLabel ? t(item.stateLabel as AdminMessage) : t("Add")}</span></div><p className="mt-3 text-xs leading-5 text-[#716d65]">{t(item.description as AdminMessage)}</p></button>)}</div></section>;
+  return <section className="mt-6"><h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b877e]">{t(heading as AdminMessage)}</h3><div className="mt-3 grid gap-3 sm:grid-cols-2">{items.map(item => <button key={item.id} type="button" onClick={item.onAdd} className={`group rounded-2xl border p-5 text-left text-[#17191f] transition hover:-translate-y-0.5 hover:shadow-lg ${universal ? "border-[#9d3151]/15 bg-[#fff8fa] hover:border-[#9d3151]/40" : "border-black/8 bg-white hover:border-[#9a742e]/40"}`}><div className="flex items-center justify-between gap-3"><span className="text-lg font-semibold">{translateAdminText(locale, item.label)}</span><span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${universal ? "bg-[#f5e5ea] text-[#8d2d4a]" : "bg-[#f4ead6] text-[#4f3a12]"}`}>{item.stateLabel ? translateAdminText(locale, item.stateLabel) : t("Add")}</span></div><p className="mt-3 text-xs leading-5 text-[#716d65]">{translateAdminText(locale, item.description)}</p></button>)}</div></section>;
 }
 
 export default function EditorBlockLibrary({ open, templateItems, universalItems, onClose }: { open: boolean; templateItems: readonly EditorBlockLibraryItem[]; universalItems: readonly EditorBlockLibraryItem[]; onClose: () => void }) {
