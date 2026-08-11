@@ -11,6 +11,7 @@ import {
   resolvePublicSiteBlockComposition,
 } from "@/lib/public-site/block-composition";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import { publicSiteBlockColumnCards } from "@/lib/public-site/custom-block-registry";
 import { publicSiteCustomBlockContentStyle, publicSiteCustomBlockMediaStyle, publicSiteCustomBlockVisualStyle, publicSiteMediaVariables } from "@/lib/public-site/visual-tokens";
 import type { PremiumKidsBlock } from "@/lib/public-site/premium-kids-content";
@@ -58,7 +59,7 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
     const mediaFirst = content.media_position === "left";
     return <PublicReveal {...reveal} className={styles.premiumUniversal} style={sectionStyle}>
       <div data-premium-block-id={block.id} data-os-media-mobile-position={content.media_mobile_position ?? "after"} data-os-composition-media-position={mediaFirst ? "left" : "right"} data-os-composition-mobile-media-position={content.media_mobile_position ?? "after"} style={{ ...contentStyle, ...mediaVariables, ...compositionStyle }} className={`${styles.premiumUniversalInner} ${styles.premiumUniversalSplit} ${mediaFirst ? styles.premiumUniversalMediaFirst : ""} os-block-composition`} {...compositionAttributes}>
-        <div data-os-media-body className={`${styles.premiumUniversalBody} os-composition-sequence`} data-os-composition={composition.enabled ? "enabled" : undefined}>{heading}<div data-os-composition-slot="text" style={itemStyle("text")} className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div>{content.button_label ? <a data-os-composition-slot="action" style={itemStyle("action")} href={content.button_url || "#top"}>{content.button_label}<span aria-hidden="true">↗</span></a> : null}</div>
+        <div data-os-media-body className={`${styles.premiumUniversalBody} os-composition-sequence`} data-os-composition={composition.enabled ? "enabled" : undefined}>{heading}<div data-os-composition-slot="text" style={itemStyle("text")} className={styles.premiumUniversalCopy}><PublicRichText value={content.text} /></div>{content.button_label ? <a data-os-composition-slot="action" style={itemStyle("action")} href={safePublicActionHref(content.button_url, "#top")}>{content.button_label}<span aria-hidden="true">↗</span></a> : null}</div>
         <div data-os-media-slot data-os-composition-slot="media" className={`${mediaClass} os-managed-media-frame`} style={{ ...mediaStyle, minHeight: (content.media_height && content.media_height !== "auto") || (content.media_mobile_height && content.media_mobile_height !== "auto") ? 0 : undefined }}>{content.media_url ? <PremiumImage src={content.media_url} alt={content.media_alt || ""} sizes="(max-width: 760px) 100vw, 48vw" /> : <span>Добавьте изображение</span>}</div>
       </div>
     </PublicReveal>;

@@ -1,4 +1,8 @@
 import type { EditorInspectorPlacedField } from "./editor-spec.ts";
+import {
+  markFixedEditorActionFields,
+  pairEditorActionFields,
+} from "./editor-actions.ts";
 import type { PremiumTemplateEditorMediaTarget } from "./premium-template-editor-adapter.ts";
 import type {
   VeloraContent,
@@ -365,7 +369,7 @@ export function buildVeloraInspectorFields(
               type: spec.kind === "url" ? ("url" as const) : ("text" as const),
               label: spec.label,
               value,
-              ...(spec.kind === "url" ? {} : { originalValue }),
+              originalValue,
               disabled,
               onChange: update,
             };
@@ -387,7 +391,40 @@ export function buildVeloraInspectorFields(
       }),
     } as EditorInspectorPlacedField];
   });
-  if (headingSections.has(section)) fields.push({
+  let result = fields as EditorInspectorPlacedField[];
+  if (section === "hero") result = pairEditorActionFields(result, [
+    {
+      id: "velora-hero-primary-action",
+      label: "Главная кнопка",
+      textFieldId: "primary",
+      hrefFieldId: "primary-url",
+      destinations: [
+        { value: "#availability", label: "Проверка даты" },
+        { value: "#venues", label: "Залы" },
+        { value: "#packages", label: "Пакеты" },
+      ],
+    },
+    {
+      id: "velora-hero-secondary-action",
+      label: "Вторая кнопка",
+      textFieldId: "secondary",
+      hrefFieldId: "secondary-url",
+      destinations: [
+        { value: "#venues", label: "Залы" },
+        { value: "#main-story", label: "История" },
+        { value: "#gallery", label: "Галерея" },
+      ],
+    },
+  ]);
+  if (section === "hero") result = markFixedEditorActionFields(result, [{
+    fieldId: "header-cta",
+    destinationHint: "Проверка даты",
+  }]);
+  if (section === "footer") result = markFixedEditorActionFields(result, [{
+    fieldId: "cta",
+    destinationHint: "Проверка даты",
+  }]);
+  if (headingSections.has(section)) result.push({
     id: `velora-${section}-heading-typography`,
     group: "typography",
     type: "typography",
@@ -398,7 +435,7 @@ export function buildVeloraInspectorFields(
     disabled,
     onChange: (value) => onChange({ ...content, headingTypography: { ...content.headingTypography, [section]: value } }, `velora:${section}:heading-typography`),
   });
-  return fields;
+  return result;
 }
 
 export function resetVeloraSection(
