@@ -224,6 +224,74 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "/templates/velora/menu-cinematic.webp",
       "/templates/velora/coordinator-cinematic.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "lumea-beauty",
+    "name": "LUMÉA Beauty Studio",
+    "description": "Премиальный beauty-салон с услугами, мастерами, галереей и онлайн-записью.",
+    "category": "beauty",
+    "aliases": [
+      "lumea",
+      "lumea-beauty-studio"
+    ],
+    "library": {
+      "tier": "premium",
+      "visible": true,
+      "order": 20
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "beauty",
+      "order": 20,
+      "title": {
+        "ru": "Салон красоты",
+        "en": "Beauty studio"
+      },
+      "description": {
+        "ru": "Тёплый premium-сайт салона с услугами, мастерами и онлайн-записью.",
+        "en": "A warm premium beauty studio website with services, experts and online booking."
+      },
+      "alt": {
+        "ru": "Светлый салон красоты LUMÉA",
+        "en": "Bright LUMÉA Beauty Studio"
+      },
+      "route": "/demos/lumea-beauty",
+      "image": "/templates/gloss/gloss-hero.webp",
+      "accent": "#87573E",
+      "dark": "#5A2D17",
+      "surface": "#FBF8F4"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "lumea-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "services",
+      "booking",
+      "experts",
+      "gallery",
+      "reviews",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/gloss/gloss-hero.webp",
+      "/templates/gloss/gloss-gallery-1.webp",
+      "/templates/gloss/gloss-master-anna.webp"
+    ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;
