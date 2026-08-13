@@ -3,10 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import DemoVisual from "@/components/marketing/DemoVisual";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
-import { DEMOS, PREMIUM_DEMOS, type DemoGroup } from "@/lib/demo-catalog";
-import { newSitePathForTemplate, type TemplateKey } from "@/lib/public-site/template-catalog";
+import type { DemoGroup } from "@/lib/demo-catalog";
+import { getCustomerTemplateChoices, newSitePathForTemplate, templateAccessLabel } from "@/lib/public-site/template-catalog";
 import styles from "./DemosPage.module.css";
 
 type Lang = "ru" | "en";
@@ -22,7 +21,6 @@ const copy = {
     configure: "Настроить под себя",
     premiumEyebrow: "Premium Collection",
     premiumLead: "Сайты с авторским дизайном, сложной анимацией и расширенной интерактивностью.",
-    premiumLabel: "Premium",
     premiumView: "Смотреть демо",
     footer: "Вы сможете изменить название, цвета, языки, услуги и модули на следующем шаге.",
     filters: [
@@ -43,7 +41,6 @@ const copy = {
     configure: "Customize",
     premiumEyebrow: "Premium Collection",
     premiumLead: "Websites with art-directed design, sophisticated motion and extended interactivity.",
-    premiumLabel: "Premium",
     premiumView: "View demo",
     footer: "You can change the name, colors, languages, services and modules in the next step.",
     filters: [
@@ -61,14 +58,11 @@ export default function DemosPage() {
   const [lang, setLang] = useState<Lang>("ru");
   const [filter, setFilter] = useState<Filter>("all");
   const t = copy[lang];
-  const demos = useMemo(
-    () => filter === "all" ? DEMOS : DEMOS.filter((demo) => demo.group === filter),
-    [filter],
-  );
-  const premiumDemos = useMemo(
-    () => filter === "all" ? PREMIUM_DEMOS : PREMIUM_DEMOS.filter((demo) => demo.group === filter),
-    [filter],
-  );
+  const templates = useMemo(() => getCustomerTemplateChoices().filter(
+    (template) => filter === "all" || template.gallery.group === filter,
+  ), [filter]);
+  const freeTemplates = templates.filter((template) => template.access === "free");
+  const premiumTemplates = templates.filter((template) => template.access === "premium");
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -109,7 +103,7 @@ export default function DemosPage() {
         ))}
       </div>
 
-      {premiumDemos.length > 0 ? (
+      {premiumTemplates.length > 0 ? (
         <section className={styles.premium} aria-labelledby="premium-collection-title">
           <div className={styles.premiumHeading}>
             <p className={styles.premiumEyebrow}>01 / {t.premiumEyebrow}</p>
@@ -118,29 +112,29 @@ export default function DemosPage() {
               <p>{t.premiumLead}</p>
             </div>
           </div>
-          {premiumDemos.map((demo, index) => (
-            <article className={styles.premiumCard} data-premium={demo.slug} key={demo.slug}>
-              <Link className={styles.premiumVisual} href={demo.href} aria-label={`${t.premiumView}: ${demo.name}`}>
+          {premiumTemplates.map((template, index) => (
+            <article className={styles.premiumCard} data-premium={template.key} key={template.key}>
+              <Link className={styles.premiumVisual} href={template.gallery.previewRoute!} aria-label={`${t.premiumView}: ${template.name}`}>
                 <Image
-                  src={demo.previewImage}
-                  alt={demo.previewAlt[lang]}
+                  src={template.gallery.previewImage!}
+                  alt={template.gallery.alt[lang]}
                   fill
                   sizes="(max-width: 900px) 100vw, 66vw"
                 />
-                <span aria-hidden="true">{demo.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()} / {String(index + 1).padStart(2, "0")}</span>
+                <span aria-hidden="true">{template.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()} / {String(index + 1).padStart(2, "0")}</span>
               </Link>
               <div className={styles.premiumCopy}>
                 <div className={styles.premiumMeta}>
-                  <span>{t.premiumLabel}</span>
-                  <span>{demo.title[lang]}</span>
+                  <span>{templateAccessLabel(template.access, lang)}</span>
+                  <span>{template.gallery.title[lang]}</span>
                 </div>
                 <div>
-                  <h3>{demo.name}</h3>
-                  <p>{demo.description[lang]}</p>
+                  <h3>{template.name}</h3>
+                  <p>{template.gallery.localizedDescription[lang]}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Link className={styles.premiumAction} href={demo.href}>{t.premiumView} <span aria-hidden="true">↗</span></Link>
-                  <Link className={styles.premiumAction} href={newSitePathForTemplate(demo.slug as TemplateKey)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"}</Link>
+                  <Link className={styles.premiumAction} href={template.gallery.previewRoute!}>{t.premiumView} <span aria-hidden="true">↗</span></Link>
+                  <Link className={styles.premiumAction} href={newSitePathForTemplate(template.key)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"}</Link>
                 </div>
               </div>
             </article>
@@ -149,20 +143,20 @@ export default function DemosPage() {
       ) : null}
 
       <section className={styles.grid}>
-        {demos.map((demo) => (
-          <article className={styles.card} key={demo.slug}>
-            <Link className={styles.previewLink} href={`/demos/${demo.slug}`}>
-              <DemoVisual demo={demo} lang={lang} compact />
+        {freeTemplates.map((template) => (
+          <article className={styles.card} key={template.key}>
+            <Link className={styles.previewLink} href={template.gallery.previewRoute!}>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]"><Image src={template.gallery.previewImage!} alt={template.gallery.alt[lang]} fill className="object-cover" sizes="(max-width: 800px) 100vw, 50vw" /></div>
             </Link>
             <div className={styles.cardInfo}>
               <div>
-                <p className={styles.kind}>{demo.title[lang]}</p>
-                <h2>{demo.name}</h2>
-                <p className={styles.description}>{demo.description[lang]}</p>
+                <p className={styles.kind}>{templateAccessLabel(template.access, lang)} · {template.gallery.title[lang]}</p>
+                <h2>{template.name}</h2>
+                <p className={styles.description}>{template.gallery.localizedDescription[lang]}</p>
               </div>
               <div className={styles.actions}>
-                <Link href={`/demos/${demo.slug}`}>{t.view}</Link>
-                <Link href={newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard")}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"} ↗</Link>
+                <Link href={template.gallery.previewRoute!}>{t.view}</Link>
+                <Link href={newSitePathForTemplate(template.key)}>{lang === "ru" ? "Использовать этот шаблон" : "Use this template"} ↗</Link>
               </div>
             </div>
           </article>

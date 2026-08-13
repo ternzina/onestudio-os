@@ -10,6 +10,7 @@ export type PremiumTemplatePackageManifest<TemplateKey extends string = string> 
   description: string;
   category: string;
   aliases: readonly string[];
+  access: "free" | "premium";
   library: Readonly<{ tier: "standard" | "premium"; visible: boolean; order: number }>;
   preview: Readonly<{
     collectionVisible: boolean;

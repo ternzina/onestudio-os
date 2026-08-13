@@ -11,6 +11,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
     "aliases": [
       "gloss"
     ],
+    "access": "free",
     "library": {
       "tier": "standard",
       "visible": true,
@@ -81,6 +82,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "noir",
       "noir-frame"
     ],
+    "access": "premium",
     "library": {
       "tier": "premium",
       "visible": true,
@@ -154,6 +156,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "velora",
       "velora-house"
     ],
+    "access": "premium",
     "library": {
       "tier": "premium",
       "visible": true,
