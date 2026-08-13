@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
+import { OneStudioSystemHero } from "@/components/marketing/OneStudioSystemHero";
 
 type Lang = "ru" | "en";
 
@@ -186,7 +187,6 @@ export default function Home() {
       </header>
 
       <section className="os-hero">
-        <div className="os-orb os-orb-a"/><div className="os-orb os-orb-b"/>
         <div className="os-hero-copy">
           <p className="os-eyebrow"><span/>{t.eyebrow}</p>
           <h1>{t.titleA}<br/><strong>{t.titleB}</strong></h1>
@@ -198,29 +198,7 @@ export default function Home() {
           <p className="os-note"><i>✓</i>{t.heroNote}</p>
         </div>
 
-        <div className="os-dashboard-wrap" aria-label={t.screenLabel}>
-          <div className="os-dashboard-glow"/>
-          <div className="os-dashboard">
-            <aside>
-              <div className="mini-brand"><Mark/><span>ONE</span></div>
-              {[0,1,2,3,4,5].map((n) => <i className={n === 0 ? "active" : ""} key={n}/>) }
-            </aside>
-            <div className="dash-main">
-              <div className="dash-top"><div><small>{t.screenLabel}</small><h3>{t.today}</h3></div><span>Z</span></div>
-              <div className="dash-stats">
-                <div><small>{t.revenue}</small><b>€ 4,860</b><em>+18.4%</em></div>
-                <div><small>{t.bookings}</small><b>24</b><em>+6</em></div>
-                <div><small>{t.clients}</small><b>186</b><em>+12</em></div>
-              </div>
-              <div className="dash-grid">
-                <div className="dash-chart"><span/><span/><span/><span/><span/><span/><i/><i/><i/><i/><i/><i/></div>
-                <div className="dash-list">
-                  {["09:00","11:30","14:00","17:30"].map((time, n) => <div key={time}><i className={`c${n}`}/><span><b>{time}</b><small>{n % 2 ? "Studio session" : "New booking"}</small></span><em>{t.paid}</em></div>)}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <OneStudioSystemHero />
       </section>
 
       <section className="os-section os-features" id="features">
