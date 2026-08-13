@@ -53,8 +53,29 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
   groups.push({ id: "typography", card: true, fields: [{ id: "title-typography", type: "typography", forFieldId: "title", title: t("Block title"), description: t("Limited Site Editor 2.6 settings"), value: block.title_typography, disabled, onChange: value => patch("title_typography", value) }] });
 
   if (block.kind === "cta" || block.kind === "media_text") groups.push({ id: "actions-content", card: true, fields: [
-    { id: "button-label", type: "text", label: t("Button text"), value: block.button_label, disabled, onChange: value => patch("button_label", value) },
-    { id: "button-url", type: "url", label: t("Button link"), value: block.button_url, disabled, onChange: value => patch("button_url", value) },
+    {
+      id: "button-action",
+      type: "action",
+      label: t("Button"),
+      text: block.button_label,
+      href: block.button_url,
+      disabled,
+      destinations: [
+        { value: "#contact", label: t("Contact") },
+        { value: "#services", label: t("Services") },
+        { value: "#portfolio", label: t("Portfolio") },
+      ],
+      appearance: {
+        size: block.button_size ?? "large",
+        backgroundColor: block.button_background ?? "#202229",
+        textColor: block.button_text_color ?? "#f5f0e6",
+        onSizeChange: value => patch("button_size", value),
+        onBackgroundColorChange: value => patch("button_background", value),
+        onTextColorChange: value => patch("button_text_color", value),
+      },
+      onTextChange: value => patch("button_label", value),
+      onHrefChange: value => patch("button_url", value),
+    },
   ] });
 
   const media: EditorInspectorField[] = [];

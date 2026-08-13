@@ -19,6 +19,8 @@ import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
+import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -162,21 +164,6 @@ function SafetyIcon({ index }: { index: number }) {
   );
 }
 
-function safeActionHref(value: string | undefined, fallback: string) {
-  const href = value?.trim() ?? "";
-  if (!href) return fallback;
-  if (
-    href.startsWith("#") ||
-    href.startsWith("/") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:") ||
-    /^https:\/\//i.test(href)
-  ) {
-    return href;
-  }
-  return fallback;
-}
-
 function heroObjectClass(
   fit: "cover" | "contain" | undefined,
   position: "top" | "center" | "bottom" | undefined,
@@ -265,13 +252,13 @@ export default function GlossBusinessSite({
   const headerLogoPosition = content.header_logo_position ?? "left";
   const headerLogoSize = content.header_logo_size ?? "medium";
   const menuText = menuCopy(business.locale);
-  const primaryHref = safeActionHref(
+  const primaryHref = safePublicActionHref(
     content.hero_primary_url,
     capabilities.booking ? bookingHref : `/request/${business.slug}`,
   );
   const primaryLabel =
     content.hero_primary_label?.trim() || content.booking_label || "Записаться";
-  const secondaryHref = safeActionHref(
+  const secondaryHref = safePublicActionHref(
     content.hero_secondary_url,
     "#portfolio",
   );
@@ -390,9 +377,9 @@ export default function GlossBusinessSite({
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-xl text-base leading-7 text-white/78" />
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-primary-action" href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
+                    <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-secondary-action" href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
                 </div>
               </div>
@@ -406,9 +393,9 @@ export default function GlossBusinessSite({
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-md text-base leading-7 text-[#6a5551]" />
                 <div className="mt-7 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-primary-action" href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
+                    <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-secondary-action" href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
                 </div>
               </div>
@@ -709,7 +696,7 @@ export default function GlossBusinessSite({
                         <div className="mt-6">
                           {buttonUrl && !buttonUrl.startsWith("#") ? (
                             <a
-                              href={buttonUrl}
+                              href={safePublicActionHref(buttonUrl, "#contact")}
                               target="_blank"
                               rel="noreferrer"
                               className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
@@ -904,7 +891,7 @@ export default function GlossBusinessSite({
                         <div className="mt-6">
                           {buttonUrl && !buttonUrl.startsWith("#") ? (
                             <a
-                              href={buttonUrl}
+                              href={safePublicActionHref(buttonUrl, "#contact")}
                               target="_blank"
                               rel="noreferrer"
                               className="os-site-button inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
@@ -1018,7 +1005,8 @@ export default function GlossBusinessSite({
                   ) : null}
                   {content.about_button_label ? (
                     <a
-                      href={content.about_button_url || "#contact"}
+                      data-premium-action={premiumNativeActionKey("gloss-nail-studio", "about", "gloss-about-action")}
+                      href={safePublicActionHref(content.about_button_url, "#contact")}
                       className="os-site-button mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
                     >
                       {content.about_button_label}

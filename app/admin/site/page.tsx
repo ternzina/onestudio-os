@@ -9,6 +9,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import BlockCompositionEditor from "@/components/admin/BlockCompositionEditor";
 import MediaListEditor from "@/components/admin/MediaListEditor";
 import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
+import SiteEditorActionField from "@/components/admin/SiteEditorActionField";
 import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector";
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
@@ -17,7 +18,9 @@ import { OneStudioDesignDialog, OneStudioSeoDialog } from "@/components/admin/On
 import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-site/editor-spec";
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
+import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
@@ -75,6 +78,7 @@ import {
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
+import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import {
   getPremiumTemplateEditorCanvasRenderer,
   PremiumTemplateEditorCanvas,
@@ -2810,6 +2814,7 @@ function VisualBuilder({
       canvasRef={workspaceCanvasRef}
       canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
       canvas={<>
+          {premiumEditorAdapter && !hasPremiumEditorCanvas ? <PublicPremiumActionStyles content={draft} templateKey={premiumEditorAdapter.templateKey} /> : null}
           {hasPremiumEditorCanvas && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumTemplateEditorCanvas templateKey={draft.template_id} content={draft} basePath="#" site={premiumEditorPreviewSite} /></div> : <div
             className={publicSiteDesignClass(
               draft,
@@ -2902,8 +2907,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
                     <div className="mt-7 flex flex-wrap gap-3">
-                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                 </div>
@@ -2915,8 +2920,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
                     <div className="relative mt-7 flex flex-wrap gap-3">
-                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                   {draft.hero_layout !== "text" && draft.hero_image_url ? (
@@ -3308,11 +3313,35 @@ function VisualBuilder({
                   onChange={updateSystemSectionSettings}
                 />
                 <RichTextEditor label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} />
-                <CompactField label={t("Primary button label")} value={draft.hero_primary_label ?? draft.booking_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_label", value)} />
-                <CompactField label={t("Primary button link")} value={draft.hero_primary_url ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_primary_url", value)} />
+                <SiteEditorActionField
+                  label={t("Primary button")}
+                  text={draft.hero_primary_label ?? draft.booking_label}
+                  href={draft.hero_primary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled}
+                  destinations={[
+                    { value: "#contact", label: t("Contact") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#about", label: t("About") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_primary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_primary_url", value)}
+                />
                 <Toggle label={t("Show secondary button")} checked={draft.show_hero_secondary !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_hero_secondary", value)} />
-                <CompactField label={t("Secondary button label")} value={draft.hero_secondary_label ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_label", value)} />
-                <CompactField label={t("Secondary button link")} value={draft.hero_secondary_url ?? ""} disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false} onChange={(value) => onUpdate("hero_secondary_url", value)} />
+                <SiteEditorActionField
+                  label={t("Secondary button")}
+                  text={draft.hero_secondary_label ?? ""}
+                  href={draft.hero_secondary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false}
+                  destinations={[
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#about", label: t("About") },
+                    { value: "#contact", label: t("Contact") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_secondary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_secondary_url", value)}
+                />
                 <ImageEditor
                   label={t("Hero image")}
                   value={draft.hero_image_url ?? ""}
@@ -3418,17 +3447,18 @@ function VisualBuilder({
                     <p className="-mt-2 text-[11px] leading-5 text-[#817c72]">
                       {"5+ · лет опыта / 5+ · years of experience"}
                     </p>
-                    <CompactField
+                    <SiteEditorActionField
                       label={t("Button")}
-                      value={draft.about_button_label ?? ""}
+                      text={draft.about_button_label ?? ""}
+                      href={draft.about_button_url ?? ""}
                       disabled={!canConfigure || !editingEnabled}
-                      onChange={(value) => onUpdate("about_button_label", value)}
-                    />
-                    <CompactField
-                      label={t("Button link")}
-                      value={draft.about_button_url ?? ""}
-                      disabled={!canConfigure || !editingEnabled}
-                      onChange={(value) => onUpdate("about_button_url", value)}
+                      destinations={[
+                        { value: "#contact", label: t("Contact") },
+                        { value: "#services", label: t("Services") },
+                        { value: "#portfolio", label: t("Portfolio") },
+                      ]}
+                      onTextChange={(value) => onUpdate("about_button_label", value)}
+                      onHrefChange={(value) => onUpdate("about_button_url", value)}
                     />
                   </>
                 ) : null}
@@ -4420,6 +4450,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
     "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
   } : {};
   const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(block, element);
+  const buttonStyle = publicSiteButtonStyle(block);
   const mediaSize = {
     full: "w-full",
     wide: "w-full max-w-4xl",
@@ -4545,7 +4576,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
           {composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />}
           {block.button_label ? (
-            <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+            <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
               {block.button_label}
             </span>
           ) : null}
@@ -4716,7 +4747,7 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
         </div>
       ) : null}
       {block.kind === "cta" && block.button_label ? (
-        <span data-os-composition-slot="action" style={itemStyle("action")} className="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-[10px] font-semibold text-[#321722]">
+        <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
           {block.button_label}
         </span>
       ) : null}
@@ -6348,22 +6379,17 @@ function MembershipCardsEditor({
             }
           />
 
-          <CompactField
-            label="Текст кнопки"
-            value={membership.buttonLabel}
+          <SiteEditorActionField
+            label="Кнопка уровня"
+            text={membership.buttonLabel}
+            href={membership.buttonUrl}
             disabled={disabled}
-            onChange={(value) =>
-              updateMembership(index, { buttonLabel: value })
-            }
-          />
-
-          <CompactField
-            label="Ссылка кнопки"
-            value={membership.buttonUrl}
-            disabled={disabled}
-            onChange={(value) =>
-              updateMembership(index, { buttonUrl: value })
-            }
+            destinations={[
+              { value: "#contact", label: "Контакты" },
+              { value: "#services", label: "Услуги" },
+            ]}
+            onTextChange={(value) => updateMembership(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateMembership(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -6735,22 +6761,17 @@ function GiftCertificatesEditor({
             }
           />
 
-          <CompactField
-            label="Текст кнопки"
-            value={certificate.buttonLabel}
+          <SiteEditorActionField
+            label="Кнопка сертификата"
+            text={certificate.buttonLabel}
+            href={certificate.buttonUrl}
             disabled={disabled}
-            onChange={(value) =>
-              updateCertificate(index, { buttonLabel: value })
-            }
-          />
-
-          <CompactField
-            label="Ссылка кнопки"
-            value={certificate.buttonUrl}
-            disabled={disabled}
-            onChange={(value) =>
-              updateCertificate(index, { buttonUrl: value })
-            }
+            destinations={[
+              { value: "#contact", label: "Контакты" },
+              { value: "#services", label: "Услуги" },
+            ]}
+            onTextChange={(value) => updateCertificate(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateCertificate(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -7405,10 +7426,28 @@ function CustomBlockSettings({
         </label>
       ) : null}
       {block.kind === "cta" || block.kind === "media_text" ? (
-        <>
-          <CompactField label={t("Button")} value={block.button_label} disabled={disabled} onChange={(value) => onChange("button_label", value)} />
-          <CompactField label={t("Button link")} value={block.button_url} disabled={disabled} onChange={(value) => onChange("button_url", value)} />
-        </>
+        <SiteEditorActionField
+          label={t("Button")}
+          text={block.button_label}
+          href={block.button_url}
+          disabled={disabled}
+          destinations={[
+            { value: "#contact", label: t("Contact") },
+            { value: "#services", label: t("Services") },
+            { value: "#portfolio", label: t("Portfolio") },
+            { value: "#about", label: t("About") },
+          ]}
+          appearance={{
+            size: block.button_size ?? "medium",
+            backgroundColor: block.button_background ?? (block.tone === "dark" || block.tone === "accent" ? "#ffffff" : colorDefaults.accent),
+            textColor: block.button_text_color ?? (block.tone === "dark" || block.tone === "accent" ? siteDark : "#ffffff"),
+            onSizeChange: (value) => onChange("button_size", value),
+            onBackgroundColorChange: (value) => onChange("button_background", value),
+            onTextColorChange: (value) => onChange("button_text_color", value),
+          }}
+          onTextChange={(value) => onChange("button_label", value)}
+          onHrefChange={(value) => onChange("button_url", value)}
+        />
       ) : null}
       {block.kind === "media_text" ? (
         <div className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-3">
@@ -8091,6 +8130,7 @@ function CanvasSectionPreview({
           ) : null}
           {draft.about_button_label ? (
             <span
+              data-premium-action={premiumNativeActionKey("gloss-nail-studio", "about", "gloss-about-action")}
               className="mt-5 inline-flex rounded-full px-4 py-2 text-[10px] font-semibold text-white"
               style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
             >

@@ -11,6 +11,7 @@ import {
 } from "@/lib/public-site/velora-premium-template-content";
 import type { PublicSiteData } from "@/lib/public-site/types";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import type { VeloraNativeSectionId } from "@/lib/public-site/velora-premium-template-contract";
 import VeloraFooter from "./VeloraFooter";
 import {
@@ -51,6 +52,8 @@ export default function VeloraSite({
   basePath: string;
 }) {
   const content = resolveVeloraContent(site.content);
+  const primaryActionHref = safePublicActionHref(content.hero.primaryUrl, "#availability");
+  const secondaryActionHref = safePublicActionHref(content.hero.secondaryUrl, "#venues");
   const headingStyle = (section: VeloraNativeSectionId) => publicTypographyStyle(content.headingTypography[section]);
   const visible = (id: string) =>
     isTemplateNativeSectionVisible(site.content, VELORA_TEMPLATE_KEY, id);
@@ -123,7 +126,7 @@ export default function VeloraSite({
               </Link>
             ))}
           </div>
-          <Link className={styles.headerCta} href="#availability">
+          <Link data-premium-action="velora-event-venue:hero:header-cta" className={styles.headerCta} href="#availability">
             {content.header.availabilityLabel}
           </Link>
         </VeloraStickyHeader>
@@ -135,10 +138,10 @@ export default function VeloraSite({
             <VeloraHeroTitle title={content.hero.title} style={headingStyle("hero")} />
             <PublicRichText value={content.hero.text} />
             <div className={styles.actions}>
-              <Link href={content.hero.primaryUrl}>
+              <Link data-premium-action="velora-event-venue:hero:velora-hero-primary-action" href={primaryActionHref}>
                 {content.hero.primaryLabel}
               </Link>
-              <Link href={content.hero.secondaryUrl}>
+              <Link data-premium-action="velora-event-venue:hero:velora-hero-secondary-action" href={secondaryActionHref}>
                 {content.hero.secondaryLabel}
               </Link>
             </div>

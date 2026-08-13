@@ -1,6 +1,15 @@
 import type { HTMLAttributes, ReactNode, Ref } from "react";
 import type { EditorBlockLibraryItem } from "@/components/admin/EditorBlockLibrary";
-import type { PublicSiteTypography } from "@/lib/public-site/types";
+import type { PublicSiteButtonSize, PublicSiteTypography } from "@/lib/public-site/types";
+
+export type EditorActionAppearance = {
+  size: PublicSiteButtonSize;
+  backgroundColor: string;
+  textColor: string;
+  onSizeChange: (value: PublicSiteButtonSize) => void;
+  onBackgroundColorChange: (value: string) => void;
+  onTextColorChange: (value: string) => void;
+};
 
 export type TemplateEditorDevice = "desktop" | "tablet" | "mobile";
 export type EditorSectionCapabilities = {
@@ -52,7 +61,7 @@ export type EditorNavigatorModel = {
 
 export type EditorInspectorField =
   | { id: string; type: "text"; label: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
-  | { id: string; type: "url" | "number" | "color"; label: string; value: string | number; disabled?: boolean; onChange: (value: string) => void }
+  | { id: string; type: "url" | "number" | "color"; label: string; value: string | number; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "textarea"; label: string; value: string; originalValue?: string; rows?: number; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "toggle"; label: string; checked: boolean; disabled?: boolean; onChange: (checked: boolean) => void }
   | { id: string; type: "select"; label: string; value: string; options: readonly { value: string; label: string }[]; disabled?: boolean; onChange: (value: string) => void }
@@ -62,6 +71,21 @@ export type EditorInspectorField =
   | { id: string; type: "notice"; text: string }
   | { id: string; type: "mediaList"; items: readonly string[]; disabled?: boolean; minItems?: number; maxItems?: number; onChange: (items: string[]) => void; onChoose: (index: number, label: string) => void }
   | { id: string; type: "media"; label: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void; onChoose: () => void }
+  | {
+      id: string;
+      type: "action";
+      label: string;
+      text: string;
+      href?: string;
+      originalText?: string;
+      originalHref?: string;
+      disabled?: boolean;
+      destinations?: readonly { value: string; label: string }[];
+      destinationHint?: string;
+      appearance?: EditorActionAppearance;
+      onTextChange: (value: string) => void;
+      onHrefChange?: (value: string) => void;
+    }
   | { id: string; type: "composition"; editor: ReactNode }
   | { id: string; type: "custom"; customContent: ReactNode };
 

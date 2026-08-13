@@ -1,6 +1,7 @@
 "use client";
 
 import MediaListEditor from "@/components/admin/MediaListEditor";
+import SiteEditorActionField from "@/components/admin/SiteEditorActionField";
 import SiteEditorMediaField from "@/components/admin/SiteEditorMediaField";
 import SiteEditorTextField from "@/components/admin/SiteEditorTextField";
 import TypographyControls from "@/components/admin/TypographyControls";
@@ -13,6 +14,7 @@ export function SharedEditorInspectorField({ field, headingRichText = false }: {
   if (field.type === "custom") return <div data-editor-custom-field>{field.customContent}</div>;
   if (field.type === "mediaList") return <MediaListEditor items={field.items} disabled={field.disabled ?? false} minItems={field.minItems} maxItems={field.maxItems} onChange={field.onChange} onChoose={field.onChoose} />;
   if (field.type === "media") return <SiteEditorMediaField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled} onChange={field.onChange} onChoose={field.onChoose} />;
+  if (field.type === "action") return <SiteEditorActionField label={field.label} text={field.text} href={field.href} originalText={field.originalText} originalHref={field.originalHref} disabled={field.disabled} destinations={field.destinations} destinationHint={field.destinationHint} appearance={field.appearance} onTextChange={field.onTextChange} onHrefChange={field.onHrefChange} />;
   if (field.type === "toggle") return <EditorToggle label={field.label} checked={field.checked} disabled={field.disabled} onChange={field.onChange} />;
   if (field.type === "richText") return <SiteEditorTextField label={field.label} value={field.value} originalValue={field.originalValue} disabled={field.disabled ?? false} richText={!headingRichText} headingRichText={headingRichText} onChange={field.onChange} />;
   if (field.type === "typography") return <TypographyControls title={field.title} description={field.description} value={field.value} disabled={field.disabled ?? false} onChange={field.onChange} />;

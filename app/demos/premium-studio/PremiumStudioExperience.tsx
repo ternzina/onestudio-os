@@ -306,7 +306,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
           <span>
             {tenantContent.hero.note}
           </span>
-          <a href="#light-scene" data-glow data-magnetic>
+          <a data-premium-action="premium-studio:hero:hero-cta" href="#light-scene" data-glow data-magnetic>
             {tenantContent.hero.cta} <Arrow />
           </a>
         </m.div>
@@ -596,7 +596,7 @@ function StudioPage({ site, content, basePath = "/demos/premium-studio" }: { sit
             <span>{tenantContent.contact.availabilityLabel}</span>
             <b>{tenantContent.contact.availabilityValue}</b>
           </div>
-          <a href={`mailto:${tenantContent.brand.email}?subject=${encodeURIComponent(`${tenantContent.brand.first} ${tenantContent.brand.second} session`)}`} data-glow data-magnetic>
+          <a data-premium-action="premium-studio:contact:contact-cta" href={`mailto:${tenantContent.brand.email}?subject=${encodeURIComponent(`${tenantContent.brand.first} ${tenantContent.brand.second} session`)}`} data-glow data-magnetic>
             {tenantContent.contact.cta} <Arrow />
           </a>
           <small>{tenantContent.contact.helper}</small>

@@ -22,6 +22,7 @@ import { publicSiteReviews } from "@/lib/public-site/content";
 import { sectionColorStyle } from "@/lib/public-site/colors";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -113,21 +114,6 @@ function contactLabels(locale: string) {
     pl: { route: "Otwórz mapę", hours: "Godziny otwarcia", mapMissing: "Dodaj adres mapy w edytorze kontaktów." },
     en: { route: "Open map", hours: "Opening hours", mapMissing: "Add a map address in the contact editor." },
   }[language] ?? { route: "Open map", hours: "Opening hours", mapMissing: "Add a map address in the contact editor." };
-}
-
-function safeActionHref(value: string | undefined, fallback: string) {
-  const href = value?.trim() ?? "";
-  if (!href) return fallback;
-  if (
-    href.startsWith("#") ||
-    href.startsWith("/") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:") ||
-    /^https:\/\//i.test(href)
-  ) {
-    return href;
-  }
-  return fallback;
 }
 
 function heroObjectClass(
@@ -255,14 +241,14 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
   const headerLogoSize = content.header_logo_size ?? "medium";
   const menuText = menuLabels(business.locale);
   const heroLayout = content.hero_layout ?? "split";
-  const primaryHref = safeActionHref(
+  const primaryHref = safePublicActionHref(
     content.hero_primary_url,
     capabilities.booking ? bookingHref : requestHref,
   );
   const primaryLabel =
     content.hero_primary_label?.trim()
     || (capabilities.booking ? content.booking_label : requestCopy.general);
-  const secondaryHref = safeActionHref(content.hero_secondary_url, requestHref);
+  const secondaryHref = safePublicActionHref(content.hero_secondary_url, requestHref);
   const secondaryLabel =
     content.hero_secondary_label?.trim() || requestCopy.general;
   const navigationItems = [
@@ -593,7 +579,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                 ) : null}
                 {content.about_button_label ? (
                   <a
-                    href={content.about_button_url || "#contact"}
+                    href={safePublicActionHref(content.about_button_url, "#contact")}
                     className="os-site-button mt-9 inline-flex min-h-12 items-center rounded-full bg-[var(--site-dark)] px-7 text-sm font-semibold text-white"
                   >
                     {content.about_button_label}
@@ -813,7 +799,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                         </p>
                       ) : null}
                       <a
-                        href={buttonUrl || "#contact"}
+                        href={safePublicActionHref(buttonUrl, "#contact")}
                         className="os-site-button mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white"
                       >
                         {buttonLabel || "Вступить"}
@@ -858,7 +844,7 @@ export default function PublicBusinessSite({ site }: { site: PublicSiteData }) {
                       <h3 className="text-2xl font-semibold">{title}</h3>
                       {amount ? <p className="mt-3 text-xl font-semibold text-[var(--site-accent)]">{amount}</p> : null}
                       {description ? <p className="mt-4 text-sm leading-6 text-black/55">{description}</p> : null}
-                      <a href={buttonUrl || "#contact"} className="os-site-button mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white">
+                      <a href={safePublicActionHref(buttonUrl, "#contact")} className="os-site-button mt-6 inline-flex rounded-full bg-[var(--site-dark)] px-5 py-3 text-xs font-semibold text-white">
                         {buttonLabel || "Выбрать"}
                       </a>
                     </div>

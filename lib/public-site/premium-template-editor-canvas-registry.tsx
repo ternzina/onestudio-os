@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { createElement, type ComponentType } from "react";
+import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import type { PublicSiteContent, PublicSiteData } from "./types";
 
 export type PremiumTemplateEditorCanvasRendererProps = {
@@ -68,5 +69,10 @@ export function PremiumTemplateEditorCanvas({
   templateKey: string | null | undefined;
 }) {
   const renderer = getPremiumTemplateEditorCanvasRenderer(templateKey);
-  return renderer ? createElement(renderer, props) : null;
+  return renderer && templateKey ? (
+    <>
+      <PublicPremiumActionStyles content={props.content} templateKey={templateKey} />
+      {createElement(renderer, props)}
+    </>
+  ) : null;
 }

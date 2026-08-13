@@ -1,4 +1,5 @@
 import type { EditorInspectorPlacedField } from "./editor-spec.ts";
+import { markFixedEditorActionFields } from "./editor-actions.ts";
 import type { PremiumTemplateEditorMediaTarget } from "./premium-template-editor-adapter.ts";
 import { DEFAULT_PREMIUM_STUDIO_CONTENT, type PremiumStudioContent } from "./premium-studio-content.ts";
 import { NOIR_PREMIUM_TEMPLATE_CONTRACT, type NoirNativeSectionId } from "./noir-premium-template-contract.ts";
@@ -157,7 +158,18 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
       fields.push({ id: spec.id, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : "text", label: spec.label, disabled, value, ...(spec.kind === "url" ? {} : { originalValue }), onChange: update });
     }
   }
-  if (headingSections.has(section)) fields.push({
+  const actionFields = section === "hero"
+    ? markFixedEditorActionFields(fields, [{
+        fieldId: "hero-cta",
+        destinationHint: "Световая история",
+      }])
+    : section === "contact"
+      ? markFixedEditorActionFields(fields, [{
+          fieldId: "contact-cta",
+          destinationHint: `Email: ${content.brand.email}`,
+        }])
+      : fields;
+  if (headingSections.has(section)) actionFields.push({
     id: `noir-${section}-heading-typography`,
     group: "typography",
     type: "typography",
@@ -168,7 +180,7 @@ export function buildNoirInspectorFields(content: PremiumStudioContent, section:
     disabled,
     onChange: (value) => onChange({ ...content, headingTypography: { ...content.headingTypography, [section]: value } }, `noir:${section}:heading-typography`),
   });
-  return fields;
+  return actionFields;
 }
 
 

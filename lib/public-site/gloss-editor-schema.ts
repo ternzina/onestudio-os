@@ -1,4 +1,5 @@
 import type { EditorInspectorPlacedField } from "./editor-spec.ts";
+import { pairEditorActionFields } from "./editor-actions.ts";
 import type { GlossEditorSectionId } from "./gloss-premium-template-contract.ts";
 import type { PublicSiteContent, PublicSiteTypography } from "./types.ts";
 
@@ -198,8 +199,45 @@ export function buildGlossInspectorFields(content: PublicSiteContent, sectionId:
     const originalValue = defaults ? encodeValue(atPath(defaults, spec.path), spec.path) : undefined;
     if (spec.kind === "richText") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "richText", label: spec.label, value: String(current ?? ""), originalValue, disabled, onChange: update };
     if (spec.kind === "textarea") return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: "textarea", label: spec.label, value, originalValue, rows: spec.rows ?? 3, disabled, onChange: update };
-    return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : spec.kind === "number" ? "number" : spec.kind === "color" ? "color" : "text", label: spec.label, value, ...(spec.kind === "text" ? { originalValue } : {}), disabled, onChange: update };
+    return { id: `gloss-${sectionId}-${spec.id}`, group: spec.group ?? "content", type: spec.kind === "url" ? "url" : spec.kind === "number" ? "number" : spec.kind === "color" ? "color" : "text", label: spec.label, value, ...(spec.kind === "text" || spec.kind === "url" ? { originalValue } : {}), disabled, onChange: update };
   }) as EditorInspectorPlacedField[];
+  if (sectionId === "hero") return pairEditorActionFields(fields, [
+    {
+      id: "gloss-hero-primary-action",
+      label: "Основная кнопка",
+      textFieldId: "gloss-hero-primary-label",
+      hrefFieldId: "gloss-hero-primary-url",
+      destinations: [
+        { value: "#booking", label: "Запись" },
+        { value: "#services", label: "Услуги" },
+        { value: "#portfolio", label: "Портфолио" },
+        { value: "#contact", label: "Контакты" },
+      ],
+    },
+    {
+      id: "gloss-hero-secondary-action",
+      label: "Вторая кнопка",
+      textFieldId: "gloss-hero-secondary-label",
+      hrefFieldId: "gloss-hero-secondary-url",
+      destinations: [
+        { value: "#portfolio", label: "Портфолио" },
+        { value: "#services", label: "Услуги" },
+        { value: "#about", label: "О студии" },
+        { value: "#contact", label: "Контакты" },
+      ],
+    },
+  ]);
+  if (sectionId === "about") return pairEditorActionFields(fields, [{
+    id: "gloss-about-action",
+    label: "Кнопка раздела",
+    textFieldId: "gloss-about-button",
+    hrefFieldId: "gloss-about-button-url",
+    destinations: [
+      { value: "#booking", label: "Запись" },
+      { value: "#contact", label: "Контакты" },
+      { value: "#services", label: "Услуги" },
+    ],
+  }]);
   return fields;
 }
 
