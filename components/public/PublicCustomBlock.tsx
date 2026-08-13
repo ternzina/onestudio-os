@@ -17,6 +17,7 @@ import {
   type PublicSiteButtonTheme,
 } from "@/lib/public-site/button-style";
 import { safePublicActionHref } from "@/lib/public-site/editor-actions";
+import { boundedPublicEmbedHeight, safePublicEmbedUrl, sanitizePublicSiteHtml } from "@/lib/public-site/safe-html";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import {
   publicSiteCustomBlockMediaStyle,
@@ -195,6 +196,18 @@ export default function PublicCustomBlock({
   const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) =>
     publicSiteCompositionItemStyle(block, element);
   const sectionClass = `flex items-center px-5 ${paddingTopClass[paddingTop]} ${paddingBottomClass[paddingBottom]} ${sectionHeightClass[sectionHeight]} ${style}`;
+
+  if (block.kind === "spacer") return <div aria-hidden="true" data-os-core-preset={block.preset_id} className={`w-full px-5 ${paddingTopClass[block.spacer_size ?? "normal"]}`}><div className={block.show_divider ? "mx-auto max-w-[1240px] border-t border-current/15" : ""} /></div>;
+
+  if (block.kind === "html_embed") {
+    const safeHtml = sanitizePublicSiteHtml(block.html_source);
+    const safeEmbed = safePublicEmbedUrl(block.embed_url);
+    return <PublicReveal animation={animation} animateOnMobile={block.animate_on_mobile !== false} className={sectionClass} style={blockStyle}><div data-os-safe-html-block className={`mx-auto w-full overflow-hidden ${contentWidthClass[contentWidth]}`}>
+      {block.title ? <h2 style={publicTypographyStyle(block.title_typography)} className="mb-6 font-serif text-4xl"><PublicRichHeading value={block.title} /></h2> : null}
+      {safeHtml ? <div className="os-safe-html max-w-none overflow-hidden break-words" dangerouslySetInnerHTML={{ __html: safeHtml }} /> : null}
+      {safeEmbed ? <iframe title={block.embed_title || "External widget"} src={safeEmbed} height={boundedPublicEmbedHeight(block.embed_height)} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin" className="mt-6 block w-full max-w-full border-0" /> : null}
+    </div></PublicReveal>;
+  }
 
   if (block.kind === "collage") {
     const collageImages = (block.media_urls ?? []).filter(Boolean).slice(0, 8);
@@ -572,7 +585,7 @@ export default function PublicCustomBlock({
           </div>
         ) : null}
 
-        {block.kind === "cta" && block.button_label && block.button_url ? (
+        {block.button_label && block.button_url ? (
           <Link
             data-os-composition-slot="action"
             href={safePublicActionHref(block.button_url, "#contact")}

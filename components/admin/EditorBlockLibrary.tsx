@@ -9,6 +9,7 @@ export type EditorBlockLibraryItem = {
   label: string;
   description: string;
   stateLabel?: string;
+  category?: string;
   onAdd: () => void;
 };
 

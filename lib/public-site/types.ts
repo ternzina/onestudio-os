@@ -274,7 +274,10 @@ export type PublicSiteCustomBlockKind =
   | "collage"
   | "video"
   | "media_text"
-  | "columns";
+  | "columns"
+  | "html_embed"
+  | "spacer";
+export type PublicSiteCoreBlockPresetId = "about" | "services" | "team" | "pricing" | "contact" | "portfolio" | "gallery" | "reviews" | "faq" | "text" | "text-media" | "cards" | "video" | "cta" | "html-embed" | "spacer-divider";
 export type PublicSiteCustomBlockTone = "light" | "accent" | "dark";
 export type PublicSiteButtonSize = "small" | "medium" | "large";
 export type PublicSiteNativeActionStyle = {
@@ -384,6 +387,7 @@ export type PublicSiteColumnCard = {
 export type PublicSiteCustomBlock = {
   id: string;
   kind: PublicSiteCustomBlockKind;
+  preset_id?: PublicSiteCoreBlockPresetId;
   eyebrow: string;
   title: string;
   title_typography?: PublicSiteTypography;
@@ -407,6 +411,12 @@ export type PublicSiteCustomBlock = {
   media_position?: PublicSiteMediaPosition;
   columns_count?: PublicSiteColumnsCount;
   cards?: PublicSiteColumnCard[];
+  html_source?: string;
+  embed_url?: string;
+  embed_title?: string;
+  embed_height?: number;
+  spacer_size?: PublicSiteBlockSpacing;
+  show_divider?: boolean;
   content_width?: PublicSiteBlockWidth;
   padding_top?: PublicSiteBlockSpacing;
   padding_bottom?: PublicSiteBlockSpacing;
