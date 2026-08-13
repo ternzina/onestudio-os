@@ -252,6 +252,12 @@ export type PublicSiteContent = {
   show_faq?: boolean;
   show_booking?: boolean;
   show_safety?: boolean;
+  /**
+   * Shared appearance overrides for template-native premium actions.
+   * Keys are stable template:section:action identifiers. Missing entries keep
+   * the original template appearance exactly as designed.
+   */
+  native_action_styles?: Record<string, PublicSiteNativeActionStyle>;
   custom_blocks?: PublicSiteCustomBlock[];
   pages?: PublicSitePage[];
   section_order?: PublicSiteSection[];
@@ -271,6 +277,11 @@ export type PublicSiteCustomBlockKind =
   | "columns";
 export type PublicSiteCustomBlockTone = "light" | "accent" | "dark";
 export type PublicSiteButtonSize = "small" | "medium" | "large";
+export type PublicSiteNativeActionStyle = {
+  size?: PublicSiteButtonSize;
+  background_color?: string;
+  text_color?: string;
+};
 export type PublicSiteMediaSize = "full" | "wide" | "medium" | "compact";
 export type PublicSiteMediaAspect =
   | "landscape"

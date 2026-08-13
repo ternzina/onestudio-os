@@ -33,7 +33,7 @@ export default function VeloraFooter({
           <span>{footer.note}</span>
           <Link href={basePath}>{brand}</Link>
           <p>{footer.tagline}</p>
-          <Link className={styles.footerCta} href={`${basePath}#availability`}>
+          <Link data-premium-action="velora-event-venue:footer:cta" className={styles.footerCta} href={`${basePath}#availability`}>
             {footer.cta} <i aria-hidden="true">↗</i>
           </Link>
         </div>

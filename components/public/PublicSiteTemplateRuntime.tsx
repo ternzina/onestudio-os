@@ -1,4 +1,5 @@
 import PublicBusinessSite from "@/components/public/PublicBusinessSite";
+import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import HomeExperience from "@/app/demos/premium-kids-center/HomeExperience";
 import { getPremiumTemplatePublicRuntime } from "@/lib/public-site/premium-template-runtime-registry";
 import { resolveSiteTemplateKey } from "@/lib/public-site/template-registry";
@@ -19,7 +20,12 @@ export default function PublicSiteTemplateRuntime({
   const premiumRuntime = getPremiumTemplatePublicRuntime(templateKey);
   if (premiumRuntime) {
     const PremiumHomeRenderer = premiumRuntime.publicHomeRenderer;
-    return <PremiumHomeRenderer site={site} basePath={basePath} />;
+    return (
+      <>
+        <PublicPremiumActionStyles content={site.content} templateKey={templateKey!} />
+        <PremiumHomeRenderer site={site} basePath={basePath} />
+      </>
+    );
   }
   return <PublicBusinessSite site={site} />;
 }

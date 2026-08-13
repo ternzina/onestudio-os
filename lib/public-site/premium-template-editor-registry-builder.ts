@@ -1,5 +1,6 @@
 import type { PremiumTemplateEditorAdapter } from "./premium-template-editor-adapter.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
+import { withPremiumActionAppearances } from "./premium-action-style.ts";
 
 export function validatePremiumTemplateEditorAdapterRegistry(
   adapters: readonly PremiumTemplateEditorAdapter[],
@@ -22,6 +23,30 @@ export function createPremiumTemplateEditorRegistry(
 ) {
   const errors = validatePremiumTemplateEditorAdapterRegistry(adapters, definitionLookup);
   if (errors.length) throw new Error(`Invalid premium editor adapter registry: ${errors.join("; ")}`);
-  const byKey = new Map(adapters.map((adapter) => [adapter.templateKey, adapter]));
-  return { adapters, get: (templateKey: string | null | undefined) => templateKey ? byKey.get(templateKey) : undefined } as const;
+
+  const enhancedAdapters = adapters.map((adapter): PremiumTemplateEditorAdapter => {
+    const buildInspectorFields = adapter.buildInspectorFields;
+    return {
+      ...adapter,
+      buildInspectorFields(input) {
+        return withPremiumActionAppearances({
+          fields: buildInspectorFields(input),
+          content: input.content,
+          templateKey: adapter.templateKey,
+          sectionId: String(input.sectionId),
+          disabled: input.disabled,
+          onChange: input.onChange,
+        });
+      },
+    };
+  });
+
+  const byKey = new Map(
+    enhancedAdapters.map((adapter) => [adapter.templateKey, adapter]),
+  );
+  return {
+    adapters: enhancedAdapters,
+    get: (templateKey: string | null | undefined) =>
+      templateKey ? byKey.get(templateKey) : undefined,
+  } as const;
 }

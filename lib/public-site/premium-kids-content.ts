@@ -1,6 +1,8 @@
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteCustomBlockKind, PublicSiteMediaPosition, PublicSiteTypography } from "./types.ts";
 import { clonePublicSiteCustomBlock, createPublicSiteCustomBlock } from "./custom-block-registry.ts";
 import { normalizePremiumKidsNativeMedia, type PremiumKidsNativeMedia } from "./premium-kids-native-media.ts";
+import { normalizePublicSiteButtonAppearance } from "./button-style.ts";
+import { PREMIUM_KIDS_NATIVE_BUTTON_KEYS, type PremiumKidsNativeButtons } from "./premium-kids-buttons.ts";
 
 export const PREMIUM_KIDS_TEMPLATE_KEY = "premium-kids-center" as const;
 
@@ -50,6 +52,7 @@ export type PremiumKidsBlockProps = Partial<Record<PremiumKidsEditableKey, strin
   heading_typography?: PublicSiteTypography;
   universal_block?: PublicSiteCustomBlock;
   native_media?: PremiumKidsNativeMedia;
+  native_buttons?: PremiumKidsNativeButtons;
 };
 export type PremiumKidsBlock = { id: string; type: PremiumKidsBlockType; visible: boolean; props: PremiumKidsBlockProps };
 export type PremiumKidsContent = PremiumKidsLegacyContent & { blocks: PremiumKidsBlock[] };
@@ -125,6 +128,21 @@ export function isPremiumKidsUniversalBlockType(type: PremiumKidsBlockType): typ
 function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
 function strings(value: unknown, fallback: string[]) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 32) : cloneValue(fallback); }
 function isTypography(value: unknown): value is PublicSiteTypography { return Boolean(value && typeof value === "object" && !Array.isArray(value)); }
+function normalizeNativeButtons(value: unknown): PremiumKidsNativeButtons | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const source = value as Record<string, unknown>;
+  const result: PremiumKidsNativeButtons = {};
+  for (const key of PREMIUM_KIDS_NATIVE_BUTTON_KEYS) {
+    const raw = source[key];
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
+    const rawConfig = raw as Record<string, unknown>;
+    const appearance = normalizePublicSiteButtonAppearance(rawConfig);
+    const href = typeof rawConfig.href === "string" ? rawConfig.href.slice(0, 1000) : undefined;
+    const config = { ...(appearance ?? {}), ...(href !== undefined ? { href } : {}) };
+    if (Object.keys(config).length) result[key] = config;
+  }
+  return Object.keys(result).length ? result : undefined;
+}
 
 function resolveLegacy(source: Record<string, unknown>, content?: PublicSiteContent, brandFallback?: string): PremiumKidsLegacyContent {
   const result = cloneValue(DEFAULT_PREMIUM_KIDS_CONTENT);
@@ -182,6 +200,8 @@ function normalizeBlocks(raw: unknown[], legacy: PremiumKidsLegacyContent) {
     if (isTypography(rawProps.heading_typography)) defaults.props.heading_typography = rawProps.heading_typography;
     const nativeMedia = normalizePremiumKidsNativeMedia(rawProps.native_media, type);
     if (nativeMedia) defaults.props.native_media = nativeMedia;
+    const nativeButtons = normalizeNativeButtons(rawProps.native_buttons);
+    if (nativeButtons) defaults.props.native_buttons = nativeButtons;
     if (isPremiumKidsUniversalBlockType(type) && rawProps.universal_block && typeof rawProps.universal_block === "object" && !Array.isArray(rawProps.universal_block)) {
       const universal = rawProps.universal_block as PublicSiteCustomBlock;
       if (universal.kind === type) defaults.props.universal_block = { ...createPublicSiteCustomBlock(type, id), ...cloneValue(universal), id, kind: type };
