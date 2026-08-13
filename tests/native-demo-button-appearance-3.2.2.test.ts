@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { publicSiteButtonAppearanceStyle } from "../lib/public-site/button-style.ts";
 import { resolvePremiumKidsContent } from "../lib/public-site/premium-kids-content.ts";
+import { PREMIUM_KIDS_NATIVE_BUTTON_KEYS } from "../lib/public-site/premium-kids-buttons.ts";
 import type { PublicSiteContent } from "../lib/public-site/types.ts";
 
 test("native button appearance only overrides fields the client changed", () => {
@@ -60,4 +61,13 @@ test("native BEMBI actions use shared editor and public bridge", async () => {
   assert.match(home, /native_buttons\?\.primary_cta_label/);
   assert.match(motion, /primaryHref/);
   assert.match(center, /buttonHref/);
+  assert.deepEqual(PREMIUM_KIDS_NATIVE_BUTTON_KEYS, [
+    "primary_cta_label",
+    "secondary_cta_label",
+    "final_cta_label",
+  ]);
+  for (const key of PREMIUM_KIDS_NATIVE_BUTTON_KEYS) {
+    assert.match(editor, new RegExp(key));
+    assert.match(home, new RegExp(`native_buttons\\?\\.${key}`));
+  }
 });

@@ -10,9 +10,13 @@ Registered premium templates now use one OneStudio appearance bridge for native 
 - No override means the original template CSS remains untouched.
 
 Covered:
-- GLOSS: hero primary and secondary.
+- GLOSS: hero primary, hero secondary and About CTA.
 - VELORA: header CTA, hero primary, hero secondary, footer CTA.
 - NOIR: hero CTA and contact CTA.
 - BEMBI remains on the already-tested 3.2.2 bridge.
 
 No database migration is required.
+
+Section reset removes that section's saved native-action overrides. Restoring
+the template removes every native-action override for that template, returning
+the original template CSS without affecting overrides owned by other templates.

@@ -60,7 +60,9 @@ test("old drafts stay compatible and GLOSS is registered exactly once", () => {
   assert.deepEqual(GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.normalizeLayout(old.layout_order ?? [], []), old.layout_order);
   assert.equal(PREMIUM_TEMPLATE_DEFINITIONS.filter(({ templateKey }) => templateKey === "gloss-nail-studio").length, 1);
   assert.equal(getPremiumTemplateDefinition("gloss-nail-studio"), GLOSS_PREMIUM_TEMPLATE_CONTRACT);
-  assert.equal(getPremiumTemplateEditorAdapter("gloss-nail-studio"), GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER);
+  const editorAdapter = getPremiumTemplateEditorAdapter("gloss-nail-studio");
+  assert.equal(editorAdapter?.templateKey, GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.templateKey);
+  assert.equal(editorAdapter?.contract, GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER.contract);
   assert.equal(TEMPLATE_CATALOG.filter(({ key }) => key === "gloss-nail-studio").length, 1);
 });
 

@@ -23,6 +23,31 @@ export function premiumNativeActionKey(
   return `${templateKey}:${sectionId}:${actionId}`;
 }
 
+export function clearPremiumNativeActionStyles(
+  content: PublicSiteContent,
+  templateKey: string,
+  sectionId?: string,
+): PublicSiteContent {
+  if (!content.native_action_styles) return content;
+
+  const prefix = sectionId
+    ? `${templateKey}:${sectionId}:`
+    : `${templateKey}:`;
+  const remaining = Object.fromEntries(
+    Object.entries(content.native_action_styles).filter(
+      ([key]) => !key.startsWith(prefix),
+    ),
+  );
+
+  if (Object.keys(remaining).length === 0) {
+    const rest = { ...content };
+    delete rest.native_action_styles;
+    return rest;
+  }
+
+  return { ...content, native_action_styles: remaining };
+}
+
 function safeThemeColor(value: string | undefined, fallback: string) {
   return isSiteHexColor(value) ? value : fallback;
 }
