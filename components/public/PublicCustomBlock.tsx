@@ -5,7 +5,7 @@ import PublicReveal from "@/components/public/PublicReveal";
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicSliderBlock from "@/components/public/PublicSliderBlock";
-import { colorOverrideStyle } from "@/lib/public-site/colors";
+import { colorOverrideStyle, isSiteHexColor } from "@/lib/public-site/colors";
 import {
   publicSiteBlockCompositionStyle,
   publicSiteCompositionItemStyle,
@@ -197,16 +197,30 @@ export default function PublicCustomBlock({
     publicSiteCompositionItemStyle(block, element);
   const sectionClass = `flex items-center px-5 ${paddingTopClass[paddingTop]} ${paddingBottomClass[paddingBottom]} ${sectionHeightClass[sectionHeight]} ${style}`;
 
-  if (block.kind === "spacer") return <div aria-hidden="true" data-os-core-preset={block.preset_id} className={`w-full px-5 ${paddingTopClass[block.spacer_size ?? "normal"]}`}><div className={block.show_divider ? "mx-auto max-w-[1240px] border-t border-current/15" : ""} /></div>;
+  if (block.kind === "spacer") {
+    const spacerSize = block.spacer_size === "compact" || block.spacer_size === "airy" ? block.spacer_size : "normal";
+    const spacerSizeClass = {
+      compact: "h-8 sm:h-10",
+      normal: "h-16 sm:h-20",
+      airy: "h-24 sm:h-32",
+    }[spacerSize];
+    const dividerWidthClass = { narrow: "max-w-md", medium: "max-w-2xl", wide: "max-w-5xl", full: "max-w-none" }[block.content_width ?? "wide"];
+    const dividerThickness = block.divider_thickness === 2 || block.divider_thickness === 3 ? block.divider_thickness : 1;
+    const dividerColor = block.divider_color_mode === "accent"
+      ? "var(--site-accent)"
+      : block.divider_color_mode === "custom" && isSiteHexColor(block.divider_custom_color)
+        ? block.divider_custom_color
+        : "currentColor";
+    return <div aria-hidden="true" data-os-core-preset={block.preset_id} data-public-custom-block-id={block.id} className={`flex w-full items-center px-5 ${spacerSizeClass}`}><div className={block.show_divider ? `mx-auto w-full ${dividerWidthClass}` : ""} style={block.show_divider ? { height: dividerThickness, backgroundColor: dividerColor } : undefined} /></div>;
+  }
 
   if (block.kind === "html_embed") {
     const safeHtml = sanitizePublicSiteHtml(block.html_source);
     const safeEmbed = safePublicEmbedUrl(block.embed_url);
-    return <PublicReveal animation={animation} animateOnMobile={block.animate_on_mobile !== false} className={sectionClass} style={blockStyle}><div data-os-safe-html-block className={`mx-auto w-full overflow-hidden ${contentWidthClass[contentWidth]}`}>
-      {block.title ? <h2 style={publicTypographyStyle(block.title_typography)} className="mb-6 font-serif text-4xl"><PublicRichHeading value={block.title} /></h2> : null}
+    return <div data-public-custom-block-id={block.id} className="w-full max-w-full overflow-hidden"><div data-os-safe-html-block className="w-full max-w-full overflow-hidden">
       {safeHtml ? <div className="os-safe-html max-w-none overflow-hidden break-words" dangerouslySetInnerHTML={{ __html: safeHtml }} /> : null}
       {safeEmbed ? <iframe title={block.embed_title || "External widget"} src={safeEmbed} height={boundedPublicEmbedHeight(block.embed_height)} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin" className="mt-6 block w-full max-w-full border-0" /> : null}
-    </div></PublicReveal>;
+    </div></div>;
   }
 
   if (block.kind === "collage") {

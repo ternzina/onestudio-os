@@ -11,7 +11,7 @@ import { buildPremiumUniversalInspectorGroups } from "@/components/admin/Premium
 import PremiumDelimitedListEditor from "@/components/admin/PremiumDelimitedListEditor";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type { AdminMessage } from "@/lib/i18n/admin";
-import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset } from "@/lib/public-site/core-block-library";
+import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset, resolvePublicSiteBlockDisplayName } from "@/lib/public-site/core-block-library";
 import {
   PREMIUM_KIDS_BLOCK_REGISTRY,
   addPremiumKidsBlock,
@@ -170,7 +170,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function addPage() { const page = createOneStudioPage(draft); onChange(addOneStudioPage(draft, page), "system-page:add"); setSelectedPageId(page.id); setSelected(page.blocks?.[0]?.id ?? ""); setEditingEnabled(true); }
   function updatePage(patch: Parameters<typeof updateOneStudioPage>[2], group = "metadata") { if (activePage) onChange(updateOneStudioPage(draft, activePage.id, patch), `system-page:${activePage.id}:${group}`); }
   function deletePage() { if (!activePage || !window.confirm(t("Remove page"))) return; onChange(removeOneStudioPage(draft, activePage.id), `system-page:${activePage.id}:remove`); setSelectedPageId("home"); setSelected(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id); }
-  function addPageBlock(kind: PublicSiteCustomBlock["kind"], presetId?: PublicSiteCustomBlock["preset_id"]) { if (!activePage) return; const block = presetId ? createPublicSiteCoreBlockPreset(presetId) : createPublicSiteCustomBlock(kind); updatePage({ blocks: [...(activePage.blocks ?? []), block] }, "add-block"); setSelected(block.id); setShowLibrary(false); }
+  function addPageBlock(kind: PublicSiteCustomBlock["kind"], presetId?: PublicSiteCustomBlock["preset_id"]) { if (!activePage) return; const block = presetId ? createPublicSiteCoreBlockPreset(presetId) : createPublicSiteCustomBlock(kind); updatePage({ blocks: [...(activePage.blocks ?? []), block] }, "add-block"); selectBlock(block.id); setShowLibrary(false); }
   function updatePageBlock(block: PublicSiteCustomBlock) { if (!activePage) return; updatePage({ blocks: (activePage.blocks ?? []).map(item => item.id === block.id ? block : item) }, `block:${block.id}`); }
   function removePageBlock() { if (!activePage || !selectedPageBlock) return; updatePage({ blocks: (activePage.blocks ?? []).filter(item => item.id !== selectedPageBlock.id) }, `block:${selectedPageBlock.id}:remove`); setSelected(""); }
 
@@ -213,7 +213,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     footerNotice: <>◆ {t("Required block")} · ⠿ {t("Reorderable block")}<br />{t("Hidden blocks remain available for editing.")}</>,
   };
   const visibilityFields: EditorInspectorField[] = definition.capabilities.visibility
-    ? [{ id: "visibility", type: "toggle", label: t("Show this block"), checked: selectedBlock.visible, disabled: controlsDisabled, onChange: visible => setVisible(selectedBlock, visible) }]
+    ? [{ id: "visibility", type: "toggle", label: t(selectedBlock.props.universal_block?.kind === "spacer" ? "Show block on site" : "Show this block"), checked: selectedBlock.visible, disabled: controlsDisabled, onChange: visible => setVisible(selectedBlock, visible) }]
     : [{ id: "required", type: "notice", text: t("Required BEMBI block notice") }];
   // Transitional source-contract markers: id: "content", id: "typography". Actual outer groups are OneStudio-owned.
   const inspectorFields: EditorInspectorPlacedField[] = visibilityFields.map(field => ({ ...field, group: "content" } as EditorInspectorPlacedField));
@@ -315,15 +315,18 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     heading: t("Page blocks"),
     sections: [
       { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: !selectedPageBlock, visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelected("") },
-      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => setSelected(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); setSelected(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
+      ...(activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selected === block.id, visible: block.is_visible !== false, disabled: controlsDisabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => selectBlock(block.id), onVisibilityChange: (visible: boolean) => updatePageBlock({ ...block, is_visible: visible }), onDuplicate: () => { const copy = { ...block, id: `${block.kind}-${crypto.randomUUID()}` }; updatePage({ blocks: [...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)] }, "duplicate-block"); selectBlock(copy.id); }, onDelete: () => { updatePage({ blocks: blocks.filter(item => item.id !== block.id) }, "delete-block"); setSelected(""); }, onMove: (direction: -1 | 1) => { const next = [...blocks]; const target = index + direction; if (target < 0 || target >= next.length) return; [next[index], next[target]] = [next[target], next[index]]; updatePage({ blocks: next }, "reorder-block"); } })),
     ],
     addBlock: { label: t("+ Add block"), disabled: controlsDisabled, onClick: () => setShowLibrary(true) },
     footerNotice: t("This is a separate public page with its own address and navigation item."),
   } : null;
   const pageInspectorModel: EditorInspectorModel | null = activePage ? {
-    heading: t("Block settings"), title: richTextPlainText(selectedPageBlock?.title) || activePage.nav_label,
+    heading: t("Block settings"), title: selectedPageBlock ? resolvePublicSiteBlockDisplayName(selectedPageBlock, t) : activePage.nav_label,
     fields: selectedPageBlock
-      ? buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t })
+      ? [
+          { id: "visibility", group: "content", type: "toggle", label: t("Show block on site"), checked: selectedPageBlock.is_visible !== false, disabled: controlsDisabled, onChange: value => updatePageBlock({ ...selectedPageBlock, is_visible: value }) },
+          ...buildPremiumUniversalInspectorGroups({ block: selectedPageBlock, disabled: controlsDisabled, onChange: updatePageBlock, onChooseImage: target => setMediaTarget({ kind: "universal", ...target }), t }),
+        ]
       : [
           { id: "nav-label", group: "content", type: "text", label: t("Navigation label"), value: activePage.nav_label, disabled: controlsDisabled, onChange: value => updatePage({ nav_label: value }, "nav-label") },
           { id: "slug", group: "content", type: "url", label: t("Page address"), value: activePage.slug, disabled: controlsDisabled, onChange: value => updatePage({ slug: value }, "slug") },

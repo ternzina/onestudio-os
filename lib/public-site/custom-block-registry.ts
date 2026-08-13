@@ -40,14 +40,15 @@ export function publicSiteCustomBlockVisualCapabilities(
   runtime: "standard" | "premium" = "standard",
 ): PublicSiteVisualCapabilities {
   const supported = runtime === "standard" || runtime === "premium";
+  const structural = kind === "spacer" || kind === "html_embed";
   const mediaSizing = kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage" || kind === "columns";
   const multiMediaLayout = kind === "collage";
   return {
-    layout: supported && UNIVERSAL_VISUAL_CAPABILITIES.layout,
-    spacing: supported && UNIVERSAL_VISUAL_CAPABILITIES.spacing,
-    sectionHeight: supported && UNIVERSAL_VISUAL_CAPABILITIES.sectionHeight,
-    colors: supported && UNIVERSAL_VISUAL_CAPABILITIES.colors,
-    animation: supported && UNIVERSAL_VISUAL_CAPABILITIES.animation,
+    layout: supported && !structural && UNIVERSAL_VISUAL_CAPABILITIES.layout,
+    spacing: supported && !structural && UNIVERSAL_VISUAL_CAPABILITIES.spacing,
+    sectionHeight: supported && !structural && UNIVERSAL_VISUAL_CAPABILITIES.sectionHeight,
+    colors: supported && !structural && UNIVERSAL_VISUAL_CAPABILITIES.colors,
+    animation: supported && !structural && UNIVERSAL_VISUAL_CAPABILITIES.animation,
     mediaSizing: supported && mediaSizing,
     mediaPosition: supported && (kind === "media_text" || kind === "collage"),
     mediaFocalPoint: supported && mediaSizing,
@@ -113,7 +114,7 @@ export function createPublicSiteCustomBlock(kind: PublicSiteCustomBlockKind, id 
     video: { eyebrow: "ВИДЕО", title: "Покажите атмосферу", text: "Добавьте ссылку на YouTube, Vimeo или прямую ссылку на видеофайл.", items: "", button_label: "" },
     media_text: { eyebrow: "О СТУДИИ", title: "Текст и изображение рядом", text: "Расскажите о студии, услуге или мастере. Медиа можно расположить слева или справа.", items: "", button_label: "Подробнее" },
     columns: { eyebrow: "ВАЖНОЕ", title: "Два или три смысловых блока", text: "Соберите короткий раздел из нескольких аккуратных карточек.", items: "Первый блок · Добавьте короткое описание\nВторой блок · Добавьте короткое описание\nТретий блок · Добавьте короткое описание", button_label: "" },
-    html_embed: { eyebrow: "ВСТРАИВАНИЕ", title: "Внешний виджет или HTML", text: "Добавьте безопасную разметку или HTTPS-ссылку на виджет.", items: "", button_label: "" },
+    html_embed: { eyebrow: "", title: "", text: "", items: "", button_label: "" },
     spacer: { eyebrow: "", title: "", text: "", items: "", button_label: "" },
   };
   const preset = presets[kind];
@@ -133,11 +134,13 @@ export function createPublicSiteCustomBlock(kind: PublicSiteCustomBlockKind, id 
     media_position: kind === "media_text" ? mediaPosition ?? "right" : kind === "collage" ? "center" : undefined,
     columns_count: kind === "columns" ? 3 : undefined,
     cards: kind === "columns" ? defaultPublicSiteColumnCards(id) : undefined,
-    html_source: kind === "html_embed" ? "<h3>Полезная информация</h3><p>Замените этот текст своей безопасной HTML-разметкой.</p>" : undefined,
+    html_source: kind === "html_embed" ? '<div style="padding: 24px; background-color: #f5f5f5; border-radius: 16px; color: #222"><h3 style="font-size: 28px; margin: 0 0 12px">Ваш HTML-блок</h3><p style="font-size: 16px; margin: 0">Этот текст создан HTML-кодом.</p></div>' : undefined,
     embed_title: kind === "html_embed" ? "Внешний виджет" : undefined,
     embed_height: kind === "html_embed" ? 420 : undefined,
     spacer_size: kind === "spacer" ? "normal" : undefined,
     show_divider: kind === "spacer" ? false : undefined,
+    divider_thickness: kind === "spacer" ? 1 : undefined,
+    divider_color_mode: kind === "spacer" ? "template" : undefined,
     media_size: hasMedia ? "wide" : undefined,
     media_aspect: hasMedia ? "landscape" : undefined,
     media_fit: hasMedia ? "cover" : undefined,

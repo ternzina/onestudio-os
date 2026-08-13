@@ -85,7 +85,7 @@ test("NOIR is a registered shared navigator/inspector data adapter without owned
 
 test("NOIR keeps common pages, design, SEO, Preview and universal blocks", async () => {
   const editor = await read("../app/admin/site/page.tsx");
-  for (const contract of ["+ Add page", "onOpenDesign", "onOpenSeo", "buildSitePreviewHref", "PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY", "PublicCustomPageRuntime"]) {
+  for (const contract of ["+ Add page", "onOpenDesign", "onOpenSeo", "buildSitePreviewHref", "PUBLIC_SITE_CORE_BLOCK_LIBRARY", "PublicCustomPageRuntime"]) {
     if (contract === "PublicCustomPageRuntime") continue;
     assert.match(editor, new RegExp(contract.replace(/[+]/g, "\\+")));
   }

@@ -23,6 +23,32 @@ export const PUBLIC_SITE_CORE_BLOCK_LIBRARY: readonly CoreBlockPreset[] = [
   { id: "spacer-divider", category: "Advanced", label: "Spacer / Divider", description: "Add controlled spacing or a subtle divider.", kind: "spacer" },
 ];
 
+const CANONICAL_BLOCK_KIND_LABELS: Readonly<Record<PublicSiteCustomBlockKind, string>> = {
+  text: "Text block",
+  features: "Feature cards",
+  cta: "Call to action",
+  media_text: "Text + image or video",
+  columns: "Two or three columns",
+  slider: "Image slider",
+  collage: "Collage",
+  video: "Video block",
+  html_embed: "HTML / Embed",
+  spacer: "Spacer / Divider",
+};
+
+type BlockDisplayNameInput = Pick<PublicSiteCustomBlock, "kind" | "preset_id">;
+
+/** One semantic naming contract for navigators, headings, and settings shells. */
+export function resolvePublicSiteBlockDisplayName(
+  block: BlockDisplayNameInput,
+  translate: (label: never) => string = label => label,
+  templateSemanticOverride?: string,
+): string {
+  const presetLabel = PUBLIC_SITE_CORE_BLOCK_LIBRARY.find(item => item.id === block.preset_id)?.label;
+  const canonicalLabel = CANONICAL_BLOCK_KIND_LABELS[block.kind];
+  return translate((presetLabel ?? templateSemanticOverride ?? canonicalLabel ?? "Custom block") as never);
+}
+
 const card = (id: string, n: number, title: string, text: string) => ({ id: `${id}-card-${n}`, title, text, media_type: "none" as const });
 
 export function createPublicSiteCoreBlockPreset(presetId: PublicSiteCoreBlockPresetId, id = `block-${Date.now()}`): PublicSiteCustomBlock {

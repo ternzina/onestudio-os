@@ -1,0 +1,35 @@
+begin;
+select plan(29);
+
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#A1B2C3"}]')->0->>'divider_thickness'), '3', 'divider thickness persists');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#A1B2C3"}]')->0->>'divider_color_mode'), 'custom', 'divider color mode persists');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#A1B2C3"}]')->0->>'divider_custom_color'), '#a1b2c3', 'safe custom color persists lowercased');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_thickness":0,"divider_color_mode":"rainbow","divider_custom_color":"red"}]')->0->>'divider_thickness'), '1', 'invalid divider thickness defaults to one');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_thickness":0,"divider_color_mode":"rainbow","divider_custom_color":"red"}]')->0->>'divider_color_mode'), 'template', 'invalid divider color mode defaults to template');
+select ok(not (public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_color_mode":"custom","divider_custom_color":"red"}]')->0 ? 'divider_custom_color'), 'invalid custom color does not survive');
+select ok(not (public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","divider_color_mode":"accent","divider_custom_color":"#abcdef"}]')->0 ? 'divider_custom_color'), 'custom color does not survive outside custom mode');
+select ok(not (public.normalize_public_site_custom_blocks('[{"id":"text","kind":"text","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#abcdef"}]')->0 ? 'divider_thickness'), 'divider thickness is spacer-only');
+select ok(not (public.normalize_public_site_custom_blocks('[{"id":"text","kind":"text","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#abcdef"}]')->0 ? 'divider_color_mode'), 'divider color mode is spacer-only');
+select ok(not (public.normalize_public_site_custom_blocks('[{"id":"text","kind":"text","divider_thickness":3,"divider_color_mode":"custom","divider_custom_color":"#abcdef"}]')->0 ? 'divider_custom_color'), 'divider custom color is spacer-only');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","spacer_size":"airy","show_divider":true,"content_width":"narrow"}]')->0->>'spacer_size'), 'airy', 'existing 3.3 spacer normalization is preserved');
+select is((public.normalize_public_site_custom_blocks('[{"id":"embed","kind":"html_embed","html_source":"<script>x</script><p>safe</p>"}]')->0->>'html_source'), '<p>safe</p>', 'existing 3.3 HTML normalization is preserved');
+select is((public.normalize_public_site_custom_blocks('[{"id":"embed","kind":"html_embed","html_source":"<div style=\"color: #222; font-size: 28px; padding: 24px; border-radius: 16px; position: fixed; background-image: url(https://evil.test/x)\">safe</div>"}]')->0->>'html_source'), '<div style="color: #222; font-size: 28px; padding: 24px; border-radius: 16px">safe</div>', 'safe inline HTML styles persist and escaping CSS is removed');
+select is(public.sanitize_public_site_html_3_3('<div style="color:red">safe</div>'), '<div style="color: red">safe</div>', 'quoted safe style survives');
+select is(public.sanitize_public_site_html_3_3('<div style=''color:red''>safe</div>'), '<div style="color: red">safe</div>', 'single-quoted safe style survives');
+select is(public.sanitize_public_site_html_3_3('<div style=color:red>safe</div>'), '<div style="color: red">safe</div>', 'unquoted safe style is normalized');
+select is(public.sanitize_public_site_html_3_3('<div style=url(javascript:x)>safe</div>'), '<div>safe</div>', 'unquoted dangerous style is removed');
+select is(public.sanitize_public_site_inline_style_3_3_1('font-size: 120px'), 'font-size: 120px', '120px font size survives');
+select is(public.sanitize_public_site_inline_style_3_3_1('font-size: 120.01px'), '', 'font size above 120px is removed');
+select is(public.sanitize_public_site_inline_style_3_3_1('font-size: 10rem; line-height: 10em'), 'font-size: 10rem; line-height: 10em', 'sensible rem and em values survive');
+select is(public.sanitize_public_site_inline_style_3_3_1('font-size: 10.01rem; line-height: 101em'), '', 'giant rem and em values are removed');
+select is(public.sanitize_public_site_inline_style_3_3_1('width: url(https://evil.test/x)'), '', 'url CSS is removed');
+select is(public.sanitize_public_site_inline_style_3_3_1('width: 10px; broken; height: 20px'), 'width: 10px; height: 20px', 'malformed declarations are removed');
+select is(public.sanitize_public_site_html_3_3('<a href="javascript:alert(1)">bad</a>'), '<a>bad</a>', 'javascript href is removed during persistence');
+select is(public.sanitize_public_site_html_3_3('<a href="https://example.com/path">safe</a>'), '<a href="https://example.com/path">safe</a>', 'safe HTTPS href survives');
+select unlike(public.sanitize_public_site_html_3_3('<a href=''https://example.com/" onclick="x''>safe</a>'), '%onclick=%', 'quotes in safe URL attributes cannot inject attributes');
+select is(public.sanitize_public_site_html_3_3('<a href=''mailto:test@example.com''>mail</a><a href=tel:123>tel</a><a href=/path>path</a><a href=#part>part</a>'), '<a href="mailto:test@example.com">mail</a><a href="tel:123">tel</a><a href="/path">path</a><a href="#part">part</a>', 'safe URL contract survives quoted and unquoted persistence');
+select unlike(public.sanitize_public_site_html_3_3('<img src=data:text/html,x onerror=x>'), '%src=%', 'unsafe src and event handler are removed');
+select is(public.sanitize_public_site_html_3_3('<style>x{color:red}</style><script>x()</script><p>safe</p>'), '<p>safe</p>', 'script and style tags are removed');
+
+select * from finish();
+rollback;

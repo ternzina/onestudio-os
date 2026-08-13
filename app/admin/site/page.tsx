@@ -19,6 +19,7 @@ import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-s
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
+import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
@@ -91,8 +92,8 @@ import {
   publicSiteBlockColumnCards as blockColumnCards,
   publicSiteCustomBlockVisualCapabilities,
 } from "@/lib/public-site/custom-block-registry";
-import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset } from "@/lib/public-site/core-block-library";
-import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH, safePublicEmbedUrl } from "@/lib/public-site/safe-html";
+import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset, resolvePublicSiteBlockDisplayName } from "@/lib/public-site/core-block-library";
+import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH } from "@/lib/public-site/safe-html";
 import { supabase } from "@/lib/supabase";
 import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
 import {
@@ -1832,7 +1833,7 @@ function VisualBuilder({
   }, [premiumEditorAdapter, selectedPremiumNativeSection]);
 
   useEffect(() => {
-    if (activePageId || selectionFromCanvasScrollRef.current) {
+    if (selectionFromCanvasScrollRef.current) {
       selectionFromCanvasScrollRef.current = false;
       return;
     }
@@ -2526,7 +2527,7 @@ function VisualBuilder({
         { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
         ...(activePage.type === "portfolio"
           ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
-          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
+          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
         { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
@@ -2626,7 +2627,7 @@ function VisualBuilder({
           return [{
             id: item,
             key: item,
-            label: richTextPlainText(block.title) || t("Custom block"),
+            label: resolvePublicSiteBlockDisplayName(block, t),
             index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
             selected: selectedCustomBlockId === block.id,
             visible: block.is_visible !== false,
@@ -2668,7 +2669,7 @@ function VisualBuilder({
           const blockId = item.slice("custom:".length);
           const block = (draft.custom_blocks ?? []).find(candidate => candidate.id === blockId);
           if (!block) return [];
-          return [{ id: item, key: item, label: richTextPlainText(block.title) || t("Custom block"), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+          return [{ id: item, key: item, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
         }),
       ];
   const premiumEditorPreviewSite: PublicSiteData = {
@@ -3065,7 +3066,7 @@ function VisualBuilder({
 
       inspectorModel={{
         heading: t("Block settings"),
-        title: activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedCustomBlock ? richTextPlainText(selectedCustomBlock.title) : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        title: selectedCustomBlock ? resolvePublicSiteBlockDisplayName(selectedCustomBlock, t) : activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
         expanded: settingsOpen,
         onExpandedChange: setSettingsOpen,
         onCollapse: () => setSettingsOpen(false),
@@ -4409,6 +4410,7 @@ function CustomPagePreview({
         <button
           key={block.id}
           type="button"
+          data-editor-anchor={`custom:${block.id}`}
           onClick={() => editingEnabled && onBlockChange(block.id)}
           className={`relative block w-full text-left ${
             block.is_visible === false
@@ -4448,6 +4450,9 @@ function CustomPagePreview({
 }
 
 function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
+  if (block.kind === "spacer" || block.kind === "html_embed") {
+    return <PublicCustomBlock block={block} />;
+  }
   const customColors = block.colors?.mode === "custom";
   const dark = !customColors && block.tone === "dark";
   const accent = !customColors && block.tone === "accent";
@@ -7378,6 +7383,29 @@ function CustomBlockSettings({
       ? { background: siteAccent, text: "#ffffff", accent: siteDark }
       : { background: siteSurface, text: siteDark, accent: siteAccent };
 
+  if (block.kind === "html_embed") return <SharedEditorFieldList fields={[
+    { id: "visibility", type: "toggle", label: t("Show block on site"), checked: block.is_visible !== false, disabled, onChange: value => onChange("is_visible", value) },
+    { id: "html-source", type: "textarea", label: "HTML", rows: 8, value: block.html_source ?? "", disabled, onChange: value => onChange("html_source", value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH)) },
+    { id: "embed-url", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => onChange("embed_url", value.slice(0, 2048)) },
+    { id: "embed-title", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => onChange("embed_title", value.slice(0, 160)) },
+    { id: "embed-height", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => onChange("embed_height", boundedPublicEmbedHeight(Number(value))) },
+  ]} />;
+
+  if (block.kind === "spacer") return <>
+    <Toggle label={t("Show block on site")} checked={block.is_visible !== false} disabled={disabled} onChange={(value) => onChange("is_visible", value)} />
+    <div className="grid gap-3 rounded-2xl border border-black/8 p-3">
+      <p className="text-xs leading-5 text-black/60">{t("Spacer helper")}</p>
+      <label className="text-xs font-semibold">{t("Spacing size")}<select className="mt-2 w-full rounded-xl border p-3" value={block.spacer_size ?? "normal"} disabled={disabled} onChange={event => onChange("spacer_size", event.target.value as PublicSiteCustomBlock["spacer_size"])}><option value="compact">{t("Compact")}</option><option value="normal">{t("Normal")}</option><option value="airy">{t("Airy")}</option></select></label>
+      <Toggle label={t("Show divider line")} checked={block.show_divider === true} disabled={disabled} onChange={value => onChange("show_divider", value)} />
+      {block.show_divider ? <>
+        <label className="text-xs font-semibold">{t("Divider width")}<select className="mt-2 w-full rounded-xl border p-3" value={block.content_width ?? "wide"} disabled={disabled} onChange={event => onChange("content_width", event.target.value as PublicSiteCustomBlock["content_width"])}><option value="narrow">{t("Narrow")}</option><option value="medium">{t("Medium")}</option><option value="wide">{t("Wide")}</option><option value="full">{t("Full")}</option></select></label>
+        <label className="text-xs font-semibold">{t("Divider thickness")}<select className="mt-2 w-full rounded-xl border p-3" value={block.divider_thickness ?? 1} disabled={disabled} onChange={event => onChange("divider_thickness", Number(event.target.value) as PublicSiteCustomBlock["divider_thickness"])}><option value={1}>{t("1 px")}</option><option value={2}>{t("2 px")}</option><option value={3}>{t("3 px")}</option></select></label>
+        <label className="text-xs font-semibold">{t("Divider color")}<select className="mt-2 w-full rounded-xl border p-3" value={block.divider_color_mode ?? "template"} disabled={disabled} onChange={event => onChange("divider_color_mode", event.target.value as PublicSiteCustomBlock["divider_color_mode"])}><option value="template">{t("Template")}</option><option value="accent">{t("Accent")}</option><option value="custom">{t("Custom")}</option></select></label>
+        {block.divider_color_mode === "custom" ? <ColorEditor label={t("Divider custom color")} value={block.divider_custom_color ?? "#9d3151"} disabled={disabled} presets={[siteAccent, siteDark]} onChange={value => onChange("divider_custom_color", value)} /> : null}
+      </> : null}
+    </div>
+  </>;
+
   return (
     <>
       <Toggle
@@ -7428,13 +7456,6 @@ function CustomBlockSettings({
       ) : (
         <RichTextEditor label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
       )}
-      {block.kind === "html_embed" ? <div className="grid gap-3 rounded-2xl border border-black/8 p-3">
-        <label className="text-xs font-semibold">HTML<textarea className="mt-2 min-h-40 w-full rounded-xl border p-3 font-mono text-xs" value={block.html_source ?? ""} maxLength={PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH} disabled={disabled} onChange={event => onChange("html_source", event.target.value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH))} /></label>
-        <label className="text-xs font-semibold">{t("Embed URL")}<input className="mt-2 w-full rounded-xl border p-3" value={block.embed_url ?? ""} disabled={disabled} onChange={event => onChange("embed_url", safePublicEmbedUrl(event.target.value) || event.target.value.slice(0, 2048))} /></label>
-        <CompactField label={t("Embed title")} value={block.embed_title ?? ""} disabled={disabled} onChange={value => onChange("embed_title", value.slice(0, 160))} />
-        <label className="text-xs font-semibold">{t("Embed height")}<input type="number" min={180} max={900} className="mt-2 w-full rounded-xl border p-3" value={block.embed_height ?? 420} disabled={disabled} onChange={event => onChange("embed_height", boundedPublicEmbedHeight(Number(event.target.value)))} /></label>
-      </div> : null}
-      {block.kind === "spacer" ? <div className="grid gap-3 rounded-2xl border border-black/8 p-3"><label className="text-xs font-semibold">{t("Spacing size")}<select className="mt-2 w-full rounded-xl border p-3" value={block.spacer_size ?? "normal"} disabled={disabled} onChange={event => onChange("spacer_size", event.target.value as PublicSiteCustomBlock["spacer_size"])}><option value="compact">{t("Compact")}</option><option value="normal">{t("Normal")}</option><option value="airy">{t("Airy")}</option></select></label><Toggle label={t("Show divider line")} checked={block.show_divider === true} disabled={disabled} onChange={value => onChange("show_divider", value)} /></div> : null}
       {block.kind === "columns" ? (
         <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
           {t("Number of columns")}
