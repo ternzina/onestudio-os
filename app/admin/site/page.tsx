@@ -250,6 +250,14 @@ function layoutOrderRoundTripMatches(
     === stableJsonSignature(draft.layout_order);
 }
 
+function nativeActionStylesRoundTripMatches(
+  draft: PublicSiteContent,
+  saved: PublicSiteContent | null,
+) {
+  return stableJsonSignature(saved?.native_action_styles ?? {})
+    === stableJsonSignature(draft.native_action_styles ?? {});
+}
+
 function cloneCustomBlockForDuplicate(
   block: PublicSiteCustomBlock,
 ): PublicSiteCustomBlock {
@@ -986,6 +994,11 @@ export default function AdminSitePage() {
       setSaving(false);
       return false;
     }
+    if (!nativeActionStylesRoundTripMatches(draftToSave, savedDraftContent)) {
+      setError("Черновик не сохранён: сервер изменил оформление кнопок Premium. Изменения оставлены в редакторе.");
+      setSaving(false);
+      return false;
+    }
 
     if (!(await saveSiteLogoDraft())) {
       setSaving(false);
@@ -1014,6 +1027,11 @@ export default function AdminSitePage() {
       }
       if (!layoutOrderRoundTripMatches(draftToSave, publishedContent)) {
         setError("Публикация не подтверждена: сервер изменил порядок блоков. Проверьте опубликованную версию.");
+        setSaving(false);
+        return false;
+      }
+      if (!nativeActionStylesRoundTripMatches(draftToSave, publishedContent)) {
+        setError("Публикация не подтверждена: сервер изменил оформление кнопок Premium. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
         setSaving(false);
         return false;
       }
