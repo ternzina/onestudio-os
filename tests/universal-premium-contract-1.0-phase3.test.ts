@@ -27,7 +27,8 @@ test("real premium definition and editor registries resolve NOIR only", () => {
   const definition = getPremiumTemplateDefinition("premium-studio");
   const adapter = getPremiumTemplateEditorAdapter("premium-studio");
   assert.equal(definition?.templateKey, "premium-studio");
-  assert.equal(adapter, NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER);
+  assert.equal(adapter?.templateKey, NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER.templateKey);
+  assert.equal(adapter?.contract, NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER.contract);
   assert.equal(getPremiumTemplateDefinition("unknown"), undefined);
   assert.equal(getPremiumTemplateEditorAdapter("unknown"), undefined);
   assert.deepEqual(validatePremiumTemplateEditorAdapterRegistry([adapter!]), []);

@@ -1,6 +1,9 @@
 import type { PremiumTemplateEditorAdapter } from "./premium-template-editor-adapter.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
-import { withPremiumActionAppearances } from "./premium-action-style.ts";
+import {
+  clearPremiumNativeActionStyles,
+  withPremiumActionAppearances,
+} from "./premium-action-style.ts";
 
 export function validatePremiumTemplateEditorAdapterRegistry(
   adapters: readonly PremiumTemplateEditorAdapter[],
@@ -28,6 +31,19 @@ export function createPremiumTemplateEditorRegistry(
     const buildInspectorFields = adapter.buildInspectorFields;
     return {
       ...adapter,
+      resetSection(content, sectionId) {
+        return clearPremiumNativeActionStyles(
+          adapter.resetSection(content, sectionId),
+          adapter.templateKey,
+          String(sectionId),
+        );
+      },
+      restoreTemplate(content) {
+        return clearPremiumNativeActionStyles(
+          adapter.restoreTemplate(content),
+          adapter.templateKey,
+        );
+      },
       buildInspectorFields(input) {
         return withPremiumActionAppearances({
           fields: buildInspectorFields(input),
