@@ -106,6 +106,8 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
     case "slider":
     case "collage":
     case "video":
+    case "html_embed":
+    case "spacer":
       return <PremiumUniversalBlock block={block} />;
     default:
       return null;

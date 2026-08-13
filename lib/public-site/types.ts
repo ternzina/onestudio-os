@@ -417,6 +417,9 @@ export type PublicSiteCustomBlock = {
   embed_height?: number;
   spacer_size?: PublicSiteBlockSpacing;
   show_divider?: boolean;
+  divider_thickness?: 1 | 2 | 3;
+  divider_color_mode?: "template" | "accent" | "custom";
+  divider_custom_color?: string;
   content_width?: PublicSiteBlockWidth;
   padding_top?: PublicSiteBlockSpacing;
   padding_bottom?: PublicSiteBlockSpacing;

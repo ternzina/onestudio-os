@@ -84,7 +84,7 @@ export default function PremiumUniversalBlock({ block }: { block: PremiumKidsBlo
     </PublicReveal>;
   }
 
-  if (["features", "cta", "slider", "collage", "video"].includes(content.kind)) {
+  if (["features", "cta", "slider", "collage", "video", "html_embed", "spacer"].includes(content.kind)) {
     return <div data-premium-block-id={block.id} className={styles.premiumUniversal} style={sectionStyle} data-premium-universal-kind={content.kind}>
       <PublicCustomBlock block={content} buttonTheme={BEMBI_BUTTON_THEME} />
     </div>;

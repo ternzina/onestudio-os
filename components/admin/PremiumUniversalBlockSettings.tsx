@@ -26,6 +26,23 @@ const options = (t: Translate, values: readonly (readonly [string, AdminMessage]
 /** Builds shared inspector groups; this module never renders a Premium-specific inspector shell. */
 export function buildPremiumUniversalInspectorFields({ block, disabled, onChange, onChooseImage, t }: SettingsOptions): EditorInspectorPlacedField[] {
   const patch = <Key extends keyof PublicSiteCustomBlock>(key: Key, value: PublicSiteCustomBlock[Key]) => onChange({ ...block, [key]: value }, String(key));
+  if (block.kind === "spacer") return [
+    { id: "spacer-help", group: "content", type: "notice", text: t("Spacer helper") },
+    { id: "spacer-size", group: "content", type: "select", label: t("Spacing size"), value: block.spacer_size ?? "normal", disabled, onChange: value => patch("spacer_size", value === "compact" || value === "airy" ? value : "normal"), options: options(t, [["compact", "Compact"], ["normal", "Normal"], ["airy", "Airy"]]) },
+    { id: "divider", group: "content", type: "toggle", label: t("Show divider line"), checked: block.show_divider === true, disabled, onChange: value => patch("show_divider", value) },
+    ...(block.show_divider === true ? [
+      { id: "divider-width", group: "content" as const, type: "select" as const, label: t("Divider width"), value: block.content_width ?? "wide", disabled, onChange: (value: string) => patch("content_width", ["narrow", "medium", "wide", "full"].includes(value) ? value as PublicSiteCustomBlock["content_width"] : "wide"), options: options(t, [["narrow", "Narrow"], ["medium", "Medium"], ["wide", "Wide"], ["full", "Full"]]) },
+      { id: "divider-thickness", group: "content" as const, type: "select" as const, label: t("Divider thickness"), value: String(block.divider_thickness ?? 1), disabled, onChange: (value: string) => patch("divider_thickness", value === "2" ? 2 : value === "3" ? 3 : 1), options: options(t, [["1", "1 px"], ["2", "2 px"], ["3", "3 px"]]) },
+      { id: "divider-color", group: "content" as const, type: "select" as const, label: t("Divider color"), value: block.divider_color_mode ?? "template", disabled, onChange: (value: string) => patch("divider_color_mode", value === "accent" || value === "custom" ? value : "template"), options: options(t, [["template", "Template"], ["accent", "Accent"], ["custom", "Custom"]]) },
+      ...(block.divider_color_mode === "custom" ? [{ id: "divider-custom-color", group: "content" as const, type: "color" as const, label: t("Divider custom color"), value: block.divider_custom_color ?? "#9d3151", disabled, onChange: (value: string) => patch("divider_custom_color", value) }] : []),
+    ] : []),
+  ];
+  if (block.kind === "html_embed") return [
+    { id: "html-source", group: "content", type: "textarea", label: "HTML", rows: 8, value: block.html_source ?? "", disabled, onChange: value => patch("html_source", value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH)) },
+    { id: "embed-url", group: "content", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => patch("embed_url", value.slice(0, 2048)) },
+    { id: "embed-title", group: "content", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => patch("embed_title", value.slice(0, 160)) },
+    { id: "embed-height", group: "content", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => patch("embed_height", boundedPublicEmbedHeight(Number(value))) },
+  ];
   const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "premium");
   const groups: { id: string; title?: string; card?: boolean; fields: EditorInspectorField[] }[] = [];
   const appearance: EditorInspectorField[] = visual.layout || visual.spacing || visual.sectionHeight || visual.animation
@@ -50,16 +67,6 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     { id: "title", type: "textarea", label: t("Heading"), rows: 3, value: block.title, disabled, onChange: value => patch("title", value) },
     { id: "text", type: "richText", label: block.kind === "columns" ? t("Intro text") : t("Text"), value: block.text, disabled, onChange: value => patch("text", value) },
     ...(block.kind === "features" ? [{ id: "items", type: "textarea" as const, label: t("Advantages (title · description)"), rows: 6, value: block.items, disabled, onChange: (value: string) => patch("items", value) }] : []),
-  ] });
-  if (block.kind === "html_embed") groups.push({ id: "embed", card: true, fields: [
-    { id: "html-source", type: "textarea", label: "HTML", rows: 8, value: block.html_source ?? "", disabled, onChange: value => patch("html_source", value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH)) },
-    { id: "embed-url", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => patch("embed_url", value.slice(0, 2048)) },
-    { id: "embed-title", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => patch("embed_title", value.slice(0, 160)) },
-    { id: "embed-height", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => patch("embed_height", boundedPublicEmbedHeight(Number(value))) },
-  ] });
-  if (block.kind === "spacer") groups.push({ id: "spacer", card: true, fields: [
-    { id: "spacer-size", type: "select", label: t("Spacing size"), value: block.spacer_size ?? "normal", disabled, onChange: value => patch("spacer_size", value === "compact" || value === "airy" ? value : "normal"), options: options(t, [["compact", "Compact"], ["normal", "Normal"], ["airy", "Airy"]]) },
-    { id: "divider", type: "toggle", label: t("Show divider line"), checked: block.show_divider === true, disabled, onChange: value => patch("show_divider", value) },
   ] });
   groups.push({ id: "typography", card: true, fields: [{ id: "title-typography", type: "typography", forFieldId: "title", title: t("Block title"), description: t("Limited Site Editor 2.6 settings"), value: block.title_typography, disabled, onChange: value => patch("title_typography", value) }] });
 
