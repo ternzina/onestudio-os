@@ -224,6 +224,77 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "/templates/velora/menu-cinematic.webp",
       "/templates/velora/coordinator-cinematic.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "vow-films",
+    "name": "VOW FILMS",
+    "description": "Кинематографичный свадебный сайт с фильмами, пакетами, проверкой даты и заявкой.",
+    "category": "events",
+    "aliases": [
+      "vow",
+      "vow-films-wedding"
+    ],
+    "library": {
+      "tier": "premium",
+      "visible": true,
+      "order": 50
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "events",
+      "order": 50,
+      "title": {
+        "ru": "Свадебные фильмы",
+        "en": "Wedding films"
+      },
+      "description": {
+        "ru": "Премиальный свадебный видеосайт с историями, пакетами и проверкой даты.",
+        "en": "A premium wedding film website with stories, collections and date enquiries."
+      },
+      "alt": {
+        "ru": "Кинематографичный свадебный кадр VOW FILMS",
+        "en": "Cinematic VOW FILMS wedding frame"
+      },
+      "route": "/demos/vow-films",
+      "image": "/images/demos/vow-films.webp",
+      "accent": "#CDB078",
+      "dark": "#07111F",
+      "surface": "#F7F2E9"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "vow-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "manifesto",
+      "films",
+      "story",
+      "experience",
+      "process",
+      "packages",
+      "gallery",
+      "reviews",
+      "availability",
+      "faq",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/images/demos/vow-films.webp"
+    ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;

@@ -2,10 +2,12 @@
 import { GLOSS_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_0_CONTRACT } from "./gloss-premium-template-contract.ts";
 import { NOIR_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_1_CONTRACT } from "./noir-premium-template-contract.ts";
 import { VELORA_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_2_CONTRACT } from "./velora-premium-template-contract.ts";
+import { VOW_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_3_CONTRACT } from "./vow-premium-template-contract.ts";
 import { createPremiumTemplateContractRegistry } from "./premium-template-registry-builder.ts";
 
 export const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateDefinition } = createPremiumTemplateContractRegistry(Object.values({
   "gloss-nail-studio": PACKAGE_0_CONTRACT,
   "premium-studio": PACKAGE_1_CONTRACT,
   "velora-event-venue": PACKAGE_2_CONTRACT,
+  "vow-films": PACKAGE_3_CONTRACT,
 }));

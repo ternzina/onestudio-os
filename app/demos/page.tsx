@@ -61,10 +61,11 @@ export default function DemosPage() {
   const [lang, setLang] = useState<Lang>("ru");
   const [filter, setFilter] = useState<Filter>("all");
   const t = copy[lang];
-  const demos = useMemo(
-    () => filter === "all" ? DEMOS : DEMOS.filter((demo) => demo.group === filter),
-    [filter],
-  );
+  const demos = useMemo(() => {
+    const filtered = filter === "all" ? DEMOS : DEMOS.filter((demo) => demo.group === filter);
+    const premiumSlugs = new Set(PREMIUM_DEMOS.map((demo) => demo.slug));
+    return filtered.filter((demo) => !premiumSlugs.has(demo.slug));
+  }, [filter]);
   const premiumDemos = useMemo(
     () => filter === "all" ? PREMIUM_DEMOS : PREMIUM_DEMOS.filter((demo) => demo.group === filter),
     [filter],
