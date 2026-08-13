@@ -20,6 +20,7 @@ import { sectionColorStyle } from "@/lib/public-site/colors";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteDesignClass } from "@/lib/public-site/design-system";
 import { safePublicActionHref } from "@/lib/public-site/editor-actions";
+import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import {
   publicSystemSectionAnimation,
   publicSystemSectionClass,
@@ -1004,6 +1005,7 @@ export default function GlossBusinessSite({
                   ) : null}
                   {content.about_button_label ? (
                     <a
+                      data-premium-action={premiumNativeActionKey("gloss-nail-studio", "about", "gloss-about-action")}
                       href={safePublicActionHref(content.about_button_url, "#contact")}
                       className="os-site-button mt-8 inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white"
                     >

@@ -18,6 +18,7 @@ import { OneStudioDesignDialog, OneStudioSeoDialog } from "@/components/admin/On
 import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-site/editor-spec";
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
+import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
@@ -77,6 +78,7 @@ import {
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
+import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import {
   getPremiumTemplateEditorCanvasRenderer,
   PremiumTemplateEditorCanvas,
@@ -2812,6 +2814,7 @@ function VisualBuilder({
       canvasRef={workspaceCanvasRef}
       canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
       canvas={<>
+          {premiumEditorAdapter && !hasPremiumEditorCanvas ? <PublicPremiumActionStyles content={draft} templateKey={premiumEditorAdapter.templateKey} /> : null}
           {hasPremiumEditorCanvas && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumTemplateEditorCanvas templateKey={draft.template_id} content={draft} basePath="#" site={premiumEditorPreviewSite} /></div> : <div
             className={publicSiteDesignClass(
               draft,
@@ -2904,8 +2907,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
                     <div className="mt-7 flex flex-wrap gap-3">
-                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                 </div>
@@ -2917,8 +2920,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
                     <div className="relative mt-7 flex flex-wrap gap-3">
-                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                   {draft.hero_layout !== "text" && draft.hero_image_url ? (
@@ -8127,6 +8130,7 @@ function CanvasSectionPreview({
           ) : null}
           {draft.about_button_label ? (
             <span
+              data-premium-action={premiumNativeActionKey("gloss-nail-studio", "about", "gloss-about-action")}
               className="mt-5 inline-flex rounded-full px-4 py-2 text-[10px] font-semibold text-white"
               style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
             >

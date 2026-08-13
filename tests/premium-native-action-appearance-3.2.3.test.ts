@@ -2,9 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
+  clearPremiumNativeActionStyles,
+  premiumNativeActionKey,
   premiumNativeActionStyleSheet,
   withPremiumActionAppearances,
 } from "../lib/public-site/premium-action-style.ts";
+import { PREMIUM_TEMPLATE_EDITOR_ADAPTERS } from "../lib/public-site/premium-template-editor-registry.ts";
+import { createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
 import type { PublicSiteContent } from "../lib/public-site/types.ts";
 
@@ -73,28 +77,88 @@ test("premium native action stylesheet is isolated by template", () => {
   assert.doesNotMatch(css, /gloss-nail-studio/);
 });
 
-test("all registered premium native actions have stable runtime markers", async () => {
-  const [gloss, velora, footer, noir, registry] = await Promise.all([
+test("every registered premium editor action has an exact runtime marker contract", async () => {
+  const [gloss, velora, footer, noir, registry, preview, genericPreview] = await Promise.all([
     readFile(new URL("../components/public/GlossBusinessSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraFooter.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/demos/premium-studio/PremiumStudioExperience.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/public-site/premium-template-editor-registry-builder.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/public-site/premium-template-editor-canvas-registry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
+  const runtimeSource = [gloss, velora, footer, noir].join("\n");
+  const actionKeys: string[] = [];
 
-  for (const marker of [
+  for (const adapter of PREMIUM_TEMPLATE_EDITOR_ADAPTERS) {
+    const content = createTemplateSeed(adapter.templateKey);
+    for (const section of [...(adapter.fixedEditorSections ?? []), ...adapter.contract.nativeSections]) {
+      const fields = adapter.buildInspectorFields({
+        content,
+        sectionId: section.id,
+        disabled: false,
+        onChange: () => undefined,
+      });
+      for (const field of fields) {
+        if (field.type !== "action") continue;
+        const key = premiumNativeActionKey(adapter.templateKey, section.id, field.id);
+        actionKeys.push(key);
+        const literalMarker = `data-premium-action="${key}"`;
+        const helperMarker = `premiumNativeActionKey("${adapter.templateKey}", "${section.id}", "${field.id}")`;
+        assert.ok(
+          runtimeSource.includes(literalMarker) || runtimeSource.includes(helperMarker),
+          `${key} must have a matching public runtime marker`,
+        );
+        if (adapter.templateKey === "gloss-nail-studio") {
+          assert.ok(
+            genericPreview.includes(literalMarker) || genericPreview.includes(helperMarker),
+            `${key} must have a matching GLOSS editor preview marker`,
+          );
+        }
+      }
+    }
+  }
+
+  assert.deepEqual(actionKeys.sort(), [
+    "gloss-nail-studio:about:gloss-about-action",
     "gloss-nail-studio:hero:gloss-hero-primary-action",
     "gloss-nail-studio:hero:gloss-hero-secondary-action",
-  ]) assert.match(gloss, new RegExp(marker));
-
-  for (const marker of [
+    "premium-studio:contact:contact-cta",
+    "premium-studio:hero:hero-cta",
+    "velora-event-venue:footer:cta",
     "velora-event-venue:hero:header-cta",
     "velora-event-venue:hero:velora-hero-primary-action",
     "velora-event-venue:hero:velora-hero-secondary-action",
-  ]) assert.match(velora, new RegExp(marker));
-
-  assert.match(footer, /velora-event-venue:footer:cta/);
-  assert.match(noir, /premium-studio:hero:hero-cta/);
-  assert.match(noir, /premium-studio:contact:contact-cta/);
+  ].sort());
   assert.match(registry, /withPremiumActionAppearances/);
+  assert.match(preview, /PublicPremiumActionStyles/);
+  assert.match(genericPreview, /PublicPremiumActionStyles/);
+});
+
+test("premium action persistence, section reset and template restore share one map contract", () => {
+  const content = {
+    ...createTemplateSeed("gloss-nail-studio"),
+    native_action_styles: {
+      "gloss-nail-studio:about:gloss-about-action": { size: "large" as const, background_color: "#123456", text_color: "#abcdef" },
+      "gloss-nail-studio:hero:gloss-hero-primary-action": { size: "small" as const },
+      "velora-event-venue:hero:header-cta": { text_color: "#fedcba" },
+    },
+  };
+  const reloaded = JSON.parse(JSON.stringify(content)) as PublicSiteContent;
+  assert.deepEqual(reloaded.native_action_styles, content.native_action_styles);
+
+  const gloss = PREMIUM_TEMPLATE_EDITOR_ADAPTERS.find(
+    (adapter) => adapter.templateKey === "gloss-nail-studio",
+  );
+  assert.ok(gloss);
+  const reset = gloss.resetSection(reloaded, "about");
+  assert.equal(reset.native_action_styles?.["gloss-nail-studio:about:gloss-about-action"], undefined);
+  assert.ok(reset.native_action_styles?.["gloss-nail-studio:hero:gloss-hero-primary-action"]);
+  assert.ok(reset.native_action_styles?.["velora-event-venue:hero:header-cta"]);
+
+  const restored = gloss.restoreTemplate(reset);
+  assert.equal(restored.native_action_styles?.["gloss-nail-studio:hero:gloss-hero-primary-action"], undefined);
+  assert.ok(restored.native_action_styles?.["velora-event-venue:hero:header-cta"]);
+  assert.equal(premiumNativeActionStyleSheet(createTemplateSeed("gloss-nail-studio"), "gloss-nail-studio"), "");
+  assert.equal(clearPremiumNativeActionStyles(content, "gloss-nail-studio", "about").native_action_styles?.["gloss-nail-studio:about:gloss-about-action"], undefined);
 });
