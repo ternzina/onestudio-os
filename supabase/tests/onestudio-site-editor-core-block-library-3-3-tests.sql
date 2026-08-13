@@ -1,0 +1,14 @@
+begin;
+select plan(10);
+select is(public.sanitize_public_site_html_3_3('<h2>Safe</h2>'), '<h2>Safe</h2>', 'safe HTML survives');
+select unlike(public.sanitize_public_site_html_3_3('<script>x()</script>'), '%<script%', 'script tag stripped');
+select unlike(public.sanitize_public_site_html_3_3('<img onerror="x()">'), '%onerror%', 'event handler stripped');
+select is((public.normalize_public_site_custom_blocks('[{"id":"embed","kind":"html_embed","preset_id":"html-embed","embed_url":"javascript:x","embed_height":1}]')->0->>'embed_url'), '', 'unsafe embed rejected');
+select is((public.normalize_public_site_custom_blocks('[{"id":"embed","kind":"html_embed","embed_url":"https://example.com","embed_height":9999}]')->0->>'embed_url'), 'https://example.com', 'safe embed retained');
+select is((public.normalize_public_site_custom_blocks('[{"id":"embed","kind":"html_embed","embed_height":9999}]')->0->>'embed_height')::int, 900, 'embed height bounded');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","spacer_size":"airy","show_divider":true}]')->0->>'kind'), 'spacer', 'spacer kind retained');
+select is((public.normalize_public_site_custom_blocks('[{"id":"space","kind":"spacer","spacer_size":"huge"}]')->0->>'spacer_size'), 'normal', 'spacer size bounded');
+select is((public.normalize_public_site_custom_blocks('[{"id":"about","kind":"media_text","preset_id":"about"}]')->0->>'preset_id'), 'about', 'semantic preset retained');
+select is((public.normalize_public_site_custom_blocks('[{"id":"old","kind":"text","title":"Old"}]')->0->>'title'), 'Old', 'legacy block remains compatible');
+select * from finish();
+rollback;

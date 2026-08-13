@@ -61,6 +61,8 @@ const defaultElements: Record<PublicSiteCustomBlockKind, readonly PublicSiteComp
   video: ["eyebrow", "title", "text", "media"],
   media_text: ["eyebrow", "title", "text", "action"],
   columns: ["eyebrow", "title", "text", "cards"],
+  html_embed: ["title", "text"],
+  spacer: [],
 };
 
 export function publicSiteBlockCompositionCapabilities(

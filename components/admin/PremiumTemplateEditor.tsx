@@ -11,7 +11,7 @@ import { buildPremiumUniversalInspectorGroups } from "@/components/admin/Premium
 import PremiumDelimitedListEditor from "@/components/admin/PremiumDelimitedListEditor";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type { AdminMessage } from "@/lib/i18n/admin";
-import { PREMIUM_UNIVERSAL_BLOCK_LIBRARY } from "@/lib/public-site/custom-block-registry";
+import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset } from "@/lib/public-site/core-block-library";
 import {
   PREMIUM_KIDS_BLOCK_REGISTRY,
   addPremiumKidsBlock,
@@ -59,7 +59,7 @@ const fields: Record<PremiumKidsBlockType, Field[]> = {
   faq: [["faq_title", "Heading", "text"], ["faq", "Questions: question | answer", "lines"]],
   final: [["final_cta_eyebrow", "Eyebrow", "input"], ["final_cta_title", "Heading", "text"], ["final_cta_label", "Button", "input"]],
   footer: [["footer_description", "Description", "text"], ["contact_email", "Email", "input"], ["contact_phone", "Phone number", "input"], ["contact_address", "Address", "text"]],
-  text: [], features: [], cta: [], media_text: [], columns: [], slider: [], collage: [], video: [],
+  text: [], features: [], cta: [], media_text: [], columns: [], slider: [], collage: [], video: [], html_embed: [], spacer: [],
 };
 
 function newBlockId(type: PremiumKidsBlockType) {
@@ -134,7 +134,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function move(sourceId: string, targetId: string) { const next = movePremiumKidsBlock(premium, sourceId, targetId); if (next !== premium) commit(next); }
   function moveBy(blockId: string, direction: -1 | 1) { const index = premium.blocks.findIndex(block => block.id === blockId); const target = premium.blocks[index + direction]; if (target) move(blockId, target.id); }
   function duplicate(block: PremiumKidsBlock) { const id = newBlockId(block.type); const next = duplicatePremiumKidsBlock(premium, block.id, id); if (next !== premium) { commit(next); selectBlock(id); } }
-  function add(type: PremiumKidsBlockType, mediaPosition?: PublicSiteMediaPosition) { const id = newBlockId(type); const next = addPremiumKidsBlock(premium, type, id, mediaPosition, selectedBlock.id); if (next !== premium) { commit(next); setShowLibrary(false); selectBlock(id); } }
+  function add(type: PremiumKidsBlockType, mediaPosition?: PublicSiteMediaPosition, presetId?: PublicSiteCustomBlock["preset_id"]) { const id = newBlockId(type); let next = addPremiumKidsBlock(premium, type, id, mediaPosition, selectedBlock.id); if (presetId && next !== premium) next = replacePremiumKidsBlocks(next, next.blocks.map(item => item.id === id ? { ...item, props: { ...item.props, universal_block: createPublicSiteCoreBlockPreset(presetId, id) } } : item)); if (next !== premium) { commit(next); setShowLibrary(false); selectBlock(id); } }
   function updateUniversal(nextBlock: PublicSiteCustomBlock, historyField = "content") { const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, universal_block: nextBlock } } : block); commit(replacePremiumKidsBlocks(premium, blocks), `premium-universal:${selected}:${historyField}`); }
   function selectMedia(url: string) {
     if (!mediaTarget) return;
@@ -170,7 +170,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function addPage() { const page = createOneStudioPage(draft); onChange(addOneStudioPage(draft, page), "system-page:add"); setSelectedPageId(page.id); setSelected(page.blocks?.[0]?.id ?? ""); setEditingEnabled(true); }
   function updatePage(patch: Parameters<typeof updateOneStudioPage>[2], group = "metadata") { if (activePage) onChange(updateOneStudioPage(draft, activePage.id, patch), `system-page:${activePage.id}:${group}`); }
   function deletePage() { if (!activePage || !window.confirm(t("Remove page"))) return; onChange(removeOneStudioPage(draft, activePage.id), `system-page:${activePage.id}:remove`); setSelectedPageId("home"); setSelected(premium.blocks.find(block => block.type === "hero")?.id ?? premium.blocks[0].id); }
-  function addPageBlock(kind: PublicSiteCustomBlock["kind"]) { if (!activePage) return; const block = createPublicSiteCustomBlock(kind); updatePage({ blocks: [...(activePage.blocks ?? []), block] }, "add-block"); setSelected(block.id); setShowLibrary(false); }
+  function addPageBlock(kind: PublicSiteCustomBlock["kind"], presetId?: PublicSiteCustomBlock["preset_id"]) { if (!activePage) return; const block = presetId ? createPublicSiteCoreBlockPreset(presetId) : createPublicSiteCustomBlock(kind); updatePage({ blocks: [...(activePage.blocks ?? []), block] }, "add-block"); setSelected(block.id); setShowLibrary(false); }
   function updatePageBlock(block: PublicSiteCustomBlock) { if (!activePage) return; updatePage({ blocks: (activePage.blocks ?? []).map(item => item.id === block.id ? block : item) }, `block:${block.id}`); }
   function removePageBlock() { if (!activePage || !selectedPageBlock) return; updatePage({ blocks: (activePage.blocks ?? []).filter(item => item.id !== selectedPageBlock.id) }, `block:${selectedPageBlock.id}:remove`); setSelected(""); }
 
@@ -190,7 +190,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   const controlsDisabled = disabled || !editingEnabled;
   const previewHref = buildSitePreviewHref({ templateKey: "premium-kids-center", businessSlug, locale });
   const templateLibraryItems = PREMIUM_KIDS_BLOCK_REGISTRY.filter(item => item.capabilities.add && !isPremiumKidsUniversalBlockType(item.type)).map(item => ({ id: item.type, label: item.label, description: item.description, onAdd: () => add(item.type) }));
-  const universalLibraryItems = PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, onAdd: () => add(item.kind as PremiumKidsBlockType, item.mediaPosition) }));
+  const universalLibraryItems = PUBLIC_SITE_CORE_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, category: item.category, stateLabel: item.category, onAdd: () => add(item.kind as PremiumKidsBlockType, undefined, item.id) }));
 
   const homeNavigatorModel: EditorNavigatorModel = {
     heading: t("Page blocks"),
@@ -337,7 +337,7 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
     actions: selectedPageBlock ? [{ id: "delete", label: t("Remove block"), tone: "danger", disabled: controlsDisabled, onClick: removePageBlock }] : [{ id: "delete-page", label: t("Remove page"), tone: "danger", disabled: controlsDisabled, onClick: deletePage }],
   } : null;
   const pagePreviewHref = activePage ? `${previewHref}/p/${encodeURIComponent(activePage.slug)}` : previewHref;
-  const pageUniversalItems = PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, onAdd: () => addPageBlock(item.kind) }));
+  const pageUniversalItems = PUBLIC_SITE_CORE_BLOCK_LIBRARY.map(item => ({ id: item.id, label: item.label, description: item.description, category: item.category, stateLabel: item.category, onAdd: () => addPageBlock(item.kind, item.id) }));
   const navigatorModel: EditorNavigatorModel = pageNavigatorModel ?? homeNavigatorModel;
   const inspectorModel: EditorInspectorModel = pageInspectorModel ?? homeInspectorModel;
 

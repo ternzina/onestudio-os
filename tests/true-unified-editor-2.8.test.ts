@@ -127,6 +127,6 @@ test("BEMBI protected edges and rich structured content remain intact", async ()
   assert.match(content, /serializePremiumDelimitedItem/);
 });
 
-test("all eight universal blocks remain available", () => {
-  assert.deepEqual([...new Set(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => item.kind))].sort(), ["collage", "columns", "cta", "features", "media_text", "slider", "text", "video"]);
+test("the original eight and 3.3 advanced universal blocks remain available", () => {
+  assert.deepEqual([...new Set(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map(item => item.kind))].sort(), ["collage", "columns", "cta", "features", "html_embed", "media_text", "slider", "spacer", "text", "video"]);
 });

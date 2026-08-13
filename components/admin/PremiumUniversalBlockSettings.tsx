@@ -9,6 +9,7 @@ import type { EditorInspectorField, EditorInspectorPlacedField, OneStudioInspect
 import type { AdminMessage, AdminMessageValues } from "@/lib/i18n/admin";
 import type { PublicSiteColumnCard, PublicSiteCustomBlock } from "@/lib/public-site/types";
 import { buildBlockLayoutInspectorFields, buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
+import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH } from "@/lib/public-site/safe-html";
 
 type Translate = (message: AdminMessage, values?: AdminMessageValues) => string;
 
@@ -50,9 +51,19 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     { id: "text", type: "richText", label: block.kind === "columns" ? t("Intro text") : t("Text"), value: block.text, disabled, onChange: value => patch("text", value) },
     ...(block.kind === "features" ? [{ id: "items", type: "textarea" as const, label: t("Advantages (title · description)"), rows: 6, value: block.items, disabled, onChange: (value: string) => patch("items", value) }] : []),
   ] });
+  if (block.kind === "html_embed") groups.push({ id: "embed", card: true, fields: [
+    { id: "html-source", type: "textarea", label: "HTML", rows: 8, value: block.html_source ?? "", disabled, onChange: value => patch("html_source", value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH)) },
+    { id: "embed-url", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => patch("embed_url", value.slice(0, 2048)) },
+    { id: "embed-title", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => patch("embed_title", value.slice(0, 160)) },
+    { id: "embed-height", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => patch("embed_height", boundedPublicEmbedHeight(Number(value))) },
+  ] });
+  if (block.kind === "spacer") groups.push({ id: "spacer", card: true, fields: [
+    { id: "spacer-size", type: "select", label: t("Spacing size"), value: block.spacer_size ?? "normal", disabled, onChange: value => patch("spacer_size", value === "compact" || value === "airy" ? value : "normal"), options: options(t, [["compact", "Compact"], ["normal", "Normal"], ["airy", "Airy"]]) },
+    { id: "divider", type: "toggle", label: t("Show divider line"), checked: block.show_divider === true, disabled, onChange: value => patch("show_divider", value) },
+  ] });
   groups.push({ id: "typography", card: true, fields: [{ id: "title-typography", type: "typography", forFieldId: "title", title: t("Block title"), description: t("Limited Site Editor 2.6 settings"), value: block.title_typography, disabled, onChange: value => patch("title_typography", value) }] });
 
-  if (block.kind === "cta" || block.kind === "media_text") groups.push({ id: "actions-content", card: true, fields: [
+  if (block.kind === "cta" || block.kind === "media_text" || block.preset_id === "pricing") groups.push({ id: "actions-content", card: true, fields: [
     {
       id: "button-action",
       type: "action",

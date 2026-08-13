@@ -18,7 +18,7 @@ test("Premium semantic navigator names follow the selected Admin locale", () => 
 });
 
 test("Premium universal library derives its safe presets from the canonical registry", () => {
-  assert.equal(PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.length, 8);
+  assert.equal(PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.length, 10);
   assert.deepEqual([...new Set(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.map((item) => item.kind))], PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(item => item.kind));
   assert.deepEqual(PREMIUM_UNIVERSAL_BLOCK_LIBRARY.filter((item) => item.kind === "media_text").map((item) => item.mediaPosition), ["right", "left"]);
   for (const item of PREMIUM_UNIVERSAL_BLOCK_LIBRARY) assert.ok(PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.some((canonical) => canonical.kind === item.kind && canonical.premiumSupported));

@@ -91,6 +91,8 @@ export const PREMIUM_KIDS_BLOCK_REGISTRY: readonly PremiumKidsBlockDefinition[] 
   { type: "slider", label: "Image slider", description: "An image sequence in the BEMBI visual system.", defaultId: "bembi-slider", fieldKeys: [], capabilities: { ...editable, typography: true } },
   { type: "collage", label: "Collage", description: "A multi-image BEMBI composition.", defaultId: "bembi-collage", fieldKeys: [], capabilities: { ...editable, typography: true } },
   { type: "video", label: "Video block", description: "Video presented in the BEMBI visual system.", defaultId: "bembi-video", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "html_embed", label: "HTML / Embed", description: "Safe markup or an HTTPS widget in the BEMBI visual system.", defaultId: "bembi-html-embed", fieldKeys: [], capabilities: { ...editable, typography: true } },
+  { type: "spacer", label: "Spacer / Divider", description: "Controlled space or a divider in the BEMBI visual system.", defaultId: "bembi-spacer", fieldKeys: [], capabilities: editable },
 ] as const;
 
 const PREMIUM_STRUCTURED_ITEM_PREFIX = "onestudio:rich-item:v1:";
@@ -122,7 +124,7 @@ export const DEFAULT_PREMIUM_KIDS_CONTENT: PremiumKidsLegacyContent = {
 const definitionMap = new Map(PREMIUM_KIDS_BLOCK_REGISTRY.map((definition) => [definition.type, definition]));
 const requiredTypes = new Set<PremiumKidsBlockType>(["header", "hero", "footer"]);
 export function isPremiumKidsUniversalBlockType(type: PremiumKidsBlockType): type is PremiumKidsUniversalBlockType {
-  return ["text", "features", "cta", "media_text", "columns", "slider", "collage", "video"].includes(type);
+  return ["text", "features", "cta", "media_text", "columns", "slider", "collage", "video", "html_embed", "spacer"].includes(type);
 }
 
 function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }

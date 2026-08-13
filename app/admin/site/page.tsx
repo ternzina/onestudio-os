@@ -86,12 +86,13 @@ import {
 import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
 import {
-  PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY,
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
   publicSiteBlockColumnCards as blockColumnCards,
   publicSiteCustomBlockVisualCapabilities,
 } from "@/lib/public-site/custom-block-registry";
+import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset } from "@/lib/public-site/core-block-library";
+import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH, safePublicEmbedUrl } from "@/lib/public-site/safe-html";
 import { supabase } from "@/lib/supabase";
 import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
 import {
@@ -2221,8 +2222,9 @@ function VisualBuilder({
   function addCustomBlock(
     kind: PublicSiteCustomBlockKind,
     target: "home" | "page",
+    presetId?: PublicSiteCustomBlock["preset_id"],
   ) {
-    const block = createCustomBlock(kind);
+    const block = presetId ? createPublicSiteCoreBlockPreset(presetId) : createCustomBlock(kind);
     if (target === "page" && activePage) {
       updatePage("blocks", [...(activePage.blocks ?? []), block]);
       setSelectedPagePart("blocks");
@@ -2800,11 +2802,13 @@ function VisualBuilder({
               stateLabel: Boolean(draft[sectionVisibilityKey[section]]) ? "On page" : "Add",
               onAdd: () => addBlock(section),
             }))}
-      universalLibraryItems={PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY.map(({ kind, label, description }) => ({
-        id: kind,
+      universalLibraryItems={PUBLIC_SITE_CORE_BLOCK_LIBRARY.map(({ id, kind, label, description, category }) => ({
+        id,
         label,
         description,
-        onAdd: () => addCustomBlock(kind, activePage?.type === "custom" ? "page" : "home"),
+        category,
+        stateLabel: category,
+        onAdd: () => addCustomBlock(kind, activePage?.type === "custom" ? "page" : "home", id),
       }))}
       commandModel={{
         pageLabel: t("Page"),
@@ -7424,6 +7428,13 @@ function CustomBlockSettings({
       ) : (
         <RichTextEditor label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
       )}
+      {block.kind === "html_embed" ? <div className="grid gap-3 rounded-2xl border border-black/8 p-3">
+        <label className="text-xs font-semibold">HTML<textarea className="mt-2 min-h-40 w-full rounded-xl border p-3 font-mono text-xs" value={block.html_source ?? ""} maxLength={PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH} disabled={disabled} onChange={event => onChange("html_source", event.target.value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH))} /></label>
+        <label className="text-xs font-semibold">{t("Embed URL")}<input className="mt-2 w-full rounded-xl border p-3" value={block.embed_url ?? ""} disabled={disabled} onChange={event => onChange("embed_url", safePublicEmbedUrl(event.target.value) || event.target.value.slice(0, 2048))} /></label>
+        <CompactField label={t("Embed title")} value={block.embed_title ?? ""} disabled={disabled} onChange={value => onChange("embed_title", value.slice(0, 160))} />
+        <label className="text-xs font-semibold">{t("Embed height")}<input type="number" min={180} max={900} className="mt-2 w-full rounded-xl border p-3" value={block.embed_height ?? 420} disabled={disabled} onChange={event => onChange("embed_height", boundedPublicEmbedHeight(Number(event.target.value)))} /></label>
+      </div> : null}
+      {block.kind === "spacer" ? <div className="grid gap-3 rounded-2xl border border-black/8 p-3"><label className="text-xs font-semibold">{t("Spacing size")}<select className="mt-2 w-full rounded-xl border p-3" value={block.spacer_size ?? "normal"} disabled={disabled} onChange={event => onChange("spacer_size", event.target.value as PublicSiteCustomBlock["spacer_size"])}><option value="compact">{t("Compact")}</option><option value="normal">{t("Normal")}</option><option value="airy">{t("Airy")}</option></select></label><Toggle label={t("Show divider line")} checked={block.show_divider === true} disabled={disabled} onChange={value => onChange("show_divider", value)} /></div> : null}
       {block.kind === "columns" ? (
         <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
           {t("Number of columns")}
@@ -7443,7 +7454,7 @@ function CustomBlockSettings({
           </select>
         </label>
       ) : null}
-      {block.kind === "cta" || block.kind === "media_text" ? (
+      {block.kind === "cta" || block.kind === "media_text" || block.preset_id === "pricing" ? (
         <SiteEditorActionField
           label={t("Button")}
           text={block.button_label}
