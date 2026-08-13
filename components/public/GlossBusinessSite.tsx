@@ -376,9 +376,9 @@ export default function GlossBusinessSite({
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-xl text-base leading-7 text-white/78" />
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-primary-action" href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
+                    <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-secondary-action" href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-white/50 px-1 text-sm font-semibold text-white">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
                 </div>
               </div>
@@ -392,9 +392,9 @@ export default function GlossBusinessSite({
                 <h1 style={publicSystemSectionHeadingStyle(content, "hero")} className={publicSystemSectionHeadingClass(content, "hero", `mt-5 max-w-xl break-words font-serif leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere] sm:text-7xl ${heroTitleSizeClass(content.hero_title_mobile_size)}`)}><PublicRichHeading value={content.hero_title} /></h1>
                 <PublicRichText value={content.hero_text} className="mt-6 max-w-md text-base leading-7 text-[#6a5551]" />
                 <div className="mt-7 flex flex-wrap gap-4">
-                  <Link href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
+                  <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-primary-action" href={primaryHref} className="os-site-button inline-flex min-h-12 items-center rounded-md bg-[var(--site-accent)] px-7 text-sm font-semibold text-white">{primaryLabel}</Link>
                   {content.show_hero_secondary !== false ? (
-                    <Link href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
+                    <Link data-premium-action="gloss-nail-studio:hero:gloss-hero-secondary-action" href={secondaryHref} className="inline-flex min-h-12 items-center border-b border-[#3b211f]/30 px-1 text-sm font-semibold">{secondaryLabel}<span className="ml-8">→</span></Link>
                   ) : null}
                 </div>
               </div>

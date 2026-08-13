@@ -12,10 +12,11 @@ import PublicRichText from "@/components/public/PublicRichText";
 import { isRichTextValue, richTextPlainText } from "@/lib/public-site/rich-text";
 import BembiTemplateImage from "./BembiTemplateImage";
 import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", content, nativeMedia }: { tasksHref?: string; content?: import("@/lib/public-site/premium-kids-content").PremiumKidsContent; nativeMedia?: PremiumKidsNativeMedia }) {
+export function HeroDiscovery({ primaryHref = "#offline", tasksHref = "/demos/premium-kids-center/tasks", content, nativeMedia }: { primaryHref?: string; tasksHref?: string; content?: import("@/lib/public-site/premium-kids-content").PremiumKidsContent; nativeMedia?: PremiumKidsNativeMedia }) {
   const reduced = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
@@ -41,7 +42,7 @@ export function HeroDiscovery({ tasksHref = "/demos/premium-kids-center/tasks", 
       <motion.p className={styles.kicker} variants={{ hidden: { opacity: 0, x: -14 }, visible: { opacity: 1, x: 0, transition: { duration: .55, ease } } }}><span>01</span> {content?.hero_eyebrow ?? "Learning ecosystem · Warszawa / online"}</motion.p>
       <h1 style={publicTypographyStyle(content?.heading_typography.hero)} aria-label={richTextPlainText(content?.hero_title ?? "Место для больших открытий").replaceAll("\n", " ")}>{isRichTextValue(content?.hero_title) ? <PublicRichHeading value={content?.hero_title} lineClassName={styles.heroLine} emphasizeAfterFirst /> : (content?.hero_title ?? "Место для\nбольших\nоткрытий").split("\n").map((line, index) => <span className={styles.heroLine} key={`${line}-${index}`}>{index === 0 ? <motion.span variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.span> : <motion.em variants={{ hidden: { y: "110%" }, visible: { y: 0, transition: { duration: .72, ease } } }}>{line}</motion.em>}</span>)}</h1>
       <motion.div className={styles.heroText} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: .55, ease } } }}><PublicRichText value={content?.hero_description ?? "Программы, в которых детям интересно расти, исследовать и открывать новое."} /></motion.div>
-      <motion.div className={styles.heroActions} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .5 } } }}><a href="#offline" className={styles.primaryButton}>{content?.primary_cta_label ?? "Найти занятие"} <Arrow /></a><Link href={tasksHref} className={styles.secondaryButton}>{content?.secondary_cta_label ?? "Открыть библиотеку заданий"}</Link></motion.div>
+      <motion.div className={styles.heroActions} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .5 } } }}><a href={safePublicActionHref(primaryHref, "#offline")} className={styles.primaryButton}>{content?.primary_cta_label ?? "Найти занятие"} <Arrow /></a><Link href={safePublicActionHref(tasksHref, "/demos/premium-kids-center/tasks")} className={styles.secondaryButton}>{content?.secondary_cta_label ?? "Открыть библиотеку заданий"}</Link></motion.div>
       <motion.ul className={styles.heroCategories} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}><li>Практика</li><li>Эксперименты</li><li>Журнал</li><li>Офлайн-программы</li></motion.ul>
     </motion.div>
     <div ref={stageRef} className={styles.heroVisual} onPointerMove={trackPointer} onPointerLeave={() => { pointerX.set(0); pointerY.set(0); }}>

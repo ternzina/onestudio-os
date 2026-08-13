@@ -126,7 +126,7 @@ export default function VeloraSite({
               </Link>
             ))}
           </div>
-          <Link className={styles.headerCta} href="#availability">
+          <Link data-premium-action="velora-event-venue:hero:header-cta" className={styles.headerCta} href="#availability">
             {content.header.availabilityLabel}
           </Link>
         </VeloraStickyHeader>
@@ -138,10 +138,10 @@ export default function VeloraSite({
             <VeloraHeroTitle title={content.hero.title} style={headingStyle("hero")} />
             <PublicRichText value={content.hero.text} />
             <div className={styles.actions}>
-              <Link href={primaryActionHref}>
+              <Link data-premium-action="velora-event-venue:hero:velora-hero-primary-action" href={primaryActionHref}>
                 {content.hero.primaryLabel}
               </Link>
-              <Link href={secondaryActionHref}>
+              <Link data-premium-action="velora-event-venue:hero:velora-hero-secondary-action" href={secondaryActionHref}>
                 {content.hero.secondaryLabel}
               </Link>
             </div>

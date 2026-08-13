@@ -19,6 +19,20 @@ import BembiTemplateImage from "./BembiTemplateImage";
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
+import { publicSiteButtonAppearanceCss } from "@/lib/public-site/button-style";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
+
+function NativeButtonOverrides({ block }: { block: PremiumKidsBlock }) {
+  const scope = `[data-premium-block-id="${block.id}"]`;
+  const rules: string[] = [];
+  const primary = publicSiteButtonAppearanceCss(block.props.native_buttons?.primary_cta_label, { importantColor: true });
+  const secondary = publicSiteButtonAppearanceCss(block.props.native_buttons?.secondary_cta_label, { importantColor: true });
+  const final = publicSiteButtonAppearanceCss(block.props.native_buttons?.final_cta_label, { importantColor: true });
+  if (primary) rules.push(`${scope} .${styles.primaryButton}{${primary}}`);
+  if (secondary) rules.push(`${scope} .${styles.secondaryButton}{${secondary}}`);
+  if (final) rules.push(`${scope} .${styles.finalCta}>div>a:first-child,${scope} .${styles.centerFinalCta}>a{${final}}`);
+  return rules.length ? <style>{rules.join("\n")}</style> : null;
+}
 
 function DiscoveryPrelude({ basePath, nativeMedia }: { basePath: string; nativeMedia?: PremiumKidsNativeMedia }) {
   return <>
@@ -48,13 +62,16 @@ function TeachersBlock({ content, block }: { content: PremiumKidsContent; block:
   return <div data-premium-block-id={block.id}><CenterExperience content={content} blockType="teachers" blockId={block.id} anchored={false} nativeMedia={block.props.native_media} /><section className={`${styles.section} ${styles.team}`}><SectionLead index="08" eyebrow="Люди и метод" title="Педагоги, которые умеют не давать готовый ответ" /><div className={styles.teacherEditorial}>{teachers.map((teacher, index) => <article key={teacher.name}><div><BembiTemplateImage src={premiumKidsNativeMediaUrl(block.props.native_media, `teacher-${index}`, teacher.image)} alt={`Педагог ${teacher.name}`} sizes="(max-width: 700px) 100vw, 34vw" media={block.props.native_media} /></div><p>0{index + 1} / {teacher.role}</p><h3>{teacher.name}</h3><blockquote>«{teacher.quote}»</blockquote><dl><dt>Любимый формат</dt><dd>{teacher.favorite}</dd><dt>Подход</dt><dd>{teacher.approach}</dd><dt>Опыт</dt><dd>{teacher.experience}</dd></dl></article>)}</div></section></div>;
 }
 
-function FinalBlock({ content, blockId, basePath, demo }: { content: PremiumKidsContent; blockId: string; basePath: string; demo: boolean }) {
+function FinalBlock({ content, block, basePath, demo }: { content: PremiumKidsContent; block: PremiumKidsBlock; basePath: string; demo: boolean }) {
+  const blockId = block.id;
   const headingStyle = publicTypographyStyle(content.heading_typography[blockId] ?? content.heading_typography.final);
+  const finalHref = safePublicActionHref(block.props.native_buttons?.final_cta_label?.href, "#schedule");
   return <div data-premium-block-id={blockId}>
+    <NativeButtonOverrides block={block} />
     <section className={styles.parentSupport}><div><p>Родителям тоже нужна опора</p><h2>Спокойный взрослый — часть образовательной среды.</h2></div><ol>{["Как выбрать занятие", "Как поддержать интерес", "Как заниматься дома без давления", "Как понять, что программа подходит", "Как сохранить баланс занятий и отдыха"].map((item, index) => <li key={item}><span>0{index + 1}</span><h3>{item}</h3><Arrow /></li>)}</ol></section>
     <TodayDiscovery />
-    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2 style={headingStyle}><PublicRichHeading value={content.final_cta_title} /></h2><div><a href="#offline">{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
-    <CenterFinalCta content={content} headingStyle={headingStyle} />
+    <section className={styles.finalCta}><p>{content.brand_name} / {content.brand_tagline}</p><h2 style={headingStyle}><PublicRichHeading value={content.final_cta_title} /></h2><div><a href={finalHref}>{content.final_cta_label} <Arrow /></a><Link href={bembiHref(basePath, "tasks")}>{content.secondary_cta_label}</Link><a href="#offline">{content.primary_cta_label}</a></div>{demo ? <span>Демонстрационный интерфейс OneStudio OS.</span> : null}</section>
+    <CenterFinalCta content={content} headingStyle={headingStyle} buttonHref={finalHref} />
   </div>;
 }
 
@@ -62,8 +79,11 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
   if (!block.visible) return null;
   const blockContent = premiumKidsContentForBlock(content, block);
   switch (block.type) {
-    case "hero":
-      return <div data-premium-block-id={block.id}><HeroDiscovery tasksHref={bembiHref(basePath, "tasks")} content={blockContent} nativeMedia={block.props.native_media} /><CenterStickyNav /></div>;
+    case "hero": {
+      const primaryHref = safePublicActionHref(block.props.native_buttons?.primary_cta_label?.href, "#offline");
+      const tasksHref = safePublicActionHref(block.props.native_buttons?.secondary_cta_label?.href, bembiHref(basePath, "tasks"));
+      return <div data-premium-block-id={block.id}><NativeButtonOverrides block={block} /><HeroDiscovery primaryHref={primaryHref} tasksHref={tasksHref} content={blockContent} nativeMedia={block.props.native_media} /><CenterStickyNav /></div>;
+    }
     case "intro":
       return <IntroBlock block={block} content={blockContent} basePath={basePath} />;
     case "approach":
@@ -77,7 +97,7 @@ function PremiumBlockRenderer({ block, content, basePath, demo }: { block: Premi
     case "programs":
       return <ProgramsBlock content={blockContent} block={block} />;
     case "final":
-      return <FinalBlock content={blockContent} blockId={block.id} basePath={basePath} demo={demo} />;
+      return <FinalBlock content={blockContent} block={block} basePath={basePath} demo={demo} />;
     case "text":
     case "media_text":
     case "columns":

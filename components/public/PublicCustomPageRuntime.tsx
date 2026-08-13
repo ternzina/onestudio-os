@@ -1,5 +1,6 @@
 import BembiCustomPage from "@/components/public/BembiCustomPage";
 import PublicCustomPage from "@/components/public/PublicCustomPage";
+import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import { publicSitePath } from "@/lib/public-site/metadata";
 import { getPremiumTemplateCustomPageRuntime } from "@/lib/public-site/premium-template-custom-page-runtime-registry";
 import { resolveSiteTemplateKey } from "@/lib/public-site/template-registry";
@@ -17,7 +18,12 @@ export default function PublicCustomPageRuntime({ site, page, basePath }: { site
   const premiumRuntime = getPremiumTemplateCustomPageRuntime(templateKey);
   if (premiumRuntime) {
     const PremiumCustomPageRenderer = premiumRuntime.customPageRenderer;
-    return <PremiumCustomPageRenderer site={site} page={page} basePath={resolvedBasePath} />;
+    return (
+      <>
+        <PublicPremiumActionStyles content={site.content} templateKey={templateKey!} />
+        <PremiumCustomPageRenderer site={site} page={page} basePath={resolvedBasePath} />
+      </>
+    );
   }
 
   return <PublicCustomPage site={site} page={page} />;

@@ -10,6 +10,7 @@ import { parsePremiumDelimitedItem, type PremiumKidsBlockType, type PremiumKidsC
 import BembiTemplateImage from "./BembiTemplateImage";
 import { premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
+import { safePublicActionHref } from "@/lib/public-site/editor-actions";
 
 const ages = ["2–3", "4–5", "6–7", "8–10"] as const;
 type CenterAge = (typeof ages)[number];
@@ -160,9 +161,9 @@ export function CenterExperience({ content, blockType, blockId, anchored = true,
   </div>;
 }
 
-export function CenterFinalCta({ content, blockId, headingStyle }: { content?: PremiumKidsContent; blockId?: string; headingStyle?: CSSProperties }) {
+export function CenterFinalCta({ content, blockId, headingStyle, buttonHref }: { content?: PremiumKidsContent; blockId?: string; headingStyle?: CSSProperties; buttonHref?: string }) {
   const ref = useRef<HTMLElement>(null);
   const active = useInView(ref, { amount: .2 });
   const reduced = useReducedMotion();
-  return <section ref={ref} className={styles.centerFinalCta} id={!blockId || blockId === "bembi-final" ? "trial" : undefined} data-premium-block-id={blockId}><div className={styles.centerFinalOrb} data-active={active && !reduced ? "true" : "false"} aria-hidden="true"><i /><i /><i /></div><p>{content?.final_cta_eyebrow ?? "BEMBI · Kids Discovery Platform"}</p><h2 style={headingStyle}><PublicRichHeading value={content?.final_cta_title ?? "Первое открытие начинается\nс одного занятия."} /></h2><a href="#schedule">{content?.final_cta_label ?? "Записаться на пробное занятие"} <Arrow /></a><span>Демонстрационный интерфейс OneStudio OS: форма не отправляет заявку и не создаёт бронирование.</span></section>;
+  return <section ref={ref} className={styles.centerFinalCta} id={!blockId || blockId === "bembi-final" ? "trial" : undefined} data-premium-block-id={blockId}><div className={styles.centerFinalOrb} data-active={active && !reduced ? "true" : "false"} aria-hidden="true"><i /><i /><i /></div><p>{content?.final_cta_eyebrow ?? "BEMBI · Kids Discovery Platform"}</p><h2 style={headingStyle}><PublicRichHeading value={content?.final_cta_title ?? "Первое открытие начинается\nс одного занятия."} /></h2><a href={safePublicActionHref(buttonHref, "#schedule")}>{content?.final_cta_label ?? "Записаться на пробное занятие"} <Arrow /></a><span>Демонстрационный интерфейс OneStudio OS: форма не отправляет заявку и не создаёт бронирование.</span></section>;
 }

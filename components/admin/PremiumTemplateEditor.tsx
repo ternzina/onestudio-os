@@ -39,6 +39,7 @@ import { createPublicSiteCustomBlock } from "@/lib/public-site/custom-block-regi
 import { buildMediaLayoutInspectorFields } from "@/lib/public-site/media-layout-inspector";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 import { getPremiumKidsNativeMediaSlots, premiumKidsNativeMediaUrl, type PremiumKidsNativeMedia } from "@/lib/public-site/premium-kids-native-media";
+import { PREMIUM_KIDS_NATIVE_BUTTON_THEMES, isPremiumKidsNativeButtonKey, type PremiumKidsNativeButtonConfig, type PremiumKidsNativeButtonKey } from "@/lib/public-site/premium-kids-buttons";
 
 type Field = [PremiumKidsEditableKey, AdminMessage, "input" | "text" | "lines"];
 type MediaTarget =
@@ -101,6 +102,12 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
   function updateTypography(value: PublicSiteTypography | undefined) {
     const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, heading_typography: value } } : block);
     commit(replacePremiumKidsBlocks(premium, blocks), `premium-typography:${selected}`);
+  }
+  function updateNativeButton(key: PremiumKidsNativeButtonKey, patch: Partial<PremiumKidsNativeButtonConfig>) {
+    const currentButtons = selectedBlock.props.native_buttons ?? {};
+    const nextButton = { ...(currentButtons[key] ?? {}), ...patch };
+    const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, native_buttons: { ...currentButtons, [key]: nextButton } } } : block);
+    commit(replacePremiumKidsBlocks(premium, blocks), `premium-native-button:${selected}:${key}`);
   }
   function updateNativeMedia(nextMedia: PremiumKidsNativeMedia | undefined, historyField: string) {
     const blocks = premium.blocks.map(block => block.id === selected ? { ...block, props: { ...block.props, native_media: nextMedia } } : block);
@@ -228,16 +235,33 @@ export default function PremiumTemplateEditor({ businessId, businessSlug, busine
           : key === "final_cta_label"
             ? t("Schedule")
             : null;
-      if (fixedActionDestination) {
+      const nativeButtonKey = isPremiumKidsNativeButtonKey(key) ? key : null;
+      if (fixedActionDestination && nativeButtonKey) {
+        const savedButton = selectedBlock.props.native_buttons?.[nativeButtonKey];
+        const theme = PREMIUM_KIDS_NATIVE_BUTTON_THEMES[nativeButtonKey];
         contentFields.push({
           id: key,
           type: "action",
           label: t(label),
           text: value,
+          href: savedButton?.href ?? "",
           originalText: originalValue,
           disabled: controlsDisabled,
-          destinationHint: fixedActionDestination,
+          destinations: [
+            { value: "#offline", label: t("Programs") },
+            { value: "#schedule", label: t("Schedule") },
+            { value: "/tasks", label: t("Task library") },
+          ],
+          appearance: {
+            size: savedButton?.size ?? theme.size,
+            backgroundColor: savedButton?.backgroundColor ?? theme.backgroundColor,
+            textColor: savedButton?.textColor ?? theme.textColor,
+            onSizeChange: next => updateNativeButton(nativeButtonKey, { size: next }),
+            onBackgroundColorChange: next => updateNativeButton(nativeButtonKey, { backgroundColor: next }),
+            onTextColorChange: next => updateNativeButton(nativeButtonKey, { textColor: next }),
+          },
           onTextChange: next => update(key, next),
+          onHrefChange: next => updateNativeButton(nativeButtonKey, { href: next }),
         });
         continue;
       }
