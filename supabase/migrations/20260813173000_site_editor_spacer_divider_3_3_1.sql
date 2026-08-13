@@ -49,7 +49,11 @@ begin
       if numeric_match is not null then
         amount := numeric_match[1]::numeric;
         unit_name := lower(numeric_match[3]);
-        if amount > case when unit_name = 'px' then 2000 else 100 end then continue; end if;
+        if unit_name = 'px' then
+          if amount > 2000 then continue; end if;
+        elsif amount > 100 then
+          continue;
+        end if;
       end if;
     else
       value_parts := regexp_split_to_array(property_value, '[[:space:]]+');
@@ -59,8 +63,17 @@ begin
           numeric_match := regexp_match(value_part, '^([0-9]+(\.[0-9]+)?)(px|rem|em|%|vh|vw)$', 'i');
           amount := numeric_match[1]::numeric;
           unit_name := lower(numeric_match[3]);
-          if property_name = 'font-size' and amount > case when unit_name = 'px' then 120 else 10 end then continue declarations; end if;
-          if property_name <> 'font-size' and amount > case when unit_name = 'px' then 2000 else 100 end then continue declarations; end if;
+          if property_name = 'font-size' then
+            if unit_name = 'px' then
+              if amount > 120 then continue declarations; end if;
+            elsif amount > 10 then
+              continue declarations;
+            end if;
+          elsif unit_name = 'px' then
+            if amount > 2000 then continue declarations; end if;
+          elsif amount > 100 then
+            continue declarations;
+          end if;
         elsif value_part !~* '^(0|auto|none|normal|inherit|initial|transparent|currentcolor|block|inline|inline-block|flex|inline-flex|grid|inline-grid|start|end|center|left|right|justify|stretch|space-between|space-around|space-evenly|baseline|bold|bolder|lighter|italic|oblique|underline|line-through|solid|dashed|dotted|double)$' then
           continue declarations;
         end if;
