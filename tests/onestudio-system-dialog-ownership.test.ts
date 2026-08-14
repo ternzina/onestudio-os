@@ -14,7 +14,8 @@ test("OneStudio owns the only active Design and SEO dialog implementations", asy
 
   assert.equal((dialogs.match(/export function OneStudioDesignDialog/g) ?? []).length, 1);
   assert.equal((dialogs.match(/export function OneStudioSeoDialog/g) ?? []).length, 1);
-  assert.match(dialogs, /activeDesigns\.map/);
+  assert.match(dialogs, /groupTemplatesByAccess\(activeDesigns\)/);
+  assert.match(dialogs, /designGroups\[access\]\.map/);
   assert.match(dialogs, /seo_title/);
   assert.match(dialogs, /seo_description/);
   assert.match(dialogs, /seo_image_url/);

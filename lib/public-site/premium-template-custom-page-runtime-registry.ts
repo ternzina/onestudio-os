@@ -2,7 +2,8 @@
 import { GLOSS_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_0_CUSTOMPAGE } from "./gloss-premium-template-custom-page-runtime-adapter.ts";
 import { NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_1_CUSTOMPAGE } from "./noir-premium-template-custom-page-runtime-adapter.ts";
 import { VELORA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_2_CUSTOMPAGE } from "./velora-premium-template-custom-page-runtime-adapter.ts";
-import { LUMEA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_3_CUSTOMPAGE } from "./lumea-premium-template-custom-page-runtime-adapter.ts";
+import { VOW_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_3_CUSTOMPAGE } from "./vow-premium-template-custom-page-runtime-adapter.ts";
+import { LUMEA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_4_CUSTOMPAGE } from "./lumea-premium-template-custom-page-runtime-adapter.ts";
 import { createPremiumTemplateCustomPageRuntimeRegistry } from "./premium-template-custom-page-runtime-registry-builder.ts";
 import { getPremiumTemplateDefinition, PREMIUM_TEMPLATE_DEFINITIONS } from "./premium-template-registry.ts";
 
@@ -10,5 +11,6 @@ export const { runtimes: PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS, get: get
   "gloss-nail-studio": PACKAGE_0_CUSTOMPAGE,
   "premium-studio": PACKAGE_1_CUSTOMPAGE,
   "velora-event-venue": PACKAGE_2_CUSTOMPAGE,
-  "lumea-beauty": PACKAGE_3_CUSTOMPAGE,
+  "vow-films": PACKAGE_3_CUSTOMPAGE,
+  "lumea-beauty": PACKAGE_4_CUSTOMPAGE,
 }), PREMIUM_TEMPLATE_DEFINITIONS, getPremiumTemplateDefinition);

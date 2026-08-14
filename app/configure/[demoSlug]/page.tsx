@@ -27,5 +27,5 @@ export default async function ConfigureDemoPage({
 
   if (!demo) notFound();
 
-  redirect(newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard"));
+  redirect(newSitePathForTemplate(demo.slug === "lumiere" ? "lumea-beauty" : "standard"));
 }

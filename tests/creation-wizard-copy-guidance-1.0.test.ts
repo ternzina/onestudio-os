@@ -53,12 +53,12 @@ test("template cards remain catalog-driven and responsive to future entries", as
   const futureChoices = [...choices, hypotheticalAdditionalChoice];
 
   assert.equal(futureChoices.length, choices.length + 1);
-  assert.match(wizard, /const templates = getCustomerTemplateChoices\(\)/);
-  assert.match(wizard, /templates\.map\(item =>/);
-  assert.doesNotMatch(wizard, /templates\.(slice|splice)\(/);
+  assert.match(wizard, /const templateGroups = getCustomerTemplateGroups\(\)/);
+  assert.match(wizard, /templateGroups\[access\]\.map\(item =>/);
+  assert.doesNotMatch(wizard, /templateGroups\[access\]\.(slice|splice)\(/);
   assert.match(wizard, /grid gap-5 md:grid-cols-2 lg:grid-cols-3/);
   assert.deepEqual(TEMPLATE_CATALOG.map(item => item.key), [
-    "standard", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue",
+    "standard", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films",
   ]);
 });
 

@@ -17,14 +17,15 @@ test("new-site opens the exact workspace returned by the creation RPC", async ()
   assert.doesNotMatch(wizard, /router\.replace\("\/admin\/site"\)/);
 });
 
-test("VELORA editor canvas renders the released VELORA runtime, not the generic site", async () => {
+test("VELORA editor canvas resolves the released runtime through the shared registry", async () => {
   const [registry, editor, velora] = await Promise.all([
     read("../lib/public-site/premium-template-editor-canvas-registry.tsx"),
     read("../app/admin/site/page.tsx"),
     read("../components/public/velora/VeloraSite.tsx"),
   ]);
-  assert.match(registry, /import\("@\/components\/public\/velora\/VeloraSite"\)/);
-  assert.match(registry, /\["velora-event-venue", VeloraEditorCanvasRenderer\]/);
+  assert.match(registry, /getPremiumTemplatePublicRuntime\(templateKey\)/);
+  assert.match(registry, /runtime\.publicHomeRenderer/);
+  assert.doesNotMatch(registry, /VeloraSite|velora-event-venue/);
   assert.match(editor, /<PremiumTemplateEditorCanvas[\s\S]*site=\{premiumEditorPreviewSite\}/);
   assert.match(velora, /data-editor-anchor=\{sectionId\}/);
   assert.match(velora, /data-editor-anchor=\{token\}/);

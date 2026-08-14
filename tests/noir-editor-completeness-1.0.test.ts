@@ -75,8 +75,9 @@ test("NOIR is a registered shared navigator/inspector data adapter without owned
   assert.doesNotMatch(editor, /PremiumStudioExperience|draft\.template_id === ["']premium-studio["']/);
   assert.doesNotMatch(editor, /noir-editor-schema|noir-premium-template-contract|noir-premium-template-compat/);
   assert.match(adapter, /buildNoirInspectorFields/);
-  assert.match(canvasRegistry, /PremiumStudioExperience/);
-  assert.match(canvasRegistry, /ssr: false/);
+  assert.match(canvasRegistry, /getPremiumTemplatePublicRuntime\(templateKey\)/);
+  assert.match(canvasRegistry, /runtime\.publicHomeRenderer/);
+  assert.doesNotMatch(canvasRegistry, /PremiumStudioExperience|premium-studio/);
   assert.match(runtime, /<SharedEditorNavigator model=\{navigatorModel\}/);
   assert.match(runtime, /<SharedEditorInspector model=\{inspectorModel\}/);
   assert.doesNotMatch(schema, /<aside|<nav|<dialog|modal|sidebar|toolbar/i);

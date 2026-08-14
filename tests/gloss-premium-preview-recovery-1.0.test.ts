@@ -51,7 +51,7 @@ test("unified editor and other canonical designs remain registered", async () =>
   for (const key of ["standard", "premium-kids-center", "premium-studio"] as const) {
     const template = getSiteTemplateDefinition(key);
     assert.equal(template?.key, key);
-    assert.equal(template?.runtime.editorSelectable, true);
+    assert.equal(template?.runtime.editorSelectable, key !== "premium-kids-center");
     assert.equal(template?.runtime.previewSelectable, true);
     assert.equal(template?.runtime.publicRenderable, true);
   }

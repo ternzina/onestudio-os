@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import type { DemoGroup } from "@/lib/demo-catalog";
-import { getCustomerTemplateChoices, newSitePathForTemplate, templateAccessLabel } from "@/lib/public-site/template-catalog";
+import { getPublicDemoTemplateChoices, groupTemplatesByAccess, newSitePathForTemplate, templateAccessLabel } from "@/lib/public-site/template-catalog";
 import styles from "./DemosPage.module.css";
 
 type Lang = "ru" | "en";
@@ -58,11 +58,12 @@ export default function DemosPage() {
   const [lang, setLang] = useState<Lang>("ru");
   const [filter, setFilter] = useState<Filter>("all");
   const t = copy[lang];
-  const templates = useMemo(() => getCustomerTemplateChoices().filter(
+  const templates = useMemo(() => getPublicDemoTemplateChoices().filter(
     (template) => filter === "all" || template.gallery.group === filter,
   ), [filter]);
-  const freeTemplates = templates.filter((template) => template.access === "free");
-  const premiumTemplates = templates.filter((template) => template.access === "premium");
+  const templateGroups = groupTemplatesByAccess(templates);
+  const freeTemplates = templateGroups.free;
+  const premiumTemplates = templateGroups.premium;
 
   useEffect(() => {
     document.documentElement.lang = lang;

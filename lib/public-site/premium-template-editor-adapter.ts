@@ -55,6 +55,19 @@ export type PremiumTemplateEditorAdapter<SectionId extends string = string> = {
   };
 };
 
+export function canonicalizePremiumTemplateLayoutForSave(
+  content: PublicSiteContent,
+  adapter: PremiumTemplateEditorAdapter,
+): PublicSiteContent {
+  return {
+    ...content,
+    layout_order: adapter.normalizeLayout(
+      content.layout_order ?? [],
+      (content.custom_blocks ?? []).map(({ id }) => id),
+    ),
+  };
+}
+
 export function getPremiumEditorSection<SectionId extends string>(
   adapter: PremiumTemplateEditorAdapter<SectionId>,
   sectionId: string,

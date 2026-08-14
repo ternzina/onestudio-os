@@ -87,15 +87,16 @@ test("NOIR public runtime preserves site and basePath renderer props without cen
   assert.doesNotMatch(runtime, /PremiumStudioExperience|templateKey === ["']premium-studio/);
 });
 
-test("NOIR editor canvas remains a client-only dynamic registration with the same props", async () => {
+test("premium editor canvas resolves the public runtime registry with the same props", async () => {
   const [registry, editor] = await Promise.all([
     read("../lib/public-site/premium-template-editor-canvas-registry.tsx"),
     read("../app/admin/site/page.tsx"),
   ]);
   assert.match(registry, /^"use client";/);
-  assert.match(registry, /dynamic\([\s\S]*import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)[\s\S]*ssr: false/);
-  assert.match(registry, /\["premium-studio", NoirEditorCanvasRenderer\]/);
+  assert.match(registry, /getPremiumTemplatePublicRuntime\(templateKey\)/);
+  assert.match(registry, /runtime\.publicHomeRenderer/);
   assert.match(registry, /content: PublicSiteContent;[\s\S]*basePath: string/);
+  assert.doesNotMatch(registry, /PremiumStudioExperience|premium-studio/);
   assert.match(editor, /getPremiumTemplateEditorCanvasRenderer\(draft\.template_id\)/);
   assert.match(editor, /<PremiumTemplateEditorCanvas templateKey=\{draft\.template_id\} content=\{draft\} basePath="#"/);
   assert.doesNotMatch(editor, /import\("@\/app\/demos\/premium-studio\/PremiumStudioExperience"\)/);

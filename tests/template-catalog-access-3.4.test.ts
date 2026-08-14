@@ -30,7 +30,7 @@ test("canonical customer catalog owns explicit FREE and PREMIUM access", () => {
 test("access never derives from a technical key, alias, or tier", () => {
   const records = getCustomerTemplateChoices();
   assert.equal(records.find(({ key }) => key === "gloss-nail-studio")?.access, "free");
-  assert.equal(records.find(({ key }) => key === "premium-kids-center")?.access, "premium");
+  assert.equal(records.some(({ key }) => key === "premium-kids-center"), false);
   assert.equal(records.find(({ key }) => key === "premium-studio")?.access, "premium");
   assert.equal(records.every(({ access }) => access === "free" || access === "premium"), true);
 });
@@ -41,8 +41,9 @@ test("demos and new-site derive customer access from canonical catalog metadata"
     read("../app/new-site/CanonicalSiteCreationWizard.tsx"),
   ]);
 
+  assert.match(demos, /getPublicDemoTemplateChoices/);
+  assert.match(chooser, /getCustomerTemplateGroups/);
   for (const source of [demos, chooser]) {
-    assert.match(source, /getCustomerTemplateChoices/);
     assert.match(source, /item\.access|template\.access/);
     assert.match(source, /templateAccessLabel/);
     assert.doesNotMatch(source, /key\.includes\(["']premium|slug\.includes\(["']premium|startsWith\(["']premium/);

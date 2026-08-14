@@ -16,7 +16,7 @@ test("all customer entrances converge on canonical /new-site", async () => {
   assert.match(demos, /newSitePathForTemplate/);
   assert.match(showcase, /newSitePathForTemplate/);
   assert.match(noir, /newSitePathForTemplate\("premium-studio"\)/);
-  assert.match(bembi, /newSitePathForTemplate\("premium-kids-center"\)/);
+  assert.doesNotMatch(bembi, /newSitePathForTemplate|Использовать этот шаблон/);
   assert.match(launch, /redirect\("\/new-site"\)/);
   assert.match(bootstrap, /redirect\("\/new-site"\)/);
   assert.match(configure, /redirect\(newSitePathForTemplate/);

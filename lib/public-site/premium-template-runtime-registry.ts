@@ -2,7 +2,8 @@
 import { GLOSS_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_0_PUBLICHOME } from "./gloss-premium-template-runtime-adapter.ts";
 import { NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_1_PUBLICHOME } from "./noir-premium-template-runtime-adapter.ts";
 import { VELORA_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_2_PUBLICHOME } from "./velora-premium-template-runtime-adapter.ts";
-import { LUMEA_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_3_PUBLICHOME } from "./lumea-premium-template-runtime-adapter.ts";
+import { VOW_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_3_PUBLICHOME } from "./vow-premium-template-runtime-adapter.ts";
+import { LUMEA_PREMIUM_TEMPLATE_RUNTIME_ADAPTER as PACKAGE_4_PUBLICHOME } from "./lumea-premium-template-runtime-adapter.ts";
 import { createPremiumTemplatePublicRuntimeRegistry } from "./premium-template-runtime-registry-builder.ts";
 import { getPremiumTemplateDefinition, PREMIUM_TEMPLATE_DEFINITIONS } from "./premium-template-registry.ts";
 
@@ -10,5 +11,6 @@ export const { runtimes: PREMIUM_TEMPLATE_RUNTIME_ADAPTERS, get: getPremiumTempl
   "gloss-nail-studio": PACKAGE_0_PUBLICHOME,
   "premium-studio": PACKAGE_1_PUBLICHOME,
   "velora-event-venue": PACKAGE_2_PUBLICHOME,
-  "lumea-beauty": PACKAGE_3_PUBLICHOME,
+  "vow-films": PACKAGE_3_PUBLICHOME,
+  "lumea-beauty": PACKAGE_4_PUBLICHOME,
 }), PREMIUM_TEMPLATE_DEFINITIONS, getPremiumTemplateDefinition);
