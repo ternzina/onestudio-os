@@ -15,7 +15,7 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("OneStudio editor design contract", () => {
   test("legacy BEMBI remains executable but is not an active editor design", () => {
-    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "align-pilates-studio", "gloss-nail-studio", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
+    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "align-pilates-studio", "ritmo-dance-studio", "gloss-nail-studio", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
     assert.equal(isExecutableSiteTemplate("standard"), true);
     assert.equal(isExecutableSiteTemplate("premium-kids-center"), true);
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);

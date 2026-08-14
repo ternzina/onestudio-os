@@ -19,7 +19,7 @@ export type PremiumTemplatePackageManifest<TemplateKey extends string = string> 
     description: LocalizedText;
     alt: LocalizedText;
     route: string;
-    image: string;
+    image: string | null;
     order: number;
     accent: string;
     dark: string;
@@ -55,7 +55,7 @@ export function validatePremiumTemplateManifests(
     if (keys.has(manifest.templateKey)) errors.push(`duplicate package templateKey "${manifest.templateKey}" at package[${index}]`);
     keys.add(manifest.templateKey);
     if (!manifest.preview.route.startsWith("/demos/")) errors.push(`package[${index}] preview route must be a demo route`);
-    if (!manifest.preview.image.startsWith("/")) errors.push(`package[${index}] preview image must be absolute`);
+    if (manifest.preview.image !== null && !manifest.preview.image.startsWith("/")) errors.push(`package[${index}] preview image must be absolute`);
   }
   return errors;
 }

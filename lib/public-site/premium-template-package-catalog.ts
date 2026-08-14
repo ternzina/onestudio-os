@@ -4,6 +4,91 @@ import { createPremiumTemplateManifestLookup, validatePremiumTemplateManifests, 
 export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
   {
     "packageVersion": "1.0",
+    "templateKey": "ritmo-dance-studio",
+    "name": "RITMO Dance Studio",
+    "description": "Яркий сайт танцевальной студии с направлениями, расписанием, тренерами, пробным уроком и абонементами.",
+    "category": "fitness",
+    "aliases": [
+      "ritmo",
+      "dance-studio"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 6
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "wellness",
+      "order": 6,
+      "title": {
+        "ru": "RITMO Dance Studio",
+        "en": "RITMO Dance Studio"
+      },
+      "description": {
+        "ru": "Танцевальная студия для взрослых: направления, расписание, тренеры и пробный урок.",
+        "en": "An adult dance studio with styles, schedule, instructors and a free trial class."
+      },
+      "alt": {
+        "ru": "Танцовщица в студии RITMO",
+        "en": "Dancer at RITMO studio"
+      },
+      "route": "/demos/ritmo-dance-studio",
+      "image": "/templates/ritmo-dance-studio/hero.jpg",
+      "accent": "#FF5B47",
+      "dark": "#150A26",
+      "surface": "#F6F3F0"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "ritmo-dance-studio-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "directions",
+      "schedule",
+      "coaches",
+      "trial",
+      "memberships",
+      "gallery",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/ritmo-dance-studio/hero.jpg",
+      "/templates/ritmo-dance-studio/contemporary.jpg",
+      "/templates/ritmo-dance-studio/hiphop.jpg",
+      "/templates/ritmo-dance-studio/heels.jpg",
+      "/templates/ritmo-dance-studio/latina.jpg",
+      "/templates/ritmo-dance-studio/stretching.jpg",
+      "/templates/ritmo-dance-studio/coach-anna.jpg",
+      "/templates/ritmo-dance-studio/coach-max.jpg",
+      "/templates/ritmo-dance-studio/coach-sofia.jpg",
+      "/templates/ritmo-dance-studio/coach-diana.jpg",
+      "/templates/ritmo-dance-studio/trial.jpg",
+      "/templates/ritmo-dance-studio/gallery-1.jpg",
+      "/templates/ritmo-dance-studio/gallery-2.jpg",
+      "/templates/ritmo-dance-studio/gallery-3.jpg",
+      "/templates/ritmo-dance-studio/gallery-4.jpg",
+      "/templates/ritmo-dance-studio/gallery-5.jpg",
+      "/templates/ritmo-dance-studio/gallery-6.jpg",
+      "/templates/ritmo-dance-studio/testimonial.jpg"
+    ]
+  },
+  {
+    "packageVersion": "1.0",
     "templateKey": "align-pilates-studio",
     "name": "ALIGN Pilates Studio",
     "description": "Светлый сайт Pilates-студии с форматами, тренерами, расписанием, абонементами и записью.",

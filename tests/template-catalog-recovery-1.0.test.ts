@@ -9,7 +9,7 @@ import { selectExecutableTemplate } from "../lib/public-site/template-selection.
 
 test("one canonical catalog owns all executable customer designs", () => {
   assert.deepEqual(TEMPLATE_CATALOG.map(item => item.key), [...TEMPLATE_KEYS]);
-  assert.deepEqual(TEMPLATE_KEYS, ["standard", "align-pilates-studio", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
+  assert.deepEqual(TEMPLATE_KEYS, ["standard", "align-pilates-studio", "ritmo-dance-studio", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
   for (const item of TEMPLATE_CATALOG) {
     assert.equal(item.capabilities.previewRenderable, true);
     assert.equal(item.capabilities.publicRenderable, true);
