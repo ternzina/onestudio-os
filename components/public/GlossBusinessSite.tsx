@@ -621,6 +621,7 @@ export default function GlossBusinessSite({
                 bookingHref={bookingHref}
                 bookingLabel="Показать свободное время"
                 services={services}
+                presentation="gloss"
               />
             </div>
           </PublicReveal>

@@ -78,8 +78,9 @@ test("premium native action stylesheet is isolated by template", () => {
 });
 
 test("every registered premium editor action has an exact runtime marker contract", async () => {
-  const [align, gloss, velora, footer, noir, vow, registry, preview, genericPreview] = await Promise.all([
+  const [align, ritmo, gloss, velora, footer, noir, vow, registry, preview, genericPreview] = await Promise.all([
     readFile(new URL("../components/public/align-pilates/AlignPilatesSite.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/public/ritmo-dance-studio/RitmoDanceSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/GlossBusinessSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraFooter.tsx", import.meta.url), "utf8"),
@@ -89,7 +90,7 @@ test("every registered premium editor action has an exact runtime marker contrac
     readFile(new URL("../lib/public-site/premium-template-editor-canvas-registry.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
-  const runtimeSource = [align, gloss, velora, footer, noir, vow].join("\n");
+  const runtimeSource = [align, ritmo, gloss, velora, footer, noir, vow].join("\n");
   const actionKeys: string[] = [];
 
   for (const adapter of PREMIUM_TEMPLATE_EDITOR_ADAPTERS) {
@@ -111,12 +112,6 @@ test("every registered premium editor action has an exact runtime marker contrac
           runtimeSource.includes(literalMarker) || runtimeSource.includes(helperMarker),
           `${key} must have a matching public runtime marker`,
         );
-        if (adapter.templateKey === "gloss-nail-studio") {
-          assert.ok(
-            genericPreview.includes(literalMarker) || genericPreview.includes(helperMarker),
-            `${key} must have a matching GLOSS editor preview marker`,
-          );
-        }
       }
     }
   }
@@ -130,6 +125,13 @@ test("every registered premium editor action has an exact runtime marker contrac
     "gloss-nail-studio:hero:gloss-hero-secondary-action",
     "premium-studio:contact:contact-cta",
     "premium-studio:hero:hero-cta",
+    "ritmo-dance-studio:contact:cta",
+    "ritmo-dance-studio:hero:header-cta",
+    "ritmo-dance-studio:hero:primary",
+    "ritmo-dance-studio:hero:secondary",
+    "ritmo-dance-studio:memberships:plan-cta",
+    "ritmo-dance-studio:schedule:cta",
+    "ritmo-dance-studio:trial:submit",
     "velora-event-venue:footer:cta",
     "velora-event-venue:hero:header-cta",
     "velora-event-venue:hero:velora-hero-primary-action",
@@ -140,6 +142,10 @@ test("every registered premium editor action has an exact runtime marker contrac
   assert.match(registry, /withPremiumActionAppearances/);
   assert.match(preview, /PublicPremiumActionStyles/);
   assert.match(genericPreview, /PublicPremiumActionStyles/);
+  assert.doesNotMatch(
+    genericPreview,
+    /premiumNativeActionKey\(\s*["']gloss-nail-studio["']\s*,/,
+  );
 });
 
 test("premium action persistence, section reset and template restore share one map contract", () => {

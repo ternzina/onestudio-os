@@ -21,9 +21,9 @@ test("Core Block Library exposes every categorized RU/EN label and description",
 
 test("semantic presets create useful content on shared primitives", () => {
   const about = createPublicSiteCoreBlockPreset("about", "about-1");
-  assert.equal(about.kind, "media_text"); assert.ok(about.text && about.media_url); assert.ok(about.title_typography === undefined);
+  assert.equal(about.kind, "media_text"); assert.ok(about.text); assert.equal(about.media_url, undefined); assert.ok(about.title_typography === undefined);
   for (const id of ["services","team","reviews","faq","pricing","cards"] as const) assert.ok((createPublicSiteCoreBlockPreset(id, id).cards?.length ?? 0) >= 3);
-  for (const id of ["portfolio","gallery"] as const) assert.ok((createPublicSiteCoreBlockPreset(id, id).media_urls?.length ?? 0) >= 2);
+  for (const id of ["portfolio","gallery"] as const) assert.deepEqual(createPublicSiteCoreBlockPreset(id, id).media_urls, []);
   const pricing = createPublicSiteCoreBlockPreset("pricing", "price"); assert.ok(pricing.button_label && pricing.button_url);
   const contact = createPublicSiteCoreBlockPreset("contact", "contact"); assert.ok(contact.text && contact.button_url);
   const cta = createPublicSiteCoreBlockPreset("cta", "cta"); assert.equal(cta.kind, "cta"); assert.ok(cta.button_label && cta.button_url);

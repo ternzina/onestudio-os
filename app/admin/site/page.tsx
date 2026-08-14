@@ -80,7 +80,6 @@ import {
   isPremiumEditorSectionId,
 } from "@/lib/public-site/premium-template-editor-adapter";
 import { getPremiumTemplateEditorAdapter } from "@/lib/public-site/premium-template-editor-registry";
-import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import {
   getPremiumTemplateEditorCanvasRenderer,
   PremiumTemplateEditorCanvas,
@@ -400,19 +399,6 @@ function findInvalidDraftImage(content: PublicSiteContent) {
 
   return null;
 }
-const glossMasterImages = [
-  "/templates/gloss/gloss-master-anna.webp",
-  "/templates/gloss/gloss-master-maria.webp",
-  "/templates/gloss/gloss-master-elena.webp",
-];
-const glossServiceImages = [
-  "/templates/gloss/gloss-gallery-4.webp",
-  "/templates/gloss/gloss-gallery-1.webp",
-  "/templates/gloss/gloss-gallery-3.webp",
-  "/templates/gloss/gloss-gallery-8.webp",
-];
-const glossMembershipImage = "/templates/gloss/gloss-club.webp";
-const glossGiftImage = "/templates/gloss/gloss-gift.webp";
 const defaultSectionOrder: PublicSiteSection[] = [
   ...PUBLIC_SITE_SECTION_ORDER,
 ];
@@ -2950,8 +2936,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
                     <div className="mt-7 flex flex-wrap gap-3">
-                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                 </div>
@@ -2963,8 +2949,8 @@ function VisualBuilder({
                     <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
                     <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
                     <div className="relative mt-7 flex flex-wrap gap-3">
-                      <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-primary-action")} className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
-                      {draft.show_hero_secondary !== false ? <span data-premium-action={premiumNativeActionKey("gloss-nail-studio", "hero", "gloss-hero-secondary-action")} className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
                     </div>
                   </div>
                   {draft.hero_layout !== "text" && draft.hero_image_url ? (
@@ -3533,7 +3519,7 @@ function VisualBuilder({
                 {selectedSection === "team" ? (
                   <TeamEditor
                     items={draft.team_items ?? ""}
-                    images={draft.team_image_urls ?? glossMasterImages}
+                    images={draft.team_image_urls ?? []}
                     disabled={!canConfigure || !editingEnabled}
                     t={t}
                     onChange={onUpdateTeam}
@@ -3567,7 +3553,7 @@ function VisualBuilder({
                       items={draft.membership_items ?? ""}
                       images={
                         draft.membership_image_urls
-                        ?? [draft.membership_image_url || glossMembershipImage]
+                        ?? [draft.membership_image_url || ""]
                       }
                       disabled={!canConfigure || !editingEnabled}
                       t={t}
@@ -3606,7 +3592,7 @@ function VisualBuilder({
                       items={draft.gift_items ?? ""}
                       images={
                         draft.gift_image_urls
-                        ?? [draft.gift_image_url || glossGiftImage]
+                        ?? [draft.gift_image_url || ""]
                       }
                       disabled={!canConfigure || !editingEnabled}
                       t={t}
@@ -5975,11 +5961,7 @@ function serviceCardImage(
   if (Object.prototype.hasOwnProperty.call(content.service_card_images ?? {}, service.slug)) {
     return content.service_card_images?.[service.slug] ?? "";
   }
-  return (
-    content.service_image_urls?.[index] ||
-    glossServiceImages[index % glossServiceImages.length] ||
-    ""
-  );
+  return content.service_image_urls?.[index] || "";
 }
 
 function previewServicePrice(service: PublicSiteService) {
@@ -7854,7 +7836,7 @@ function CanvasSectionPreview({
 
   if (section === "team") {
     const members = previewLines(draft.team_items);
-    const teamImages = draft.team_image_urls ?? glossMasterImages;
+    const teamImages = draft.team_image_urls ?? [];
     return (
       <div className="mt-7 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {members.map((member, index) => {
@@ -7867,12 +7849,16 @@ function CanvasSectionPreview({
               key={`${member}-${index}`}
               className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-[#eadde0]">
-                <img
-                  src={teamImages[index] || glossMasterImages[index % glossMasterImages.length]}
-                  alt={name}
-                  className="h-full w-full object-cover object-top"
-                />
+              <div className="grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
+                {teamImages[index] ? (
+                  <img
+                    src={teamImages[index]}
+                    alt={name}
+                    className="h-full w-full object-cover object-top"
+                  />
+                ) : (
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте фото</span>
+                )}
               </div>
               <div className="p-4">
                 <h4 className="text-sm font-semibold">{name}</h4>
@@ -7945,7 +7931,7 @@ function CanvasSectionPreview({
       : legacyBenefits.map((benefit) => `${benefit} · · · Вступить · #contact`);
     const membershipImages =
       draft.membership_image_urls
-      ?? [draft.membership_image_url || glossMembershipImage];
+      ?? [draft.membership_image_url || ""];
 
     return (
       <div className="mt-7">
@@ -7966,16 +7952,16 @@ function CanvasSectionPreview({
                 key={`${item}-${index}`}
                 className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#eadde0]">
-                  <img
-                    src={
-                      membershipImages[index]
-                      || draft.membership_image_url
-                      || glossMembershipImage
-                    }
-                    alt={title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
+                <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
+                  {membershipImages[index] || draft.membership_image_url ? (
+                    <img
+                      src={membershipImages[index] || draft.membership_image_url}
+                      alt={title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте изображение</span>
+                  )}
                 </div>
                 <div className="p-4">
                   <h4 className="text-sm font-semibold">{title}</h4>
@@ -8056,7 +8042,7 @@ function CanvasSectionPreview({
 
   if (section === "gift") {
     const giftItems = previewLines(draft.gift_items);
-    const giftImages = draft.gift_image_urls ?? [draft.gift_image_url || glossGiftImage];
+    const giftImages = draft.gift_image_urls ?? [draft.gift_image_url || ""];
 
     return (
       <div className="mt-7">
@@ -8073,12 +8059,16 @@ function CanvasSectionPreview({
                 key={`${item}-${index}`}
                 className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#eadde0]">
-                  <img
-                    src={giftImages[index] || draft.gift_image_url || glossGiftImage}
-                    alt={title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
+                <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
+                  {giftImages[index] || draft.gift_image_url ? (
+                    <img
+                      src={giftImages[index] || draft.gift_image_url}
+                      alt={title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте изображение</span>
+                  )}
                 </div>
                 <div className="p-4">
                   <h4 className="text-sm font-semibold">{title}</h4>
@@ -8200,7 +8190,6 @@ function CanvasSectionPreview({
           ) : null}
           {draft.about_button_label ? (
             <span
-              data-premium-action={premiumNativeActionKey("gloss-nail-studio", "about", "gloss-about-action")}
               className="mt-5 inline-flex rounded-full px-4 py-2 text-[10px] font-semibold text-white"
               style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
             >

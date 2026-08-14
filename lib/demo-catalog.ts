@@ -34,7 +34,7 @@ export type PremiumDemoDefinition = {
   name: string;
   title: { ru: string; en: string };
   description: { ru: string; en: string };
-  previewImage: string;
+  previewImage: string | null;
   previewAlt: { ru: string; en: string };
 };
 

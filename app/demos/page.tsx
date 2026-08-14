@@ -116,12 +116,12 @@ export default function DemosPage() {
           {premiumTemplates.map((template, index) => (
             <article className={styles.premiumCard} data-premium={template.key} key={template.key}>
               <Link className={styles.premiumVisual} href={template.gallery.previewRoute!} aria-label={`${t.premiumView}: ${template.name}`}>
-                <Image
+                {template.gallery.previewImage ? <Image
                   src={template.gallery.previewImage!}
                   alt={template.gallery.alt[lang]}
                   fill
                   sizes="(max-width: 900px) 100vw, 66vw"
-                />
+                /> : <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_70%_30%,#7a2f87,transparent_32%),linear-gradient(135deg,#150a26,#ff5b47)] px-6 text-center text-4xl font-black tracking-[.16em] text-white">{template.name}</div>}
                 <span aria-hidden="true">{template.name.split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase()} / {String(index + 1).padStart(2, "0")}</span>
               </Link>
               <div className={styles.premiumCopy}>
@@ -147,7 +147,7 @@ export default function DemosPage() {
         {freeTemplates.map((template) => (
           <article className={styles.card} key={template.key}>
             <Link className={styles.previewLink} href={template.gallery.previewRoute!}>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]"><Image src={template.gallery.previewImage!} alt={template.gallery.alt[lang]} fill className="object-cover" sizes="(max-width: 800px) 100vw, 50vw" /></div>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">{template.gallery.previewImage ? <Image src={template.gallery.previewImage} alt={template.gallery.alt[lang]} fill className="object-cover" sizes="(max-width: 800px) 100vw, 50vw" /> : <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_70%_30%,#7a2f87,transparent_32%),linear-gradient(135deg,#150a26,#ff5b47)] px-6 text-center text-3xl font-black tracking-[.12em] text-white">{template.name}</div>}</div>
             </Link>
             <div className={styles.cardInfo}>
               <div>

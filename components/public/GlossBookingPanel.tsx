@@ -60,11 +60,13 @@ export default function GlossBookingPanel({
   bookingLabel,
   services,
   compact = false,
+  presentation = "neutral",
 }: {
   bookingHref: string;
   bookingLabel: string;
   services: PublicSiteService[];
   compact?: boolean;
+  presentation?: "neutral" | "gloss";
 }) {
   const router = useRouter();
   const [serviceSlug, setServiceSlug] = useState(services[0]?.slug ?? "");
@@ -280,7 +282,7 @@ export default function GlossBookingPanel({
           compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"
         }`}
       >
-        Красивые руки — в удобное время
+        {presentation === "gloss" ? "Красивые руки — в удобное время" : "Выберите удобное время"}
       </h2>
 
       <div className="mt-6">
