@@ -2,11 +2,13 @@
 import { createGlossPremiumTemplateSeed as PACKAGE_0_SEED } from "./gloss-premium-template-seed.ts";
 import { createNoirPremiumTemplateSeed as PACKAGE_1_SEED } from "./noir-premium-template-seed.ts";
 import { createVeloraPremiumTemplateSeed as PACKAGE_2_SEED } from "./velora-premium-template-seed.ts";
+import { createLumeaPremiumTemplateSeed as PACKAGE_3_SEED } from "./lumea-premium-template-seed.ts";
 import type { PremiumTemplateSeedFactory } from "./premium-template-seed-factory.ts";
 
 const factories = {
   "gloss-nail-studio": PACKAGE_0_SEED,
   "premium-studio": PACKAGE_1_SEED,
   "velora-event-venue": PACKAGE_2_SEED,
+  "lumea-beauty": PACKAGE_3_SEED,
 } satisfies Record<string, PremiumTemplateSeedFactory>;
 export function getPremiumTemplateSeedFactory(templateKey: string | null | undefined) { return templateKey ? factories[templateKey as keyof typeof factories] : undefined; }

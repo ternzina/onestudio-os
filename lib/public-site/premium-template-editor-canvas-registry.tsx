@@ -51,9 +51,39 @@ const VeloraEditorCanvasRenderer: PremiumTemplateEditorCanvasRenderer = ({ conte
   />
 );
 
+const LumeaEditorCanvas = dynamic(
+  () => import("@/components/public/lumea/LumeaSite"),
+  { ssr: false },
+);
+
+const LumeaEditorCanvasRenderer: PremiumTemplateEditorCanvasRenderer = ({ content, basePath, site }) => (
+  <LumeaEditorCanvas
+    site={site ?? {
+      business: {
+        id: "lumea-editor-preview",
+        slug: "lumea-editor-preview",
+        name: content.brand_name || "LUMEA Beauty",
+        locale: "ru",
+        primary_locale: "ru",
+        currency: "UAH",
+        timezone: "Europe/Kyiv",
+      },
+      content,
+      company: { display_name: content.brand_name || "LUMEA Beauty" },
+      services: [],
+      portfolio: [],
+      capabilities: { booking: true, catalog: true, portfolio: true },
+      available_locales: ["ru", "en"],
+      published_at: null,
+    }}
+    basePath={basePath}
+  />
+);
+
 const editorCanvasRenderers = new Map<string, PremiumTemplateEditorCanvasRenderer>([
   ["premium-studio", NoirEditorCanvasRenderer],
   ["velora-event-venue", VeloraEditorCanvasRenderer],
+  ["lumea-beauty", LumeaEditorCanvasRenderer],
 ]);
 
 export function getPremiumTemplateEditorCanvasRenderer(
