@@ -11,6 +11,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
     "aliases": [
       "gloss"
     ],
+    "access": "free",
     "library": {
       "tier": "standard",
       "visible": true,
@@ -81,6 +82,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "noir",
       "noir-frame"
     ],
+    "access": "premium",
     "library": {
       "tier": "premium",
       "visible": true,
@@ -154,6 +156,7 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "velora",
       "velora-house"
     ],
+    "access": "premium",
     "library": {
       "tier": "premium",
       "visible": true,
@@ -223,6 +226,73 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "/templates/velora/celebration-cinematic.webp",
       "/templates/velora/menu-cinematic.webp",
       "/templates/velora/coordinator-cinematic.webp"
+    ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "lumea-beauty",
+    "name": "LUMEA Beauty",
+    "description": "Editorial skin, hair & beauty studio with personal care paths and online booking.",
+    "category": "beauty",
+    "aliases": [
+      "lumea",
+      "lumea-beauty-studio"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 20
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "beauty",
+      "order": 20,
+      "title": {
+        "ru": "Skin · Hair · Beauty",
+        "en": "Skin · Hair · Beauty"
+      },
+      "description": {
+        "ru": "Editorial beauty studio: волосы, skin care, брови и персональные ритуалы.",
+        "en": "Editorial beauty studio for hair, skin, brows and personal care rituals."
+      },
+      "alt": {
+        "ru": "Светлый салон красоты LUMEA Beauty",
+        "en": "Bright LUMEA Beauty studio"
+      },
+      "route": "/demos/lumea-beauty",
+      "image": "/images/demos/lumiere.webp",
+      "accent": "#9B6D56",
+      "dark": "#35251F",
+      "surface": "#F4EFE9"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "lumea-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "services",
+      "booking",
+      "experts",
+      "gallery",
+      "reviews",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/images/demos/lumiere.webp"
     ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];

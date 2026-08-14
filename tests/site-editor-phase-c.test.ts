@@ -14,12 +14,13 @@ import type { PublicSiteContent } from "../lib/public-site/types.ts";
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("OneStudio editor design contract", () => {
-  test("Base OneStudio, GLOSS, BEMBI, NOIR, and VELORA are active editor designs", () => {
-    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]);
+  test("Base OneStudio, GLOSS, BEMBI, LUMEA, NOIR, and VELORA are active editor designs", () => {
+    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue"]);
     assert.equal(isExecutableSiteTemplate("standard"), true);
     assert.equal(isExecutableSiteTemplate("premium-kids-center"), true);
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);
     assert.equal(isExecutableSiteTemplate("premium-studio"), true);
+    assert.equal(isExecutableSiteTemplate("lumea-beauty"), true);
   });
 
   test("GLOSS is selectable, previewable, public-renderable, and not legacy", () => {

@@ -6,6 +6,7 @@ import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type { PublicSiteContent, PublicSitePage } from "@/lib/public-site/types";
 import type { SiteTemplateDefinition } from "@/lib/public-site/template-registry";
+import { templateAccessLabel } from "@/lib/public-site/template-catalog";
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 
@@ -38,7 +39,7 @@ export function OneStudioDesignDialog({ open, activeTemplateKey, activeDesigns, 
           const selected = activeTemplateKey === template.key;
           const previewHref = buildSitePreviewHref({ templateKey: template.key, businessSlug, locale });
           return <article key={template.key} className={`rounded-[22px] border bg-white p-5 ${selected ? "border-[#9d3151] ring-2 ring-[#9d3151]/10" : "border-black/8"}`}>
-            <div className="flex items-center justify-between gap-3"><div><p className="font-semibold">{template.name === "GLOSS" ? template.name : t(template.name as "Base OneStudio design" | "BEMBI")}</p><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.tier === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{template.tier}</span></div>
+            <div className="flex items-center justify-between gap-3"><div><p className="font-semibold">{template.name === "GLOSS" ? template.name : t(template.name as "Base OneStudio design" | "BEMBI")}</p><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.access === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{templateAccessLabel(template.access, locale.startsWith("ru") ? "ru" : "en")}</span></div>
             <p className="mt-4 text-sm leading-6 text-[#716d65]">{template.gallery.description}</p>
             <div className="mt-5 flex gap-2"><button type="button" disabled={selected || !canConfigure || saving} onClick={() => void onSelectDesign(template.key).then(onClose)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">{selected ? t("Selected") : t("Choose design")}</button>{template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Предпросмотр ↗</Link> : null}</div>
             {selected ? <p className="mt-3 text-xs font-semibold text-emerald-700">{savingTemplateKey === template.key ? "Сохраняем в черновик…" : savedTemplateKey === template.key ? "Сохранено в черновик" : "Выбрано в черновике"}</p> : null}
