@@ -4,6 +4,90 @@ import { createPremiumTemplateManifestLookup, validatePremiumTemplateManifests, 
 export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
   {
     "packageVersion": "1.0",
+    "templateKey": "align-pilates-studio",
+    "name": "ALIGN Pilates Studio",
+    "description": "Светлый сайт Pilates-студии с форматами, тренерами, расписанием, абонементами и записью.",
+    "category": "fitness",
+    "aliases": [
+      "align-pilates",
+      "align"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 5
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "wellness",
+      "order": 5,
+      "title": {
+        "ru": "ALIGN Pilates Studio",
+        "en": "ALIGN Pilates Studio"
+      },
+      "description": {
+        "ru": "Пилатес на реформерах и матах: форматы, тренеры, расписание и пробная запись.",
+        "en": "Reformer and mat Pilates with classes, trainers, schedule and trial booking."
+      },
+      "alt": {
+        "ru": "Занятие в ALIGN Pilates Studio",
+        "en": "Class at ALIGN Pilates Studio"
+      },
+      "route": "/demos/align-pilates-studio",
+      "image": "/templates/align-pilates/hero.webp",
+      "accent": "#6F2B2E",
+      "dark": "#3D3A34",
+      "surface": "#F7F4ED"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "align-pilates-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "formats",
+      "benefits",
+      "schedule",
+      "trainers",
+      "trial",
+      "memberships",
+      "studio",
+      "testimonial",
+      "faq",
+      "contacts",
+      "footer"
+    ],
+    "assets": [
+      "/templates/align-pilates/hero.webp",
+      "/templates/align-pilates/format-reformer-start.webp",
+      "/templates/align-pilates/format-reformer-flow.webp",
+      "/templates/align-pilates/format-mat.webp",
+      "/templates/align-pilates/format-personal.webp",
+      "/templates/align-pilates/trainer-elena.webp",
+      "/templates/align-pilates/trainer-anna.webp",
+      "/templates/align-pilates/trainer-olga.webp",
+      "/templates/align-pilates/studio-1.webp",
+      "/templates/align-pilates/studio-2.webp",
+      "/templates/align-pilates/studio-3.webp",
+      "/templates/align-pilates/studio-4.webp",
+      "/templates/align-pilates/studio-5.webp",
+      "/templates/align-pilates/map.webp"
+    ]
+  },
+  {
+    "packageVersion": "1.0",
     "templateKey": "gloss-nail-studio",
     "name": "GLOSS",
     "description": "Полный editorial-сайт nail-студии с записью, командой, клубом и портфолио.",
