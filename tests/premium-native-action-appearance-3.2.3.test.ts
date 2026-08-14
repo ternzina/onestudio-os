@@ -78,16 +78,17 @@ test("premium native action stylesheet is isolated by template", () => {
 });
 
 test("every registered premium editor action has an exact runtime marker contract", async () => {
-  const [gloss, velora, footer, noir, registry, preview, genericPreview] = await Promise.all([
+  const [gloss, velora, footer, noir, vow, registry, preview, genericPreview] = await Promise.all([
     readFile(new URL("../components/public/GlossBusinessSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/public/velora/VeloraFooter.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/demos/premium-studio/PremiumStudioExperience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/public/vow/VowSite.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/public-site/premium-template-editor-registry-builder.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/public-site/premium-template-editor-canvas-registry.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
-  const runtimeSource = [gloss, velora, footer, noir].join("\n");
+  const runtimeSource = [gloss, velora, footer, noir, vow].join("\n");
   const actionKeys: string[] = [];
 
   for (const adapter of PREMIUM_TEMPLATE_EDITOR_ADAPTERS) {
@@ -129,6 +130,8 @@ test("every registered premium editor action has an exact runtime marker contrac
     "velora-event-venue:hero:header-cta",
     "velora-event-venue:hero:velora-hero-primary-action",
     "velora-event-venue:hero:velora-hero-secondary-action",
+    "vow-films:hero:primary-action",
+    "vow-films:hero:secondary-action",
   ].sort());
   assert.match(registry, /withPremiumActionAppearances/);
   assert.match(preview, /PublicPremiumActionStyles/);

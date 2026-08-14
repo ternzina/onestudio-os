@@ -205,7 +205,7 @@ export default function DemoShowcaseClient({ demo }: { demo: DemoDefinition }) {
           <div className={styles.modules}>
             {demo.modules.map((module) => <span key={module}>{module}</span>)}
           </div>
-          <Link className={styles.configure} href={newSitePathForTemplate(demo.slug === "lumiere" ? "gloss-nail-studio" : "standard")}>Использовать этот шаблон ↗</Link>
+          <Link className={styles.configure} href={newSitePathForTemplate(demo.slug === "lumiere" ? "lumea-beauty" : "standard")}>Использовать этот шаблон ↗</Link>
           <p className={styles.note}>Название, палитра, языки и набор модулей меняются на следующем шаге.</p>
         </aside>
       </div>

@@ -14,7 +14,7 @@ import { createPremiumTemplateSeedResolver, createTemplateSeed } from "../lib/pu
 import { PREMIUM_TEMPLATE_PACKAGE_SOURCE } from "../lib/public-site/premium-template-package-source.mjs";
 import { renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
 
-const KEYS = ["gloss-nail-studio", "premium-studio", "velora-event-venue", "lumea-beauty"] as const;
+const KEYS = ["gloss-nail-studio", "premium-studio", "velora-event-venue", "vow-films", "lumea-beauty"] as const;
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -138,14 +138,13 @@ test("legacy drafts normalize and JSON reload without namespace, custom block or
   }
 });
 
-test("demo collection is manifest-driven while BEMBI remains outside the package registry", async () => {
+test("sellable demo collection is manifest-driven and excludes legacy BEMBI", async () => {
   const gloss = PREMIUM_DEMOS.find(({ slug }) => slug === "gloss-nail-studio")!;
   const noir = PREMIUM_DEMOS.find(({ slug }) => slug === "premium-studio")!;
-  const bembi = PREMIUM_DEMOS.find(({ slug }) => slug === "premium-kids-center")!;
   assert.equal(gloss.collection, "premium-template-package");
   assert.equal(gloss.group, "beauty");
   assert.equal(noir.group, "studio");
-  assert.equal(bembi.collection, "protected-template");
-  assert.equal(getPremiumTemplatePackage(bembi.slug), undefined);
+  assert.equal(PREMIUM_DEMOS.some(({ slug }) => slug === "premium-kids-center"), false);
+  assert.equal(getPremiumTemplatePackage("premium-kids-center"), undefined);
   assert.doesNotMatch(await read("../lib/demo-catalog.ts"), /item\.key\s*===\s*["']premium-studio/);
 });

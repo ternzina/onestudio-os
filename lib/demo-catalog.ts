@@ -28,7 +28,7 @@ export type DemoDefinition = {
 export type PremiumDemoDefinition = {
   slug: string;
   href: string;
-  collection: "premium-template-package" | "protected-template";
+  collection: "premium-template-package";
   order: number;
   group: DemoGroup;
   name: string;
@@ -36,13 +36,6 @@ export type PremiumDemoDefinition = {
   description: { ru: string; en: string };
   previewImage: string;
   previewAlt: { ru: string; en: string };
-};
-
-const BEMBI_DEMO: PremiumDemoDefinition = {
-  slug: "premium-kids-center", href: "/demos/premium-kids-center", collection: "protected-template", order: 20,
-  group: "education", name: "BEMBI", title: { ru: "Детский развивающий центр", en: "Kids discovery center" },
-  description: { ru: "Kids Discovery Center с программами, заданиями и материалами.", en: "Kids Discovery Center with programs, activities and learning materials." },
-  previewImage: "/images/demos/premium-kids-center/hero-platform.webp", previewAlt: { ru: "Детский развивающий центр BEMBI", en: "BEMBI kids discovery center" },
 };
 
 export function createPremiumPackageDemos(manifests: readonly PremiumTemplatePackageManifest[]): PremiumDemoDefinition[] {
@@ -53,10 +46,8 @@ export function createPremiumPackageDemos(manifests: readonly PremiumTemplatePac
   }));
 }
 
-export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = [
-  ...createPremiumPackageDemos(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS),
-  BEMBI_DEMO,
-].sort((left, right) => left.order - right.order);
+export const PREMIUM_DEMOS: readonly PremiumDemoDefinition[] = createPremiumPackageDemos(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS)
+  .sort((left, right) => left.order - right.order);
 
 export const DEMOS: readonly DemoDefinition[] = [
   {

@@ -18,7 +18,11 @@ describe("Phase A executable registry", () => {
   for (const key of ["standard", "gloss-nail-studio", "premium-kids-center", "premium-studio", "velora-event-venue"]) {
     test(`${key} has complete executable runtime support`, () => {
       assert.equal(isExecutableSiteTemplate(key), true);
-      assert.deepEqual(getSiteTemplateDefinition(key)?.runtime, { editorSelectable: true, previewSelectable: true, publicRenderable: true, legacy: false });
+      const runtime = getSiteTemplateDefinition(key)?.runtime;
+      assert.equal(runtime?.previewSelectable, true);
+      assert.equal(runtime?.publicRenderable, true);
+      assert.equal(runtime?.legacy, key === "premium-kids-center");
+      assert.equal(runtime?.editorSelectable, key !== "premium-kids-center");
     });
   }
 
@@ -55,17 +59,15 @@ describe("Phase A template selection", () => {
     assert.deepEqual(selected.template_content, current.template_content);
   });
 
-  test("BEMBI → Standard → BEMBI retains prior BEMBI content", () => {
+  test("legacy BEMBI namespace survives switching away, but cannot be newly selected", () => {
     const standard = selectExecutableTemplate(current, "standard");
-    const bembi = selectExecutableTemplate(standard, "premium-kids-center");
-    assert.deepEqual(bembi.template_content?.["premium-kids-center"], current.template_content?.["premium-kids-center"]);
-    assert.deepEqual(bembi.template_content?.["future-template"], { retained: true });
+    assert.deepEqual(standard.template_content?.["premium-kids-center"], current.template_content?.["premium-kids-center"]);
+    assert.deepEqual(standard.template_content?.["future-template"], { retained: true });
+    assert.throws(() => selectExecutableTemplate(standard, "premium-kids-center"), /not selectable/);
   });
 
-  test("required namespace is initialized once and invalid selection is rejected", () => {
-    const initialized = selectExecutableTemplate({ template_id: "standard", template_content: { other: 1 } } as unknown as PublicSiteContent, "premium-kids-center");
-    assert.ok((initialized.template_content?.["premium-kids-center"] as { blocks?: unknown[] }).blocks?.length);
-    assert.equal(initialized.template_content?.other, 1);
+  test("new package namespaces initialize while legacy BEMBI selection is rejected", () => {
+    assert.throws(() => selectExecutableTemplate({ template_id: "standard" } as PublicSiteContent, "premium-kids-center"), /not selectable/);
     assert.equal(selectExecutableTemplate(current, "premium-studio").template_id, "premium-studio");
   });
 });

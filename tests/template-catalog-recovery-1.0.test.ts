@@ -9,14 +9,13 @@ import { selectExecutableTemplate } from "../lib/public-site/template-selection.
 
 test("one canonical catalog owns all executable customer designs", () => {
   assert.deepEqual(TEMPLATE_CATALOG.map(item => item.key), [...TEMPLATE_KEYS]);
-  assert.deepEqual(TEMPLATE_KEYS, ["standard", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue"]);
+  assert.deepEqual(TEMPLATE_KEYS, ["standard", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
   for (const item of TEMPLATE_CATALOG) {
-    assert.equal(item.capabilities.customerCreatable, true);
-    assert.equal(item.capabilities.editorSelectable, true);
     assert.equal(item.capabilities.previewRenderable, true);
     assert.equal(item.capabilities.publicRenderable, true);
     assert.equal(item.capabilities.customPages, true);
-    assert.equal(getActiveEditorDesigns().some(choice => choice.key === item.key), true);
+    assert.equal(item.capabilities.editorSupported, true);
+    assert.equal(getActiveEditorDesigns().some(choice => choice.key === item.key), item.capabilities.editorSelectable);
     assert.equal(isPublicRenderableSiteTemplate(item.key), true);
   }
 });
@@ -60,7 +59,7 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
     readFile(new URL("../lib/demo-catalog.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(dialog, /activeDesigns\.map/);
+  assert.match(dialog, /designGroups\[access\]\.map/);
   assert.match(preview, /getSiteTemplateDefinition/);
   assert.match(runtime, /getPremiumTemplatePublicRuntime/);
   assert.match(premiumRuntime, /NOIR_PREMIUM_TEMPLATE_RUNTIME_ADAPTER/);
@@ -70,9 +69,9 @@ test("gallery, editor, Preview and public runtime derive or dispatch all canonic
   assert.match(editor, /OneStudio Site Editor|TemplateEditorRuntime/);
 });
 
-test("new-site chooser exposes blank, GLOSS, BEMBI and NOIR through catalog", async () => {
+test("new-site chooser exposes catalog groups without legacy BEMBI", async () => {
   const source = await readFile(new URL("../app/new-site/CanonicalSiteCreationWizard.tsx", import.meta.url), "utf8");
   assert.match(source, /Создать с нуля/);
-  assert.match(source, /getCustomerTemplateChoices/);
+  assert.match(source, /getCustomerTemplateGroups/);
   assert.match(source, /creation_mode: mode/);
 });

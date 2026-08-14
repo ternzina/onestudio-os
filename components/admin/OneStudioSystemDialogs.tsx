@@ -6,7 +6,7 @@ import MediaLibraryPicker from "@/components/admin/MediaLibraryPicker";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type { PublicSiteContent, PublicSitePage } from "@/lib/public-site/types";
 import type { SiteTemplateDefinition } from "@/lib/public-site/template-registry";
-import { templateAccessLabel } from "@/lib/public-site/template-catalog";
+import { groupTemplatesByAccess, templateAccessLabel } from "@/lib/public-site/template-catalog";
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { richTextPlainText } from "@/lib/public-site/rich-text";
 
@@ -27,6 +27,7 @@ type DesignDialogProps = {
 export function OneStudioDesignDialog({ open, activeTemplateKey, activeDesigns, businessSlug, locale, canConfigure, saving, savingTemplateKey, savedTemplateKey, onSelectDesign, onClose }: DesignDialogProps) {
   const { t } = useAdminI18n();
   if (!open) return null;
+  const designGroups = groupTemplatesByAccess(activeDesigns);
 
   return <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#17191f]/55 p-4 backdrop-blur-[3px]" role="dialog" aria-modal="true" aria-label={t("Site templates")} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
     <div className="max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-auto rounded-[30px] bg-[#f8f7f3] p-6 shadow-[0_35px_120px_rgba(0,0,0,0.4)] sm:p-8">
@@ -34,17 +35,17 @@ export function OneStudioDesignDialog({ open, activeTemplateKey, activeDesigns, 
         <div><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">{t("Site design")}</p><h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{t("Choose site design")}</h2><p className="mt-3 text-sm text-[#716d65]">{t("The template fills the page with editable blocks, texts and colors.")}</p></div>
         <button type="button" onClick={onClose} className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold" aria-label={t("Close")}>×</button>
       </div>
-      <div className="mt-7 grid gap-4 md:grid-cols-2">
-        {activeDesigns.map((template) => {
+      <div className="mt-7 space-y-7">
+        {(["free", "premium"] as const).map(access => designGroups[access].length ? <section key={access} aria-labelledby={`design-group-${access}`}><div className="mb-3 flex items-baseline justify-between gap-4"><h3 id={`design-group-${access}`} className="text-lg font-semibold">{access === "free" ? "FREE" : "PREMIUM"}</h3><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b877e]">{templateAccessLabel(access, locale.startsWith("ru") ? "ru" : "en")}</span></div><div className="grid gap-4 md:grid-cols-2">{designGroups[access].map((template) => {
           const selected = activeTemplateKey === template.key;
           const previewHref = buildSitePreviewHref({ templateKey: template.key, businessSlug, locale });
           return <article key={template.key} className={`rounded-[22px] border bg-white p-5 ${selected ? "border-[#9d3151] ring-2 ring-[#9d3151]/10" : "border-black/8"}`}>
-            <div className="flex items-center justify-between gap-3"><div><p className="font-semibold">{template.name === "GLOSS" ? template.name : t(template.name as "Base OneStudio design" | "BEMBI")}</p><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.access === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{templateAccessLabel(template.access, locale.startsWith("ru") ? "ru" : "en")}</span></div>
+            <div className="flex items-center justify-between gap-3"><div><p className="font-semibold">{template.name}</p><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#8b877e]">{template.category}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${template.access === "premium" ? "bg-[#3e263e] text-[#fef9ef]" : "bg-[#efeee9] text-[#4f4b45]"}`}>{templateAccessLabel(template.access, locale.startsWith("ru") ? "ru" : "en")}</span></div>
             <p className="mt-4 text-sm leading-6 text-[#716d65]">{template.gallery.description}</p>
-            <div className="mt-5 flex gap-2"><button type="button" disabled={selected || !canConfigure || saving} onClick={() => void onSelectDesign(template.key).then(onClose)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">{selected ? t("Selected") : t("Choose design")}</button>{template.tier === "premium" ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Предпросмотр ↗</Link> : null}</div>
+            <div className="mt-5 flex gap-2"><button type="button" disabled={selected || !canConfigure || saving} onClick={() => void onSelectDesign(template.key).then(onClose)} className="flex-1 rounded-xl bg-[#17191f] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">{selected ? t("Selected") : t("Choose design")}</button>{template.capabilities.previewRenderable ? <Link href={previewHref} target="_blank" rel="noreferrer" className="rounded-xl border border-black/15 px-4 py-3 text-xs font-semibold">Предпросмотр ↗</Link> : null}</div>
             {selected ? <p className="mt-3 text-xs font-semibold text-emerald-700">{savingTemplateKey === template.key ? "Сохраняем в черновик…" : savedTemplateKey === template.key ? "Сохранено в черновик" : "Выбрано в черновике"}</p> : null}
           </article>;
-        })}
+        })}</div></section> : null)}
       </div>
     </div>
   </div>;

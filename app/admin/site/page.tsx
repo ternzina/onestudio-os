@@ -72,6 +72,7 @@ import { getActiveEditorDesigns, SITE_TEMPLATE_REGISTRY } from "@/lib/public-sit
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { selectExecutableTemplate } from "@/lib/public-site/template-selection";
 import {
+  canonicalizePremiumTemplateLayoutForSave,
   canMovePremiumEditorLayoutItem,
   getPremiumEditorSection,
   getPremiumEditorSectionByAnchor,
@@ -250,6 +251,13 @@ function layoutOrderRoundTripMatches(
   if (!Array.isArray(draft.layout_order)) return true;
   return stableJsonSignature(saved?.layout_order ?? null)
     === stableJsonSignature(draft.layout_order);
+}
+
+function canonicalizeDraftLayoutForSave(content: PublicSiteContent) {
+  const adapter = getPremiumTemplateEditorAdapter(content.template_id);
+  return adapter
+    ? canonicalizePremiumTemplateLayoutForSave(content, adapter)
+    : content;
 }
 
 function nativeActionStylesRoundTripMatches(
@@ -720,7 +728,9 @@ export default function AdminSitePage() {
 
     let contentToSave: PublicSiteContent;
     try {
-      contentToSave = selectExecutableTemplate(current, templateKey);
+      contentToSave = canonicalizeDraftLayoutForSave(
+        selectExecutableTemplate(current, templateKey),
+      );
     } catch (selectionError) {
       setError(selectionError instanceof Error ? selectionError.message : "Template selection failed.");
       return;
@@ -756,6 +766,15 @@ export default function AdminSitePage() {
         setDraft(current);
         setTemplateSavedKey(previousSavedTemplateKey);
         setError("Saved draft did not confirm the selected template.");
+        setTemplateSavingKey("");
+        setSaving(false);
+        return;
+      }
+      if (!layoutOrderRoundTripMatches(contentToSave, savedContent)) {
+        draftRef.current = current;
+        setDraft(current);
+        setTemplateSavedKey(previousSavedTemplateKey);
+        setError("Шаблон не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.");
         setTemplateSavingKey("");
         setSaving(false);
         return;
@@ -948,8 +967,9 @@ export default function AdminSitePage() {
   }
 
   async function saveDraft(options?: { publish?: boolean }) {
-    const draftToSave = draftRef.current ?? draft;
-    if (!workspace || !editor || !draftToSave || !canConfigure) return false;
+    const currentDraft = draftRef.current ?? draft;
+    if (!workspace || !editor || !currentDraft || !canConfigure) return false;
+    const draftToSave = canonicalizeDraftLayoutForSave(currentDraft);
 
     if (logoUrl && isInvalidImageUrl(logoUrl)) {
       setError(
@@ -1102,7 +1122,7 @@ export default function AdminSitePage() {
       {
         p_business_id: workspace.business_id,
         p_locale: selectedLocale,
-        p_content: draft,
+        p_content: canonicalizeDraftLayoutForSave(draft),
         p_make_primary: true,
       },
     );

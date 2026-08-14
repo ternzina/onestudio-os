@@ -2,7 +2,8 @@
 import { GLOSS_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_0_EDITOR } from "./gloss-premium-template-editor-adapter.ts";
 import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_1_EDITOR } from "./noir-premium-template-editor-adapter.ts";
 import { VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_2_EDITOR } from "./velora-premium-template-editor-adapter.ts";
-import { LUMEA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_3_EDITOR } from "./lumea-premium-template-editor-adapter.ts";
+import { VOW_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_3_EDITOR } from "./vow-premium-template-editor-adapter.ts";
+import { LUMEA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_4_EDITOR } from "./lumea-premium-template-editor-adapter.ts";
 import { createPremiumTemplateEditorRegistry } from "./premium-template-editor-registry-builder.ts";
 export { validatePremiumTemplateEditorAdapterRegistry } from "./premium-template-editor-registry-builder.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
@@ -11,5 +12,6 @@ export const { adapters: PREMIUM_TEMPLATE_EDITOR_ADAPTERS, get: getPremiumTempla
   "gloss-nail-studio": PACKAGE_0_EDITOR,
   "premium-studio": PACKAGE_1_EDITOR,
   "velora-event-venue": PACKAGE_2_EDITOR,
-  "lumea-beauty": PACKAGE_3_EDITOR,
+  "vow-films": PACKAGE_3_EDITOR,
+  "lumea-beauty": PACKAGE_4_EDITOR,
 }), getPremiumTemplateDefinition);
