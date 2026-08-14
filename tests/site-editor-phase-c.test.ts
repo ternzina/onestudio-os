@@ -15,13 +15,14 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("OneStudio editor design contract", () => {
   test("legacy BEMBI remains executable but is not an active editor design", () => {
-    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "gloss-nail-studio", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
+    assert.deepEqual(getActiveEditorDesigns().map((design) => design.key), ["standard", "align-pilates-studio", "gloss-nail-studio", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films"]);
     assert.equal(isExecutableSiteTemplate("standard"), true);
     assert.equal(isExecutableSiteTemplate("premium-kids-center"), true);
     assert.equal(isExecutableSiteTemplate("gloss-nail-studio"), true);
     assert.equal(isExecutableSiteTemplate("premium-studio"), true);
     assert.equal(isExecutableSiteTemplate("lumea-beauty"), true);
     assert.equal(isExecutableSiteTemplate("vow-films"), true);
+    assert.equal(isExecutableSiteTemplate("align-pilates-studio"), true);
   });
 
   test("GLOSS is selectable, previewable, public-renderable, and not legacy", () => {
