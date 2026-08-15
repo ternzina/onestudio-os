@@ -14,7 +14,7 @@ import { createPremiumTemplateSeedResolver, createTemplateSeed } from "../lib/pu
 import { PREMIUM_TEMPLATE_PACKAGE_SOURCE } from "../lib/public-site/premium-template-package-source.mjs";
 import { renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
 
-const KEYS = ["ritmo-dance-studio", "align-pilates-studio", "gloss-nail-studio", "premium-studio", "velora-event-venue", "vow-films", "lumea-beauty"] as const;
+const KEYS = ["pawhaus-grooming-studio", "ritmo-dance-studio", "align-pilates-studio", "gloss-nail-studio", "premium-studio", "velora-event-venue", "vow-films", "lumea-beauty"] as const;
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 

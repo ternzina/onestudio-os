@@ -211,13 +211,13 @@ export default function PublicCustomBlock({
       : block.divider_color_mode === "custom" && isSiteHexColor(block.divider_custom_color)
         ? block.divider_custom_color
         : "currentColor";
-    return <div aria-hidden="true" data-os-core-preset={block.preset_id} data-public-custom-block-id={block.id} className={`flex w-full items-center px-5 ${spacerSizeClass}`}><div className={block.show_divider ? `mx-auto w-full ${dividerWidthClass}` : ""} style={block.show_divider ? { height: dividerThickness, backgroundColor: dividerColor } : undefined} /></div>;
+    return <div aria-hidden="true" data-os-core-preset={block.preset_id} data-public-custom-block-id={block.id} data-editor-anchor={`custom:${block.id}`} className={`flex w-full items-center px-5 ${spacerSizeClass}`}><div className={block.show_divider ? `mx-auto w-full ${dividerWidthClass}` : ""} style={block.show_divider ? { height: dividerThickness, backgroundColor: dividerColor } : undefined} /></div>;
   }
 
   if (block.kind === "html_embed") {
     const safeHtml = sanitizePublicSiteHtml(block.html_source);
     const safeEmbed = safePublicEmbedUrl(block.embed_url);
-    return <div data-public-custom-block-id={block.id} className="w-full max-w-full overflow-hidden"><div data-os-safe-html-block className="w-full max-w-full overflow-hidden">
+    return <div data-public-custom-block-id={block.id} data-editor-anchor={`custom:${block.id}`} className="w-full max-w-full overflow-hidden"><div data-os-safe-html-block className="w-full max-w-full overflow-hidden">
       {safeHtml ? <div className="os-safe-html max-w-none overflow-hidden break-words" dangerouslySetInnerHTML={{ __html: safeHtml }} /> : null}
       {safeEmbed ? <iframe title={block.embed_title || "External widget"} src={safeEmbed} height={boundedPublicEmbedHeight(block.embed_height)} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin" className="mt-6 block w-full max-w-full border-0" /> : null}
     </div></div>;
@@ -234,6 +234,7 @@ export default function PublicCustomBlock({
 
     return (
       <PublicReveal
+        editorAnchor={`custom:${block.id}`}
         animation={animation}
         animateOnMobile={block.animate_on_mobile !== false}
         className={sectionClass}
@@ -322,6 +323,7 @@ export default function PublicCustomBlock({
 
     return (
       <PublicReveal
+        editorAnchor={`custom:${block.id}`}
         animation={animation}
         animateOnMobile={block.animate_on_mobile !== false}
         className={sectionClass}
@@ -438,6 +440,7 @@ export default function PublicCustomBlock({
 
   return (
     <PublicReveal
+      editorAnchor={`custom:${block.id}`}
       animation={animation}
       animateOnMobile={block.animate_on_mobile !== false}
       className={sectionClass}

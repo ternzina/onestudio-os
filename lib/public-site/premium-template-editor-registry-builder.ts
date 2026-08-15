@@ -4,6 +4,7 @@ import {
   clearPremiumNativeActionStyles,
   withPremiumActionAppearances,
 } from "./premium-action-style.ts";
+import { createPremiumTemplateCompositionAdapter } from "./premium-template-composition.ts";
 
 export function validatePremiumTemplateEditorAdapterRegistry(
   adapters: readonly PremiumTemplateEditorAdapter[],
@@ -29,8 +30,12 @@ export function createPremiumTemplateEditorRegistry(
 
   const enhancedAdapters = adapters.map((adapter): PremiumTemplateEditorAdapter => {
     const buildInspectorFields = adapter.buildInspectorFields;
+    const composition = adapter.contract.compositionMode === "canonical"
+      ? createPremiumTemplateCompositionAdapter(adapter.contract)
+      : null;
     return {
       ...adapter,
+      ...(composition ?? {}),
       resetSection(content, sectionId) {
         return clearPremiumNativeActionStyles(
           adapter.resetSection(content, sectionId),

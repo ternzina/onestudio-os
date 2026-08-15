@@ -58,7 +58,7 @@ test("template cards remain catalog-driven and responsive to future entries", as
   assert.doesNotMatch(wizard, /templateGroups\[access\]\.(slice|splice)\(/);
   assert.match(wizard, /grid gap-5 md:grid-cols-2 lg:grid-cols-3/);
   assert.deepEqual(TEMPLATE_CATALOG.map(item => item.key), [
-    "standard", "align-pilates-studio", "ritmo-dance-studio", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films",
+    "standard", "align-pilates-studio", "ritmo-dance-studio", "pawhaus-grooming-studio", "gloss-nail-studio", "premium-kids-center", "lumea-beauty", "premium-studio", "velora-event-venue", "vow-films",
   ]);
 });
 

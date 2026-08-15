@@ -1,0 +1,5 @@
+import type { PublicSiteData } from "./types.ts";
+import { createPawhausGroomingStudioPremiumTemplateSeed } from "./pawhaus-grooming-studio-premium-template-seed.ts";
+export type PawhausGroomingStudioDemoLocale = "ru" | "en";
+export const pawhausGroomingStudioDemoBasePath = (locale: PawhausGroomingStudioDemoLocale) => locale === "en" ? "/demos/pawhaus-grooming-studio/en" : "/demos/pawhaus-grooming-studio";
+export function createCanonicalPawhausGroomingStudioDemoSite(locale: PawhausGroomingStudioDemoLocale = "ru"): PublicSiteData { return { business: { id: `pawhaus-grooming-studio-demo-${locale}`, slug: "pawhaus-grooming-studio", name: "PAWHAUS Grooming Studio", locale, primary_locale: "ru", currency: "UAH", timezone: "Europe/Kyiv" }, content: createPawhausGroomingStudioPremiumTemplateSeed(locale), company: { display_name: "PAWHAUS Grooming Studio", email: "hello@pawhaus.demo", phone: "+38 (099) 555-21-21", address: locale === "en" ? "12 Lapkina Street · Kyiv" : "ул. Лапкина, 12 · Киев" }, services: [], portfolio: [], capabilities: { booking: true, catalog: true, portfolio: true }, available_locales: ["ru", "en"], published_at: "2026-08-14T00:00:00.000Z" }; }

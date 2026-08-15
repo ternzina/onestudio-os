@@ -1810,7 +1810,13 @@ function VisualBuilder({
     setSettingsOpen(true);
   }, []);
 
-  const layoutOrder = resolvePublicSiteLayoutOrder(draft);
+  const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
+  const layoutOrder = premiumEditorAdapter
+    ? premiumEditorAdapter.normalizeLayout(
+        draft.layout_order ?? [],
+        (draft.custom_blocks ?? []).map((block) => block.id),
+      )
+    : resolvePublicSiteLayoutOrder(draft);
   const sectionOrder = sectionsFromLayoutOrder(layoutOrder);
   const pages = draft.pages ?? [];
   const activePage =
@@ -1825,7 +1831,6 @@ function VisualBuilder({
     : (draft.custom_blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
       ) ?? null;
-  const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
   const hasPremiumEditorCanvas = Boolean(
     getPremiumTemplateEditorCanvasRenderer(draft.template_id),
   );
