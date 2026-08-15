@@ -619,6 +619,91 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
     "assets": [
       "/images/demos/lumiere.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "rastem-center",
+    "name": "РАСТЁМ — Детский развивающий центр",
+    "description": "Детский развивающий центр с программами, расписанием, педагогами и пробными занятиями.",
+    "category": "education",
+    "aliases": [
+      "rastem",
+      "kids-center"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 8
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "education",
+      "order": 8,
+      "title": {
+        "ru": "РАСТЁМ — Детский развивающий центр",
+        "en": "RASTEM — Children's discovery center"
+      },
+      "description": {
+        "ru": "Программы, возрастные группы, педагоги и пробные занятия для детей.",
+        "en": "Programs, age groups, teachers and trial classes for children."
+      },
+      "alt": {
+        "ru": "Занятия в детском развивающем центре РАСТЁМ",
+        "en": "Children learning at RASTEM"
+      },
+      "route": "/demos/rastem-center",
+      "image": "/templates/rastem-center/hero-platform.webp",
+      "accent": "#F2B84B",
+      "dark": "#263238",
+      "surface": "#FFF9EF"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "rastem-center-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "ages",
+      "programs",
+      "schedule",
+      "teachers",
+      "trial",
+      "benefits",
+      "memberships",
+      "parents",
+      "gallery",
+      "testimonials",
+      "faq",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/rastem-center/article-math.webp",
+      "/templates/rastem-center/collaboration.webp",
+      "/templates/rastem-center/creative-studio.webp",
+      "/templates/rastem-center/hero-platform.webp",
+      "/templates/rastem-center/home-learning.webp",
+      "/templates/rastem-center/math-manipulatives.webp",
+      "/templates/rastem-center/music-motion.webp",
+      "/templates/rastem-center/reading-story.webp",
+      "/templates/rastem-center/science-prism.webp",
+      "/templates/rastem-center/studio-interior.webp",
+      "/templates/rastem-center/teacher-elena.webp",
+      "/templates/rastem-center/teacher-jan.webp",
+      "/templates/rastem-center/workbook-cover.webp"
+    ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;

@@ -7,6 +7,7 @@ import { createNoirPremiumTemplateSeed as PACKAGE_4_SEED } from "./noir-premium-
 import { createVeloraPremiumTemplateSeed as PACKAGE_5_SEED } from "./velora-premium-template-seed.ts";
 import { createVowPremiumTemplateSeed as PACKAGE_6_SEED } from "./vow-premium-template-seed.ts";
 import { createLumeaPremiumTemplateSeed as PACKAGE_7_SEED } from "./lumea-premium-template-seed.ts";
+import { createRastemCenterPremiumTemplateSeed as PACKAGE_8_SEED } from "./rastem-center-premium-template-seed.ts";
 import type { PremiumTemplateSeedFactory } from "./premium-template-seed-factory.ts";
 
 const factories = {
@@ -18,5 +19,6 @@ const factories = {
   "velora-event-venue": PACKAGE_5_SEED,
   "vow-films": PACKAGE_6_SEED,
   "lumea-beauty": PACKAGE_7_SEED,
+  "rastem-center": PACKAGE_8_SEED,
 } satisfies Record<string, PremiumTemplateSeedFactory>;
 export function getPremiumTemplateSeedFactory(templateKey: string | null | undefined) { return templateKey ? factories[templateKey as keyof typeof factories] : undefined; }

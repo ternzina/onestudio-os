@@ -7,6 +7,7 @@ import { NOIR_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_4_CONTRACT } from "./noir-pre
 import { VELORA_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_5_CONTRACT } from "./velora-premium-template-contract.ts";
 import { VOW_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_6_CONTRACT } from "./vow-premium-template-contract.ts";
 import { LUMEA_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_7_CONTRACT } from "./lumea-premium-template-contract.ts";
+import { RASTEM_CENTER_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_8_CONTRACT } from "./rastem-center-premium-template-contract.ts";
 import { createPremiumTemplateContractRegistry } from "./premium-template-registry-builder.ts";
 
 export const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateDefinition } = createPremiumTemplateContractRegistry(Object.values({
@@ -18,4 +19,5 @@ export const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateD
   "velora-event-venue": PACKAGE_5_CONTRACT,
   "vow-films": PACKAGE_6_CONTRACT,
   "lumea-beauty": PACKAGE_7_CONTRACT,
+  "rastem-center": PACKAGE_8_CONTRACT,
 }));

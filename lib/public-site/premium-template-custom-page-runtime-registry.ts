@@ -7,6 +7,7 @@ import { NOIR_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_4_CUSTOMPA
 import { VELORA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_5_CUSTOMPAGE } from "./velora-premium-template-custom-page-runtime-adapter.ts";
 import { VOW_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_6_CUSTOMPAGE } from "./vow-premium-template-custom-page-runtime-adapter.ts";
 import { LUMEA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_7_CUSTOMPAGE } from "./lumea-premium-template-custom-page-runtime-adapter.ts";
+import { RASTEM_CENTER_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_8_CUSTOMPAGE } from "./rastem-center-premium-template-custom-page-runtime-adapter.ts";
 import { createPremiumTemplateCustomPageRuntimeRegistry } from "./premium-template-custom-page-runtime-registry-builder.ts";
 import { getPremiumTemplateDefinition, PREMIUM_TEMPLATE_DEFINITIONS } from "./premium-template-registry.ts";
 
@@ -19,4 +20,5 @@ export const { runtimes: PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS, get: get
   "velora-event-venue": PACKAGE_5_CUSTOMPAGE,
   "vow-films": PACKAGE_6_CUSTOMPAGE,
   "lumea-beauty": PACKAGE_7_CUSTOMPAGE,
+  "rastem-center": PACKAGE_8_CUSTOMPAGE,
 }), PREMIUM_TEMPLATE_DEFINITIONS, getPremiumTemplateDefinition);
