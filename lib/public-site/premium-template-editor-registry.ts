@@ -7,6 +7,7 @@ import { NOIR_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_4_EDITOR } from "./noir
 import { VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_5_EDITOR } from "./velora-premium-template-editor-adapter.ts";
 import { VOW_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_6_EDITOR } from "./vow-premium-template-editor-adapter.ts";
 import { LUMEA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_7_EDITOR } from "./lumea-premium-template-editor-adapter.ts";
+import { RASTEM_CENTER_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_8_EDITOR } from "./rastem-center-premium-template-editor-adapter.ts";
 import { createPremiumTemplateEditorRegistry } from "./premium-template-editor-registry-builder.ts";
 export { validatePremiumTemplateEditorAdapterRegistry } from "./premium-template-editor-registry-builder.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
@@ -20,4 +21,5 @@ export const { adapters: PREMIUM_TEMPLATE_EDITOR_ADAPTERS, get: getPremiumTempla
   "velora-event-venue": PACKAGE_5_EDITOR,
   "vow-films": PACKAGE_6_EDITOR,
   "lumea-beauty": PACKAGE_7_EDITOR,
+  "rastem-center": PACKAGE_8_EDITOR,
 }), getPremiumTemplateDefinition);
