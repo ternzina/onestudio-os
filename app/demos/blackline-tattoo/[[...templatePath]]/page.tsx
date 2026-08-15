@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import PublicCustomPageRuntime from "@/components/public/PublicCustomPageRuntime";
+import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
+import { newSitePathForTemplate } from "@/lib/public-site/template-catalog";
+import { blacklineTattooDemoBasePath, createCanonicalBlacklineTattooDemoSite, type BlacklineTattooDemoLocale } from "@/lib/public-site/blackline-tattoo-demo";
+type Params = { templatePath?: string[] };
+const localeFor = (path: string[]): BlacklineTattooDemoLocale | null => path.length === 0 ? "ru" : path.length === 1 && path[0] === "en" ? "en" : null;
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> { const locale = localeFor((await params).templatePath ?? []); if (!locale) notFound(); return locale === "en" ? { title: "BLACKLINE — Tattoo Collective", description: "An authored tattoo studio for custom ideas, artists and aftercare.", robots: { index: false, follow: false } } : { title: "BLACKLINE — Tattoo Collective", description: "Авторские татуировки, мастера, стили и консультация BLACKLINE.", robots: { index: false, follow: false } }; }
+export default async function BlacklineTattooDemoPage({ params }: { params: Promise<Params> }) { const path = (await params).templatePath ?? []; const locale = localeFor(path); if (!locale) notFound(); const site = createCanonicalBlacklineTattooDemoSite(locale); const basePath = blacklineTattooDemoBasePath(locale); const page = path[0] === "p" && path[1] ? site.content.pages?.find((candidate) => candidate.type === "custom" && candidate.slug === path[1] && candidate.is_visible !== false) : undefined; if (path[0] === "p") { if (!page) notFound(); return <PublicCustomPageRuntime site={site} page={page} basePath={basePath} />; } return <><div className="fixed bottom-5 right-5 z-[90]"><Link className="rounded-none border border-[#c8ef22] bg-[#070909] px-5 py-3 text-sm font-semibold text-[#c8ef22] shadow-2xl" href={newSitePathForTemplate("blackline-tattoo")}>{locale === "en" ? "Use this template · Free" : "Использовать шаблон · Бесплатно"}</Link></div><PublicSiteTemplateRuntime site={site} basePath={basePath} /></>; }

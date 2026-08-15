@@ -704,6 +704,84 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "/templates/rastem-center/teacher-jan.webp",
       "/templates/rastem-center/workbook-cover.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "blackline-tattoo",
+    "name": "BLACKLINE Tattoo Collective",
+    "description": "Премиальная tattoo-студия с авторскими эскизами, мастерами, портфолио и консультацией.",
+    "category": "beauty",
+    "aliases": [
+      "blackline",
+      "tattoo"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 9
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "beauty",
+      "order": 9,
+      "title": {
+        "ru": "BLACKLINE Tattoo Collective",
+        "en": "BLACKLINE Tattoo Collective"
+      },
+      "description": {
+        "ru": "Авторские татуировки, мастера, стили и консультация.",
+        "en": "Authored tattoos, artists, styles and consultation."
+      },
+      "alt": {
+        "ru": "BLACKLINE tattoo studio",
+        "en": "BLACKLINE tattoo studio"
+      },
+      "route": "/demos/blackline-tattoo",
+      "image": "/templates/blackline-tattoo/black-ink.webp",
+      "accent": "#c8ef22",
+      "dark": "#070909",
+      "surface": "#111414"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "blackline-tattoo-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "styles",
+      "artists",
+      "portfolio",
+      "consultation",
+      "process",
+      "safety",
+      "care",
+      "testimonials",
+      "faq",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/blackline-tattoo/black-ink.webp",
+      "/templates/blackline-tattoo/noir-frame-campaign.webp",
+      "/templates/blackline-tattoo/noir-frame-portrait.webp",
+      "/templates/blackline-tattoo/noir-frame-campaign-alt.webp",
+      "/templates/blackline-tattoo/noir-frame-portrait-alt.webp",
+      "/templates/blackline-tattoo/noir-frame-booking.webp",
+      "/templates/blackline-tattoo/noir-frame-light-night.webp",
+      "/templates/blackline-tattoo/noir-frame-light-dusk.webp"
+    ]
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;
