@@ -8,6 +8,7 @@ import { VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_5_EDITOR } from "./ve
 import { VOW_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_6_EDITOR } from "./vow-premium-template-editor-adapter.ts";
 import { LUMEA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_7_EDITOR } from "./lumea-premium-template-editor-adapter.ts";
 import { RASTEM_CENTER_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_8_EDITOR } from "./rastem-center-premium-template-editor-adapter.ts";
+import { BLACKLINE_TATTOO_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_9_EDITOR } from "./blackline-tattoo-premium-template-editor-adapter.ts";
 import { createPremiumTemplateEditorRegistry } from "./premium-template-editor-registry-builder.ts";
 export { validatePremiumTemplateEditorAdapterRegistry } from "./premium-template-editor-registry-builder.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
@@ -22,4 +23,5 @@ export const { adapters: PREMIUM_TEMPLATE_EDITOR_ADAPTERS, get: getPremiumTempla
   "vow-films": PACKAGE_6_EDITOR,
   "lumea-beauty": PACKAGE_7_EDITOR,
   "rastem-center": PACKAGE_8_EDITOR,
+  "blackline-tattoo": PACKAGE_9_EDITOR,
 }), getPremiumTemplateDefinition);
