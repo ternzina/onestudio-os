@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode, Ref } from "react";
 import type { EditorBlockLibraryItem } from "@/components/admin/EditorBlockLibrary";
 import type { PublicSiteButtonSize, PublicSiteTypography } from "@/lib/public-site/types";
+import type { PremiumTemplateFieldSemantic } from "@/lib/public-site/premium-template-field-contract";
 
 export type EditorActionAppearance = {
   size: PublicSiteButtonSize;
@@ -59,7 +60,7 @@ export type EditorNavigatorModel = {
   footerNotice?: ReactNode;
 };
 
-export type EditorInspectorField =
+export type EditorInspectorField = (
   | { id: string; type: "text"; label: string; value: string; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "url" | "number" | "color"; label: string; value: string | number; originalValue?: string; disabled?: boolean; onChange: (value: string) => void }
   | { id: string; type: "textarea"; label: string; value: string; originalValue?: string; rows?: number; disabled?: boolean; onChange: (value: string) => void }
@@ -87,7 +88,8 @@ export type EditorInspectorField =
       onHrefChange?: (value: string) => void;
     }
   | { id: string; type: "composition"; editor: ReactNode }
-  | { id: string; type: "custom"; customContent: ReactNode };
+  | { id: string; type: "custom"; customContent: ReactNode }
+) & { semantic?: PremiumTemplateFieldSemantic };
 
 export const ONESTUDIO_INSPECTOR_GROUPS = ["content", "typography", "media", "layout"] as const;
 export type OneStudioInspectorGroup = (typeof ONESTUDIO_INSPECTOR_GROUPS)[number];

@@ -4,6 +4,91 @@ import { createPremiumTemplateManifestLookup, validatePremiumTemplateManifests, 
 export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
   {
     "packageVersion": "1.0",
+    "templateKey": "bloom-floral-studio",
+    "name": "BLOOM Floral Atelier",
+    "description": "Современная цветочная мастерская с коллекциями, доставкой, свадьбами, подпиской и мастер-классами.",
+    "category": "retail",
+    "aliases": [
+      "bloom",
+      "floral-atelier"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 11
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "beauty",
+      "order": 11,
+      "title": {
+        "ru": "BLOOM Floral Atelier",
+        "en": "BLOOM Floral Atelier"
+      },
+      "description": {
+        "ru": "Цветочные коллекции, доставка, свадьбы, подписка и мастер-классы.",
+        "en": "Floral collections, delivery, weddings, subscriptions and workshops."
+      },
+      "alt": {
+        "ru": "Цветочная мастерская BLOOM",
+        "en": "BLOOM floral atelier"
+      },
+      "route": "/demos/bloom-floral-studio",
+      "image": "/templates/bloom-floral-studio/hero-floral.webp",
+      "accent": "#6B243B",
+      "dark": "#3B1728",
+      "surface": "#FBF6EF"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "bloom-floral-studio-1.0",
+      "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "bloom-floral-studio",
+      "installable": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "collections",
+      "occasions",
+      "delivery",
+      "weddings",
+      "subscription",
+      "workshops",
+      "testimonials",
+      "faq",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/bloom-floral-studio/hero-floral.webp",
+      "/templates/bloom-floral-studio/collection-season.webp",
+      "/templates/bloom-floral-studio/collection-mono.webp",
+      "/templates/bloom-floral-studio/collection-composition.webp",
+      "/templates/bloom-floral-studio/collection-box.webp",
+      "/templates/bloom-floral-studio/delivery.webp",
+      "/templates/bloom-floral-studio/weddings.webp",
+      "/templates/bloom-floral-studio/subscription.webp",
+      "/templates/bloom-floral-studio/workshops.webp",
+      "/templates/bloom-floral-studio/atelier.webp",
+      "/templates/bloom-floral-studio/floral-detail-01.webp",
+      "/templates/bloom-floral-studio/floral-detail-02.webp"
+    ]
+  },
+  {
+    "packageVersion": "1.0",
     "templateKey": "pawhaus-grooming-studio",
     "name": "PAWHAUS Grooming Studio",
     "description": "Премиальный городской груминг-салон для собак и кошек с мягким сервисом и понятной записью.",
@@ -44,6 +129,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "pawhaus-grooming-studio-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "pawhaus-grooming-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -128,6 +217,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "ritmo-dance-studio-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "ritmo-dance-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -214,6 +307,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "align-pilates-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "align-pilates-studio",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -297,6 +394,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "gloss-1.0",
       "contentNamespace": false
     },
+    "database": {
+      "templateKey": "gloss-nail-studio",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -367,6 +468,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "noir-phase-1",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "premium-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -441,6 +546,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "velora-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "velora-event-venue",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -524,6 +633,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "vow-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "vow-films",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -596,6 +709,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "lumea-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "lumea-beauty",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -662,6 +779,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "rastem-center-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "rastem-center",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -747,6 +868,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "blackline-tattoo-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "blackline-tattoo",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,

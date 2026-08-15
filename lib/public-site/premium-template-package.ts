@@ -26,6 +26,7 @@ export type PremiumTemplatePackageManifest<TemplateKey extends string = string> 
     surface: string;
   }>;
   persistence: Readonly<{ schemaVersion: string; compatibleSince: string; contentNamespace: boolean }>;
+  database: Readonly<{ templateKey: TemplateKey; installable: boolean }>;
   capabilities: Readonly<{
     customerCreatable: boolean;
     editorSelectable: boolean;

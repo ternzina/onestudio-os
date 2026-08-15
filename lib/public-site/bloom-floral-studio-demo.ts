@@ -1,0 +1,5 @@
+import type { PublicSiteData } from "./types.ts";
+import { createBloomFloralStudioPremiumTemplateSeed } from "./bloom-floral-studio-premium-template-seed.ts";
+export type BloomFloralStudioDemoLocale = "ru" | "en";
+export const bloomFloralStudioDemoBasePath = (locale: BloomFloralStudioDemoLocale) => locale === "en" ? "/demos/bloom-floral-studio/en" : "/demos/bloom-floral-studio";
+export function createCanonicalBloomFloralStudioDemoSite(locale: BloomFloralStudioDemoLocale = "ru"): PublicSiteData { return { business: { id: `bloom-floral-studio-demo-${locale}`, slug: "bloom-floral-studio", name: "BLOOM Floral Atelier", locale, primary_locale: "ru", currency: "UAH", timezone: "Europe/Kyiv" }, content: createBloomFloralStudioPremiumTemplateSeed(locale), company: { display_name: "BLOOM Floral Atelier", email: "hello@bloom.demo", phone: "+38 (099) 555-31-31", address: locale === "en" ? "18 Tsvetochnaya Street · Kyiv" : "ул. Цветочная, 18 · Киев" }, services: [], portfolio: [], capabilities: { booking: false, catalog: true, portfolio: false }, available_locales: ["ru", "en"], published_at: "2026-08-15T00:00:00.000Z" }; }

@@ -17,6 +17,64 @@ const imports = (items, rootDir, outputDir) => items.map(({ binding, local }) =>
 ).join("\n");
 const map = (items) => `{\n${items.map(({ key, local }) => `  ${JSON.stringify(key)}: ${local},`).join("\n")}\n}`;
 const CAPABILITIES = ["seed", "contract", "editor", "publicHome", "customPage"];
+export const PREMIUM_TEMPLATE_DATABASE_REGISTRY_FILE = "premium-template-registry.sql";
+export const PREMIUM_TEMPLATE_REGISTRY_MIGRATION_SUFFIX = "_generated_premium_template_registry.sql";
+
+const sqlString = (value) => `'${String(value).replaceAll("'", "''")}'`;
+
+const canonicalInstallableTemplateKeys = (packages) => packages
+  .filter(({ manifest }) => manifest.capabilities.customerCreatable === true && manifest.database?.installable === true)
+  .map(({ manifest }) => manifest.database.templateKey)
+  .sort();
+
+const migrationVersion = (name) => {
+  const match = String(name).match(/^(\d+)_/);
+  return match ? Number(match[1]) : null;
+};
+
+export function findPremiumTemplateRegistryMigrationCoverage(migrations) {
+  const covered = new Set();
+  for (const migration of migrations) {
+    if (!/site_template_registry/.test(migration.content)) continue;
+    const rows = migration.content.matchAll(/\(\s*'([^']+)'\s*,\s*'([^']+)'(?:\s*,\s*'[^']*')?\s*,\s*true\s*,\s*true\s*\)/g);
+    for (const [, templateKey, seedTemplateId] of rows) {
+      if (templateKey === seedTemplateId) covered.add(templateKey);
+    }
+  }
+  return covered;
+}
+
+export function renderPremiumTemplateRegistryMigration(templateKeys) {
+  const rows = [...templateKeys].sort();
+  if (!rows.length) return "";
+  return `${GENERATED_HEADER}-- Generated additive migration for canonical customer-creatable packages missing historical registry coverage.\n-- Do not edit; add a canonical package declaration and regenerate instead.\n\ninsert into public.site_template_registry (\n  template_key, seed_template_id, is_customer_creatable, is_active\n)\nvalues\n${rows.map((templateKey) => `  (${sqlString(templateKey)}, ${sqlString(templateKey)}, true, true),`).join("\n").replace(/,$/, "")}\non conflict (template_key) do update set\n  seed_template_id = excluded.seed_template_id,\n  is_customer_creatable = excluded.is_customer_creatable,\n  is_active = excluded.is_active,\n  updated_at = now();\n`;
+}
+
+export function planPremiumTemplateRegistryMigrations(packages, migrations) {
+  validatePremiumTemplatePackageSource(packages);
+  const covered = findPremiumTemplateRegistryMigrationCoverage(migrations);
+  const missingTemplateKeys = canonicalInstallableTemplateKeys(packages).filter((key) => !covered.has(key));
+  if (!missingTemplateKeys.length) return { missingTemplateKeys, migrationName: null, migrationContent: null };
+
+  const versions = migrations.map(({ name }) => migrationVersion(name)).filter((version) => version !== null);
+  const nextVersion = String(Math.max(0, ...versions) + 1).padStart(14, "0");
+  return {
+    missingTemplateKeys,
+    migrationName: `${nextVersion}${PREMIUM_TEMPLATE_REGISTRY_MIGRATION_SUFFIX}`,
+    migrationContent: renderPremiumTemplateRegistryMigration(missingTemplateKeys),
+  };
+}
+
+export function renderPremiumTemplateDatabaseRegistry(packages) {
+  const rows = packages
+    .filter(({ manifest }) => manifest.database?.installable === true)
+    .sort((left, right) => left.manifest.database.templateKey.localeCompare(right.manifest.database.templateKey))
+    .map(({ manifest }) => [manifest.database.templateKey, manifest.database.templateKey]);
+  const values = rows.length
+    ? `values\n${rows.map(([templateKey, seedTemplateId]) => `  (${sqlString(templateKey)}, ${sqlString(seedTemplateId)}, true, true),`).join("\n").replace(/,$/, "")}`
+    : "select null::text, null::text, false, false where false";
+  return `${GENERATED_HEADER}-- Apply this artifact in a new additive Supabase migration.\n-- It is intentionally inert at application runtime and preserves registry validation.\n\ninsert into public.site_template_registry (\n  template_key, seed_template_id, is_customer_creatable, is_active\n)\n${values}\non conflict (template_key) do update set\n  seed_template_id = excluded.seed_template_id,\n  is_customer_creatable = excluded.is_customer_creatable,\n  is_active = excluded.is_active,\n  updated_at = now();\n`;
+}
 
 export function validatePremiumTemplatePackageSource(packages) {
   const keys = new Set();
@@ -28,6 +86,16 @@ export function validatePremiumTemplatePackageSource(packages) {
     for (const capability of CAPABILITIES) {
       const binding = item.bindings?.[capability];
       if (!binding?.module || !binding?.export) throw new Error(`Premium package "${key}" has no complete ${capability} binding`);
+    }
+    const database = item.manifest.database;
+    if (!database || typeof database.installable !== "boolean" || !database.templateKey) {
+      throw new Error(`Premium package "${key}" has no complete database registration metadata`);
+    }
+    if (database.templateKey !== key) {
+      throw new Error(`Premium package "${key}" database templateKey diverges: "${database.templateKey}"`);
+    }
+    if (database.installable !== item.manifest.capabilities.customerCreatable) {
+      throw new Error(`Premium package "${key}" database installability must match explicit customerCreatable capability`);
     }
   }
 }
@@ -42,6 +110,7 @@ export function renderPremiumTemplatePackageFiles(packages, { rootDir, outputDir
   const home = entries(packages, "publicHome");
   const page = entries(packages, "customPage");
   return new Map([
+    [PREMIUM_TEMPLATE_DATABASE_REGISTRY_FILE, renderPremiumTemplateDatabaseRegistry(packages)],
     ["premium-template-package-catalog.ts", `${GENERATED_HEADER}import { createPremiumTemplateManifestLookup, validatePremiumTemplateManifests, type PremiumTemplatePackageManifest } from ${local("premium-template-package.ts")};\n\nexport const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = ${quote(manifests)} as const satisfies readonly PremiumTemplatePackageManifest[];\nexport const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;\nexport type PremiumTemplateKey = (typeof PREMIUM_TEMPLATE_PACKAGE_MANIFESTS)[number]["templateKey"];\nconst errors = validatePremiumTemplateManifests(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS);\nif (errors.length) throw new Error(\`Invalid Premium Template Package catalog: \${errors.join("; ")}\`);\nexport const getPremiumTemplatePackage = createPremiumTemplateManifestLookup(PREMIUM_TEMPLATE_PACKAGE_MANIFESTS);\n`],
     ["premium-template-seed-registry.ts", `${GENERATED_HEADER}${imports(seed, rootDir, outputDir)}\nimport type { PremiumTemplateSeedFactory } from ${local("premium-template-seed-factory.ts")};\n\nconst factories = ${map(seed)} satisfies Record<string, PremiumTemplateSeedFactory>;\nexport function getPremiumTemplateSeedFactory(templateKey: string | null | undefined) { return templateKey ? factories[templateKey as keyof typeof factories] : undefined; }\n`],
     ["premium-template-registry.ts", `${GENERATED_HEADER}${imports(contract, rootDir, outputDir)}\nimport { createPremiumTemplateContractRegistry } from ${local("premium-template-registry-builder.ts")};\n\nexport const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateDefinition } = createPremiumTemplateContractRegistry(Object.values(${map(contract)}));\n`],
