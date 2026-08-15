@@ -12,7 +12,7 @@ import { getPremiumTemplatePublicRuntime } from "../lib/public-site/premium-temp
 import { TEMPLATE_CATALOG, TEMPLATE_KEYS, createPremiumPackageTemplateCatalog, getCustomerTemplateChoices, getEditorTemplateChoices } from "../lib/public-site/template-catalog.ts";
 import { createPremiumTemplateSeedResolver, createTemplateSeed } from "../lib/public-site/template-seeds.ts";
 import { PREMIUM_TEMPLATE_PACKAGE_SOURCE } from "../lib/public-site/premium-template-package-source.mjs";
-import { renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
+import { PREMIUM_TEMPLATE_DATABASE_REGISTRY_FILE, renderPremiumTemplatePackageFiles } from "../scripts/premium-template-package-generator.mjs";
 
 const KEYS = ["bloom-floral-studio", "pawhaus-grooming-studio", "ritmo-dance-studio", "align-pilates-studio", "gloss-nail-studio", "premium-studio", "velora-event-venue", "vow-films", "lumea-beauty", "rastem-center", "blackline-tattoo"] as const;
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
@@ -52,6 +52,7 @@ test("one synthetic AURORA package registration feeds every production registry 
   const third = {
     manifest: {
       ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS[0], templateKey: "aurora-wellness", name: "AURORA",
+      database: { templateKey: "aurora-wellness", installable: true },
     aliases: ["aurora"], category: "wellness", library: { tier: "standard", visible: true, order: 40 },
     preview: { ...PREMIUM_TEMPLATE_PACKAGE_MANIFESTS[0].preview, group: "wellness", order: 40,
       route: "/demos/aurora-wellness", image: "/templates/aurora/hero.webp",
@@ -113,7 +114,12 @@ test("one synthetic AURORA package registration feeds every production registry 
 
 test("checked-in capability registries are deterministic and current", async () => {
   const generated = renderPremiumTemplatePackageFiles(PREMIUM_TEMPLATE_PACKAGE_SOURCE, { rootDir, outputDir: resolve(rootDir, "lib/public-site") });
-  for (const [name, expected] of generated) assert.equal(await read(`../lib/public-site/${name}`), expected, `${name} is stale`);
+  for (const [name, expected] of generated) {
+    const path = name === PREMIUM_TEMPLATE_DATABASE_REGISTRY_FILE
+      ? new URL(`../supabase/generated/${name}`, import.meta.url)
+      : new URL(`../lib/public-site/${name}`, import.meta.url);
+    assert.equal(await readFile(path, "utf8"), expected, `${name} is stale`);
+  }
 });
 
 test("unknown identities fail closed and never inherit seed/editor/runtime", () => {

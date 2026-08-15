@@ -45,6 +45,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "bloom-floral-studio-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "bloom-floral-studio",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -125,6 +129,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "pawhaus-grooming-studio-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "pawhaus-grooming-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -209,6 +217,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "ritmo-dance-studio-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "ritmo-dance-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -295,6 +307,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "align-pilates-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "align-pilates-studio",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -378,6 +394,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "gloss-1.0",
       "contentNamespace": false
     },
+    "database": {
+      "templateKey": "gloss-nail-studio",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -448,6 +468,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "noir-phase-1",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "premium-studio",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -522,6 +546,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "velora-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "velora-event-venue",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -605,6 +633,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "vow-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "vow-films",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -677,6 +709,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "compatibleSince": "lumea-1.0",
       "contentNamespace": true
     },
+    "database": {
+      "templateKey": "lumea-beauty",
+      "installable": true
+    },
     "capabilities": {
       "customerCreatable": true,
       "editorSelectable": true,
@@ -743,6 +779,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "rastem-center-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "rastem-center",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
@@ -828,6 +868,10 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "schemaVersion": "1.0",
       "compatibleSince": "blackline-tattoo-1.0",
       "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "blackline-tattoo",
+      "installable": true
     },
     "capabilities": {
       "customerCreatable": true,
