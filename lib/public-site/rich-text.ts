@@ -37,14 +37,53 @@ export function encodeRichText(document: RichTextDocument): string {
 }
 
 export function decodeRichText(value?: string | null): RichTextDocument | null {
-  if (!value?.startsWith(RICH_TEXT_PREFIX)) return null;
+  if (!value) return null;
+  const decodeCandidate = (candidate: string): RichTextDocument | null => {
+    const json = candidate.startsWith(RICH_TEXT_PREFIX) ? candidate.slice(RICH_TEXT_PREFIX.length) : candidate;
+    try {
+      const parsed: unknown = JSON.parse(json);
+      return isRichTextDocument(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+  const direct = decodeCandidate(value);
+  if (direct) return direct;
   try {
-    const parsed = JSON.parse(value.slice(RICH_TEXT_PREFIX.length)) as RichTextDocument;
-    if (parsed?.version !== 1 || parsed.root?.type !== "root") return null;
-    return parsed;
+    const unwrapped: unknown = JSON.parse(value);
+    return typeof unwrapped === "string" ? decodeCandidate(unwrapped) : null;
   } catch {
     return null;
   }
+}
+
+const NODE_TYPES = new Set<RichTextNode["type"]>(["root", "p", "ul", "ol", "li", "br", "strong", "em", "u", "span", "a", "text"]);
+const NODE_KEYS = new Set(["type", "text", "align", "color", "fontFamily", "fontSize", "href", "children"]);
+
+function isRichTextNode(value: unknown, depth = 0): value is RichTextNode {
+  if (!value || typeof value !== "object" || Array.isArray(value) || depth > 32) return false;
+  const node = value as Record<string, unknown>;
+  if (typeof node.type !== "string" || !NODE_TYPES.has(node.type as RichTextNode["type"])) return false;
+  if (Object.keys(node).some((key) => !NODE_KEYS.has(key))) return false;
+  if (node.text !== undefined && typeof node.text !== "string") return false;
+  if (node.align !== undefined && !["left", "center", "right", "justify"].includes(String(node.align))) return false;
+  if (node.color !== undefined && typeof node.color !== "string") return false;
+  if (node.fontFamily !== undefined && typeof node.fontFamily !== "string") return false;
+  if (node.fontSize !== undefined && typeof node.fontSize !== "number") return false;
+  if (node.href !== undefined && typeof node.href !== "string") return false;
+  if (node.children !== undefined && (!Array.isArray(node.children) || node.children.length > 10_000 || !node.children.every((child) => isRichTextNode(child, depth + 1)))) return false;
+  if (node.type === "text") return typeof node.text === "string" && node.children === undefined;
+  if (node.type === "br") return node.children === undefined;
+  return Array.isArray(node.children);
+}
+
+function isRichTextDocument(value: unknown): value is RichTextDocument {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const documentValue = value as Record<string, unknown>;
+  return Object.keys(documentValue).every((key) => key === "version" || key === "root")
+    && documentValue.version === 1
+    && isRichTextNode(documentValue.root)
+    && (documentValue.root as RichTextNode).type === "root";
 }
 
 export function normalizeRichTextColor(value?: string | null) {
