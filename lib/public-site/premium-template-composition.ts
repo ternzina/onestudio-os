@@ -117,6 +117,23 @@ export type MovePremiumTemplateCompositionInput = NormalizePremiumTemplateCompos
   toIndex: number;
 };
 
+/** Shared composition operations supplied by every canonical package contract. */
+export function createPremiumTemplateCompositionAdapter(contract: PremiumTemplateContract) {
+  return {
+    nativeToken: (sectionId: string) => createPremiumTemplateNativeToken(contract.templateKey, sectionId),
+    nativeSectionId: (token: string) => {
+      const parsed = parsePremiumTemplateNativeToken(token);
+      return parsed?.templateKey === contract.templateKey && contract.nativeSections.some((section) => section.id === parsed.sectionId)
+        ? parsed.sectionId
+        : null;
+    },
+    normalizeLayout: (tokens: readonly string[], customBlockIds: readonly string[]) =>
+      normalizePremiumTemplateComposition({ contract, tokens, customBlockIds }),
+    moveLayoutItem: (input: Omit<MovePremiumTemplateCompositionInput, "contract">) =>
+      movePremiumTemplateCompositionItem({ contract, ...input }),
+  };
+}
+
 export function movePremiumTemplateCompositionItem({
   contract,
   tokens,

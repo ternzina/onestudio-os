@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { test } from "node:test";
+import { getPremiumTemplatePackage } from "../lib/public-site/premium-template-package-catalog.ts";
+import { getPremiumTemplateDefinition } from "../lib/public-site/premium-template-registry.ts";
+import { getPremiumTemplateEditorAdapter } from "../lib/public-site/premium-template-editor-registry.ts";
+import { getPremiumTemplatePublicRuntime } from "../lib/public-site/premium-template-runtime-registry.ts";
+import { getPremiumTemplateSeedFactory } from "../lib/public-site/premium-template-seed-registry.ts";
+import { createPawhausGroomingStudioPremiumTemplateSeed } from "../lib/public-site/pawhaus-grooming-studio-premium-template-seed.ts";
+import { createPawhausGroomingStudioRenderPlan } from "../lib/public-site/pawhaus-grooming-studio-render-plan.ts";
+const key = "pawhaus-grooming-studio";
+test("PAWHAUS is a visible, customer-creatable free bilingual package", () => { const pkg = getPremiumTemplatePackage(key); assert.ok(pkg); assert.equal(pkg.access, "free"); assert.equal(pkg.library.visible, true); assert.equal(pkg.capabilities.customerCreatable, true); assert.deepEqual(pkg.preview.title, { ru: "PAWHAUS Grooming Studio", en: "PAWHAUS Grooming Studio" }); assert.equal(getPremiumTemplateDefinition(key)?.templateKey, key); assert.ok(getPremiumTemplateEditorAdapter(key)); assert.ok(getPremiumTemplatePublicRuntime(key)); assert.ok(getPremiumTemplateSeedFactory(key)); assert.deepEqual(createPawhausGroomingStudioPremiumTemplateSeed("en").template_content?.[`${key}:locale`], "en"); });
+test("PAWHAUS uses isolated assets, native IDs, canonical layout, and custom blocks", async () => { const pkg = getPremiumTemplatePackage(key)!; assert.deepEqual(pkg.nativeSectionIds, ["hero", "services", "before-after", "groomers", "process", "packages", "gallery", "testimonials", "booking", "faq", "contact", "footer"]); assert.ok(pkg.assets.every((asset) => asset.startsWith(`/templates/${key}/`))); const source = await readFile(new URL("../lib/public-site/pawhaus-grooming-studio-premium-template-runtime-adapter.ts", import.meta.url), "utf8"); assert.match(source, /PublicCustomBlock|PawhausGroomingStudioSite/); assert.doesNotMatch(source, /templates\/(gloss|align-pilates|ritmo-dance-studio|velora)/i); const seed = createPawhausGroomingStudioPremiumTemplateSeed(); const plan = createPawhausGroomingStudioRenderPlan({ ...seed, custom_blocks: [{ id: "custom-note", kind: "text", eyebrow: "", title: "", text: "", items: "", button_label: "", button_url: "", tone: "light" }] }); assert.ok(plan.some((item) => item.key === "native:pawhaus-grooming-studio:hero")); assert.ok(plan.some((item) => item.key === "custom:custom-note")); });
+test("PAWHAUS English content and native copy contain no Russian Cyrillic", async () => {
+  const english = createPawhausGroomingStudioPremiumTemplateSeed("en");
+  const strings: string[] = [];
+  const collect = (value: unknown) => { if (typeof value === "string") strings.push(value); else if (Array.isArray(value)) value.forEach(collect); else if (value && typeof value === "object") Object.values(value).forEach(collect); };
+  collect(english);
+  assert.ok(strings.length > 0);
+  assert.deepEqual(strings.filter((value) => /[А-Яа-яЁёІіЇїЄє]/u.test(value)), [], "English PAWHAUS content leaked Cyrillic copy");
+});
+test("PAWHAUS creation registry migration has no legacy demo dependency", async () => { const sql = await readFile(new URL("../supabase/migrations/20260814200000_pawhaus_grooming_studio_template_registry.sql", import.meta.url), "utf8"); assert.match(sql, /'pawhaus-grooming-studio'/g); assert.doesNotMatch(sql, /legacy_demo_slug|demo_slug/i); });

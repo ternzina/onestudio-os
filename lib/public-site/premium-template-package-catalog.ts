@@ -4,6 +4,90 @@ import { createPremiumTemplateManifestLookup, validatePremiumTemplateManifests, 
 export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
   {
     "packageVersion": "1.0",
+    "templateKey": "pawhaus-grooming-studio",
+    "name": "PAWHAUS Grooming Studio",
+    "description": "Премиальный городской груминг-салон для собак и кошек с мягким сервисом и понятной записью.",
+    "category": "beauty",
+    "aliases": [
+      "pawhaus",
+      "pet-grooming"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 7
+    },
+    "preview": {
+      "collectionVisible": true,
+      "group": "beauty",
+      "order": 7,
+      "title": {
+        "ru": "PAWHAUS Grooming Studio",
+        "en": "PAWHAUS Grooming Studio"
+      },
+      "description": {
+        "ru": "Груминг для собак и кошек: спокойный уход, мастера и прозрачные пакеты.",
+        "en": "Calm grooming for dogs and cats with trusted specialists and clear packages."
+      },
+      "alt": {
+        "ru": "Ухоженная собака в студии PAWHAUS",
+        "en": "Well-groomed dog at PAWHAUS"
+      },
+      "route": "/demos/pawhaus-grooming-studio",
+      "image": "/templates/pawhaus-grooming-studio/hero.webp",
+      "accent": "#B7F34A",
+      "dark": "#20211D",
+      "surface": "#F8F4EA"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "pawhaus-grooming-studio-1.0",
+      "contentNamespace": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "services",
+      "before-after",
+      "groomers",
+      "process",
+      "packages",
+      "gallery",
+      "testimonials",
+      "booking",
+      "faq",
+      "contact",
+      "footer"
+    ],
+    "assets": [
+      "/templates/pawhaus-grooming-studio/hero.webp",
+      "/templates/pawhaus-grooming-studio/service-01.webp",
+      "/templates/pawhaus-grooming-studio/service-02.webp",
+      "/templates/pawhaus-grooming-studio/service-03.webp",
+      "/templates/pawhaus-grooming-studio/service-04.webp",
+      "/templates/pawhaus-grooming-studio/package-01.webp",
+      "/templates/pawhaus-grooming-studio/package-02.webp",
+      "/templates/pawhaus-grooming-studio/package-03.webp",
+      "/templates/pawhaus-grooming-studio/groomer-01.webp",
+      "/templates/pawhaus-grooming-studio/groomer-02.webp",
+      "/templates/pawhaus-grooming-studio/groomer-03.webp",
+      "/templates/pawhaus-grooming-studio/before.webp",
+      "/templates/pawhaus-grooming-studio/after.webp",
+      "/templates/pawhaus-grooming-studio/testimonial.webp"
+    ]
+  },
+  {
+    "packageVersion": "1.0",
     "templateKey": "ritmo-dance-studio",
     "name": "RITMO Dance Studio",
     "description": "Яркий сайт танцевальной студии с направлениями, расписанием, тренерами, пробным уроком и абонементами.",

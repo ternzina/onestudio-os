@@ -21,3 +21,14 @@ test("shared editor reserves Add block for library insertion and Duplicate block
   assert.match(translations, /"\+ Add block": "\+ Добавить блок"/);
   assert.match(translations, /"Duplicate block": "Дублировать блок"/);
 });
+
+test("shared custom block preview exposes the canonical scroll identity", async () => {
+  const [customBlock, reveal] = await Promise.all([
+    read("../components/public/PublicCustomBlock.tsx"),
+    read("../components/public/PublicReveal.tsx"),
+  ]);
+
+  assert.match(customBlock, /data-editor-anchor=\{`custom:\$\{block\.id\}`\}/);
+  assert.match(customBlock, /editorAnchor=\{`custom:\$\{block\.id\}`\}/);
+  assert.match(reveal, /data-editor-anchor=\{editorAnchor\}/);
+});

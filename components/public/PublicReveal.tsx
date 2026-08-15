@@ -6,6 +6,7 @@ import type { PublicSiteBlockAnimation } from "@/lib/public-site/types";
 
 export default function PublicReveal({
   id,
+  editorAnchor,
   animation = "none",
   animateOnMobile = true,
   className = "",
@@ -13,6 +14,7 @@ export default function PublicReveal({
   children,
 }: {
   id?: string;
+  editorAnchor?: string;
   animation?: PublicSiteBlockAnimation;
   animateOnMobile?: boolean;
   className?: string;
@@ -53,6 +55,7 @@ export default function PublicReveal({
   return (
     <section
       id={id}
+      data-editor-anchor={editorAnchor}
       ref={sectionRef}
       className={`os-public-reveal ${className}`.trim()}
       style={style}

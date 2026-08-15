@@ -8,6 +8,8 @@ import { premiumNativeActionKey } from "@/lib/public-site/premium-action-style";
 import { ALIGN_PILATES_TEMPLATE_KEY, resolveAlignPilatesContent } from "@/lib/public-site/align-pilates-premium-template-content";
 import type { AlignPilatesNativeSectionId } from "@/lib/public-site/align-pilates-premium-template-contract";
 import { isTemplateNativeSectionVisible } from "@/lib/public-site/template-native-section-state";
+import { createPremiumTemplateRenderPlan } from "@/lib/public-site/premium-template-render-plan";
+import { ALIGN_PILATES_PREMIUM_TEMPLATE_CONTRACT } from "@/lib/public-site/align-pilates-premium-template-contract";
 import type { PublicSiteData } from "@/lib/public-site/types";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import styles from "./AlignPilates.module.css";
@@ -40,8 +42,7 @@ export default function AlignPilatesSite({ site, basePath }: { site: PublicSiteD
     contacts: visible("contacts") ? <section className={styles.contacts} id="contacts"><div className={styles.contactCopy}><p className={styles.kicker}>{content.contacts.eyebrow}</p><h2 style={heading("contacts")}>{content.contacts.title}</h2><p>{content.contacts.hours}</p><p>{content.contacts.address}</p><a className={styles.primaryButton} href="#hero">{content.contacts.cta}</a></div><div className={styles.map}><Image src={content.contacts.image} alt={content.contacts.alt} fill sizes="(max-width: 820px) 100vw, 60vw" /><div className={styles.pin}><span>●</span><strong>{content.brand}</strong><small>{content.brandNote}</small></div></div></section> : null,
     footer: visible("footer") ? <footer className={styles.footer} id="footer"><div className={styles.footerTop}><div className={styles.footerIntro}><a className={styles.footerBrand} href="#hero"><span>{content.brand}</span><small>{content.brandNote}</small></a><PublicRichText value={content.footer.text} /><a className={styles.footerCta} href="#trial">{content.footer.cta} <Arrow /></a></div><nav className={styles.footerNav}><p>{locale === "en" ? "Studio" : "Студия"}</p>{content.navigation.slice(0, 5).map((item) => <a href={item.href} key={item.href}>{item.label}</a>)}</nav><div className={styles.footerContact}><p className={styles.footerLabel}>{content.footer.visit}</p><strong>{content.footer.address}</strong><span>{content.footer.hours}</span><a href={`mailto:${content.footer.email}`}>{content.footer.email}</a><a href={`tel:${content.footer.phone.replace(/\s/g, "")}`}>{content.footer.phone}</a></div><div className={styles.footerSocialBlock}><p className={styles.footerLabel}>{content.footer.social}</p><div className={styles.socials}><a href="#hero">Instagram</a><a href="#hero">Telegram</a><a href="#hero">WhatsApp</a></div></div></div><div className={styles.footerBottom}><span>{content.footer.copyright}</span><div><a href="#hero">{content.footer.privacy}</a><a href="#hero">{content.footer.rules}</a></div><p>{locale === "en" ? "Website and management system by" : "Сайт и система управления созданы на"} <strong>OneStudio OS</strong></p></div></footer> : null,
   };
-  const custom = new Map((site.content.custom_blocks ?? []).map((block) => [`custom:${block.id}`, block]));
-  const order = site.content.layout_order?.length ? site.content.layout_order : Object.keys(sections).map((id) => `native:${ALIGN_PILATES_TEMPLATE_KEY}:${id}`);
+  const plan = createPremiumTemplateRenderPlan(site.content, ALIGN_PILATES_PREMIUM_TEMPLATE_CONTRACT);
   return <main className={styles.page} lang={locale} style={{ "--ink": site.content.theme_dark ?? "#3D3A34", "--wine": site.content.theme_accent ?? "#6F2B2E", "--paper": site.content.theme_surface ?? "#F7F4ED" } as CSSProperties}>{visible("hero") ? <>
       <div className={styles.promo}>{content.promo}</div>
       <header className={styles.header} data-editor-anchor="hero" data-sticky-align-header="true">
@@ -52,5 +53,5 @@ export default function AlignPilatesSite({ site, basePath }: { site: PublicSiteD
           <a className={styles.headerCta} data-premium-action={premiumNativeActionKey("align-pilates-studio", "hero", "header-cta")} href={content.headerCta.href}>{content.headerCta.label}</a>
         </div>
       </header>
-    </> : null}{order.map((token) => { const prefix = `native:${ALIGN_PILATES_TEMPLATE_KEY}:`; if (token.startsWith(prefix)) { const id = token.slice(prefix.length); return <div key={token} data-editor-anchor={id}>{sections[id]}</div>; } const block = custom.get(token); return block ? <div key={token} data-editor-anchor={token}><PublicCustomBlock block={block} services={site.services} bookingHref="#trial" /></div> : null; })}</main>;
+    </> : null}{plan.map((item) => item.kind === "native" ? <div key={item.key} data-editor-anchor={item.sectionId}>{sections[item.sectionId]}</div> : <div key={item.key} data-editor-anchor={item.key}><PublicCustomBlock block={item.block} services={site.services} bookingHref="#trial" /></div>)}</main>;
 }
