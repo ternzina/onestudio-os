@@ -1,0 +1,32 @@
+.page {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.group {
+  display: grid;
+  gap: 1rem;
+}
+
+.heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1rem;
+}
+
+.item {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.label {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}

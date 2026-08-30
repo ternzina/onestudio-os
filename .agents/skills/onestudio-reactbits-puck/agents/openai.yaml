@@ -1,0 +1,7 @@
+interface:
+  display_name: "OneStudio ReactBits Integrator"
+  short_description: "Official React Bits and Puck integration"
+  default_prompt: "Use $onestudio-reactbits-puck to audit the current branch, identify the pipeline stage, and plan an official-source-first integration without changing code before baseline audit."
+
+policy:
+  allow_implicit_invocation: true
