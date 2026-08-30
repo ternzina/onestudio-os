@@ -87,6 +87,12 @@ import {
   fastBatch9Components,
   fastBatch9PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-9/puck-fast-batch-registry";
+import {
+  fastBatch10Blocks,
+  fastBatch10Categories,
+  fastBatch10Components,
+  fastBatch10PuckBlocks,
+} from "@/components/editor-lab/reactbits-fast-batch-10/puck-fast-batch-registry";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 const poc = <Props extends Record<string, unknown>>(input: {
@@ -136,7 +142,7 @@ const manualPocBlocks = [
 // Stable foundation deliberately registers a small, explicit set of blocks.
 // The official React Bits catalog is metadata-only at this boundary and will be
 // connected in a later integration stage after each source is verified.
-export const pocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks];
+export const pocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks, ...fastBatch10PuckBlocks];
 
 const duplicateValues = (values: string[]) => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
 const duplicateCatalogKeys = duplicateValues(pocBlocks.map((block) => block.catalogKey));
@@ -154,8 +160,8 @@ export const pocRegistryAccounting = {
   overlapWithWholesale: 0,
   removedDuplicateRegistrations: 0,
   totalPocBlocksBeforeDedupe: pocBlocks.length,
-  currentOfficialComponents: control3Blocks.length + control6Blocks.length + fastBatch1Blocks.length + fastBatch2Blocks.length + fastBatch3Blocks.length + fastBatch4Blocks.length + fastBatch5Blocks.length + fastBatch6Blocks.length + fastBatch7Blocks.length + fastBatch8Blocks.length + fastBatch9Blocks.length,
-  canonicalSourceOnlyComponents: [...control3Blocks, ...control6Blocks, ...fastBatch1Blocks, ...fastBatch2Blocks, ...fastBatch3Blocks, ...fastBatch4Blocks, ...fastBatch5Blocks, ...fastBatch6Blocks, ...fastBatch7Blocks, ...fastBatch8Blocks, ...fastBatch9Blocks].map((block) => block.catalogKey),
+  currentOfficialComponents: control3Blocks.length + control6Blocks.length + fastBatch1Blocks.length + fastBatch2Blocks.length + fastBatch3Blocks.length + fastBatch4Blocks.length + fastBatch5Blocks.length + fastBatch6Blocks.length + fastBatch7Blocks.length + fastBatch8Blocks.length + fastBatch9Blocks.length + fastBatch10Blocks.length,
+  canonicalSourceOnlyComponents: [...control3Blocks, ...control6Blocks, ...fastBatch1Blocks, ...fastBatch2Blocks, ...fastBatch3Blocks, ...fastBatch4Blocks, ...fastBatch5Blocks, ...fastBatch6Blocks, ...fastBatch7Blocks, ...fastBatch8Blocks, ...fastBatch9Blocks, ...fastBatch10Blocks].map((block) => block.catalogKey),
   finalUniqueComponentKeys: new Set(pocBlocks.map((block) => block.catalogKey)).size,
   finalUniqueTypes: new Set(pocBlocks.map((block) => block.type)).size,
   duplicateCatalogKeys,
@@ -181,6 +187,7 @@ export const pocComponents = {
   ...fastBatch7Components,
   ...fastBatch8Components,
   ...fastBatch9Components,
+  ...fastBatch10Components,
 };
 export const pocCategories = {
   ...control3Categories,
@@ -194,6 +201,7 @@ export const pocCategories = {
   ...fastBatch7Categories,
   ...fastBatch8Categories,
   ...fastBatch9Categories,
+  ...fastBatch10Categories,
   officialReactBits: {
     title: "Official React Bits",
     defaultExpanded: true,
