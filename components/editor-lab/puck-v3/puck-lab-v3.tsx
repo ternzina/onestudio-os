@@ -19,8 +19,8 @@ const PuckPreviewContext = createContext<{
 }>({ activeKey: null, setActiveKey: () => undefined });
 const agencySlugs = ["navigation-13", "hero-16", "showcase-4", "features-1", "how-it-works-4", "about-1", "social-proof-6", "social-proof-3", "contact-2", "footer-3"] as const;
 const agencyBlocks = agencySlugs.map((slug) => pocBlockByCatalogKey.get(`pro-block:${slug}`)).filter(Boolean);
-const libraryGroupOrder = ["React Bits Control 3", "React Bits Control 6", "React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"];
-const collapsedByDefault = new Set(["React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"]);
+const libraryGroupOrder = ["React Bits Control 3", "React Bits Control 6", "React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "React Bits Fast Batch 7", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"];
+const collapsedByDefault = new Set(["React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "React Bits Fast Batch 7", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"]);
 
 function PuckCanvasRoot({ children }: { children: React.ReactNode }) {
   const isDark = useContext(PuckThemeContext);
@@ -38,6 +38,7 @@ function libraryClass(block: any) {
     if (block.tags.includes("React Bits Fast Batch 4")) return "React Bits Fast Batch 4";
     if (block.tags.includes("React Bits Fast Batch 5")) return "React Bits Fast Batch 5";
     if (block.tags.includes("React Bits Fast Batch 6")) return "React Bits Fast Batch 6";
+    if (block.tags.includes("React Bits Fast Batch 7")) return "React Bits Fast Batch 7";
   }
   if (block.catalogKey.startsWith("pro-block:")) return "Marketing Blocks";
   if (block.catalogKey.startsWith("current-free:")) return "Experimental / Current-free";
