@@ -2,7 +2,7 @@
 
 import type { ComponentConfig } from "@puckeditor/core";
 import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from "react";
-import { guardEditorPreviewNavigation, stripEditorProps, type BlockContract } from "@/components/editor-lab/puck/block-contract";
+import { guardEditorPreviewNavigation, guardEditorPreviewSubmit, stripEditorProps, type BlockContract } from "@/components/editor-lab/puck/block-contract";
 import { ReactBitsHost } from "@/components/editor-lab/puck/reactbits-host";
 import styles from "./puck-lab-v3.module.css";
 
@@ -48,7 +48,11 @@ export function MarketingPreview({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div ref={viewportRef} className={styles.marketingPreviewViewport}>
+    <div
+      ref={viewportRef}
+      className={styles.marketingPreviewViewport}
+      onSubmitCapture={guardEditorPreviewSubmit}
+    >
       <div
         ref={sceneRef}
         className={styles.marketingPreviewScene}
@@ -86,6 +90,7 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
           className={styles.marketingBoundary}
           onClickCapture={guardEditorPreviewNavigation}
           onAuxClickCapture={guardEditorPreviewNavigation}
+          onSubmitCapture={guardEditorPreviewSubmit}
         >
           <ReactBitsHost spec={contract.host}>
             <Block {...(userProps as Props)} />

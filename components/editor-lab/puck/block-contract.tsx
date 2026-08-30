@@ -4,6 +4,7 @@ import {
   forwardRef,
   type ComponentType,
   type CSSProperties,
+  type FormEvent,
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
   type Ref,
@@ -133,6 +134,11 @@ export function guardEditorPreviewNavigation(
   event.preventDefault();
 }
 
+/** Prevent native form navigation/reloads inside editor and lab previews. */
+export function guardEditorPreviewSubmit(event: FormEvent<HTMLElement>) {
+  event.preventDefault();
+}
+
 export const Layout = forwardRef<
   HTMLDivElement,
   { children: ReactNode; layout?: LayoutProps }
@@ -141,6 +147,7 @@ export const Layout = forwardRef<
     ref={ref}
     onClickCapture={guardEditorPreviewNavigation}
     onAuxClickCapture={guardEditorPreviewNavigation}
+    onSubmitCapture={guardEditorPreviewSubmit}
     style={
       {
         height: "100%",
@@ -265,6 +272,7 @@ export function RuntimeHost({
       <div
         onClickCapture={guardEditorPreviewNavigation}
         onAuxClickCapture={guardEditorPreviewNavigation}
+        onSubmitCapture={guardEditorPreviewSubmit}
       >
         <ReactBitsHost spec={host}>{children}</ReactBitsHost>
       </div>
@@ -276,6 +284,7 @@ export function RuntimeHost({
       data-runtime-family={family}
       onClickCapture={guardEditorPreviewNavigation}
       onAuxClickCapture={guardEditorPreviewNavigation}
+      onSubmitCapture={guardEditorPreviewSubmit}
       style={hostHeight
         ? { width: "100%", height: hostHeight, minHeight: hostHeight, position: "relative", overflow: "hidden" }
         : { width: "100%", position: "relative" }}
