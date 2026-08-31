@@ -14,7 +14,9 @@ export const cta14ContentDefaults = {
   liveLabel: "3 people live",
 };
 
-export type AdaptedCta14Props = { [K in keyof typeof cta14ContentDefaults]: string };
+export type AdaptedCta14Props = { [K in keyof typeof cta14ContentDefaults]: string } & {
+  loop?: boolean;
+};
 
 const capabilities = [
   "Presence",
@@ -89,7 +91,7 @@ const TagChip = ({ label }: { label: string }) => (
   </span>
 );
 
-export default function AdaptedCta14({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText, collaborationLabel, liveLabel }: AdaptedCta14Props) {
+export default function AdaptedCta14({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText, collaborationLabel, liveLabel, loop = true }: AdaptedCta14Props) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -110,7 +112,7 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
             transition={
               reduceMotion
                 ? undefined
-                : { duration: 16, repeat: Infinity, ease: "easeInOut" }
+                : { duration: 16, repeat: loop ? Infinity : 0, ease: "easeInOut" }
             }
             className="pointer-events-none absolute -top-40 left-1/4 h-[26rem] w-[26rem] rounded-full bg-white/[0.05] blur-3xl"
           />
@@ -238,7 +240,7 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
                 transition={
                   reduceMotion
                     ? undefined
-                    : { duration: 32, repeat: Infinity, ease: "linear" }
+                    : { duration: 32, repeat: loop ? Infinity : 0, ease: "linear" }
                 }
                 className="flex w-max gap-3 pl-3 will-change-transform"
               >

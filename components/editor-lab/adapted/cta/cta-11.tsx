@@ -12,7 +12,9 @@ export const cta11ContentDefaults = {
   helperText: "14-day trial · No credit card · SOC 2 Type II",
 };
 
-export type AdaptedCta11Props = { [K in keyof typeof cta11ContentDefaults]: string };
+export type AdaptedCta11Props = { [K in keyof typeof cta11ContentDefaults]: string } & {
+  loop?: boolean;
+};
 
 const ledger = [
   {
@@ -86,7 +88,7 @@ const arrow: Variants = {
   hover: { x: 3, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] } },
 };
 
-export default function AdaptedCta11({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText }: AdaptedCta11Props) {
+export default function AdaptedCta11({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText, loop = true }: AdaptedCta11Props) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -107,7 +109,7 @@ export default function AdaptedCta11({ eyebrow, heading, description, primaryBut
             transition={
               reduceMotion
                 ? undefined
-                : { duration: 18, repeat: Infinity, ease: "easeInOut" }
+                : { duration: 18, repeat: loop ? Infinity : 0, ease: "easeInOut" }
             }
             className="pointer-events-none absolute -top-32 right-[8%] h-[24rem] w-[24rem] rounded-full bg-white/80 blur-3xl dark:bg-white/[0.05]"
           />

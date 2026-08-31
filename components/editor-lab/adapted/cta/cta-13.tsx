@@ -13,7 +13,9 @@ export const cta13ContentDefaults = {
   helperText: "Invites reviewed weekly · Panelists average $340/mo",
 };
 
-export type AdaptedCta13Props = { [K in keyof typeof cta13ContentDefaults]: string };
+export type AdaptedCta13Props = { [K in keyof typeof cta13ContentDefaults]: string } & {
+  loop?: boolean;
+};
 
 const mulberry32 = (seed: number) => {
   let a = seed;
@@ -99,7 +101,7 @@ const HalftoneField = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function AdaptedCta13({ eyebrow, headingPrefix, headingEmphasis, headingSuffix, description, buttonLabel, helperText }: AdaptedCta13Props) {
+export default function AdaptedCta13({ eyebrow, headingPrefix, headingEmphasis, headingSuffix, description, buttonLabel, helperText, loop = true }: AdaptedCta13Props) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -127,7 +129,7 @@ export default function AdaptedCta13({ eyebrow, headingPrefix, headingEmphasis, 
               transition={
                 reduceMotion
                   ? undefined
-                  : { duration: 9, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 9, repeat: loop ? Infinity : 0, ease: "easeInOut" }
               }
             >
               <HalftoneField className="h-auto w-full rotate-90" />
@@ -142,7 +144,7 @@ export default function AdaptedCta13({ eyebrow, headingPrefix, headingEmphasis, 
               transition={
                 reduceMotion
                   ? undefined
-                  : { duration: 11, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 11, repeat: loop ? Infinity : 0, ease: "easeInOut" }
               }
             >
               <HalftoneField className="h-auto w-full -rotate-90" />

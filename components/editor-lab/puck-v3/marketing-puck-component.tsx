@@ -12,6 +12,8 @@ import { bindVisualControlContracts } from "@/components/editor-lab/puck/visual-
 import { mergeMediaControlGroup } from "@/components/editor-lab/puck/media-field-contract";
 import { bindLayoutControlContract, LayoutControlSurface } from "@/components/editor-lab/puck/layout-control-contract";
 import { resolveAdaptedLayoutContract } from "@/components/editor-lab/puck/adapted-layout-catalog";
+import { bindMotionControlContract } from "@/components/editor-lab/puck/motion-control-contract";
+import { resolveAdaptedMotionContract } from "@/components/editor-lab/puck/adapted-motion-catalog";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -82,14 +84,16 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
   contract: BlockContract<Props>,
 ): ComponentConfig {
   const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
+  const motionControls = contract.motionControls ?? resolveAdaptedMotionContract(contract.catalogKey);
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
-  const boundLayoutControls = bindLayoutControlContract(layoutControls, boundVisualControls.fields, boundVisualControls.defaults);
+  const boundMotionControls = bindMotionControlContract(motionControls, boundVisualControls.fields, boundVisualControls.defaults);
+  const boundLayoutControls = bindLayoutControlContract(layoutControls, boundMotionControls.fields, boundMotionControls.defaults);
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundLayoutControls.groups],
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups],
       boundLayoutControls.fields,
     ),
     boundLayoutControls.fields,

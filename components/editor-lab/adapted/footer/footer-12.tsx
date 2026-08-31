@@ -16,7 +16,9 @@ export const footer12ContentDefaults = {
   copyright: "© 2026 Northline Labs",
 };
 
-export type AdaptedFooter12Props = { [K in keyof typeof footer12ContentDefaults]: string };
+export type AdaptedFooter12Props = { [K in keyof typeof footer12ContentDefaults]: string } & {
+  loop?: boolean;
+};
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950";
@@ -51,7 +53,7 @@ const item: Variants = {
   },
 };
 
-export default function AdaptedFooter12({ brandInitial, brandLabel, heading, description, emailLabel, emailPlaceholder, buttonLabel, footerBrand, footerDescription, copyright }: AdaptedFooter12Props) {
+export default function AdaptedFooter12({ brandInitial, brandLabel, heading, description, emailLabel, emailPlaceholder, buttonLabel, footerBrand, footerDescription, copyright, loop = true }: AdaptedFooter12Props) {
   const reduce = useReducedMotion();
 
   return (
@@ -140,7 +142,7 @@ export default function AdaptedFooter12({ brandInitial, brandLabel, heading, des
                               animate={{ scale: [1, 2.1], opacity: [0.5, 0] }}
                               transition={{
                                 duration: 1.8,
-                                repeat: Infinity,
+                                repeat: loop ? Infinity : 0,
                                 ease: "easeOut",
                               }}
                             />

@@ -37,6 +37,11 @@ import {
   type LayoutControlContract,
 } from "./layout-control-contract";
 import { resolveAdaptedLayoutContract } from "./adapted-layout-catalog";
+import {
+  bindMotionControlContract,
+  type MotionControlContract,
+} from "./motion-control-contract";
+import { resolveAdaptedMotionContract } from "./adapted-motion-catalog";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -214,6 +219,7 @@ export type BlockContract<Props extends EditableProps> = {
   formContent?: FormContentContract;
   controlGroups?: readonly ControlGroupContract[];
   visualControls?: readonly VisualControlContract[];
+  motionControls?: MotionControlContract;
   layoutControls?: LayoutControlContract;
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
@@ -343,6 +349,7 @@ export function createPuckComponent<Props extends EditableProps>(
 ): ComponentConfig {
   const showLabLabel = options.showLabLabel ?? true;
   const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
+  const motionControls = contract.motionControls ?? resolveAdaptedMotionContract(contract.catalogKey);
   const declaredEffectFields = contract.effects
     ? effectFields(...contract.effects)
     : {};
@@ -355,14 +362,19 @@ export function createPuckComponent<Props extends EditableProps>(
     { ...boundFormContent.fields, ...declaredEffectFields },
     boundFormContent.defaults,
   );
-  const boundLayoutControls = bindLayoutControlContract(
-    layoutControls,
+  const boundMotionControls = bindMotionControlContract(
+    motionControls,
     boundVisualControls.fields,
     boundVisualControls.defaults,
   );
+  const boundLayoutControls = bindLayoutControlContract(
+    layoutControls,
+    boundMotionControls.fields,
+    boundMotionControls.defaults,
+  );
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundLayoutControls.groups],
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups],
       boundLayoutControls.fields,
     ),
     boundLayoutControls.fields,
