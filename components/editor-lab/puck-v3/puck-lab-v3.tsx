@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import "@puckeditor/core/puck.css";
-import { Puck, createUsePuck, type Config, type Data } from "@puckeditor/core";
+import { Puck, createUsePuck, type Config, type Data, type Viewports } from "@puckeditor/core";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentType, type RefObject } from "react";
 import { pocBlockByCatalogKey, pocBlocks, pocCategories, pocComponents } from "./poc-registry";
 import { layoutComponents } from "@/components/editor-lab/puck/layout-primitives";
@@ -10,8 +10,21 @@ import { guardEditorPreviewNavigation, RuntimeHost } from "@/components/editor-l
 import styles from "./puck-lab-v3.module.css";
 import { MarketingPreview } from "./marketing-puck-component";
 import { coreQaBlocks, coreQaCategories, coreQaComponents, coreQaBlockByCatalogKey } from "./core-qa-registry";
+import { buildStyleTransferContract } from "@/components/editor-lab/puck/builder-ux-contract";
+import {
+  BuilderFieldLabel,
+  BuilderFields,
+  BuilderUxProvider,
+  useBuilderSave,
+} from "./builder-ux-panel";
 
 const usePuck = createUsePuck();
+const EMPTY_DATA: Data = { root: { props: {} }, content: [] };
+const LAB_VIEWPORTS: Viewports = [
+  { width: 1280, height: "auto", label: "Desktop", icon: "Monitor" },
+  { width: 768, height: "auto", label: "Tablet", icon: "Tablet" },
+  { width: 360, height: "auto", label: "Mobile", icon: "Smartphone" },
+];
 const PuckThemeContext = createContext(false);
 const PuckPreviewContext = createContext<{
   activeKey: string | null;
@@ -275,8 +288,18 @@ function V3HeaderActions({ children }: { children: React.ReactNode }) {
   const dispatch = usePuck((state) => state.dispatch);
   const previewMode = usePuck((state) => state.appState.ui.previewMode);
   const interactive = previewMode === "interactive";
+  const { saveStatus, save, publishMessage } = useBuilderSave();
+  const saveLabel = saveStatus === "saving"
+    ? "Saving…"
+    : saveStatus === "error"
+      ? "Save failed"
+      : saveStatus === "unsaved"
+        ? "Unsaved changes"
+        : "Saved";
 
   return <div className={styles.headerActions}>
+    <span className={styles.saveStatus} data-status={saveStatus} role="status">{saveLabel}</span>
+    <button type="button" className={styles.saveButton} disabled={saveStatus === "saving"} onClick={save}>Save</button>
     <button
       type="button"
       className={styles.interactionToggle}
@@ -286,6 +309,7 @@ function V3HeaderActions({ children }: { children: React.ReactNode }) {
       {interactive ? "Edit layout" : "Interact with page"}
     </button>
     {children}
+    {publishMessage ? <span className={styles.publishMessage} role="status">{publishMessage}</span> : null}
   </div>;
 }
 
@@ -295,7 +319,54 @@ export default function PuckLabV3({ coreQa = false }: { coreQa?: boolean }) {
   const [live, setLive] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [activePreviewKey, setActivePreviewKey] = useState<string | null>(null);
-  const initialData = useMemo<Data>(() => ({ root: { props: {} }, content: [] }), []);
+  const [initialData, setInitialData] = useState<Data | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving" | "error">("saved");
+  const [publishMessage, setPublishMessage] = useState("");
+  const currentDataRef = useRef<Data>(EMPTY_DATA);
+  const savedDataRef = useRef(JSON.stringify(EMPTY_DATA));
+  const storageKey = coreQa
+    ? "onestudio:puck-v3:core-qa-data:v1"
+    : "onestudio:puck-v3:lab-data:v1";
+
+  useEffect(() => {
+    let data = EMPTY_DATA;
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<Data>;
+        if (parsed.root && typeof parsed.root === "object" && Array.isArray(parsed.content)) {
+          data = parsed as Data;
+        }
+      }
+    } catch {
+      setSaveStatus("error");
+    }
+    currentDataRef.current = data;
+    savedDataRef.current = JSON.stringify(data);
+    setInitialData(data);
+  }, [storageKey]);
+
+  const save = useCallback(() => {
+    setSaveStatus("saving");
+    try {
+      const serialized = JSON.stringify(currentDataRef.current);
+      window.localStorage.setItem(storageKey, serialized);
+      savedDataRef.current = serialized;
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("error");
+    }
+  }, [storageKey]);
+
+  const onChange = useCallback((data: Data) => {
+    currentDataRef.current = data;
+    setSaveStatus(JSON.stringify(data) === savedDataRef.current ? "saved" : "unsaved");
+  }, []);
+
+  const onPublish = useCallback((data: Data) => {
+    currentDataRef.current = data;
+    setPublishMessage("Publish deferred · editor-lab save only");
+  }, []);
   const config = useMemo<Config>(() => ({
     // The Puck canvas is an iframe, so it cannot inherit the shell's `.dark`
     // ancestor. PuckCanvasRoot reads the shared workspace state without
@@ -304,7 +375,20 @@ export default function PuckLabV3({ coreQa = false }: { coreQa?: boolean }) {
     categories: { ...(coreQa ? coreQaCategories : pocCategories), layout: { title: "Layout", components: ["Grid", "Flex"] } },
     components: { ...(coreQa ? coreQaComponents : pocComponents), ...layoutComponents },
   }), [coreQa]);
+  const styleContract = useMemo(
+    () => buildStyleTransferContract(blocks, config),
+    [blocks, config],
+  );
   const plugins = useMemo(() => [{ name: "v3-library", label: "Library", render: () => <Library onLiveChange={setLive} blocks={blocks} blockByCatalogKey={blockByCatalogKey} coreQa={coreQa} />, mobilePanelHeight: "min-content" as const }], [blocks, blockByCatalogKey, coreQa]);
-  const overrides = useMemo(() => ({ headerActions: V3HeaderActions }), []);
-  return <div className={`${styles.shell} ${isDark ? styles.dark : ""}`} data-core-qa={coreQa ? "true" : undefined} data-live-previews={live ? 1 : 0} data-theme={isDark ? "dark" : "light"}><button type="button" data-puck-theme-toggle className={styles.globalThemeToggle} aria-label={isDark ? "Use light workspace theme" : "Use dark workspace theme"} aria-pressed={isDark} onPointerEnter={() => window.dispatchEvent(new Event("puck-theme-preview-hold"))} onClick={() => setIsDark((value) => !value)}>{isDark ? "☀" : "☾"}</button><PuckThemeContext.Provider value={isDark}><PuckPreviewContext.Provider value={{ activeKey: activePreviewKey, setActiveKey: setActivePreviewKey }}><Puck config={config} data={initialData} ui={{ leftSideBarVisible: true, rightSideBarVisible: true, previewMode: "edit", plugin: { current: "v3-library" } }} overrides={overrides} plugins={plugins} headerTitle={coreQa ? "Puck V3 Core QA" : "Puck Lab V3"}><Puck.Layout /></Puck></PuckPreviewContext.Provider></PuckThemeContext.Provider></div>;
+  const overrides = useMemo(() => ({
+    headerActions: V3HeaderActions,
+    fields: BuilderFields,
+    fieldLabel: BuilderFieldLabel,
+  }), []);
+
+  if (!initialData) {
+    return <div className={styles.loadingState} role="status">Loading saved editor-lab data…</div>;
+  }
+
+  return <div className={`${styles.shell} ${isDark ? styles.dark : ""}`} data-core-qa={coreQa ? "true" : undefined} data-live-previews={live ? 1 : 0} data-theme={isDark ? "dark" : "light"}><button type="button" data-puck-theme-toggle className={styles.globalThemeToggle} aria-label={isDark ? "Use light workspace theme" : "Use dark workspace theme"} aria-pressed={isDark} onPointerEnter={() => window.dispatchEvent(new Event("puck-theme-preview-hold"))} onClick={() => setIsDark((value) => !value)}>{isDark ? "☀" : "☾"}</button><BuilderUxProvider styleContract={styleContract} saveStatus={saveStatus} save={save} publishMessage={publishMessage}><PuckThemeContext.Provider value={isDark}><PuckPreviewContext.Provider value={{ activeKey: activePreviewKey, setActiveKey: setActivePreviewKey }}><Puck config={config} data={initialData} onChange={onChange} onPublish={onPublish} viewports={LAB_VIEWPORTS} ui={{ leftSideBarVisible: true, rightSideBarVisible: true, previewMode: "edit", plugin: { current: "v3-library" }, viewports: { current: { width: 1280, height: "auto" }, controlsVisible: true, options: LAB_VIEWPORTS } }} overrides={overrides} plugins={plugins} headerTitle={coreQa ? "Puck V3 Core QA" : "Puck Lab V3"}><Puck.Layout /></Puck></PuckPreviewContext.Provider></PuckThemeContext.Provider></BuilderUxProvider></div>;
 }
