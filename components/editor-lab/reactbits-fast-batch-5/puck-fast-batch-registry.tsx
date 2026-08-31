@@ -28,6 +28,7 @@ import AppDialog6 from "@/components/blocks/app-dialog-6";
 import { createPuckComponent } from "@/components/editor-lab/puck/block-contract";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -43,6 +44,7 @@ type FastBatchBlock = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  visualControls?: readonly VisualControlContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 5";
   batchGroup: BatchGroup;
@@ -76,10 +78,28 @@ const marketingHost: ReactBitsHostSpec = { profile: "section", width: "full", he
 const appHost = (minHeight: number): ReactBitsHostSpec => ({ profile: "app-surface", width: "full", height: "source-min", sourceMinHeight: { value: minHeight, provenance: "official-source" }, overflow: "source", runtimeRisk: "none" });
 
 const animatedBlocks = [
-  block({ type: "RB_batch5_magic_transform", displayName: "React Bits Magic Transform", catalogKey: "starter:magic-transform-tw", description: "Official React Bits Magic Transform.", component: MagicTransform as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost }),
-  block({ type: "RB_batch5_flicker", displayName: "React Bits Flicker", catalogKey: "starter:flicker-tw", description: "Official React Bits Flicker.", component: Flicker as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost }),
+  block({ type: "RB_batch5_magic_transform", displayName: "React Bits Magic Transform", catalogKey: "starter:magic-transform-tw", description: "Official React Bits Magic Transform.", component: MagicTransform as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, visualControls: defineVisualControls([
+    { prop: "axisColor", label: "Axis color", kind: "color", group: "Appearance", defaultValue: "#7C3AED", provenance: "official-source" },
+    { prop: "paused", label: "Paused", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "documentDuration", label: "Document duration", kind: "number", presentation: "number", step: 0.1, unit: "s", group: "Behavior", defaultValue: 4, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch5_flicker", displayName: "React Bits Flicker", catalogKey: "starter:flicker-tw", description: "Official React Bits Flicker.", component: Flicker as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, visualControls: defineVisualControls([
+    { prop: "color", label: "Particle color", kind: "color", group: "Appearance", defaultValue: "#5A4B81", provenance: "official-source" },
+    { prop: "glowColor", label: "Glow color", kind: "color", group: "Appearance", defaultValue: "#FF9FFC", provenance: "official-source" },
+    { prop: "overlayColor", label: "Overlay color", kind: "color", group: "Appearance", defaultValue: "#0a0a0a", provenance: "official-source" },
+    { prop: "alpha", label: "Particle opacity", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 1, provenance: "official-source" },
+    { prop: "overlay", label: "Overlay opacity", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 1, provenance: "official-source" },
+    { prop: "shape", label: "Particle shape", kind: "select", group: "Appearance", defaultValue: "circle", options: [{ label: "Circle", value: "circle" }, { label: "Square", value: "square" }], provenance: "official-source" },
+    { prop: "jitter", label: "Jitter", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "mouseEffect", label: "Mouse effect", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+  ]) }),
   block({ type: "RB_batch5_neon_reveal", displayName: "React Bits Neon Reveal", catalogKey: "starter:neon-reveal-tw", description: "Official React Bits Neon Reveal.", component: NeonReveal as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, batchStatus: "BLOCKED_BROWSER_RUNTIME", blocker: "BLOCKED_BROWSER_RUNTIME" }),
-  block({ type: "RB_batch5_circle_stack", displayName: "React Bits Circle Stack", catalogKey: "starter:circle-stack-tw", description: "Official React Bits Circle Stack.", component: CircleStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost }),
+  block({ type: "RB_batch5_circle_stack", displayName: "React Bits Circle Stack", catalogKey: "starter:circle-stack-tw", description: "Official React Bits Circle Stack.", component: CircleStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, visualControls: defineVisualControls([
+    { prop: "surfaceColor", label: "Surface color", kind: "color", group: "Appearance", defaultValue: "#FFFFFF", provenance: "official-source" },
+    { prop: "borderColor", label: "Border color", kind: "color", group: "Appearance", defaultValue: "#000000", provenance: "official-source" },
+    { prop: "paused", label: "Paused", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "interval", label: "Interval", kind: "number", presentation: "number", min: 0.2, step: 0.1, unit: "s", group: "Behavior", defaultValue: 4, provenance: "official-source" },
+  ]) }),
   block({ type: "RB_batch5_shader_waves", displayName: "React Bits Shader Waves", catalogKey: "starter:shader-waves-tw", description: "Official React Bits Shader Waves.", component: ShaderWaves as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, batchStatus: "BLOCKED_BROWSER_RUNTIME", blocker: "BLOCKED_BROWSER_RUNTIME" }),
   block({ type: "RB_batch5_dither_wave", displayName: "React Bits Dither Wave", catalogKey: "starter:dither-wave-tw", description: "Official React Bits Dither Wave.", component: DitherWave as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, batchStatus: "BLOCKED_BROWSER_RUNTIME", blocker: "BLOCKED_BROWSER_RUNTIME" }),
   block({ type: "RB_batch5_radial_liquid", displayName: "React Bits Radial Liquid", catalogKey: "starter:radial-liquid-tw", description: "Official React Bits Radial Liquid.", component: RadialLiquid as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 5", "Animated Component"], batchGroup: "Animated Components", host: sceneHost, batchStatus: "BLOCKED_BROWSER_RUNTIME", blocker: "BLOCKED_BROWSER_RUNTIME" }),

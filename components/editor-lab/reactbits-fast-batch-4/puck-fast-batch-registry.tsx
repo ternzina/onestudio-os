@@ -29,6 +29,7 @@ import { createPuckComponent } from "@/components/editor-lab/puck/block-contract
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
+import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -45,6 +46,7 @@ type FastBatchBlock = {
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
   formContent?: FormContentContract;
+  visualControls?: readonly VisualControlContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 4";
   batchGroup: BatchGroup;
@@ -92,7 +94,13 @@ const animatedBlocks = [
   block({ type: "RB_batch4_comparison_slider", displayName: "React Bits Comparison Slider", catalogKey: "component:comparison-slider", description: "Official React Bits Comparison Slider.", component: ComparisonSlider as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(480), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),
   block({ type: "RB_batch4_draggable_grid", displayName: "React Bits Draggable Grid", catalogKey: "component:draggable-grid", description: "Official React Bits Draggable Grid.", component: DraggableGrid as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(600), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),
   block({ type: "RB_batch4_parallax_cards", displayName: "React Bits Parallax Cards", catalogKey: "component:parallax-cards", description: "Official React Bits Parallax Cards.", component: ParallaxCards as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(600), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),
-  block({ type: "RB_batch4_scroll_stack", displayName: "React Bits Scroll Stack", catalogKey: "component:scroll-stack", description: "Official React Bits Scroll Stack.", component: ScrollStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: scrollHost }),
+  block({ type: "RB_batch4_scroll_stack", displayName: "React Bits Scroll Stack", catalogKey: "component:scroll-stack", description: "Official React Bits Scroll Stack.", component: ScrollStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: scrollHost, visualControls: defineVisualControls([
+    { prop: "variant", label: "Stack variant", kind: "select", group: "Appearance", defaultValue: "stack", options: [{ label: "Stack", value: "stack" }, { label: "Deck", value: "deck" }, { label: "Fade", value: "fade" }, { label: "Flip", value: "flip" }, { label: "Zoom", value: "zoom" }, { label: "Reveal", value: "reveal" }], provenance: "official-source" },
+    { prop: "scaleStep", label: "Scale step", kind: "number", presentation: "slider", min: 0, max: 0.4, step: 0.01, group: "Appearance", defaultValue: 0.07, provenance: "official-source" },
+    { prop: "dim", label: "Dim", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 0.28, provenance: "official-source" },
+    { prop: "showProgress", label: "Show progress", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showCounter", label: "Show counter", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+  ]) }),
   block({ type: "RB_batch4_simple_graph", displayName: "React Bits Simple Graph", catalogKey: "component:simple-graph", description: "Official React Bits Simple Graph.", component: SimpleGraph as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(360), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),
   block({ type: "RB_batch4_staggered_text", displayName: "React Bits Staggered Text", catalogKey: "component:staggered-text", description: "Official React Bits Staggered Text.", component: StaggeredText as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(320), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),
   block({ type: "RB_batch4_text_path", displayName: "React Bits Text Path", catalogKey: "component:text-path", description: "Official React Bits Text Path.", component: TextPath as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 4", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(360), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_REQUIRED_DATA" }),

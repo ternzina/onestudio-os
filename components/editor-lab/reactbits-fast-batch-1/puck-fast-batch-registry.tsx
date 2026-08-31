@@ -29,6 +29,7 @@ import { createPuckComponent } from "@/components/editor-lab/puck/block-contract
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -44,6 +45,7 @@ type FastBatchBlock = {
   readiness: "PUCK_RENDER_PASS";
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  visualControls?: readonly VisualControlContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 1";
   batchGroup: BatchGroup;
@@ -109,13 +111,42 @@ const animatedBlocks = [
   block({ type: "RB_batch1_circles", displayName: "React Bits Circles", catalogKey: "component:circles", description: "Official React Bits Circles.", component: Circles as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: componentHost, batchStatus: "BLOCKED_BROWSER_RUNTIME" }),
   // Official source requires loading with no official default/demo value in the registry item.
   block({ type: "RB_batch1_preloader", displayName: "React Bits Preloader", catalogKey: "component:preloader", description: "Official React Bits Preloader.", component: Preloader as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: componentHost, batchStatus: "BLOCKED_REQUIRED_DATA" }),
-  block({ type: "RB_batch1_click_stack", displayName: "React Bits Click Stack", catalogKey: "component:click-stack", description: "Official React Bits Click Stack.", component: ClickStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: clickStackHost }),
-  block({ type: "RB_batch1_credit_card", displayName: "React Bits Credit Card", catalogKey: "component:credit-card", description: "Official React Bits Credit Card.", component: CreditCard as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: containedComponentHost(384) }),
-  block({ type: "RB_batch1_device", displayName: "React Bits Device", catalogKey: "component:device", description: "Official React Bits Device.", component: Device as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: containedComponentHost(574) }),
-  block({ type: "RB_batch1_page_flip", displayName: "React Bits Page Flip", catalogKey: "component:page-flip", description: "Official React Bits Page Flip.", component: PageFlip as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: componentHost }),
+  block({ type: "RB_batch1_click_stack", displayName: "React Bits Click Stack", catalogKey: "component:click-stack", description: "Official React Bits Click Stack.", component: ClickStack as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: clickStackHost, visualControls: defineVisualControls([
+    { prop: "cardColor", label: "Card color", kind: "color", group: "Appearance", defaultValue: "#ffffff", provenance: "official-source" },
+    { prop: "shadowOpacity", label: "Shadow opacity", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 0.3, provenance: "official-source" },
+    { prop: "opacity", label: "Opacity", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 1, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch1_credit_card", displayName: "React Bits Credit Card", catalogKey: "component:credit-card", description: "Official React Bits Credit Card.", component: CreditCard as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: containedComponentHost(384), visualControls: defineVisualControls([
+    { prop: "rotationIntensity", label: "Rotation intensity", kind: "number", presentation: "slider", min: 0, max: 2, step: 0.1, group: "Behavior", defaultValue: 1, provenance: "official-source" },
+    { prop: "parallaxIntensity", label: "Parallax intensity", kind: "number", presentation: "slider", min: 0, max: 2, step: 0.1, group: "Behavior", defaultValue: 1, provenance: "official-source" },
+    { prop: "textColor", label: "Text color", kind: "color", group: "Appearance", defaultValue: "#ffffff", provenance: "official-source" },
+    { prop: "showShine", label: "Show shine", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showShadow", label: "Show shadow", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "hasTextShadow", label: "Text shadow", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showActionButtons", label: "Show action buttons", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch1_device", displayName: "React Bits Device", catalogKey: "component:device", description: "Official React Bits Device.", component: Device as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: containedComponentHost(574), visualControls: defineVisualControls([
+    { prop: "image", label: "Screen image", kind: "mediaUrl", group: "Media", defaultValue: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80", provenance: "official-source" },
+    { prop: "scale", label: "Scale", kind: "number", presentation: "slider", min: 0.5, max: 1.5, step: 0.05, group: "Appearance", defaultValue: 1, provenance: "official-source" },
+    { prop: "isScrollable", label: "Scrollable", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "enableParallax", label: "Parallax", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "enableRotate", label: "Rotate", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "autoAnimate", label: "Auto animate", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch1_page_flip", displayName: "React Bits Page Flip", catalogKey: "component:page-flip", description: "Official React Bits Page Flip.", component: PageFlip as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: componentHost, visualControls: defineVisualControls([
+    { prop: "pageColor", label: "Page color", kind: "color", group: "Appearance", defaultValue: "#f4f4f4", provenance: "official-source" },
+    { prop: "ease", label: "Easing", kind: "select", group: "Behavior", defaultValue: "easeInOut", options: [{ label: "Ease in/out", value: "easeInOut" }, { label: "Ease out", value: "easeOut" }, { label: "Circular out", value: "circOut" }, { label: "Back out", value: "backOut" }], provenance: "official-source" },
+    { prop: "trigger", label: "Trigger", kind: "select", group: "Behavior", defaultValue: "click", options: [{ label: "Click", value: "click" }, { label: "Hover", value: "hover" }], provenance: "official-source" },
+    { prop: "closeOnLeave", label: "Close on leave", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "interactive", label: "Interactive", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+  ]) }),
   // Official source emits a hydration mismatch in the direct Next route; Fast Mode records the blocker instead of rewriting it.
   block({ type: "RB_batch1_parallax_pills", displayName: "React Bits Parallax Pills", catalogKey: "component:parallax-pills", description: "Official React Bits Parallax Pills.", component: ParallaxPills as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: componentHost, batchStatus: "BLOCKED_BROWSER_RUNTIME" }),
-  block({ type: "RB_batch1_glitch_text", displayName: "React Bits Glitch Text", catalogKey: "component:glitch-text", description: "Official React Bits Glitch Text.", component: GlitchText as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: { profile: "canvas", width: "full", height: "technical-definite", technicalHeight: { value: 320, provenance: "puck-technical" }, overflow: "clip", runtimeRisk: "dom" }, defaultProps: { text: "Glitch Text" }, fields: { text: fields.text("Text", { contentEditable: false }) } }),
+  block({ type: "RB_batch1_glitch_text", displayName: "React Bits Glitch Text", catalogKey: "component:glitch-text", description: "Official React Bits Glitch Text.", component: GlitchText as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 1", "Animated Component"], batchGroup: "Animated Components", host: { profile: "canvas", width: "full", height: "technical-definite", technicalHeight: { value: 320, provenance: "puck-technical" }, overflow: "clip", runtimeRisk: "dom" }, defaultProps: { text: "Glitch Text" }, fields: { text: fields.text("Text", { contentEditable: false }) }, visualControls: defineVisualControls([
+    { prop: "textAlign", label: "Text alignment", kind: "select", group: "Appearance", defaultValue: "center", options: [{ label: "Left", value: "left" }, { label: "Center", value: "center" }, { label: "Right", value: "right" }], provenance: "official-source" },
+    { prop: "fadeIn", label: "Fade in", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "autoFit", label: "Auto fit", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+  ]) }),
 ];
 
 const marketingBlocks = [

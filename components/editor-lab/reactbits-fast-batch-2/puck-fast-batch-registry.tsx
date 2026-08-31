@@ -29,6 +29,7 @@ import { createPuckComponent } from "@/components/editor-lab/puck/block-contract
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -43,6 +44,7 @@ type FastBatchBlock = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  visualControls?: readonly VisualControlContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 2";
   batchGroup: BatchGroup;
@@ -103,17 +105,56 @@ const animatedBlocks = [
   // Official source pins a h-screen scene through GSAP ScrollTrigger. It renders directly,
   // but stays visually empty in Puck's iframe viewport after two host/scroll diagnostics.
   block({ type: "RB_batch2_3d_text_reveal", displayName: "React Bits 3D Text Reveal", catalogKey: "component:3d-text-reveal", description: "Official React Bits 3D Text Reveal.", component: ThreeDTextReveal as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: fullViewportHost, batchStatus: "BLOCKED_PUCK_RENDER" }),
-  block({ type: "RB_batch2_bending_marquee", displayName: "React Bits Bending Marquee", catalogKey: "component:bending-marquee", description: "Official React Bits Bending Marquee.", component: BendingMarquee as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520, "resize-observer") }),
-  block({ type: "RB_batch2_card_spread", displayName: "React Bits Card Spread", catalogKey: "component:card-spread", description: "Official React Bits Card Spread.", component: CardSpread as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520, "resize-observer") }),
-  block({ type: "RB_batch2_circle_gallery", displayName: "React Bits Circle Gallery", catalogKey: "component:circle-gallery", description: "Official React Bits Circle Gallery.", component: CircleGallery as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: fullViewportHost }),
-  block({ type: "RB_batch2_skewed_carousel", displayName: "React Bits Skewed Carousel", catalogKey: "component:skewed-carousel", description: "Official React Bits Skewed Carousel.", component: SkewedCarousel as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: flowHost }),
+  block({ type: "RB_batch2_bending_marquee", displayName: "React Bits Bending Marquee", catalogKey: "component:bending-marquee", description: "Official React Bits Bending Marquee.", component: BendingMarquee as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520, "resize-observer"), visualControls: defineVisualControls([
+    { prop: "color", label: "Text color", kind: "color", group: "Appearance", defaultValue: "#fafafa", provenance: "official-source" },
+    { prop: "bandColor", label: "Band color", kind: "color", group: "Appearance", defaultValue: "#111111", provenance: "official-source" },
+    { prop: "direction", label: "Direction", kind: "select", group: "Behavior", defaultValue: "left", options: [{ label: "Left", value: "left" }, { label: "Right", value: "right" }], provenance: "official-source" },
+    { prop: "pauseOnHover", label: "Pause on hover", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "fit", label: "Fit container", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch2_card_spread", displayName: "React Bits Card Spread", catalogKey: "component:card-spread", description: "Official React Bits Card Spread.", component: CardSpread as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520, "resize-observer"), visualControls: defineVisualControls([
+    { prop: "cardColor", label: "Card color", kind: "color", group: "Appearance", defaultValue: "#ffffff", provenance: "official-source" },
+    { prop: "shadow", label: "Shadow", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 0.28, provenance: "official-source" },
+    { prop: "restOpacity", label: "Resting opacity", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Appearance", defaultValue: 1, provenance: "official-source" },
+    { prop: "fit", label: "Fit container", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "interactive", label: "Interactive", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch2_circle_gallery", displayName: "React Bits Circle Gallery", catalogKey: "component:circle-gallery", description: "Official React Bits Circle Gallery.", component: CircleGallery as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: fullViewportHost, visualControls: defineVisualControls([
+    { prop: "radiusPercent", label: "Radius", kind: "number", presentation: "slider", min: 10, max: 50, step: 1, unit: "%", group: "Appearance", defaultValue: 38, provenance: "official-source" },
+    { prop: "itemScale", label: "Item scale", kind: "number", presentation: "slider", min: 0.5, max: 1.5, step: 0.05, group: "Appearance", defaultValue: 0.85, provenance: "official-source" },
+    { prop: "throwResistance", label: "Throw resistance", kind: "number", presentation: "slider", min: 0, max: 1, step: 0.05, group: "Behavior", defaultValue: 0.35, provenance: "official-source" },
+    { prop: "enableDrag", label: "Enable drag", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "showNumbers", label: "Show numbers", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch2_skewed_carousel", displayName: "React Bits Skewed Carousel", catalogKey: "component:skewed-carousel", description: "Official React Bits Skewed Carousel.", component: SkewedCarousel as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: flowHost, visualControls: defineVisualControls([
+    { prop: "showTitles", label: "Show titles", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showControls", label: "Show controls", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showDots", label: "Show dots", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "loop", label: "Loop", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "autoplay", label: "Autoplay", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "enableDrag", label: "Enable drag", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "enableKeyboard", label: "Keyboard navigation", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+  ]) }),
   // Official docs demo exposes black text on a white surface. The Puck iframe's
   // source-default startOnView observer does not paint digits after two checks,
   // so it stays available in the direct/demo review but is not offered as a
   // misleading empty Puck block.
   block({ type: "RB_batch2_speeding_text", displayName: "React Bits Speeding Text", catalogKey: "component:speeding-text", description: "Official React Bits Speeding Text.", component: SpeedingText as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(240, "observer"), defaultProps: { backgroundColor: "#ffffff" }, fields: { value: fields.number("Value", { min: 0, max: 1000000 }) }, batchStatus: "BLOCKED_PUCK_RENDER" }),
-  block({ type: "RB_batch2_tilted_tiles", displayName: "React Bits Tilted Tiles", catalogKey: "component:tilted-tiles", description: "Official React Bits Tilted Tiles.", component: TiltedTiles as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520) }),
-  block({ type: "RB_batch2_tumble_carousel", displayName: "React Bits Tumble Carousel", catalogKey: "component:tumble-carousel", description: "Official React Bits Tumble Carousel.", component: TumbleCarousel as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: flowHost }),
+  block({ type: "RB_batch2_tilted_tiles", displayName: "React Bits Tilted Tiles", catalogKey: "component:tilted-tiles", description: "Official React Bits Tilted Tiles.", component: TiltedTiles as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(520), visualControls: defineVisualControls([
+    { prop: "alternate", label: "Alternate direction", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "parallax", label: "Parallax", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "pauseOnHover", label: "Pause on hover", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "duration", label: "Duration", kind: "number", presentation: "number", min: 0.5, step: 0.5, unit: "s", group: "Behavior", defaultValue: 25, provenance: "official-source" },
+  ]) }),
+  block({ type: "RB_batch2_tumble_carousel", displayName: "React Bits Tumble Carousel", catalogKey: "component:tumble-carousel", description: "Official React Bits Tumble Carousel.", component: TumbleCarousel as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 2", "Animated Component"], batchGroup: "Animated Components", host: flowHost, visualControls: defineVisualControls([
+    { prop: "showTitles", label: "Show titles", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showControls", label: "Show controls", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "showCounter", label: "Show counter", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+    { prop: "loop", label: "Loop", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "autoplay", label: "Autoplay", kind: "toggle", group: "Behavior", defaultValue: false, provenance: "official-source" },
+    { prop: "enableDrag", label: "Enable drag", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "enableKeyboard", label: "Keyboard navigation", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+  ]) }),
 ];
 
 const marketingBlocks = [

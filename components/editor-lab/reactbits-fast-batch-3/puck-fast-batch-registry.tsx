@@ -27,6 +27,7 @@ import Support3 from "@/components/blocks/support-3";
 import { createPuckComponent } from "@/components/editor-lab/puck/block-contract";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -42,6 +43,7 @@ type FastBatchBlock = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  visualControls?: readonly VisualControlContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 3";
   batchGroup: BatchGroup;
@@ -81,7 +83,14 @@ const animatedBlocks = [
   // The source relies on browser viewport state during SSR and remains static in Puck's portal/iframe realm, even in Interact mode.
   block({ type: "RB_batch3_custom_cursor", displayName: "React Bits Custom Cursor", catalogKey: "component:custom-cursor", description: "Official React Bits Custom Cursor.", component: CustomCursor as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 3", "Animated Component"], batchGroup: "Animated Components", host: technicalHost(420), batchStatus: "BLOCKED_REQUIRED_DATA", blocker: "BLOCKED_BROWSER_RUNTIME" }),
   // The official responsive grid has intrinsic height (three stacked cards at narrow widths); a fixed technical canvas clips it.
-  block({ type: "RB_batch3_modal_cards", displayName: "React Bits Modal Cards", catalogKey: "component:modal-cards", description: "Official React Bits Modal Cards.", component: ModalCards as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 3", "Animated Component"], batchGroup: "Animated Components", host: flowHost }),
+  block({ type: "RB_batch3_modal_cards", displayName: "React Bits Modal Cards", catalogKey: "component:modal-cards", description: "Official React Bits Modal Cards.", component: ModalCards as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 3", "Animated Component"], batchGroup: "Animated Components", host: flowHost, visualControls: defineVisualControls([
+    { prop: "gradientColor", label: "Gradient color", kind: "color", group: "Appearance", defaultValue: "#6366f1", provenance: "official-source" },
+    { prop: "animationSpeed", label: "Animation speed", kind: "select", group: "Behavior", defaultValue: "normal", options: [{ label: "Slow", value: "slow" }, { label: "Normal", value: "normal" }, { label: "Fast", value: "fast" }, { label: "None", value: "none" }], provenance: "official-source" },
+    { prop: "animationVariant", label: "Animation variant", kind: "select", group: "Behavior", defaultValue: "scale", options: [{ label: "Scale", value: "scale" }, { label: "Fade", value: "fade" }, { label: "Slide", value: "slide" }], provenance: "official-source" },
+    { prop: "closeOnBackdropClick", label: "Close on backdrop click", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "closeOnEscape", label: "Close on Escape", kind: "toggle", group: "Behavior", defaultValue: true, provenance: "official-source" },
+    { prop: "showCloseButton", label: "Show close button", kind: "toggle", group: "Appearance", defaultValue: true, provenance: "official-source" },
+  ]) }),
 ];
 
 const marketingBlocks = [
