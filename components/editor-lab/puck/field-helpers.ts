@@ -50,11 +50,46 @@ export type PuckMediaField = {
 };
 
 export type PuckToggleField = {
-  type: "radio";
+  type: "custom";
   label: string;
-  options: Array<{ label: string; value: string }>;
+  render: ({ id, value, onChange, readOnly }: {
+    id: string;
+    value: boolean | undefined;
+    onChange: (value: boolean) => void;
+    readOnly?: boolean;
+  }) => ReactElement;
 };
 export type PuckSelectField = { type: "select"; label: string; options: Array<{ label: string; value: string }> };
+export type PuckColorField = {
+  type: "custom";
+  label: string;
+  render: ({ id, value, onChange, readOnly }: {
+    id: string;
+    value: string | undefined;
+    onChange: (value: string) => void;
+    readOnly?: boolean;
+  }) => ReactElement;
+};
+export type PuckSliderField = {
+  type: "custom";
+  label: string;
+  render: ({ id, value, onChange, readOnly }: {
+    id: string;
+    value: number | undefined;
+    onChange: (value: number) => void;
+    readOnly?: boolean;
+  }) => ReactElement;
+};
+export type PuckColorArrayField = {
+  type: "custom";
+  label: string;
+  render: ({ id, value, onChange, readOnly }: {
+    id: string;
+    value: readonly string[] | undefined;
+    onChange: (value: string[]) => void;
+    readOnly?: boolean;
+  }) => ReactElement;
+};
 const text = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "text", label, contentEditable: true, ...options });
 const textarea = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "textarea", label, contentEditable: true, ...options });
 const number = (label: string, options: Pick<PuckTextField, "min" | "max" | "step" | "placeholder"> = {}): PuckTextField => ({ type: "number", label, ...options });
@@ -63,16 +98,18 @@ const richtext = (label: string): PuckRichTextField => ({ type: "richtext", labe
 // values contain block markup, so plain text is the valid contract here.
 const inlineText = (label: string): PuckTextField => text(label);
 
-function MediaUrlField({ id, value, onChange, readOnly }: {
+function MediaUrlField({ id, value, onChange, readOnly, label }: {
   id: string;
   value: string | undefined;
   onChange: (value: string) => void;
   readOnly?: boolean;
+  label?: string;
 }) {
   const source = value ?? "";
   const update = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value);
 
   return createElement("div", { className: styles.mediaField },
+    createElement("label", { htmlFor: id }, label ?? "Image URL"),
     createElement("input", { id, type: "url", value: source, onChange: update, readOnly, "aria-label": "Image URL", placeholder: "https://… or /local/path" }),
     source
       ? createElement("img", { className: styles.mediaPreview, src: source, alt: "Media preview", onError: (event: SyntheticEvent<HTMLImageElement>) => { event.currentTarget.hidden = true; } })
@@ -80,9 +117,155 @@ function MediaUrlField({ id, value, onChange, readOnly }: {
   );
 }
 
-const imageUrl = (): PuckMediaField => ({ type: "custom", label: "Image URL", render: MediaUrlField });
+const imageUrl = (label = "Image URL"): PuckMediaField => ({
+  type: "custom",
+  label,
+  render: (props) => createElement(MediaUrlField, { ...props, label }),
+});
 
-const toggle = (label: string): PuckToggleField => ({ type: "radio", label, options: [{ label: "Off", value: "off" }, { label: "On", value: "on" }] });
+function ToggleField({ id, value, onChange, readOnly, label }: {
+  id: string;
+  value: boolean | undefined;
+  onChange: (value: boolean) => void;
+  readOnly?: boolean;
+  label: string;
+}) {
+  return createElement("div", { style: { display: "grid", gap: 6 } },
+    createElement("div", null, label),
+    createElement("label", { htmlFor: id, style: { display: "flex", alignItems: "center", gap: 8 } },
+      createElement("input", {
+        id,
+        type: "checkbox",
+        checked: value ?? false,
+        disabled: readOnly,
+        onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.checked),
+      }),
+      value ? "On" : "Off",
+    ),
+  );
+}
+
+function ColorField({ id, value, onChange, readOnly, label }: {
+  id: string;
+  value: string | undefined;
+  onChange: (value: string) => void;
+  readOnly?: boolean;
+  label: string;
+}) {
+  const source = value ?? "#000000";
+  return createElement("div", { style: { display: "grid", gap: 6 } },
+    createElement("label", { htmlFor: id }, label),
+    createElement("div", { style: { display: "grid", gridTemplateColumns: "40px 1fr", gap: 8 } },
+      createElement("input", {
+        id,
+        type: "color",
+        value: source,
+        disabled: readOnly,
+        onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
+        style: { width: 40, height: 34, padding: 2 },
+      }),
+      createElement("input", {
+        type: "text",
+        value: source,
+        readOnly,
+        "aria-label": `${label} hex value`,
+        onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
+      }),
+    ),
+  );
+}
+
+function SliderField({ id, value, onChange, readOnly, min, max, step, label }: {
+  id: string;
+  value: number | undefined;
+  onChange: (value: number) => void;
+  readOnly?: boolean;
+  min: number;
+  max: number;
+  step: number;
+  label: string;
+}) {
+  const source = value ?? min;
+  return createElement("div", { style: { display: "grid", gap: 6 } },
+    createElement("label", { htmlFor: id }, label),
+    createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 64px", gap: 8, alignItems: "center" } },
+      createElement("input", {
+        id,
+        type: "range",
+        value: source,
+        min,
+        max,
+        step,
+        disabled: readOnly,
+        onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(Number(event.target.value)),
+      }),
+      createElement("input", {
+        type: "number",
+        value: source,
+        min,
+        max,
+        step,
+        readOnly,
+        "aria-label": `${label} numeric value`,
+        onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(Number(event.target.value)),
+      }),
+    ),
+  );
+}
+
+function ColorArrayField({ id, value, onChange, readOnly, defaults, itemLabels, label }: {
+  id: string;
+  value: readonly string[] | undefined;
+  onChange: (value: string[]) => void;
+  readOnly?: boolean;
+  defaults: readonly string[];
+  itemLabels?: readonly string[];
+  label: string;
+}) {
+  const source = value?.length === defaults.length ? [...value] : [...defaults];
+  return createElement("div", { style: { display: "grid", gap: 8 } },
+    createElement("div", null, label),
+    ...source.map((colorValue, index) => createElement("label", {
+      key: `${id}-${index}`,
+      style: { display: "grid", gridTemplateColumns: "72px 40px 1fr", gap: 8, alignItems: "center" },
+    },
+    itemLabels?.[index] ?? `Color ${index + 1}`,
+    createElement("input", {
+      type: "color",
+      value: colorValue,
+      disabled: readOnly,
+      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+        const next = [...source];
+        next[index] = event.target.value;
+        onChange(next);
+      },
+      style: { width: 40, height: 34, padding: 2 },
+    }),
+    createElement("input", {
+      type: "text",
+      value: colorValue,
+      readOnly,
+      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+        const next = [...source];
+        next[index] = event.target.value;
+        onChange(next);
+      },
+    }))),
+  );
+}
+
+const toggle = (label: string): PuckToggleField => ({ type: "custom", label, render: (props) => createElement(ToggleField, { ...props, label }) });
+const color = (label: string): PuckColorField => ({ type: "custom", label, render: (props) => createElement(ColorField, { ...props, label }) });
+const slider = (label: string, options: { min: number; max: number; step: number }): PuckSliderField => ({
+  type: "custom",
+  label,
+  render: (props) => createElement(SliderField, { ...props, ...options, label }),
+});
+const colorArray = (label: string, defaults: readonly string[], itemLabels?: readonly string[]): PuckColorArrayField => ({
+  type: "custom",
+  label,
+  render: (props) => createElement(ColorArrayField, { ...props, defaults, itemLabels, label }),
+});
 const select = (label: string, options: Array<{ label: string; value: string }>): PuckSelectField => ({ type: "select", label, options });
 const array = (label: string): PuckArrayField => ({ type: "array", label, arrayFields: { value: { type: "text", label: "Value", contentEditable: false } } });
 const arrayItems = (label: string, arrayFields: PuckArrayField["arrayFields"], options: Pick<PuckArrayField, "defaultItemProps" | "getItemSummary"> = {}): PuckArrayField => ({ type: "array", label, arrayFields, ...options });
@@ -99,6 +282,9 @@ export const fields = {
   url: () => text("URL"),
   imageUrl,
   toggle,
+  color,
+  slider,
+  colorArray,
   select,
   array,
   arrayItems,

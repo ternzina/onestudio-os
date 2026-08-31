@@ -8,6 +8,7 @@ import { bindArrayItemsContracts } from "@/components/editor-lab/puck/array-item
 import { bindBoundedNestedContentContracts } from "@/components/editor-lab/puck/bounded-nested-content-contract";
 import { bindFormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 import { bindControlGroups } from "@/components/editor-lab/puck/control-groups";
+import { bindVisualControlContracts } from "@/components/editor-lab/puck/visual-control-contract";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -80,13 +81,17 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
-  const groupedFields = bindControlGroups(contract.controlGroups, boundFormContent.fields);
+  const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
+  const groupedFields = bindControlGroups(
+    [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+    boundVisualControls.fields,
+  );
   return {
     label: contract.displayName,
     // Marketing blocks normally expose no source props. Adapted editor copies
     // declare only their explicit serializable content contract here.
     fields: groupedFields as ComponentConfig["fields"],
-    defaultProps: { ...boundFormContent.defaults },
+    defaultProps: { ...boundVisualControls.defaults },
     inline: false,
     render: (props) => {
       const { puck } = props as typeof props & {

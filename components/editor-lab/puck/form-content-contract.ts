@@ -29,7 +29,7 @@ function createField(slot: FormContentSlot): FormContentField {
     return fields.textarea(slot.label, { contentEditable: false });
   }
   if (slot.type === "mediaUrl") {
-    return { ...fields.imageUrl(), label: slot.label };
+    return fields.imageUrl(slot.label);
   }
   return fields.text(slot.label, { contentEditable: false });
 }

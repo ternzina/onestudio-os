@@ -20,12 +20,16 @@ import type {
   PuckSlotField,
   PuckArrayField,
   PuckBoundedNestedArrayField,
+  PuckColorField,
+  PuckSliderField,
+  PuckColorArrayField,
 } from "./field-helpers";
 import { effectFields, type EffectDefinition } from "./effect-contract";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
 import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } from "./bounded-nested-content-contract";
 import { bindFormContentContract, type FormContentContract } from "./form-content-contract";
 import { bindControlGroups, type ControlGroupContract } from "./control-groups";
+import { bindVisualControlContracts, type VisualControlContract } from "./visual-control-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -40,6 +44,9 @@ type LabField =
   | PuckSlotField
   | PuckArrayField
   | PuckBoundedNestedArrayField
+  | PuckColorField
+  | PuckSliderField
+  | PuckColorArrayField
   | {
       type: "array";
       arrayFields: Record<string, LabField>;
@@ -199,6 +206,7 @@ export type BlockContract<Props extends EditableProps> = {
   nestedContent?: readonly BoundedNestedContentContract[];
   formContent?: FormContentContract;
   controlGroups?: readonly ControlGroupContract[];
+  visualControls?: readonly VisualControlContract[];
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -333,8 +341,15 @@ export function createPuckComponent<Props extends EditableProps>(
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
-  const rawFields = { ...boundFormContent.fields, ...declaredEffectFields };
-  const groupedFields = bindControlGroups(contract.controlGroups, rawFields);
+  const boundVisualControls = bindVisualControlContracts(
+    contract.visualControls,
+    { ...boundFormContent.fields, ...declaredEffectFields },
+    boundFormContent.defaults,
+  );
+  const groupedFields = bindControlGroups(
+    [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+    boundVisualControls.fields,
+  );
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(groupedFields)
     : groupedFields;
@@ -345,7 +360,7 @@ export function createPuckComponent<Props extends EditableProps>(
     fields: { ...baseFields, layout: layoutField },
     defaultProps: {
       ...(showLabLabel ? { labLabel: contract.displayName } : {}),
-      ...boundFormContent.defaults,
+      ...boundVisualControls.defaults,
       layout: {
         spanCol: 1,
         spanRow: 1,
