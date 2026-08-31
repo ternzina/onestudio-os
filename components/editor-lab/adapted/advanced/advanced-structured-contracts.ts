@@ -155,7 +155,7 @@ export const blog2ArrayItems = [
       title: fields.text("Article title", { contentEditable: false }),
       excerpt: fields.textarea("Article excerpt", { contentEditable: false }),
       date: fields.text("Date", { contentEditable: false }),
-      image: fields.imageUrl(),
+      image: fields.imageUrl("Article image"),
     },
     itemLabel: (item, index) => `Article ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
   }),
@@ -172,7 +172,7 @@ export const ecommerce1ArrayItems = [
     slot: "views",
     label: "Product images",
     defaults: ecommerce1Views.map((view) => ({ ...view })),
-    fields: { src: fields.imageUrl() },
+    fields: { src: fields.imageUrl("Product image") },
     itemLabel: (_item, index) => `Product image ${Number(index ?? 0) + 1}`,
   }),
 ];
@@ -299,7 +299,7 @@ export const contact8ArrayItems = [
     label: "Reviewers",
     defaults: contact8Reviewers.map((reviewer) => ({ ...reviewer })),
     fields: {
-      src: fields.imageUrl(),
+      src: fields.imageUrl("Reviewer avatar"),
       name: fields.text("Reviewer name", { contentEditable: false }),
       role: fields.text("Reviewer role", { contentEditable: false }),
     },
@@ -389,7 +389,7 @@ export const contact11ArrayItems = [
       label: fields.text("Desk label", { contentEditable: false }),
       name: fields.text("Contact name", { contentEditable: false }),
       email: fields.text("Email", { contentEditable: false }),
-      avatar: fields.imageUrl(),
+      avatar: fields.imageUrl("Contact avatar"),
     },
     itemLabel: (item, index) => `Desk ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
@@ -405,7 +405,7 @@ export const blog1ArrayItems = [
       title: fields.text("Article title", { contentEditable: false }),
       date: fields.text("Date", { contentEditable: false }),
       category: fields.text("Category", { contentEditable: false }),
-      image: fields.imageUrl(),
+      image: fields.imageUrl("Article image"),
     },
     itemLabel: (item, index) => `Article ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
   }),
@@ -433,7 +433,7 @@ export const ecommerce2NestedContent = [
         { label: "New", value: "New" },
       ]),
       brand: fields.text("Brand", { contentEditable: false }),
-      image: fields.imageUrl(),
+      image: fields.imageUrl("Product image"),
     },
     children: [
       {
@@ -471,7 +471,7 @@ export const navigation11NestedContent = [
         fields: {
           title: fields.text("Card title", { contentEditable: false }),
           desc: fields.textarea("Card description", { contentEditable: false }),
-          img: fields.imageUrl(),
+          img: fields.imageUrl("Card image"),
         },
         itemLabel: (item, index) => `Card ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
       },
