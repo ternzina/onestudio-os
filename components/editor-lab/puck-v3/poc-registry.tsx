@@ -105,6 +105,7 @@ import {
   fastBatch12Components,
   fastBatch12PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-12/puck-fast-batch-registry";
+import { freeShowcaseBlocks, freeShowcaseCategories, freeShowcaseComponents } from "@/components/editor-lab/reactbits-free-showcase/puck-free-showcase-registry";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 const poc = <Props extends Record<string, unknown>>(input: {
@@ -154,7 +155,7 @@ const manualPocBlocks = [
 // Stable foundation deliberately registers a small, explicit set of blocks.
 // The official React Bits catalog is metadata-only at this boundary and will be
 // connected in a later integration stage after each source is verified.
-export const pocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks, ...fastBatch10PuckBlocks, ...fastBatch11PuckBlocks, ...fastBatch12PuckBlocks];
+export const pocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks, ...fastBatch10PuckBlocks, ...fastBatch11PuckBlocks, ...fastBatch12PuckBlocks, ...freeShowcaseBlocks];
 
 const duplicateValues = (values: string[]) => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
 const duplicateCatalogKeys = duplicateValues(pocBlocks.map((block) => block.catalogKey));
@@ -202,6 +203,7 @@ export const pocComponents = {
   ...fastBatch10Components,
   ...fastBatch11Components,
   ...fastBatch12Components,
+  ...freeShowcaseComponents,
 };
 export const pocCategories = {
   ...control3Categories,
@@ -218,6 +220,7 @@ export const pocCategories = {
   ...fastBatch10Categories,
   ...fastBatch11Categories,
   ...fastBatch12Categories,
+  ...freeShowcaseCategories,
   officialReactBits: {
     title: "Official React Bits",
     defaultExpanded: true,
