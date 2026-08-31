@@ -19,11 +19,11 @@ import AdaptedNavigation9, { navigation9Links } from "@/components/editor-lab/ad
 import Navigation11 from "@/components/blocks/navigation-11";
 import AdaptedNavigation12, { navigation12Links } from "@/components/editor-lab/adapted/navigation-12";
 import Navigation14 from "@/components/blocks/navigation-14";
-import Navigation15 from "@/components/blocks/navigation-15";
+import AdaptedNavigation15, { navigation15Links } from "@/components/editor-lab/adapted/navigation-15";
 import Cta10 from "@/components/blocks/cta-10";
 import Cta13 from "@/components/blocks/cta-13";
 import Cta14 from "@/components/blocks/cta-14";
-import Footer7 from "@/components/blocks/footer-7";
+import AdaptedFooter7, { footer7NavigationLinks } from "@/components/editor-lab/adapted/footer-7";
 import Footer11 from "@/components/blocks/footer-11";
 import AppShell6 from "@/components/blocks/app-shell-6";
 import AppShell8 from "@/components/blocks/app-shell-8";
@@ -114,6 +114,18 @@ const navigation12LinkContract = defineMenuLinksArrayContract({
   includeHref: false,
 });
 
+const footer7LinkContract = defineMenuLinksArrayContract({
+  slot: "navigationLinks",
+  label: "Footer navigation links",
+  defaults: footer7NavigationLinks,
+});
+
+const navigation15LinkContract = defineMenuLinksArrayContract({
+  slot: "links",
+  label: "Navigation links",
+  defaults: navigation15Links,
+});
+
 const marketingHost: ReactBitsHostSpec = {
   profile: "section",
   width: "full",
@@ -197,9 +209,9 @@ const navigationBlocks = [
   block({ type: "RB_batch11_cta_10", displayName: "React Bits CTA 10", catalogKey: "pro-block:cta-10", description: "Official React Bits CTA 10.", component: Cta10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch11_cta_13", displayName: "React Bits CTA 13", catalogKey: "pro-block:cta-13", description: "Official React Bits CTA 13.", component: Cta13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch11_cta_14", displayName: "React Bits CTA 14", catalogKey: "pro-block:cta-14", description: "Official React Bits CTA 14.", component: Cta14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_footer_7", displayName: "React Bits Footer 7", catalogKey: "pro-block:footer-7", description: "Official React Bits Footer 7.", component: Footer7 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch11_footer_7", displayName: "React Bits Footer 7", catalogKey: "pro-block:footer-7", description: "Official React Bits Footer 7.", component: AdaptedFooter7 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, arrayItems: [footer7LinkContract] }),
   block({ type: "RB_batch11_footer_11", displayName: "React Bits Footer 11", catalogKey: "pro-block:footer-11", description: "Official React Bits Footer 11.", component: Footer11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_navigation_15", displayName: "React Bits Navigation 15", catalogKey: "pro-block:navigation-15", description: "Official React Bits Navigation 15, replacing Navigation 10 after Puck interaction validation.", component: Navigation15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, replacementFor: "pro-block:navigation-10" }),
+  block({ type: "RB_batch11_navigation_15", displayName: "React Bits Navigation 15", catalogKey: "pro-block:navigation-15", description: "Official React Bits Navigation 15, replacing Navigation 10 after Puck interaction validation.", component: AdaptedNavigation15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, replacementFor: "pro-block:navigation-10", arrayItems: [navigation15LinkContract] }),
 ];
 
 const appBlocks = [

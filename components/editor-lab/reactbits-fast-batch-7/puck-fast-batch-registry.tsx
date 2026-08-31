@@ -5,7 +5,11 @@ import { Hero6 } from "@/components/blocks/hero-6";
 import Cta4 from "@/components/blocks/cta-4";
 import Cta6 from "@/components/blocks/cta-6";
 import Cta7 from "@/components/blocks/cta-7";
-import { Footer6 } from "@/components/blocks/footer-6";
+import AdaptedFooter6, {
+  footer6CommunityLinks,
+  footer6ExploreLinks,
+  footer6StudioLinks,
+} from "@/components/editor-lab/adapted/footer-6";
 import Footer8 from "@/components/blocks/footer-8";
 import AdaptedFooter10, {
   footer10LifecycleLinks,
@@ -111,12 +115,18 @@ const footer10LinkContracts = [
   defineMenuLinksArrayContract({ slot: "supportLinks", label: "Support links", defaults: footer10SupportLinks }),
 ];
 
+const footer6LinkContracts = [
+  defineMenuLinksArrayContract({ slot: "exploreLinks", label: "Explore links", defaults: footer6ExploreLinks }),
+  defineMenuLinksArrayContract({ slot: "studioLinks", label: "Studio links", defaults: footer6StudioLinks }),
+  defineMenuLinksArrayContract({ slot: "communityLinks", label: "Community links", defaults: footer6CommunityLinks }),
+];
+
 const marketingBlocks = [
   block({ type: "RB_batch7_hero_6", displayName: "React Bits Hero 6", catalogKey: "pro-block:hero-6", description: "Official React Bits Hero 6.", component: Hero6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Hero"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_cta_4", displayName: "React Bits CTA 4", catalogKey: "pro-block:cta-4", description: "Official React Bits CTA 4.", component: Cta4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_cta_6", displayName: "React Bits CTA 6", catalogKey: "pro-block:cta-6", description: "Official React Bits CTA 6.", component: Cta6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_cta_7", displayName: "React Bits CTA 7", catalogKey: "pro-block:cta-7", description: "Official React Bits CTA 7.", component: Cta7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
-  block({ type: "RB_batch7_footer_6", displayName: "React Bits Footer 6", catalogKey: "pro-block:footer-6", description: "Official React Bits Footer 6.", component: Footer6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
+  block({ type: "RB_batch7_footer_6", displayName: "React Bits Footer 6", catalogKey: "pro-block:footer-6", description: "Official React Bits Footer 6.", component: AdaptedFooter6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block", arrayItems: footer6LinkContracts }),
   block({ type: "RB_batch7_footer_8", displayName: "React Bits Footer 8", catalogKey: "pro-block:footer-8", description: "Official React Bits Footer 8.", component: Footer8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_footer_10", displayName: "React Bits Footer 10", catalogKey: "pro-block:footer-10", description: "Official React Bits Footer 10.", component: AdaptedFooter10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block", arrayItems: footer10LinkContracts }),
   block({ type: "RB_batch7_navigation_4", displayName: "React Bits Navigation 4", catalogKey: "pro-block:navigation-4", description: "Official React Bits Navigation 4.", component: Navigation4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Navigation"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
