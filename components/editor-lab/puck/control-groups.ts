@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import styles from "./puck-lab.module.css";
 import { SettingSearchBoundary } from "./settings-search-context";
+import { SettingsGroupHeading } from "./settings-group-context";
 
 export type ControlGroupContract = {
   id: string;
@@ -30,7 +31,7 @@ export function bindControlGroups(
     ordered[`__puckGroup_${group.id}`] = {
       type: "custom",
       label: group.label,
-      render: () => createElement(SettingSearchBoundary, { label: group.label }, createElement("div", { className: styles.controlGroupHeading }, group.label)),
+      render: () => createElement(SettingSearchBoundary, { label: group.label }, createElement(SettingsGroupHeading, { label: group.label, className: styles.controlGroupHeading })),
     };
     for (const field of memberFields) {
       ordered[field] = sourceFields[field];

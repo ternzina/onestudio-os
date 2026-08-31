@@ -32,6 +32,11 @@ import {
   useSettingsSearch,
 } from "@/components/editor-lab/puck/settings-search-context";
 import { viewportDevice } from "@/components/editor-lab/puck/responsive-layout-contract";
+import {
+  SettingsGroupContext,
+  normalizeSettingLabel,
+  useSettingsGroup,
+} from "@/components/editor-lab/puck/settings-group-context";
 
 const usePuck = createUsePuck();
 const USER_PRESET_KEY = "onestudio:puck-v3:user-style-preset:v1";
@@ -208,6 +213,7 @@ export function BuilderFields({
   const viewportWidth = usePuck((state) => state.appState.ui.viewports.current.width);
   const [query, setQuery] = useState("");
   const [presetName, setPresetName] = useState("");
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set());
   const component = selected
     ? config.components[selected.type] as ComponentConfig | undefined
     : undefined;
@@ -226,6 +232,9 @@ export function BuilderFields({
     () => describeFields(component?.fields as Record<string, unknown> | undefined),
     [component],
   );
+  const groupByLabel = useMemo(() => new Map(descriptors
+    .filter((descriptor) => descriptor.group && descriptor.group !== descriptor.label)
+    .map((descriptor) => [normalizeSettingLabel(descriptor.label), descriptor.group!])), [descriptors]);
   const normalizedQuery = normalize(query);
   const currentPreset = useMemo(() => {
     if (!selected || !component || !supported.size) return "Not available";
@@ -250,6 +259,17 @@ export function BuilderFields({
     return labels;
   }, [descriptors, normalizedQuery]);
 
+  useEffect(() => setCollapsedGroups(new Set()), [selected?.props.id]);
+  const toggleGroup = useCallback((label: string) => {
+    const key = normalizeSettingLabel(label);
+    setCollapsedGroups((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
   const update = (data: ComponentData) => {
     if (selector) replaceSelected(dispatch, selector, data);
   };
@@ -270,7 +290,8 @@ export function BuilderFields({
     }
   };
 
-  return <SettingsSearchContext.Provider value={{ query: normalizedQuery, allowedLabels }}>
+  return <SettingsGroupContext.Provider value={{ collapsedGroups, groupByLabel, query: normalizedQuery, toggleGroup }}>
+    <SettingsSearchContext.Provider value={{ query: normalizedQuery, allowedLabels }}>
     <div className={styles.propertiesTools} aria-label="Block settings tools">
       <div className={styles.propertiesSearch}>
         <input
@@ -309,7 +330,8 @@ export function BuilderFields({
       {normalizedQuery && allowedLabels?.size === 0 ? <p className={styles.settingsEmpty} role="status">No matching settings.</p> : null}
     </div>
     <div aria-busy={isLoading}>{children}</div>
-  </SettingsSearchContext.Provider>;
+    </SettingsSearchContext.Provider>
+  </SettingsGroupContext.Provider>;
 }
 
 export function BuilderFieldLabel({
@@ -328,8 +350,13 @@ export function BuilderFieldLabel({
   className?: string;
 }) {
   const { query, allowedLabels } = useSettingsSearch();
+  const settingsGroup = useSettingsGroup();
   if (query && !allowedLabels?.has(normalize(label))) {
     return <span hidden data-builder-setting-filtered={label} />;
+  }
+  const group = settingsGroup.groupByLabel.get(normalizeSettingLabel(label));
+  if (!settingsGroup.query && group && settingsGroup.collapsedGroups.has(normalizeSettingLabel(group))) {
+    return <span hidden data-builder-setting-collapsed={label} />;
   }
   return <FieldLabel icon={icon} label={label} el={el} readOnly={readOnly} className={className}>{children}</FieldLabel>;
 }
