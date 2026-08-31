@@ -110,9 +110,12 @@ const text = (label: string, options: Pick<PuckTextField, "contentEditable" | "p
 const textarea = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "textarea", label, contentEditable: true, ...options });
 const number = (label: string, options: Pick<PuckTextField, "min" | "max" | "step" | "placeholder"> = {}): PuckTextField => ({ type: "number", label, ...options });
 const richtext = (label: string): PuckRichTextField => ({ type: "richtext", label, contentEditable: true });
-// These aliases feed props rendered inside heading/paragraph tags. Richtext
-// values contain block markup, so plain text is the valid contract here.
-const inlineText = (label: string): PuckTextField => text(label);
+// These aliases are an explicit opt-in to Puck's native inline transform.
+// Use them only for props rendered as semantic text children. Props reused by
+// string logic, hrefs, placeholders, aria labels or structured data must stay
+// Properties-only via `contentEditable: false`.
+const inlineText = (label: string): PuckTextField => text(label, { contentEditable: true });
+const inlineTextarea = (label: string): PuckTextField => textarea(label, { contentEditable: true });
 
 const imageUrl = (label = "Image", options: PuckMediaFieldOptions = {}): PuckMediaField => ({
   type: "custom",
@@ -290,6 +293,8 @@ const arrayItems = (label: string, arrayFields: PuckArrayField["arrayFields"], o
 export const fields = {
   text,
   textarea,
+  inlineText,
+  inlineTextarea,
   number,
   richtext,
   heading: () => inlineText("Heading"),
