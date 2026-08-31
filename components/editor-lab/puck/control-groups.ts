@@ -3,7 +3,7 @@ import styles from "./puck-lab.module.css";
 
 export type ControlGroupContract = {
   id: string;
-  label: "Content" | "Actions" | "Media" | "Items" | "Appearance" | "Behavior";
+  label: "Content" | "Actions" | "Media" | "Items" | "Layout" | "Appearance" | "Behavior";
   fields: readonly string[];
 };
 
@@ -13,9 +13,17 @@ export function bindControlGroups(
 ) {
   if (!groups?.length) return sourceFields;
 
+  const groupsByLabel = new Map<ControlGroupContract["label"], ControlGroupContract>();
+  for (const group of groups) {
+    const existing = groupsByLabel.get(group.label);
+    groupsByLabel.set(group.label, existing
+      ? { ...existing, fields: [...new Set([...existing.fields, ...group.fields])] }
+      : group);
+  }
+
   const ordered: Record<string, unknown> = {};
   const consumed = new Set<string>();
-  for (const group of groups) {
+  for (const group of groupsByLabel.values()) {
     const memberFields = group.fields.filter((field) => field in sourceFields);
     if (!memberFields.length) continue;
     ordered[`__puckGroup_${group.id}`] = {

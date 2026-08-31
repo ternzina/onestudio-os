@@ -31,6 +31,11 @@ import { bindFormContentContract, type FormContentContract } from "./form-conten
 import { bindControlGroups, type ControlGroupContract } from "./control-groups";
 import { bindVisualControlContracts, type VisualControlContract } from "./visual-control-contract";
 import { mergeMediaControlGroup } from "./media-field-contract";
+import {
+  bindLayoutControlContract,
+  LayoutControlSurface,
+  type LayoutControlContract,
+} from "./layout-control-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -120,7 +125,7 @@ export function stripEditorProps<Props extends EditableProps>(
 ): Props {
   return Object.fromEntries(
     Object.entries(props).filter(
-      ([name]) => !editorPropNames.has(name) && !name.startsWith("__puckGroup_"),
+      ([name]) => !editorPropNames.has(name) && !name.startsWith("__puckGroup_") && !name.startsWith("__rbLayout"),
     ),
   ) as Props;
 }
@@ -208,6 +213,7 @@ export type BlockContract<Props extends EditableProps> = {
   formContent?: FormContentContract;
   controlGroups?: readonly ControlGroupContract[];
   visualControls?: readonly VisualControlContract[];
+  layoutControls?: LayoutControlContract;
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -347,12 +353,17 @@ export function createPuckComponent<Props extends EditableProps>(
     { ...boundFormContent.fields, ...declaredEffectFields },
     boundFormContent.defaults,
   );
+  const boundLayoutControls = bindLayoutControlContract(
+    contract.layoutControls,
+    boundVisualControls.fields,
+    boundVisualControls.defaults,
+  );
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
-      boundVisualControls.fields,
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundLayoutControls.groups],
+      boundLayoutControls.fields,
     ),
-    boundVisualControls.fields,
+    boundLayoutControls.fields,
   );
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(groupedFields)
@@ -364,7 +375,7 @@ export function createPuckComponent<Props extends EditableProps>(
     fields: { ...baseFields, layout: layoutField },
     defaultProps: {
       ...(showLabLabel ? { labLabel: contract.displayName } : {}),
-      ...boundVisualControls.defaults,
+      ...boundLayoutControls.defaults,
       layout: {
         spanCol: 1,
         spanRow: 1,
@@ -399,7 +410,9 @@ export function createPuckComponent<Props extends EditableProps>(
       const userProps = stripEditorProps<Props>(labProps as Record<string, unknown>);
       return (
         <Layout ref={puck.dragRef} layout={layout}>
-        {withPuckFrame(contract.component, contract.definiteHeight, contract.runtimeFamily, contract.host)(userProps as never)}
+          <LayoutControlSurface contract={contract.layoutControls} values={labProps as Record<string, unknown>}>
+            {withPuckFrame(contract.component, contract.definiteHeight, contract.runtimeFamily, contract.host)(userProps as never)}
+          </LayoutControlSurface>
         </Layout>
       );
     },

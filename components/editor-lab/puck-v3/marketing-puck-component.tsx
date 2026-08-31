@@ -10,6 +10,7 @@ import { bindFormContentContract } from "@/components/editor-lab/puck/form-conte
 import { bindControlGroups } from "@/components/editor-lab/puck/control-groups";
 import { bindVisualControlContracts } from "@/components/editor-lab/puck/visual-control-contract";
 import { mergeMediaControlGroup } from "@/components/editor-lab/puck/media-field-contract";
+import { bindLayoutControlContract, LayoutControlSurface } from "@/components/editor-lab/puck/layout-control-contract";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -83,19 +84,20 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
+  const boundLayoutControls = bindLayoutControlContract(contract.layoutControls, boundVisualControls.fields, boundVisualControls.defaults);
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
-      boundVisualControls.fields,
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundLayoutControls.groups],
+      boundLayoutControls.fields,
     ),
-    boundVisualControls.fields,
+    boundLayoutControls.fields,
   );
   return {
     label: contract.displayName,
     // Marketing blocks normally expose no source props. Adapted editor copies
     // declare only their explicit serializable content contract here.
     fields: groupedFields as ComponentConfig["fields"],
-    defaultProps: { ...boundVisualControls.defaults },
+    defaultProps: { ...boundLayoutControls.defaults },
     inline: false,
     render: (props) => {
       const { puck } = props as typeof props & {
@@ -111,9 +113,11 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
           onAuxClickCapture={guardEditorPreviewNavigation}
           onSubmitCapture={guardEditorPreviewSubmit}
         >
-          <ReactBitsHost spec={contract.host}>
-            <Block {...(userProps as Props)} />
-          </ReactBitsHost>
+          <LayoutControlSurface contract={contract.layoutControls} values={props as Record<string, unknown>}>
+            <ReactBitsHost spec={contract.host}>
+              <Block {...(userProps as Props)} />
+            </ReactBitsHost>
+          </LayoutControlSurface>
         </div>
       );
     },
