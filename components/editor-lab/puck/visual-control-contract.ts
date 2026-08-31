@@ -64,7 +64,7 @@ export function bindVisualControlContracts(
         boundFields[contract.prop] = fields.select(label, [...contract.options]);
         break;
       case "mediaUrl": {
-        boundFields[contract.prop] = fields.imageUrl(label);
+        boundFields[contract.prop] = fields.imageUrl(label, { defaultValue: contract.defaultValue });
         break;
       }
       case "colorArray":

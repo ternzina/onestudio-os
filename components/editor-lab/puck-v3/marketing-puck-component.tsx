@@ -9,6 +9,7 @@ import { bindBoundedNestedContentContracts } from "@/components/editor-lab/puck/
 import { bindFormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 import { bindControlGroups } from "@/components/editor-lab/puck/control-groups";
 import { bindVisualControlContracts } from "@/components/editor-lab/puck/visual-control-contract";
+import { mergeMediaControlGroup } from "@/components/editor-lab/puck/media-field-contract";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -83,7 +84,10 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
   const groupedFields = bindControlGroups(
-    [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+    mergeMediaControlGroup(
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+      boundVisualControls.fields,
+    ),
     boundVisualControls.fields,
   );
   return {

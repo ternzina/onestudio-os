@@ -1,4 +1,5 @@
 import type { PuckArrayField, PuckPrimitiveArrayItem } from "./field-helpers";
+import { bindMediaDefaults } from "./media-field-contract";
 
 export type PrimitiveArrayItem = PuckPrimitiveArrayItem;
 
@@ -33,7 +34,7 @@ export function bindArrayItemsContracts(
     generatedFields[contract.slot] = {
       type: "array",
       label: contract.label,
-      arrayFields: contract.fields,
+      arrayFields: bindMediaDefaults(contract.fields, contract.slot, contract.defaults),
       getItemSummary: contract.itemLabel,
     };
     generatedDefaults[contract.slot] = contract.defaults;

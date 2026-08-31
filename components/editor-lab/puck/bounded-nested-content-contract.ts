@@ -5,6 +5,7 @@ import type {
   PuckPrimitiveArrayItem,
   PuckPrimitiveField,
 } from "./field-helpers";
+import { bindMediaDefaults } from "./media-field-contract";
 
 export type BoundedNestedItem = PuckBoundedNestedItem;
 export type BoundedNestedChildContract = {
@@ -52,7 +53,7 @@ export function bindBoundedNestedContentContracts(
         {
           type: "array",
           label: child.label,
-          arrayFields: child.fields,
+          arrayFields: bindMediaDefaults(child.fields, contract.slot, contract.defaults),
           defaultItemProps: child.defaultItemProps,
           getItemSummary: child.itemLabel,
         } satisfies PuckArrayField,
@@ -62,7 +63,10 @@ export function bindBoundedNestedContentContracts(
     generatedFields[contract.slot] = {
       type: "array",
       label: contract.label,
-      arrayFields: { ...contract.fields, ...childFields },
+      arrayFields: {
+        ...bindMediaDefaults(contract.fields, contract.slot, contract.defaults),
+        ...childFields,
+      },
       getItemSummary: (item, index) => contract.itemLabel(item, index),
     };
     generatedDefaults[contract.slot] = contract.defaults;

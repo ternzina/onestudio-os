@@ -1,6 +1,6 @@
-import { createElement, type ChangeEvent, type ReactElement, type SyntheticEvent } from "react";
+import { createElement, type ChangeEvent, type ReactElement } from "react";
 import type { Field } from "@puckeditor/core";
-import styles from "./puck-lab.module.css";
+import PuckMediaPickerField from "./puck-media-picker-field";
 
 export type PuckTextField = {
   type: "text" | "textarea" | "number";
@@ -41,12 +41,22 @@ export type PuckSlotField = Extract<Field, { type: "slot" }>;
 export type PuckMediaField = {
   type: "custom";
   label: string;
-  render: ({ id, value, onChange, readOnly }: {
+  mediaOptions: PuckMediaFieldOptions;
+  render: ({ id, name, value, onChange, readOnly }: {
     id: string;
+    name: string;
     value: string | undefined;
     onChange: (value: string) => void;
     readOnly?: boolean;
   }) => ReactElement;
+};
+
+export type PuckMediaFieldOptions = {
+  defaultValue?: string;
+  resolveDefault?: (name: string) => string | undefined;
+  allowedTypes?: readonly ["image"];
+  allowEmpty?: boolean;
+  preview?: boolean;
 };
 
 export type PuckToggleField = {
@@ -98,30 +108,32 @@ const richtext = (label: string): PuckRichTextField => ({ type: "richtext", labe
 // values contain block markup, so plain text is the valid contract here.
 const inlineText = (label: string): PuckTextField => text(label);
 
-function MediaUrlField({ id, value, onChange, readOnly, label }: {
-  id: string;
-  value: string | undefined;
-  onChange: (value: string) => void;
-  readOnly?: boolean;
-  label?: string;
-}) {
-  const source = value ?? "";
-  const update = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value);
-
-  return createElement("div", { className: styles.mediaField },
-    createElement("label", { htmlFor: id }, label ?? "Image URL"),
-    createElement("input", { id, type: "url", value: source, onChange: update, readOnly, "aria-label": "Image URL", placeholder: "https://… or /local/path" }),
-    source
-      ? createElement("img", { className: styles.mediaPreview, src: source, alt: "Media preview", onError: (event: SyntheticEvent<HTMLImageElement>) => { event.currentTarget.hidden = true; } })
-      : createElement("div", { className: styles.mediaEmpty }, "Add an image URL or local path"),
-  );
-}
-
-const imageUrl = (label = "Image URL"): PuckMediaField => ({
+const imageUrl = (label = "Image", options: PuckMediaFieldOptions = {}): PuckMediaField => ({
   type: "custom",
   label,
-  render: (props) => createElement(MediaUrlField, { ...props, label }),
+  mediaOptions: { allowedTypes: ["image"], preview: true, ...options },
+  render: (props) => createElement(PuckMediaPickerField, {
+    ...props,
+    label,
+    defaultValue: options.resolveDefault?.(props.name) ?? options.defaultValue,
+    allowEmpty: options.allowEmpty,
+    preview: options.preview,
+  }),
 });
+
+export function isPuckMediaField(field: PuckPrimitiveField): field is PuckMediaField {
+  return field.type === "custom" && "mediaOptions" in field;
+}
+
+export function withMediaDefaultResolver(
+  field: PuckPrimitiveField,
+  resolveDefault: (name: string) => string | undefined,
+): PuckPrimitiveField {
+  if (!isPuckMediaField(field)) return field;
+  return imageUrl(field.label, { ...field.mediaOptions, resolveDefault });
+}
+
+export const mediaField = ({ label, ...options }: PuckMediaFieldOptions & { label: string }) => imageUrl(label, options);
 
 function ToggleField({ id, value, onChange, readOnly, label }: {
   id: string;

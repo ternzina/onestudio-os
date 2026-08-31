@@ -30,6 +30,7 @@ import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } 
 import { bindFormContentContract, type FormContentContract } from "./form-content-contract";
 import { bindControlGroups, type ControlGroupContract } from "./control-groups";
 import { bindVisualControlContracts, type VisualControlContract } from "./visual-control-contract";
+import { mergeMediaControlGroup } from "./media-field-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -347,7 +348,10 @@ export function createPuckComponent<Props extends EditableProps>(
     boundFormContent.defaults,
   );
   const groupedFields = bindControlGroups(
-    [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+    mergeMediaControlGroup(
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups],
+      boundVisualControls.fields,
+    ),
     boundVisualControls.fields,
   );
   const baseFields = contract.sourceKind === "component"

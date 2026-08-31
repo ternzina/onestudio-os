@@ -4,6 +4,7 @@
 
 import { editorCompactFieldClass } from "@/components/admin/EditorChrome";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
+import type { SyntheticEvent } from "react";
 
 const videoSource = /(?:youtube\.com|youtu\.be|vimeo\.com|\.(?:mp4|webm|mov)(?:$|[?#]))/i;
 
@@ -14,6 +15,9 @@ export default function SiteEditorMediaField({
   disabled = false,
   onChange,
   onChoose,
+  previewInvalidReason,
+  onPreviewLoad,
+  onPreviewError,
 }: {
   label: string;
   value: string;
@@ -21,9 +25,14 @@ export default function SiteEditorMediaField({
   disabled?: boolean;
   onChange: (value: string) => void;
   onChoose: () => void;
+  /** Optional adapter-only preview validation; existing Site Editor callers are unchanged. */
+  previewInvalidReason?: string;
+  onPreviewLoad?: (width: number, height: number) => void;
+  onPreviewError?: () => void;
 }) {
   const { t } = useAdminI18n();
-  const invalid = Boolean(value && videoSource.test(value));
+  const videoInvalid = Boolean(value && videoSource.test(value));
+  const invalid = videoInvalid || Boolean(previewInvalidReason);
   const hasOriginal = originalValue !== undefined;
   const changed = hasOriginal && value !== originalValue;
   const resetValue = hasOriginal ? originalValue : "";
@@ -35,7 +44,13 @@ export default function SiteEditorMediaField({
     </div>
     <div className="mt-3 grid grid-cols-[76px_1fr] gap-3">
       <div className="aspect-square overflow-hidden rounded-xl bg-[#eee9e4]">
-        {value && !invalid ? <img src={value} alt="" className="h-full w-full object-cover" /> : invalid ? <span className="grid h-full place-items-center px-2 text-center text-[10px] font-semibold leading-4 text-red-600">{t("Use the video field for this link")}</span> : <span className="grid h-full place-items-center text-xl text-black/20">＋</span>}
+        {value && !invalid ? <img
+          src={value}
+          alt=""
+          className="h-full w-full object-cover"
+          onLoad={(event: SyntheticEvent<HTMLImageElement>) => onPreviewLoad?.(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)}
+          onError={onPreviewError}
+        /> : invalid ? <span className="grid h-full place-items-center px-2 text-center text-[10px] font-semibold leading-4 text-red-600">{previewInvalidReason || t("Use the video field for this link")}</span> : <span className="grid h-full place-items-center text-xl text-black/20">＋</span>}
       </div>
       <div className="min-w-0">
         <input
