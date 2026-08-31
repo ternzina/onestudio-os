@@ -4,6 +4,7 @@ import type { ComponentConfig } from "@puckeditor/core";
 import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { guardEditorPreviewNavigation, guardEditorPreviewSubmit, stripEditorProps, type BlockContract } from "@/components/editor-lab/puck/block-contract";
 import { ReactBitsHost } from "@/components/editor-lab/puck/reactbits-host";
+import { bindArrayItemsContracts } from "@/components/editor-lab/puck/array-items-contract";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -73,12 +74,13 @@ export function MarketingPreview({ children }: { children: ReactNode }) {
 export function createMarketingPuckComponent<Props extends EditableProps>(
   contract: BlockContract<Props>,
 ): ComponentConfig {
+  const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   return {
     label: contract.displayName,
     // Marketing blocks normally expose no source props. Adapted editor copies
     // declare only their explicit serializable content contract here.
-    fields: contract.fields as ComponentConfig["fields"],
-    defaultProps: { ...contract.defaultProps },
+    fields: boundArrays.fields as ComponentConfig["fields"],
+    defaultProps: { ...boundArrays.defaults },
     inline: false,
     render: (props) => {
       const { puck } = props as typeof props & {

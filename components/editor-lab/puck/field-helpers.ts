@@ -11,7 +11,14 @@ export type PuckTextField = {
   max?: number;
   step?: number;
 };
-export type PuckArrayField = { type: "array"; label: string; arrayFields: Record<string, PuckTextField> };
+export type PuckPrimitiveArrayItem = Record<string, string | number | boolean | undefined>;
+export type PuckArrayField = {
+  type: "array";
+  label: string;
+  arrayFields: Record<string, PuckTextField | PuckMediaField | PuckToggleField | PuckSelectField>;
+  defaultItemProps?: Record<string, unknown>;
+  getItemSummary?: (item: PuckPrimitiveArrayItem, index?: number) => string;
+};
 
 export type PuckRichTextField = Extract<Field, { type: "richtext" }>;
 export type PuckObjectField = Extract<Field, { type: "object" }>;
@@ -65,6 +72,7 @@ const imageUrl = (): PuckMediaField => ({ type: "custom", label: "Image URL", re
 const toggle = (label: string): PuckToggleField => ({ type: "radio", label, options: [{ label: "Off", value: "off" }, { label: "On", value: "on" }] });
 const select = (label: string, options: Array<{ label: string; value: string }>): PuckSelectField => ({ type: "select", label, options });
 const array = (label: string): PuckArrayField => ({ type: "array", label, arrayFields: { value: { type: "text", label: "Value", contentEditable: false } } });
+const arrayItems = (label: string, arrayFields: PuckArrayField["arrayFields"], options: Pick<PuckArrayField, "defaultItemProps" | "getItemSummary"> = {}): PuckArrayField => ({ type: "array", label, arrayFields, ...options });
 
 export const fields = {
   text,
@@ -81,4 +89,5 @@ export const fields = {
   toggle,
   select,
   array,
+  arrayItems,
 };

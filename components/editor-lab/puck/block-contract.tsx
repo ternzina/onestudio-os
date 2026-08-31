@@ -21,6 +21,7 @@ import type {
   PuckArrayField,
 } from "./field-helpers";
 import { effectFields, type EffectDefinition } from "./effect-contract";
+import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -187,6 +188,7 @@ export type BlockContract<Props extends EditableProps> = {
   defaultProps: Props;
   fields: TextFields<Props>;
   effects?: readonly EffectDefinition<Props>[];
+  arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -318,7 +320,8 @@ export function createPuckComponent<Props extends EditableProps>(
     ? effectFields(...contract.effects)
     : {};
   // labLabel remains an internal frame/display-name prop; it is not customer content.
-  const rawFields = { ...contract.fields, ...declaredEffectFields };
+  const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
+  const rawFields = { ...boundArrays.fields, ...declaredEffectFields };
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(rawFields)
     : rawFields;
@@ -329,7 +332,7 @@ export function createPuckComponent<Props extends EditableProps>(
     fields: { ...baseFields, layout: layoutField },
     defaultProps: {
       ...(showLabLabel ? { labLabel: contract.displayName } : {}),
-      ...contract.defaultProps,
+      ...boundArrays.defaults,
       layout: {
         spanCol: 1,
         spanRow: 1,

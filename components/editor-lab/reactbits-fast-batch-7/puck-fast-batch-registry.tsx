@@ -18,7 +18,7 @@ import AdaptedContact6 from "@/components/editor-lab/adapted/contact-6";
 import Pricing1 from "@/components/blocks/pricing-1";
 import { Pricing5 } from "@/components/blocks/pricing-5";
 import { Pricing6 } from "@/components/blocks/pricing-6";
-import Card4 from "@/components/blocks/card-4";
+import { AdaptedCard4 } from "@/components/editor-lab/adapted/card-4";
 import Card5 from "@/components/blocks/card-5";
 import AppShell2 from "@/components/blocks/app-shell-2";
 import AppSidebar2 from "@/components/blocks/app-sidebar-2";
@@ -27,6 +27,8 @@ import Forms1 from "@/components/blocks/forms-1";
 import Forms2 from "@/components/blocks/forms-2";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
+import type { ArrayItemsContract, PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
+import { bindArrayItemsContracts, defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
@@ -40,6 +42,7 @@ type Block = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 7";
   batchGroup: BatchGroup;
@@ -49,13 +52,16 @@ type Block = {
 
 const block = (
   input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus"> & Pick<Partial<Block>, "defaultProps" | "fields">,
-): Block => ({
-  ...input,
-  category: "React Bits Fast Batch 7",
-  defaultProps: input.defaultProps ?? {},
-  fields: input.fields ?? {},
-  batchStatus: "DIRECT_RENDER_PASS",
-});
+): Block => {
+  const boundArrays = bindArrayItemsContracts(input.arrayItems, input.fields ?? {}, input.defaultProps ?? {});
+  return {
+    ...input,
+    category: "React Bits Fast Batch 7",
+    defaultProps: boundArrays.defaults,
+    fields: boundArrays.fields,
+    batchStatus: "DIRECT_RENDER_PASS",
+  };
+};
 
 const marketingHost: ReactBitsHostSpec = {
   profile: "section",
@@ -71,6 +77,27 @@ const appHost = (minHeight: number): ReactBitsHostSpec => ({
   sourceMinHeight: { value: minHeight, provenance: "official-source" },
   overflow: "source",
   runtimeRisk: "none",
+});
+
+const card4Meetings = defineArrayItemsContract({
+  slot: "meetings",
+  label: "Meetings",
+  defaults: [
+    { id: "roadmap", title: "Roadmap review", day: "14", weekday: "Mon", window: "09:30 – 10:15", place: "Studio A", invited: 7 },
+    { id: "standup", title: "Platform standup", day: "14", weekday: "Mon", window: "11:00 – 11:15", place: "Video call", invited: 8 },
+    { id: "design", title: "Design critique", day: "14", weekday: "Mon", window: "14:00 – 15:00", place: "Studio B", invited: 4 },
+    { id: "pricing", title: "Pricing working group", day: "15", weekday: "Tue", window: "10:00 – 10:50", place: "Video call", invited: 5 },
+    { id: "retro", title: "Sprint retrospective", day: "17", weekday: "Thu", window: "16:00 – 16:45", place: "Studio A", invited: 8 },
+    { id: "onsite", title: "Customer onsite prep", day: "18", weekday: "Fri", window: "08:30 – 09:00", place: "Video call", invited: 2 },
+  ],
+  fields: {
+    title: fields.text("Title", { contentEditable: false }),
+    day: fields.text("Day", { contentEditable: false }),
+    weekday: fields.text("Weekday", { contentEditable: false }),
+    window: fields.text("Time window", { contentEditable: false }),
+    place: fields.text("Place", { contentEditable: false }),
+  },
+  itemLabel: (item) => String(item.title ?? "Meeting"),
 });
 
 const marketingBlocks = [
@@ -94,7 +121,7 @@ const marketingBlocks = [
 ];
 
 const appBlocks = [
-  block({ type: "RB_batch7_card_4", displayName: "React Bits Card 4", catalogKey: "pro-block:card-4", description: "Official React Bits Card 4.", component: Card4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Cards"], batchGroup: "Application UI", host: appHost(560), sourceKind: "pro-block" }),
+  block({ type: "RB_batch7_card_4", displayName: "React Bits Card 4", catalogKey: "pro-block:card-4", description: "Official React Bits Card 4.", component: AdaptedCard4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Cards"], batchGroup: "Application UI", host: appHost(560), sourceKind: "pro-block", arrayItems: [card4Meetings] }),
   block({ type: "RB_batch7_card_5", displayName: "React Bits Card 5", catalogKey: "pro-block:card-5", description: "Official React Bits Card 5.", component: Card5 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Cards"], batchGroup: "Application UI", host: appHost(560), sourceKind: "pro-block" }),
   block({ type: "RB_batch7_app_shell_2", displayName: "React Bits App Shell 2", catalogKey: "pro-block:app-shell-2", description: "Official React Bits App Shell 2.", component: AppShell2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "App Shell"], batchGroup: "Application UI", host: appHost(720), sourceKind: "pro-block" }),
   block({ type: "RB_batch7_app_sidebar_2", displayName: "React Bits App Sidebar 2", catalogKey: "pro-block:app-sidebar-2", description: "Official React Bits App Sidebar 2.", component: AppSidebar2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "App Shell"], batchGroup: "Application UI", host: appHost(640), sourceKind: "pro-block" }),

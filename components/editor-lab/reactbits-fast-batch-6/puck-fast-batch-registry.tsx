@@ -11,7 +11,7 @@ import CTA1 from "@/components/blocks/cta-1";
 import CTA2 from "@/components/blocks/cta-2";
 import CTA3 from "@/components/blocks/cta-3";
 import Pricing2 from "@/components/blocks/pricing-2";
-import Pricing3 from "@/components/blocks/pricing-3";
+import { AdaptedPricing3 } from "@/components/editor-lab/adapted/pricing-3";
 import Pricing4 from "@/components/blocks/pricing-4";
 import Contact1 from "@/components/blocks/contact-1";
 import Contact3 from "@/components/blocks/contact-3";
@@ -27,15 +27,32 @@ import Mobile5 from "@/components/blocks/mobile-5";
 import List5 from "@/components/blocks/list-5";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
+import type { ArrayItemsContract, PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
+import { bindArrayItemsContracts, defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
+import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Marketing Blocks" | "Application UI";
 type BatchStatus = "DIRECT_RENDER_PASS" | "BLOCKED_SOURCE_DIFF";
-type Block = { type: string; displayName: string; catalogKey: string; description: string; component: AnyComponent; tags: readonly string[]; defaultProps: Record<string, unknown>; fields: Record<string, unknown>; host: ReactBitsHostSpec; category: "React Bits Fast Batch 6"; batchGroup: BatchGroup; batchStatus: BatchStatus; blocker?: string; sourceKind: "pro-block" };
-const block = (input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus"> & { defaultProps?: Record<string, unknown>; fields?: Record<string, unknown>; batchStatus?: BatchStatus; blocker?: string }): Block => ({ ...input, category: "React Bits Fast Batch 6", defaultProps: input.defaultProps ?? {}, fields: input.fields ?? {}, batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS" });
+type Block = { type: string; displayName: string; catalogKey: string; description: string; component: AnyComponent; tags: readonly string[]; defaultProps: Record<string, unknown>; fields: Record<string, unknown>; arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[]; host: ReactBitsHostSpec; category: "React Bits Fast Batch 6"; batchGroup: BatchGroup; batchStatus: BatchStatus; blocker?: string; sourceKind: "pro-block" };
+const block = (input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus"> & { defaultProps?: Record<string, unknown>; fields?: Record<string, unknown>; batchStatus?: BatchStatus; blocker?: string }): Block => {
+  const boundArrays = bindArrayItemsContracts(input.arrayItems, input.fields ?? {}, input.defaultProps ?? {});
+  return {
+    ...input,
+    category: "React Bits Fast Batch 6",
+    defaultProps: boundArrays.defaults,
+    fields: boundArrays.fields,
+    batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+  };
+};
 const marketingHost: ReactBitsHostSpec = { profile: "section", width: "full", height: "intrinsic", runtimeRisk: "none" };
 const appHost = (minHeight: number): ReactBitsHostSpec => ({ profile: "app-surface", width: "full", height: "source-min", sourceMinHeight: { value: minHeight, provenance: "official-source" }, overflow: "source", runtimeRisk: "none" });
 const sourceDiff = "BLOCKED_SOURCE_DIFF" as const;
+const pricing3Plans = defineArrayItemsContract({ slot: "plans", label: "Plans", defaults: [
+  { title: "Free", description: "Get started with essential analytics. Perfect for personal projects and early-stage startups.", price: "Free", suffix: "/mo.", limit: "Up to 10K events/month", ctaLabel: "Get started" },
+  { title: "Pro", description: "Advanced analytics and insights for growing teams. Scale with confidence.", price: "$49", suffix: "/mo.", limit: "Up to 500K events/month", ctaLabel: "See packages" },
+  { title: "Enterprise", description: "Custom solutions with dedicated support for high-traffic applications.", price: "Custom", suffix: "", limit: "Unlimited events", ctaLabel: "Talk to sales" },
+], fields: { title: fields.text("Title", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), price: fields.text("Price", { contentEditable: false }), suffix: fields.text("Suffix", { contentEditable: false }), limit: fields.text("Limit", { contentEditable: false }), ctaLabel: fields.text("CTA label", { contentEditable: false }) }, itemLabel: (item) => item.title ?? "Plan" });
 
 const marketingBlocks = [
   block({ type: "RB_batch6_hero_1", displayName: "React Bits Hero 1", catalogKey: "pro-block:hero-1", description: "Official React Bits Hero 1.", component: Hero1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Hero"], batchGroup: "Marketing Blocks", host: marketingHost, batchStatus: sourceDiff, blocker: sourceDiff, sourceKind: "pro-block" }),
@@ -48,7 +65,7 @@ const marketingBlocks = [
   block({ type: "RB_batch6_cta_2", displayName: "React Bits CTA 2", catalogKey: "pro-block:cta-2", description: "Official React Bits CTA 2.", component: CTA2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, batchStatus: sourceDiff, blocker: sourceDiff, sourceKind: "pro-block" }),
   block({ type: "RB_batch6_cta_3", displayName: "React Bits CTA 3", catalogKey: "pro-block:cta-3", description: "Official React Bits CTA 3.", component: CTA3 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, batchStatus: sourceDiff, blocker: sourceDiff, sourceKind: "pro-block" }),
   block({ type: "RB_batch6_pricing_2", displayName: "React Bits Pricing 2", catalogKey: "pro-block:pricing-2", description: "Official React Bits Pricing 2.", component: Pricing2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, batchStatus: sourceDiff, blocker: sourceDiff, sourceKind: "pro-block" }),
-  block({ type: "RB_batch6_pricing_3", displayName: "React Bits Pricing 3", catalogKey: "pro-block:pricing-3", description: "Official React Bits Pricing 3.", component: Pricing3 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
+  block({ type: "RB_batch6_pricing_3", displayName: "React Bits Pricing 3", catalogKey: "pro-block:pricing-3", description: "Official React Bits Pricing 3.", component: AdaptedPricing3 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block", arrayItems: [pricing3Plans] }),
   block({ type: "RB_batch6_pricing_4", displayName: "React Bits Pricing 4", catalogKey: "pro-block:pricing-4", description: "Official React Bits Pricing 4.", component: Pricing4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch6_contact_1", displayName: "React Bits Contact 1", catalogKey: "pro-block:contact-1", description: "Official React Bits Contact 1.", component: Contact1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, batchStatus: sourceDiff, blocker: sourceDiff, sourceKind: "pro-block" }),
   block({ type: "RB_batch6_contact_3", displayName: "React Bits Contact 3", catalogKey: "pro-block:contact-3", description: "Official React Bits Contact 3.", component: Contact3 as unknown as AnyComponent, tags: ["React Bits Fast Batch 6", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
