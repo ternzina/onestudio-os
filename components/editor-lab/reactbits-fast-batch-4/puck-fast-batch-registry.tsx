@@ -30,6 +30,7 @@ import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-h
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 import { defineVisualControls, type VisualControlContract } from "@/components/editor-lab/puck/visual-control-contract";
+import type { LayoutControlContract } from "@/components/editor-lab/puck/layout-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -47,6 +48,7 @@ type FastBatchBlock = {
   fields: Record<string, unknown>;
   formContent?: FormContentContract;
   visualControls?: readonly VisualControlContract[];
+  layoutControls?: LayoutControlContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 4";
   batchGroup: BatchGroup;

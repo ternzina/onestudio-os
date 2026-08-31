@@ -30,11 +30,12 @@ import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-h
 import type { ArrayItemsContract, PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
 import { bindArrayItemsContracts, defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
+import type { LayoutControlContract } from "@/components/editor-lab/puck/layout-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Marketing Blocks" | "Application UI";
 type BatchStatus = "DIRECT_RENDER_PASS" | "BLOCKED_SOURCE_DIFF";
-type Block = { type: string; displayName: string; catalogKey: string; description: string; component: AnyComponent; tags: readonly string[]; defaultProps: Record<string, unknown>; fields: Record<string, unknown>; arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[]; host: ReactBitsHostSpec; category: "React Bits Fast Batch 6"; batchGroup: BatchGroup; batchStatus: BatchStatus; blocker?: string; sourceKind: "pro-block" };
+type Block = { type: string; displayName: string; catalogKey: string; description: string; component: AnyComponent; tags: readonly string[]; defaultProps: Record<string, unknown>; fields: Record<string, unknown>; arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[]; layoutControls?: LayoutControlContract; host: ReactBitsHostSpec; category: "React Bits Fast Batch 6"; batchGroup: BatchGroup; batchStatus: BatchStatus; blocker?: string; sourceKind: "pro-block" };
 const block = (input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus"> & { defaultProps?: Record<string, unknown>; fields?: Record<string, unknown>; batchStatus?: BatchStatus; blocker?: string }): Block => {
   const boundArrays = bindArrayItemsContracts(input.arrayItems, input.fields ?? {}, input.defaultProps ?? {});
   return {

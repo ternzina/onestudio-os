@@ -11,6 +11,7 @@ import { bindControlGroups } from "@/components/editor-lab/puck/control-groups";
 import { bindVisualControlContracts } from "@/components/editor-lab/puck/visual-control-contract";
 import { mergeMediaControlGroup } from "@/components/editor-lab/puck/media-field-contract";
 import { bindLayoutControlContract, LayoutControlSurface } from "@/components/editor-lab/puck/layout-control-contract";
+import { resolveAdaptedLayoutContract } from "@/components/editor-lab/puck/adapted-layout-catalog";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -80,11 +81,12 @@ export function MarketingPreview({ children }: { children: ReactNode }) {
 export function createMarketingPuckComponent<Props extends EditableProps>(
   contract: BlockContract<Props>,
 ): ComponentConfig {
+  const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
-  const boundLayoutControls = bindLayoutControlContract(contract.layoutControls, boundVisualControls.fields, boundVisualControls.defaults);
+  const boundLayoutControls = bindLayoutControlContract(layoutControls, boundVisualControls.fields, boundVisualControls.defaults);
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
       [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundLayoutControls.groups],
@@ -113,7 +115,7 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
           onAuxClickCapture={guardEditorPreviewNavigation}
           onSubmitCapture={guardEditorPreviewSubmit}
         >
-          <LayoutControlSurface contract={contract.layoutControls} values={props as Record<string, unknown>}>
+          <LayoutControlSurface contract={layoutControls} values={props as Record<string, unknown>}>
             <ReactBitsHost spec={contract.host}>
               <Block {...(userProps as Props)} />
             </ReactBitsHost>

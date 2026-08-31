@@ -104,7 +104,7 @@ export default function AdaptedEcommerce2({
 
   return (
     <section className="w-full min-h-[var(--rb-section-min-h,100vh)] py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-neutral-950">
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+      <div data-rb-layout-grid-target="true" className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
         <aside className="space-y-5 text-sm">
           <div className="space-y-3">
             <button

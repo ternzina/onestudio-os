@@ -36,6 +36,7 @@ import {
   LayoutControlSurface,
   type LayoutControlContract,
 } from "./layout-control-contract";
+import { resolveAdaptedLayoutContract } from "./adapted-layout-catalog";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -341,6 +342,7 @@ export function createPuckComponent<Props extends EditableProps>(
   options: { showLabLabel?: boolean } = {},
 ): ComponentConfig {
   const showLabLabel = options.showLabLabel ?? true;
+  const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
   const declaredEffectFields = contract.effects
     ? effectFields(...contract.effects)
     : {};
@@ -354,7 +356,7 @@ export function createPuckComponent<Props extends EditableProps>(
     boundFormContent.defaults,
   );
   const boundLayoutControls = bindLayoutControlContract(
-    contract.layoutControls,
+    layoutControls,
     boundVisualControls.fields,
     boundVisualControls.defaults,
   );
@@ -410,7 +412,7 @@ export function createPuckComponent<Props extends EditableProps>(
       const userProps = stripEditorProps<Props>(labProps as Record<string, unknown>);
       return (
         <Layout ref={puck.dragRef} layout={layout}>
-          <LayoutControlSurface contract={contract.layoutControls} values={labProps as Record<string, unknown>}>
+          <LayoutControlSurface contract={layoutControls} values={labProps as Record<string, unknown>}>
             {withPuckFrame(contract.component, contract.definiteHeight, contract.runtimeFamily, contract.host)(userProps as never)}
           </LayoutControlSurface>
         </Layout>

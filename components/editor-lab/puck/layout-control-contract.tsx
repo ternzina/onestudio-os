@@ -294,10 +294,18 @@ export function LayoutControlSurface({
       .filter((prop) => typeof values[prop] === "string")
       .map((prop) => [prop, values[prop] as string]),
   ) as LayoutControlValues;
+  const columns = controlValues[layoutControlProps.columns];
+  const gap = controlValues[layoutControlProps.gap];
+  const imageFit = controlValues[layoutControlProps.imageFit];
+  const imagePosition = controlValues[layoutControlProps.imagePosition];
   return (
     <div
-      className={contract.imageFit || contract.imagePosition ? styles.mediaSurface : undefined}
+      className={styles.surface}
       data-rb-layout-surface="true"
+      data-rb-layout-columns={columns && columns !== SOURCE_VALUE ? columns : undefined}
+      data-rb-layout-gap={gap && gap !== SOURCE_VALUE ? gap : undefined}
+      data-rb-layout-image-fit={imageFit && imageFit !== SOURCE_VALUE ? imageFit : undefined}
+      data-rb-layout-image-position={imagePosition && imagePosition !== SOURCE_VALUE ? imagePosition : undefined}
       style={resolveLayoutSurfaceStyle(controlValues)}
     >
       {children}
@@ -308,18 +316,27 @@ export function LayoutControlSurface({
 const sectionBase = {
   padding: true,
   contentWidth: true,
-  alignment: true,
   verticalAlignment: true,
 } satisfies LayoutControlContract;
 
 export const layoutControlProfiles = {
-  section: defineLayoutControlContract(sectionBase),
-  sectionRounded: defineLayoutControlContract({ ...sectionBase, radius: true }),
-  sectionGrid: defineLayoutControlContract({ ...sectionBase, columns: [1, 2, 3, 4], gap: true, radius: true }),
-  sectionMedia: defineLayoutControlContract({ ...sectionBase, radius: true, imageFit: true, imagePosition: true }),
-  sectionGridMedia: defineLayoutControlContract({ ...sectionBase, columns: [1, 2, 3, 4], gap: true, radius: true, imageFit: true, imagePosition: true }),
-  app: defineLayoutControlContract({ padding: true, contentWidth: true, alignment: true, verticalAlignment: true, radius: true }),
-  appGrid: defineLayoutControlContract({ padding: true, contentWidth: true, alignment: true, verticalAlignment: true, columns: [1, 2, 3, 4], gap: true, radius: true }),
+  widthOnly: defineLayoutControlContract({ contentWidth: true }),
+  spacing: defineLayoutControlContract({ padding: true, verticalAlignment: true }),
+  spacingRounded: defineLayoutControlContract({ padding: true, verticalAlignment: true, radius: true }),
+  section: defineLayoutControlContract({ ...sectionBase, alignment: true }),
+  sectionBasic: defineLayoutControlContract(sectionBase),
+  sectionRounded: defineLayoutControlContract({ ...sectionBase, alignment: true, radius: true }),
+  sectionSplit: defineLayoutControlContract({ ...sectionBase, columns: [1, 2], gap: true }),
+  sectionGrid: defineLayoutControlContract({ ...sectionBase, columns: [1, 2, 3, 4], gap: true }),
+  sectionMedia: defineLayoutControlContract({ ...sectionBase, alignment: true, imageFit: true, imagePosition: true }),
+  sectionSplitMedia: defineLayoutControlContract({ ...sectionBase, columns: [1, 2], gap: true, imageFit: true, imagePosition: true }),
+  sectionGridMedia: defineLayoutControlContract({ ...sectionBase, columns: [1, 2, 3, 4], gap: true, imageFit: true, imagePosition: true }),
+  app: defineLayoutControlContract({ padding: true, contentWidth: true, verticalAlignment: true }),
+  appRounded: defineLayoutControlContract({ padding: true, contentWidth: true, verticalAlignment: true, radius: true }),
+  appGrid: defineLayoutControlContract({ padding: true, contentWidth: true, verticalAlignment: true, columns: [1, 2, 3, 4], gap: true }),
+  appRoundedFluid: defineLayoutControlContract({ padding: true, verticalAlignment: true, radius: true }),
+  appGridFluid: defineLayoutControlContract({ padding: true, verticalAlignment: true, columns: [1, 2, 3, 4], gap: true }),
+  appSplitFluid: defineLayoutControlContract({ padding: true, verticalAlignment: true, columns: [1, 2], gap: true }),
   navigation: defineLayoutControlContract({ padding: true, contentWidth: true }),
   background: defineLayoutControlContract({ padding: true, verticalAlignment: true, radius: true }),
 } as const;

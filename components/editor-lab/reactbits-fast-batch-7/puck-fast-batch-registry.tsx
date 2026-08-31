@@ -39,6 +39,7 @@ import type { ArrayItemsContract, PrimitiveArrayItem } from "@/components/editor
 import { bindArrayItemsContracts, defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { defineMenuLinksArrayContract } from "@/components/editor-lab/puck/menu-links-array-contract";
+import type { LayoutControlContract } from "@/components/editor-lab/puck/layout-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Marketing Blocks" | "Application UI";
@@ -52,6 +53,7 @@ type Block = {
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
+  layoutControls?: LayoutControlContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 7";
   batchGroup: BatchGroup;

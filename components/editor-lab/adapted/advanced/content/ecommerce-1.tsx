@@ -44,7 +44,7 @@ export default function AdaptedEcommerce1({
 
   return (
     <section className="w-full min-h-[var(--rb-section-min-h,100vh)] py-6 px-4 sm:px-6 lg:px-8 bg-white dark:bg-neutral-950">
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-start">
+      <div data-rb-layout-grid-target="true" className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-start">
         <div className="relative rounded-3xl bg-neutral-100 dark:bg-neutral-900 overflow-hidden aspect-4/5 sm:aspect-4/3 lg:aspect-auto lg:min-h-[720px]">
           <div className="absolute top-5 left-5 flex items-center gap-2 z-20">
             <button className="inline-flex items-center gap-1 pl-3 pr-4 py-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm font-medium shadow-sm cursor-pointer">

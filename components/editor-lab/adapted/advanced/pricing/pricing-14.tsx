@@ -106,7 +106,7 @@ export default function AdaptedPricing14({
         variants={container}
         className="max-w-[1400px] mx-auto w-full"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-start">
+        <div data-rb-layout-grid-target="true" className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-start">
           <div>
             <motion.div variants={item} className="max-w-xl">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tighter leading-tight text-neutral-900 dark:text-white">

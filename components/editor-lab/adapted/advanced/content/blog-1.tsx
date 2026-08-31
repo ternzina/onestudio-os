@@ -156,7 +156,7 @@ export function AdaptedBlog1({
               {listHeading}
             </motion.h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div data-rb-layout-grid-target="true" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {articles.map((article, idx) => (
                 <ArticleCard
                   key={article.id}

@@ -115,7 +115,7 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
             className="pointer-events-none absolute -top-40 left-1/4 h-[26rem] w-[26rem] rounded-full bg-white/[0.05] blur-3xl"
           />
 
-          <div className="relative grid grid-cols-1 gap-12 px-6 pt-12 pb-12 sm:px-10 sm:pt-16 sm:pb-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 lg:pt-20 lg:pb-16">
+          <div data-rb-layout-grid-target="true" className="relative grid grid-cols-1 gap-12 px-6 pt-12 pb-12 sm:px-10 sm:pt-16 sm:pb-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:px-16 lg:pt-20 lg:pb-16">
             <motion.div variants={list} className="max-w-xl">
               <motion.span
                 variants={item}

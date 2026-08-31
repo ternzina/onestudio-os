@@ -34,7 +34,7 @@ export function AdaptedPricing3({ plans }: { plans: Pricing3Plan[] }) {
           </motion.button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div data-rb-layout-grid-target="true" className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {plans.map((plan, index) => (
             <motion.div
               key={index}

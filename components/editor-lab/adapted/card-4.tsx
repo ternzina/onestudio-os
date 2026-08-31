@@ -38,7 +38,7 @@ export function AdaptedCard4({ meetings }: { meetings: Card4Meeting[] }) {
 
   return (
     <div className="h-full min-h-[560px] w-full overflow-y-auto bg-white p-6 sm:p-8 dark:bg-neutral-950">
-      <ul className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <ul data-rb-layout-grid-target="true" className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {meetings.map((meeting) => {
           const answer = rsvp[meeting.id] ?? null;
 

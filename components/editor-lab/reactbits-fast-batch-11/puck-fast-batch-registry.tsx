@@ -52,6 +52,7 @@ import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } 
 import { defineMenuLinksArrayContract } from "@/components/editor-lab/puck/menu-links-array-contract";
 import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 import { bindControlGroups, type ControlGroupContract } from "@/components/editor-lab/puck/control-groups";
+import type { LayoutControlContract } from "@/components/editor-lab/puck/layout-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 export type FastBatch11Group =
@@ -86,6 +87,7 @@ export type FastBatch11Block = {
   nestedContent?: readonly BoundedNestedContentContract[];
   formContent?: FormContentContract;
   controlGroups?: readonly ControlGroupContract[];
+  layoutControls?: LayoutControlContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 11";
   batchGroup: FastBatch11Group;

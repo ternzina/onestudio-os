@@ -58,7 +58,7 @@ export default function AdaptedSocialProof12({ heading, description, buttonLabel
           </motion.button>
         </motion.div>
 
-        <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+        <div data-rb-layout-grid-target="true" className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {stories.map((s, i) => (
             <motion.div
               key={i}

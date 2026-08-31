@@ -87,6 +87,7 @@ import { bindFormContentContract, defineFormContentContract, type FormContentCon
 import { bindArrayItemsContracts, defineArrayItemsContract, type ArrayItemsContract, type PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
 import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } from "@/components/editor-lab/puck/bounded-nested-content-contract";
 import { bindControlGroups, type ControlGroupContract } from "@/components/editor-lab/puck/control-groups";
+import type { LayoutControlContract } from "@/components/editor-lab/puck/layout-control-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 
@@ -125,6 +126,7 @@ export type FastBatch12Block = {
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   nestedContent?: readonly BoundedNestedContentContract[];
   controlGroups?: readonly ControlGroupContract[];
+  layoutControls?: LayoutControlContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 12";
   batchGroup: FastBatch12Group;

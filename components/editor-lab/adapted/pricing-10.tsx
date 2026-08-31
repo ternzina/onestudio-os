@@ -138,7 +138,7 @@ export default function AdaptedPricing10({
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
 
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-5 w-full max-w-5xl">
+        <div data-rb-layout-grid-target="true" className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-5 w-full max-w-5xl">
           <motion.article initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 flex flex-col">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-neutral-900 dark:text-white" />

@@ -1,15 +1,21 @@
-.mediaSurface img {
+.surface {
+  min-width: 0;
+}
+
+.surface[data-rb-layout-image-fit] img {
   object-fit: var(--rb-layout-image-fit);
+}
+
+.surface[data-rb-layout-image-position] img {
   object-position: var(--rb-layout-image-position);
 }
 
 @media (min-width: 768px) {
-  .mediaSurface [data-rb-layout-grid-target="true"],
-  [data-rb-layout-surface="true"] [data-rb-layout-grid-target="true"] {
+  .surface[data-rb-layout-columns] [data-rb-layout-grid-target="true"] {
     grid-template-columns: repeat(var(--rb-layout-columns), minmax(0, 1fr));
   }
 }
 
-[data-rb-layout-surface="true"] [data-rb-layout-grid-target="true"] {
+.surface[data-rb-layout-gap] [data-rb-layout-grid-target="true"] {
   gap: var(--rb-layout-gap);
 }

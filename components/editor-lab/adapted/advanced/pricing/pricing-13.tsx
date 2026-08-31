@@ -114,7 +114,7 @@ export default function AdaptedPricing13({
           </p>
         </motion.div>
 
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-8 lg:gap-12 items-start">
+        <div data-rb-layout-grid-target="true" className="mt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-8 lg:gap-12 items-start">
           <div>
             <div className="space-y-3" role="group" aria-label="Select a plan">
               {plans.map((option, index) => {
