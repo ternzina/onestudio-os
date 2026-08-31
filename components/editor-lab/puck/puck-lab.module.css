@@ -74,3 +74,13 @@
     min-height: 540px;
   }
 }
+.controlGroupHeading {
+  margin: 8px 0 2px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

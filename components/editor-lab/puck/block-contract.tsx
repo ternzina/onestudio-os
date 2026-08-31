@@ -25,6 +25,7 @@ import { effectFields, type EffectDefinition } from "./effect-contract";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
 import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } from "./bounded-nested-content-contract";
 import { bindFormContentContract, type FormContentContract } from "./form-content-contract";
+import { bindControlGroups, type ControlGroupContract } from "./control-groups";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -110,7 +111,9 @@ export function stripEditorProps<Props extends EditableProps>(
   props: Record<string, unknown>,
 ): Props {
   return Object.fromEntries(
-    Object.entries(props).filter(([name]) => !editorPropNames.has(name)),
+    Object.entries(props).filter(
+      ([name]) => !editorPropNames.has(name) && !name.startsWith("__puckGroup_"),
+    ),
   ) as Props;
 }
 
@@ -195,6 +198,7 @@ export type BlockContract<Props extends EditableProps> = {
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   nestedContent?: readonly BoundedNestedContentContract[];
   formContent?: FormContentContract;
+  controlGroups?: readonly ControlGroupContract[];
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -330,9 +334,10 @@ export function createPuckComponent<Props extends EditableProps>(
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const rawFields = { ...boundFormContent.fields, ...declaredEffectFields };
+  const groupedFields = bindControlGroups(contract.controlGroups, rawFields);
   const baseFields = contract.sourceKind === "component"
-    ? preservePrimitiveComponentFields(rawFields)
-    : rawFields;
+    ? preservePrimitiveComponentFields(groupedFields)
+    : groupedFields;
   // Keep the catalog contract separate from Puck's ComponentConfig. The
   // catalog carries implementation metadata that Puck 0.23 must never see.
   return {

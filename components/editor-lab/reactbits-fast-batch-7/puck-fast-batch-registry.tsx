@@ -100,13 +100,13 @@ const card4Meetings = defineArrayItemsContract({
     { id: "onsite", title: "Customer onsite prep", day: "18", weekday: "Fri", window: "08:30 – 09:00", place: "Video call", invited: 2 },
   ],
   fields: {
-    title: fields.text("Title", { contentEditable: false }),
+    title: fields.text("Meeting title", { contentEditable: false }),
     day: fields.text("Day", { contentEditable: false }),
     weekday: fields.text("Weekday", { contentEditable: false }),
     window: fields.text("Time window", { contentEditable: false }),
     place: fields.text("Place", { contentEditable: false }),
   },
-  itemLabel: (item) => String(item.title ?? "Meeting"),
+  itemLabel: (item, index) => `Meeting ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
 });
 
 const footer10LinkContracts = [

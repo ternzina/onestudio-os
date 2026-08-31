@@ -2,6 +2,7 @@ import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
 import { defineBoundedNestedContentContract } from "@/components/editor-lab/puck/bounded-nested-content-contract";
 import { defineFormContentContract } from "@/components/editor-lab/puck/form-content-contract";
+import type { ControlGroupContract } from "@/components/editor-lab/puck/control-groups";
 import {
   defineSerializableIconTokenContract,
   iconTokenField,
@@ -57,6 +58,48 @@ const tokenOptions = <Token extends string>(
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" "),
   }));
+
+const group = (
+  id: string,
+  label: ControlGroupContract["label"],
+  groupFields: readonly string[],
+): ControlGroupContract => ({ id, label, fields: groupFields });
+const itemsGroup = (itemFields: readonly string[]): readonly ControlGroupContract[] => [
+  group("items", "Items", itemFields),
+];
+const contentAndItemsGroups = (
+  contentFields: readonly string[],
+  itemFields: readonly string[],
+): readonly ControlGroupContract[] => [
+  group("content", "Content", contentFields),
+  group("items", "Items", itemFields),
+];
+
+export const advancedControlGroups = {
+  pricing7: itemsGroup(["tiers"]),
+  pricing12: contentAndItemsGroups(["heading", "description"], ["features", "assurances"]),
+  pricing13: itemsGroup(["plans"]),
+  pricing14: itemsGroup(["addons"]),
+  pricing15: itemsGroup(["plans"]),
+  contact8: contentAndItemsGroups(["headingLead", "headingTail"], ["expectations", "reviewers"]),
+  contact10: contentAndItemsGroups(["headingLead", "headingTail", "description"], ["benefits"]),
+  contact11: itemsGroup(["desks"]),
+  navigation11: itemsGroup(["sections"]),
+  navigation14: itemsGroup(["sections"]),
+  navbar2: itemsGroup(["sorts", "filterOptions", "rows"]),
+  navbar4: itemsGroup(["sections"]),
+  navbar6: itemsGroup(["notices", "results"]),
+  appSidebar6: itemsGroup(["groups"]),
+  appSidebar7: itemsGroup(["groups"]),
+  appShell9: itemsGroup(["chats"]),
+  blog1: contentAndItemsGroups(["heading", "description", "listHeading"], ["articles"]),
+  blog2: contentAndItemsGroups(["heading"], ["articles"]),
+  ecommerce1: [
+    group("content", "Content", ["productName", "brand", "price", "stockLabel", "backLabel"]),
+    group("media", "Media", ["views"]),
+  ],
+  ecommerce2: itemsGroup(["products"]),
+};
 
 const navigation14IconContract = defineSerializableIconTokenContract({
   label: "Icon",
@@ -209,10 +252,10 @@ export const pricing7NestedContent = [
         slot: "highlights",
         label: "Plan highlights",
         fields: { text: fields.text("Highlight", { contentEditable: false }) },
-        itemLabel: (item) => String(item.text ?? "Highlight"),
+        itemLabel: (item, index) => `Highlight ${Number(index ?? 0) + 1} — ${String(item.text ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.name ?? "Pricing tier"),
+    itemLabel: (item, index) => `Plan ${Number(index ?? 0) + 1} — ${String(item.name ?? "Untitled")}`,
   }),
 ];
 
@@ -222,7 +265,7 @@ export const pricing12ArrayItems = [
     label: "Included features",
     defaults: pricing12Features.map((feature) => ({ ...feature })),
     fields: { text: fields.text("Feature", { contentEditable: false }) },
-    itemLabel: (item) => String(item.text ?? "Feature"),
+    itemLabel: (item, index) => `Feature ${Number(index ?? 0) + 1} — ${String(item.text ?? "Untitled")}`,
   }),
   defineArrayItemsContract({
     slot: "assurances",
@@ -232,7 +275,7 @@ export const pricing12ArrayItems = [
       iconToken: iconTokenField(pricing12IconContract),
       label: fields.text("Assurance text", { contentEditable: false }),
     },
-    itemLabel: (item) => String(item.label ?? "Assurance"),
+    itemLabel: (item, index) => `Assurance ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -249,7 +292,7 @@ export const contact8ArrayItems = [
     label: "Call expectations",
     defaults: contact8Expectations.map((expectation) => ({ ...expectation })),
     fields: { text: fields.text("Expectation", { contentEditable: false }) },
-    itemLabel: (item) => String(item.text ?? "Expectation"),
+    itemLabel: (item, index) => `Expectation ${Number(index ?? 0) + 1} — ${String(item.text ?? "Untitled")}`,
   }),
   defineArrayItemsContract({
     slot: "reviewers",
@@ -260,7 +303,7 @@ export const contact8ArrayItems = [
       name: fields.text("Reviewer name", { contentEditable: false }),
       role: fields.text("Reviewer role", { contentEditable: false }),
     },
-    itemLabel: (item) => String(item.name ?? "Reviewer"),
+    itemLabel: (item, index) => `Reviewer ${Number(index ?? 0) + 1} — ${String(item.name ?? "Untitled")}`,
   }),
 ];
 
@@ -293,10 +336,10 @@ export const pricing13NestedContent = [
         label: "Features",
         fields: { text: fields.text("Feature", { contentEditable: false }) },
         defaultItemProps: { text: "New feature" },
-        itemLabel: (item) => String(item.text ?? "Feature"),
+        itemLabel: (item, index) => `Feature ${Number(index ?? 0) + 1} — ${String(item.text ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.name ?? "Pricing plan"),
+    itemLabel: (item, index) => `Plan ${Number(index ?? 0) + 1} — ${String(item.name ?? "Untitled")}`,
   }),
 ];
 
@@ -312,7 +355,7 @@ export const pricing15ArrayItems = [
       description: fields.textarea("Plan description", { contentEditable: false }),
       cta: fields.text("Button text", { contentEditable: false }),
     },
-    itemLabel: (item) => String(item.name ?? "Pricing plan"),
+    itemLabel: (item, index) => `Plan ${Number(index ?? 0) + 1} — ${String(item.name ?? "Untitled")}`,
   }),
 ];
 
@@ -325,7 +368,7 @@ export const contact10ArrayItems = [
       title: fields.text("Benefit title", { contentEditable: false }),
       description: fields.textarea("Benefit description", { contentEditable: false }),
     },
-    itemLabel: (item) => String(item.title ?? "Benefit"),
+    itemLabel: (item, index) => `Benefit ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
   }),
 ];
 
@@ -348,7 +391,7 @@ export const contact11ArrayItems = [
       email: fields.text("Email", { contentEditable: false }),
       avatar: fields.imageUrl(),
     },
-    itemLabel: (item) => String(item.label ?? "Contact desk"),
+    itemLabel: (item, index) => `Desk ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -364,7 +407,7 @@ export const blog1ArrayItems = [
       category: fields.text("Category", { contentEditable: false }),
       image: fields.imageUrl(),
     },
-    itemLabel: (item) => String(item.title ?? "Article"),
+    itemLabel: (item, index) => `Article ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
   }),
 ];
 
@@ -398,17 +441,17 @@ export const ecommerce2NestedContent = [
         label: "Color swatches",
         fields: { value: fields.text("Color value", { contentEditable: false }) },
         defaultItemProps: { value: "#111111" },
-        itemLabel: (item) => String(item.value ?? "Color"),
+        itemLabel: (item, index) => `Color ${Number(index ?? 0) + 1} — ${String(item.value ?? "Unset")}`,
       },
       {
         slot: "chips",
         label: "Product labels",
         fields: { value: fields.text("Label", { contentEditable: false }) },
         defaultItemProps: { value: "New label" },
-        itemLabel: (item) => String(item.value ?? "Label"),
+        itemLabel: (item, index) => `Label ${Number(index ?? 0) + 1} — ${String(item.value ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.name ?? "Product"),
+    itemLabel: (item, index) => `Product ${Number(index ?? 0) + 1} — ${String(item.name ?? "Untitled")}`,
   }),
 ];
 
@@ -430,10 +473,10 @@ export const navigation11NestedContent = [
           desc: fields.textarea("Card description", { contentEditable: false }),
           img: fields.imageUrl(),
         },
-        itemLabel: (item) => String(item.title ?? "Navigation card"),
+        itemLabel: (item, index) => `Card ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.label ?? "Navigation section"),
+    itemLabel: (item, index) => `Section ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -457,10 +500,10 @@ export const navigation14NestedContent = [
           title: fields.text("Item title", { contentEditable: false }),
           description: fields.textarea("Item description", { contentEditable: false }),
         },
-        itemLabel: (item) => String(item.title ?? "Menu item"),
+        itemLabel: (item, index) => `Item ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.label ?? "Navigation section"),
+    itemLabel: (item, index) => `Section ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -479,10 +522,10 @@ export const navbar4NestedContent = [
           label: fields.text("Item label", { contentEditable: false }),
           hint: fields.textarea("Item description", { contentEditable: false }),
         },
-        itemLabel: (item) => String(item.label ?? "Menu item"),
+        itemLabel: (item, index) => `Item ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.label ?? "Navigation menu"),
+    itemLabel: (item, index) => `Menu ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -501,10 +544,10 @@ export const appSidebar6NestedContent = [
           label: fields.text("Link label", { contentEditable: false }),
           badge: fields.text("Badge", { contentEditable: false }),
         },
-        itemLabel: (item) => String(item.label ?? "Sidebar link"),
+        itemLabel: (item, index) => `Link ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.label ?? "Sidebar group"),
+    itemLabel: (item, index) => `Group ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -523,10 +566,10 @@ export const appSidebar7NestedContent = [
           label: fields.text("Link label", { contentEditable: false }),
           badge: fields.text("Badge", { contentEditable: false }),
         },
-        itemLabel: (item) => String(item.label ?? "Sidebar link"),
+        itemLabel: (item, index) => `Link ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
       },
     ],
-    itemLabel: (item) => String(item.label ?? "Sidebar group"),
+    itemLabel: (item, index) => `Group ${Number(index ?? 0) + 1} — ${String(item.label ?? "Untitled")}`,
   }),
 ];
 
@@ -553,9 +596,9 @@ export const appShell9NestedContent = [
           ]),
           text: fields.textarea("Message", { contentEditable: false }),
         },
-        itemLabel: (item, index) => `${String(item.role ?? "Message")} ${Number(index ?? 0) + 1}`,
+        itemLabel: (item, index) => `Message ${Number(index ?? 0) + 1} — ${String(item.role ?? "Unknown role")}`,
       },
     ],
-    itemLabel: (item) => String(item.title ?? "Chat"),
+    itemLabel: (item, index) => `Chat ${Number(index ?? 0) + 1} — ${String(item.title ?? "Untitled")}`,
   }),
 ];
