@@ -2,15 +2,15 @@
 
 import type { ReactNode } from "react";
 import { AdaptedHero18 } from "@/components/editor-lab/adapted/hero-18";
-import { Blog1 } from "@/components/blocks/blog-1";
-import { Blog2 } from "@/components/blocks/blog-2";
+import AdaptedBlog1 from "@/components/editor-lab/adapted/advanced/content/blog-1";
+import AdaptedBlog2 from "@/components/editor-lab/adapted/advanced/content/blog-2";
 import { Blog3 } from "@/components/blocks/blog-3";
-import Ecommerce1 from "@/components/blocks/ecommerce-1";
-import Ecommerce2 from "@/components/blocks/ecommerce-2";
+import AdaptedEcommerce1 from "@/components/editor-lab/adapted/advanced/content/ecommerce-1";
+import AdaptedEcommerce2 from "@/components/editor-lab/adapted/advanced/content/ecommerce-2";
 import AdaptedCta9 from "@/components/editor-lab/adapted/cta-9";
 import AdaptedCta11, { cta11ContentDefaults } from "@/components/editor-lab/adapted/cta/cta-11";
 import AdaptedFooter12, { footer12ContentDefaults } from "@/components/editor-lab/adapted/footer/footer-12";
-import Pricing7 from "@/components/blocks/pricing-7";
+import AdaptedPricing7 from "@/components/editor-lab/adapted/advanced/pricing/pricing-7";
 import AdaptedPricing8, { pricing8ContentDefaults } from "@/components/editor-lab/adapted/pricing/pricing-8";
 import AdaptedPricing9, { pricing9ContentDefaults } from "@/components/editor-lab/adapted/pricing/pricing-9";
 import AdaptedPricing10, {
@@ -20,21 +20,43 @@ import AdaptedPricing10, {
   pricing10SeatFeatures,
   pricing10SeatTiers,
 } from "@/components/editor-lab/adapted/pricing-10";
-import Pricing12 from "@/components/blocks/pricing-12";
-import Pricing14 from "@/components/blocks/pricing-14";
-import Pricing15 from "@/components/blocks/pricing-15";
+import AdaptedPricing12 from "@/components/editor-lab/adapted/advanced/pricing/pricing-12";
+import AdaptedPricing14 from "@/components/editor-lab/adapted/advanced/pricing/pricing-14";
+import AdaptedPricing15 from "@/components/editor-lab/adapted/advanced/pricing/pricing-15";
 import AdaptedContact7, { contact7ContentDefaults } from "@/components/editor-lab/adapted/contact-7";
-import Contact8 from "@/components/blocks/contact-8";
-import Contact10 from "@/components/blocks/contact-10";
+import AdaptedContact8 from "@/components/editor-lab/adapted/advanced/contact/contact-8";
+import AdaptedContact10 from "@/components/editor-lab/adapted/advanced/contact/contact-10";
 import AdaptedContact12, { contact12ContentDefaults } from "@/components/editor-lab/adapted/contact/contact-12";
 import { HowItWorks9 } from "@/components/blocks/how-it-works-9";
-import AppShell9 from "@/components/blocks/app-shell-9";
+import AdaptedAppShell9 from "@/components/editor-lab/adapted/advanced/app-ui/app-shell-9";
 import Navbar1 from "@/components/blocks/navbar-1";
-import Navbar2 from "@/components/blocks/navbar-2";
+import AdaptedNavbar2 from "@/components/editor-lab/adapted/advanced/navigation/navbar-2";
 import Navbar3 from "@/components/blocks/navbar-3";
-import Navbar4 from "@/components/blocks/navbar-4";
+import AdaptedNavbar4 from "@/components/editor-lab/adapted/advanced/navigation/navbar-4";
+import {
+  appShell9NestedContent,
+  blog1ArrayItems,
+  blog1FormContent,
+  blog2ArrayItems,
+  blog2FormContent,
+  contact10ArrayItems,
+  contact10FormContent,
+  contact8ArrayItems,
+  contact8FormContent,
+  ecommerce2NestedContent,
+  ecommerce1ArrayItems,
+  ecommerce1FormContent,
+  navbar2ArrayItems,
+  navbar4NestedContent,
+  navbar6ArrayItems,
+  pricing12ArrayItems,
+  pricing12FormContent,
+  pricing14ArrayItems,
+  pricing15ArrayItems,
+  pricing7NestedContent,
+} from "@/components/editor-lab/adapted/advanced/advanced-structured-contracts";
 import Navbar5 from "@/components/blocks/navbar-5";
-import Navbar6 from "@/components/blocks/navbar-6";
+import AdaptedNavbar6 from "@/components/editor-lab/adapted/advanced/navigation/navbar-6";
 import CommandMenu4 from "@/components/blocks/command-menu-4";
 import CommandMenu5 from "@/components/blocks/command-menu-5";
 import CommandMenu6 from "@/components/blocks/command-menu-6";
@@ -62,6 +84,7 @@ import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/ma
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 import { bindArrayItemsContracts, defineArrayItemsContract, type ArrayItemsContract, type PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
+import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } from "@/components/editor-lab/puck/bounded-nested-content-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 
@@ -98,6 +121,7 @@ export type FastBatch12Block = {
   fields: Record<string, unknown>;
   formContent?: FormContentContract;
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
+  nestedContent?: readonly BoundedNestedContentContract[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 12";
   batchGroup: FastBatch12Group;
@@ -118,10 +142,15 @@ const block = (
     input.fields ?? {},
     input.defaultProps ?? {},
   );
-  const boundFormContent = bindFormContentContract(
-    input.formContent,
+  const boundNestedContent = bindBoundedNestedContentContracts(
+    input.nestedContent,
     boundArrays.fields,
     boundArrays.defaults,
+  );
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    boundNestedContent.fields,
+    boundNestedContent.defaults,
   );
   return {
     ...input,
@@ -282,10 +311,10 @@ const heroBlocks = [
 ];
 
 const showcaseBlocks = [
-  block({ type: "RB_batch12_blog_1", displayName: "React Bits Blog 1", catalogKey: "pro-block:blog-1", description: "Official React Bits Blog 1 media grid.", component: Blog1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Blog"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch12_blog_2", displayName: "React Bits Blog 2", catalogKey: "pro-block:blog-2", description: "Official React Bits Blog 2 paginated media list.", component: Blog2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Blog"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch12_ecommerce_1", displayName: "React Bits Ecommerce 1", catalogKey: "pro-block:ecommerce-1", description: "Official React Bits Ecommerce 1 product detail showcase.", component: Ecommerce1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Ecommerce"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch12_ecommerce_2", displayName: "React Bits Ecommerce 2", catalogKey: "pro-block:ecommerce-2", description: "Official React Bits Ecommerce 2 product showcase.", component: Ecommerce2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Ecommerce"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
+  block({ type: "RB_batch12_blog_1", displayName: "React Bits Blog 1", catalogKey: "pro-block:blog-1", description: "Official React Bits Blog 1 media grid.", component: AdaptedBlog1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Blog"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, arrayItems: blog1ArrayItems, formContent: blog1FormContent }),
+  block({ type: "RB_batch12_blog_2", displayName: "React Bits Blog 2", catalogKey: "pro-block:blog-2", description: "Official React Bits Blog 2 paginated media list.", component: AdaptedBlog2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Blog"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, arrayItems: blog2ArrayItems, formContent: blog2FormContent }),
+  block({ type: "RB_batch12_ecommerce_1", displayName: "React Bits Ecommerce 1", catalogKey: "pro-block:ecommerce-1", description: "Official React Bits Ecommerce 1 product detail showcase.", component: AdaptedEcommerce1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Ecommerce"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, arrayItems: ecommerce1ArrayItems, formContent: ecommerce1FormContent }),
+  block({ type: "RB_batch12_ecommerce_2", displayName: "React Bits Ecommerce 2", catalogKey: "pro-block:ecommerce-2", description: "Official React Bits Ecommerce 2 product showcase.", component: AdaptedEcommerce2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Showcase", "Ecommerce"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, nestedContent: ecommerce2NestedContent }),
 ];
 
 const navigationBlocks = [
@@ -293,29 +322,29 @@ const navigationBlocks = [
   block({ type: "RB_batch12_cta_11", displayName: "React Bits CTA 11", catalogKey: "pro-block:cta-11", description: "Official React Bits CTA 11.", component: AdaptedCta11 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: cta11ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryButtonLabel: fields.text("Primary button label", { contentEditable: false }), secondaryButtonLabel: fields.text("Secondary button label", { contentEditable: false }), helperText: fields.text("Helper text", { contentEditable: false }) } }),
   block({ type: "RB_batch12_footer_12", displayName: "React Bits Footer 12", catalogKey: "pro-block:footer-12", description: "Official React Bits Footer 12.", component: AdaptedFooter12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, formContent: footer12FormContent }),
   block({ type: "RB_batch12_navbar_1", displayName: "React Bits Navbar 1", catalogKey: "pro-block:navbar-1", description: "Official React Bits App UI Navbar 1.", component: Navbar1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(480) }),
-  block({ type: "RB_batch12_navbar_2", displayName: "React Bits Navbar 2", catalogKey: "pro-block:navbar-2", description: "Official React Bits App UI Navbar 2.", component: Navbar2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(400) }),
+  block({ type: "RB_batch12_navbar_2", displayName: "React Bits Navbar 2", catalogKey: "pro-block:navbar-2", description: "Official React Bits App UI Navbar 2.", component: AdaptedNavbar2 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(400), arrayItems: navbar2ArrayItems }),
   block({ type: "RB_batch12_navbar_3", displayName: "React Bits Navbar 3", catalogKey: "pro-block:navbar-3", description: "Official React Bits App UI Navbar 3.", component: Navbar3 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(480) }),
-  block({ type: "RB_batch12_navbar_4", displayName: "React Bits Navbar 4", catalogKey: "pro-block:navbar-4", description: "Official React Bits App UI Navbar 4.", component: Navbar4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(560) }),
+  block({ type: "RB_batch12_navbar_4", displayName: "React Bits Navbar 4", catalogKey: "pro-block:navbar-4", description: "Official React Bits App UI Navbar 4.", component: AdaptedNavbar4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(560), nestedContent: navbar4NestedContent }),
   block({ type: "RB_batch12_navbar_5", displayName: "React Bits Navbar 5", catalogKey: "pro-block:navbar-5", description: "Official React Bits App UI Navbar 5.", component: Navbar5 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(640) }),
-  block({ type: "RB_batch12_navbar_6", displayName: "React Bits Navbar 6", catalogKey: "pro-block:navbar-6", description: "Official React Bits App UI Navbar 6.", component: Navbar6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(480) }),
+  block({ type: "RB_batch12_navbar_6", displayName: "React Bits Navbar 6", catalogKey: "pro-block:navbar-6", description: "Official React Bits App UI Navbar 6.", component: AdaptedNavbar6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(480), arrayItems: navbar6ArrayItems }),
 ];
 
 const pricingBlocks = [
-  block({ type: "RB_batch12_pricing_7", displayName: "React Bits Pricing 7", catalogKey: "pro-block:pricing-7", description: "Official React Bits Pricing 7.", component: Pricing7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
+  block({ type: "RB_batch12_pricing_7", displayName: "React Bits Pricing 7", catalogKey: "pro-block:pricing-7", description: "Official React Bits Pricing 7.", component: AdaptedPricing7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, nestedContent: pricing7NestedContent }),
   block({ type: "RB_batch12_pricing_8", displayName: "React Bits Pricing 8", catalogKey: "pro-block:pricing-8", description: "Official React Bits Pricing 8.", component: AdaptedPricing8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, defaultProps: pricing8ContentDefaults, fields: { headingLine1: fields.text("Heading line 1", { contentEditable: false }), headingLine2: fields.text("Heading line 2", { contentEditable: false }), standardButtonLabel: fields.text("Standard button label", { contentEditable: false }), enterpriseButtonLabel: fields.text("Enterprise button label", { contentEditable: false }), monitoringTitle: fields.text("Monitoring title", { contentEditable: false }), incidentTitle: fields.text("Incident title", { contentEditable: false }) } }),
   block({ type: "RB_batch12_pricing_9", displayName: "React Bits Pricing 9", catalogKey: "pro-block:pricing-9", description: "Official React Bits Pricing 9.", component: AdaptedPricing9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, defaultProps: pricing9ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), headingLine1: fields.text("Heading line 1", { contentEditable: false }), headingLine2: fields.text("Heading line 2", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), saveBadge: fields.text("Save badge", { contentEditable: false }), annualTitle: fields.text("Annual title", { contentEditable: false }), annualPrice: fields.text("Annual price", { contentEditable: false }), annualDescription: fields.text("Annual description", { contentEditable: false }), monthlyTitle: fields.text("Monthly title", { contentEditable: false }), monthlyPrice: fields.text("Monthly price", { contentEditable: false }), monthlyDescription: fields.text("Monthly description", { contentEditable: false }), helperText: fields.textarea("Helper text", { contentEditable: false }), termsLabel: fields.text("Terms label", { contentEditable: false }), cancelLabel: fields.text("Cancel label", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }) } }),
   block({ type: "RB_batch12_pricing_10", displayName: "React Bits Pricing 10", catalogKey: "pro-block:pricing-10", description: "Official React Bits Pricing 10.", component: AdaptedPricing10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, formContent: pricing10FormContent, arrayItems: pricing10ArrayContracts }),
-  block({ type: "RB_batch12_pricing_12", displayName: "React Bits Pricing 12", catalogKey: "pro-block:pricing-12", description: "Official React Bits Pricing 12.", component: Pricing12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
-  block({ type: "RB_batch12_pricing_14", displayName: "React Bits Pricing 14", catalogKey: "pro-block:pricing-14", description: "Official React Bits Pricing 14.", component: Pricing14 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
-  block({ type: "RB_batch12_pricing_15", displayName: "React Bits Pricing 15", catalogKey: "pro-block:pricing-15", description: "Official React Bits Pricing 15.", component: Pricing15 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
+  block({ type: "RB_batch12_pricing_12", displayName: "React Bits Pricing 12", catalogKey: "pro-block:pricing-12", description: "Official React Bits Pricing 12.", component: AdaptedPricing12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, arrayItems: pricing12ArrayItems, formContent: pricing12FormContent }),
+  block({ type: "RB_batch12_pricing_14", displayName: "React Bits Pricing 14", catalogKey: "pro-block:pricing-14", description: "Official React Bits Pricing 14.", component: AdaptedPricing14 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, arrayItems: pricing14ArrayItems }),
+  block({ type: "RB_batch12_pricing_15", displayName: "React Bits Pricing 15", catalogKey: "pro-block:pricing-15", description: "Official React Bits Pricing 15.", component: AdaptedPricing15 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, arrayItems: pricing15ArrayItems }),
   block({ type: "RB_batch12_contact_7", displayName: "React Bits Contact 7", catalogKey: "pro-block:contact-7", description: "Official React Bits Contact 7.", component: AdaptedContact7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost, formContent: contact7FormContent }),
-  block({ type: "RB_batch12_contact_8", displayName: "React Bits Contact 8", catalogKey: "pro-block:contact-8", description: "Official React Bits Contact 8.", component: Contact8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
-  block({ type: "RB_batch12_contact_10", displayName: "React Bits Contact 10", catalogKey: "pro-block:contact-10", description: "Official React Bits Contact 10.", component: Contact10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
+  block({ type: "RB_batch12_contact_8", displayName: "React Bits Contact 8", catalogKey: "pro-block:contact-8", description: "Official React Bits Contact 8.", component: AdaptedContact8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost, arrayItems: contact8ArrayItems, formContent: contact8FormContent }),
+  block({ type: "RB_batch12_contact_10", displayName: "React Bits Contact 10", catalogKey: "pro-block:contact-10", description: "Official React Bits Contact 10.", component: AdaptedContact10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost, arrayItems: contact10ArrayItems, formContent: contact10FormContent }),
   block({ type: "RB_batch12_contact_12", displayName: "React Bits Contact 12", catalogKey: "pro-block:contact-12", description: "Official React Bits Contact 12.", component: AdaptedContact12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost, defaultProps: contact12ContentDefaults, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), responseValue: fields.text("Response value", { contentEditable: false }), responseLabel: fields.text("Response label", { contentEditable: false }) } }),
 ];
 
 const appBlocks = [
-  block({ type: "RB_batch12_app_shell_9", displayName: "React Bits App Shell 9", catalogKey: "pro-block:app-shell-9", description: "Official React Bits App Shell 9.", component: AppShell9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "App Shell", "App UI"], batchGroup: "APP / CONTENT", host: appHost(720) }),
+  block({ type: "RB_batch12_app_shell_9", displayName: "React Bits App Shell 9", catalogKey: "pro-block:app-shell-9", description: "Official React Bits App Shell 9.", component: AdaptedAppShell9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "App Shell", "App UI"], batchGroup: "APP / CONTENT", host: appHost(720), nestedContent: appShell9NestedContent }),
   block({ type: "RB_batch12_mobile_1", displayName: "React Bits Mobile 1", catalogKey: "pro-block:mobile-1", description: "Official React Bits Mobile UI 1.", component: Mobile1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Mobile", "App UI"], batchGroup: "APP / CONTENT", host: appHost(680) }),
   block({ type: "RB_batch12_card_10", displayName: "React Bits Card 10", catalogKey: "pro-block:card-10", description: "Official React Bits App UI Card 10.", component: AdaptedCard10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Card", "Content", "App UI"], batchGroup: "APP / CONTENT", host: appHost(560), defaultProps: card10ContentDefaults, fields: { balanceLabel: fields.text("Balance label", { contentEditable: false }), balanceValue: fields.text("Balance value", { contentEditable: false }), changeValue: fields.text("Change value", { contentEditable: false }), balanceMeta: fields.text("Balance metadata", { contentEditable: false }), addButtonLabel: fields.text("Add button label", { contentEditable: false }), transferButtonLabel: fields.text("Transfer button label", { contentEditable: false }) }, arrayItems: card10ArrayContracts }),
   block({ type: "RB_batch12_card_11", displayName: "React Bits Card 11", catalogKey: "pro-block:card-11", description: "Official React Bits App UI Card 11.", component: AdaptedCard11 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Card", "Content", "App UI"], batchGroup: "APP / CONTENT", host: appHost(640), defaultProps: card11ContentDefaults, fields: { invoiceLabel: fields.text("Invoice label", { contentEditable: false }), invoiceId: fields.text("Invoice ID", { contentEditable: false }), statusLabel: fields.text("Status label", { contentEditable: false }), metadata: fields.text("Metadata", { contentEditable: false }), totalLabel: fields.text("Total label", { contentEditable: false }), totalValue: fields.text("Total value", { contentEditable: false }), downloadLabel: fields.text("Download label", { contentEditable: false }) }, arrayItems: card11ArrayContracts }),
