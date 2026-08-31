@@ -31,10 +31,18 @@ import {
   SettingsSearchContext,
   useSettingsSearch,
 } from "@/components/editor-lab/puck/settings-search-context";
+import { viewportDevice } from "@/components/editor-lab/puck/responsive-layout-contract";
 
 const usePuck = createUsePuck();
 const USER_PRESET_KEY = "onestudio:puck-v3:user-style-preset:v1";
+const USER_PRESETS_KEY = "onestudio:puck-v3:user-style-presets:v2";
 type ItemSelector = { index: number; zone?: string };
+
+type UserStylePreset = {
+  id: string;
+  name: string;
+  snapshot: StyleTransferSnapshot;
+};
 
 type SaveStatus = "saved" | "unsaved" | "saving" | "error";
 
@@ -42,8 +50,9 @@ type BuilderUxContextValue = {
   styleContract: StyleTransferContract;
   clipboard: StyleTransferSnapshot | null;
   setClipboard: (value: StyleTransferSnapshot | null) => void;
-  userPreset: StyleTransferSnapshot | null;
-  setUserPreset: (value: StyleTransferSnapshot | null) => void;
+  userPresets: UserStylePreset[];
+  createUserPreset: (name: string, value: StyleTransferSnapshot) => void;
+  deleteUserPreset: (id: string) => void;
   saveStatus: SaveStatus;
   save: () => void;
   publishMessage: string;
@@ -53,8 +62,9 @@ const BuilderUxContext = createContext<BuilderUxContextValue>({
   styleContract: new Map(),
   clipboard: null,
   setClipboard: () => undefined,
-  userPreset: null,
-  setUserPreset: () => undefined,
+  userPresets: [],
+  createUserPreset: () => undefined,
+  deleteUserPreset: () => undefined,
   saveStatus: "saved",
   save: () => undefined,
   publishMessage: "",
@@ -74,34 +84,55 @@ export function BuilderUxProvider({
   publishMessage: string;
 }) {
   const [clipboard, setClipboard] = useState<StyleTransferSnapshot | null>(null);
-  const [userPreset, setUserPresetState] = useState<StyleTransferSnapshot | null>(null);
+  const [userPresets, setUserPresets] = useState<UserStylePreset[]>([]);
   useEffect(() => {
     try {
-      const value = window.localStorage.getItem(USER_PRESET_KEY);
-      setUserPresetState(value ? JSON.parse(value) as StyleTransferSnapshot : null);
+      const stored = window.localStorage.getItem(USER_PRESETS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as UserStylePreset[];
+        setUserPresets(Array.isArray(parsed) ? parsed : []);
+        return;
+      }
+      const legacy = window.localStorage.getItem(USER_PRESET_KEY);
+      if (legacy) {
+        setUserPresets([{ id: crypto.randomUUID(), name: "Saved style", snapshot: JSON.parse(legacy) as StyleTransferSnapshot }]);
+      }
     } catch {
-      setUserPresetState(null);
+      setUserPresets([]);
     }
   }, []);
-  const setUserPreset = useCallback((value: StyleTransferSnapshot | null) => {
-    setUserPresetState(value);
+
+  const persistUserPresets = useCallback((value: UserStylePreset[]) => {
+    setUserPresets(value);
     try {
-      if (value) window.localStorage.setItem(USER_PRESET_KEY, JSON.stringify(value));
-      else window.localStorage.removeItem(USER_PRESET_KEY);
+      window.localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(value));
+      window.localStorage.removeItem(USER_PRESET_KEY);
     } catch {
       // A blocked localStorage preset must never block editing the page.
     }
   }, []);
+  const createUserPreset = useCallback((requestedName: string, snapshot: StyleTransferSnapshot) => {
+    const baseName = requestedName.trim() || "Untitled style";
+    const names = new Set(userPresets.map((preset) => preset.name.toLocaleLowerCase()));
+    let name = baseName;
+    let suffix = 2;
+    while (names.has(name.toLocaleLowerCase())) name = `${baseName} (${suffix++})`;
+    persistUserPresets([...userPresets, { id: crypto.randomUUID(), name, snapshot }]);
+  }, [persistUserPresets, userPresets]);
+  const deleteUserPreset = useCallback((id: string) => {
+    persistUserPresets(userPresets.filter((preset) => preset.id !== id));
+  }, [persistUserPresets, userPresets]);
   const value = useMemo(() => ({
     styleContract,
     clipboard,
     setClipboard,
-    userPreset,
-    setUserPreset,
+    userPresets,
+    createUserPreset,
+    deleteUserPreset,
     saveStatus,
     save,
     publishMessage,
-  }), [clipboard, publishMessage, save, saveStatus, setUserPreset, styleContract, userPreset]);
+  }), [clipboard, createUserPreset, deleteUserPreset, publishMessage, save, saveStatus, styleContract, userPresets]);
   return <BuilderUxContext.Provider value={value}>{children}</BuilderUxContext.Provider>;
 }
 
@@ -144,6 +175,15 @@ function describeFields(fields: Record<string, unknown> | undefined) {
 
 const normalize = (value: string) => value.trim().toLocaleLowerCase();
 
+function styleMatches(
+  current: ComponentData,
+  expected: ComponentData,
+  supported: ReadonlySet<string>,
+) {
+  return [...supported].every((key) =>
+    JSON.stringify(current.props[key]) === JSON.stringify(expected.props[key]));
+}
+
 export function BuilderFields({
   children,
   isLoading,
@@ -157,14 +197,17 @@ export function BuilderFields({
     styleContract,
     clipboard,
     setClipboard,
-    userPreset,
-    setUserPreset,
+    userPresets,
+    createUserPreset,
+    deleteUserPreset,
   } = useContext(BuilderUxContext);
   const selected = usePuck((state) => state.selectedItem);
   const config = usePuck((state) => state.config);
   const dispatch = usePuck((state) => state.dispatch);
   const getSelectorForId = usePuck((state) => state.getSelectorForId);
+  const viewportWidth = usePuck((state) => state.appState.ui.viewports.current.width);
   const [query, setQuery] = useState("");
+  const [presetName, setPresetName] = useState("");
   const component = selected
     ? config.components[selected.type] as ComponentConfig | undefined
     : undefined;
@@ -173,7 +216,9 @@ export function BuilderFields({
     : itemSelector?.zone
       ? itemSelector as Required<ItemSelector>
       : undefined;
-  const supported = selected ? styleContract.get(selected.type) ?? new Set() : new Set();
+  const supported = selected
+    ? styleContract.get(selected.type) ?? new Set<string>()
+    : new Set<string>();
   const clipboardCompatibility = clipboard
     ? Object.keys(clipboard.values).filter((key) => supported.has(key)).length
     : 0;
@@ -182,6 +227,15 @@ export function BuilderFields({
     [component],
   );
   const normalizedQuery = normalize(query);
+  const currentPreset = useMemo(() => {
+    if (!selected || !component || !supported.size) return "Not available";
+    const builtIn = BUILDER_STYLE_PRESETS.find((preset) =>
+      styleMatches(selected, applyStylePreset(selected, component, styleContract, preset), supported));
+    if (builtIn) return builtIn;
+    const user = userPresets.find((preset) =>
+      styleMatches(selected, pasteCompatibleStyle(selected, preset.snapshot, styleContract), supported));
+    return user?.name ?? "Custom";
+  }, [component, selected, styleContract, supported, userPresets]);
   const allowedLabels = useMemo(() => {
     if (!normalizedQuery) return null;
     const labels = new Set<string>();
@@ -206,7 +260,8 @@ export function BuilderFields({
   };
   const savePreset = () => {
     if (selected && component) {
-      setUserPreset(copyCompatibleStyle(selected, component, styleContract));
+      createUserPreset(presetName, copyCompatibleStyle(selected, component, styleContract));
+      setPresetName("");
     }
   };
   const applyBuiltIn = (preset: BuilderStylePreset) => {
@@ -228,16 +283,28 @@ export function BuilderFields({
         {query ? <button type="button" aria-label="Clear settings search" onClick={() => setQuery("")}>×</button> : null}
       </div>
       {selected && component && selector ? <>
+        <div className={styles.viewportContext} data-responsive-device={viewportDevice(viewportWidth)}>
+          Editing viewport: <strong>{viewportDevice(viewportWidth)}</strong>
+        </div>
         <div className={styles.builderActionGrid}>
           <button type="button" onClick={() => update(createBlockDefaultSnapshot(component, selected))}>Reset block</button>
           <button type="button" disabled={!supported.size} onClick={copy}>Copy style</button>
           <button type="button" disabled={!clipboardCompatibility} onClick={() => clipboard && update(pasteCompatibleStyle(selected, clipboard, styleContract))}>Paste style</button>
-          <button type="button" disabled={!supported.size} onClick={savePreset}>Save style preset</button>
         </div>
+        <div className={styles.presetCreator}>
+          <input aria-label="Style preset name" placeholder="Preset name" value={presetName} onChange={(event) => setPresetName(event.target.value)} />
+          <button type="button" disabled={!supported.size} onClick={savePreset}>Save preset</button>
+        </div>
+        <p className={styles.currentPreset} role="status">Current preset: <strong>{currentPreset}</strong></p>
         <div className={styles.presetRow} aria-label="Style presets">
           {BUILDER_STYLE_PRESETS.map((preset) => <button key={preset} type="button" disabled={!supported.size} onClick={() => applyBuiltIn(preset)}>{preset}</button>)}
-          {userPreset ? <button type="button" disabled={!Object.keys(userPreset.values).some((key) => supported.has(key))} onClick={() => update(pasteCompatibleStyle(selected, userPreset, styleContract))}>Saved style</button> : null}
         </div>
+        {userPresets.length ? <ul className={styles.userPresetList} aria-label="Saved style presets">
+          {userPresets.map((preset) => <li key={preset.id}>
+            <button type="button" disabled={!Object.keys(preset.snapshot.values).some((key) => supported.has(key))} onClick={() => update(pasteCompatibleStyle(selected, preset.snapshot, styleContract))}>{preset.name}</button>
+            <button type="button" aria-label={`Delete style preset ${preset.name}`} onClick={() => deleteUserPreset(preset.id)}>Delete</button>
+          </li>)}
+        </ul> : null}
       </> : null}
       {normalizedQuery && allowedLabels?.size === 0 ? <p className={styles.settingsEmpty} role="status">No matching settings.</p> : null}
     </div>

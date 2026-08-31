@@ -130,6 +130,7 @@ export function applyStylePreset(
   for (const key of supported) {
     if (preset === "Original") {
       if (defaults[key] !== undefined) nextProps[key] = cloneBuilderValue(defaults[key]);
+      else delete nextProps[key];
       continue;
     }
     const value = presetValue(key, preset);

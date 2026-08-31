@@ -348,14 +348,16 @@ export default function PuckLabV3({ coreQa = false }: { coreQa?: boolean }) {
 
   const save = useCallback(() => {
     setSaveStatus("saving");
-    try {
-      const serialized = JSON.stringify(currentDataRef.current);
-      window.localStorage.setItem(storageKey, serialized);
-      savedDataRef.current = serialized;
-      setSaveStatus("saved");
-    } catch {
-      setSaveStatus("error");
-    }
+    const serialized = JSON.stringify(currentDataRef.current);
+    window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(storageKey, serialized);
+        savedDataRef.current = serialized;
+        setSaveStatus(JSON.stringify(currentDataRef.current) === serialized ? "saved" : "unsaved");
+      } catch {
+        setSaveStatus("error");
+      }
+    }, 0);
   }, [storageKey]);
 
   const onChange = useCallback((data: Data) => {

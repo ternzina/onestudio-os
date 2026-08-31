@@ -29,12 +29,22 @@
 .propertiesSearch input { width: 100%; min-width: 0; border: 1px solid #d6d3d1; border-radius: 6px; padding: 7px 9px; background: #fff; color: #171717; font: 12px/1.2 system-ui, sans-serif; }
 .propertiesSearch button { width: 28px; border: 1px solid #d6d3d1; border-radius: 6px; background: #fff; cursor: pointer; font-size: 17px; }
 .builderActionGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
-.builderActionGrid button, .presetRow button { min-height: 30px; border: 1px solid #d6d3d1; border-radius: 6px; padding: 5px 7px; background: #fff; color: #292524; cursor: pointer; font: 600 10px/1.2 system-ui, sans-serif; }
-.builderActionGrid button:disabled, .presetRow button:disabled { cursor: not-allowed; opacity: .45; }
+.builderActionGrid button, .presetRow button, .presetCreator button, .userPresetList button { min-height: 30px; border: 1px solid #d6d3d1; border-radius: 6px; padding: 5px 7px; background: #fff; color: #292524; cursor: pointer; font: 600 10px/1.2 system-ui, sans-serif; }
+.builderActionGrid button:disabled, .presetRow button:disabled, .presetCreator button:disabled, .userPresetList button:disabled { cursor: not-allowed; opacity: .45; }
 .presetRow { display: flex; flex-wrap: wrap; gap: 4px; }
+.viewportContext { border-radius: 6px; padding: 6px 8px; background: #e0f2fe; color: #075985; font: 600 10px/1.3 system-ui, sans-serif; text-transform: capitalize; }
+.presetCreator { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; }
+.presetCreator input { min-width: 0; border: 1px solid #d6d3d1; border-radius: 6px; padding: 6px 8px; background: #fff; color: #171717; font: 11px/1.2 system-ui, sans-serif; }
+.currentPreset { margin: 0; color: #57534e; font: 10px/1.3 system-ui, sans-serif; }
+.userPresetList { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.userPresetList li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px; }
+.userPresetList li > button:first-child { overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.userPresetList li > button:last-child { color: #b91c1c; }
 .settingsEmpty { margin: 0; color: #78716c; font: 11px/1.4 system-ui, sans-serif; }
 .dark .propertiesTools { border-color: #334155; background: #111827; }
-.dark .propertiesSearch input, .dark .propertiesSearch button, .dark .builderActionGrid button, .dark .presetRow button { border-color: #475569; background: #182235; color: #f8fafc; }
+.dark .propertiesSearch input, .dark .propertiesSearch button, .dark .builderActionGrid button, .dark .presetRow button, .dark .presetCreator input, .dark .presetCreator button, .dark .userPresetList button { border-color: #475569; background: #182235; color: #f8fafc; }
+.dark .viewportContext { background: #0c4a6e; color: #e0f2fe; }
+.dark .currentPreset { color: #cbd5e1; }
 .officialHost[data-official-color-scheme="light"] { --background: oklch(100% 0 0); --foreground: oklch(14.5% 0 0); --card: oklch(100% 0 0); --card-foreground: oklch(14.5% 0 0); --popover: oklch(100% 0 0); --popover-foreground: oklch(14.5% 0 0); --primary: oklch(20.5% 0 0); --primary-foreground: oklch(98.5% 0 0); --secondary: oklch(97% 0 0); --secondary-foreground: oklch(20.5% 0 0); --muted: oklch(95% 0 0); --muted-foreground: oklch(37.5% 0 0); --accent: oklch(97% 0 0); --accent-foreground: oklch(50% 0 0); --destructive: oklch(57.7% 0.245 27.325); --border: oklch(92.2% 0 0); --input: oklch(92.2% 0 0); --ring: oklch(70.8% 0 0); }
 .officialHost[data-official-color-scheme="dark"] { --background: oklch(14.5% 0 0); --foreground: oklch(98.5% 0 0); --card: oklch(20.5% 0 0); --card-foreground: oklch(98.5% 0 0); --popover: oklch(20.5% 0 0); --popover-foreground: oklch(98.5% 0 0); --primary: oklch(92.2% 0 0); --primary-foreground: oklch(20.5% 0 0); --secondary: oklch(26.9% 0 0); --secondary-foreground: oklch(98.5% 0 0); --muted: oklch(26.9% 0 0); --muted-foreground: oklch(70.8% 0 0); --accent: oklch(37.1% 0 0); --accent-foreground: oklch(98.5% 0 0); --destructive: oklch(70.4% 0.191 22.216); --border: oklch(100% 0 0 / 10%); --input: oklch(100% 0 0 / 15%); --ring: oklch(55.6% 0 0); }
 .officialHost :global(.bg-background) { background-color: var(--background); }
