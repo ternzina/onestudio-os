@@ -1,30 +1,30 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Hero8 from "@/components/blocks/hero-8";
-import Hero10 from "@/components/blocks/hero-10";
-import Hero11 from "@/components/blocks/hero-11";
-import Hero14 from "@/components/blocks/hero-14";
+import AdaptedHero8, { hero8ContentDefaults } from "@/components/editor-lab/adapted/hero/hero-8";
+import AdaptedHero10, { hero10ContentDefaults } from "@/components/editor-lab/adapted/hero/hero-10";
+import AdaptedHero11, { hero11ContentDefaults } from "@/components/editor-lab/adapted/hero/hero-11";
+import AdaptedHero14, { hero14ContentDefaults } from "@/components/editor-lab/adapted/hero/hero-14";
 import { AdaptedHero15 } from "@/components/editor-lab/adapted/hero-15";
-import Hero20 from "@/components/blocks/hero-20";
+import AdaptedHero20, { hero20ContentDefaults } from "@/components/editor-lab/adapted/hero/hero-20";
 import Pricing13 from "@/components/blocks/pricing-13";
 import Contact11 from "@/components/blocks/contact-11";
-import SocialProof12 from "@/components/blocks/social-proof-12";
-import SocialProof13 from "@/components/blocks/social-proof-13";
-import SocialProof14 from "@/components/blocks/social-proof-14";
-import SocialProof16 from "@/components/blocks/social-proof-16";
-import About10 from "@/components/blocks/about-10";
-import About12 from "@/components/blocks/about-12";
+import AdaptedSocialProof12, { socialProof12ContentDefaults } from "@/components/editor-lab/adapted/showcase/social-proof-12";
+import AdaptedSocialProof13, { socialProof13ContentDefaults } from "@/components/editor-lab/adapted/showcase/social-proof-13";
+import AdaptedSocialProof14, { socialProof14ContentDefaults } from "@/components/editor-lab/adapted/showcase/social-proof-14";
+import AdaptedSocialProof16, { socialProof16ContentDefaults } from "@/components/editor-lab/adapted/showcase/social-proof-16";
+import AdaptedAbout10, { about10ContentDefaults } from "@/components/editor-lab/adapted/showcase/about-10";
+import AdaptedAbout12, { about12ContentDefaults } from "@/components/editor-lab/adapted/showcase/about-12";
 import AdaptedNavigation9, { navigation9Links } from "@/components/editor-lab/adapted/navigation-9";
 import Navigation11 from "@/components/blocks/navigation-11";
 import AdaptedNavigation12, { navigation12Links } from "@/components/editor-lab/adapted/navigation-12";
 import Navigation14 from "@/components/blocks/navigation-14";
 import AdaptedNavigation15, { navigation15Links } from "@/components/editor-lab/adapted/navigation-15";
-import Cta10 from "@/components/blocks/cta-10";
-import Cta13 from "@/components/blocks/cta-13";
-import Cta14 from "@/components/blocks/cta-14";
+import AdaptedCta10, { cta10ContentDefaults } from "@/components/editor-lab/adapted/cta/cta-10";
+import AdaptedCta13, { cta13ContentDefaults } from "@/components/editor-lab/adapted/cta/cta-13";
+import AdaptedCta14, { cta14ContentDefaults } from "@/components/editor-lab/adapted/cta/cta-14";
 import AdaptedFooter7, { footer7NavigationLinks } from "@/components/editor-lab/adapted/footer-7";
-import Footer11 from "@/components/blocks/footer-11";
+import AdaptedFooter11, { footer11ContentDefaults } from "@/components/editor-lab/adapted/footer/footer-11";
 import AppShell6 from "@/components/blocks/app-shell-6";
 import AppShell8 from "@/components/blocks/app-shell-8";
 import AppSidebar6 from "@/components/blocks/app-sidebar-6";
@@ -40,6 +40,7 @@ import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/ma
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
 import { defineMenuLinksArrayContract } from "@/components/editor-lab/puck/menu-links-array-contract";
+import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 export type FastBatch11Group =
@@ -71,6 +72,7 @@ export type FastBatch11Block = {
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
+  formContent?: FormContentContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 11";
   batchGroup: FastBatch11Group;
@@ -92,11 +94,16 @@ const block = (
     input.fields ?? {},
     input.defaultProps ?? {},
   );
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    boundArrays.fields,
+    boundArrays.defaults,
+  );
   return {
     ...input,
     category: "React Bits Fast Batch 11",
-    defaultProps: boundArrays.defaults,
-    fields: boundArrays.fields,
+    defaultProps: boundFormContent.defaults,
+    fields: boundFormContent.fields,
     batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
   };
 };
@@ -124,6 +131,28 @@ const navigation15LinkContract = defineMenuLinksArrayContract({
   slot: "links",
   label: "Navigation links",
   defaults: navigation15Links,
+});
+
+const hero14FormContent = defineFormContentContract({
+  slots: [
+    { slot: "rating", label: "Rating", type: "text", defaultValue: hero14ContentDefaults.rating },
+    { slot: "reviews", label: "Reviews", type: "text", defaultValue: hero14ContentDefaults.reviews },
+    { slot: "headingLine1", label: "Heading line 1", type: "text", defaultValue: hero14ContentDefaults.headingLine1 },
+    { slot: "headingLine2", label: "Heading line 2", type: "text", defaultValue: hero14ContentDefaults.headingLine2 },
+    { slot: "description", label: "Description", type: "textarea", defaultValue: hero14ContentDefaults.description },
+    { slot: "emailPlaceholder", label: "Email placeholder", type: "text", defaultValue: hero14ContentDefaults.emailPlaceholder },
+    { slot: "buttonLabel", label: "Button label", type: "text", defaultValue: hero14ContentDefaults.buttonLabel },
+    { slot: "linkLabel", label: "Link label", type: "text", defaultValue: hero14ContentDefaults.linkLabel },
+  ],
+});
+
+const cta10FormContent = defineFormContentContract({
+  slots: [
+    { slot: "heading", label: "Heading", type: "text", defaultValue: cta10ContentDefaults.heading },
+    { slot: "description", label: "Description", type: "textarea", defaultValue: cta10ContentDefaults.description },
+    { slot: "emailPlaceholder", label: "Email placeholder", type: "text", defaultValue: cta10ContentDefaults.emailPlaceholder },
+    { slot: "buttonLabel", label: "Button label", type: "text", defaultValue: cta10ContentDefaults.buttonLabel },
+  ],
 });
 
 const marketingHost: ReactBitsHostSpec = {
@@ -179,25 +208,25 @@ const rotatingCards = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 const heroBlocks = [
-  block({ type: "RB_batch11_hero_8", displayName: "React Bits Hero 8", catalogKey: "pro-block:hero-8", description: "Official React Bits Hero 8 media-between-text section.", component: Hero8 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
-  block({ type: "RB_batch11_hero_10", displayName: "React Bits Hero 10", catalogKey: "pro-block:hero-10", description: "Official React Bits Hero 10 media hero.", component: Hero10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
-  block({ type: "RB_batch11_hero_11", displayName: "React Bits Hero 11", catalogKey: "pro-block:hero-11", description: "Official React Bits Hero 11 split media hero.", component: Hero11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
-  block({ type: "RB_batch11_hero_14", displayName: "React Bits Hero 14", catalogKey: "pro-block:hero-14", description: "Official React Bits Hero 14 analytics hero.", component: Hero14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
+  block({ type: "RB_batch11_hero_8", displayName: "React Bits Hero 8", catalogKey: "pro-block:hero-8", description: "Official React Bits Hero 8 media-between-text section.", component: AdaptedHero8 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: hero8ContentDefaults, fields: { firstLeft: fields.text("First line left", { contentEditable: false }), firstRight: fields.text("First line right", { contentEditable: false }), secondLeft: fields.text("Second line left", { contentEditable: false }), secondRight: fields.text("Second line right", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_hero_10", displayName: "React Bits Hero 10", catalogKey: "pro-block:hero-10", description: "Official React Bits Hero 10 media hero.", component: AdaptedHero10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: hero10ContentDefaults, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_hero_11", displayName: "React Bits Hero 11", catalogKey: "pro-block:hero-11", description: "Official React Bits Hero 11 split media hero.", component: AdaptedHero11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: hero11ContentDefaults, fields: { badge: fields.text("Badge", { contentEditable: false }), announcement: fields.text("Announcement", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryButtonLabel: fields.text("Primary button label", { contentEditable: false }), secondaryButtonLabel: fields.text("Secondary button label", { contentEditable: false }), mediaUrl: fields.imageUrl() } }),
+  block({ type: "RB_batch11_hero_14", displayName: "React Bits Hero 14", catalogKey: "pro-block:hero-14", description: "Official React Bits Hero 14 analytics hero.", component: AdaptedHero14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: { mediaUrl: hero14ContentDefaults.mediaUrl }, fields: { mediaUrl: fields.imageUrl() }, formContent: hero14FormContent }),
   block({ type: "RB_batch11_hero_15", displayName: "React Bits Hero 15", catalogKey: "pro-block:hero-15", description: "Official React Bits Hero 15 editorial hero.", component: AdaptedHero15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: { badge: "Free for 30 days: limited offer", heading: "Build your future", intro: "Acme is your personal AI Business Advisor.", description: "Monitor your metrics, forecasts, revenue and optimize your growth strategy: all in one place.", ctaLabel: "Get started", inputPlaceholder: "Ask me anything...", footer: "Track everything. Ask anything." }, fields: { badge: fields.text("Badge", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), intro: fields.text("Intro", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), ctaLabel: fields.text("CTA label", { contentEditable: false }), inputPlaceholder: fields.text("Input placeholder", { contentEditable: false }), footer: fields.text("Footer", { contentEditable: false }) } }),
-  block({ type: "RB_batch11_hero_20", displayName: "React Bits Hero 20", catalogKey: "pro-block:hero-20", description: "Official React Bits Hero 20 premium typographic hero.", component: Hero20 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
+  block({ type: "RB_batch11_hero_20", displayName: "React Bits Hero 20", catalogKey: "pro-block:hero-20", description: "Official React Bits Hero 20 premium typographic hero.", component: AdaptedHero20 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: hero20ContentDefaults, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryButtonLabel: fields.text("Primary button label", { contentEditable: false }), secondaryButtonLabel: fields.text("Secondary button label", { contentEditable: false }), trustLabel: fields.text("Trust label", { contentEditable: false }) } }),
   block({ type: "RB_batch11_pricing_13", displayName: "React Bits Pricing 13", catalogKey: "pro-block:pricing-13", description: "Official React Bits Pricing 13 section.", component: Pricing13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Pricing", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
   block({ type: "RB_batch11_contact_11", displayName: "React Bits Contact 11", catalogKey: "pro-block:contact-11", description: "Official React Bits Contact 11 section.", component: Contact11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Contact", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
 ];
 
 const showcaseBlocks = [
   block({ type: "RB_batch11_social_proof_1", displayName: "React Bits Social Proof 1", catalogKey: "pro-block:social-proof-1", description: "Official React Bits Social Proof 1; two required local logo assets are absent from the registry and project.", sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, batchStatus: "BLOCKED_REQUIRED_ASSET", blocker: "BLOCKED_REQUIRED_ASSET" }),
-  block({ type: "RB_batch11_social_proof_13", displayName: "React Bits Social Proof 13", catalogKey: "pro-block:social-proof-13", description: "Official React Bits Social Proof 13 showcase.", component: SocialProof13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch11_social_proof_14", displayName: "React Bits Social Proof 14", catalogKey: "pro-block:social-proof-14", description: "Official React Bits Social Proof 14 testimonial media section.", component: SocialProof14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch11_social_proof_16", displayName: "React Bits Social Proof 16", catalogKey: "pro-block:social-proof-16", description: "Official React Bits Social Proof 16 testimonial media section.", component: SocialProof16 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
+  block({ type: "RB_batch11_social_proof_13", displayName: "React Bits Social Proof 13", catalogKey: "pro-block:social-proof-13", description: "Official React Bits Social Proof 13 showcase.", component: AdaptedSocialProof13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, defaultProps: socialProof13ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), moreLabel: fields.text("More label", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_social_proof_14", displayName: "React Bits Social Proof 14", catalogKey: "pro-block:social-proof-14", description: "Official React Bits Social Proof 14 testimonial media section.", component: AdaptedSocialProof14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, defaultProps: socialProof14ContentDefaults, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), ratingValue: fields.text("Rating", { contentEditable: false }), reviewsLabel: fields.text("Reviews label", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_social_proof_16", displayName: "React Bits Social Proof 16", catalogKey: "pro-block:social-proof-16", description: "Official React Bits Social Proof 16 testimonial media section.", component: AdaptedSocialProof16 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, defaultProps: socialProof16ContentDefaults, fields: { featuredQuote: fields.textarea("Featured quote", { contentEditable: false }), featuredName: fields.text("Featured name", { contentEditable: false }), featuredRole: fields.text("Featured role", { contentEditable: false }), companyLabel: fields.text("Company label", { contentEditable: false }) } }),
   block({ type: "RB_batch11_ecommerce_10", displayName: "React Bits Ecommerce 10", catalogKey: "pro-block:ecommerce-10", description: "Official React Bits Ecommerce 10; its required official placeholder asset is absent from the registry and project.", sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Ecommerce"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, batchStatus: "BLOCKED_REQUIRED_ASSET", blocker: "BLOCKED_REQUIRED_ASSET" }),
-  block({ type: "RB_batch11_about_10", displayName: "React Bits About 10", catalogKey: "pro-block:about-10", description: "Official React Bits About 10 team showcase.", component: About10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Media"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost }),
-  block({ type: "RB_batch11_about_12", displayName: "React Bits About 12", catalogKey: "pro-block:about-12", description: "Official React Bits About 12, replacing Ecommerce 10 after required-asset validation.", component: About12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Media"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, replacementFor: "pro-block:ecommerce-10" }),
-  block({ type: "RB_batch11_social_proof_12", displayName: "React Bits Social Proof 12", catalogKey: "pro-block:social-proof-12", description: "Official React Bits Social Proof 12, replacing Social Proof 1 after required-asset validation.", component: SocialProof12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, replacementFor: "pro-block:social-proof-1" }),
+  block({ type: "RB_batch11_about_10", displayName: "React Bits About 10", catalogKey: "pro-block:about-10", description: "Official React Bits About 10 team showcase.", component: AdaptedAbout10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Media"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, defaultProps: about10ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), headingLead: fields.text("Heading lead", { contentEditable: false }), headingBrand: fields.text("Heading brand", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }), partnersLabel: fields.text("Partners label", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_about_12", displayName: "React Bits About 12", catalogKey: "pro-block:about-12", description: "Official React Bits About 12, replacing Ecommerce 10 after required-asset validation.", component: AdaptedAbout12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Media"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, replacementFor: "pro-block:ecommerce-10", defaultProps: about12ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), quote: fields.textarea("Quote", { contentEditable: false }), authorName: fields.text("Author name", { contentEditable: false }), authorRole: fields.text("Author role", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_social_proof_12", displayName: "React Bits Social Proof 12", catalogKey: "pro-block:social-proof-12", description: "Official React Bits Social Proof 12, replacing Social Proof 1 after required-asset validation.", component: AdaptedSocialProof12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Showcase", "Social Proof"], batchGroup: "SHOWCASE / MEDIA", host: marketingHost, replacementFor: "pro-block:social-proof-1", defaultProps: socialProof12ContentDefaults, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }) } }),
 ];
 
 const navigationBlocks = [
@@ -206,11 +235,11 @@ const navigationBlocks = [
   block({ type: "RB_batch11_navigation_11", displayName: "React Bits Navigation 11", catalogKey: "pro-block:navigation-11", description: "Official React Bits Navigation 11.", component: Navigation11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch11_navigation_12", displayName: "React Bits Navigation 12", catalogKey: "pro-block:navigation-12", description: "Official React Bits Navigation 12.", component: AdaptedNavigation12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, arrayItems: [navigation12LinkContract] }),
   block({ type: "RB_batch11_navigation_14", displayName: "React Bits Navigation 14", catalogKey: "pro-block:navigation-14", description: "Official React Bits Navigation 14.", component: Navigation14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_cta_10", displayName: "React Bits CTA 10", catalogKey: "pro-block:cta-10", description: "Official React Bits CTA 10.", component: Cta10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_cta_13", displayName: "React Bits CTA 13", catalogKey: "pro-block:cta-13", description: "Official React Bits CTA 13.", component: Cta13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_cta_14", displayName: "React Bits CTA 14", catalogKey: "pro-block:cta-14", description: "Official React Bits CTA 14.", component: Cta14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch11_cta_10", displayName: "React Bits CTA 10", catalogKey: "pro-block:cta-10", description: "Official React Bits CTA 10.", component: AdaptedCta10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: { mediaUrl: cta10ContentDefaults.mediaUrl }, fields: { mediaUrl: fields.imageUrl() }, formContent: cta10FormContent }),
+  block({ type: "RB_batch11_cta_13", displayName: "React Bits CTA 13", catalogKey: "pro-block:cta-13", description: "Official React Bits CTA 13.", component: AdaptedCta13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: cta13ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), headingPrefix: fields.text("Heading prefix", { contentEditable: false }), headingEmphasis: fields.text("Heading emphasis", { contentEditable: false }), headingSuffix: fields.text("Heading suffix", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }), helperText: fields.text("Helper text", { contentEditable: false }) } }),
+  block({ type: "RB_batch11_cta_14", displayName: "React Bits CTA 14", catalogKey: "pro-block:cta-14", description: "Official React Bits CTA 14.", component: AdaptedCta14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: cta14ContentDefaults, fields: { eyebrow: fields.text("Eyebrow", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryButtonLabel: fields.text("Primary button label", { contentEditable: false }), secondaryButtonLabel: fields.text("Secondary button label", { contentEditable: false }), helperText: fields.text("Helper text", { contentEditable: false }), collaborationLabel: fields.text("Collaboration label", { contentEditable: false }), liveLabel: fields.text("Live label", { contentEditable: false }) } }),
   block({ type: "RB_batch11_footer_7", displayName: "React Bits Footer 7", catalogKey: "pro-block:footer-7", description: "Official React Bits Footer 7.", component: AdaptedFooter7 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, arrayItems: [footer7LinkContract] }),
-  block({ type: "RB_batch11_footer_11", displayName: "React Bits Footer 11", catalogKey: "pro-block:footer-11", description: "Official React Bits Footer 11.", component: Footer11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch11_footer_11", displayName: "React Bits Footer 11", catalogKey: "pro-block:footer-11", description: "Official React Bits Footer 11.", component: AdaptedFooter11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: footer11ContentDefaults, fields: { brandInitial: fields.text("Brand initial", { contentEditable: false }), brandName: fields.text("Brand name", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }) } }),
   block({ type: "RB_batch11_navigation_15", displayName: "React Bits Navigation 15", catalogKey: "pro-block:navigation-15", description: "Official React Bits Navigation 15, replacing Navigation 10 after Puck interaction validation.", component: AdaptedNavigation15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, replacementFor: "pro-block:navigation-10", arrayItems: [navigation15LinkContract] }),
 ];
 
