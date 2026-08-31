@@ -12,12 +12,26 @@ export type PuckTextField = {
   step?: number;
 };
 export type PuckPrimitiveArrayItem = Record<string, string | number | boolean | undefined>;
+export type PuckPrimitiveField = PuckTextField | PuckMediaField | PuckToggleField | PuckSelectField;
 export type PuckArrayField = {
   type: "array";
   label: string;
-  arrayFields: Record<string, PuckTextField | PuckMediaField | PuckToggleField | PuckSelectField>;
+  arrayFields: Record<string, PuckPrimitiveField>;
   defaultItemProps?: Record<string, unknown>;
   getItemSummary?: (item: PuckPrimitiveArrayItem, index?: number) => string;
+};
+
+/** One parent item plus primitive child items; deliberately capped at depth 2. */
+export type PuckBoundedNestedItem = Record<
+  string,
+  string | number | boolean | undefined | readonly PuckPrimitiveArrayItem[]
+>;
+export type PuckBoundedNestedArrayField = {
+  type: "array";
+  label: string;
+  arrayFields: Record<string, PuckPrimitiveField | PuckArrayField>;
+  defaultItemProps?: Record<string, unknown>;
+  getItemSummary?: (item: PuckBoundedNestedItem, index?: number) => string;
 };
 
 export type PuckRichTextField = Extract<Field, { type: "richtext" }>;
@@ -41,7 +55,6 @@ export type PuckToggleField = {
   options: Array<{ label: string; value: string }>;
 };
 export type PuckSelectField = { type: "select"; label: string; options: Array<{ label: string; value: string }> };
-
 const text = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "text", label, contentEditable: true, ...options });
 const textarea = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "textarea", label, contentEditable: true, ...options });
 const number = (label: string, options: Pick<PuckTextField, "min" | "max" | "step" | "placeholder"> = {}): PuckTextField => ({ type: "number", label, ...options });
@@ -73,7 +86,6 @@ const toggle = (label: string): PuckToggleField => ({ type: "radio", label, opti
 const select = (label: string, options: Array<{ label: string; value: string }>): PuckSelectField => ({ type: "select", label, options });
 const array = (label: string): PuckArrayField => ({ type: "array", label, arrayFields: { value: { type: "text", label: "Value", contentEditable: false } } });
 const arrayItems = (label: string, arrayFields: PuckArrayField["arrayFields"], options: Pick<PuckArrayField, "defaultItemProps" | "getItemSummary"> = {}): PuckArrayField => ({ type: "array", label, arrayFields, ...options });
-
 export const fields = {
   text,
   textarea,

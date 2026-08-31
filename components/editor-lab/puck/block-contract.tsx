@@ -19,9 +19,11 @@ import type {
   PuckObjectField,
   PuckSlotField,
   PuckArrayField,
+  PuckBoundedNestedArrayField,
 } from "./field-helpers";
 import { effectFields, type EffectDefinition } from "./effect-contract";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
+import { bindBoundedNestedContentContracts, type BoundedNestedContentContract } from "./bounded-nested-content-contract";
 import { bindFormContentContract, type FormContentContract } from "./form-content-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
@@ -36,6 +38,7 @@ type LabField =
   | PuckObjectField
   | PuckSlotField
   | PuckArrayField
+  | PuckBoundedNestedArrayField
   | {
       type: "array";
       arrayFields: Record<string, LabField>;
@@ -190,6 +193,7 @@ export type BlockContract<Props extends EditableProps> = {
   fields: TextFields<Props>;
   effects?: readonly EffectDefinition<Props>[];
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
+  nestedContent?: readonly BoundedNestedContentContract[];
   formContent?: FormContentContract;
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
@@ -323,7 +327,8 @@ export function createPuckComponent<Props extends EditableProps>(
     : {};
   // labLabel remains an internal frame/display-name prop; it is not customer content.
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
-  const boundFormContent = bindFormContentContract(contract.formContent, boundArrays.fields, boundArrays.defaults);
+  const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
+  const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const rawFields = { ...boundFormContent.fields, ...declaredEffectFields };
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(rawFields)
