@@ -176,4 +176,3 @@ export function AdaptedHero20({ heading, description, primaryButtonLabel, second
 }
 
 export default AdaptedHero20;
-

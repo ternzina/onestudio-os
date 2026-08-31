@@ -163,4 +163,3 @@ export function AdaptedHero11({ badge, announcement, heading, description, prima
 }
 
 export default AdaptedHero11;
-

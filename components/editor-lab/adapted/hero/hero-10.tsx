@@ -107,4 +107,3 @@ export function AdaptedHero10({ heading, description, buttonLabel }: AdaptedHero
 }
 
 export default AdaptedHero10;
-

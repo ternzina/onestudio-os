@@ -253,4 +253,3 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
     </section>
   );
 }
-

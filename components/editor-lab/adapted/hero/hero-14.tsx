@@ -152,4 +152,3 @@ export function AdaptedHero14({ rating, reviews, headingLine1, headingLine2, des
 }
 
 export default AdaptedHero14;
-

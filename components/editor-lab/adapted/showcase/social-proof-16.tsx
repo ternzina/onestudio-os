@@ -202,4 +202,3 @@ export default function AdaptedSocialProof16({ featuredQuote, featuredName, feat
     </section>
   );
 }
-

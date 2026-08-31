@@ -66,4 +66,3 @@ export default function AdaptedCta10({ heading, description, emailPlaceholder, b
     </section>
   );
 }
-

@@ -204,4 +204,3 @@ export default function AdaptedCta13({ eyebrow, headingPrefix, headingEmphasis, 
     </section>
   );
 }
-

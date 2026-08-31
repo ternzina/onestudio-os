@@ -214,4 +214,3 @@ export function AdaptedHero8({ firstLeft, firstRight, secondLeft, secondRight, d
 }
 
 export default AdaptedHero8;
-

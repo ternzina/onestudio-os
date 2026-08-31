@@ -181,4 +181,3 @@ export default function AdaptedAbout10({ eyebrow, headingLead, headingBrand, des
     </section>
   );
 }
-

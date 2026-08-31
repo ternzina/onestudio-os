@@ -103,4 +103,3 @@ export default function AdaptedSocialProof12({ heading, description, buttonLabel
     </section>
   );
 }
-

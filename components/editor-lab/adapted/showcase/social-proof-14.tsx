@@ -203,4 +203,3 @@ export default function AdaptedSocialProof14({ heading, description, ratingValue
     </section>
   );
 }
-

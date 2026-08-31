@@ -144,4 +144,3 @@ export default function AdaptedAbout12({ eyebrow, quote, authorName, authorRole,
     </section>
   );
 }
-

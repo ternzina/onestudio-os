@@ -181,4 +181,3 @@ export default function AdaptedFooter11({ brandInitial, brandName, description }
     </footer>
   );
 }
-

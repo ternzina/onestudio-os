@@ -144,4 +144,3 @@ export default function AdaptedSocialProof13({ eyebrow, heading, description, mo
     </section>
   );
 }
-
