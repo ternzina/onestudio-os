@@ -1,13 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Hero18 } from "@/components/blocks/hero-18";
+import { AdaptedHero18 } from "@/components/editor-lab/adapted/hero-18";
 import { Blog1 } from "@/components/blocks/blog-1";
 import { Blog2 } from "@/components/blocks/blog-2";
 import { Blog3 } from "@/components/blocks/blog-3";
 import Ecommerce1 from "@/components/blocks/ecommerce-1";
 import Ecommerce2 from "@/components/blocks/ecommerce-2";
-import Cta9 from "@/components/blocks/cta-9";
+import AdaptedCta9 from "@/components/editor-lab/adapted/cta-9";
 import Cta11 from "@/components/blocks/cta-11";
 import Footer12 from "@/components/blocks/footer-12";
 import Pricing7 from "@/components/blocks/pricing-7";
@@ -53,6 +53,7 @@ import SettingsForm4 from "@/components/blocks/settings-form-4";
 import Scheduling3 from "@/components/blocks/scheduling-3";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 
@@ -128,7 +129,7 @@ const appHost = (minHeight: number): ReactBitsHostSpec => ({
 });
 
 const heroBlocks = [
-  block({ type: "RB_batch12_hero_18", displayName: "React Bits Hero 18", catalogKey: "pro-block:hero-18", description: "Official React Bits Hero 18 premium section.", component: Hero18 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
+  block({ type: "RB_batch12_hero_18", displayName: "React Bits Hero 18", catalogKey: "pro-block:hero-18", description: "Official React Bits Hero 18 premium section.", component: AdaptedHero18 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: { heading: "Every tool you use,\none keystroke away.", description: "Waypoint indexes your docs, repos, people, and actions into a single command bar that answers before you finish typing.", primaryButtonLabel: "Get Waypoint free" }, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryButtonLabel: fields.text("Primary button label", { contentEditable: false }) } }),
 ];
 
 const showcaseBlocks = [
@@ -139,7 +140,7 @@ const showcaseBlocks = [
 ];
 
 const navigationBlocks = [
-  block({ type: "RB_batch12_cta_9", displayName: "React Bits CTA 9", catalogKey: "pro-block:cta-9", description: "Official React Bits CTA 9.", component: Cta9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch12_cta_9", displayName: "React Bits CTA 9", catalogKey: "pro-block:cta-9", description: "Official React Bits CTA 9.", component: AdaptedCta9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, defaultProps: { heading: "Ready to make the switch?", description: "Bring your workspace over in minutes — we’ll handle the heavy lifting.", buttonLabel: "Request a free migration" }, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), buttonLabel: fields.text("Button label", { contentEditable: false }) } }),
   block({ type: "RB_batch12_cta_11", displayName: "React Bits CTA 11", catalogKey: "pro-block:cta-11", description: "Official React Bits CTA 11.", component: Cta11 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch12_footer_12", displayName: "React Bits Footer 12", catalogKey: "pro-block:footer-12", description: "Official React Bits Footer 12.", component: Footer12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Footer"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch12_navbar_1", displayName: "React Bits Navbar 1", catalogKey: "pro-block:navbar-1", description: "Official React Bits App UI Navbar 1.", component: Navbar1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Navigation", "App UI"], batchGroup: "NAV / CTA / FOOTER", host: appHost(480) }),

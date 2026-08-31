@@ -75,7 +75,9 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
 ): ComponentConfig {
   return {
     label: contract.displayName,
-    fields: {},
+    // Marketing blocks normally expose no source props. Adapted editor copies
+    // declare only their explicit serializable content contract here.
+    fields: contract.fields as ComponentConfig["fields"],
     defaultProps: { ...contract.defaultProps },
     inline: false,
     render: (props) => {
