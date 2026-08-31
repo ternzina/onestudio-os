@@ -13,7 +13,13 @@ import Footer12 from "@/components/blocks/footer-12";
 import Pricing7 from "@/components/blocks/pricing-7";
 import Pricing8 from "@/components/blocks/pricing-8";
 import Pricing9 from "@/components/blocks/pricing-9";
-import Pricing10 from "@/components/blocks/pricing-10";
+import AdaptedPricing10, {
+  pricing10ContentDefaults,
+  pricing10RunFeatures,
+  pricing10RunTiers,
+  pricing10SeatFeatures,
+  pricing10SeatTiers,
+} from "@/components/editor-lab/adapted/pricing-10";
 import Pricing12 from "@/components/blocks/pricing-12";
 import Pricing14 from "@/components/blocks/pricing-14";
 import Pricing15 from "@/components/blocks/pricing-15";
@@ -55,6 +61,7 @@ import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-h
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
 import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
+import { bindArrayItemsContracts, defineArrayItemsContract, type ArrayItemsContract, type PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 
@@ -90,6 +97,7 @@ export type FastBatch12Block = {
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
   formContent?: FormContentContract;
+  arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 12";
   batchGroup: FastBatch12Group;
@@ -105,10 +113,15 @@ const block = (
     blocker?: FastBatch12Block["blocker"];
   },
 ): FastBatch12Block => {
-  const boundFormContent = bindFormContentContract(
-    input.formContent,
+  const boundArrays = bindArrayItemsContracts(
+    input.arrayItems,
     input.fields ?? {},
     input.defaultProps ?? {},
+  );
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    boundArrays.fields,
+    boundArrays.defaults,
   );
   return {
     ...input,
@@ -138,6 +151,51 @@ const contact7FormContent = defineFormContentContract({
     { slot: "submitLabel", label: "Submit button label", type: "text", defaultValue: contact7ContentDefaults.submitLabel },
   ],
 });
+
+const pricing10FormContent = defineFormContentContract({
+  slots: [
+    { slot: "heading", label: "Heading", type: "text", defaultValue: pricing10ContentDefaults.heading },
+    { slot: "description", label: "Description", type: "textarea", defaultValue: pricing10ContentDefaults.description },
+    { slot: "buttonLabel", label: "Button label", type: "text", defaultValue: pricing10ContentDefaults.buttonLabel },
+  ],
+});
+
+const pricing10ArrayContracts = [
+  defineArrayItemsContract({
+    slot: "runTiers",
+    label: "Run tiers",
+    defaults: pricing10RunTiers,
+    fields: {
+      runs: fields.number("Runs", { min: 0, step: 1000 }),
+      monthly: fields.number("Monthly price", { min: 0, step: 1 }),
+    },
+    itemLabel: (tier) => `${Number(tier.runs ?? 0).toLocaleString()} runs`,
+  }),
+  defineArrayItemsContract({
+    slot: "seatTiers",
+    label: "Seat tiers",
+    defaults: pricing10SeatTiers,
+    fields: {
+      seats: fields.number("Seats", { min: 0, step: 1 }),
+      monthly: fields.number("Monthly price", { min: 0, step: 1 }),
+    },
+    itemLabel: (tier) => `${Number(tier.seats ?? 0)} seats`,
+  }),
+  defineArrayItemsContract({
+    slot: "runFeatures",
+    label: "Run features",
+    defaults: pricing10RunFeatures,
+    fields: { text: fields.text("Feature", { contentEditable: false }) },
+    itemLabel: (feature) => String(feature.text ?? "Feature"),
+  }),
+  defineArrayItemsContract({
+    slot: "seatFeatures",
+    label: "Seat features",
+    defaults: pricing10SeatFeatures,
+    fields: { text: fields.text("Feature", { contentEditable: false }) },
+    itemLabel: (feature) => String(feature.text ?? "Feature"),
+  }),
+];
 
 const marketingHost: ReactBitsHostSpec = {
   profile: "section",
@@ -183,7 +241,7 @@ const pricingBlocks = [
   block({ type: "RB_batch12_pricing_7", displayName: "React Bits Pricing 7", catalogKey: "pro-block:pricing-7", description: "Official React Bits Pricing 7.", component: Pricing7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_8", displayName: "React Bits Pricing 8", catalogKey: "pro-block:pricing-8", description: "Official React Bits Pricing 8.", component: Pricing8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_9", displayName: "React Bits Pricing 9", catalogKey: "pro-block:pricing-9", description: "Official React Bits Pricing 9.", component: Pricing9 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
-  block({ type: "RB_batch12_pricing_10", displayName: "React Bits Pricing 10", catalogKey: "pro-block:pricing-10", description: "Official React Bits Pricing 10.", component: Pricing10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
+  block({ type: "RB_batch12_pricing_10", displayName: "React Bits Pricing 10", catalogKey: "pro-block:pricing-10", description: "Official React Bits Pricing 10.", component: AdaptedPricing10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost, formContent: pricing10FormContent, arrayItems: pricing10ArrayContracts }),
   block({ type: "RB_batch12_pricing_12", displayName: "React Bits Pricing 12", catalogKey: "pro-block:pricing-12", description: "Official React Bits Pricing 12.", component: Pricing12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_14", displayName: "React Bits Pricing 14", catalogKey: "pro-block:pricing-14", description: "Official React Bits Pricing 14.", component: Pricing14 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_15", displayName: "React Bits Pricing 15", catalogKey: "pro-block:pricing-15", description: "Official React Bits Pricing 15.", component: Pricing15 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
