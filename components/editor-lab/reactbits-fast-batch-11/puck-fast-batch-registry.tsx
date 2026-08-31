@@ -5,7 +5,7 @@ import Hero8 from "@/components/blocks/hero-8";
 import Hero10 from "@/components/blocks/hero-10";
 import Hero11 from "@/components/blocks/hero-11";
 import Hero14 from "@/components/blocks/hero-14";
-import Hero15 from "@/components/blocks/hero-15";
+import { AdaptedHero15 } from "@/components/editor-lab/adapted/hero-15";
 import Hero20 from "@/components/blocks/hero-20";
 import Pricing13 from "@/components/blocks/pricing-13";
 import Contact11 from "@/components/blocks/contact-11";
@@ -37,6 +37,7 @@ import RotatingCards from "@/components/react-bits/rotating-cards";
 import { createPuckComponent } from "@/components/editor-lab/puck/block-contract";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 export type FastBatch11Group =
@@ -147,7 +148,7 @@ const heroBlocks = [
   block({ type: "RB_batch11_hero_10", displayName: "React Bits Hero 10", catalogKey: "pro-block:hero-10", description: "Official React Bits Hero 10 media hero.", component: Hero10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
   block({ type: "RB_batch11_hero_11", displayName: "React Bits Hero 11", catalogKey: "pro-block:hero-11", description: "Official React Bits Hero 11 split media hero.", component: Hero11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
   block({ type: "RB_batch11_hero_14", displayName: "React Bits Hero 14", catalogKey: "pro-block:hero-14", description: "Official React Bits Hero 14 analytics hero.", component: Hero14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
-  block({ type: "RB_batch11_hero_15", displayName: "React Bits Hero 15", catalogKey: "pro-block:hero-15", description: "Official React Bits Hero 15 editorial hero.", component: Hero15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
+  block({ type: "RB_batch11_hero_15", displayName: "React Bits Hero 15", catalogKey: "pro-block:hero-15", description: "Official React Bits Hero 15 editorial hero.", component: AdaptedHero15 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost, defaultProps: { badge: "Free for 30 days: limited offer", heading: "Build your future", intro: "Acme is your personal AI Business Advisor.", description: "Monitor your metrics, forecasts, revenue and optimize your growth strategy: all in one place.", ctaLabel: "Get started", inputPlaceholder: "Ask me anything...", footer: "Track everything. Ask anything." }, fields: { badge: fields.text("Badge", { contentEditable: false }), heading: fields.text("Heading", { contentEditable: false }), intro: fields.text("Intro", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), ctaLabel: fields.text("CTA label", { contentEditable: false }), inputPlaceholder: fields.text("Input placeholder", { contentEditable: false }), footer: fields.text("Footer", { contentEditable: false }) } }),
   block({ type: "RB_batch11_hero_20", displayName: "React Bits Hero 20", catalogKey: "pro-block:hero-20", description: "Official React Bits Hero 20 premium typographic hero.", component: Hero20 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Hero", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
   block({ type: "RB_batch11_pricing_13", displayName: "React Bits Pricing 13", catalogKey: "pro-block:pricing-13", description: "Official React Bits Pricing 13 section.", component: Pricing13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Pricing", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),
   block({ type: "RB_batch11_contact_11", displayName: "React Bits Contact 11", catalogKey: "pro-block:contact-11", description: "Official React Bits Contact 11 section.", component: Contact11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Contact", "Premium"], batchGroup: "HERO / PREMIUM", host: marketingHost }),

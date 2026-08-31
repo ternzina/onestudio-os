@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Cta8 from "@/components/blocks/cta-8";
+import { AdaptedCta8 } from "@/components/editor-lab/adapted/cta-8";
 import Contact9 from "@/components/blocks/contact-9";
 import HowItWorks1 from "@/components/blocks/how-it-works-1";
 import Hero4 from "@/components/blocks/hero-4";
@@ -19,6 +19,7 @@ import SmoothCursor from "@/components/react-bits/smooth-cursor";
 import { createPuckComponent } from "@/components/editor-lab/puck/block-contract";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "CURSORS" | "GALLERIES" | "BACKGROUNDS";
@@ -46,14 +47,16 @@ type FastBatchBlock = {
 
 const block = (
   input: Omit<FastBatchBlock, "category" | "defaultProps" | "fields" | "batchStatus"> & {
+    defaultProps?: Record<string, unknown>;
+    fields?: Record<string, unknown>;
     batchStatus?: BatchStatus;
     blocker?: "BLOCKED_BROWSER_RUNTIME" | "BLOCKED_PUCK_RENDER";
   },
 ): FastBatchBlock => ({
   ...input,
   category: "React Bits Fast Batch 9",
-  defaultProps: {},
-  fields: {},
+  defaultProps: input.defaultProps ?? {},
+  fields: input.fields ?? {},
   batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
 });
 
@@ -76,7 +79,7 @@ const marketingHost: ReactBitsHostSpec = {
 const cursorBlocks = [
   block({ type: "RB_batch9_cursor_wave", displayName: "React Bits Cursor Wave", catalogKey: "component:cursor-wave", description: "Official React Bits Cursor Wave.", component: CursorWave as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 9", "Cursor"], batchGroup: "CURSORS", host: componentHost, batchStatus: "BLOCKED_PUCK_RENDER", blocker: "BLOCKED_PUCK_RENDER" }),
   block({ type: "RB_batch9_smooth_cursor", displayName: "React Bits Smooth Cursor", catalogKey: "component:smooth-cursor", description: "Official React Bits Smooth Cursor.", component: SmoothCursor as unknown as AnyComponent, sourceKind: "component", tags: ["React Bits Fast Batch 9", "Cursor"], batchGroup: "CURSORS", host: componentHost, batchStatus: "BLOCKED_PUCK_RENDER", blocker: "BLOCKED_PUCK_RENDER" }),
-  block({ type: "RB_batch9_cta_8", displayName: "React Bits CTA 8 Cursor Reveal", catalogKey: "pro-block:cta-8", description: "Official React Bits CTA 8 cursor reveal.", component: Cta8 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Cursor"], batchGroup: "CURSORS", host: marketingHost }),
+  block({ type: "RB_batch9_cta_8", displayName: "React Bits CTA 8 Cursor Reveal", catalogKey: "pro-block:cta-8", description: "Official React Bits CTA 8 cursor reveal.", component: AdaptedCta8 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Cursor"], batchGroup: "CURSORS", host: marketingHost, defaultProps: { buttonLabel: "Start creating", trialLabel: "Free for 14 days", word: "Horizon" }, fields: { buttonLabel: fields.text("Button label", { contentEditable: false }), trialLabel: fields.text("Trial label", { contentEditable: false }), word: fields.text("Display word", { contentEditable: false }) } }),
   block({ type: "RB_batch9_hero_19", displayName: "React Bits Hero 19 Pointer Parallax", catalogKey: "pro-block:hero-19", description: "Official React Bits Hero 19 pointer parallax.", component: Hero19 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Cursor"], batchGroup: "CURSORS", host: marketingHost }),
 ];
 
