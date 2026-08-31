@@ -8,10 +8,33 @@
 .globalThemeToggle { position: absolute; z-index: 10; top: 12px; right: 14px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #d6d3d1; border-radius: 7px; background: #fff; color: #171717; cursor: pointer; font-size: 16px; }
 .dark .globalThemeToggle { border-color: #475569; background: #182235; color: #f8fafc; }
 .headerActions { display: flex; align-items: center; gap: 8px; }
+.saveStatus { min-width: 92px; color: #166534; font: 700 11px/1 system-ui, sans-serif; }
+.saveStatus[data-status="unsaved"] { color: #a16207; }
+.saveStatus[data-status="error"] { color: #b91c1c; }
+.saveStatus[data-status="saving"] { color: #0369a1; }
+.saveButton { min-height: 32px; padding: 0 12px; border: 1px solid #171717; border-radius: 7px; background: #171717; color: #fff; cursor: pointer; font: 700 12px/1 system-ui, sans-serif; }
+.saveButton:disabled { cursor: wait; opacity: .65; }
+.publishMessage { max-width: 180px; color: #78716c; font: 600 10px/1.2 system-ui, sans-serif; }
 .interactionToggle { min-height: 32px; padding: 0 12px; border: 1px solid #d6d3d1; border-radius: 7px; background: #fff; color: #171717; cursor: pointer; font: 600 12px/1 system-ui, sans-serif; }
 .interactionToggle[aria-pressed="true"] { border-color: #0284c7; background: #e0f2fe; color: #075985; }
 .dark .interactionToggle { border-color: #475569; background: #182235; color: #f8fafc; }
 .dark .interactionToggle[aria-pressed="true"] { border-color: #38bdf8; background: #0c4a6e; color: #e0f2fe; }
+.dark .saveButton { border-color: #f8fafc; background: #f8fafc; color: #0f172a; }
+.dark .saveStatus[data-status="saved"] { color: #86efac; }
+.dark .saveStatus[data-status="unsaved"] { color: #fde047; }
+.dark .publishMessage { color: #94a3b8; }
+.loadingState { display: grid; min-height: 100dvh; place-items: center; background: #fff; color: #57534e; font: 600 13px/1.4 system-ui, sans-serif; }
+.propertiesTools { display: grid; gap: 8px; border-bottom: 1px solid #e7e5e4; padding: 12px; background: #fafaf9; }
+.propertiesSearch { display: flex; gap: 4px; }
+.propertiesSearch input { width: 100%; min-width: 0; border: 1px solid #d6d3d1; border-radius: 6px; padding: 7px 9px; background: #fff; color: #171717; font: 12px/1.2 system-ui, sans-serif; }
+.propertiesSearch button { width: 28px; border: 1px solid #d6d3d1; border-radius: 6px; background: #fff; cursor: pointer; font-size: 17px; }
+.builderActionGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.builderActionGrid button, .presetRow button { min-height: 30px; border: 1px solid #d6d3d1; border-radius: 6px; padding: 5px 7px; background: #fff; color: #292524; cursor: pointer; font: 600 10px/1.2 system-ui, sans-serif; }
+.builderActionGrid button:disabled, .presetRow button:disabled { cursor: not-allowed; opacity: .45; }
+.presetRow { display: flex; flex-wrap: wrap; gap: 4px; }
+.settingsEmpty { margin: 0; color: #78716c; font: 11px/1.4 system-ui, sans-serif; }
+.dark .propertiesTools { border-color: #334155; background: #111827; }
+.dark .propertiesSearch input, .dark .propertiesSearch button, .dark .builderActionGrid button, .dark .presetRow button { border-color: #475569; background: #182235; color: #f8fafc; }
 .officialHost[data-official-color-scheme="light"] { --background: oklch(100% 0 0); --foreground: oklch(14.5% 0 0); --card: oklch(100% 0 0); --card-foreground: oklch(14.5% 0 0); --popover: oklch(100% 0 0); --popover-foreground: oklch(14.5% 0 0); --primary: oklch(20.5% 0 0); --primary-foreground: oklch(98.5% 0 0); --secondary: oklch(97% 0 0); --secondary-foreground: oklch(20.5% 0 0); --muted: oklch(95% 0 0); --muted-foreground: oklch(37.5% 0 0); --accent: oklch(97% 0 0); --accent-foreground: oklch(50% 0 0); --destructive: oklch(57.7% 0.245 27.325); --border: oklch(92.2% 0 0); --input: oklch(92.2% 0 0); --ring: oklch(70.8% 0 0); }
 .officialHost[data-official-color-scheme="dark"] { --background: oklch(14.5% 0 0); --foreground: oklch(98.5% 0 0); --card: oklch(20.5% 0 0); --card-foreground: oklch(98.5% 0 0); --popover: oklch(20.5% 0 0); --popover-foreground: oklch(98.5% 0 0); --primary: oklch(92.2% 0 0); --primary-foreground: oklch(20.5% 0 0); --secondary: oklch(26.9% 0 0); --secondary-foreground: oklch(98.5% 0 0); --muted: oklch(26.9% 0 0); --muted-foreground: oklch(70.8% 0 0); --accent: oklch(37.1% 0 0); --accent-foreground: oklch(98.5% 0 0); --destructive: oklch(70.4% 0.191 22.216); --border: oklch(100% 0 0 / 10%); --input: oklch(100% 0 0 / 15%); --ring: oklch(55.6% 0 0); }
 .officialHost :global(.bg-background) { background-color: var(--background); }
