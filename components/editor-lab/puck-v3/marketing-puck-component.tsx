@@ -14,6 +14,8 @@ import { bindLayoutControlContract, LayoutControlSurface } from "@/components/ed
 import { resolveAdaptedLayoutContract } from "@/components/editor-lab/puck/adapted-layout-catalog";
 import { bindMotionControlContract } from "@/components/editor-lab/puck/motion-control-contract";
 import { resolveAdaptedMotionContract } from "@/components/editor-lab/puck/adapted-motion-catalog";
+import { bindBlockStyleContract } from "@/components/editor-lab/puck/block-style-contract";
+import { resolveAdaptedBlockStyleContract } from "@/components/editor-lab/puck/adapted-block-style-catalog";
 import styles from "./puck-lab-v3.module.css";
 
 type EditableProps = object;
@@ -85,25 +87,27 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
 ): ComponentConfig {
   const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
   const motionControls = contract.motionControls ?? resolveAdaptedMotionContract(contract.catalogKey);
+  const styleControls = contract.styleControls ?? resolveAdaptedBlockStyleContract(contract.catalogKey);
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
   const boundNestedContent = bindBoundedNestedContentContracts(contract.nestedContent, boundArrays.fields, boundArrays.defaults);
   const boundFormContent = bindFormContentContract(contract.formContent, boundNestedContent.fields, boundNestedContent.defaults);
   const boundVisualControls = bindVisualControlContracts(contract.visualControls, boundFormContent.fields, boundFormContent.defaults);
   const boundMotionControls = bindMotionControlContract(motionControls, boundVisualControls.fields, boundVisualControls.defaults);
   const boundLayoutControls = bindLayoutControlContract(layoutControls, boundMotionControls.fields, boundMotionControls.defaults);
+  const boundStyleControls = bindBlockStyleContract(styleControls, boundLayoutControls.fields, boundLayoutControls.defaults);
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups],
-      boundLayoutControls.fields,
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups, ...boundStyleControls.groups],
+      boundStyleControls.fields,
     ),
-    boundLayoutControls.fields,
+    boundStyleControls.fields,
   );
   return {
     label: contract.displayName,
     // Marketing blocks normally expose no source props. Adapted editor copies
     // declare only their explicit serializable content contract here.
     fields: groupedFields as ComponentConfig["fields"],
-    defaultProps: { ...boundLayoutControls.defaults },
+    defaultProps: { ...boundStyleControls.defaults },
     inline: false,
     render: (props) => {
       const { puck } = props as typeof props & {
@@ -119,7 +123,7 @@ export function createMarketingPuckComponent<Props extends EditableProps>(
           onAuxClickCapture={guardEditorPreviewNavigation}
           onSubmitCapture={guardEditorPreviewSubmit}
         >
-          <LayoutControlSurface contract={layoutControls} values={props as Record<string, unknown>}>
+          <LayoutControlSurface contract={layoutControls} styleContract={styleControls} values={props as Record<string, unknown>}>
             <ReactBitsHost spec={contract.host}>
               <Block {...(userProps as Props)} />
             </ReactBitsHost>

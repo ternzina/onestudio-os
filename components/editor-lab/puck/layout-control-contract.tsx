@@ -4,6 +4,10 @@ import type { CSSProperties, ReactNode } from "react";
 import { fields } from "./field-helpers";
 import type { ControlGroupContract } from "./control-groups";
 import styles from "./layout-control-contract.module.css";
+import {
+  readBlockStyleValues,
+  type BlockStyleContract,
+} from "./block-style-contract";
 
 const SOURCE_VALUE = "source";
 
@@ -229,6 +233,8 @@ export type LayoutSurfaceStyle = CSSProperties & {
   "--rb-layout-gap"?: string;
   "--rb-layout-image-fit"?: string;
   "--rb-layout-image-position"?: string;
+  "--rb-style-background-color"?: string;
+  "--rb-style-border-color"?: string;
 };
 
 export function resolveLayoutSurfaceStyle(values: LayoutControlValues): LayoutSurfaceStyle {
@@ -281,14 +287,16 @@ export function resolveLayoutSurfaceStyle(values: LayoutControlValues): LayoutSu
 
 export function LayoutControlSurface({
   contract,
+  styleContract,
   values,
   children,
 }: {
   contract?: LayoutControlContract;
+  styleContract?: BlockStyleContract;
   values: Record<string, unknown>;
   children: ReactNode;
 }) {
-  if (!contract) return <>{children}</>;
+  if (!contract && !styleContract) return <>{children}</>;
   const controlValues = Object.fromEntries(
     Object.values(layoutControlProps)
       .filter((prop) => typeof values[prop] === "string")
@@ -298,6 +306,17 @@ export function LayoutControlSurface({
   const gap = controlValues[layoutControlProps.gap];
   const imageFit = controlValues[layoutControlProps.imageFit];
   const imagePosition = controlValues[layoutControlProps.imagePosition];
+  const blockStyle = readBlockStyleValues(values);
+  const surfaceStyle = resolveLayoutSurfaceStyle(controlValues);
+  if (styleContract?.background) {
+    surfaceStyle["--rb-style-background-color"] = blockStyle.backgroundColor;
+  }
+  if (styleContract?.border) {
+    surfaceStyle["--rb-style-border-color"] = blockStyle.borderColor;
+  }
+  if (styleContract?.opacity) {
+    surfaceStyle.opacity = blockStyle.opacity / 100;
+  }
   return (
     <div
       className={styles.surface}
@@ -306,7 +325,11 @@ export function LayoutControlSurface({
       data-rb-layout-gap={gap && gap !== SOURCE_VALUE ? gap : undefined}
       data-rb-layout-image-fit={imageFit && imageFit !== SOURCE_VALUE ? imageFit : undefined}
       data-rb-layout-image-position={imagePosition && imagePosition !== SOURCE_VALUE ? imagePosition : undefined}
-      style={resolveLayoutSurfaceStyle(controlValues)}
+      data-rb-style-background-mode={styleContract?.background && blockStyle.backgroundMode !== "original" ? blockStyle.backgroundMode : undefined}
+      data-rb-style-border-mode={styleContract?.border && blockStyle.borderMode !== "original" ? blockStyle.borderMode : undefined}
+      data-rb-style-shadow={styleContract?.shadow && blockStyle.shadow !== "original" ? blockStyle.shadow : undefined}
+      data-rb-style-opacity={styleContract?.opacity ? blockStyle.opacity : undefined}
+      style={surfaceStyle}
     >
       {children}
     </div>

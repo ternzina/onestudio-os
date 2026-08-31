@@ -42,6 +42,11 @@ import {
   type MotionControlContract,
 } from "./motion-control-contract";
 import { resolveAdaptedMotionContract } from "./adapted-motion-catalog";
+import {
+  bindBlockStyleContract,
+  type BlockStyleContract,
+} from "./block-style-contract";
+import { resolveAdaptedBlockStyleContract } from "./adapted-block-style-catalog";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -131,7 +136,7 @@ export function stripEditorProps<Props extends EditableProps>(
 ): Props {
   return Object.fromEntries(
     Object.entries(props).filter(
-      ([name]) => !editorPropNames.has(name) && !name.startsWith("__puckGroup_") && !name.startsWith("__rbLayout"),
+      ([name]) => !editorPropNames.has(name) && !name.startsWith("__puckGroup_") && !name.startsWith("__rbLayout") && !name.startsWith("__rbStyle"),
     ),
   ) as Props;
 }
@@ -221,6 +226,7 @@ export type BlockContract<Props extends EditableProps> = {
   visualControls?: readonly VisualControlContract[];
   motionControls?: MotionControlContract;
   layoutControls?: LayoutControlContract;
+  styleControls?: BlockStyleContract;
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -350,6 +356,7 @@ export function createPuckComponent<Props extends EditableProps>(
   const showLabLabel = options.showLabLabel ?? true;
   const layoutControls = contract.layoutControls ?? resolveAdaptedLayoutContract(contract.catalogKey);
   const motionControls = contract.motionControls ?? resolveAdaptedMotionContract(contract.catalogKey);
+  const styleControls = contract.styleControls ?? resolveAdaptedBlockStyleContract(contract.catalogKey);
   const declaredEffectFields = contract.effects
     ? effectFields(...contract.effects)
     : {};
@@ -372,12 +379,17 @@ export function createPuckComponent<Props extends EditableProps>(
     boundMotionControls.fields,
     boundMotionControls.defaults,
   );
+  const boundStyleControls = bindBlockStyleContract(
+    styleControls,
+    boundLayoutControls.fields,
+    boundLayoutControls.defaults,
+  );
   const groupedFields = bindControlGroups(
     mergeMediaControlGroup(
-      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups],
-      boundLayoutControls.fields,
+      [...(contract.controlGroups ?? []), ...boundVisualControls.groups, ...boundMotionControls.groups, ...boundLayoutControls.groups, ...boundStyleControls.groups],
+      boundStyleControls.fields,
     ),
-    boundLayoutControls.fields,
+    boundStyleControls.fields,
   );
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(groupedFields)
@@ -389,7 +401,7 @@ export function createPuckComponent<Props extends EditableProps>(
     fields: { ...baseFields, layout: layoutField },
     defaultProps: {
       ...(showLabLabel ? { labLabel: contract.displayName } : {}),
-      ...boundLayoutControls.defaults,
+      ...boundStyleControls.defaults,
       layout: {
         spanCol: 1,
         spanRow: 1,
@@ -424,7 +436,7 @@ export function createPuckComponent<Props extends EditableProps>(
       const userProps = stripEditorProps<Props>(labProps as Record<string, unknown>);
       return (
         <Layout ref={puck.dragRef} layout={layout}>
-          <LayoutControlSurface contract={layoutControls} values={labProps as Record<string, unknown>}>
+          <LayoutControlSurface contract={layoutControls} styleContract={styleControls} values={labProps as Record<string, unknown>}>
             {withPuckFrame(contract.component, contract.definiteHeight, contract.runtimeFamily, contract.host)(userProps as never)}
           </LayoutControlSurface>
         </Layout>

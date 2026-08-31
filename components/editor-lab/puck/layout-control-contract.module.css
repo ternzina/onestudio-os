@@ -19,3 +19,47 @@
 .surface[data-rb-layout-gap] [data-rb-layout-grid-target="true"] {
   gap: var(--rb-layout-gap);
 }
+
+.surface[data-rb-style-background-mode="color"] {
+  background: var(--rb-style-background-color);
+}
+
+.surface[data-rb-style-background-mode="transparent"] {
+  background: transparent;
+}
+
+.surface[data-rb-style-background-mode="color"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *),
+.surface[data-rb-style-background-mode="color"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *)::before,
+.surface[data-rb-style-background-mode="color"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *)::after {
+  background: var(--rb-style-background-color) !important;
+}
+
+.surface[data-rb-style-background-mode="transparent"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *),
+.surface[data-rb-style-background-mode="transparent"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *)::before,
+.surface[data-rb-style-background-mode="transparent"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *)::after {
+  background: transparent !important;
+}
+
+.surface[data-rb-style-border-mode="off"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  border: 0 !important;
+}
+
+.surface[data-rb-style-border-mode="on"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  border: 1px solid var(--rb-style-border-color) !important;
+}
+
+.surface[data-rb-style-shadow="none"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  box-shadow: none !important;
+}
+
+.surface[data-rb-style-shadow="small"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%) !important;
+}
+
+.surface[data-rb-style-shadow="medium"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  box-shadow: 0 12px 32px rgb(0 0 0 / 16%) !important;
+}
+
+.surface[data-rb-style-shadow="large"] :is([data-reactbits-host-profile] > *, [data-reactbits-content-rail] > *) {
+  box-shadow: 0 24px 64px rgb(0 0 0 / 22%) !important;
+}
