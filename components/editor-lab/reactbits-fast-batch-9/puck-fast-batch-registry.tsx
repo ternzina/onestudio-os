@@ -11,7 +11,7 @@ import Blog6 from "@/components/blocks/blog-6";
 import Ecommerce7 from "@/components/blocks/ecommerce-7";
 import CTA12 from "@/components/blocks/cta-12";
 import Hero5 from "@/components/blocks/hero-5";
-import Auth3 from "@/components/blocks/auth-3";
+import AdaptedAuth3, { auth3ContentDefaults } from "@/components/editor-lab/adapted/auth-3";
 import Hero12 from "@/components/blocks/hero-12";
 import CursorWave from "@/components/react-bits/cursor-wave";
 import GradientCarousel from "@/components/react-bits/gradient-carousel";
@@ -20,6 +20,7 @@ import { createPuckComponent } from "@/components/editor-lab/puck/block-contract
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
+import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "CURSORS" | "GALLERIES" | "BACKGROUNDS";
@@ -38,6 +39,7 @@ type FastBatchBlock = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  formContent?: FormContentContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 9";
   batchGroup: BatchGroup;
@@ -52,12 +54,38 @@ const block = (
     batchStatus?: BatchStatus;
     blocker?: "BLOCKED_BROWSER_RUNTIME" | "BLOCKED_PUCK_RENDER";
   },
-): FastBatchBlock => ({
-  ...input,
-  category: "React Bits Fast Batch 9",
-  defaultProps: input.defaultProps ?? {},
-  fields: input.fields ?? {},
-  batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+): FastBatchBlock => {
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    input.fields ?? {},
+    input.defaultProps ?? {},
+  );
+  return {
+    ...input,
+    category: "React Bits Fast Batch 9",
+    defaultProps: boundFormContent.defaults,
+    fields: boundFormContent.fields,
+    batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+  };
+};
+
+const auth3FormContent = defineFormContentContract({
+  slots: [
+    { slot: "heading", label: "Heading", type: "text", defaultValue: auth3ContentDefaults.heading },
+    { slot: "newUserLabel", label: "New-user prompt", type: "text", defaultValue: auth3ContentDefaults.newUserLabel },
+    { slot: "createAccountLabel", label: "Create-account link", type: "text", defaultValue: auth3ContentDefaults.createAccountLabel },
+    { slot: "emailPlaceholder", label: "Email placeholder", type: "text", defaultValue: auth3ContentDefaults.emailPlaceholder },
+    { slot: "continueLabel", label: "Submit button label", type: "text", defaultValue: auth3ContentDefaults.continueLabel },
+    { slot: "dividerLabel", label: "Divider label", type: "text", defaultValue: auth3ContentDefaults.dividerLabel },
+    { slot: "googleLabel", label: "Google button label", type: "text", defaultValue: auth3ContentDefaults.googleLabel },
+    { slot: "appleLabel", label: "Apple button label", type: "text", defaultValue: auth3ContentDefaults.appleLabel },
+    { slot: "githubLabel", label: "GitHub button label", type: "text", defaultValue: auth3ContentDefaults.githubLabel },
+    { slot: "viewMoreLabel", label: "View-more button label", type: "text", defaultValue: auth3ContentDefaults.viewMoreLabel },
+    { slot: "helpPrompt", label: "Help prompt", type: "text", defaultValue: auth3ContentDefaults.helpPrompt },
+    { slot: "helpLabel", label: "Help link label", type: "text", defaultValue: auth3ContentDefaults.helpLabel },
+    { slot: "productTitle", label: "Product title", type: "text", defaultValue: auth3ContentDefaults.productTitle },
+    { slot: "productDescription", label: "Product description", type: "textarea", defaultValue: auth3ContentDefaults.productDescription },
+  ],
 });
 
 const componentHost: ReactBitsHostSpec = {
@@ -96,7 +124,7 @@ const galleryBlocks = [
 const backgroundBlocks = [
   block({ type: "RB_batch9_cta_12", displayName: "React Bits CTA 12 Blueprint Grid", catalogKey: "pro-block:cta-12", description: "Official React Bits CTA 12 blueprint background.", component: CTA12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Background"], batchGroup: "BACKGROUNDS", host: marketingHost }),
   block({ type: "RB_batch9_hero_5", displayName: "React Bits Hero 5 Gradient Orbs", catalogKey: "pro-block:hero-5", description: "Official React Bits Hero 5 gradient-orb background.", component: Hero5 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Background"], batchGroup: "BACKGROUNDS", host: marketingHost, batchStatus: "BLOCKED_BROWSER_RUNTIME", blocker: "BLOCKED_BROWSER_RUNTIME" }),
-  block({ type: "RB_batch9_auth_3", displayName: "React Bits Auth 3 Image Background", catalogKey: "pro-block:auth-3", description: "Official React Bits Auth 3 image background.", component: Auth3 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Background"], batchGroup: "BACKGROUNDS", host: marketingHost }),
+  block({ type: "RB_batch9_auth_3", displayName: "React Bits Auth 3 Image Background", catalogKey: "pro-block:auth-3", description: "Official React Bits Auth 3 image background.", component: AdaptedAuth3 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Background"], batchGroup: "BACKGROUNDS", host: marketingHost, formContent: auth3FormContent }),
   block({ type: "RB_batch9_hero_12", displayName: "React Bits Hero 12 Curved Background", catalogKey: "pro-block:hero-12", description: "Official React Bits Hero 12 curved image background.", component: Hero12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 9", "Background"], batchGroup: "BACKGROUNDS", host: marketingHost }),
 ];
 

@@ -17,7 +17,7 @@ import Pricing10 from "@/components/blocks/pricing-10";
 import Pricing12 from "@/components/blocks/pricing-12";
 import Pricing14 from "@/components/blocks/pricing-14";
 import Pricing15 from "@/components/blocks/pricing-15";
-import Contact7 from "@/components/blocks/contact-7";
+import AdaptedContact7, { contact7ContentDefaults } from "@/components/editor-lab/adapted/contact-7";
 import Contact8 from "@/components/blocks/contact-8";
 import Contact10 from "@/components/blocks/contact-10";
 import Contact12 from "@/components/blocks/contact-12";
@@ -54,6 +54,7 @@ import Scheduling3 from "@/components/blocks/scheduling-3";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
+import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 
@@ -88,6 +89,7 @@ export type FastBatch12Block = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  formContent?: FormContentContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 12";
   batchGroup: FastBatch12Group;
@@ -102,13 +104,39 @@ const block = (
     batchStatus?: FastBatch12Status;
     blocker?: FastBatch12Block["blocker"];
   },
-): FastBatch12Block => ({
-  ...input,
-  sourceKind: "pro-block",
-  category: "React Bits Fast Batch 12",
-  defaultProps: input.defaultProps ?? {},
-  fields: input.fields ?? {},
-  batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+): FastBatch12Block => {
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    input.fields ?? {},
+    input.defaultProps ?? {},
+  );
+  return {
+    ...input,
+    sourceKind: "pro-block",
+    category: "React Bits Fast Batch 12",
+    defaultProps: boundFormContent.defaults,
+    fields: boundFormContent.fields,
+    batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+  };
+};
+
+const contact7FormContent = defineFormContentContract({
+  slots: [
+    { slot: "headingLead", label: "Heading lead", type: "text", defaultValue: contact7ContentDefaults.headingLead },
+    { slot: "headingEmphasis", label: "Heading emphasis", type: "text", defaultValue: contact7ContentDefaults.headingEmphasis },
+    { slot: "headingTail", label: "Heading tail", type: "text", defaultValue: contact7ContentDefaults.headingTail },
+    { slot: "description", label: "Description", type: "textarea", defaultValue: contact7ContentDefaults.description },
+    { slot: "firstNameLabel", label: "First-name label", type: "text", defaultValue: contact7ContentDefaults.firstNameLabel },
+    { slot: "firstNamePlaceholder", label: "First-name placeholder", type: "text", defaultValue: contact7ContentDefaults.firstNamePlaceholder },
+    { slot: "lastNameLabel", label: "Last-name label", type: "text", defaultValue: contact7ContentDefaults.lastNameLabel },
+    { slot: "lastNamePlaceholder", label: "Last-name placeholder", type: "text", defaultValue: contact7ContentDefaults.lastNamePlaceholder },
+    { slot: "emailLabel", label: "Email label", type: "text", defaultValue: contact7ContentDefaults.emailLabel },
+    { slot: "emailPlaceholder", label: "Email placeholder", type: "text", defaultValue: contact7ContentDefaults.emailPlaceholder },
+    { slot: "companySizeLabel", label: "Company-size label", type: "text", defaultValue: contact7ContentDefaults.companySizeLabel },
+    { slot: "messageLabel", label: "Message label", type: "text", defaultValue: contact7ContentDefaults.messageLabel },
+    { slot: "messagePlaceholder", label: "Message placeholder", type: "text", defaultValue: contact7ContentDefaults.messagePlaceholder },
+    { slot: "submitLabel", label: "Submit button label", type: "text", defaultValue: contact7ContentDefaults.submitLabel },
+  ],
 });
 
 const marketingHost: ReactBitsHostSpec = {
@@ -159,7 +187,7 @@ const pricingBlocks = [
   block({ type: "RB_batch12_pricing_12", displayName: "React Bits Pricing 12", catalogKey: "pro-block:pricing-12", description: "Official React Bits Pricing 12.", component: Pricing12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_14", displayName: "React Bits Pricing 14", catalogKey: "pro-block:pricing-14", description: "Official React Bits Pricing 14.", component: Pricing14 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_pricing_15", displayName: "React Bits Pricing 15", catalogKey: "pro-block:pricing-15", description: "Official React Bits Pricing 15.", component: Pricing15 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Pricing"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
-  block({ type: "RB_batch12_contact_7", displayName: "React Bits Contact 7", catalogKey: "pro-block:contact-7", description: "Official React Bits Contact 7.", component: Contact7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
+  block({ type: "RB_batch12_contact_7", displayName: "React Bits Contact 7", catalogKey: "pro-block:contact-7", description: "Official React Bits Contact 7.", component: AdaptedContact7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost, formContent: contact7FormContent }),
   block({ type: "RB_batch12_contact_8", displayName: "React Bits Contact 8", catalogKey: "pro-block:contact-8", description: "Official React Bits Contact 8.", component: Contact8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_contact_10", displayName: "React Bits Contact 10", catalogKey: "pro-block:contact-10", description: "Official React Bits Contact 10.", component: Contact10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),
   block({ type: "RB_batch12_contact_12", displayName: "React Bits Contact 12", catalogKey: "pro-block:contact-12", description: "Official React Bits Contact 12.", component: Contact12 as unknown as AnyComponent, tags: ["React Bits Fast Batch 12", "Contact"], batchGroup: "PRICING / CONTACT", host: marketingHost }),

@@ -16,7 +16,7 @@ import Showcase8 from "@/components/blocks/showcase-8";
 import SocialProof8 from "@/components/blocks/social-proof-8";
 import FAQ7 from "@/components/blocks/faq-7";
 import Stats6 from "@/components/blocks/stats-6";
-import Waitlist3 from "@/components/blocks/waitlist-3";
+import AdaptedWaitlist3, { waitlist3ContentDefaults } from "@/components/editor-lab/adapted/waitlist-3";
 import AppDialog5 from "@/components/blocks/app-dialog-5";
 import Comments3 from "@/components/blocks/comments-3";
 import EmptyState5 from "@/components/blocks/empty-state-5";
@@ -28,6 +28,7 @@ import Support4 from "@/components/blocks/support-4";
 import { createPuckComponent } from "@/components/editor-lab/puck/block-contract";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
+import { bindFormContentContract, defineFormContentContract, type FormContentContract } from "@/components/editor-lab/puck/form-content-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Animated Components" | "Marketing Blocks" | "Application UI";
@@ -43,6 +44,7 @@ type FastBatchBlock = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  formContent?: FormContentContract;
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 4";
   batchGroup: BatchGroup;
@@ -55,12 +57,29 @@ const block = (input: Omit<FastBatchBlock, "category" | "defaultProps" | "fields
   fields?: Record<string, unknown>;
   batchStatus?: BatchStatus;
   blocker?: string;
-}): FastBatchBlock => ({
-  ...input,
-  category: "React Bits Fast Batch 4",
-  defaultProps: input.defaultProps ?? {},
-  fields: input.fields ?? {},
-  batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+}): FastBatchBlock => {
+  const boundFormContent = bindFormContentContract(
+    input.formContent,
+    input.fields ?? {},
+    input.defaultProps ?? {},
+  );
+  return {
+    ...input,
+    category: "React Bits Fast Batch 4",
+    defaultProps: boundFormContent.defaults,
+    fields: boundFormContent.fields,
+    batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+  };
+};
+
+const waitlist3FormContent = defineFormContentContract({
+  slots: [
+    { slot: "heading", label: "Heading", type: "text", defaultValue: waitlist3ContentDefaults.heading },
+    { slot: "description", label: "Description", type: "textarea", defaultValue: waitlist3ContentDefaults.description },
+    { slot: "emailPlaceholder", label: "Email placeholder", type: "text", defaultValue: waitlist3ContentDefaults.emailPlaceholder },
+    { slot: "buttonLabel", label: "Submit button label", type: "text", defaultValue: waitlist3ContentDefaults.buttonLabel },
+    { slot: "submittingLabel", label: "Submitting label", type: "text", defaultValue: waitlist3ContentDefaults.submittingLabel },
+  ],
 });
 
 const technicalHost = (height: number): ReactBitsHostSpec => ({ profile: "canvas", width: "full", height: "technical-definite", technicalHeight: { value: height, provenance: "puck-technical" }, runtimeRisk: "dom" });
@@ -89,7 +108,7 @@ const marketingBlocks = [
   block({ type: "RB_batch4_social_proof_8", displayName: "React Bits Social Proof 8", catalogKey: "pro-block:social-proof-8", description: "Official React Bits Social Proof 8.", component: SocialProof8 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 4", "Marketing Block"], batchGroup: "Marketing Blocks", host: marketingHost }),
   block({ type: "RB_batch4_faq_7", displayName: "React Bits FAQ 7", catalogKey: "pro-block:faq-7", description: "Official React Bits FAQ 7.", component: FAQ7 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 4", "Marketing Block"], batchGroup: "Marketing Blocks", host: marketingHost }),
   block({ type: "RB_batch4_stats_6", displayName: "React Bits Stats 6", catalogKey: "pro-block:stats-6", description: "Official React Bits Stats 6.", component: Stats6 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 4", "Marketing Block"], batchGroup: "Marketing Blocks", host: marketingHost }),
-  block({ type: "RB_batch4_waitlist_3", displayName: "React Bits Waitlist 3", catalogKey: "pro-block:waitlist-3", description: "Official React Bits Waitlist 3.", component: Waitlist3 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 4", "Marketing Block"], batchGroup: "Marketing Blocks", host: marketingHost }),
+  block({ type: "RB_batch4_waitlist_3", displayName: "React Bits Waitlist 3", catalogKey: "pro-block:waitlist-3", description: "Official React Bits Waitlist 3.", component: AdaptedWaitlist3 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 4", "Marketing Block"], batchGroup: "Marketing Blocks", host: marketingHost, formContent: waitlist3FormContent }),
 ];
 
 const appBlocks = [

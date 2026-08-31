@@ -22,6 +22,7 @@ import type {
 } from "./field-helpers";
 import { effectFields, type EffectDefinition } from "./effect-contract";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
+import { bindFormContentContract, type FormContentContract } from "./form-content-contract";
 import { ReactBitsHost, type ReactBitsHostSpec } from "./reactbits-host";
 import styles from "./puck-lab.module.css";
 
@@ -189,6 +190,7 @@ export type BlockContract<Props extends EditableProps> = {
   fields: TextFields<Props>;
   effects?: readonly EffectDefinition<Props>[];
   arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
+  formContent?: FormContentContract;
   libraryPreview?: boolean;
   /** A render-only height for components whose own layout uses `height: 100%`. */
   definiteHeight?: number;
@@ -321,7 +323,8 @@ export function createPuckComponent<Props extends EditableProps>(
     : {};
   // labLabel remains an internal frame/display-name prop; it is not customer content.
   const boundArrays = bindArrayItemsContracts(contract.arrayItems, contract.fields as Record<string, unknown>, contract.defaultProps as Record<string, unknown>);
-  const rawFields = { ...boundArrays.fields, ...declaredEffectFields };
+  const boundFormContent = bindFormContentContract(contract.formContent, boundArrays.fields, boundArrays.defaults);
+  const rawFields = { ...boundFormContent.fields, ...declaredEffectFields };
   const baseFields = contract.sourceKind === "component"
     ? preservePrimitiveComponentFields(rawFields)
     : rawFields;
@@ -332,7 +335,7 @@ export function createPuckComponent<Props extends EditableProps>(
     fields: { ...baseFields, layout: layoutField },
     defaultProps: {
       ...(showLabLabel ? { labLabel: contract.displayName } : {}),
-      ...boundArrays.defaults,
+      ...boundFormContent.defaults,
       layout: {
         spanCol: 1,
         spanRow: 1,
