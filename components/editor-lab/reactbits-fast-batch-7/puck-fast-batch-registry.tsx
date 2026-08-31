@@ -14,7 +14,7 @@ import { Navigation7 } from "@/components/blocks/navigation-7";
 import { Navigation8 } from "@/components/blocks/navigation-8";
 import Contact4 from "@/components/blocks/contact-4";
 import Contact5 from "@/components/blocks/contact-5";
-import Contact6 from "@/components/blocks/contact-6";
+import AdaptedContact6 from "@/components/editor-lab/adapted/contact-6";
 import Pricing1 from "@/components/blocks/pricing-1";
 import { Pricing5 } from "@/components/blocks/pricing-5";
 import { Pricing6 } from "@/components/blocks/pricing-6";
@@ -27,6 +27,7 @@ import Forms1 from "@/components/blocks/forms-1";
 import Forms2 from "@/components/blocks/forms-2";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
+import { fields } from "@/components/editor-lab/puck/field-helpers";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Marketing Blocks" | "Application UI";
@@ -47,12 +48,12 @@ type Block = {
 };
 
 const block = (
-  input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus">,
+  input: Omit<Block, "category" | "defaultProps" | "fields" | "batchStatus"> & Pick<Partial<Block>, "defaultProps" | "fields">,
 ): Block => ({
   ...input,
   category: "React Bits Fast Batch 7",
-  defaultProps: {},
-  fields: {},
+  defaultProps: input.defaultProps ?? {},
+  fields: input.fields ?? {},
   batchStatus: "DIRECT_RENDER_PASS",
 });
 
@@ -86,7 +87,7 @@ const marketingBlocks = [
   block({ type: "RB_batch7_navigation_8", displayName: "React Bits Navigation 8", catalogKey: "pro-block:navigation-8", description: "Official React Bits Navigation 8.", component: Navigation8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Navigation"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_contact_4", displayName: "React Bits Contact 4", catalogKey: "pro-block:contact-4", description: "Official React Bits Contact 4.", component: Contact4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_contact_5", displayName: "React Bits Contact 5", catalogKey: "pro-block:contact-5", description: "Official React Bits Contact 5.", component: Contact5 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
-  block({ type: "RB_batch7_contact_6", displayName: "React Bits Contact 6", catalogKey: "pro-block:contact-6", description: "Official React Bits Contact 6.", component: Contact6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
+  block({ type: "RB_batch7_contact_6", displayName: "React Bits Contact 6", catalogKey: "pro-block:contact-6", description: "Official React Bits Contact 6.", component: AdaptedContact6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Contact"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block", defaultProps: { heading: "Still wondering\nabout something?", description: "Drop us a line any time and a real person will get back to you within a business day.", primaryActionLabel: "hello@northwind.com" }, fields: { heading: fields.text("Heading", { contentEditable: false }), description: fields.textarea("Description", { contentEditable: false }), primaryActionLabel: fields.text("Primary action label", { contentEditable: false }) } }),
   block({ type: "RB_batch7_pricing_1", displayName: "React Bits Pricing 1", catalogKey: "pro-block:pricing-1", description: "Official React Bits Pricing 1.", component: Pricing1 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_pricing_5", displayName: "React Bits Pricing 5", catalogKey: "pro-block:pricing-5", description: "Official React Bits Pricing 5.", component: Pricing5 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_pricing_6", displayName: "React Bits Pricing 6", catalogKey: "pro-block:pricing-6", description: "Official React Bits Pricing 6.", component: Pricing6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Pricing"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
