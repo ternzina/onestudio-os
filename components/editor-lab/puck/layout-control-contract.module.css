@@ -10,10 +10,8 @@
   object-position: var(--rb-layout-image-position);
 }
 
-@media (min-width: 768px) {
-  .surface[data-rb-layout-columns] [data-rb-layout-grid-target="true"] {
-    grid-template-columns: repeat(var(--rb-layout-columns), minmax(0, 1fr));
-  }
+.surface[data-rb-layout-columns] [data-rb-layout-grid-target="true"] {
+  grid-template-columns: repeat(var(--rb-layout-columns), minmax(0, 1fr));
 }
 
 .surface[data-rb-layout-gap] [data-rb-layout-grid-target="true"] {

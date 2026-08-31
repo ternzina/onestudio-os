@@ -1,6 +1,11 @@
 import { createElement, type ChangeEvent, type ReactElement } from "react";
 import type { Field } from "@puckeditor/core";
 import PuckMediaPickerField from "./puck-media-picker-field";
+import {
+  responsiveSelectField,
+  type ResponsiveSelectField,
+} from "./responsive-layout-contract";
+import { SettingSearchBoundary } from "./settings-search-context";
 
 export type PuckTextField = {
   type: "text" | "textarea" | "number";
@@ -100,6 +105,7 @@ export type PuckColorArrayField = {
     readOnly?: boolean;
   }) => ReactElement;
 };
+export type PuckResponsiveSelectField = ResponsiveSelectField;
 const text = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "text", label, contentEditable: true, ...options });
 const textarea = (label: string, options: Pick<PuckTextField, "contentEditable" | "placeholder"> = {}): PuckTextField => ({ type: "textarea", label, contentEditable: true, ...options });
 const number = (label: string, options: Pick<PuckTextField, "min" | "max" | "step" | "placeholder"> = {}): PuckTextField => ({ type: "number", label, ...options });
@@ -112,13 +118,13 @@ const imageUrl = (label = "Image", options: PuckMediaFieldOptions = {}): PuckMed
   type: "custom",
   label,
   mediaOptions: { allowedTypes: ["image"], preview: true, ...options },
-  render: (props) => createElement(PuckMediaPickerField, {
-    ...props,
-    label,
-    defaultValue: options.resolveDefault?.(props.name) ?? options.defaultValue,
-    allowEmpty: options.allowEmpty,
-    preview: options.preview,
-  }),
+  render: (props) => createElement(SettingSearchBoundary, { label }, createElement(PuckMediaPickerField, {
+      ...props,
+      label,
+      defaultValue: options.resolveDefault?.(props.name) ?? options.defaultValue,
+      allowEmpty: options.allowEmpty,
+      preview: options.preview,
+    })),
 });
 
 export function isPuckMediaField(field: PuckPrimitiveField): field is PuckMediaField {
@@ -266,17 +272,17 @@ function ColorArrayField({ id, value, onChange, readOnly, defaults, itemLabels, 
   );
 }
 
-const toggle = (label: string): PuckToggleField => ({ type: "custom", label, render: (props) => createElement(ToggleField, { ...props, label }) });
-const color = (label: string): PuckColorField => ({ type: "custom", label, render: (props) => createElement(ColorField, { ...props, label }) });
+const toggle = (label: string): PuckToggleField => ({ type: "custom", label, render: (props) => createElement(SettingSearchBoundary, { label }, createElement(ToggleField, { ...props, label })) });
+const color = (label: string): PuckColorField => ({ type: "custom", label, render: (props) => createElement(SettingSearchBoundary, { label }, createElement(ColorField, { ...props, label })) });
 const slider = (label: string, options: { min: number; max: number; step: number }): PuckSliderField => ({
   type: "custom",
   label,
-  render: (props) => createElement(SliderField, { ...props, ...options, label }),
+  render: (props) => createElement(SettingSearchBoundary, { label }, createElement(SliderField, { ...props, ...options, label })),
 });
 const colorArray = (label: string, defaults: readonly string[], itemLabels?: readonly string[]): PuckColorArrayField => ({
   type: "custom",
   label,
-  render: (props) => createElement(ColorArrayField, { ...props, defaults, itemLabels, label }),
+  render: (props) => createElement(SettingSearchBoundary, { label }, createElement(ColorArrayField, { ...props, defaults, itemLabels, label })),
 });
 const select = (label: string, options: Array<{ label: string; value: string }>): PuckSelectField => ({ type: "select", label, options });
 const array = (label: string): PuckArrayField => ({ type: "array", label, arrayFields: { value: { type: "text", label: "Value", contentEditable: false } } });
@@ -298,6 +304,7 @@ export const fields = {
   slider,
   colorArray,
   select,
+  responsiveSelect: responsiveSelectField,
   array,
   arrayItems,
 };

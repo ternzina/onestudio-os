@@ -1,5 +1,6 @@
 "use client";
 
+import { createUsePuck } from "@puckeditor/core";
 import type { CSSProperties, ReactNode } from "react";
 import { fields } from "./field-helpers";
 import type { ControlGroupContract } from "./control-groups";
@@ -8,6 +9,13 @@ import {
   readBlockStyleValues,
   type BlockStyleContract,
 } from "./block-style-contract";
+import {
+  resolveResponsiveValue,
+  viewportDevice,
+  type ResponsiveLayoutValue,
+} from "./responsive-layout-contract";
+
+const usePuck = createUsePuck();
 
 const SOURCE_VALUE = "source";
 
@@ -120,8 +128,8 @@ function addField(
   options: Array<{ label: string; value: string }>,
 ) {
   if (prop in boundFields) throw new Error(`Layout control field already exists: ${prop}`);
-  boundFields[prop] = fields.select(label, options);
-  boundDefaults[prop] = SOURCE_VALUE;
+  boundFields[prop] = fields.responsiveSelect(label, options);
+  boundDefaults[prop] = { desktop: SOURCE_VALUE };
   grouped.set(group, [...(grouped.get(group) ?? []), prop]);
 }
 
@@ -297,10 +305,24 @@ export function LayoutControlSurface({
   children: ReactNode;
 }) {
   if (!contract && !styleContract) return <>{children}</>;
+  return <ActiveLayoutControlSurface styleContract={styleContract} values={values}>{children}</ActiveLayoutControlSurface>;
+}
+
+function ActiveLayoutControlSurface({
+  styleContract,
+  values,
+  children,
+}: {
+  styleContract?: BlockStyleContract;
+  values: Record<string, unknown>;
+  children: ReactNode;
+}) {
+  const viewportWidth = usePuck((state) => state.appState.ui.viewports.current.width);
+  const device = viewportDevice(viewportWidth);
   const controlValues = Object.fromEntries(
     Object.values(layoutControlProps)
-      .filter((prop) => typeof values[prop] === "string")
-      .map((prop) => [prop, values[prop] as string]),
+      .filter((prop) => typeof values[prop] === "string" || (values[prop] !== null && typeof values[prop] === "object"))
+      .map((prop) => [prop, resolveResponsiveValue(values[prop] as ResponsiveLayoutValue, device)]),
   ) as LayoutControlValues;
   const columns = controlValues[layoutControlProps.columns];
   const gap = controlValues[layoutControlProps.gap];
@@ -321,6 +343,7 @@ export function LayoutControlSurface({
     <div
       className={styles.surface}
       data-rb-layout-surface="true"
+      data-rb-responsive-device={device}
       data-rb-layout-columns={columns && columns !== SOURCE_VALUE ? columns : undefined}
       data-rb-layout-gap={gap && gap !== SOURCE_VALUE ? gap : undefined}
       data-rb-layout-image-fit={imageFit && imageFit !== SOURCE_VALUE ? imageFit : undefined}

@@ -23,6 +23,7 @@ import type {
   PuckColorField,
   PuckSliderField,
   PuckColorArrayField,
+  PuckResponsiveSelectField,
 } from "./field-helpers";
 import { effectFields, type EffectDefinition } from "./effect-contract";
 import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "./array-items-contract";
@@ -64,6 +65,7 @@ type LabField =
   | PuckColorField
   | PuckSliderField
   | PuckColorArrayField
+  | PuckResponsiveSelectField
   | {
       type: "array";
       arrayFields: Record<string, LabField>;
