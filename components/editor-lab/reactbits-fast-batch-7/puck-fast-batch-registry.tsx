@@ -7,7 +7,11 @@ import Cta6 from "@/components/blocks/cta-6";
 import Cta7 from "@/components/blocks/cta-7";
 import { Footer6 } from "@/components/blocks/footer-6";
 import Footer8 from "@/components/blocks/footer-8";
-import Footer10 from "@/components/blocks/footer-10";
+import AdaptedFooter10, {
+  footer10LifecycleLinks,
+  footer10ProductLinks,
+  footer10SupportLinks,
+} from "@/components/editor-lab/adapted/footer-10";
 import { Navigation4 } from "@/components/blocks/navigation-4";
 import { Navigation6 } from "@/components/blocks/navigation-6";
 import { Navigation7 } from "@/components/blocks/navigation-7";
@@ -30,6 +34,7 @@ import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-h
 import type { ArrayItemsContract, PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
 import { bindArrayItemsContracts, defineArrayItemsContract } from "@/components/editor-lab/puck/array-items-contract";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
+import { defineMenuLinksArrayContract } from "@/components/editor-lab/puck/menu-links-array-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type BatchGroup = "Marketing Blocks" | "Application UI";
@@ -100,6 +105,12 @@ const card4Meetings = defineArrayItemsContract({
   itemLabel: (item) => String(item.title ?? "Meeting"),
 });
 
+const footer10LinkContracts = [
+  defineMenuLinksArrayContract({ slot: "lifecycleLinks", label: "Lifecycle links", defaults: footer10LifecycleLinks }),
+  defineMenuLinksArrayContract({ slot: "productLinks", label: "Product links", defaults: footer10ProductLinks }),
+  defineMenuLinksArrayContract({ slot: "supportLinks", label: "Support links", defaults: footer10SupportLinks }),
+];
+
 const marketingBlocks = [
   block({ type: "RB_batch7_hero_6", displayName: "React Bits Hero 6", catalogKey: "pro-block:hero-6", description: "Official React Bits Hero 6.", component: Hero6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Hero"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_cta_4", displayName: "React Bits CTA 4", catalogKey: "pro-block:cta-4", description: "Official React Bits CTA 4.", component: Cta4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
@@ -107,7 +118,7 @@ const marketingBlocks = [
   block({ type: "RB_batch7_cta_7", displayName: "React Bits CTA 7", catalogKey: "pro-block:cta-7", description: "Official React Bits CTA 7.", component: Cta7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "CTA"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_footer_6", displayName: "React Bits Footer 6", catalogKey: "pro-block:footer-6", description: "Official React Bits Footer 6.", component: Footer6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_footer_8", displayName: "React Bits Footer 8", catalogKey: "pro-block:footer-8", description: "Official React Bits Footer 8.", component: Footer8 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
-  block({ type: "RB_batch7_footer_10", displayName: "React Bits Footer 10", catalogKey: "pro-block:footer-10", description: "Official React Bits Footer 10.", component: Footer10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
+  block({ type: "RB_batch7_footer_10", displayName: "React Bits Footer 10", catalogKey: "pro-block:footer-10", description: "Official React Bits Footer 10.", component: AdaptedFooter10 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Footer"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block", arrayItems: footer10LinkContracts }),
   block({ type: "RB_batch7_navigation_4", displayName: "React Bits Navigation 4", catalogKey: "pro-block:navigation-4", description: "Official React Bits Navigation 4.", component: Navigation4 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Navigation"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_navigation_6", displayName: "React Bits Navigation 6", catalogKey: "pro-block:navigation-6", description: "Official React Bits Navigation 6.", component: Navigation6 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Navigation"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),
   block({ type: "RB_batch7_navigation_7", displayName: "React Bits Navigation 7", catalogKey: "pro-block:navigation-7", description: "Official React Bits Navigation 7.", component: Navigation7 as unknown as AnyComponent, tags: ["React Bits Fast Batch 7", "Navigation"], batchGroup: "Marketing Blocks", host: marketingHost, sourceKind: "pro-block" }),

@@ -15,9 +15,9 @@ import SocialProof14 from "@/components/blocks/social-proof-14";
 import SocialProof16 from "@/components/blocks/social-proof-16";
 import About10 from "@/components/blocks/about-10";
 import About12 from "@/components/blocks/about-12";
-import Navigation9 from "@/components/blocks/navigation-9";
+import AdaptedNavigation9, { navigation9Links } from "@/components/editor-lab/adapted/navigation-9";
 import Navigation11 from "@/components/blocks/navigation-11";
-import Navigation12 from "@/components/blocks/navigation-12";
+import AdaptedNavigation12, { navigation12Links } from "@/components/editor-lab/adapted/navigation-12";
 import Navigation14 from "@/components/blocks/navigation-14";
 import Navigation15 from "@/components/blocks/navigation-15";
 import Cta10 from "@/components/blocks/cta-10";
@@ -38,6 +38,8 @@ import { createPuckComponent } from "@/components/editor-lab/puck/block-contract
 import type { ReactBitsHostSpec } from "@/components/editor-lab/puck/reactbits-host";
 import { createMarketingPuckComponent } from "@/components/editor-lab/puck-v3/marketing-puck-component";
 import { fields } from "@/components/editor-lab/puck/field-helpers";
+import { bindArrayItemsContracts, type ArrayItemsContract, type PrimitiveArrayItem } from "@/components/editor-lab/puck/array-items-contract";
+import { defineMenuLinksArrayContract } from "@/components/editor-lab/puck/menu-links-array-contract";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 export type FastBatch11Group =
@@ -68,6 +70,7 @@ export type FastBatch11Block = {
   tags: readonly string[];
   defaultProps: Record<string, unknown>;
   fields: Record<string, unknown>;
+  arrayItems?: readonly ArrayItemsContract<PrimitiveArrayItem>[];
   host: ReactBitsHostSpec;
   category: "React Bits Fast Batch 11";
   batchGroup: FastBatch11Group;
@@ -83,12 +86,32 @@ const block = (
     batchStatus?: FastBatch11Status;
     blocker?: FastBatch11Block["blocker"];
   },
-): FastBatch11Block => ({
-  ...input,
-  category: "React Bits Fast Batch 11",
-  defaultProps: input.defaultProps ?? {},
-  fields: input.fields ?? {},
-  batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+): FastBatch11Block => {
+  const boundArrays = bindArrayItemsContracts(
+    input.arrayItems,
+    input.fields ?? {},
+    input.defaultProps ?? {},
+  );
+  return {
+    ...input,
+    category: "React Bits Fast Batch 11",
+    defaultProps: boundArrays.defaults,
+    fields: boundArrays.fields,
+    batchStatus: input.batchStatus ?? "DIRECT_RENDER_PASS",
+  };
+};
+
+const navigation9LinkContract = defineMenuLinksArrayContract({
+  slot: "links",
+  label: "Navigation links",
+  defaults: navigation9Links,
+});
+
+const navigation12LinkContract = defineMenuLinksArrayContract({
+  slot: "links",
+  label: "Header menu links",
+  defaults: navigation12Links,
+  includeHref: false,
 });
 
 const marketingHost: ReactBitsHostSpec = {
@@ -166,10 +189,10 @@ const showcaseBlocks = [
 ];
 
 const navigationBlocks = [
-  block({ type: "RB_batch11_navigation_9", displayName: "React Bits Navigation 9", catalogKey: "pro-block:navigation-9", description: "Official React Bits Navigation 9.", component: Navigation9 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch11_navigation_9", displayName: "React Bits Navigation 9", catalogKey: "pro-block:navigation-9", description: "Official React Bits Navigation 9.", component: AdaptedNavigation9 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, arrayItems: [navigation9LinkContract] }),
   block({ type: "RB_batch11_navigation_10", displayName: "React Bits Navigation 10", catalogKey: "pro-block:navigation-10", description: "Official React Bits Navigation 10; its menu did not open in Puck Interact mode after two diagnostics.", sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, batchStatus: "BLOCKED_PUCK_RENDER", blocker: "BLOCKED_PUCK_RENDER" }),
   block({ type: "RB_batch11_navigation_11", displayName: "React Bits Navigation 11", catalogKey: "pro-block:navigation-11", description: "Official React Bits Navigation 11.", component: Navigation11 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
-  block({ type: "RB_batch11_navigation_12", displayName: "React Bits Navigation 12", catalogKey: "pro-block:navigation-12", description: "Official React Bits Navigation 12.", component: Navigation12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
+  block({ type: "RB_batch11_navigation_12", displayName: "React Bits Navigation 12", catalogKey: "pro-block:navigation-12", description: "Official React Bits Navigation 12.", component: AdaptedNavigation12 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost, arrayItems: [navigation12LinkContract] }),
   block({ type: "RB_batch11_navigation_14", displayName: "React Bits Navigation 14", catalogKey: "pro-block:navigation-14", description: "Official React Bits Navigation 14.", component: Navigation14 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "Navigation"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch11_cta_10", displayName: "React Bits CTA 10", catalogKey: "pro-block:cta-10", description: "Official React Bits CTA 10.", component: Cta10 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
   block({ type: "RB_batch11_cta_13", displayName: "React Bits CTA 13", catalogKey: "pro-block:cta-13", description: "Official React Bits CTA 13.", component: Cta13 as unknown as AnyComponent, sourceKind: "pro-block", tags: ["React Bits Fast Batch 11", "CTA"], batchGroup: "NAV / CTA / FOOTER", host: marketingHost }),
