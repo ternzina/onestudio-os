@@ -1,4 +1,5 @@
 import type { SiteEditorFontFamily } from "./site-editor-fonts";
+import type { PuckDocumentV1 } from "../puck-site-editor/document";
 
 export type PublicSiteSection =
   | "services"
@@ -134,6 +135,8 @@ export type PublicSiteSystemSectionSettings = {
 } & PublicSiteMediaLayoutSettings;
 
 export type PublicSiteContent = {
+  /** Additive, feature-gated Puck page data. Legacy template content remains authoritative by default. */
+  puck_document?: PuckDocumentV1;
   template_id?: string;
   template_content?: Record<string, unknown>;
   theme_accent?: string;
