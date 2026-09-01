@@ -63,3 +63,21 @@ test("allow-list identities and physical catalogue keys are unique", () => {
   assert.equal(PUCK_PRODUCTION_MANIFEST.some((item) => /ballpit/i.test(item.id)), false);
   assert.equal(PUCK_PRODUCTION_MANIFEST.some((item) => /fast.batch|control/i.test(item.label)), false);
 });
+
+test("Hero 6 accepts its canonical slides and rejects more than three", () => {
+  const hero6 = PUCK_PRODUCTION_MANIFEST.find((item) => item.id === "RB_batch7_hero_6")!;
+  const valid = createPuckDocument({
+    pageId: "hero-6",
+    locale: "en",
+    content: [{ type: hero6.id, props: { id: "hero-6-a", ...structuredClone(hero6.defaults) } }],
+  });
+  assert.equal(validatePuckDocument(valid).ok, true);
+  const slides = structuredClone(hero6.defaults.slides) as unknown[];
+  const invalid = {
+    ...valid,
+    content: [{ ...valid.content[0], props: { ...valid.content[0].props, slides: [...slides, slides[0]] } }],
+  };
+  const result = validatePuckDocument(invalid);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.match(result.errors.join("\n"), /too many items/);
+});

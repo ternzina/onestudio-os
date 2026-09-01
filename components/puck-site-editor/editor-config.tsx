@@ -58,13 +58,23 @@ function fieldFor(name: string, rule: PuckPropRule): Field {
   };
 }
 
+function contractOwnsTopLevelProp(
+  name: string,
+  entry: (typeof PUCK_PRODUCTION_MANIFEST)[number],
+) {
+  const contract = entry.editorContract;
+  return contract?.fields.some((field) => field.path.length === 1 && field.path[0] === name)
+    || contract?.arrays.some((array) => array.path.length === 1 && array.path[0] === name)
+    || false;
+}
+
 const components = Object.fromEntries(
   PUCK_PRODUCTION_MANIFEST.map((entry) => {
     const config: ComponentConfig = {
       label: entry.label,
       fields: Object.fromEntries(
         Object.entries(entry.props)
-          .filter(([name, rule]) => name !== "id" && rule.editable !== false && !entry.editorContract?.fields.some((field) => field.path.length === 1 && field.path[0] === name))
+          .filter(([name, rule]) => name !== "id" && rule.editable !== false && !contractOwnsTopLevelProp(name, entry))
           .map(([name, rule]) => [name, fieldFor(name, rule)]),
       ),
       defaultProps: structuredClone(entry.defaults),

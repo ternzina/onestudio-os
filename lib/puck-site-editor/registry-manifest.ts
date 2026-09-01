@@ -1,5 +1,6 @@
 import { PUCK_EXPANDED_REGISTRY_DATA } from "./generated-registry-data.ts";
 import type { ComponentEditorContract } from "./builder-contract.ts";
+import { hero6SlidesDefaults } from "../../components/puck-site-editor/adapted/hero-6-contract.ts";
 import type { ProductLibraryCategory } from "./product-library.ts";
 import { PUCK_PRODUCTION_RUNTIME_EXCLUSIONS } from "./runtime-exclusions.ts";
 
@@ -369,6 +370,90 @@ const runtimeExcludedIds = new Set<string>(
   PUCK_PRODUCTION_RUNTIME_EXCLUSIONS.map((item) => item.id),
 );
 
+const hero6SlidesPropRule = {
+  kind: "array",
+  required: true,
+  maxItems: 3,
+  item: {
+    kind: "object",
+    properties: {
+      title: text(160),
+      subtitle: text(160),
+      description: text(1_000),
+      image: url(),
+      color: { kind: "string", maxLength: 80, editable: false },
+    },
+  },
+} as const satisfies PuckPropRule;
+
+const hero6EditorContract = {
+  componentId: "RB_batch7_hero_6",
+  defaultProps: { slides: hero6SlidesDefaults },
+  fields: [],
+  contentFields: [],
+  mediaFields: [],
+  actionFields: [],
+  inlineFields: [],
+  arrays: [
+    {
+      key: "slides",
+      path: ["slides"],
+      group: "CONTENT",
+      label: "Slides",
+      itemLabel: "Slide",
+      defaultItems: hero6SlidesDefaults,
+      itemFields: [
+        {
+          key: "title",
+          path: ["title"],
+          group: "CONTENT",
+          label: "Title",
+          type: "text",
+          inlineEditable: true,
+          mediaEligible: false,
+          resettable: true,
+        },
+        {
+          key: "subtitle",
+          path: ["subtitle"],
+          group: "CONTENT",
+          label: "Subtitle",
+          type: "text",
+          inlineEditable: true,
+          mediaEligible: false,
+          resettable: true,
+        },
+        {
+          key: "description",
+          path: ["description"],
+          group: "CONTENT",
+          label: "Description",
+          type: "textarea",
+          inlineEditable: true,
+          mediaEligible: false,
+          resettable: true,
+        },
+        {
+          key: "image",
+          path: ["image"],
+          group: "MEDIA",
+          label: "Image",
+          type: "media",
+          inlineEditable: false,
+          mediaEligible: true,
+          resettable: true,
+        },
+      ],
+    },
+  ],
+} as const satisfies ComponentEditorContract;
+
+const HERO6_OVERRIDE = {
+  props: { slides: hero6SlidesPropRule },
+  defaults: { slides: hero6SlidesDefaults },
+  editorContract: hero6EditorContract,
+} as const;
+
 const expandedEntry = (
   generated: (typeof PUCK_EXPANDED_REGISTRY_DATA)[number],
 ): PuckRegistryManifestEntry => ({
@@ -391,12 +476,15 @@ const expandedEntry = (
   documentVersions: [1],
   props: {
     ...PUCK_COMMON_PROP_RULES,
-    ...(generated.props as Readonly<Record<string, PuckPropRule>>),
+    ...(generated.id === "RB_batch7_hero_6"
+      ? HERO6_OVERRIDE.props
+      : generated.props as Readonly<Record<string, PuckPropRule>>),
   },
   defaults: {
     ...PUCK_COMMON_DEFAULTS,
-    ...generated.defaults,
+    ...(generated.id === "RB_batch7_hero_6" ? HERO6_OVERRIDE.defaults : generated.defaults),
   },
+  ...(generated.id === "RB_batch7_hero_6" ? { editorContract: HERO6_OVERRIDE.editorContract } : {}),
 });
 
 export const PUCK_PRODUCTION_MANIFEST: readonly PuckRegistryManifestEntry[] = [

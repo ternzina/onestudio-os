@@ -114,6 +114,7 @@ test("production renderer source map is complete and lazy", () => {
   for (const entry of PUCK_PRODUCTION_MANIFEST) {
     assert.match(source, new RegExp(JSON.stringify(entry.catalogKey).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), entry.id);
   }
+  assert.match(source, /"pro-block:hero-6": lazyComponent\(\(\) => import\("@\/components\/puck-site-editor\/adapted\/hero-6"\), \["AdaptedHero6","Hero6"\]\)/);
 });
 
 test("the established eight pilot ids are unchanged", () => {

@@ -81,8 +81,16 @@ test("reset calculation is deterministic and uses declared original defaults", (
   const contract = baseContract();
   const current = { headline: "edited", enabled: false, cards: [{ id: "one", title: "Changed" }] };
   assert.deepEqual(resetEditorField(current, contract, "headline"), { ...current, headline: "original" });
-  assert.deepEqual(resetEditorGroup(current, contract, "CONTENT"), { ...current, headline: "original" });
-  assert.deepEqual(resetEditorBlock(current, contract), { ...current, headline: "original" });
+  assert.deepEqual(resetEditorGroup(current, contract, "CONTENT"), {
+    ...current,
+    headline: "original",
+    cards: [{ id: "one", title: "First" }],
+  });
+  assert.deepEqual(resetEditorBlock(current, contract), {
+    ...current,
+    headline: "original",
+    cards: [{ id: "one", title: "First" }],
+  });
 });
 
 test("Hero 14 production metadata validates and preserves its adapted defaults", () => {
@@ -100,6 +108,24 @@ test("Hero 14 production metadata validates and preserves its adapted defaults",
     linkLabel: hero.defaults.linkLabel,
     mediaUrl: hero.defaults.mediaUrl,
   });
+});
+
+test("Hero 6 production metadata validates its canonical bounded slide contract", () => {
+  const hero = PUCK_PRODUCTION_MANIFEST_BY_ID.get("RB_batch7_hero_6")!;
+  assert.equal(hero.catalogKey, "pro-block:hero-6");
+  assert.equal(hero.physicalSource, "@/components/blocks/hero-6");
+  assert.ok(hero.editorContract);
+  assert.deepEqual(validateComponentEditorContract(hero.editorContract!), []);
+  assert.deepEqual(hero.editorContract!.defaultProps, { slides: hero.defaults.slides });
+  assert.equal(hero.props.slides.kind, "array");
+  if (hero.props.slides.kind === "array") assert.equal(hero.props.slides.maxItems, 3);
+  assert.deepEqual(hero.editorContract!.arrays[0].itemFields.map((field) => [field.key, field.group]), [
+    ["title", "CONTENT"],
+    ["subtitle", "CONTENT"],
+    ["description", "CONTENT"],
+    ["image", "MEDIA"],
+  ]);
+  assert.deepEqual(hero.editorContract!.actionFields, []);
 });
 
 test("production builder contract has no editor-lab dependency", () => {

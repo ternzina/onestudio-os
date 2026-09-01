@@ -88,14 +88,16 @@ function ContractArrays({
   group: ProductionEditorFieldGroup;
   update: (next: Record<string, ProductionEditorValue>) => void;
 }) {
-  return contract.arrays.filter((array) => array.group === group).map((array) => {
+  return contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)).map((array) => {
     const items = valueAt(props, array.path);
     if (!Array.isArray(items)) return null;
+    const itemFields = array.itemFields.filter((field) => field.group === group);
     return <fieldset className={styles.array} key={array.key}><legend>{array.label}</legend>{items.map((item, index) => (
       <div className={styles.arrayItem} key={`${array.key}-${index}`} data-production-array-item={array.key}>
         <strong>{array.itemLabel} {index + 1}</strong>
-        {array.itemFields.map((field) => <div className={styles.field} key={field.key}>
+        {itemFields.map((field) => <div className={styles.field} data-production-array-field={`${array.key}.${field.key}`} data-field-type={field.type} key={field.key}>
           <label>{field.label}</label>
+          {field.type === "media" && item && typeof item === "object" && !Array.isArray(item) && typeof item[field.key] === "string" ? <img className={styles.mediaPreview} src={item[field.key]} alt="" /> : null}
           <ProductionFieldInput field={field} value={item && typeof item === "object" && !Array.isArray(item) ? (item[field.key] as ProductionEditorPrimitive) : null} onChange={(next) => update(updateProductionEditorArrayItem(props, contract, array.key, index, field.key, next))} />
         </div>)}
       </div>
@@ -107,16 +109,15 @@ function ContractProperties({ contract, props, update }: { contract: ComponentEd
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "STYLE", "MOTION", "RESPONSIVE"]));
   const filtered = useMemo(() => filterProductionEditorContract(contract, query), [contract, query]);
-  const groups = productionFieldsByGroup(filtered);
+  const groups = productionFieldsByGroup(filtered).filter(({ fields, arrays }) => fields.length + arrays.length > 0);
 
   return <section className={styles.panel} data-production-properties>
     <header><h2>Свойства блока</h2><input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={() => update(resetProductionEditorBlock(props, contract))}>Вернуть блок к оригиналу</button></header>
     {groups.map(({ group, label, fields, arrays }) => {
-      const hasFields = fields.length + arrays.length > 0;
       const isCollapsed = !query && collapsed.has(group);
       return <section className={styles.group} key={group} data-production-group={group}>
         <button type="button" className={styles.groupToggle} aria-expanded={!isCollapsed} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group)) next.delete(group); else next.add(group); return next; })}>{label}<span>{isCollapsed ? "▸" : "▾"}</span></button>
-        {!isCollapsed && hasFields ? <div className={styles.groupContent}>
+        {!isCollapsed ? <div className={styles.groupContent}>
           <div className={styles.groupActions}><button type="button" onClick={() => update(resetProductionEditorGroup(props, contract, group))}>Сбросить группу</button></div>
           {fields.map((field) => <ContractField key={field.key} field={field} props={props} contract={contract} update={update} />)}
           <ContractArrays contract={contract} props={props} group={group} update={update} />

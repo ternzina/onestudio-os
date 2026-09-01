@@ -19,6 +19,9 @@ const root = path.resolve(import.meta.dirname, "..");
 const hero = PUCK_PRODUCTION_MANIFEST_BY_ID.get("reactbits.hero-14")!;
 const contract = hero.editorContract!;
 const heroProps = hero.defaults as Record<string, ProductionEditorValue>;
+const hero6 = PUCK_PRODUCTION_MANIFEST_BY_ID.get("RB_batch7_hero_6")!;
+const hero6Contract = hero6.editorContract!;
+const hero6Props = hero6.defaults as Record<string, ProductionEditorValue>;
 
 test("production Properties uses the declared group ordering and Russian labels", () => {
   assert.deepEqual(productionFieldsByGroup(contract).map((group) => group.group), ["CONTENT", "MEDIA", "ACTIONS", "LAYOUT", "STYLE", "MOTION", "RESPONSIVE"]);
@@ -68,11 +71,37 @@ test("bounded array item updates are supported without an arbitrary JSON editor"
   assert.deepEqual(updateProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 0, "title", "Edited"), { cards: [{ id: "one", title: "Edited" }] });
 });
 
+test("Hero 6 slide content and media use the shared grouped array editor", () => {
+  const content = updateProductionEditorArrayItem(hero6Props, hero6Contract, "slides", 0, "title", "Edited Hero 6");
+  const media = updateProductionEditorArrayItem(content, hero6Contract, "slides", 0, "image", "/media/hero-6.webp");
+  assert.equal((media.slides as readonly Record<string, ProductionEditorValue>[])[0].title, "Edited Hero 6");
+  assert.equal((media.slides as readonly Record<string, ProductionEditorValue>[])[0].image, "/media/hero-6.webp");
+  assert.deepEqual(hero6Props, hero6.defaults);
+
+  const visibleGroups = productionFieldsByGroup(hero6Contract)
+    .filter((group) => group.fields.length + group.arrays.length > 0)
+    .map((group) => group.group);
+  assert.deepEqual(visibleGroups, ["CONTENT", "MEDIA"]);
+  const mediaSearch = filterProductionEditorContract(hero6Contract, "медиа");
+  assert.deepEqual(mediaSearch.arrays[0].itemFields.map((field) => field.key), ["image"]);
+});
+
+test("Hero 6 array resets restore exact canonical values", () => {
+  const editedContent = updateProductionEditorArrayItem(hero6Props, hero6Contract, "slides", 0, "title", "Edited title");
+  const edited = updateProductionEditorArrayItem(editedContent, hero6Contract, "slides", 0, "image", "/media/edited.webp");
+  const contentReset = resetProductionEditorGroup(edited, hero6Contract, "CONTENT");
+  assert.equal((contentReset.slides as readonly Record<string, ProductionEditorValue>[])[0].title, (hero6Props.slides as readonly Record<string, ProductionEditorValue>[])[0].title);
+  assert.equal((contentReset.slides as readonly Record<string, ProductionEditorValue>[])[0].image, "/media/edited.webp");
+  assert.deepEqual(resetProductionEditorBlock(edited, hero6Contract), hero6.defaults);
+});
+
 test("shared production renderer supports every approved primitive field type and keeps generic fallback", () => {
   const source = fs.readFileSync(path.join(root, "components/puck-site-editor/production-properties-panel.tsx"), "utf8");
   for (const type of ["textarea", "boolean", "number", "select", "color", "url", "media", "text"]) assert.match(source, new RegExp(`field\\.type === ["']${type}["']`));
   assert.match(source, /data-production-generic-controls/);
   assert.match(source, /type: "setData"/);
+  const editorConfig = fs.readFileSync(path.join(root, "components/puck-site-editor/editor-config.tsx"), "utf8");
+  assert.match(editorConfig, /contract\?\.arrays\.some/);
 });
 
 test("production Properties and its dependencies have no editor-lab import", () => {

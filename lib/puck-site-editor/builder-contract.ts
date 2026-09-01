@@ -204,6 +204,22 @@ function cloneValue(value: ProductionEditorValue): ProductionEditorValue {
   return value;
 }
 
+function setPathValue(
+  currentProps: Readonly<Record<string, ProductionEditorValue>>,
+  path: readonly [string, ...string[]],
+  value: ProductionEditorValue,
+) {
+  const next = Object.fromEntries(Object.entries(currentProps).map(([key, item]) => [key, cloneValue(item)]));
+  let target = next;
+  for (const segment of path.slice(0, -1)) {
+    const current = target[segment];
+    target[segment] = isPlainObject(current) ? { ...current } : {};
+    target = target[segment] as Record<string, ProductionEditorValue>;
+  }
+  target[path[path.length - 1]] = cloneValue(value);
+  return next;
+}
+
 function resetPaths(
   currentProps: Readonly<Record<string, ProductionEditorValue>>,
   defaults: Readonly<Record<string, ProductionEditorValue>>,
@@ -239,12 +255,41 @@ export function resetEditorGroup(
   contract: ComponentEditorContract,
   group: ProductionEditorFieldGroup,
 ) {
-  return resetPaths(currentProps, contract.defaultProps, contract.fields.filter((field) => field.group === group && field.resettable).map((field) => field.path));
+  let next = resetPaths(currentProps, contract.defaultProps, contract.fields.filter((field) => field.group === group && field.resettable).map((field) => field.path));
+  for (const array of contract.arrays) {
+    const keys = array.itemFields
+      .filter((field) => field.group === group && field.resettable)
+      .map((field) => field.key);
+    if (!keys.length) continue;
+    const currentItems = getPath(next, array.path);
+    if (!Array.isArray(currentItems)) continue;
+    const resetItems = currentItems.map((item, index) => {
+      const original = array.defaultItems[index];
+      if (!item || typeof item !== "object" || Array.isArray(item) || !original) {
+        return cloneValue(item);
+      }
+      const resetItem = Object.fromEntries(
+        Object.entries(item).map(([key, value]) => [
+          key,
+          cloneValue(value as ProductionEditorValue),
+        ]),
+      );
+      for (const key of keys) {
+        if (original[key] !== undefined) resetItem[key] = cloneValue(original[key]);
+      }
+      return resetItem;
+    });
+    next = setPathValue(next, array.path, resetItems);
+  }
+  return next;
 }
 
 export function resetEditorBlock(
   currentProps: Readonly<Record<string, ProductionEditorValue>>,
   contract: ComponentEditorContract,
 ) {
-  return resetPaths(currentProps, contract.defaultProps, contract.fields.filter((field) => field.resettable).map((field) => field.path));
+  return resetPaths(currentProps, contract.defaultProps, [
+    ...contract.fields.filter((field) => field.resettable).map((field) => field.path),
+    ...contract.arrays.map((array) => array.path),
+  ]);
 }

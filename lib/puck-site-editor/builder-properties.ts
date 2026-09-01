@@ -49,7 +49,7 @@ export function productionFieldsByGroup(contract: ComponentEditorContract) {
     group,
     label: PRODUCTION_PROPERTIES_GROUP_LABELS[group],
     fields: contract.fields.filter((field) => field.group === group),
-    arrays: contract.arrays.filter((array) => array.group === group),
+    arrays: contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)),
   }));
 }
 
@@ -57,10 +57,21 @@ export function filterProductionEditorContract(contract: ComponentEditorContract
   const normalized = query.trim().toLocaleLowerCase();
   if (!normalized) return contract;
   const matches = (value: string) => value.toLocaleLowerCase().includes(normalized);
+  const arrays = contract.arrays.flatMap((array) => {
+    const arrayMatches = matches(array.label)
+      || matches(array.group)
+      || matches(PRODUCTION_PROPERTIES_GROUP_LABELS[array.group]);
+    if (arrayMatches) return [array];
+    const itemFields = array.itemFields.filter((field) =>
+      matches(field.label)
+      || matches(field.group)
+      || matches(PRODUCTION_PROPERTIES_GROUP_LABELS[field.group]));
+    return itemFields.length ? [{ ...array, itemFields }] : [];
+  });
   return {
     ...contract,
     fields: contract.fields.filter((field) => matches(field.label) || matches(field.group) || matches(PRODUCTION_PROPERTIES_GROUP_LABELS[field.group])),
-    arrays: contract.arrays.filter((array) => matches(array.label) || matches(array.group) || matches(PRODUCTION_PROPERTIES_GROUP_LABELS[array.group]) || array.itemFields.some((field) => matches(field.label))),
+    arrays,
   };
 }
 

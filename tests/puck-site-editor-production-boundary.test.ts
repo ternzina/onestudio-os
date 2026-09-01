@@ -50,6 +50,13 @@ test("production renderer and registry have no editor-lab dependency", () => {
   }
 });
 
+test("Hero 6 production rendering resolves through the adapted source", () => {
+  assert.match(
+    read("components/puck-site-editor/production-component-sources.tsx"),
+    /"pro-block:hero-6": lazyComponent\(\(\) => import\("@\/components\/puck-site-editor\/adapted\/hero-6"\), \["AdaptedHero6","Hero6"\]\)/,
+  );
+});
+
 test("legacy lab imports promoted adapters through the production boundary", () => {
   assert.match(read("components/editor-lab/adapted/hero/hero-14.tsx"), /components\/puck-site-editor\/adapted\/hero-14/);
   assert.match(read("components/editor-lab/adapted/navigation-12.tsx"), /components\/puck-site-editor\/adapted\/navigation-12/);
