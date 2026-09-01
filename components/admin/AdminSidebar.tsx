@@ -58,18 +58,6 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <style jsx global>{`
-        @media (min-width: 1024px) {
-          html[data-admin-sidebar="collapsed"] [class~="lg:pl-[290px]"] {
-            padding-left: 0 !important;
-          }
-
-          html[data-admin-sidebar="collapsed"] [class~="lg:left-[290px]"] {
-            left: 0 !important;
-          }
-        }
-      `}</style>
-
       <aside
         data-admin-sidebar
         className={`fixed inset-y-0 left-0 z-40 hidden w-[290px] overflow-y-auto border-r border-black/8 bg-[#fffdfa] px-5 py-6 shadow-[18px_0_70px_rgba(25,25,25,0.06)] transition-transform duration-300 lg:block ${

@@ -59,11 +59,14 @@ test("pilot uses local scoped persistence and production renderer without changi
 
 test("admin sidebar defers browser-only preference until after hydration", () => {
   const sidebar = fs.readFileSync(path.join(root, "components/admin/AdminSidebar.tsx"), "utf8");
+  const globalCss = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
   assert.match(sidebar, /const \[mounted, setMounted\] = useState\(false\)/);
   assert.match(sidebar, /setCollapsed\(stored === "true"\)/);
   assert.match(sidebar, /if \(!mounted\) return/);
   assert.match(sidebar, /mounted && collapsed \? "-translate-x-full" : "translate-x-0"/);
+  assert.doesNotMatch(sidebar, /style jsx/);
   assert.doesNotMatch(sidebar, /suppressHydrationWarning/);
+  assert.match(globalCss, /html\[data-admin-sidebar="collapsed"\]/);
 });
 
 test("admin pilot remains flag-gated and retains separate editor and public preview routes", () => {

@@ -587,3 +587,16 @@ html {
   --rb-accent: oklch(100% 0 0);
   --rb-accent-fg: oklch(20.5% 0 0);
 }
+
+/* Admin sidebar state is an SSR-stable data attribute. Keep these selectors in
+   the global stylesheet instead of runtime styled-jsx so sidebar markup has no
+   generated jsx-* class during hydration. */
+@media (min-width: 1024px) {
+  html[data-admin-sidebar="collapsed"] [class~="lg:pl-[290px]"] {
+    padding-left: 0 !important;
+  }
+
+  html[data-admin-sidebar="collapsed"] [class~="lg:left-[290px]"] {
+    left: 0 !important;
+  }
+}
