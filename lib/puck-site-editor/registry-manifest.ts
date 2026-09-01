@@ -3,6 +3,7 @@ import type { ComponentEditorContract } from "./builder-contract.ts";
 import { hero6SlidesDefaults } from "../../components/puck-site-editor/adapted/hero-6-contract.ts";
 import type { ProductLibraryCategory } from "./product-library.ts";
 import { PUCK_PRODUCTION_RUNTIME_EXCLUSIONS } from "./runtime-exclusions.ts";
+import { PUCK_BATCH_1_EDITOR_CONTRACTS } from "../../components/puck-site-editor/content-editability-batch-1-contracts.ts";
 
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
@@ -456,36 +457,41 @@ const HERO6_OVERRIDE = {
 
 const expandedEntry = (
   generated: (typeof PUCK_EXPANDED_REGISTRY_DATA)[number],
-): PuckRegistryManifestEntry => ({
-  id: generated.id,
-  catalogKey: generated.catalogKey,
-  label: generated.label,
-  taxonomy: generated.taxonomy,
-  sourceTier: generated.sourceTier,
-  sourceProvenance: "REGISTRY",
-  sourceKind: generated.sourceKind,
-  officialSlug: generated.officialSlug,
-  physicalSource: generated.physicalSource,
-  rendererSource: generated.rendererSource,
-  legacyIds: generated.legacyIds,
-  editorAdapter: "production-source",
-  publicRenderer: "production-source",
-  host: generated.host as PuckProductionHostSpec | null,
-  definiteHeight: generated.definiteHeight,
-  runtimeFamily: generated.runtimeFamily,
-  documentVersions: [1],
-  props: {
-    ...PUCK_COMMON_PROP_RULES,
-    ...(generated.id === "RB_batch7_hero_6"
-      ? HERO6_OVERRIDE.props
-      : generated.props as Readonly<Record<string, PuckPropRule>>),
-  },
-  defaults: {
-    ...PUCK_COMMON_DEFAULTS,
-    ...(generated.id === "RB_batch7_hero_6" ? HERO6_OVERRIDE.defaults : generated.defaults),
-  },
-  ...(generated.id === "RB_batch7_hero_6" ? { editorContract: HERO6_OVERRIDE.editorContract } : {}),
-});
+): PuckRegistryManifestEntry => {
+  const editorContract = generated.id === "RB_batch7_hero_6"
+    ? HERO6_OVERRIDE.editorContract
+    : PUCK_BATCH_1_EDITOR_CONTRACTS[generated.catalogKey];
+  return {
+    id: generated.id,
+    catalogKey: generated.catalogKey,
+    label: generated.label,
+    taxonomy: generated.taxonomy,
+    sourceTier: generated.sourceTier,
+    sourceProvenance: "REGISTRY",
+    sourceKind: generated.sourceKind,
+    officialSlug: generated.officialSlug,
+    physicalSource: generated.physicalSource,
+    rendererSource: generated.rendererSource,
+    legacyIds: generated.legacyIds,
+    editorAdapter: "production-source",
+    publicRenderer: "production-source",
+    host: generated.host as PuckProductionHostSpec | null,
+    definiteHeight: generated.definiteHeight,
+    runtimeFamily: generated.runtimeFamily,
+    documentVersions: [1],
+    props: {
+      ...PUCK_COMMON_PROP_RULES,
+      ...(generated.id === "RB_batch7_hero_6"
+        ? HERO6_OVERRIDE.props
+        : generated.props as Readonly<Record<string, PuckPropRule>>),
+    },
+    defaults: {
+      ...PUCK_COMMON_DEFAULTS,
+      ...(generated.id === "RB_batch7_hero_6" ? HERO6_OVERRIDE.defaults : generated.defaults),
+    },
+    ...(editorContract ? { editorContract } : {}),
+  };
+};
 
 export const PUCK_PRODUCTION_MANIFEST: readonly PuckRegistryManifestEntry[] = [
   ...PUCK_PILOT_BASELINE_MANIFEST,
