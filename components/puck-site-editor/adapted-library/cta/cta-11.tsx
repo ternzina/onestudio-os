@@ -2,40 +2,28 @@
 
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
+import { cta11ContentDefaults } from "../../content-editability-batch-3-contracts";
+import type { Cta11LedgerRow } from "../../content-editability-batch-3-contracts";
 
-export const cta11ContentDefaults = {
-  eyebrow: "Meridian · Revenue ops",
-  heading: "Every payout, accounted for.",
-  description: "Meridian reconciles revenue across processors, banks, and your ledger: automatically. Close the books in an afternoon, not a week.",
-  primaryButtonLabel: "Start free trial",
-  secondaryButtonLabel: "Book a demo",
-  helperText: "14-day trial · No credit card · SOC 2 Type II",
-};
+export { cta11ContentDefaults };
 
-export type AdaptedCta11Props = { [K in keyof typeof cta11ContentDefaults]: string } & {
+export type AdaptedCta11Props = {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  primaryButtonLabel: string;
+  primaryButtonHref: string;
+  secondaryButtonLabel: string;
+  secondaryButtonHref: string;
+  helperText: string;
+  balanceLabel: string;
+  balanceCurrency: string;
+  balanceValue: string;
+  settledTodayLabel: string;
+  moveFundsLabel: string;
+  ledger: readonly Cta11LedgerRow[];
   loop?: boolean;
 };
-
-const ledger = [
-  {
-    label: "Stripe payout",
-    meta: "Today · 09:41",
-    amount: "+$12,480.00",
-    status: "Cleared",
-  },
-  {
-    label: "Acme Corp",
-    meta: "Wire · Invoice #2041",
-    amount: "+$86,200.00",
-    status: "Pending",
-  },
-  {
-    label: "Refund batch",
-    meta: "14 items",
-    amount: "−$1,240.50",
-    status: "Posted",
-  },
-];
 
 const panel: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -88,7 +76,7 @@ const arrow: Variants = {
   hover: { x: 3, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] } },
 };
 
-export default function AdaptedCta11({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText, loop = true }: AdaptedCta11Props) {
+export default function AdaptedCta11({ eyebrow, heading, description, primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, helperText, balanceLabel, balanceCurrency, balanceValue, settledTodayLabel, moveFundsLabel, ledger, loop = true }: AdaptedCta11Props) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -142,7 +130,7 @@ export default function AdaptedCta11({ eyebrow, heading, description, primaryBut
                 className="mt-9 flex flex-col gap-3 sm:flex-row"
               >
                 <motion.a
-                  href="#"
+                  href={primaryButtonHref}
                   whileHover="hover"
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -154,7 +142,7 @@ export default function AdaptedCta11({ eyebrow, heading, description, primaryBut
                   </motion.span>
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href={secondaryButtonHref}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   className="inline-flex w-full cursor-pointer items-center justify-center rounded-full border border-neutral-300 px-7 py-3.5 text-sm font-medium text-neutral-900 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 sm:w-auto dark:border-white/15 dark:text-white dark:hover:bg-white/10 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-900"
@@ -183,20 +171,20 @@ export default function AdaptedCta11({ eyebrow, heading, description, primaryBut
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                      Operating balance
+                      {balanceLabel}
                     </span>
                     <span className="rounded-full border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300">
-                      USD
+                      {balanceCurrency}
                     </span>
                   </div>
                   <p className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950 tabular-nums sm:text-5xl dark:text-white">
-                    $128,340.19
+                    {balanceValue}
                   </p>
                   <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                    +$12,480.00 settled today
+                    {settledTodayLabel}
                   </p>
                   <div className="mt-6 rounded-xl bg-neutral-950 py-3 text-center text-sm font-medium text-white dark:bg-white dark:text-neutral-950">
-                    Move funds
+                    {moveFundsLabel}
                   </div>
                   <div className="mt-6">
                     {ledger.map((row) => (

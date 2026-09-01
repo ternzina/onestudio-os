@@ -2,37 +2,19 @@
 
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
+import { hero10ContentDefaults } from "../../content-editability-batch-3-contracts";
+import type { Hero10Card } from "../../content-editability-batch-3-contracts";
 
-export const hero10ContentDefaults = {
-  heading: "Build something extraordinary today",
-  description: "Transform your ideas into reality with powerful tools designed for creators, founders, and dreamers.",
-  buttonLabel: "Get started now",
+export { hero10ContentDefaults };
+
+export type AdaptedHero10Props = {
+  heading: string;
+  description: string;
+  buttonLabel: string;
+  cards: readonly Hero10Card[];
 };
 
-export type AdaptedHero10Props = { [K in keyof typeof hero10ContentDefaults]: string };
-
-const cards = [
-  {
-    rotate: -12,
-    translateY: 40,
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=600&fit=crop",
-    alt: "Creative technology",
-  },
-  {
-    rotate: 0,
-    translateY: 0,
-    src: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=600&fit=crop",
-    alt: "Building something new",
-  },
-  {
-    rotate: 12,
-    translateY: 40,
-    src: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&h=600&fit=crop",
-    alt: "Creative workspace",
-  },
-];
-
-export function AdaptedHero10({ heading, description, buttonLabel }: AdaptedHero10Props) {
+export function AdaptedHero10({ heading, description, buttonLabel, cards }: AdaptedHero10Props) {
   return (
     <section className="relative w-full overflow-hidden bg-white dark:bg-neutral-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="relative z-10 max-w-[1400px] mx-auto w-full">

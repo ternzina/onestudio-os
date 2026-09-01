@@ -2,64 +2,31 @@
 
 import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "motion/react";
+import { hero8ContentDefaults } from "../../content-editability-batch-3-contracts";
+import type { Hero8Image } from "../../content-editability-batch-3-contracts";
 
-export const hero8ContentDefaults = {
-  firstLeft: "Creating",
-  firstRight: "Digital",
-  secondLeft: "Building",
-  secondRight: "Tomorrow",
-  description: "We craft exceptional digital products that connect brands with their audiences. From concept to launch, our team delivers innovative solutions.",
+export { hero8ContentDefaults };
+
+export type AdaptedHero8Props = {
+  firstLeft: string;
+  firstRight: string;
+  secondLeft: string;
+  secondRight: string;
+  description: string;
+  creatingImages: readonly Hero8Image[];
+  buildingImages: readonly Hero8Image[];
+  creatingImageAlt: string;
+  buildingImageAlt: string;
+  heroImageUrl: string;
+  heroImageAlt: string;
 };
 
-export type AdaptedHero8Props = { [K in keyof typeof hero8ContentDefaults]: string };
-
-const creatingImages = [
-  {
-    url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=200&fit=crop",
-    aspectRatio: 2,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=200&h=200&fit=crop",
-    aspectRatio: 1,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=350&h=200&fit=crop",
-    aspectRatio: 1.75,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop",
-    aspectRatio: 1,
-  },
-];
-
-const buildingImages = [
-  {
-    url: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=200&h=200&fit=crop",
-    aspectRatio: 1,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop",
-    aspectRatio: 2,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=200&fit=crop",
-    aspectRatio: 1,
-  },
-  {
-    url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=350&h=200&fit=crop",
-    aspectRatio: 1.75,
-  },
-];
-
-interface ImageData {
-  url: string;
-  aspectRatio: number;
-}
+type ImageData = Hero8Image;
 
 interface MediaBetweenTextRowProps {
   leftText: string;
   rightText: string;
-  images: ImageData[];
+  images: readonly ImageData[];
   alt: string;
   isInView: boolean;
   delay?: number;
@@ -147,7 +114,19 @@ function MediaBetweenTextRow({
   );
 }
 
-export function AdaptedHero8({ firstLeft, firstRight, secondLeft, secondRight, description }: AdaptedHero8Props) {
+export function AdaptedHero8({
+  firstLeft,
+  firstRight,
+  secondLeft,
+  secondRight,
+  description,
+  creatingImages,
+  buildingImages,
+  creatingImageAlt,
+  buildingImageAlt,
+  heroImageUrl,
+  heroImageAlt,
+}: AdaptedHero8Props) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -170,7 +149,7 @@ export function AdaptedHero8({ firstLeft, firstRight, secondLeft, secondRight, d
               leftText={firstLeft}
               rightText={firstRight}
               images={creatingImages}
-              alt="Creating digital experiences"
+              alt={creatingImageAlt}
               isInView={shouldShowMedia}
               delay={0}
             />
@@ -178,7 +157,7 @@ export function AdaptedHero8({ firstLeft, firstRight, secondLeft, secondRight, d
               leftText={secondLeft}
               rightText={secondRight}
               images={buildingImages}
-              alt="Building tomorrow"
+              alt={buildingImageAlt}
               isInView={shouldShowMedia}
               delay={0.15}
             />
@@ -201,8 +180,8 @@ export function AdaptedHero8({ firstLeft, firstRight, secondLeft, secondRight, d
           >
             <div className="w-full aspect-[16/9] sm:aspect-[21/9] bg-neutral-200 dark:bg-neutral-800">
               <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&h=600&fit=crop"
-                alt="Team collaboration"
+                src={heroImageUrl}
+                alt={heroImageAlt}
                 className="w-full h-full object-cover"
               />
             </div>

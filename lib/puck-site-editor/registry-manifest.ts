@@ -8,6 +8,17 @@ import {
   PUCK_BATCH_2_EDITOR_CONTRACTS,
   navigation13EditorContract,
 } from "../../components/puck-site-editor/content-editability-batch-2-contracts.ts";
+import {
+  PUCK_BATCH_3_EDITOR_CONTRACTS,
+  hero8EditorContract,
+  hero10EditorContract,
+  hero20EditorContract,
+  cta11EditorContract,
+  cta14EditorContract,
+  navigation5EditorContract,
+  navigation6EditorContract,
+  navigation12EditorContract,
+} from "../../components/puck-site-editor/content-editability-batch-3-contracts.ts";
 
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
@@ -82,6 +93,12 @@ const text = (maxLength = 2_000): PrimitivePuckPropRule => ({ kind: "string", ma
 const url = (): PrimitivePuckPropRule => ({ kind: "string", maxLength: 2_048, format: "url" });
 const color = (): PrimitivePuckPropRule => ({ kind: "string", maxLength: 32, format: "color" });
 const choice = (...values: string[]): PrimitivePuckPropRule => ({ kind: "enum", values });
+const numeric = (min: number, max: number, editable = false): PrimitivePuckPropRule => ({ kind: "number", min, max, editable });
+const nonEditableText = (maxLength = 2_000): PrimitivePuckPropRule => ({ kind: "string", maxLength, editable: false });
+const editableArray = (
+  properties: Readonly<Record<string, PuckPropRule>>,
+  maxItems = 32,
+): PuckPropRule => ({ kind: "array", editable: true, maxItems, item: { kind: "object", properties } });
 
 export const PUCK_COMMON_PROP_RULES = {
   id: text(128),
@@ -193,20 +210,20 @@ export const PUCK_PILOT_BASELINE_MANIFEST = [
     editorAdapter: "adapted-navigation-12",
     publicRenderer: "adapted-navigation-12",
     props: {
-      links: {
-        kind: "array",
-        maxItems: 8,
-        item: { kind: "object", properties: { label: text(80) } },
-      },
+      primaryNavLabel: text(160),
+      mobileNavLabel: text(160),
+      brandName: text(120),
+      brandHref: text(2_048),
+      signInLabel: text(120),
+      signInHref: text(2_048),
+      primaryActionLabel: text(120),
+      primaryActionHref: text(2_048),
+      openMenuLabel: text(120),
+      closeMenuLabel: text(120),
+      links: editableArray({ label: text(120) }, 8),
     },
-    defaults: {
-      links: [
-        { label: "Overview" },
-        { label: "Product" },
-        { label: "Customers" },
-        { label: "Pricing" },
-      ],
-    },
+    defaults: navigation12EditorContract.defaultProps,
+    editorContract: navigation12EditorContract,
   }),
   entry({
     id: "reactbits.hero-14",
@@ -462,6 +479,7 @@ const HERO6_OVERRIDE = {
 const PUCK_PRODUCTION_EDITOR_CONTRACTS: Readonly<Partial<Record<string, ComponentEditorContract>>> = {
   ...PUCK_BATCH_1_EDITOR_CONTRACTS,
   ...PUCK_BATCH_2_EDITOR_CONTRACTS,
+  ...PUCK_BATCH_3_EDITOR_CONTRACTS,
 };
 
 type PuckProductionManifestOverride = Partial<Pick<
@@ -470,6 +488,144 @@ type PuckProductionManifestOverride = Partial<Pick<
 >>;
 
 const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProductionManifestOverride>> = {
+  "pro-block:hero-8": {
+    editorAdapter: "adapted-hero-8",
+    publicRenderer: "adapted-hero-8",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-8",
+    props: {
+      firstLeft: text(160),
+      firstRight: text(160),
+      secondLeft: text(160),
+      secondRight: text(160),
+      description: text(1_000),
+      creatingImageAlt: text(240),
+      buildingImageAlt: text(240),
+      heroImageUrl: url(),
+      heroImageAlt: text(240),
+      creatingImages: editableArray({ url: url(), aspectRatio: numeric(0.5, 3) }, 8),
+      buildingImages: editableArray({ url: url(), aspectRatio: numeric(0.5, 3) }, 8),
+    },
+    defaults: hero8EditorContract.defaultProps,
+  },
+  "pro-block:hero-10": {
+    editorAdapter: "adapted-hero-10",
+    publicRenderer: "adapted-hero-10",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-10",
+    props: {
+      heading: text(240),
+      description: text(1_000),
+      buttonLabel: text(120),
+      cards: editableArray({
+        rotate: numeric(-180, 180),
+        translateY: numeric(-500, 500),
+        src: url(),
+        alt: text(240),
+      }, 8),
+    },
+    defaults: hero10EditorContract.defaultProps,
+  },
+  "pro-block:hero-20": {
+    editorAdapter: "adapted-hero-20",
+    publicRenderer: "adapted-hero-20",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-20",
+    props: {
+      heading: text(240),
+      description: text(1_000),
+      primaryButtonLabel: text(120),
+      secondaryButtonLabel: text(120),
+      trustLabel: text(240),
+      wordmarks: editableArray({ name: text(120), className: nonEditableText(240) }, 12),
+      metrics: editableArray({ value: text(120), label: text(240) }, 8),
+    },
+    defaults: hero20EditorContract.defaultProps,
+  },
+  "pro-block:cta-11": {
+    editorAdapter: "adapted-cta-11",
+    publicRenderer: "adapted-cta-11",
+    rendererSource: "@/components/puck-site-editor/adapted-library/cta/cta-11",
+    props: {
+      eyebrow: text(240),
+      heading: text(240),
+      description: text(1_000),
+      primaryButtonLabel: text(120),
+      primaryButtonHref: text(2_048),
+      secondaryButtonLabel: text(120),
+      secondaryButtonHref: text(2_048),
+      helperText: text(320),
+      balanceLabel: text(160),
+      balanceCurrency: text(40),
+      balanceValue: text(120),
+      settledTodayLabel: text(160),
+      moveFundsLabel: text(120),
+      ledger: editableArray({ label: text(160), meta: text(160), amount: text(120), status: text(120) }, 12),
+      loop: { kind: "boolean" },
+    },
+    defaults: cta11EditorContract.defaultProps,
+  },
+  "pro-block:cta-14": {
+    editorAdapter: "adapted-cta-14",
+    publicRenderer: "adapted-cta-14",
+    rendererSource: "@/components/puck-site-editor/adapted-library/cta/cta-14",
+    props: {
+      eyebrow: text(240),
+      heading: text(240),
+      description: text(1_000),
+      primaryButtonLabel: text(120),
+      primaryButtonHref: text(2_048),
+      secondaryButtonLabel: text(120),
+      secondaryButtonHref: text(2_048),
+      helperText: text(320),
+      collaborationLabel: text(160),
+      liveLabel: text(160),
+      capabilities: editableArray({ label: text(160) }, 32),
+      activity: editableArray({ initials: text(16), name: text(120), action: text(240), time: text(40) }, 12),
+      loop: { kind: "boolean" },
+    },
+    defaults: cta14EditorContract.defaultProps,
+  },
+  "pro-block:navigation-5": {
+    editorAdapter: "adapted-navigation-5",
+    publicRenderer: "adapted-navigation-5",
+    rendererSource: "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-5",
+    props: {
+      mainHeading: text(240),
+      mainDescription: text(500),
+      brandMessage: text(240),
+      contactLabel: text(120),
+      contactHref: text(2_048),
+      openMenuLabel: text(120),
+      closeMenuLabel: text(120),
+      currentPageLabel: text(120),
+      navItems: editableArray({ title: text(160), image: url(), href: text(2_048) }, 12),
+      socialLinks: editableArray({ name: text(120), href: text(2_048) }, 12),
+    },
+    defaults: navigation5EditorContract.defaultProps,
+  },
+  "pro-block:navigation-6": {
+    editorAdapter: "adapted-navigation-6",
+    publicRenderer: "adapted-navigation-6",
+    rendererSource: "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-6",
+    props: {
+      logoUrl: url(),
+      logoAlt: text(240),
+      homeAriaLabel: text(160),
+      logoHref: text(2_048),
+      mainNavigationLabel: text(160),
+      navigationMenuLabel: text(160),
+      mainMenuLabel: text(160),
+      footerNavigationLabel: text(160),
+      openNavigationLabel: text(160),
+      closeNavigationLabel: text(160),
+      menuButtonLabel: text(120),
+      closeButtonLabel: text(120),
+      copyright: text(240),
+      technologyNote: text(240),
+      menuItems: editableArray({ label: text(160), href: text(2_048), image: url() }, 12),
+      topNavItems: editableArray({ label: text(160), href: text(2_048) }, 12),
+      footerLinks: editableArray({ label: text(160), href: text(2_048) }, 12),
+    },
+    defaults: navigation6EditorContract.defaultProps,
+  },
   "pro-block:navigation-13": {
     editorAdapter: "adapted-navigation-13",
     publicRenderer: "adapted-navigation-13",

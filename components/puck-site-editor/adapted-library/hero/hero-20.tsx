@@ -2,50 +2,20 @@
 
 import { ArrowRight } from "lucide-react";
 import { motion, type Variants } from "motion/react";
+import { hero20ContentDefaults } from "../../content-editability-batch-3-contracts";
+import type { Hero20Metric, Hero20Wordmark } from "../../content-editability-batch-3-contracts";
 
-export const hero20ContentDefaults = {
-  heading: "Answers, not dashboards.",
-  description: "Meridian reads your product data and surfaces the few decisions that matter: every morning, for every team.",
-  primaryButtonLabel: "Start free",
-  secondaryButtonLabel: "See a live board",
-  trustLabel: "Trusted by data teams at",
+export { hero20ContentDefaults };
+
+export type AdaptedHero20Props = {
+  heading: string;
+  description: string;
+  primaryButtonLabel: string;
+  secondaryButtonLabel: string;
+  trustLabel: string;
+  wordmarks: readonly Hero20Wordmark[];
+  metrics: readonly Hero20Metric[];
 };
-
-export type AdaptedHero20Props = { [K in keyof typeof hero20ContentDefaults]: string };
-
-const wordmarks = [
-  {
-    name: "Halcyon",
-    className: "font-serif text-lg italic tracking-tight sm:text-xl",
-  },
-  {
-    name: "VERTEX",
-    className: "text-sm font-semibold tracking-[0.3em] sm:text-base",
-  },
-  {
-    name: "loopwork",
-    className: "text-lg font-medium tracking-tighter sm:text-xl",
-  },
-  {
-    name: "Nimbus",
-    className: "text-lg font-medium tracking-tight sm:text-xl",
-  },
-  {
-    name: "FORMA",
-    className: "text-base font-medium tracking-widest sm:text-lg",
-  },
-  {
-    name: "arcline",
-    className: "font-mono text-base tracking-tight sm:text-lg",
-  },
-];
-
-const metrics = [
-  { value: "4.2B", label: "Events processed daily" },
-  { value: "38ms", label: "Median query time" },
-  { value: "99.99%", label: "Uptime last 12 months" },
-  { value: "3,100+", label: "Teams on Meridian" },
-];
 
 const container: Variants = {
   hidden: {},
@@ -89,7 +59,7 @@ const groupItem: Variants = {
   },
 };
 
-export function AdaptedHero20({ heading, description, primaryButtonLabel, secondaryButtonLabel, trustLabel }: AdaptedHero20Props) {
+export function AdaptedHero20({ heading, description, primaryButtonLabel, secondaryButtonLabel, trustLabel, wordmarks, metrics }: AdaptedHero20Props) {
   return (
     <section className="relative flex min-h-screen w-full items-start overflow-hidden bg-white px-4 py-16 dark:bg-neutral-950 sm:px-6 sm:py-20 lg:items-center lg:px-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">

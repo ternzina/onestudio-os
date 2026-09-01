@@ -2,55 +2,26 @@
 
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
+import { cta14ContentDefaults } from "../../content-editability-batch-3-contracts";
+import type { Cta14Activity } from "../../content-editability-batch-3-contracts";
 
-export const cta14ContentDefaults = {
-  eyebrow: "Braid SDK",
-  heading: "Multiplayer, minus the rewrite.",
-  description: "Drop Braid into your existing stack and ship presence, comments, and real-time sync in an afternoon. The state layer is already solved. You just render it.",
-  primaryButtonLabel: "Start building",
-  secondaryButtonLabel: "Read the docs",
-  helperText: "Free up to 1,000 monthly active users",
-  collaborationLabel: "Editing together",
-  liveLabel: "3 people live",
-};
+export { cta14ContentDefaults };
 
-export type AdaptedCta14Props = { [K in keyof typeof cta14ContentDefaults]: string } & {
+export type AdaptedCta14Props = {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  primaryButtonLabel: string;
+  primaryButtonHref: string;
+  secondaryButtonLabel: string;
+  secondaryButtonHref: string;
+  helperText: string;
+  collaborationLabel: string;
+  liveLabel: string;
+  capabilities: readonly { label: string }[];
+  activity: readonly Cta14Activity[];
   loop?: boolean;
 };
-
-const capabilities = [
-  "Presence",
-  "Live cursors",
-  "CRDT sync",
-  "Comments",
-  "Mentions",
-  "Version history",
-  "Offline-first",
-  "Branching",
-  "Webhooks",
-  "Granular permissions",
-];
-
-const activity = [
-  {
-    initials: "JT",
-    name: "Jo Tan",
-    action: "resolved 3 suggestions",
-    time: "8m",
-  },
-  {
-    initials: "MR",
-    name: "Marco Ruiz",
-    action: "commented on §4. Rollout",
-    time: "2m",
-  },
-  {
-    initials: "AK",
-    name: "Ana Kim",
-    action: "joined Pricing draft",
-    time: "now",
-  },
-];
 
 const panel: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -91,7 +62,7 @@ const TagChip = ({ label }: { label: string }) => (
   </span>
 );
 
-export default function AdaptedCta14({ eyebrow, heading, description, primaryButtonLabel, secondaryButtonLabel, helperText, collaborationLabel, liveLabel, loop = true }: AdaptedCta14Props) {
+export default function AdaptedCta14({ eyebrow, heading, description, primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, helperText, collaborationLabel, liveLabel, capabilities, activity, loop = true }: AdaptedCta14Props) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -142,7 +113,7 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
                 className="mt-9 flex flex-col gap-3 sm:flex-row"
               >
                 <motion.a
-                  href="#"
+                  href={primaryButtonHref}
                   whileHover="hover"
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -154,7 +125,7 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
                   </motion.span>
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href={secondaryButtonHref}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   className="inline-flex w-full cursor-pointer items-center justify-center rounded-full border border-white/15 px-7 py-3.5 text-sm font-medium text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 sm:w-auto dark:focus-visible:ring-offset-neutral-900"
@@ -244,8 +215,8 @@ export default function AdaptedCta14({ eyebrow, heading, description, primaryBut
                 }
                 className="flex w-max gap-3 pl-3 will-change-transform"
               >
-                {[...capabilities, ...capabilities].map((label, i) => (
-                  <TagChip key={`${label}-${i}`} label={label} />
+                {[...capabilities, ...capabilities].map((capability, i) => (
+                  <TagChip key={`${capability.label}-${i}`} label={capability.label} />
                 ))}
               </motion.div>
             </div>

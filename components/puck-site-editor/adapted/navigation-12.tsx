@@ -3,19 +3,25 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { ArrowRight, Menu, X } from "lucide-react";
+import { navigation12ContentDefaults, navigation12Links } from "../content-editability-batch-3-contracts";
+
+export { navigation12ContentDefaults, navigation12Links };
 
 export type MenuLinkItem = { label: string };
 
 export type AdaptedNavigation12Props = {
-  links: MenuLinkItem[];
+  links: readonly MenuLinkItem[];
+  brandName: string;
+  brandHref: string;
+  primaryNavLabel: string;
+  mobileNavLabel: string;
+  signInLabel: string;
+  signInHref: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  openMenuLabel: string;
+  closeMenuLabel: string;
 };
-
-export const navigation12Links: MenuLinkItem[] = [
-  { label: "Overview" },
-  { label: "Product" },
-  { label: "Customers" },
-  { label: "Pricing" },
-];
 
 const menuStagger: Variants = {
   hidden: {},
@@ -30,7 +36,7 @@ const menuItem: Variants = {
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950";
 
-export default function AdaptedNavigation12({ links }: AdaptedNavigation12Props) {
+export default function AdaptedNavigation12({ links, brandName, brandHref, primaryNavLabel, mobileNavLabel, signInLabel, signInHref, primaryActionLabel, primaryActionHref, openMenuLabel, closeMenuLabel }: AdaptedNavigation12Props) {
   const [active, setActive] = useState(links[0]?.label ?? "");
   const [open, setOpen] = useState(false);
 
@@ -51,14 +57,14 @@ export default function AdaptedNavigation12({ links }: AdaptedNavigation12Props)
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="flex h-16 items-center justify-between gap-3 rounded-full border border-neutral-200/80 bg-white/80 pl-5 pr-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/80"
-          aria-label="Primary"
+          aria-label={primaryNavLabel}
         >
-          <a href="#" className={`flex items-center gap-2.5 rounded-full text-neutral-900 dark:text-white ${focusRing}`}>
+          <a href={brandHref} className={`flex items-center gap-2.5 rounded-full text-neutral-900 dark:text-white ${focusRing}`}>
             <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 dark:bg-white">
               <span className="absolute h-3 w-3 rounded-full border-[1.5px] border-white dark:border-neutral-900" />
               <span className="absolute right-1 top-1 h-1 w-1 rounded-full bg-white dark:bg-neutral-900" />
             </span>
-            <span className="text-[15px] font-semibold tracking-tight">Arc</span>
+            <span className="text-[15px] font-semibold tracking-tight">{brandName}</span>
           </a>
 
           <div className="hidden items-center md:flex">
@@ -77,14 +83,14 @@ export default function AdaptedNavigation12({ links }: AdaptedNavigation12Props)
           </div>
 
           <div className="flex items-center gap-1.5">
-            <a href="#" className={`hidden rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white md:inline-flex ${focusRing}`}>Sign in</a>
-            <a href="#" className={`hidden items-center gap-1.5 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 md:inline-flex ${focusRing}`}>Start free<ArrowRight className="h-3.5 w-3.5" /></a>
+            <a href={signInHref} className={`hidden rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white md:inline-flex ${focusRing}`}>{signInLabel}</a>
+            <a href={primaryActionHref} className={`hidden items-center gap-1.5 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 md:inline-flex ${focusRing}`}>{primaryActionLabel}<ArrowRight className="h-3.5 w-3.5" /></a>
             <button
               type="button"
               onClick={() => setOpen((value) => !value)}
               aria-expanded={open}
               aria-controls="nav12-mobile-menu"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? closeMenuLabel : openMenuLabel}
               className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-neutral-900 transition-colors duration-200 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 md:hidden ${focusRing}`}
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -102,7 +108,7 @@ export default function AdaptedNavigation12({ links }: AdaptedNavigation12Props)
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden md:hidden"
             >
-              <motion.nav initial="hidden" animate="visible" variants={menuStagger} className="mt-3 rounded-3xl border border-neutral-200/80 bg-white/90 p-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/90" aria-label="Mobile">
+              <motion.nav initial="hidden" animate="visible" variants={menuStagger} className="mt-3 rounded-3xl border border-neutral-200/80 bg-white/90 p-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/90" aria-label={mobileNavLabel}>
                 {links.map((link, index) => (
                   <motion.button
                     key={`${link.label}-${index}`}
@@ -116,8 +122,8 @@ export default function AdaptedNavigation12({ links }: AdaptedNavigation12Props)
                   </motion.button>
                 ))}
                 <motion.div variants={menuItem} className="mt-2 grid gap-2 border-t border-neutral-200 px-2 pb-2 pt-3 dark:border-neutral-800">
-                  <a href="#" className={`rounded-full border border-neutral-300 px-5 py-3 text-center text-sm font-medium text-neutral-900 transition-colors duration-200 hover:bg-neutral-50 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 ${focusRing}`}>Sign in</a>
-                  <a href="#" className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 ${focusRing}`}>Start free<ArrowRight className="h-3.5 w-3.5" /></a>
+                  <a href={signInHref} className={`rounded-full border border-neutral-300 px-5 py-3 text-center text-sm font-medium text-neutral-900 transition-colors duration-200 hover:bg-neutral-50 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 ${focusRing}`}>{signInLabel}</a>
+                  <a href={primaryActionHref} className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 ${focusRing}`}>{primaryActionLabel}<ArrowRight className="h-3.5 w-3.5" /></a>
                 </motion.div>
               </motion.nav>
             </motion.div>
