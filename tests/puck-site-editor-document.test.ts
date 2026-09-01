@@ -57,7 +57,7 @@ test("functions, non-finite numbers and unsafe prototype values are rejected", (
 });
 
 test("allow-list identities and physical catalogue keys are unique", () => {
-  assert.equal(PUCK_PRODUCTION_MANIFEST.length, 8);
+  assert.equal(PUCK_PRODUCTION_MANIFEST.length, 280);
   assert.equal(new Set(PUCK_PRODUCTION_MANIFEST.map((item) => item.id)).size, PUCK_PRODUCTION_MANIFEST.length);
   assert.equal(new Set(PUCK_PRODUCTION_MANIFEST.map((item) => item.catalogKey)).size, PUCK_PRODUCTION_MANIFEST.length);
   assert.equal(PUCK_PRODUCTION_MANIFEST.some((item) => /ballpit/i.test(item.id)), false);

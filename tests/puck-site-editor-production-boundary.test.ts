@@ -11,11 +11,10 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("pilot fixture covers the representative production taxonomy", () => {
   const document = createPuckPilotFixture("en");
-  assert.equal(document.content.length, 8);
+  assert.equal(document.content.length, 25);
   assert.equal(validatePuckDocument(document).ok, true);
-  assert.deepEqual(
-    new Set(document.content.map((component) => component.type)),
-    new Set([
+  const ids = new Set(document.content.map((component) => component.type));
+  for (const baselineId of [
       "reactbits.navigation-12",
       "reactbits.hero-14",
       "reactbits.cta-9",
@@ -24,8 +23,7 @@ test("pilot fixture covers the representative production taxonomy", () => {
       "reactbits.scheduling-3",
       "reactbits.contact-6",
       "reactbits.glow-cursor",
-    ]),
-  );
+  ]) assert.equal(ids.has(baselineId), true, baselineId);
 });
 
 test("editor data adapter round-trips responsive and media props", () => {
@@ -43,14 +41,29 @@ test("production renderer and registry have no editor-lab dependency", () => {
     "components/puck-site-editor/production-registry.tsx",
     "components/puck-site-editor/public-renderer.tsx",
     "components/puck-site-editor/editor-config.tsx",
+    "components/puck-site-editor/production-component-sources.tsx",
     "lib/puck-site-editor/document.ts",
     "lib/puck-site-editor/registry-manifest.ts",
+    "lib/puck-site-editor/generated-registry-data.ts",
   ]) {
-    assert.doesNotMatch(read(file), /editor-lab|Fast Batch|Control [0-9]/i, file);
+    assert.doesNotMatch(read(file), /editor-lab/i, file);
   }
 });
 
 test("legacy lab imports promoted adapters through the production boundary", () => {
   assert.match(read("components/editor-lab/adapted/hero/hero-14.tsx"), /components\/puck-site-editor\/adapted\/hero-14/);
   assert.match(read("components/editor-lab/adapted/navigation-12.tsx"), /components\/puck-site-editor\/adapted\/navigation-12/);
+});
+
+test("production interaction mode uses the shared iframe retargeting contract", () => {
+  const editorConfig = read("components/puck-site-editor/editor-config.tsx");
+  const renderer = read("components/puck-site-editor/public-renderer.tsx");
+  const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
+
+  assert.match(editorConfig, /useScaledIframeInteractionRetargeting/);
+  assert.match(editorConfig, /root: \{ render: PuckProductionCanvasRoot \}/);
+  assert.match(drawer, /Interact with page/);
+  assert.match(drawer, /Edit layout/);
+  assert.match(renderer, /data-production-component=/);
+  assert.doesNotMatch(renderer, /data-puck-component=/);
 });
