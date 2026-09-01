@@ -287,7 +287,10 @@ function Library({ onLiveChange, blocks, blockByCatalogKey, coreQa }: { onLiveCh
 function V3HeaderActions({ children }: { children: React.ReactNode }) {
   const dispatch = usePuck((state) => state.dispatch);
   const previewMode = usePuck((state) => state.appState.ui.previewMode);
+  const leftSideBarVisible = usePuck((state) => state.appState.ui.leftSideBarVisible);
+  const rightSideBarVisible = usePuck((state) => state.appState.ui.rightSideBarVisible);
   const interactive = previewMode === "interactive";
+  const editSidebarsRef = useRef({ leftSideBarVisible: true, rightSideBarVisible: true });
   const { saveStatus, save, publishMessage } = useBuilderSave();
   const saveLabel = saveStatus === "saving"
     ? "Saving…"
@@ -304,7 +307,28 @@ function V3HeaderActions({ children }: { children: React.ReactNode }) {
       type="button"
       className={styles.interactionToggle}
       aria-pressed={interactive}
-      onClick={() => dispatch({ type: "setUi", ui: { previewMode: interactive ? "edit" : "interactive" } })}
+      onClick={() => {
+        if (!interactive) {
+          editSidebarsRef.current = { leftSideBarVisible, rightSideBarVisible };
+          dispatch({
+            type: "setUi",
+            ui: {
+              previewMode: "interactive",
+              leftSideBarVisible: false,
+              rightSideBarVisible: false,
+            },
+          });
+          return;
+        }
+
+        dispatch({
+          type: "setUi",
+          ui: {
+            previewMode: "edit",
+            ...editSidebarsRef.current,
+          },
+        });
+      }}
     >
       {interactive ? "Edit layout" : "Interact with page"}
     </button>

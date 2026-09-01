@@ -13,7 +13,7 @@ import { defineVisualControls, type VisualControlContract } from "@/components/e
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 type Block = { type: string; displayName: string; catalogKey: string; description: string; component: AnyComponent; sourceKind: "component"; sourceTier: "FREE"; sourceProvenance: "REGISTRY"; tags: readonly string[]; defaultProps: Record<string, unknown>; fields: Record<string, unknown>; visualControls: readonly VisualControlContract[]; host: ReactBitsHostSpec; category: "React Bits Free Showcase"; readiness: "READY" };
-const host: ReactBitsHostSpec = { profile: "canvas", width: "full", height: "technical-definite", technicalHeight: { value: 480, provenance: "puck-technical" }, overflow: "clip", runtimeRisk: "webgl" };
+const host: ReactBitsHostSpec = { profile: "canvas", width: "full", height: "technical-definite", technicalHeight: { value: 480, provenance: "puck-technical" }, overflow: "clip", surfaceBackground: { value: "#000000", provenance: "official-demo" }, runtimeRisk: "webgl" };
 const block = (type: string, displayName: string, catalogKey: string, component: AnyComponent, visualControls: readonly VisualControlContract[]): Block => ({ type, displayName, catalogKey, component, description: `Official React Bits ${displayName} free component.`, sourceKind: "component", sourceTier: "FREE", sourceProvenance: "REGISTRY", tags: ["React Bits Free Showcase", "FREE", "REGISTRY"], defaultProps: {}, fields: {}, visualControls, host, category: "React Bits Free Showcase", readiness: "READY" });
 export const freeShowcaseBlocks = [
   block("RB_free_glow_cursor", "Glow Cursor", "current-free:glow-cursor", GlowCursor as unknown as AnyComponent, defineVisualControls([

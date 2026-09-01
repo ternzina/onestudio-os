@@ -30,6 +30,10 @@ export type ReactBitsHostSpec = {
     mode: "contain";
     intrinsicWidth: { value: number; provenance: "official-source" };
   };
+  surfaceBackground?: {
+    value: string;
+    provenance: "official-source" | "official-demo";
+  };
   runtimeRisk?: "none" | "dom" | "observer" | "resize-observer" | "webgl";
 };
 
@@ -71,6 +75,10 @@ function resolvedStyle(spec: ReactBitsHostSpec): CSSProperties {
 
   if (spec.height === "aspect" && spec.aspectRatio) {
     style.aspectRatio = spec.aspectRatio.value;
+  }
+
+  if (spec.surfaceBackground) {
+    style.backgroundColor = spec.surfaceBackground.value;
   }
 
   if (spec.sourceCssVariable) {

@@ -17,6 +17,7 @@ const canvasHost = {
   height: "technical-definite" as const,
   technicalHeight: { value: 480, provenance: "puck-technical" as const },
   overflow: "clip" as const,
+  surfaceBackground: { value: "#000000", provenance: "official-demo" as const },
   runtimeRisk: "webgl" as const,
 };
 
