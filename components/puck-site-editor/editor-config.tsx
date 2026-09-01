@@ -64,7 +64,7 @@ const components = Object.fromEntries(
       label: entry.label,
       fields: Object.fromEntries(
         Object.entries(entry.props)
-          .filter(([name, rule]) => name !== "id" && rule.editable !== false)
+          .filter(([name, rule]) => name !== "id" && rule.editable !== false && !entry.editorContract?.fields.some((field) => field.path.length === 1 && field.path[0] === name))
           .map(([name, rule]) => [name, fieldFor(name, rule)]),
       ),
       defaultProps: structuredClone(entry.defaults),

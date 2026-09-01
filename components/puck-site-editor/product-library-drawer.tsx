@@ -10,6 +10,7 @@ import {
   type ProductLibraryCategory,
 } from "@/lib/puck-site-editor/product-library";
 import styles from "./product-library-drawer.module.css";
+import { PuckProductionProperties } from "./production-properties-panel";
 
 const productItems = PUCK_PRODUCTION_MANIFEST.map((entry) => ({
   entry,
@@ -183,4 +184,5 @@ export function PuckPilotProductLibrary() {
 
 export const PUCK_PRODUCTION_EDITOR_OVERRIDES = {
   headerActions: PuckPilotHeaderActions,
+  fields: PuckProductionProperties,
 } as const;
