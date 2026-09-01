@@ -36,19 +36,34 @@ test("pilot library exposes the complete approved production set without blocked
 
 test("pilot uses local scoped persistence and production renderer without changing the current Site Editor", () => {
   const editor = fs.readFileSync(path.join(root, "components/puck-site-editor/pilot-editor.tsx"), "utf8");
+  const library = fs.readFileSync(path.join(root, "components/puck-site-editor/product-library-drawer.tsx"), "utf8");
   const preview = fs.readFileSync(path.join(root, "components/puck-site-editor/pilot-public-preview.tsx"), "utf8");
   const store = fs.readFileSync(path.join(root, "lib/puck-site-editor/client-local-store.ts"), "utf8");
   const currentEditor = fs.readFileSync(path.join(root, "app/admin/site/page.tsx"), "utf8");
 
-  assert.match(editor, /BuilderUxProvider/);
-  assert.match(editor, /BuilderFields/);
-  assert.match(editor, /BuilderFieldLabel/);
+  assert.doesNotMatch(editor, /components\/editor-lab/);
+  assert.match(editor, /plugins=\{plugins\}/);
+  assert.match(editor, /label: "Библиотека"/);
+  assert.match(editor, /"plugin-blocks": "Блоки"/);
+  assert.match(editor, /"plugin-outline": "Структура"/);
+  assert.match(library, /<Drawer\.Item name=\{entry\.id\} label=\{entry\.label\} \/>/);
+  assert.match(library, /type: "insert"/);
+  assert.doesNotMatch(library, /drawer: PuckPilotProductLibrary/);
   assert.match(editor, /writeLocalPuckDocument\("draft"/);
   assert.match(editor, /writeLocalPuckDocument\("published"/);
   assert.match(preview, /PuckPublicRenderer/);
   assert.match(store, /businessId.*locale.*pageId/s);
   assert.match(store, /onestudio:puck-pilot:.*:v1:/);
   assert.doesNotMatch(currentEditor, /puck-pilot/);
+});
+
+test("admin sidebar defers browser-only preference until after hydration", () => {
+  const sidebar = fs.readFileSync(path.join(root, "components/admin/AdminSidebar.tsx"), "utf8");
+  assert.match(sidebar, /const \[mounted, setMounted\] = useState\(false\)/);
+  assert.match(sidebar, /setCollapsed\(stored === "true"\)/);
+  assert.match(sidebar, /if \(!mounted\) return/);
+  assert.match(sidebar, /mounted && collapsed \? "-translate-x-full" : "translate-x-0"/);
+  assert.doesNotMatch(sidebar, /suppressHydrationWarning/);
 });
 
 test("admin pilot remains flag-gated and retains separate editor and public preview routes", () => {

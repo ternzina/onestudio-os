@@ -5,14 +5,10 @@ import Link from "next/link";
 import { Puck, type Data } from "@puckeditor/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "./editor-config";
-import { PUCK_PRODUCTION_EDITOR_OVERRIDES } from "./product-library-drawer";
 import {
-  BuilderFieldLabel,
-  BuilderFields,
-  BuilderUxProvider,
-} from "@/components/editor-lab/puck-v3/builder-ux-panel";
-import { buildStyleTransferContract } from "@/components/editor-lab/puck/builder-ux-contract";
-import { PUCK_PRODUCTION_MANIFEST } from "@/lib/puck-site-editor/registry-manifest";
+  PuckPilotProductLibrary,
+  PUCK_PRODUCTION_EDITOR_OVERRIDES,
+} from "./product-library-drawer";
 import { createPuckPilotFixture } from "@/lib/puck-site-editor/pilot-fixture";
 import { puckDataToDocument, puckDocumentToData, type ProductionPuckData } from "@/lib/puck-site-editor/data-adapter";
 import type { PuckDocumentV1 } from "@/lib/puck-site-editor/document";
@@ -26,26 +22,6 @@ type PilotEditorProps = {
   publicPreviewHref: string;
 };
 
-// These are the universal production-shell presentation controls. They are
-// intentionally separate from each block's explicit content props, so style
-// transfer never moves user-facing copy, media, or array data between blocks.
-const PILOT_STYLE_CONTRACT = buildStyleTransferContract(
-  PUCK_PRODUCTION_MANIFEST.map((entry) => ({
-    type: entry.id,
-    visualControls: [
-      { prop: "layoutWidth", group: "Appearance" as const, kind: "select" },
-      { prop: "paddingY", group: "Appearance" as const, kind: "select" },
-      { prop: "align", group: "Appearance" as const, kind: "select" },
-      { prop: "mobileWidth", group: "Appearance" as const, kind: "select" },
-      { prop: "mobileHidden", group: "Appearance" as const, kind: "toggle" },
-      { prop: "backgroundColor", group: "Appearance" as const, kind: "color" },
-      { prop: "textColor", group: "Appearance" as const, kind: "color" },
-      { prop: "motion", group: "Behavior" as const, kind: "select" },
-    ],
-  })),
-  PUCK_PRODUCTION_EDITOR_CONFIG,
-);
-
 export default function PuckPilotEditor({
   businessId,
   locale,
@@ -58,11 +34,12 @@ export default function PuckPilotEditor({
   const [status, setStatus] = useState<"saved" | "unsaved" | "error">("saved");
   const [message, setMessage] = useState("");
   const documentRef = useRef(fallback);
-  const overrides = useMemo(() => ({
-    ...PUCK_PRODUCTION_EDITOR_OVERRIDES,
-    fields: BuilderFields,
-    fieldLabel: BuilderFieldLabel,
-  }), []);
+  const plugins = useMemo(() => [{
+    name: "library",
+    label: "Библиотека",
+    render: PuckPilotProductLibrary,
+    mobilePanelHeight: "min-content" as const,
+  }], []);
 
   useEffect(() => {
     try {
@@ -144,37 +121,37 @@ export default function PuckPilotEditor({
         {message ? <span role={status === "error" ? "alert" : "status"}>{message}</span> : null}
       </div>
       <div className={styles.editor}>
-        <BuilderUxProvider
-          styleContract={PILOT_STYLE_CONTRACT}
-          saveStatus={status}
-          save={save}
-          publishMessage={message}
+        <Puck
+          config={PUCK_PRODUCTION_EDITOR_CONFIG}
+          data={data}
+          onChange={onChange}
+          onPublish={publish}
+          overrides={PUCK_PRODUCTION_EDITOR_OVERRIDES}
+          plugins={plugins}
+          headerTitle="OneStudio · Puck Pilot"
+          ui={{
+            leftSideBarVisible: true,
+            rightSideBarVisible: true,
+            previewMode: "edit",
+            plugin: { current: "library" },
+            viewports: {
+              current: { width: 1280, height: "auto" },
+              controlsVisible: true,
+              options: [
+                { label: "Desktop", width: 1280, height: "auto" },
+                { label: "Tablet", width: 768, height: "auto" },
+                { label: "Mobile", width: 390, height: "auto" },
+              ],
+            },
+          }}
+          dictionary={{
+            "plugin-blocks": "Блоки",
+            "plugin-outline": "Структура",
+            "outline-header-title": "Структура",
+          }}
         >
-          <Puck
-            config={PUCK_PRODUCTION_EDITOR_CONFIG}
-            data={data}
-            onChange={onChange}
-            onPublish={publish}
-            overrides={overrides}
-            headerTitle="OneStudio · Puck Pilot"
-            ui={{
-              leftSideBarVisible: true,
-              rightSideBarVisible: true,
-              previewMode: "edit",
-              viewports: {
-                current: { width: 1280, height: "auto" },
-                controlsVisible: true,
-                options: [
-                  { label: "Desktop", width: 1280, height: "auto" },
-                  { label: "Tablet", width: 768, height: "auto" },
-                  { label: "Mobile", width: 390, height: "auto" },
-                ],
-              },
-            }}
-          >
-            <Puck.Layout />
-          </Puck>
-        </BuilderUxProvider>
+          <Puck.Layout />
+        </Puck>
       </div>
     </div>
   );

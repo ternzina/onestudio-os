@@ -67,6 +67,8 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
 }
 
 export function PuckPilotProductLibrary() {
+  const dispatch = usePuck((state) => state.dispatch);
+  const content = usePuck((state) => state.appState.data.content);
   const [query, setQuery] = useState("");
   const [collapsedCategories, setCollapsedCategories] = useState<Set<ProductLibraryCategory>>(
     () => new Set(PRODUCT_LIBRARY_CATEGORY_ORDER),
@@ -89,14 +91,31 @@ export function PuckPilotProductLibrary() {
     });
   };
 
+  const add = (componentType: string) => {
+    const destinationIndex = content.length;
+    dispatch({
+      type: "insert",
+      componentType,
+      destinationIndex,
+      destinationZone: "root:default-zone",
+      id: crypto.randomUUID(),
+      recordHistory: true,
+    });
+    dispatch({
+      type: "setUi",
+      ui: { itemSelector: { index: destinationIndex, zone: "root:default-zone" } },
+      recordHistory: false,
+    });
+  };
+
   return (
     <aside className={styles.library} aria-label="Product component library">
       <header className={styles.header}>
-        <h2>Component Library</h2>
+        <h2>Библиотека блоков</h2>
         <div className={styles.search}>
           <input
-            aria-label="Search components"
-            placeholder="Search components…"
+            aria-label="Поиск блоков"
+            placeholder="Поиск блоков…"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -134,16 +153,20 @@ export function PuckPilotProductLibrary() {
                 <div className={styles.items} id={contentId}>
                   <Drawer>
                     {items.map(({ entry }) => (
-                      <Drawer.Item name={entry.id} label={entry.label} key={entry.id}>
-                        {({ children }) => (
-                          <div className={styles.item}>
-                            {children}
-                            <span className={styles.tierBadge} data-tier={entry.sourceTier}>
-                              {entry.sourceTier}
-                            </span>
-                          </div>
-                        )}
-                      </Drawer.Item>
+                      <div className={styles.item} key={entry.id}>
+                        <Drawer.Item name={entry.id} label={entry.label} />
+                        <span className={styles.tierBadge} data-tier={entry.sourceTier}>
+                          {entry.sourceTier}
+                        </span>
+                        <button
+                          className={styles.addButton}
+                          type="button"
+                          aria-label={`Добавить ${entry.label}`}
+                          onClick={() => add(entry.id)}
+                        >
+                          +
+                        </button>
+                      </div>
                     ))}
                   </Drawer>
                 </div>
@@ -159,6 +182,5 @@ export function PuckPilotProductLibrary() {
 }
 
 export const PUCK_PRODUCTION_EDITOR_OVERRIDES = {
-  drawer: PuckPilotProductLibrary,
   headerActions: PuckPilotHeaderActions,
 } as const;

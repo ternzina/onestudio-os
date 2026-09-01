@@ -114,7 +114,7 @@
 .tierBadge {
   position: absolute;
   top: 50%;
-  right: 32px;
+  right: 42px;
   border-radius: 999px;
   padding: 3px 5px;
   background: #e2e8f0;
@@ -125,6 +125,30 @@
   line-height: 1;
   pointer-events: none;
   transform: translateY(-50%);
+}
+
+.addButton {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid #d6d3d1;
+  border-radius: 6px;
+  background: #fff;
+  color: #292524;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.addButton:hover,
+.addButton:focus-visible {
+  border-color: #78716c;
+  background: #f5f5f4;
 }
 
 .tierBadge[data-tier="FREE"] {
