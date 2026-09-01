@@ -16,7 +16,7 @@ function lazyComponent(loader: () => Promise<Readonly<Record<string, unknown>>>,
 }
 
 export const PUCK_PRODUCTION_COMPONENTS_BY_CATALOG_KEY: Readonly<Record<string, ProductionSourceComponent>> = {
-  "pro-block:navigation-13": lazyComponent(() => import("@/components/blocks/navigation-13"), ["Navigation13","Navigation13"]),
+  "pro-block:navigation-13": lazyComponent(() => import("@/components/puck-site-editor/adapted/navigation-13"), ["AdaptedNavigation13","Navigation13"]),
   "pro-block:hero-16": lazyComponent(() => import("@/components/blocks/hero-16"), ["Hero16","Hero16"]),
   "pro-block:showcase-4": lazyComponent(() => import("@/components/blocks/showcase-4"), ["Showcase4","Showcase4"]),
   "pro-block:features-1": lazyComponent(() => import("@/components/blocks/features-1"), ["Features1","Features1"]),

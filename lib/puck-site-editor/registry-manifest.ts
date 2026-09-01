@@ -4,6 +4,10 @@ import { hero6SlidesDefaults } from "../../components/puck-site-editor/adapted/h
 import type { ProductLibraryCategory } from "./product-library.ts";
 import { PUCK_PRODUCTION_RUNTIME_EXCLUSIONS } from "./runtime-exclusions.ts";
 import { PUCK_BATCH_1_EDITOR_CONTRACTS } from "../../components/puck-site-editor/content-editability-batch-1-contracts.ts";
+import {
+  PUCK_BATCH_2_EDITOR_CONTRACTS,
+  navigation13EditorContract,
+} from "../../components/puck-site-editor/content-editability-batch-2-contracts.ts";
 
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
@@ -455,12 +459,61 @@ const HERO6_OVERRIDE = {
   editorContract: hero6EditorContract,
 } as const;
 
+const PUCK_PRODUCTION_EDITOR_CONTRACTS: Readonly<Partial<Record<string, ComponentEditorContract>>> = {
+  ...PUCK_BATCH_1_EDITOR_CONTRACTS,
+  ...PUCK_BATCH_2_EDITOR_CONTRACTS,
+};
+
+type PuckProductionManifestOverride = Partial<Pick<
+  PuckRegistryManifestEntry,
+  "editorAdapter" | "publicRenderer" | "rendererSource" | "host" | "props" | "defaults"
+>>;
+
+const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProductionManifestOverride>> = {
+  "pro-block:navigation-13": {
+    editorAdapter: "adapted-navigation-13",
+    publicRenderer: "adapted-navigation-13",
+    rendererSource: "@/components/puck-site-editor/adapted/navigation-13",
+    host: {
+      profile: "section",
+      width: "full",
+      height: "intrinsic",
+      overflow: "source",
+      runtimeRisk: "dom",
+    },
+    props: {
+      brandName: text(120),
+      brandHref: text(2_048),
+      primaryActionLabel: text(120),
+      primaryActionHref: text(2_048),
+      contactEyebrow: text(120),
+      contactEmail: text(320),
+      secondaryActionLabel: text(120),
+      secondaryActionHref: text(2_048),
+      links: {
+        kind: "array",
+        editable: true,
+        maxItems: 8,
+        item: {
+          kind: "object",
+          properties: {
+            label: text(80),
+            href: text(2_048),
+          },
+        },
+      },
+    },
+    defaults: navigation13EditorContract.defaultProps,
+  },
+};
+
 const expandedEntry = (
   generated: (typeof PUCK_EXPANDED_REGISTRY_DATA)[number],
 ): PuckRegistryManifestEntry => {
+  const override = PUCK_PRODUCTION_MANIFEST_OVERRIDES[generated.catalogKey];
   const editorContract = generated.id === "RB_batch7_hero_6"
     ? HERO6_OVERRIDE.editorContract
-    : PUCK_BATCH_1_EDITOR_CONTRACTS[generated.catalogKey];
+    : PUCK_PRODUCTION_EDITOR_CONTRACTS[generated.catalogKey];
   return {
     id: generated.id,
     catalogKey: generated.catalogKey,
@@ -471,23 +524,23 @@ const expandedEntry = (
     sourceKind: generated.sourceKind,
     officialSlug: generated.officialSlug,
     physicalSource: generated.physicalSource,
-    rendererSource: generated.rendererSource,
+    rendererSource: override?.rendererSource ?? generated.rendererSource,
     legacyIds: generated.legacyIds,
-    editorAdapter: "production-source",
-    publicRenderer: "production-source",
-    host: generated.host as PuckProductionHostSpec | null,
+    editorAdapter: override?.editorAdapter ?? "production-source",
+    publicRenderer: override?.publicRenderer ?? "production-source",
+    host: (override?.host ?? generated.host) as PuckProductionHostSpec | null,
     definiteHeight: generated.definiteHeight,
     runtimeFamily: generated.runtimeFamily,
     documentVersions: [1],
     props: {
       ...PUCK_COMMON_PROP_RULES,
-      ...(generated.id === "RB_batch7_hero_6"
+      ...(override?.props ?? (generated.id === "RB_batch7_hero_6"
         ? HERO6_OVERRIDE.props
-        : generated.props as Readonly<Record<string, PuckPropRule>>),
+        : generated.props as Readonly<Record<string, PuckPropRule>>)),
     },
     defaults: {
       ...PUCK_COMMON_DEFAULTS,
-      ...(generated.id === "RB_batch7_hero_6" ? HERO6_OVERRIDE.defaults : generated.defaults),
+      ...(override?.defaults ?? (generated.id === "RB_batch7_hero_6" ? HERO6_OVERRIDE.defaults : generated.defaults)),
     },
     ...(editorContract ? { editorContract } : {}),
   };
