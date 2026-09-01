@@ -1,4 +1,5 @@
 import { PUCK_EXPANDED_REGISTRY_DATA } from "./generated-registry-data.ts";
+import type { ComponentEditorContract } from "./builder-contract.ts";
 import type { ProductLibraryCategory } from "./product-library.ts";
 import { PUCK_PRODUCTION_RUNTIME_EXCLUSIONS } from "./runtime-exclusions.ts";
 
@@ -68,6 +69,7 @@ export type PuckRegistryManifestEntry = {
   documentVersions: readonly [1];
   props: Readonly<Record<string, PuckPropRule>>;
   defaults: Readonly<Record<string, unknown>>;
+  editorContract?: ComponentEditorContract;
 };
 
 const text = (maxLength = 2_000): PrimitivePuckPropRule => ({ kind: "string", maxLength });
@@ -115,6 +117,45 @@ type PilotManifestEntry = Omit<
   | "definiteHeight"
   | "runtimeFamily"
 >;
+
+const HERO_14_EDITOR_CONTRACT = {
+  componentId: "reactbits.hero-14",
+  defaultProps: {
+    rating: "5 stars",
+    reviews: "3,000+ reviews",
+    headingLine1: "Focus on work.",
+    headingLine2: "We handle ops.",
+    description: "Streamlined team expenses, automated invoicing, payroll management, and real-time reporting. All in one place.",
+    emailPlaceholder: "What's your work email?",
+    buttonLabel: "Get started for free",
+    linkLabel: "Explore product",
+    mediaUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop",
+  },
+  fields: [
+    { key: "rating", path: ["rating"], group: "CONTENT", label: "Rating", type: "text", originalValue: "5 stars", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "reviews", path: ["reviews"], group: "CONTENT", label: "Reviews", type: "text", originalValue: "3,000+ reviews", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "headingLine1", path: ["headingLine1"], group: "CONTENT", label: "Heading line 1", type: "text", originalValue: "Focus on work.", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "headingLine2", path: ["headingLine2"], group: "CONTENT", label: "Heading line 2", type: "text", originalValue: "We handle ops.", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "description", path: ["description"], group: "CONTENT", label: "Description", type: "textarea", originalValue: "Streamlined team expenses, automated invoicing, payroll management, and real-time reporting. All in one place.", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "emailPlaceholder", path: ["emailPlaceholder"], group: "CONTENT", label: "Email placeholder", type: "text", originalValue: "What's your work email?", inlineEditable: false, mediaEligible: false, resettable: true },
+    { key: "buttonLabel", path: ["buttonLabel"], group: "ACTIONS", label: "Primary button label", type: "text", originalValue: "Get started for free", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "linkLabel", path: ["linkLabel"], group: "ACTIONS", label: "Secondary action label", type: "text", originalValue: "Explore product", inlineEditable: true, mediaEligible: false, resettable: true },
+    { key: "mediaUrl", path: ["mediaUrl"], group: "MEDIA", label: "Product preview", type: "media", originalValue: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop", inlineEditable: false, mediaEligible: true, resettable: true },
+  ],
+  contentFields: ["rating", "reviews", "headingLine1", "headingLine2", "description", "emailPlaceholder"],
+  mediaFields: [{ fieldKey: "mediaUrl", path: ["mediaUrl"], originalValue: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop", allowManualUrl: true, allowLibrarySelection: true, uploadSupported: false }],
+  actionFields: ["buttonLabel", "linkLabel"],
+  arrays: [],
+  inlineFields: [
+    { fieldKey: "rating", path: ["rating"], valueType: "text" },
+    { fieldKey: "reviews", path: ["reviews"], valueType: "text" },
+    { fieldKey: "headingLine1", path: ["headingLine1"], valueType: "text" },
+    { fieldKey: "headingLine2", path: ["headingLine2"], valueType: "text" },
+    { fieldKey: "description", path: ["description"], valueType: "textarea" },
+    { fieldKey: "buttonLabel", path: ["buttonLabel"], valueType: "text" },
+    { fieldKey: "linkLabel", path: ["linkLabel"], valueType: "text" },
+  ],
+} as const satisfies ComponentEditorContract;
 
 const entry = (input: PilotManifestEntry): PuckRegistryManifestEntry => {
   const generated = generatedByCatalogKey.get(input.catalogKey);
@@ -191,6 +232,7 @@ export const PUCK_PILOT_BASELINE_MANIFEST = [
       linkLabel: "Explore product",
       mediaUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop",
     },
+    editorContract: HERO_14_EDITOR_CONTRACT,
   }),
   entry({
     id: "reactbits.cta-9",
