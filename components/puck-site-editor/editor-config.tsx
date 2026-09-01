@@ -7,7 +7,16 @@ import {
   type PuckPropRule,
 } from "@/lib/puck-site-editor/registry-manifest";
 import type { PuckDocumentComponent } from "@/lib/puck-site-editor/document";
+import { PRODUCT_LIBRARY_CATEGORY_ORDER } from "@/lib/puck-site-editor/product-library";
 import { PuckProductionBlock } from "./public-renderer";
+import { useScaledIframeInteractionRetargeting } from "./scaled-iframe-interactions";
+import { useRef, type ReactNode } from "react";
+
+function PuckProductionCanvasRoot({ children }: { children: ReactNode }) {
+  const rootRef = useRef<HTMLElement>(null);
+  useScaledIframeInteractionRetargeting(rootRef);
+  return <main ref={rootRef}>{children}</main>;
+}
 
 function fieldForRule(label: string, rule: PrimitivePuckPropRule): Field {
   if (rule.kind === "boolean") return { type: "radio", label, options: [{ label: "Yes", value: true }, { label: "No", value: false }] };
@@ -22,15 +31,28 @@ function labelFor(name: string) {
 }
 
 function fieldFor(name: string, rule: PuckPropRule): Field {
+  if (rule.kind === "object") {
+    return {
+      type: "object",
+      label: labelFor(name),
+      objectFields: Object.fromEntries(
+        Object.entries(rule.properties)
+          .filter(([, itemRule]) => itemRule.editable !== false)
+          .map(([itemName, itemRule]) => [itemName, fieldFor(itemName, itemRule)]),
+      ),
+    };
+  }
   if (rule.kind !== "array") return fieldForRule(labelFor(name), rule);
+  if (rule.item.kind !== "object") {
+    throw new Error(`Editable production array requires object items: ${name}`);
+  }
   return {
     type: "array",
     label: labelFor(name),
     arrayFields: Object.fromEntries(
-      Object.entries(rule.item.properties).map(([itemName, itemRule]) => [
-        itemName,
-        fieldForRule(labelFor(itemName), itemRule),
-      ]),
+      Object.entries(rule.item.properties)
+        .filter(([, itemRule]) => itemRule.editable !== false)
+        .map(([itemName, itemRule]) => [itemName, fieldFor(itemName, itemRule)]),
     ),
     getItemSummary: (item, index) => String(item.title ?? item.label ?? `Item ${Number(index ?? 0) + 1}`),
   };
@@ -42,7 +64,7 @@ const components = Object.fromEntries(
       label: entry.label,
       fields: Object.fromEntries(
         Object.entries(entry.props)
-          .filter(([name]) => name !== "id")
+          .filter(([name, rule]) => name !== "id" && rule.editable !== false)
           .map(([name, rule]) => [name, fieldFor(name, rule)]),
       ),
       defaultProps: structuredClone(entry.defaults),
@@ -61,16 +83,19 @@ const components = Object.fromEntries(
   }),
 );
 
-const categoryNames = [...new Set(PUCK_PRODUCTION_MANIFEST.map((entry) => entry.taxonomy))];
+const categoryNames = PRODUCT_LIBRARY_CATEGORY_ORDER.filter((taxonomy) =>
+  PUCK_PRODUCTION_MANIFEST.some((entry) => entry.taxonomy === taxonomy),
+);
 
 export const PUCK_PRODUCTION_EDITOR_CONFIG: Config = {
+  root: { render: PuckProductionCanvasRoot },
   components,
   categories: Object.fromEntries(
     categoryNames.map((taxonomy) => [
       taxonomy.toLowerCase().replace(/\s+/g, "-"),
       {
         title: taxonomy,
-        defaultExpanded: taxonomy === "Hero" || taxonomy === "Navigation",
+        defaultExpanded: false,
         components: PUCK_PRODUCTION_MANIFEST.filter((entry) => entry.taxonomy === taxonomy).map((entry) => entry.id),
       },
     ]),

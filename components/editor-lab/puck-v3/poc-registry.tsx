@@ -23,89 +23,61 @@ import SocialProof6 from "@/components/blocks/social-proof-6";
 import SocialProof3 from "@/components/blocks/social-proof-3";
 import Contact2 from "@/components/blocks/contact-2";
 import Footer3 from "@/components/blocks/footer-3";
-import {
-  control3Blocks,
-  control3Categories,
-  control3Components,
-} from "@/components/editor-lab/reactbits-control-3/puck-control-registry";
-import {
-  control6Blocks,
-  control6Categories,
-  control6Components,
-} from "@/components/editor-lab/reactbits-control-6/puck-control-registry";
+import { control3Blocks } from "@/components/editor-lab/reactbits-control-3/puck-control-registry";
+import { control6Blocks } from "@/components/editor-lab/reactbits-control-6/puck-control-registry";
 import {
   fastBatch1Blocks,
-  fastBatch1Categories,
-  fastBatch1Components,
   fastBatch1PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-1/puck-fast-batch-registry";
 import {
   fastBatch2Blocks,
-  fastBatch2Categories,
-  fastBatch2Components,
   fastBatch2PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-2/puck-fast-batch-registry";
 import {
   fastBatch3Blocks,
-  fastBatch3Categories,
-  fastBatch3Components,
   fastBatch3PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-3/puck-fast-batch-registry";
 import {
   fastBatch4Blocks,
-  fastBatch4Categories,
-  fastBatch4Components,
   fastBatch4PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-4/puck-fast-batch-registry";
 import {
   fastBatch5Blocks,
-  fastBatch5Categories,
-  fastBatch5Components,
   fastBatch5PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-5/puck-fast-batch-registry";
 import {
   fastBatch6Blocks,
-  fastBatch6Categories,
-  fastBatch6Components,
   fastBatch6PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-6/puck-fast-batch-registry";
 import {
   fastBatch7Blocks,
-  fastBatch7Categories,
-  fastBatch7Components,
   fastBatch7PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-7/puck-fast-batch-registry";
 import {
   fastBatch8Blocks,
-  fastBatch8Categories,
-  fastBatch8Components,
   fastBatch8PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-8/puck-fast-batch-registry";
 import {
   fastBatch9Blocks,
-  fastBatch9Categories,
-  fastBatch9Components,
   fastBatch9PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-9/puck-fast-batch-registry";
 import {
   fastBatch10Blocks,
-  fastBatch10Categories,
-  fastBatch10Components,
   fastBatch10PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-10/puck-fast-batch-registry";
 import {
   fastBatch11Blocks,
-  fastBatch11Categories,
-  fastBatch11Components,
   fastBatch11PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-11/puck-fast-batch-registry";
 import {
   fastBatch12Blocks,
-  fastBatch12Categories,
-  fastBatch12Components,
   fastBatch12PuckBlocks,
 } from "@/components/editor-lab/reactbits-fast-batch-12/puck-fast-batch-registry";
-import { freeShowcaseBlocks, freeShowcaseCategories, freeShowcaseComponents } from "@/components/editor-lab/reactbits-free-showcase/puck-free-showcase-registry";
+import { freeShowcaseBlocks } from "@/components/editor-lab/reactbits-free-showcase/puck-free-showcase-registry";
+import {
+  buildProductLibraryCategories,
+  withProductLibraryMetadata,
+} from "@/lib/puck-site-editor/product-library";
 
 type AnyComponent = (props: Record<string, unknown>) => ReactNode;
 const poc = <Props extends Record<string, unknown>>(input: {
@@ -155,7 +127,11 @@ const manualPocBlocks = [
 // Stable foundation deliberately registers a small, explicit set of blocks.
 // The official React Bits catalog is metadata-only at this boundary and will be
 // connected in a later integration stage after each source is verified.
-export const pocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks, ...fastBatch10PuckBlocks, ...fastBatch11PuckBlocks, ...fastBatch12PuckBlocks, ...freeShowcaseBlocks];
+const rawPocBlocks = [...manualPocBlocks, ...control3Blocks, ...control6Blocks, ...fastBatch1PuckBlocks, ...fastBatch2PuckBlocks, ...fastBatch3PuckBlocks, ...fastBatch4PuckBlocks, ...fastBatch5PuckBlocks, ...fastBatch6PuckBlocks, ...fastBatch7PuckBlocks, ...fastBatch8PuckBlocks, ...fastBatch9PuckBlocks, ...fastBatch10PuckBlocks, ...fastBatch11PuckBlocks, ...fastBatch12PuckBlocks, ...freeShowcaseBlocks];
+
+// Product-facing display metadata is additive. Stable Puck component ids,
+// catalog keys, physical source paths and dev provenance remain unchanged.
+export const pocBlocks = rawPocBlocks.map((block) => withProductLibraryMetadata(block));
 
 const duplicateValues = (values: string[]) => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
 const duplicateCatalogKeys = duplicateValues(pocBlocks.map((block) => block.catalogKey));
@@ -182,58 +158,10 @@ export const pocRegistryAccounting = {
 };
 
 export const pocBlockByCatalogKey = new Map(pocBlocks.map((block) => [block.catalogKey, block]));
-export const pocComponents = {
-  ...Object.fromEntries(manualPocBlocks.map((block) => [
+export const pocComponents = Object.fromEntries(pocBlocks.map((block) => [
   block.type,
   block.sourceKind === "pro-block"
     ? createMarketingPuckComponent(block as never)
     : createPuckComponent(block as never, { showLabLabel: false }),
-  ])),
-  ...control3Components,
-  ...control6Components,
-  ...fastBatch1Components,
-  ...fastBatch2Components,
-  ...fastBatch3Components,
-  ...fastBatch4Components,
-  ...fastBatch5Components,
-  ...fastBatch6Components,
-  ...fastBatch7Components,
-  ...fastBatch8Components,
-  ...fastBatch9Components,
-  ...fastBatch10Components,
-  ...fastBatch11Components,
-  ...fastBatch12Components,
-  ...freeShowcaseComponents,
-};
-export const pocCategories = {
-  ...control3Categories,
-  ...control6Categories,
-  ...fastBatch1Categories,
-  ...fastBatch2Categories,
-  ...fastBatch3Categories,
-  ...fastBatch4Categories,
-  ...fastBatch5Categories,
-  ...fastBatch6Categories,
-  ...fastBatch7Categories,
-  ...fastBatch8Categories,
-  ...fastBatch9Categories,
-  ...fastBatch10Categories,
-  ...fastBatch11Categories,
-  ...fastBatch12Categories,
-  ...freeShowcaseCategories,
-  officialReactBits: {
-    title: "Official React Bits",
-    defaultExpanded: true,
-    components: pocBlocks.filter((block) => block.catalogKey.startsWith("component:") || block.catalogKey.startsWith("starter:")).map((block) => block.type),
-  },
-  marketingBlocks: {
-    title: "Marketing Blocks",
-    defaultExpanded: false,
-    components: pocBlocks.filter((block) => block.catalogKey.startsWith("pro-block:")).map((block) => block.type),
-  },
-  experimentalCurrentFree: {
-    title: "Experimental / Current-free",
-    defaultExpanded: false,
-    components: pocBlocks.filter((block) => block.catalogKey.startsWith("current-free:")).map((block) => block.type),
-  },
-};
+  ]));
+export const pocCategories = buildProductLibraryCategories(pocBlocks);

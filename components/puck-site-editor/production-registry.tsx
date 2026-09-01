@@ -1,45 +1,13 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
-import AdaptedContact6 from "./adapted/contact-6";
-import AdaptedCta9 from "./adapted/cta-9";
-import AdaptedHero14 from "./adapted/hero-14";
-import AdaptedNavigation12 from "./adapted/navigation-12";
-import { AdaptedPricing3 } from "./adapted/pricing-3";
-import Scheduling3 from "@/components/blocks/scheduling-3";
-import SocialProof10 from "@/components/blocks/social-proof-10";
-import GlowCursor from "@/components/react-bits/GlowCursor";
 import {
   PUCK_PRODUCTION_MANIFEST,
   type PuckRegistryManifestEntry,
 } from "@/lib/puck-site-editor/registry-manifest";
+import { PUCK_PRODUCTION_COMPONENTS_BY_CATALOG_KEY } from "./production-component-sources";
 
 type PublicRenderer = (props: Record<string, unknown>) => ReactNode;
-
-const rendererImplementations: Readonly<Record<string, PublicRenderer>> = {
-  "adapted-navigation-12": (props) => (
-    <AdaptedNavigation12 links={props.links as Parameters<typeof AdaptedNavigation12>[0]["links"]} />
-  ),
-  "adapted-hero-14": (props) => (
-    <AdaptedHero14 {...(props as Parameters<typeof AdaptedHero14>[0])} />
-  ),
-  "adapted-cta-9": (props) => (
-    <AdaptedCta9 {...(props as Parameters<typeof AdaptedCta9>[0])} />
-  ),
-  "adapted-pricing-3": (props) => (
-    <AdaptedPricing3 plans={props.plans as Parameters<typeof AdaptedPricing3>[0]["plans"]} />
-  ),
-  "official-social-proof-10": () => <SocialProof10 />,
-  "official-scheduling-3": () => <Scheduling3 />,
-  "adapted-contact-6": (props) => (
-    <AdaptedContact6 {...(props as Parameters<typeof AdaptedContact6>[0])} />
-  ),
-  "official-glow-cursor": (props) => (
-    <div className="relative h-[480px] min-h-[480px] w-full overflow-hidden bg-neutral-950">
-      <GlowCursor {...(props as Parameters<typeof GlowCursor>[0])} />
-    </div>
-  ),
-};
 
 export type PuckProductionRegistryEntry = PuckRegistryManifestEntry & {
   renderPublic: PublicRenderer;
@@ -55,11 +23,10 @@ function PublicComponentAdapter({
 
 export const PUCK_PRODUCTION_REGISTRY: readonly PuckProductionRegistryEntry[] =
   PUCK_PRODUCTION_MANIFEST.map((manifest) => {
-    const publicRenderer = rendererImplementations[manifest.publicRenderer];
-    const editorRenderer = rendererImplementations[manifest.editorAdapter];
-    if (!publicRenderer || !editorRenderer) {
-      throw new Error(`Missing production Puck renderer: ${manifest.id}`);
-    }
+    const Source = PUCK_PRODUCTION_COMPONENTS_BY_CATALOG_KEY[manifest.catalogKey];
+    if (!Source) throw new Error(`Missing production Puck renderer: ${manifest.id}`);
+    const publicRenderer: PublicRenderer = (props) => <Source {...props} />;
+    const editorRenderer = publicRenderer;
     const EditorComponent = (props: Record<string, unknown>) => (
       <PublicComponentAdapter {...props} renderer={editorRenderer} />
     );

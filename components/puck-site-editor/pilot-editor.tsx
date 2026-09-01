@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Puck, type Data } from "@puckeditor/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "./editor-config";
+import { PUCK_PRODUCTION_EDITOR_OVERRIDES } from "./product-library-drawer";
 import { createPuckPilotFixture } from "@/lib/puck-site-editor/pilot-fixture";
 import { puckDataToDocument, puckDocumentToData, type ProductionPuckData } from "@/lib/puck-site-editor/data-adapter";
 import type { PuckDocumentV1 } from "@/lib/puck-site-editor/document";
@@ -116,6 +117,7 @@ export default function PuckPilotEditor({
           data={data}
           onChange={onChange}
           onPublish={publish}
+          overrides={PUCK_PRODUCTION_EDITOR_OVERRIDES}
           headerTitle="OneStudio · Puck Pilot"
           ui={{
             leftSideBarVisible: true,

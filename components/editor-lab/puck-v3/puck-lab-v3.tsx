@@ -17,6 +17,12 @@ import {
   BuilderUxProvider,
   useBuilderSave,
 } from "./builder-ux-panel";
+import {
+  matchesProductLibrarySearch,
+  PRODUCT_LIBRARY_CATEGORY_ORDER,
+  sortProductLibraryBlocks,
+} from "@/lib/puck-site-editor/product-library";
+import { useScaledIframeInteractionRetargeting } from "@/components/puck-site-editor/scaled-iframe-interactions";
 
 const usePuck = createUsePuck();
 const EMPTY_DATA: Data = { root: { props: {} }, content: [] };
@@ -32,109 +38,14 @@ const PuckPreviewContext = createContext<{
 }>({ activeKey: null, setActiveKey: () => undefined });
 const agencySlugs = ["navigation-13", "hero-16", "showcase-4", "features-1", "how-it-works-4", "about-1", "social-proof-6", "social-proof-3", "contact-2", "footer-3"] as const;
 const agencyBlocks = agencySlugs.map((slug) => pocBlockByCatalogKey.get(`pro-block:${slug}`)).filter(Boolean);
-const libraryGroupOrder = ["React Bits Control 3", "React Bits Control 6", "React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "React Bits Fast Batch 7", "React Bits Fast Batch 8", "React Bits Fast Batch 9", "React Bits Fast Batch 10", "React Bits Fast Batch 11", "React Bits Fast Batch 12", "React Bits Free Showcase", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"];
-const collapsedByDefault = new Set(["React Bits Fast Batch 1", "React Bits Fast Batch 2", "React Bits Fast Batch 3", "React Bits Fast Batch 4", "React Bits Fast Batch 5", "React Bits Fast Batch 6", "React Bits Fast Batch 7", "React Bits Fast Batch 8", "React Bits Fast Batch 9", "React Bits Fast Batch 10", "React Bits Fast Batch 11", "React Bits Fast Batch 12", "React Bits Free Showcase", "Official React Bits", "Marketing Blocks", "Experimental / Current-free"]);
+const collapsedByDefault = new Set<string>(PRODUCT_LIBRARY_CATEGORY_ORDER);
 
 function PuckCanvasRoot({ children }: { children: React.ReactNode }) {
   const isDark = useContext(PuckThemeContext);
   const rootRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    const document = root?.ownerDocument;
-    const view = document?.defaultView;
-    const frame = view?.frameElement as HTMLElement | null;
-    if (!root || !document || !view || !frame) return;
-    const forwardedEvents = new WeakSet<Event>();
-
-    const retargetScaledInteraction = (event: MouseEvent | PointerEvent) => {
-      if (forwardedEvents.has(event)) return;
-      if (document.querySelector("[data-puck-entry]")?.getAttribute("data-puck-preview-mode") !== "interactive") return;
-
-      const frameRect = frame.getBoundingClientRect();
-      const scaleX = frame.offsetWidth > 0 ? frameRect.width / frame.offsetWidth : 1;
-      const scaleY = frame.offsetHeight > 0 ? frameRect.height / frame.offsetHeight : 1;
-      if (scaleX <= 0 || scaleY <= 0 || (Math.abs(scaleX - 1) < 0.001 && Math.abs(scaleY - 1) < 0.001)) return;
-
-      const clientX = event.clientX / scaleX;
-      const clientY = event.clientY / scaleY;
-      const target = document.elementFromPoint(clientX, clientY);
-      if (!target || target === event.target) return;
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      if (event.type === "pointerdown") {
-        const focusTarget = target.closest("button, input, select, textarea, [tabindex]") as HTMLElement | null;
-        focusTarget?.focus({ preventScroll: true });
-      }
-
-      const commonInit: MouseEventInit = {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        view,
-        detail: event.detail,
-        screenX: event.screenX,
-        screenY: event.screenY,
-        clientX,
-        clientY,
-        ctrlKey: event.ctrlKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-        metaKey: event.metaKey,
-        button: event.button,
-        buttons: event.buttons,
-      };
-
-      const forwarded = event.type.startsWith("pointer")
-        ? new view.PointerEvent(event.type, {
-            ...commonInit,
-            pointerId: (event as PointerEvent).pointerId,
-            pointerType: (event as PointerEvent).pointerType,
-            isPrimary: (event as PointerEvent).isPrimary,
-            width: (event as PointerEvent).width,
-            height: (event as PointerEvent).height,
-            pressure: (event as PointerEvent).pressure,
-          })
-        : new view.MouseEvent(event.type, commonInit);
-
-      forwardedEvents.add(forwarded);
-      target.dispatchEvent(forwarded);
-    };
-
-    const eventTypes = ["pointerdown", "pointerup", "click"] as const;
-    eventTypes.forEach((type) => document.addEventListener(type, retargetScaledInteraction, true));
-    return () => {
-      eventTypes.forEach((type) => document.removeEventListener(type, retargetScaledInteraction, true));
-    };
-  }, []);
+  useScaledIframeInteractionRetargeting(rootRef);
 
   return <main ref={rootRef} className={`${styles.editableRoot} ${isDark ? `${styles.editableRootDark} dark` : ""}`}>{children}</main>;
-}
-
-function libraryClass(block: any) {
-  if (block.catalogKey.startsWith("core-qa:")) return "Core QA Fixtures";
-  if (block.catalogKey.startsWith("control-3:")) return "React Bits Control 3";
-  if (block.catalogKey.startsWith("control-6:")) return "React Bits Control 6";
-  if (block.catalogKey.startsWith("component:") || block.catalogKey.startsWith("starter:") || block.catalogKey.startsWith("pro-block:")) {
-    if (block.tags.includes("React Bits Fast Batch 1")) return "React Bits Fast Batch 1";
-    if (block.tags.includes("React Bits Fast Batch 2")) return "React Bits Fast Batch 2";
-    if (block.tags.includes("React Bits Fast Batch 3")) return "React Bits Fast Batch 3";
-    if (block.tags.includes("React Bits Fast Batch 4")) return "React Bits Fast Batch 4";
-    if (block.tags.includes("React Bits Fast Batch 5")) return "React Bits Fast Batch 5";
-    if (block.tags.includes("React Bits Fast Batch 6")) return "React Bits Fast Batch 6";
-    if (block.tags.includes("React Bits Fast Batch 7")) return "React Bits Fast Batch 7";
-    if (block.tags.includes("React Bits Fast Batch 8")) return "React Bits Fast Batch 8";
-    if (block.tags.includes("React Bits Fast Batch 9")) return "React Bits Fast Batch 9";
-    if (block.tags.includes("React Bits Fast Batch 10")) return "React Bits Fast Batch 10";
-    if (block.tags.includes("React Bits Fast Batch 11")) return "React Bits Fast Batch 11";
-    if (block.tags.includes("React Bits Fast Batch 12")) return "React Bits Fast Batch 12";
-    if (block.tags.includes("React Bits Free Showcase")) return "React Bits Free Showcase";
-  }
-  if (block.catalogKey.startsWith("pro-block:")) return "Marketing Blocks";
-  if (block.catalogKey.startsWith("current-free:")) return "Experimental / Current-free";
-  return "Official React Bits";
 }
 
 function LivePreview({ block, isDark, previewRef, onPointerStay, onPointerLeave }: { block: any; isDark: boolean; previewRef: RefObject<HTMLElement | null>; onPointerStay: () => void; onPointerLeave: () => void }) {
@@ -271,17 +182,27 @@ function Library({ onLiveChange, blocks, blockByCatalogKey, coreQa }: { onLiveCh
   };
   const active = activeKey ? blockByCatalogKey.get(activeKey) : null;
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const visibleBlocks = normalizedQuery ? blocks.filter((block) => [block.displayName, block.catalogKey, block.catalogKey.split(":").pop(), block.category, ...(block.tags || [])].some((value) => String(value).toLocaleLowerCase().includes(normalizedQuery))) : blocks;
+  const visibleBlocks = normalizedQuery
+    ? blocks.filter((block) => coreQa
+      ? [block.displayName, block.catalogKey, block.category, ...(block.tags || [])]
+        .some((value) => String(value).toLocaleLowerCase().includes(normalizedQuery))
+      : matchesProductLibrarySearch(block.productLibrary, normalizedQuery))
+    : blocks;
   const hasNoResults = Boolean(normalizedQuery) && visibleBlocks.length === 0;
-  const libraryGroups = [...(coreQa ? ["Core QA Fixtures"] : libraryGroupOrder)]
-    .map((title) => ({ title, blocks: visibleBlocks.filter((block) => libraryClass(block) === title) }))
+  const libraryGroups = [...(coreQa ? ["Core QA Fixtures"] : PRODUCT_LIBRARY_CATEGORY_ORDER)]
+    .map((title) => ({
+      title,
+      blocks: sortProductLibraryBlocks(visibleBlocks.filter((block) => coreQa
+        ? block.catalogKey.startsWith("core-qa:")
+        : block.productLibrary.category === title)),
+    }))
     .filter((group) => group.blocks.length);
   const toggleGroup = (title: string) => setCollapsedGroups((previous) => {
     const next = new Set(previous);
     if (next.has(title)) next.delete(title); else next.add(title);
     return next;
   });
-  return <aside ref={libraryRef} className={styles.library} aria-label="Puck V3 Library" onPointerEnter={cancelClose} onPointerLeave={scheduleClose}><header className={styles.header}><p className={styles.eyebrow}>PUCK LAB V3 · LOCAL POC</p><h1>React Bits-style Live Library Preview</h1><p className={styles.subtitle}>Hover a block to preview it</p><div className={styles.librarySearch}><input aria-label="Search React Bits components" placeholder="Search components…" value={query} onChange={(event) => setQuery(event.target.value)} />{query ? <button type="button" aria-label="Clear search" onClick={() => setQuery("")}>×</button> : null}</div><div className={styles.devControl}><button type="button" onClick={() => content.length ? setConfirmReplace(true) : generate()}>Generate Agency Demo</button></div><span className={styles.indicator} data-live={Boolean(active)}>● Live previews: {active ? 1 : 0}</span></header><div className={styles.body}>{hasNoResults ? <p className={styles.emptySearch} role="status">No matching blocks.</p> : libraryGroups.map((group) => { const collapsed = !normalizedQuery && collapsedGroups.has(group.title); const contentId = `puck-library-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`; return <section className={styles.libraryGroup} aria-label={group.title} key={group.title}><h2><button className={styles.groupToggle} type="button" aria-expanded={!collapsed} aria-controls={contentId} onClick={() => toggleGroup(group.title)}><span>{group.title}</span><span className={styles.groupToggleMeta}><small>{group.blocks.length}</small><span className={styles.groupChevron} aria-hidden="true">{collapsed ? "▸" : "▾"}</span></span></button></h2>{!collapsed ? <div className={styles.libraryGrid} id={contentId}>{group.blocks.map((block) => { const index = blocks.indexOf(block); return <article key={block.catalogKey} className={styles.card} onMouseEnter={() => show(block.catalogKey)}><button className={styles.cardMain} type="button" aria-label={`Add ${block.displayName} from card`} onFocus={() => show(block.catalogKey)} onClick={() => add(block)}><span className={styles.cardNumber}>{String(index + 1).padStart(2, "0")}</span><strong>{block.displayName}</strong></button><button className={styles.addButton} type="button" aria-label={`Add ${block.displayName}`} onFocus={() => show(block.catalogKey)} onClick={() => add(block)}>+</button></article>; })}</div> : null}</section>; })}</div>{confirmReplace ? <div ref={confirmDialogRef} role="dialog" aria-modal="true"><p>Replace current page with Agency Demo?</p><button type="button" onClick={() => setConfirmReplace(false)}>Cancel</button><button type="button" onClick={generate}>Generate</button></div> : null}{active ? <LivePreview key={active.catalogKey} block={active} isDark={isDark} previewRef={previewRef} onPointerStay={cancelClose} onPointerLeave={scheduleClose} /> : null}</aside>;
+  return <aside ref={libraryRef} className={styles.library} aria-label="Puck V3 Library" onPointerEnter={cancelClose} onPointerLeave={scheduleClose}><header className={styles.header}><p className={styles.eyebrow}>PUCK LAB V3 · LOCAL POC</p><h1>Component Library</h1><p className={styles.subtitle}>Hover a block to preview it</p><div className={styles.librarySearch}><input aria-label="Search components" placeholder="Search components…" value={query} onChange={(event) => setQuery(event.target.value)} />{query ? <button type="button" aria-label="Clear search" onClick={() => setQuery("")}>×</button> : null}</div><div className={styles.devControl}><button type="button" onClick={() => content.length ? setConfirmReplace(true) : generate()}>Generate Agency Demo</button></div><span className={styles.indicator} data-live={Boolean(active)}>● Live previews: {active ? 1 : 0}</span></header><div className={styles.body}>{hasNoResults ? <p className={styles.emptySearch} role="status">No matching blocks.</p> : libraryGroups.map((group) => { const collapsed = !normalizedQuery && collapsedGroups.has(group.title); const contentId = `puck-library-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`; return <section className={styles.libraryGroup} aria-label={group.title} key={group.title}><h2><button className={styles.groupToggle} type="button" aria-expanded={!collapsed} aria-controls={contentId} onClick={() => toggleGroup(group.title)}><span>{group.title}</span><span className={styles.groupToggleMeta}><small>{group.blocks.length}</small><span className={styles.groupChevron} aria-hidden="true">{collapsed ? "▸" : "▾"}</span></span></button></h2>{!collapsed ? <div className={styles.libraryGrid} id={contentId}>{group.blocks.map((block) => { const index = blocks.indexOf(block); return <article key={block.catalogKey} className={styles.card} onMouseEnter={() => show(block.catalogKey)}><button className={styles.cardMain} type="button" aria-label={`Add ${block.displayName} from card`} onFocus={() => show(block.catalogKey)} onClick={() => add(block)}><span className={styles.cardNumber}>{String(index + 1).padStart(2, "0")}</span><strong>{block.displayName}</strong>{!coreQa ? <span className={styles.tierBadge} data-tier={block.productLibrary.sourceTier}>{block.productLibrary.sourceTier}</span> : null}</button><button className={styles.addButton} type="button" aria-label={`Add ${block.displayName}`} onFocus={() => show(block.catalogKey)} onClick={() => add(block)}>+</button></article>; })}</div> : null}</section>; })}</div>{confirmReplace ? <div ref={confirmDialogRef} role="dialog" aria-modal="true"><p>Replace current page with Agency Demo?</p><button type="button" onClick={() => setConfirmReplace(false)}>Cancel</button><button type="button" onClick={generate}>Generate</button></div> : null}{active ? <LivePreview key={active.catalogKey} block={active} isDark={isDark} previewRef={previewRef} onPointerStay={cancelClose} onPointerLeave={scheduleClose} /> : null}</aside>;
 }
 
 function V3HeaderActions({ children }: { children: React.ReactNode }) {

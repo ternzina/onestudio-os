@@ -1,30 +1,52 @@
+import { PUCK_EXPANDED_REGISTRY_DATA } from "./generated-registry-data.ts";
+import type { ProductLibraryCategory } from "./product-library.ts";
+import { PUCK_PRODUCTION_RUNTIME_EXCLUSIONS } from "./runtime-exclusions.ts";
+
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
-export type PuckProductTaxonomy =
-  | "Navigation"
-  | "Hero"
-  | "Content"
-  | "Pricing"
-  | "Forms"
-  | "Gallery"
-  | "Interactive"
-  | "Backgrounds"
-  | "App UI"
-  | "Free Visuals";
+export type PuckProductTaxonomy = ProductLibraryCategory;
 
-export type PrimitivePuckPropRule =
+type PuckPropRuleOptions = { editable?: boolean; required?: boolean };
+
+export type PrimitivePuckPropRule = PuckPropRuleOptions & (
   | { kind: "string"; maxLength: number; format?: "url" | "color" }
   | { kind: "boolean" }
   | { kind: "number"; min: number; max: number }
-  | { kind: "enum"; values: readonly string[] };
+  | { kind: "enum"; values: readonly string[] }
+);
 
 export type PuckPropRule =
   | PrimitivePuckPropRule
-  | {
+  | (PuckPropRuleOptions & {
       kind: "array";
       maxItems: number;
-      item: { properties: Readonly<Record<string, PrimitivePuckPropRule>> };
-    };
+      item: PuckPropRule;
+    })
+  | (PuckPropRuleOptions & {
+      kind: "object";
+      properties: Readonly<Record<string, PuckPropRule>>;
+    });
+
+export type PuckProductionHostSpec = {
+  profile: "flow" | "section" | "app-surface" | "canvas" | "aspect-media";
+  width: "full" | "content";
+  height: "intrinsic" | "source-min" | "technical-definite" | "aspect";
+  align?: "start" | "center";
+  overflow?: "source" | "clip";
+  sourceMinHeight?: { value: number; provenance: "official-source" };
+  technicalHeight?: { value: number; provenance: "puck-technical" };
+  sourceCssVariable?: { name: string; value: string; provenance: "official-contract" };
+  aspectRatio?: { value: string; provenance: "official-source" | "official-demo" };
+  responsiveFit?: {
+    mode: "contain";
+    intrinsicWidth: { value: number; provenance: "official-source" };
+  };
+  surfaceBackground?: {
+    value: string;
+    provenance: "official-source" | "official-demo";
+  };
+  runtimeRisk?: "none" | "dom" | "observer" | "resize-observer" | "webgl";
+};
 
 export type PuckRegistryManifestEntry = {
   id: string;
@@ -33,8 +55,16 @@ export type PuckRegistryManifestEntry = {
   taxonomy: PuckProductTaxonomy;
   sourceTier: "PRO" | "FREE";
   sourceProvenance: "REGISTRY";
+  sourceKind: "component" | "pro-block";
+  officialSlug: string;
+  physicalSource: string;
+  rendererSource: string;
+  legacyIds: readonly string[];
   editorAdapter: string;
   publicRenderer: string;
+  host: PuckProductionHostSpec | null;
+  definiteHeight: number | null;
+  runtimeFamily: string | null;
   documentVersions: readonly [1];
   props: Readonly<Record<string, PuckPropRule>>;
   defaults: Readonly<Record<string, unknown>>;
@@ -68,17 +98,45 @@ export const PUCK_COMMON_DEFAULTS = {
   motion: "default",
 } as const;
 
-const entry = (
-  input: Omit<PuckRegistryManifestEntry, "documentVersions" | "sourceProvenance">,
-): PuckRegistryManifestEntry => ({
+const generatedByCatalogKey = new Map<string, (typeof PUCK_EXPANDED_REGISTRY_DATA)[number]>(
+  PUCK_EXPANDED_REGISTRY_DATA.map((item) => [item.catalogKey, item]),
+);
+
+type PilotManifestEntry = Omit<
+  PuckRegistryManifestEntry,
+  | "documentVersions"
+  | "sourceProvenance"
+  | "sourceKind"
+  | "officialSlug"
+  | "physicalSource"
+  | "rendererSource"
+  | "legacyIds"
+  | "host"
+  | "definiteHeight"
+  | "runtimeFamily"
+>;
+
+const entry = (input: PilotManifestEntry): PuckRegistryManifestEntry => {
+  const generated = generatedByCatalogKey.get(input.catalogKey);
+  if (!generated) throw new Error(`Missing generated production source metadata: ${input.catalogKey}`);
+  return {
   ...input,
   documentVersions: [1],
   sourceProvenance: "REGISTRY",
+  sourceKind: generated.sourceKind,
+  officialSlug: generated.officialSlug,
+  physicalSource: generated.physicalSource,
+  rendererSource: generated.rendererSource,
+  legacyIds: generated.legacyIds,
+  host: generated.host as PuckProductionHostSpec | null,
+  definiteHeight: generated.definiteHeight,
+  runtimeFamily: generated.runtimeFamily,
   props: { ...PUCK_COMMON_PROP_RULES, ...input.props },
   defaults: { ...PUCK_COMMON_DEFAULTS, ...input.defaults },
-});
+  };
+};
 
-export const PUCK_PRODUCTION_MANIFEST = [
+export const PUCK_PILOT_BASELINE_MANIFEST = [
   entry({
     id: "reactbits.navigation-12",
     catalogKey: "pro-block:navigation-12",
@@ -91,7 +149,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
       links: {
         kind: "array",
         maxItems: 8,
-        item: { properties: { label: text(80) } },
+        item: { kind: "object", properties: { label: text(80) } },
       },
     },
     defaults: {
@@ -138,7 +196,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
     id: "reactbits.cta-9",
     catalogKey: "pro-block:cta-9",
     label: "CTA 9",
-    taxonomy: "Content",
+    taxonomy: "CTA",
     sourceTier: "PRO",
     editorAdapter: "adapted-cta-9",
     publicRenderer: "adapted-cta-9",
@@ -166,6 +224,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
         kind: "array",
         maxItems: 6,
         item: {
+          kind: "object",
           properties: {
             title: text(120),
             description: text(1_000),
@@ -189,7 +248,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
     id: "reactbits.social-proof-10",
     catalogKey: "pro-block:social-proof-10",
     label: "Social Proof 10",
-    taxonomy: "Gallery",
+    taxonomy: "Social Proof / Testimonials",
     sourceTier: "PRO",
     editorAdapter: "official-social-proof-10",
     publicRenderer: "official-social-proof-10",
@@ -200,7 +259,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
     id: "reactbits.scheduling-3",
     catalogKey: "pro-block:scheduling-3",
     label: "Scheduling 3",
-    taxonomy: "App UI",
+    taxonomy: "Scheduling",
     sourceTier: "PRO",
     editorAdapter: "official-scheduling-3",
     publicRenderer: "official-scheduling-3",
@@ -211,7 +270,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
     id: "reactbits.contact-6",
     catalogKey: "pro-block:contact-6",
     label: "Contact 6",
-    taxonomy: "Forms",
+    taxonomy: "Contact",
     sourceTier: "PRO",
     editorAdapter: "adapted-contact-6",
     publicRenderer: "adapted-contact-6",
@@ -230,7 +289,7 @@ export const PUCK_PRODUCTION_MANIFEST = [
     id: "reactbits.glow-cursor",
     catalogKey: "current-free:glow-cursor",
     label: "Glow Cursor",
-    taxonomy: "Free Visuals",
+    taxonomy: "Cursor / Pointer",
     sourceTier: "FREE",
     editorAdapter: "official-glow-cursor",
     publicRenderer: "official-glow-cursor",
@@ -261,10 +320,57 @@ export const PUCK_PRODUCTION_MANIFEST = [
   }),
 ] as const satisfies readonly PuckRegistryManifestEntry[];
 
+const pilotCatalogKeys = new Set(
+  PUCK_PILOT_BASELINE_MANIFEST.map((item) => item.catalogKey),
+);
+const runtimeExcludedIds = new Set<string>(
+  PUCK_PRODUCTION_RUNTIME_EXCLUSIONS.map((item) => item.id),
+);
+
+const expandedEntry = (
+  generated: (typeof PUCK_EXPANDED_REGISTRY_DATA)[number],
+): PuckRegistryManifestEntry => ({
+  id: generated.id,
+  catalogKey: generated.catalogKey,
+  label: generated.label,
+  taxonomy: generated.taxonomy,
+  sourceTier: generated.sourceTier,
+  sourceProvenance: "REGISTRY",
+  sourceKind: generated.sourceKind,
+  officialSlug: generated.officialSlug,
+  physicalSource: generated.physicalSource,
+  rendererSource: generated.rendererSource,
+  legacyIds: generated.legacyIds,
+  editorAdapter: "production-source",
+  publicRenderer: "production-source",
+  host: generated.host as PuckProductionHostSpec | null,
+  definiteHeight: generated.definiteHeight,
+  runtimeFamily: generated.runtimeFamily,
+  documentVersions: [1],
+  props: {
+    ...PUCK_COMMON_PROP_RULES,
+    ...(generated.props as Readonly<Record<string, PuckPropRule>>),
+  },
+  defaults: {
+    ...PUCK_COMMON_DEFAULTS,
+    ...generated.defaults,
+  },
+});
+
+export const PUCK_PRODUCTION_MANIFEST: readonly PuckRegistryManifestEntry[] = [
+  ...PUCK_PILOT_BASELINE_MANIFEST,
+  ...PUCK_EXPANDED_REGISTRY_DATA
+    .filter((item) => !pilotCatalogKeys.has(item.catalogKey) && !runtimeExcludedIds.has(item.id))
+    .map(expandedEntry),
+];
+
 export type PuckProductionComponentId = (typeof PUCK_PRODUCTION_MANIFEST)[number]["id"];
 
 export const PUCK_PRODUCTION_MANIFEST_BY_ID = new Map(
-  PUCK_PRODUCTION_MANIFEST.map((item) => [item.id, item]),
+  PUCK_PRODUCTION_MANIFEST.flatMap((item) => [
+    [item.id, item] as const,
+    ...item.legacyIds.map((legacyId) => [legacyId, item] as const),
+  ]),
 );
 
 const duplicate = (values: readonly string[]) =>

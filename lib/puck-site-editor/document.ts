@@ -98,21 +98,28 @@ function validateRule(value: unknown, rule: PuckPropRule, path: string, errors: 
     if (typeof value !== "string" || !rule.values.includes(value)) errors.push(`${path}: unsupported value`);
     return;
   }
+  if (rule.kind === "object") {
+    if (!plainObject(value)) {
+      errors.push(`${path}: expected object`);
+      return;
+    }
+    exactKeys(value, Object.keys(rule.properties), path, errors);
+    for (const [key, itemRule] of Object.entries(rule.properties)) {
+      if (!(key in value)) {
+        if (itemRule.required !== false) errors.push(`${path}.${key}: required`);
+        continue;
+      }
+      validateRule(value[key], itemRule, `${path}.${key}`, errors);
+    }
+    return;
+  }
   if (!Array.isArray(value)) {
     errors.push(`${path}: expected array`);
     return;
   }
   if (value.length > rule.maxItems) errors.push(`${path}: too many items`);
   value.forEach((item, index) => {
-    if (!plainObject(item)) {
-      errors.push(`${path}[${index}]: expected object`);
-      return;
-    }
-    exactKeys(item, Object.keys(rule.item.properties), `${path}[${index}]`, errors);
-    for (const [key, itemRule] of Object.entries(rule.item.properties)) {
-      if (!(key in item)) errors.push(`${path}[${index}].${key}: required`);
-      else validateRule(item[key], itemRule, `${path}[${index}].${key}`, errors);
-    }
+    validateRule(item, rule.item, `${path}[${index}]`, errors);
   });
 }
 
