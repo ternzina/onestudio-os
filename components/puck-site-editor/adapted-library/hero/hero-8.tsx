@@ -46,15 +46,16 @@ function MediaBetweenTextRow({
   const shouldAnimate = isInView || isHovered;
 
   useEffect(() => {
+    if (images.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const currentImage = images[currentImageIndex];
+  const currentImage = images.length > 0 ? images[currentImageIndex % images.length] : undefined;
   const baseHeight = 100;
-  const targetWidth = shouldAnimate ? baseHeight * currentImage.aspectRatio : 0;
+  const targetWidth = shouldAnimate && currentImage ? baseHeight * currentImage.aspectRatio : 0;
 
   return (
     <>
@@ -94,11 +95,13 @@ function MediaBetweenTextRow({
             opacity: { duration: 0.3 },
           }}
         >
-          <img
-            src={currentImage.url}
-            alt={alt}
-            className="h-full w-full object-cover"
-          />
+          {currentImage && (
+            <img
+              src={currentImage.url}
+              alt={alt}
+              className="h-full w-full object-cover"
+            />
+          )}
         </motion.div>
         <motion.span
           layout

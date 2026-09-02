@@ -521,7 +521,17 @@ export const navigation12EditorContract = {
   inlineFields: [inline("brandName", "text"), inline("signInLabel", "text"), inline("primaryActionLabel", "text"), inline("openMenuLabel", "text"), inline("closeMenuLabel", "text")],
 } as const satisfies ComponentEditorContract;
 
-export const PUCK_BATCH_3_EDITOR_CONTRACTS: Readonly<Partial<Record<string, ComponentEditorContract>>> = {
+export type PuckBatch3CatalogKey =
+  | "pro-block:hero-8"
+  | "pro-block:hero-10"
+  | "pro-block:hero-20"
+  | "pro-block:cta-11"
+  | "pro-block:cta-14"
+  | "pro-block:navigation-5"
+  | "pro-block:navigation-6"
+  | "pro-block:navigation-12";
+
+export const PUCK_BATCH_3_EDITOR_CONTRACTS: Readonly<Record<PuckBatch3CatalogKey, ComponentEditorContract>> = {
   "pro-block:hero-8": hero8EditorContract,
   "pro-block:hero-10": hero10EditorContract,
   "pro-block:hero-20": hero20EditorContract,

@@ -10,14 +10,6 @@ import {
 } from "../../components/puck-site-editor/content-editability-batch-2-contracts.ts";
 import {
   PUCK_BATCH_3_EDITOR_CONTRACTS,
-  hero8EditorContract,
-  hero10EditorContract,
-  hero20EditorContract,
-  cta11EditorContract,
-  cta14EditorContract,
-  navigation5EditorContract,
-  navigation6EditorContract,
-  navigation12EditorContract,
 } from "../../components/puck-site-editor/content-editability-batch-3-contracts.ts";
 
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
@@ -127,6 +119,14 @@ const generatedByCatalogKey = new Map<string, (typeof PUCK_EXPANDED_REGISTRY_DAT
   PUCK_EXPANDED_REGISTRY_DATA.map((item) => [item.catalogKey, item]),
 );
 
+type PuckBatch3CatalogKey = keyof typeof PUCK_BATCH_3_EDITOR_CONTRACTS;
+
+const batch3EditorContract = (catalogKey: PuckBatch3CatalogKey): ComponentEditorContract => {
+  const contract = PUCK_BATCH_3_EDITOR_CONTRACTS[catalogKey];
+  if (!contract) throw new Error(`Missing Batch 3 editor contract: ${catalogKey}`);
+  return contract;
+};
+
 type PilotManifestEntry = Omit<
   PuckRegistryManifestEntry,
   | "documentVersions"
@@ -222,8 +222,8 @@ export const PUCK_PILOT_BASELINE_MANIFEST = [
       closeMenuLabel: text(120),
       links: editableArray({ label: text(120) }, 8),
     },
-    defaults: navigation12EditorContract.defaultProps,
-    editorContract: navigation12EditorContract,
+    defaults: batch3EditorContract("pro-block:navigation-12").defaultProps,
+    editorContract: batch3EditorContract("pro-block:navigation-12"),
   }),
   entry({
     id: "reactbits.hero-14",
@@ -505,7 +505,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       creatingImages: editableArray({ url: url(), aspectRatio: numeric(0.5, 3) }, 8),
       buildingImages: editableArray({ url: url(), aspectRatio: numeric(0.5, 3) }, 8),
     },
-    defaults: hero8EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:hero-8").defaultProps,
   },
   "pro-block:hero-10": {
     editorAdapter: "adapted-hero-10",
@@ -522,7 +522,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
         alt: text(240),
       }, 8),
     },
-    defaults: hero10EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:hero-10").defaultProps,
   },
   "pro-block:hero-20": {
     editorAdapter: "adapted-hero-20",
@@ -537,7 +537,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       wordmarks: editableArray({ name: text(120), className: nonEditableText(240) }, 12),
       metrics: editableArray({ value: text(120), label: text(240) }, 8),
     },
-    defaults: hero20EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:hero-20").defaultProps,
   },
   "pro-block:cta-11": {
     editorAdapter: "adapted-cta-11",
@@ -560,7 +560,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       ledger: editableArray({ label: text(160), meta: text(160), amount: text(120), status: text(120) }, 12),
       loop: { kind: "boolean" },
     },
-    defaults: cta11EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:cta-11").defaultProps,
   },
   "pro-block:cta-14": {
     editorAdapter: "adapted-cta-14",
@@ -581,7 +581,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       activity: editableArray({ initials: text(16), name: text(120), action: text(240), time: text(40) }, 12),
       loop: { kind: "boolean" },
     },
-    defaults: cta14EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:cta-14").defaultProps,
   },
   "pro-block:navigation-5": {
     editorAdapter: "adapted-navigation-5",
@@ -599,7 +599,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       navItems: editableArray({ title: text(160), image: url(), href: text(2_048) }, 12),
       socialLinks: editableArray({ name: text(120), href: text(2_048) }, 12),
     },
-    defaults: navigation5EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:navigation-5").defaultProps,
   },
   "pro-block:navigation-6": {
     editorAdapter: "adapted-navigation-6",
@@ -624,7 +624,7 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
       topNavItems: editableArray({ label: text(160), href: text(2_048) }, 12),
       footerLinks: editableArray({ label: text(160), href: text(2_048) }, 12),
     },
-    defaults: navigation6EditorContract.defaultProps,
+    defaults: batch3EditorContract("pro-block:navigation-6").defaultProps,
   },
   "pro-block:navigation-13": {
     editorAdapter: "adapted-navigation-13",
