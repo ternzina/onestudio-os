@@ -112,7 +112,10 @@ function ProductionLibraryPreview({
       <header className={styles.previewHead}>
         <strong>{entry.label}</strong>
       </header>
-      <div className={styles.previewStage}>
+      <div
+        className={styles.previewStage}
+        data-production-preview-scroll-realm={entry.presentationContract?.geometry.kind === "viewport" ? "local" : undefined}
+      >
         {entry.presentationContract?.geometry.kind === "fullSurface" ? (
           <div
             className={styles.previewMount}

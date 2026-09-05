@@ -80,7 +80,7 @@ test("intrinsic flow and marketing entries do not inherit animated full-surface 
 test("the source renders directly through the single production host", () => {
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
   const css = read("components/puck-site-editor/public-renderer.module.css");
-  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{runtimeMode\}>/);
+  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{effectiveRuntimeMode\}>/);
   assert.match(renderer, /data-production-host-profile=/);
   assert.doesNotMatch(renderer, /data-production-source-boundary|styles\.sourceBoundary/);
   assert.doesNotMatch(css, /\.sourceBoundary/);

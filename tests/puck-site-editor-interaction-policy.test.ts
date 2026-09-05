@@ -155,7 +155,7 @@ test("iframeNative authoring is contained while Preview, Interact, and Library r
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
   const frame = read("components/puck-site-editor/production-runtime-frame.tsx");
   const route = read("app/puck-runtime/page.tsx");
-  assert.match(renderer, /runtimeMode=\{runtimeMode\}/);
+  assert.match(renderer, /runtimeMode=\{effectiveRuntimeMode\}/);
   assert.match(renderer, /resolvePuckRuntimeRealm\(entry\)/);
   assert.match(frame, /runtimeMode === "authoring" \? "disabled-authoring" : "contained"/);
   assert.match(frame, /pointerEvents: runtimeMode === "authoring" \? "none" : "auto"/);

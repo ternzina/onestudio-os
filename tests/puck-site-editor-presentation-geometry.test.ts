@@ -67,7 +67,7 @@ test("Frame Border keeps its public technical host beside an authoring-only aspe
   assert.match(renderer, /presentationGeometry\.aspectRatio\.provenance !== "editorPresentationDefault"/);
   assert.match(renderer, /runtimeMode === "library-preview" && isFullSurface/);
   assert.match(preview, /scene\.style\.width = `\$\{sceneWidth\}px`/);
-  assert.match(preview, /scene\.style\.height = `\$\{sceneHeight\}px`/);
+  assert.match(preview, /scene\.style\.height = `\$\{sceneSize\.height\}px`/);
 });
 
 test("Library preview contains intrinsic scenes and directly fills full-surface stages", () => {
@@ -77,7 +77,7 @@ test("Library preview contains intrinsic scenes and directly fills full-surface 
   assert.match(fit, /const width = Math\.max\(sceneWidth, 1\)/);
   assert.match(fit, /Math\.min\(availableWidth \/ width, availableHeight \/ height\)/);
   assert.doesNotMatch(fit, /Math\.max\(availableWidth, sceneWidth\)/);
-  assert.match(preview, /presentation\?\.editorPresentationDefault\?\.width\.value/);
+  assert.match(preview, /resolveProductionPreviewSceneSize/);
   assert.match(preview, /transform: `translate\(\$\{fit\.left\}px, \$\{fit\.top\}px\) scale\(\$\{fit\.scale\}\)`/);
   assert.match(drawer, /<ProductionPreviewViewport presentation=\{entry\.presentationContract\}>/);
   assert.match(drawer, /entry\.presentationContract\?\.geometry\.kind === "fullSurface"/);
@@ -97,7 +97,7 @@ test("full-surface entries keep direct fill while Frame Border uses authoring as
   assert.match(renderer, /style=\{style\}/);
   assert.match(renderer, /data-production-presentation-geometry=\{presentationGeometry\?\.kind\}/);
   assert.match(preview, /scene\.style\.width = `\$\{sceneWidth\}px`/);
-  assert.match(preview, /const sceneHeight = presentation\?\.editorPresentationDefault\?\.height\.value/);
+  assert.match(preview, /sceneHeight: sceneSize\.height/);
   assert.match(preview, /calculateProductionPreviewFit\([\s\S]*sceneWidth,[\s\S]*sceneHeight/);
 });
 
@@ -167,7 +167,7 @@ test("main uses the unscaled runtime host and Library contains only non-fill sou
   assert.doesNotMatch(renderer, /ProductionPreviewViewport|calculateProductionPreviewFit|scale\(|zoom\s*:/);
   assert.equal((preview.match(/scale\(/g) ?? []).length, 1);
   assert.match(preview, /data-production-preview-scale=\{fit\.scale\}/);
-  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{runtimeMode\}>/);
+  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{effectiveRuntimeMode\}>/);
   assert.match(renderer, /runtimeMode === "library-preview" && isFullSurface/);
   assert.doesNotMatch(renderer, /data-production-source-boundary|__r3f|MutationObserver|ResizeObserver/);
 });

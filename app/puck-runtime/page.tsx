@@ -1,7 +1,7 @@
 "use client";
 
 import { Render, type Data } from "@puckeditor/core";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   PUCK_PRODUCTION_RUNTIME_DATA_MESSAGE,
   PUCK_PRODUCTION_RUNTIME_READY_MESSAGE,
@@ -9,12 +9,14 @@ import {
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "@/components/puck-site-editor/editor-config";
 import { ProductionEditorThemeProvider } from "@/components/puck-site-editor/production-editor-ux";
 import { ProductionRuntimeBoundary } from "@/components/puck-site-editor/production-runtime-context";
+import type { ProductionRuntimeMode } from "@/lib/puck-site-editor/runtime-realm";
 
 type RuntimeMessage = {
   type?: string;
   data?: Data;
   background?: string;
   theme?: "light" | "dark";
+  runtimeMode?: ProductionRuntimeMode;
 };
 
 type RealmCheck = {
@@ -30,6 +32,7 @@ export default function PuckRuntimePage() {
   const [data, setData] = useState<Data | null>(null);
   const [background, setBackground] = useState("transparent");
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [runtimeMode, setRuntimeMode] = useState<ProductionRuntimeMode>("interactive");
   const [realm, setRealm] = useState<RealmCheck | null>(null);
 
   useLayoutEffect(() => {
@@ -80,6 +83,7 @@ export default function PuckRuntimePage() {
       if (event.data?.type !== PUCK_PRODUCTION_RUNTIME_DATA_MESSAGE || !event.data.data) return;
       setBackground(event.data.background ?? "transparent");
       setTheme(event.data.theme === "dark" ? "dark" : "light");
+      setRuntimeMode(event.data.runtimeMode ?? "interactive");
       setData(event.data.data);
     };
     window.addEventListener("message", onMessage);
@@ -98,11 +102,18 @@ export default function PuckRuntimePage() {
       data-puck-runtime-owner-document={realm?.ownerDocument ? "match" : "pending"}
       data-puck-runtime-global-document={realm?.globalDocument ? "match" : "pending"}
       data-puck-runtime-raf-window={realm?.rafWindow ? "match" : "pending"}
-      style={{ width: "100vw", height: "100vh", overflow: "hidden", backgroundColor: background }}
+      data-puck-runtime-scroll-realm={runtimeMode === "library-preview" ? "local" : undefined}
+      style={{
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        overflowY: runtimeMode === "library-preview" ? "auto" : "hidden",
+        backgroundColor: background,
+      }}
     >
       {data ? (
         <ProductionEditorThemeProvider isDark={theme === "dark"}>
-          <ProductionRuntimeBoundary>
+          <ProductionRuntimeBoundary runtimeMode={runtimeMode}>
             <Render config={PUCK_PRODUCTION_EDITOR_CONFIG} data={data} />
           </ProductionRuntimeBoundary>
         </ProductionEditorThemeProvider>

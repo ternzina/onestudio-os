@@ -1,7 +1,10 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { calculateProductionPreviewFit } from "@/lib/puck-site-editor/preview-fit";
+import {
+  calculateProductionPreviewFit,
+  resolveProductionPreviewSceneSize,
+} from "@/lib/puck-site-editor/preview-fit";
 import type { PuckProductionPresentationContract } from "@/lib/puck-site-editor/registry-manifest";
 import styles from "./production-preview-fit.module.css";
 import { guardProductionPreviewSubmit } from "./production-editor-ux";
@@ -34,30 +37,29 @@ export function ProductionPreviewViewport({
     const measure = () => {
       const availableWidth = viewport.clientWidth;
       const availableHeight = viewport.clientHeight;
-      const editorFrame = document.querySelector<HTMLIFrameElement>("iframe#preview-frame, iframe");
-      const editorWindow = editorFrame?.contentWindow;
-      const editorWidth = editorWindow?.innerWidth;
-      const editorHeight = editorWindow?.innerHeight;
-      const sceneWidth = presentation?.editorPresentationDefault?.width.value
-        ?? Math.max(editorWidth ?? availableWidth, 1);
+      const sourceWindow = viewport.ownerDocument.defaultView;
+      const sceneSize = resolveProductionPreviewSceneSize({
+        availableWidth,
+        availableHeight,
+        sourceWidth: sourceWindow?.innerWidth,
+        sourceHeight: sourceWindow?.innerHeight,
+        measuredSceneHeight: Math.max(scene.scrollHeight, scene.getBoundingClientRect().height, 1),
+        presentation,
+      });
+      const sceneWidth = sceneSize.width;
       scene.style.width = `${sceneWidth}px`;
       if (presentation?.editorPresentationDefault) {
-        const sceneHeight = presentation.editorPresentationDefault.height.value;
-        scene.style.height = `${sceneHeight}px`;
-        scene.style.minHeight = `${sceneHeight}px`;
+        scene.style.height = `${sceneSize.height}px`;
+        scene.style.minHeight = `${sceneSize.height}px`;
       } else {
         scene.style.height = "";
         scene.style.minHeight = "";
       }
-      const sceneHeight = presentation?.editorPresentationDefault?.height.value
-        ?? (presentation?.geometry?.viewportHeight
-          ? Math.max(editorHeight ?? availableHeight, 1)
-          : Math.max(scene.scrollHeight, scene.getBoundingClientRect().height, 1));
       const next = calculateProductionPreviewFit({
         availableWidth,
         availableHeight,
         sceneWidth,
-        sceneHeight,
+        sceneHeight: sceneSize.height,
       });
       setFit((previous) =>
         Math.abs(previous.width - next.width) < 0.5
@@ -83,6 +85,7 @@ export function ProductionPreviewViewport({
       className={styles.viewport}
       data-production-preview-fit="canonical-contain"
       data-production-preview-geometry={presentation?.geometry.kind}
+      data-production-preview-scroll-realm={presentation?.geometry.kind === "viewport" ? "local" : undefined}
       onSubmitCapture={guardProductionPreviewSubmit}
     >
       <div

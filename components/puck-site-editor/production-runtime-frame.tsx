@@ -62,10 +62,11 @@ export function ProductionRuntimeFrame({
         data,
         background: background ?? "transparent",
         theme,
+        runtimeMode,
       },
       runtimeOrigin(frame),
     );
-  }, [background, data, theme]);
+  }, [background, data, runtimeMode, theme]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -77,11 +78,12 @@ export function ProductionRuntimeFrame({
   useLayoutEffect(() => {
     const onMessage = (event: MessageEvent<{ type?: string }>) => {
       const frame = frameRef.current;
-      const hostWindow = frame?.ownerDocument.defaultView;
-      if (event.source !== hostWindow || event.origin !== runtimeOrigin(frame)) return;
+      const target = frame?.contentWindow;
+      if (event.source !== target || event.origin !== runtimeOrigin(frame)) return;
       if (event.data?.type === PUCK_PRODUCTION_RUNTIME_READY_MESSAGE) sendData();
     };
-    const hostWindow = frameRef.current?.ownerDocument.defaultView ?? window;
+    const frame = frameRef.current;
+    const hostWindow = frame?.ownerDocument.defaultView ?? window;
     hostWindow.addEventListener("message", onMessage);
     return () => hostWindow.removeEventListener("message", onMessage);
   }, [sendData]);

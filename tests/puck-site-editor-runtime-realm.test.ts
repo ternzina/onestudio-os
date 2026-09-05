@@ -118,7 +118,8 @@ test("iframe-native route keeps owner DOM, globals, and RAF in one iframe realm"
   assert.match(frame, /target\.postMessage/);
   assert.match(frame, /PUCK_PRODUCTION_RUNTIME_READY_MESSAGE/);
   assert.match(frame, /frame\?\.ownerDocument\.defaultView/);
-  assert.match(frame, /event\.source !== hostWindow/);
+  assert.match(frame, /event\.source !== target/);
+  assert.match(frame, /runtimeMode,\n      \},/);
   assert.match(route, /event\.source === parent \|\| event\.source === window\.top/);
   assert.match(route, /event\.source === window\.top/);
   assert.match(route, /event\.origin !== window\.location\.origin/);

@@ -55,11 +55,11 @@ test("production preview contains intrinsic sources and direct-fills full-surfac
   assert.match(drawer, /<ProductionPreviewViewport presentation=\{entry\.presentationContract\}>/);
   assert.match(drawer, /entry\.presentationContract\?\.geometry\.kind === "fullSurface"/);
   assert.match(drawer, /data-production-preview-fill="direct"/);
-  assert.match(fit, /presentation\?\.editorPresentationDefault\?\.width\.value/);
-  assert.match(fit, /scene\.style\.height = `\$\{sceneHeight\}px`/);
+  assert.match(fit, /resolveProductionPreviewSceneSize/);
+  assert.match(fit, /scene\.style\.height = `\$\{sceneSize\.height\}px`/);
   assert.match(fit, /data-production-preview-fit="canonical-contain"/);
   assert.match(fit, /scene\.scrollHeight/);
-  assert.match(fit, /editorWindow\?\.innerWidth/);
+  assert.match(fit, /sourceWindow\?\.innerWidth/);
   assert.match(styles, /\.previewMount\[data-preview-kind="component"\] > div \{[\s\S]*width: 100%;[\s\S]*min-width: 0;/);
   assert.match(styles, /\.previewMount\[data-production-preview-fill="direct"\] \{[\s\S]*height: 100%;/);
   assert.match(styles, /\.previewMount\[data-production-preview-fill="direct"\] > \* \{[\s\S]*min-height: 100%;/);

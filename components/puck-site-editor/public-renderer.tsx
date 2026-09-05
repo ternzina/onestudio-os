@@ -23,7 +23,7 @@ import {
   useProductionEditorTheme,
 } from "./production-editor-ux";
 import { ProductionRuntimeFrame } from "./production-runtime-frame";
-import { useInsideProductionRuntime } from "./production-runtime-context";
+import { useInsideProductionRuntime, useProductionRuntimeMode } from "./production-runtime-context";
 
 const visiblePresentationOverflowStyle: CSSProperties = {
   overflow: "visible",
@@ -216,8 +216,9 @@ export function PuckProductionBlock({
 }) {
   const { entry, componentProps, resolvedProps: props, backgroundRouting } = splitProps(component);
   const isInsideRuntime = useInsideProductionRuntime();
+  const runtimeContextMode = useProductionRuntimeMode();
+  const effectiveRuntimeMode = isInsideRuntime && runtimeContextMode ? runtimeContextMode : runtimeMode;
   const isDark = useProductionEditorTheme();
-  const useIframeNativeRuntime = !isInsideRuntime && shouldUseIframeNativeRuntime(entry, runtimeMode);
   const rootRef = useRef<HTMLDivElement>(null);
   useImperativeHandle(dragRef, () => rootRef.current as HTMLDivElement);
   const loadingHeight = entry.definiteHeight
@@ -225,6 +226,12 @@ export function PuckProductionBlock({
     ?? 120;
   const presentationContract = entry.presentationContract;
   const isFullSurface = presentationContract?.geometry.kind === "fullSurface";
+  const useLibraryPreviewViewportRuntime = effectiveRuntimeMode === "library-preview"
+    && presentationContract?.geometry.kind === "viewport";
+  const useIframeNativeRuntime = !isInsideRuntime && (
+    shouldUseIframeNativeRuntime(entry, effectiveRuntimeMode)
+    || useLibraryPreviewViewportRuntime
+  );
   const style = {
     "--puck-block-max-width": widths[String(props.layoutWidth)] ?? widths.full,
     "--puck-block-padding": spacing[String(props.paddingY)] ?? spacing.none,
@@ -233,8 +240,8 @@ export function PuckProductionBlock({
       ? String(props.textColor ?? "inherit")
       : "inherit",
     "--puck-block-align": String(props.align ?? "left"),
-    height: runtimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
-    minHeight: runtimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
+    height: effectiveRuntimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
+    minHeight: effectiveRuntimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
   } as CSSProperties;
 
   return (
@@ -252,17 +259,17 @@ export function PuckProductionBlock({
       data-production-presentation-geometry={presentationContract?.geometry.kind}
       {...interactionPolicyDataset(entry.interactionPolicy)}
       data-puck-runtime-realm={resolvePuckRuntimeRealm(entry)}
-      data-puck-runtime-mode={runtimeMode}
+      data-puck-runtime-mode={effectiveRuntimeMode}
       style={style}
     >
       <Suspense fallback={<div data-production-component-loading style={{ minHeight: loadingHeight }} />}>
-        <ProductionSourceHost entry={entry} backgroundRouting={backgroundRouting} runtimeMode={runtimeMode}>
+        <ProductionSourceHost entry={entry} backgroundRouting={backgroundRouting} runtimeMode={effectiveRuntimeMode}>
           {useIframeNativeRuntime ? (
             <ProductionRuntimeFrame
               component={component}
               background={entry.host?.surfaceBackground?.value}
               theme={isDark ? "dark" : "light"}
-              runtimeMode={runtimeMode}
+              runtimeMode={effectiveRuntimeMode}
             />
           ) : entry.renderPublic(componentProps)}
         </ProductionSourceHost>

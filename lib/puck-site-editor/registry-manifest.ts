@@ -817,6 +817,69 @@ const PUCK_PRODUCTION_EDITOR_CONTRACTS: Readonly<Partial<Record<string, Componen
   ...PUCK_BATCH_4_EDITOR_CONTRACTS,
 };
 
+/* Scroll Mask's generated source schema is empty because all of its props are
+   optional in the official component. Puck still materializes
+   config.defaultProps before an insert, so keep the source's complete,
+   non-editable default contract in the production registry. */
+const nonEditableChoice = (...values: string[]): PrimitivePuckPropRule => ({
+  kind: "enum",
+  values,
+  editable: false,
+});
+
+const nonEditableUrl = (): PrimitivePuckPropRule => ({
+  kind: "string",
+  maxLength: 2_048,
+  format: "url",
+  editable: false,
+});
+
+const SCROLL_MASK_SOURCE_PROPS: Readonly<Record<string, PuckPropRule>> = {
+  variant: nonEditableChoice("iris", "wipe", "curtain", "slats", "grid", "type"),
+  src: nonEditableUrl(),
+  alt: nonEditableText(240),
+  word: nonEditableText(120),
+  scrollLength: numeric(0.25, 1_000),
+  settle: numeric(0.35, 1),
+  smooth: numeric(0, 0.95),
+  feather: numeric(0, 45),
+  stagger: numeric(0, 0.92),
+  columns: numeric(1, 128),
+  originX: numeric(0, 100),
+  originY: numeric(0, 100),
+  angle: numeric(-360, 360),
+  zoom: numeric(0.01, 10),
+  fit: nonEditableChoice("cover", "contain"),
+  radius: numeric(0, 1_000),
+  overlay: numeric(0, 1),
+  background: nonEditableChoice("transparent"),
+  revealContent: { kind: "boolean", editable: false },
+  calm: { kind: "boolean", editable: false },
+};
+
+const SCROLL_MASK_SOURCE_DEFAULTS = {
+  variant: "iris",
+  src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop",
+  alt: "",
+  word: "SCROLL",
+  scrollLength: 1.7,
+  settle: 0.84,
+  smooth: 0.14,
+  feather: 14,
+  stagger: 0.55,
+  columns: 9,
+  originX: 50,
+  originY: 50,
+  angle: 108,
+  zoom: 1.14,
+  fit: "cover",
+  radius: 18,
+  overlay: 0,
+  background: "transparent",
+  revealContent: true,
+  calm: false,
+} as const;
+
 type PuckProductionManifestOverride = Partial<Pick<
   PuckRegistryManifestEntry,
   | "editorAdapter"
@@ -879,6 +942,10 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
   },
   "current-free:splash-cursor": {
     runtimeRealm: "iframeNative",
+  },
+  "starter:scroll-mask-tw": {
+    props: SCROLL_MASK_SOURCE_PROPS,
+    defaults: SCROLL_MASK_SOURCE_DEFAULTS,
   },
   "pro-block:hero-8": {
     editorAdapter: "adapted-hero-8",
