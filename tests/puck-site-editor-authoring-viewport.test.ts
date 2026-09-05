@@ -34,7 +34,12 @@ test("production Puck authoring uses one numeric viewport height for every optio
     "components/puck-site-editor/production-puck-qa.tsx",
   ]) {
     const source = read(file);
-    assert.match(source, /viewports: PUCK_PRODUCTION_AUTHORING_UI/);
+    assert.match(
+      source,
+      file.endsWith("production-puck-qa.tsx")
+        ? /viewports,/
+        : /viewports: PUCK_PRODUCTION_AUTHORING_UI/,
+    );
     assert.doesNotMatch(source, /viewports:\s*\{[\s\S]*height:\s*["']auto["']/);
   }
 });

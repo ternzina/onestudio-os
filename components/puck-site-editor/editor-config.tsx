@@ -1,6 +1,7 @@
 "use client";
 
-import type { ComponentConfig, Config, Field } from "@puckeditor/core";
+import { createUsePuck, type ComponentConfig, type Config, type Field } from "@puckeditor/core";
+import type { ComponentProps } from "react";
 import {
   PUCK_PRODUCTION_MANIFEST,
   type PrimitivePuckPropRule,
@@ -13,6 +14,9 @@ import { PRODUCT_LIBRARY_CATEGORY_ORDER } from "@/lib/puck-site-editor/product-l
 import { PuckProductionBlock } from "./public-renderer";
 import { ProductionColorInput } from "./production-color-field";
 import { ProductionPuckCanvasRoot } from "./production-editor-ux";
+import { useInsideProductionRuntime } from "./production-runtime-context";
+
+const usePuck = createUsePuck();
 
 function fieldForRule(label: string, rule: PrimitivePuckPropRule): Field {
   if (rule.kind === "boolean") return { type: "radio", label, options: [{ label: "Yes", value: true }, { label: "No", value: false }] };
@@ -72,6 +76,49 @@ function contractOwnsTopLevelProp(
     || false;
 }
 
+type ProductionEditorBlockProps = {
+  component: PuckDocumentComponent;
+  dragRef: ComponentProps<typeof PuckProductionBlock>["dragRef"];
+  runtimeMode: "authoring" | "interactive";
+};
+
+function ProductionEditorBlockWithoutPuckViewport({
+  component,
+  dragRef,
+  runtimeMode,
+}: ProductionEditorBlockProps) {
+  return (
+    <PuckProductionBlock
+      component={component}
+      dragRef={dragRef}
+      runtimeMode={runtimeMode}
+    />
+  );
+}
+
+function ProductionEditorBlockWithPuckViewport({
+  component,
+  dragRef,
+  runtimeMode,
+}: ProductionEditorBlockProps) {
+  const viewportWidth = usePuck((state) => state.appState.ui.viewports.current.width);
+  return (
+    <PuckProductionBlock
+      component={component}
+      dragRef={dragRef}
+      mainViewportWidth={viewportWidth}
+      runtimeMode={runtimeMode}
+    />
+  );
+}
+
+function ProductionEditorBlock(props: ProductionEditorBlockProps) {
+  const insideRuntime = useInsideProductionRuntime();
+  return insideRuntime
+    ? <ProductionEditorBlockWithoutPuckViewport {...props} />
+    : <ProductionEditorBlockWithPuckViewport {...props} />;
+}
+
 const components = Object.fromEntries(
   PUCK_PRODUCTION_MANIFEST.map((entry) => {
     const nativeFields = buildNativePuckFields(entry);
@@ -101,7 +148,7 @@ const components = Object.fromEntries(
           ) as PuckDocumentComponent["props"],
         };
         return (
-          <PuckProductionBlock
+          <ProductionEditorBlock
             component={component}
             dragRef={puck.dragRef}
             runtimeMode={puck?.dragRef ? "authoring" : "interactive"}

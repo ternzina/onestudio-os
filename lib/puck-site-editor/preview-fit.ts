@@ -1,4 +1,5 @@
 import type { PuckProductionPresentationContract } from "./registry-manifest.ts";
+import { resolvePuckProductionAuthoringStage } from "./presentation-runtime.ts";
 
 export type ProductionPreviewFit = {
   width: number;
@@ -32,12 +33,17 @@ export function resolveProductionPreviewSceneSize({
   measuredSceneHeight: number;
   presentation?: PuckProductionPresentationContract;
 }): ProductionPreviewSceneSize {
-  const width = presentation?.editorPresentationDefault?.width.value
+  const authoringStage = resolvePuckProductionAuthoringStage(presentation);
+  const width = authoringStage?.width
     ?? Math.max(sourceWidth ?? availableWidth, 1);
-  const height = presentation?.editorPresentationDefault?.height.value
+  const measuredHeight = Math.max(
+    measuredSceneHeight,
+    presentation?.geometry.minHeight?.value ?? 1,
+  );
+  const height = authoringStage?.height
     ?? (presentation?.geometry?.viewportHeight
       ? Math.max(sourceHeight ?? availableHeight, 1)
-      : Math.max(measuredSceneHeight, 1));
+      : measuredHeight);
   return { width, height };
 }
 

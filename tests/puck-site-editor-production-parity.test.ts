@@ -48,13 +48,13 @@ test("production library keeps internal tier metadata without presenting tier ba
   assert.doesNotMatch(drawer, /className=\{styles\.tierBadge\}/);
 });
 
-test("production preview contains intrinsic sources and direct-fills full-surface sources", () => {
+test("production preview contains intrinsic sources and fits full-surface sources", () => {
   const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
   const fit = read("components/puck-site-editor/production-preview-fit.tsx");
   const styles = read("components/puck-site-editor/product-library-drawer.module.css");
   assert.match(drawer, /<ProductionPreviewViewport presentation=\{entry\.presentationContract\}>/);
   assert.match(drawer, /entry\.presentationContract\?\.geometry\.kind === "fullSurface"/);
-  assert.match(drawer, /data-production-preview-fill="direct"/);
+  assert.match(drawer, /data-production-preview-fill=\{entry\.presentationContract\?\.geometry\.kind === "fullSurface" \? "direct" : undefined\}/);
   assert.match(fit, /resolveProductionPreviewSceneSize/);
   assert.match(fit, /scene\.style\.height = `\$\{sceneSize\.height\}px`/);
   assert.match(fit, /data-production-preview-fit="canonical-contain"/);

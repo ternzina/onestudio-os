@@ -5,6 +5,7 @@ import {
   calculateProductionPreviewFit,
   resolveProductionPreviewSceneSize,
 } from "@/lib/puck-site-editor/preview-fit";
+import { resolvePuckProductionAuthoringStage } from "@/lib/puck-site-editor/presentation-runtime";
 import type { PuckProductionPresentationContract } from "@/lib/puck-site-editor/registry-manifest";
 import styles from "./production-preview-fit.module.css";
 import { guardProductionPreviewSubmit } from "./production-editor-ux";
@@ -48,7 +49,8 @@ export function ProductionPreviewViewport({
       });
       const sceneWidth = sceneSize.width;
       scene.style.width = `${sceneWidth}px`;
-      if (presentation?.editorPresentationDefault) {
+      const hasLogicalSceneHeight = resolvePuckProductionAuthoringStage(presentation) !== undefined;
+      if (hasLogicalSceneHeight) {
         scene.style.height = `${sceneSize.height}px`;
         scene.style.minHeight = `${sceneSize.height}px`;
       } else {

@@ -11,6 +11,7 @@ import { ProductionEditorProvider } from "./production-editor-ux";
 
 type ProductionPuckQaProps = {
   ids: readonly string[];
+  initialViewportWidth?: number;
 };
 
 const dataForIds = (ids: readonly string[]): Data => ({
@@ -29,8 +30,17 @@ const dataForIds = (ids: readonly string[]): Data => ({
   }),
 });
 
-export default function ProductionPuckQa({ ids }: ProductionPuckQaProps) {
+export default function ProductionPuckQa({ ids, initialViewportWidth }: ProductionPuckQaProps) {
   const [data, setData] = useState<Data>(() => dataForIds(ids));
+  const viewports = initialViewportWidth === undefined
+    ? PUCK_PRODUCTION_AUTHORING_UI
+    : {
+        ...PUCK_PRODUCTION_AUTHORING_UI,
+        current: {
+          ...PUCK_PRODUCTION_AUTHORING_UI.current,
+          width: initialViewportWidth,
+        },
+      };
 
   return (
     <ProductionEditorProvider locale="en">
@@ -45,7 +55,7 @@ export default function ProductionPuckQa({ ids }: ProductionPuckQaProps) {
             leftSideBarVisible: true,
             rightSideBarVisible: true,
             previewMode: "edit",
-            viewports: PUCK_PRODUCTION_AUTHORING_UI,
+            viewports,
           }}
         >
           <Puck.Layout />

@@ -57,12 +57,14 @@ test("production Library previews use the intrinsic-scene contain contract for t
   expect(emptyMetrics.source.height).toBeGreaterThan(200);
 });
 
-test("Frame Border Library preview directly fills the stage without a transform", async ({ page }) => {
+test("Frame Border Library preview contains its authoring aspect stage", async ({ page }) => {
   const preview = await openLibraryPreview(page, "Frame Border");
   await expect(preview.locator("canvas")).toBeVisible();
 
   const metrics = await preview.evaluate((node) => {
     const stage = node.querySelector<HTMLElement>("[class*='previewStage']")!;
+    const viewport = node.querySelector<HTMLElement>("[data-production-preview-fit]")!;
+    const scene = viewport.firstElementChild as HTMLElement;
     const mount = node.querySelector<HTMLElement>("[data-preview-kind]")!;
     const component = node.querySelector<HTMLElement>("[data-production-component]")!;
     const host = component.querySelector<HTMLElement>("[data-production-host-profile]")!;
@@ -70,24 +72,31 @@ test("Frame Border Library preview directly fills the stage without a transform"
     const rect = (element: Element) => element.getBoundingClientRect().toJSON();
     return {
       stage: rect(stage),
+      scene: rect(scene),
+      sceneWidth: Number(scene.dataset.productionPreviewWidth),
+      sceneHeight: Number(scene.dataset.productionPreviewHeight),
       mount: rect(mount),
       component: rect(component),
       host: { rect: rect(host), offsetWidth: host.offsetWidth, offsetHeight: host.offsetHeight },
       canvas: { rect: rect(canvas), width: canvas.width, height: canvas.height },
-      hasPreviewFit: Boolean(node.querySelector("[data-production-preview-fit]")),
+      hasPreviewFit: Boolean(viewport),
     };
   });
 
   console.log(`[library-webgl-geometry] ${JSON.stringify(metrics)}`);
-  expect(metrics.hasPreviewFit).toBe(false);
-  expect(metrics.mount.width).toBeCloseTo(metrics.stage.width, 1);
-  expect(metrics.mount.height).toBeCloseTo(metrics.stage.height, 1);
-  expect(metrics.host.offsetWidth).toBe(metrics.stage.width);
-  expect(metrics.host.offsetHeight).toBe(metrics.stage.height);
-  expect(metrics.component.width).toBeCloseTo(metrics.stage.width, 1);
-  expect(metrics.component.height).toBeCloseTo(metrics.stage.height, 1);
-  expect(metrics.canvas.rect.width).toBeCloseTo(metrics.stage.width, 1);
-  expect(metrics.canvas.rect.height).toBeCloseTo(metrics.stage.height, 1);
+  expect(metrics.hasPreviewFit).toBe(true);
+  expect(metrics.sceneWidth).toBe(1280);
+  expect(metrics.sceneHeight).toBeCloseTo(1280 / 1.64, 1);
+  expect(metrics.scene.width).toBeLessThanOrEqual(metrics.stage.width + 1);
+  expect(metrics.scene.height).toBeLessThanOrEqual(metrics.stage.height + 1);
+  expect(metrics.mount.width).toBeCloseTo(metrics.scene.width, 1);
+  expect(metrics.mount.height).toBeCloseTo(metrics.scene.height, 1);
+  expect(metrics.host.offsetWidth).toBeGreaterThan(metrics.stage.width);
+  expect(metrics.host.offsetHeight).toBeGreaterThan(metrics.stage.height);
+  expect(metrics.component.width).toBeCloseTo(metrics.scene.width, 1);
+  expect(metrics.component.height).toBeCloseTo(metrics.scene.height, 1);
+  expect(metrics.canvas.rect.width).toBeCloseTo(metrics.scene.width, 1);
+  expect(metrics.canvas.rect.height).toBeCloseTo(metrics.scene.height, 1);
   expect(Math.abs((metrics.component.left + metrics.component.right) / 2 - (metrics.stage.left + metrics.stage.right) / 2)).toBeLessThan(1);
   expect(Math.abs((metrics.component.top + metrics.component.bottom) / 2 - (metrics.stage.top + metrics.stage.bottom) / 2)).toBeLessThan(1);
 });

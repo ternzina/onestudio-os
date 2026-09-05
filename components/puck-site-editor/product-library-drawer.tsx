@@ -116,21 +116,15 @@ function ProductionLibraryPreview({
         className={styles.previewStage}
         data-production-preview-scroll-realm={entry.presentationContract?.geometry.kind === "viewport" ? "local" : undefined}
       >
-        {entry.presentationContract?.geometry.kind === "fullSurface" ? (
+        <ProductionPreviewViewport presentation={entry.presentationContract}>
           <div
             className={styles.previewMount}
             data-preview-kind={entry.sourceKind}
-            data-production-preview-fill="direct"
+            data-production-preview-fill={entry.presentationContract?.geometry.kind === "fullSurface" ? "direct" : undefined}
           >
             <PuckProductionBlock component={component} runtimeMode="library-preview" />
           </div>
-        ) : (
-          <ProductionPreviewViewport presentation={entry.presentationContract}>
-            <div className={styles.previewMount} data-preview-kind={entry.sourceKind}>
-              <PuckProductionBlock component={component} runtimeMode="library-preview" />
-            </div>
-          </ProductionPreviewViewport>
-        )}
+        </ProductionPreviewViewport>
       </div>
     </section>
   );

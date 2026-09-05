@@ -7,6 +7,7 @@ import {
   PUCK_PRODUCTION_MANIFEST,
   PUCK_PRODUCTION_MANIFEST_BY_ID,
 } from "../lib/puck-site-editor/registry-manifest.ts";
+import { resolvePuckProductionAuthoringStage } from "../lib/puck-site-editor/presentation-runtime.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
@@ -62,30 +63,32 @@ test("Frame Border keeps its public technical host beside an authoring-only aspe
   const preview = read("components/puck-site-editor/production-preview-fit.tsx");
   assert.doesNotMatch(renderer, /ProductionPreviewViewport|calculateProductionPreviewFit|scale\(/);
   assert.match(renderer, /presentationContract\?\.technicalRuntime/);
-  assert.match(renderer, /const usesAuthoringAspectRatio = \(runtimeMode === "authoring" \|\| runtimeMode === "interactive"\)/);
-  assert.match(renderer, /presentationContract\?\.technicalRuntime && !usesAuthoringAspectRatio/);
+  assert.match(renderer, /const authoringStage = runtimeMode !== "public"/);
+  assert.match(renderer, /presentationContract\?\.technicalRuntime && runtimeMode === "public"/);
   assert.match(renderer, /presentationGeometry\.aspectRatio\.provenance !== "editorPresentationDefault"/);
   assert.match(renderer, /runtimeMode === "library-preview" && isFullSurface/);
   assert.match(preview, /scene\.style\.width = `\$\{sceneWidth\}px`/);
   assert.match(preview, /scene\.style\.height = `\$\{sceneSize\.height\}px`/);
 });
 
-test("Library preview contains intrinsic scenes and directly fills full-surface stages", () => {
+test("Library preview contains logical scenes and fits full-surface stages", () => {
   const fit = read("lib/puck-site-editor/preview-fit.ts");
   const preview = read("components/puck-site-editor/production-preview-fit.tsx");
   const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
   assert.match(fit, /const width = Math\.max\(sceneWidth, 1\)/);
   assert.match(fit, /Math\.min\(availableWidth \/ width, availableHeight \/ height\)/);
+  assert.match(fit, /resolvePuckProductionAuthoringStage\(presentation\)/);
+  assert.doesNotMatch(fit, /presentation\.technicalRuntime/);
   assert.doesNotMatch(fit, /Math\.max\(availableWidth, sceneWidth\)/);
   assert.match(preview, /resolveProductionPreviewSceneSize/);
+  assert.match(preview, /resolvePuckProductionAuthoringStage\(presentation\) !== undefined/);
   assert.match(preview, /transform: `translate\(\$\{fit\.left\}px, \$\{fit\.top\}px\) scale\(\$\{fit\.scale\}\)`/);
   assert.match(drawer, /<ProductionPreviewViewport presentation=\{entry\.presentationContract\}>/);
-  assert.match(drawer, /entry\.presentationContract\?\.geometry\.kind === "fullSurface"/);
-  assert.match(drawer, /data-production-preview-fill="direct"/);
+  assert.match(drawer, /data-production-preview-fill=\{entry\.presentationContract\?\.geometry\.kind === "fullSurface" \? "direct" : undefined\}/);
   assert.doesNotMatch(drawer, /sceneWidthMode/);
 });
 
-test("full-surface entries keep direct fill while Frame Border uses authoring aspect geometry", () => {
+test("full-surface entries keep source geometry while Frame Border uses authoring aspect geometry", () => {
   const frame = entry("component:frame-border");
   const magicTransform = entry("starter:magic-transform-tw");
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
@@ -101,7 +104,7 @@ test("full-surface entries keep direct fill while Frame Border uses authoring as
   assert.match(preview, /calculateProductionPreviewFit\([\s\S]*sceneWidth,[\s\S]*sceneHeight/);
 });
 
-test("full-surface contracts select direct fill with only the Frame Border authoring aspect", () => {
+test("full-surface contracts retain one shared stage contract with only the Frame Border authoring aspect", () => {
   const components = PUCK_PRODUCTION_MANIFEST.filter((item) => item.sourceKind === "component");
   const fullSurface = components.filter((item) => item.presentationContract?.geometry.kind === "fullSurface");
   assert.equal(fullSurface.length, 21);
@@ -161,15 +164,32 @@ test("renderer has no Frame Border id branch and no universal 390/480 visual fal
   assert.doesNotMatch(preview, /390|480/);
 });
 
-test("main uses the unscaled runtime host and Library contains only non-fill sources", () => {
+test("main uses the unscaled runtime host while Library owns preview fitting", () => {
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
   const preview = read("components/puck-site-editor/production-preview-fit.tsx");
   assert.doesNotMatch(renderer, /ProductionPreviewViewport|calculateProductionPreviewFit|scale\(|zoom\s*:/);
   assert.equal((preview.match(/scale\(/g) ?? []).length, 1);
   assert.match(preview, /data-production-preview-scale=\{fit\.scale\}/);
-  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{effectiveRuntimeMode\}>/);
+  assert.match(renderer, /<ProductionSourceHost[\s\S]*mainLogicalViewportWidth=\{mainLogicalViewportWidth\}/);
   assert.match(renderer, /runtimeMode === "library-preview" && isFullSurface/);
   assert.doesNotMatch(renderer, /data-production-source-boundary|__r3f|MutationObserver|ResizeObserver/);
+});
+
+test("fullSurface authoring height is shared and technical heights remain public-only", () => {
+  const generic = entry("component:tilted-tiles");
+  const technical = generic.presentationContract?.technicalRuntime?.height.value;
+  assert.equal(technical, 520);
+  assert.deepEqual(resolvePuckProductionAuthoringStage(generic.presentationContract), {
+    width: 1280,
+    height: 720,
+  });
+  assert.equal(entry("component:bending-marquee").presentationContract?.editorPresentationDefault, undefined);
+  assert.equal(entry("component:card-spread").presentationContract?.editorPresentationDefault, undefined);
+  assert.equal(entry("starter:flicker-tw").presentationContract?.technicalRuntime?.height.value, 480);
+  assert.deepEqual(resolvePuckProductionAuthoringStage(entry("starter:flicker-tw").presentationContract), {
+    width: 1280,
+    height: 720,
+  });
 });
 
 test("all 38 production component entries have audited geometry classes", () => {

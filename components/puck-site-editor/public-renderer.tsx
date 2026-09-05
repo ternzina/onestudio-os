@@ -17,6 +17,8 @@ import {
   type ProductionRuntimeMode,
 } from "@/lib/puck-site-editor/runtime-realm";
 import { interactionPolicyDataset } from "@/lib/puck-site-editor/interaction-policy";
+import { resolvePuckMainLogicalViewportWidth } from "@/lib/puck-site-editor/main-responsive-geometry";
+import { resolvePuckProductionAuthoringStage } from "@/lib/puck-site-editor/presentation-runtime";
 import styles from "./public-renderer.module.css";
 import {
   ProductionEditorThemeProvider,
@@ -61,11 +63,13 @@ function ProductionSourceHost({
   entry,
   backgroundRouting,
   runtimeMode,
+  mainLogicalViewportWidth,
   children,
 }: {
   entry: PuckProductionRegistryEntry;
   backgroundRouting: PuckProductionBackgroundRouting;
   runtimeMode: ProductionRuntimeMode;
+  mainLogicalViewportWidth?: number;
   children: ReactNode;
 }) {
   const spec = entry.host;
@@ -79,17 +83,20 @@ function ProductionSourceHost({
   const fallbackHeight = entry.definiteHeight;
   const shouldRenderHost = Boolean(spec || fallbackHeight || presentationGeometry || isWrapperTarget);
   if (!shouldRenderHost) return <>{children}</>;
-  const usesAuthoringAspectRatio = (runtimeMode === "authoring" || runtimeMode === "interactive")
+  const authoringStage = runtimeMode !== "public"
+    ? resolvePuckProductionAuthoringStage(presentationContract)
+    : undefined;
+  const usesAuthoringAspectRatio = runtimeMode !== "public"
     && presentationGeometry?.aspectRatio?.provenance === "editorPresentationDefault";
 
   const presentationHostStyle: CSSProperties = {};
-  if (presentationContract?.technicalRuntime && !usesAuthoringAspectRatio) {
+  if (presentationContract?.technicalRuntime && runtimeMode === "public") {
     presentationHostStyle.height = presentationContract.technicalRuntime.height.value;
     presentationHostStyle.minHeight = presentationContract.technicalRuntime.height.value;
   }
-  if (runtimeMode !== "public" && presentationContract?.editorPresentationDefault) {
-    presentationHostStyle.height = presentationContract.editorPresentationDefault.height.value;
-    presentationHostStyle.minHeight = presentationContract.editorPresentationDefault.height.value;
+  if (authoringStage && !usesAuthoringAspectRatio) {
+    presentationHostStyle.height = authoringStage.height;
+    presentationHostStyle.minHeight = authoringStage.height;
   }
   if (presentationGeometry?.minHeight) presentationHostStyle.minHeight = presentationGeometry.minHeight.value;
   if (presentationGeometry?.aspectRatio && (
@@ -110,7 +117,8 @@ function ProductionSourceHost({
     || presentationHostStyle.minHeight !== undefined
     || presentationHostStyle.aspectRatio !== undefined;
   const style: CSSProperties & Record<string, string | number | undefined> = {
-    width: "100%",
+    width: mainLogicalViewportWidth ?? "100%",
+    maxWidth: "100%",
     minWidth: 0,
     position: "relative",
     ...presentationHostStyle,
@@ -208,10 +216,13 @@ function ProductionSourceHost({
 export function PuckProductionBlock({
   component,
   dragRef,
+  mainViewportWidth,
   runtimeMode = "public",
 }: {
   component: PuckDocumentComponent;
   dragRef?: Ref<HTMLDivElement>;
+  /** Editor-only logical width; never supplied by Library or public render. */
+  mainViewportWidth?: number | string;
   runtimeMode?: ProductionRuntimeMode;
 }) {
   const { entry, componentProps, resolvedProps: props, backgroundRouting } = splitProps(component);
@@ -226,6 +237,9 @@ export function PuckProductionBlock({
     ?? 120;
   const presentationContract = entry.presentationContract;
   const isFullSurface = presentationContract?.geometry.kind === "fullSurface";
+  const mainLogicalViewportWidth = effectiveRuntimeMode !== "library-preview" && isFullSurface
+    ? resolvePuckMainLogicalViewportWidth(mainViewportWidth)
+    : undefined;
   const useLibraryPreviewViewportRuntime = effectiveRuntimeMode === "library-preview"
     && presentationContract?.geometry.kind === "viewport";
   const useIframeNativeRuntime = !isInsideRuntime && (
@@ -240,6 +254,8 @@ export function PuckProductionBlock({
       ? String(props.textColor ?? "inherit")
       : "inherit",
     "--puck-block-align": String(props.align ?? "left"),
+    width: mainLogicalViewportWidth,
+    marginInline: mainLogicalViewportWidth === undefined ? undefined : 0,
     height: effectiveRuntimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
     minHeight: effectiveRuntimeMode === "library-preview" && isFullSurface ? "100%" : undefined,
   } as CSSProperties;
@@ -263,7 +279,12 @@ export function PuckProductionBlock({
       style={style}
     >
       <Suspense fallback={<div data-production-component-loading style={{ minHeight: loadingHeight }} />}>
-        <ProductionSourceHost entry={entry} backgroundRouting={backgroundRouting} runtimeMode={effectiveRuntimeMode}>
+        <ProductionSourceHost
+          entry={entry}
+          backgroundRouting={backgroundRouting}
+          runtimeMode={effectiveRuntimeMode}
+          mainLogicalViewportWidth={mainLogicalViewportWidth}
+        >
           {useIframeNativeRuntime ? (
             <ProductionRuntimeFrame
               component={component}

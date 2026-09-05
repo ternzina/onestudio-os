@@ -43,7 +43,8 @@ test("full-surface presentation metadata is consumed by the single production ho
   assert.match(renderer, /const fallbackHeight = entry\.definiteHeight/);
   assert.match(renderer, /const shouldRenderHost = Boolean\(spec \|\| fallbackHeight \|\| presentationGeometry \|\| isWrapperTarget\)/);
   assert.match(renderer, /presentationContract\?\.technicalRuntime/);
-  assert.match(renderer, /runtimeMode !== "public" && presentationContract\?\.editorPresentationDefault/);
+  assert.match(renderer, /const authoringStage = runtimeMode !== "public"/);
+  assert.match(renderer, /presentationContract\?\.technicalRuntime && runtimeMode === "public"/);
   assert.match(renderer, /runtimeMode === "library-preview" && isFullSurface/);
   assert.match(renderer, /style\.height = fallbackHeight/);
   assert.match(renderer, /style\.minHeight = fallbackHeight/);
@@ -80,7 +81,7 @@ test("intrinsic flow and marketing entries do not inherit animated full-surface 
 test("the source renders directly through the single production host", () => {
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
   const css = read("components/puck-site-editor/public-renderer.module.css");
-  assert.match(renderer, /<ProductionSourceHost entry=\{entry\} backgroundRouting=\{backgroundRouting\} runtimeMode=\{effectiveRuntimeMode\}>/);
+  assert.match(renderer, /<ProductionSourceHost[\s\S]*mainLogicalViewportWidth=\{mainLogicalViewportWidth\}/);
   assert.match(renderer, /data-production-host-profile=/);
   assert.doesNotMatch(renderer, /data-production-source-boundary|styles\.sourceBoundary/);
   assert.doesNotMatch(css, /\.sourceBoundary/);
