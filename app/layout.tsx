@@ -7,6 +7,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin", "cyr
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin", "cyrillic"] });
 import { platformMetadata, platformStructuredData } from "./_seo/platform";
 import { classifyHostname } from "@/lib/seo/request";
+import PublicSiteAdSense from "@/components/public/PublicSiteAdSense";
+import { resolvePublicSiteAdSense } from "@/lib/public-site/adsense";
 import { getRequestHtmlLang } from "@/lib/public-site/request-context";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,8 +24,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const headerStore = await headers();
   const tenantRoute = headerStore.get("x-onestudio-tenant-route") === "1" || Boolean(headerStore.get("x-onestudio-custom-domain"));
   const lang = await getRequestHtmlLang();
+  const hostname = headerStore.get("x-onestudio-custom-domain") || headerStore.get("x-forwarded-host") || headerStore.get("host") || "";
+  const adSense = tenantRoute
+    ? await resolvePublicSiteAdSense(hostname)
+    : { enabled: false, publisherId: null };
   return (
     <html lang={lang} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <PublicSiteAdSense config={adSense} />
+      </head>
       <body className="min-h-full">
         {!tenantRoute ? <script
           type="application/ld+json"
