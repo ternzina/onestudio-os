@@ -79,6 +79,15 @@ export type ComponentEditorContract = {
   actionFields: readonly string[];
   arrays: readonly ProductionEditorArraySchema[];
   inlineFields: readonly ProductionInlineFieldContract[];
+  /**
+   * Fields explicitly handed to Puck's native field lifecycle during the
+   * convergence rollout. The contract remains the source of truth; this is
+   * only the ownership declaration for the native Puck adapter.
+   */
+  nativePuck?: Readonly<{
+    fields?: readonly string[];
+    arrays?: readonly string[];
+  }>;
 };
 
 const SAFE_KEY = /^[A-Za-z][A-Za-z0-9_]*$/;
@@ -154,6 +163,26 @@ export function validateComponentEditorContract(contract: ComponentEditorContrac
   for (const fieldKey of [...contract.contentFields, ...contract.actionFields]) {
     if (!fieldKeys.has(fieldKey)) errors.push(`field reference ${fieldKey}: missing`);
   }
+  const nativeFieldKeys = contract.nativePuck?.fields ?? [];
+  const nativeArrayKeys = contract.nativePuck?.arrays ?? [];
+  for (const [index, fieldKey] of nativeFieldKeys.entries()) {
+    const field = contract.fields.find((candidate) => candidate.key === fieldKey);
+    if (!field) {
+      errors.push(`nativePuck.fields[${index}]: missing field`);
+    } else if (field.path.length !== 1 || field.path[0] !== field.key) {
+      errors.push(`nativePuck.fields[${index}]: only top-level fields are supported`);
+    }
+  }
+  for (const [index, arrayKey] of nativeArrayKeys.entries()) {
+    const array = contract.arrays.find((candidate) => candidate.key === arrayKey);
+    if (!array) {
+      errors.push(`nativePuck.arrays[${index}]: missing array`);
+    } else if (array.path.length !== 1 || array.path[0] !== array.key) {
+      errors.push(`nativePuck.arrays[${index}]: only top-level arrays are supported`);
+    }
+  }
+  if (new Set(nativeFieldKeys).size !== nativeFieldKeys.length) errors.push("nativePuck.fields: duplicate field key");
+  if (new Set(nativeArrayKeys).size !== nativeArrayKeys.length) errors.push("nativePuck.arrays: duplicate array key");
   for (const [index, media] of contract.mediaFields.entries()) {
     const field = contract.fields.find((candidate) => candidate.key === media.fieldKey);
     if (!field || field.type !== "media" || !field.mediaEligible) errors.push(`mediaFields[${index}]: invalid field`);

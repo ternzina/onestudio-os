@@ -1,6 +1,62 @@
 .shell {
+  position: relative;
   min-height: 100vh;
-  background: #f5f5f4;
+  background: #fff;
+  color: #171717;
+  --puck-color-surface: #fff;
+  --puck-color-surface-subtle: #fff;
+  --puck-color-surface-muted: #fff;
+  --puck-canvas-color-bg: #fff;
+  --puck-canvas-preview-color-bg: #fff;
+  --puck-color-border: #e7e5e4;
+  --puck-color-text: #171717;
+  --puck-canvas-color-text: #171717;
+}
+
+.dark {
+  background: #000;
+  color: #f8fafc;
+  --puck-color-surface: #000;
+  --puck-color-surface-subtle: #000;
+  --puck-color-surface-muted: #000;
+  --puck-canvas-color-bg: #000;
+  --puck-canvas-preview-color-bg: #000;
+  --puck-color-border: #334155;
+  --puck-color-text: #f8fafc;
+  --puck-canvas-color-text: #f8fafc;
+}
+
+.globalThemeToggle {
+  position: absolute;
+  z-index: 40;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #d6d3d1;
+  border-radius: 7px;
+  background: #fff;
+  color: #171717;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dark .globalThemeToggle {
+  border-color: #475569;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.shell :global([class*="PuckLayout-inner"]),
+.shell :global([class*="PuckCanvas_"]),
+.shell :global([class*="PuckCanvas-root"]) {
+  background-color: var(--puck-color-surface);
+}
+
+.shell :global([class*="PuckCanvas_"]) {
+  color: var(--puck-canvas-color-text);
 }
 
 .toolbar {
@@ -12,10 +68,16 @@
   align-items: center;
   gap: 10px;
   min-height: 58px;
-  padding: 10px 16px;
+  padding: 10px 60px 10px 16px;
   border-bottom: 1px solid #e7e5e4;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
+}
+
+.dark .toolbar {
+  border-color: #334155;
+  background: rgb(15 23 42 / 96%);
+  color: #f8fafc;
 }
 
 .toolbar strong {
@@ -26,6 +88,10 @@
 .toolbar span {
   color: #57534e;
   font-size: 12px;
+}
+
+.dark .toolbar span {
+  color: #cbd5e1;
 }
 
 .toolbar button,
@@ -47,8 +113,80 @@
   color: white;
 }
 
+.dark .toolbar button,
+.dark .toolbar a {
+  border-color: #475569;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.dark .toolbar button[data-primary="true"] {
+  border-color: #f8fafc;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
 .editor {
   height: calc(100vh - 59px);
+  background: var(--puck-canvas-color-bg);
+}
+
+.editableRoot {
+  min-height: 100dvh;
+  background: #fff;
+  color: #171717;
+  --puck-color-surface: #fff;
+  --puck-color-surface-subtle: #fff;
+  --puck-color-surface-muted: #fff;
+  --puck-canvas-color-bg: #fff;
+  --puck-canvas-preview-color-bg: #fff;
+  --puck-color-border: #e7e5e4;
+  --puck-color-text: #171717;
+  --puck-canvas-color-text: #171717;
+}
+
+.editableRootDark {
+  background: #000;
+  color: #f8fafc;
+  --puck-color-surface: #000;
+  --puck-color-surface-subtle: #000;
+  --puck-color-surface-muted: #000;
+  --puck-canvas-color-bg: #000;
+  --puck-canvas-preview-color-bg: #000;
+  --puck-color-border: #334155;
+  --puck-color-text: #f8fafc;
+  --puck-canvas-color-text: #f8fafc;
+}
+
+.editableRoot :global([class*="PuckLayout-inner"]),
+.editableRoot :global([class*="PuckCanvas_"]),
+.editableRoot :global([class*="PuckCanvas-root"]) {
+  background-color: var(--puck-color-surface);
+}
+
+.editableRoot :global([class*="PuckCanvas_"]) {
+  color: var(--puck-canvas-color-text);
+}
+
+/*
+ * Puck disables descendant hit testing so its block root remains the editor
+ * surface. Re-enable it only for canonical passive policies; the production
+ * firewall still reserves activation, focus, and source drag paths. The
+ * interactive branch restores the complete source event path in Interact
+ * mode. No global Puck descendant rule is removed.
+ */
+:global([data-puck-entry][data-puck-preview-mode="edit"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging])[data-puck-interaction-hover="passive-edit"] *),
+:global([data-puck-entry][data-puck-preview-mode="edit"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging])[data-puck-interaction-pointer-move="passive-edit"] *),
+:global([data-puck-entry][data-puck-preview-mode="interactive"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging]) *) {
+  pointer-events: auto !important;
+}
+
+:global(body):has(.editableRoot) {
+  background: #fff;
+}
+
+:global(body):has(.editableRootDark) {
+  background: #000;
 }
 
 .loading,

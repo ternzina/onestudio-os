@@ -27,7 +27,7 @@ test("shared fullSurface canvas sizing keeps DPR buffers and restores CSS dimens
   assert.equal(fullSurface.every((item) => item.sourceKind === "component"), true);
   assert.equal(fullSurface.every((item) => item.presentationContract?.overflow === "clip"), true);
   assert.equal(
-    fullSurface.every((item) => item.presentationContract?.sourceGeometry?.definiteParent.required === true),
+    fullSurface.every((item) => item.presentationContract?.sourceGeometry?.definiteParent?.required === true),
     true,
   );
   assert.match(

@@ -2,18 +2,30 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import {
   filterProductionEditorContract,
   productionFieldsByGroup,
+  productionNativeFieldGroup,
   PRODUCTION_PROPERTIES_GROUP_LABELS,
+  productionPropertiesContract,
   resetProductionEditorBlock,
   resetProductionEditorField,
   resetProductionEditorGroup,
   updateProductionEditorArrayItem,
   updateProductionEditorField,
 } from "../lib/puck-site-editor/builder-properties.ts";
+import {
+  normalizeProductionColorPickerValue,
+  ProductionColorInput,
+  renderProductionColorInput,
+} from "../components/puck-site-editor/production-color-field.ts";
 import { PUCK_PRODUCTION_MANIFEST_BY_ID } from "../lib/puck-site-editor/registry-manifest.ts";
 import type { ComponentEditorContract, ProductionEditorValue } from "../lib/puck-site-editor/builder-contract.ts";
+import { createPuckDocument } from "../lib/puck-site-editor/document.ts";
+import { puckDataToDocument, puckDocumentToData } from "../lib/puck-site-editor/data-adapter.ts";
+import { ProductionEditorLocaleContext } from "../components/puck-site-editor/production-editor-locale.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
 const hero = PUCK_PRODUCTION_MANIFEST_BY_ID.get("reactbits.hero-14")!;
@@ -22,12 +34,134 @@ const heroProps = hero.defaults as Record<string, ProductionEditorValue>;
 const hero6 = PUCK_PRODUCTION_MANIFEST_BY_ID.get("RB_batch7_hero_6")!;
 const hero6Contract = hero6.editorContract!;
 const hero6Props = hero6.defaults as Record<string, ProductionEditorValue>;
+const emptyState = PUCK_PRODUCTION_MANIFEST_BY_ID.get("RB_control3_empty_state_3")!;
+const textScatter = PUCK_PRODUCTION_MANIFEST_BY_ID.get("RB_control6_text_scatter")!;
 
 test("production Properties uses the declared group ordering and Russian labels", () => {
   assert.deepEqual(productionFieldsByGroup(contract).map((group) => group.group), ["CONTENT", "MEDIA", "ACTIONS", "LAYOUT", "STYLE", "MOTION", "RESPONSIVE"]);
   assert.equal(PRODUCTION_PROPERTIES_GROUP_LABELS.CONTENT, "Содержание");
   assert.equal(PRODUCTION_PROPERTIES_GROUP_LABELS.MEDIA, "Медиа");
   assert.equal(PRODUCTION_PROPERTIES_GROUP_LABELS.ACTIONS, "Кнопки и ссылки");
+});
+
+test("native Puck ownership resolves semantic groups from the canonical contract", () => {
+  const effective = productionPropertiesContract(hero.id, contract, hero.defaults, hero.backgroundCapability, hero.textColorCapability);
+  assert.equal(productionNativeFieldGroup(effective, "headingLine1"), "CONTENT");
+  assert.equal(productionNativeFieldGroup(effective, "backgroundColor"), "STYLE");
+  assert.equal(productionNativeFieldGroup(effective, "textColor"), undefined);
+  assert.equal(productionNativeFieldGroup(effective, "headingLine2"), undefined);
+});
+
+test("visual style capability filtering removes unsupported colors without a component-specific panel branch", () => {
+  const emptyContract = productionPropertiesContract(
+    emptyState.id,
+    emptyState.editorContract,
+    emptyState.defaults,
+    emptyState.backgroundCapability,
+    emptyState.textColorCapability,
+  );
+  assert.deepEqual(emptyContract.fields.filter((field) => field.type === "color"), []);
+  assert.deepEqual(emptyContract.nativePuck?.fields ?? [], []);
+
+  const textScatterContract = productionPropertiesContract(
+    textScatter.id,
+    textScatter.editorContract,
+    textScatter.defaults,
+    textScatter.backgroundCapability,
+    textScatter.textColorCapability,
+  );
+  assert.deepEqual(textScatterContract.fields.filter((field) => field.type === "color"), []);
+  assert.deepEqual(textScatterContract.nativePuck?.fields ?? [], []);
+});
+
+test("shared production colors render as visual controls and safely normalize only picker input", () => {
+  const effective = productionPropertiesContract(hero.id, contract, hero.defaults, hero.backgroundCapability, hero.textColorCapability);
+  const styleFields = effective.fields.filter((field) => field.group === "STYLE");
+  assert.deepEqual(styleFields.map((field) => field.key), ["backgroundColor"]);
+  assert.deepEqual(styleFields.map((field) => field.type), ["color"]);
+
+  const markup = renderToStaticMarkup(createElement(ProductionColorInput, {
+    label: "Background",
+    value: "#abc",
+    onChange: () => undefined,
+  }));
+  assert.match(markup, /type="color"/);
+  assert.match(markup, /value="?#aabbcc/);
+  assert.match(markup, /data-production-color-label="Background"/);
+  assert.doesNotMatch(markup, /type="number"/);
+
+  const russianMarkup = renderToStaticMarkup(createElement(
+    ProductionEditorLocaleContext.Provider,
+    { value: "ru" },
+    createElement(ProductionColorInput, { label: "Text color", value: "#123456", onChange: () => undefined }),
+  ));
+  assert.match(russianMarkup, /data-production-color-label="Цвет текста"/);
+
+  let selectedColor = "";
+  const input = renderProductionColorInput({ label: "Background", value: "#000000", onChange: (value) => { selectedColor = value; } });
+  const inputControl = (input.props as { children: [unknown, { props: { children: { props: { onChange: (event: { currentTarget: { value: string } }) => void } } } }] }).children[1].props.children;
+  inputControl.props.onChange({ currentTarget: { value: "#123456" } });
+  assert.equal(selectedColor, "#123456");
+
+  assert.equal(normalizeProductionColorPickerValue("#abc"), "#aabbcc");
+  assert.equal(normalizeProductionColorPickerValue("var(--surface)"), "#000000");
+  assert.equal(normalizeProductionColorPickerValue("transparent"), "#000000");
+  assert.equal(normalizeProductionColorPickerValue("linear-gradient(red, blue)"), "#000000");
+});
+
+test("shared Background and color updates reach Puck data and reset to exact manifest originals", () => {
+  const effective = productionPropertiesContract(hero.id, contract, hero.defaults, hero.backgroundCapability, hero.textColorCapability);
+  const editedBackground = updateProductionEditorField(heroProps, effective, "backgroundColor", "#123456");
+  assert.equal(editedBackground.backgroundColor, "#123456");
+
+  const document = createPuckDocument({
+    pageId: "shared-color-test",
+    locale: "en",
+    content: [{ type: hero.id, props: { id: "color-test", ...editedBackground } }],
+  });
+  const reloaded = puckDataToDocument(puckDocumentToData(document), { pageId: "shared-color-test", locale: "en" });
+  assert.equal(reloaded.content[0].props.backgroundColor, "#123456");
+
+  const reset = resetProductionEditorBlock(reloaded.content[0].props as Record<string, ProductionEditorValue>, effective);
+  assert.equal(reset.backgroundColor, hero.defaults.backgroundColor);
+});
+
+test("source-backed Background is generated for Liquid Ascii without inventing Text color", () => {
+  const uncontracted = [...PUCK_PRODUCTION_MANIFEST_BY_ID.values()].find((entry) => entry.catalogKey === "component:liquid-ascii")!;
+  const effective = productionPropertiesContract(uncontracted.id, uncontracted.editorContract, uncontracted.defaults, uncontracted.backgroundCapability, uncontracted.textColorCapability);
+  assert.deepEqual(effective.fields.filter((field) => field.group === "STYLE").map((field) => field.key), ["backgroundColor"]);
+  assert.equal(uncontracted.sourcePropKeys.includes("backgroundColor"), true);
+  assert.equal(uncontracted.defaults.backgroundColor, "#000000");
+  assert.deepEqual(uncontracted.backgroundCapability, { supported: true, target: "sourceProp", prop: "backgroundColor" });
+  assert.deepEqual(uncontracted.textColorCapability, { supported: false, target: "none" });
+
+  for (const catalogKey of [
+    "pro-block:hero-16",
+    "pro-block:hero-17",
+    "pro-block:hero-19",
+    "pro-block:cta-8",
+    "pro-block:cta-9",
+    "pro-block:navigation-4",
+    "pro-block:navigation-11",
+    "pro-block:navigation-14",
+  ]) {
+    assert.deepEqual(
+      [...PUCK_PRODUCTION_MANIFEST_BY_ID.values()].find((entry) => entry.catalogKey === catalogKey)?.backgroundCapability,
+      { supported: true, target: "sourceRoot" },
+      catalogKey,
+    );
+  }
+});
+
+test("missing canonical visual capability does not turn common host props into controls", () => {
+  const effective = productionPropertiesContract("test.no-visual-capability", undefined, {
+    backgroundColor: "#ffffff",
+    textColor: "#171717",
+  });
+  assert.deepEqual(effective.fields.filter((field) => field.type === "color"), []);
+  assert.deepEqual(effective.nativePuck?.fields ?? [], []);
+  assert.equal(effective.defaultProps.backgroundColor, undefined);
+  assert.equal(effective.defaultProps.textColor, undefined);
 });
 
 test("Hero 14 contract fields update the one serializable Puck props record", () => {
@@ -97,11 +231,22 @@ test("Hero 6 array resets restore exact canonical values", () => {
 
 test("shared production renderer supports every approved primitive field type and keeps generic fallback", () => {
   const source = fs.readFileSync(path.join(root, "components/puck-site-editor/production-properties-panel.tsx"), "utf8");
-  for (const type of ["textarea", "boolean", "number", "select", "color", "url", "media", "text"]) assert.match(source, new RegExp(`field\\.type === ["']${type}["']`));
+  for (const type of ["textarea", "boolean", "number", "select", "url", "media", "text"]) assert.match(source, new RegExp(`field\\.type === ["']${type}["']`));
+  assert.doesNotMatch(source, /ProductionColorInput/);
+  assert.doesNotMatch(source, /field\\.type === ["']color["']/);
   assert.match(source, /data-production-generic-controls/);
   assert.match(source, /type: "setData"/);
   const editorConfig = fs.readFileSync(path.join(root, "components/puck-site-editor/editor-config.tsx"), "utf8");
+  assert.match(editorConfig, /rule\.format === "color"/);
+  assert.match(editorConfig, /type: "custom"/);
+  assert.match(editorConfig, /ProductionColorInput/);
   assert.match(editorConfig, /contract\?\.arrays\.some/);
+  const renderer = fs.readFileSync(path.join(root, "components/puck-site-editor/public-renderer.tsx"), "utf8");
+  assert.match(renderer, /--puck-block-background/);
+  assert.match(renderer, /backgroundRouting\.sourceRoot/);
+  assert.match(renderer, /sourcePropKeys/);
+  const rendererCss = fs.readFileSync(path.join(root, "components/puck-site-editor/public-renderer.module.css"), "utf8");
+  assert.match(rendererCss, /sourceRootBackgroundBridge > \*/);
 });
 
 test("production Properties and its dependencies have no editor-lab import", () => {

@@ -1,0 +1,2 @@
+import { faqContent } from "@/lib/faq-content";
+export const faq = { page: { eyebrow: "FAQ", title: "Najczęściej zadawane pytania", description: "Odpowiedzi o uruchamianiu, konfiguracji i pracy z OneStudio. Jeśli nie ma tu Twojego pytania, napisz do nas.", contactTitle: "Masz jeszcze pytanie?", contactText: "Napisz kilka słów o swoim projekcie i o tym, co chcesz stworzyć.", contactAction: "Zadaj pytanie" }, content: faqContent.pl } as const;

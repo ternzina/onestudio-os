@@ -6,6 +6,8 @@ import { useState } from "react";
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "./editor-config";
 import { PUCK_PRODUCTION_EDITOR_OVERRIDES } from "./product-library-drawer";
 import { PUCK_PRODUCTION_MANIFEST_BY_ID } from "@/lib/puck-site-editor/registry-manifest";
+import { PUCK_PRODUCTION_AUTHORING_UI } from "@/lib/puck-site-editor/authoring-viewport";
+import { ProductionEditorProvider } from "./production-editor-ux";
 
 type ProductionPuckQaProps = {
   ids: readonly string[];
@@ -31,30 +33,24 @@ export default function ProductionPuckQa({ ids }: ProductionPuckQaProps) {
   const [data, setData] = useState<Data>(() => dataForIds(ids));
 
   return (
-    <main data-production-puck-qa>
-      <Puck
-        config={PUCK_PRODUCTION_EDITOR_CONFIG}
-        data={data}
-        onChange={setData}
-        overrides={PUCK_PRODUCTION_EDITOR_OVERRIDES}
-        headerTitle="Production Registry · Puck QA"
-        ui={{
-          leftSideBarVisible: true,
-          rightSideBarVisible: true,
-          previewMode: "edit",
-          viewports: {
-            current: { width: 1280, height: "auto" },
-            controlsVisible: true,
-            options: [
-              { label: "Desktop", width: 1280, height: "auto" },
-              { label: "Tablet", width: 768, height: "auto" },
-              { label: "Mobile", width: 390, height: "auto" },
-            ],
-          },
-        }}
-      >
-        <Puck.Layout />
-      </Puck>
-    </main>
+    <ProductionEditorProvider locale="en">
+      <main data-production-puck-qa>
+        <Puck
+          config={PUCK_PRODUCTION_EDITOR_CONFIG}
+          data={data}
+          onChange={setData}
+          overrides={PUCK_PRODUCTION_EDITOR_OVERRIDES}
+          headerTitle="Production Registry · Puck QA"
+          ui={{
+            leftSideBarVisible: true,
+            rightSideBarVisible: true,
+            previewMode: "edit",
+            viewports: PUCK_PRODUCTION_AUTHORING_UI,
+          }}
+        >
+          <Puck.Layout />
+        </Puck>
+      </main>
+    </ProductionEditorProvider>
   );
 }

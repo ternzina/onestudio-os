@@ -1,12 +1,17 @@
 "use client";
 
 import { createUsePuck } from "@puckeditor/core";
-import { useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { Children, isValidElement, useMemo, useState, type ChangeEvent, type ReactElement, type ReactNode } from "react";
 import type { ComponentEditorContract, ProductionEditorArrayItemField, ProductionEditorField, ProductionEditorFieldGroup, ProductionEditorPrimitive, ProductionEditorValue } from "@/lib/puck-site-editor/builder-contract";
 import { PUCK_PRODUCTION_REGISTRY_BY_ID } from "./production-registry";
 import {
   filterProductionEditorContract,
+  PRODUCTION_PROPERTIES_GROUP_LABELS,
+  PRODUCTION_PROPERTIES_GROUP_ORDER,
   productionFieldsByGroup,
+  productionNativeFieldGroup,
+  productionPropertiesContract,
+  productionPropertiesContractForManualPanel,
   resetProductionEditorBlock,
   resetProductionEditorField,
   resetProductionEditorGroup,
@@ -14,6 +19,8 @@ import {
   updateProductionEditorField,
 } from "@/lib/puck-site-editor/builder-properties";
 import styles from "./production-properties-panel.module.css";
+import { useProductionEditorLocale } from "./production-editor-ux";
+import { translateAdminText } from "@/lib/i18n/admin";
 
 const usePuck = createUsePuck();
 
@@ -50,7 +57,6 @@ function ProductionFieldInput({
       {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
     </select>
   );
-  if (field.type === "color") return <input aria-label={field.label} value={typeof value === "string" ? value : "#000000"} onChange={handleText} type="color" />;
   if (field.type === "text") return <input aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type="text" />;
   return <input aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type={field.type === "url" || field.type === "media" ? "url" : "text"} />;
 }
@@ -66,10 +72,11 @@ function ContractField({
   contract: ComponentEditorContract;
   update: (next: Record<string, ProductionEditorValue>) => void;
 }) {
+  const locale = useProductionEditorLocale();
   const value = valueAt(props, field.path) as ProductionEditorPrimitive;
   return (
     <div className={styles.field} data-production-field={field.key} data-field-type={field.type}>
-      <label>{field.label}</label>
+      <label>{translateAdminText(locale, field.label)}</label>
       {field.type === "media" && typeof value === "string" ? <img className={styles.mediaPreview} src={value} alt="" /> : null}
       <ProductionFieldInput field={field} value={value} onChange={(next) => update(updateProductionEditorField(props, contract, field.key, next))} />
       {field.resettable ? <button type="button" onClick={() => update(resetProductionEditorField(props, contract, field.key))}>Вернуть оригинал</button> : null}
@@ -88,15 +95,16 @@ function ContractArrays({
   group: ProductionEditorFieldGroup;
   update: (next: Record<string, ProductionEditorValue>) => void;
 }) {
+  const locale = useProductionEditorLocale();
   return contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)).map((array) => {
     const items = valueAt(props, array.path);
     if (!Array.isArray(items)) return null;
     const itemFields = array.itemFields.filter((field) => field.group === group);
-    return <fieldset className={styles.array} key={array.key}><legend>{array.label}</legend>{items.map((item, index) => (
+    return <fieldset className={styles.array} key={array.key}><legend>{translateAdminText(locale, array.label)}</legend>{items.map((item, index) => (
       <div className={styles.arrayItem} key={`${array.key}-${index}`} data-production-array-item={array.key}>
         <strong>{array.itemLabel} {index + 1}</strong>
         {itemFields.map((field) => <div className={styles.field} data-production-array-field={`${array.key}.${field.key}`} data-field-type={field.type} key={field.key}>
-          <label>{field.label}</label>
+          <label>{translateAdminText(locale, field.label)}</label>
           {field.type === "media" && item && typeof item === "object" && !Array.isArray(item) && typeof item[field.key] === "string" ? <img className={styles.mediaPreview} src={item[field.key]} alt="" /> : null}
           <ProductionFieldInput field={field} value={item && typeof item === "object" && !Array.isArray(item) ? (item[field.key] as ProductionEditorPrimitive) : null} onChange={(next) => update(updateProductionEditorArrayItem(props, contract, array.key, index, field.key, next))} />
         </div>)}
@@ -105,20 +113,20 @@ function ContractArrays({
   });
 }
 
-function ContractProperties({ contract, props, update }: { contract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: (next: Record<string, ProductionEditorValue>) => void }) {
+function ContractProperties({ contract, resetContract, props, update }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: (next: Record<string, ProductionEditorValue>) => void }) {
   const [query, setQuery] = useState("");
-  const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "STYLE", "MOTION", "RESPONSIVE"]));
+  const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "MOTION", "RESPONSIVE"]));
   const filtered = useMemo(() => filterProductionEditorContract(contract, query), [contract, query]);
   const groups = productionFieldsByGroup(filtered).filter(({ fields, arrays }) => fields.length + arrays.length > 0);
 
   return <section className={styles.panel} data-production-properties>
-    <header><h2>Свойства блока</h2><input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={() => update(resetProductionEditorBlock(props, contract))}>Вернуть блок к оригиналу</button></header>
+    <header><h2>Свойства блока</h2><input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={() => update(resetProductionEditorBlock(props, resetContract))}>Вернуть блок к оригиналу</button></header>
     {groups.map(({ group, label, fields, arrays }) => {
       const isCollapsed = !query && collapsed.has(group);
       return <section className={styles.group} key={group} data-production-group={group}>
         <button type="button" className={styles.groupToggle} aria-expanded={!isCollapsed} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group)) next.delete(group); else next.add(group); return next; })}>{label}<span>{isCollapsed ? "▸" : "▾"}</span></button>
         {!isCollapsed ? <div className={styles.groupContent}>
-          <div className={styles.groupActions}><button type="button" onClick={() => update(resetProductionEditorGroup(props, contract, group))}>Сбросить группу</button></div>
+          <div className={styles.groupActions}><button type="button" onClick={() => update(resetProductionEditorGroup(props, resetContract, group))}>Сбросить группу</button></div>
           {fields.map((field) => <ContractField key={field.key} field={field} props={props} contract={contract} update={update} />)}
           <ContractArrays contract={contract} props={props} group={group} update={update} />
         </div> : null}
@@ -127,18 +135,76 @@ function ContractProperties({ contract, props, update }: { contract: ComponentEd
   </section>;
 }
 
+type PuckFieldChild = ReactElement<{ fieldName?: string }>;
+
+/**
+ * Puck 0.23 passes each native field as a FieldsChild with its fieldName.
+ * Grouping those children here keeps Puck's field controls and lifecycle
+ * intact while restoring the canonical OneStudio semantic groups around them.
+ */
+export function NativePuckFieldsBySemanticGroup({
+  children,
+  contract,
+}: {
+  children: ReactNode;
+  contract: ComponentEditorContract;
+}) {
+  const nativeFields = new Set(contract.nativePuck?.fields ?? []);
+  const grouped = new Map<(typeof PRODUCTION_PROPERTIES_GROUP_ORDER)[number], ReactNode[]>();
+  const additional: ReactNode[] = [];
+
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement(child)) {
+      additional.push(child);
+      continue;
+    }
+    const fieldName = (child as PuckFieldChild).props.fieldName;
+    const group = fieldName && (nativeFields.has(fieldName) || contract.nativePuck?.arrays?.includes(fieldName))
+      ? productionNativeFieldGroup(contract, fieldName)
+      : undefined;
+    if (!group) {
+      additional.push(child);
+      continue;
+    }
+    const items = grouped.get(group) ?? [];
+    items.push(child);
+    grouped.set(group, items);
+  }
+
+  return <>
+    {PRODUCTION_PROPERTIES_GROUP_ORDER.map((group) => {
+      const items = grouped.get(group);
+      if (!items?.length) return null;
+      return <section className={styles.nativeGroup} data-production-native-group={group} key={group}>
+        <h3>{PRODUCTION_PROPERTIES_GROUP_LABELS[group]}</h3>
+        <div className={styles.nativeGroupContent}>{items}</div>
+      </section>;
+    })}
+    {additional.length ? <section className={styles.genericFallback} data-production-generic-controls>
+      <h2>Дополнительные настройки</h2>
+      {additional}
+    </section> : null}
+  </>;
+}
+
 export function PuckProductionProperties({ children, itemSelector }: ProductionPropertiesPanelProps) {
   const content = usePuck((state) => state.appState.data.content);
   const dispatch = usePuck((state) => state.dispatch);
   const selected = itemSelector?.zone === "root:default-zone" ? content[itemSelector.index] : null;
   const entry = selected ? PUCK_PRODUCTION_REGISTRY_BY_ID.get(selected.type) : undefined;
-  const contract = entry?.editorContract;
-  if (!selected || !contract) return <>{children}</>;
+  const contract = entry
+    ? productionPropertiesContract(entry.id, entry.editorContract, entry.defaults, entry.backgroundCapability, entry.textColorCapability)
+    : undefined;
+  const panelContract = contract ? productionPropertiesContractForManualPanel(contract) : undefined;
+  if (!selected || !entry || !contract || !panelContract) return <>{children}</>;
   const props = selected.props as Record<string, ProductionEditorValue>;
   const update = (nextProps: Record<string, ProductionEditorValue>) => {
     dispatch({ type: "setData", recordHistory: true, data: (previous) => ({
       content: previous.content.map((component, index) => index === itemSelector!.index && component.type === selected.type ? { ...component, props: nextProps } : component),
     }) });
   };
-  return <><ContractProperties contract={contract} props={props} update={update} /><section className={styles.genericFallback} data-production-generic-controls><h2>Дополнительные настройки</h2>{children}</section></>;
+  return <>
+    <ContractProperties contract={panelContract} resetContract={contract} props={props} update={update} />
+    <NativePuckFieldsBySemanticGroup contract={contract}>{children}</NativePuckFieldsBySemanticGroup>
+  </>;
 }

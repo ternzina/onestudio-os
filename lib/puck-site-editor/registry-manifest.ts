@@ -11,13 +11,48 @@ import {
 import {
   PUCK_BATCH_3_EDITOR_CONTRACTS,
 } from "../../components/puck-site-editor/content-editability-batch-3-contracts.ts";
+import {
+  PUCK_BATCH_4_EDITOR_CONTRACTS,
+} from "../../components/puck-site-editor/content-editability-batch-4-contracts.ts";
+import type { PuckRuntimeRealm } from "./runtime-realm.ts";
+import {
+  resolvePuckInteractionPolicy,
+  type PuckInteractionPolicy,
+} from "./interaction-policy.ts";
 
 export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
 export type PuckProductTaxonomy = ProductLibraryCategory;
 
+export type PuckProductionBackgroundTarget =
+  | "wrapper"
+  | "sourceProp"
+  | "cssVariable"
+  | "sourceRoot"
+  | "none";
+
+export type PuckProductionBackgroundCapability =
+  | { supported: false; target: "none" }
+  | { supported: true; target: "wrapper" | "sourceRoot" }
+  | { supported: true; target: "sourceProp"; prop: string }
+  | { supported: true; target: "cssVariable"; name: `--${string}` };
+
+export type PuckProductionTextColorCapability =
+  | { supported: false; target: "none" }
+  | { supported: true; target: "wrapper" | "sourceRoot" }
+  | { supported: true; target: "sourceProp"; prop: string }
+  | { supported: true; target: "cssVariable"; name: `--${string}` };
+
+export type PuckProductionPresentationGeometryKind =
+  | "intrinsic"
+  | "minHeight"
+  | "aspect"
+  | "fullSurface"
+  | "viewport";
+
 export type PuckProductionPresentationProvenance =
   | "source"
+  | "officialExample"
   | "officialDemo"
   | "technicalRuntime"
   | "editorPresentationDefault";
@@ -27,6 +62,18 @@ export type PuckProductionPresentationDimension = {
   provenance: PuckProductionPresentationProvenance;
 };
 
+export type PuckProductionPresentationSourceGeometry = {
+  width?: { value: string | number; provenance: "source" };
+  height?: { value: string | number; provenance: "source" };
+  definiteParent?: { required: true; provenance: "source" };
+};
+
+export type PuckProductionPresentationEditorDefault = {
+  width: PuckProductionPresentationDimension;
+  height: PuckProductionPresentationDimension;
+};
+
+/** Typed layout semantics for the selected production presentation root. */
 export type PuckProductionPresentationRootLayout = {
   display: "flex";
   alignItems: "center";
@@ -34,25 +81,46 @@ export type PuckProductionPresentationRootLayout = {
 };
 
 export type PuckProductionPresentationGeometry = {
-  kind: "minHeight" | "fullSurface";
+  kind: PuckProductionPresentationGeometryKind;
   minHeight?: PuckProductionPresentationDimension;
   aspectRatio?: PuckProductionPresentationDimension;
+  authoredWidth?: PuckProductionPresentationDimension;
+  authoredHeight?: PuckProductionPresentationDimension;
+  viewportHeight?: { value: "100vh"; provenance: "source" };
 };
 
 export type PuckProductionPresentationContract = {
+  /** The production surface is the selected counterpart of the source contract. */
   target: "componentRoot";
+  /** Typed layout applied to the ProductionSourceHost presentation root. */
   rootLayout?: PuckProductionPresentationRootLayout;
+  /** The source/public overflow contract, independent of preview chrome. */
   overflow: "visible" | "clip";
-  provenance: "source" | "officialDemo";
-  sourceGeometry?: {
-    width: { value: string; provenance: "source" };
-    height: { value: string; provenance: "source" };
-    definiteParent: { required: true; provenance: "source" };
-  };
+  provenance: PuckProductionPresentationProvenance;
+  sourceGeometry?: PuckProductionPresentationSourceGeometry;
+  /** Editor/library-only scene dimensions; never public component geometry. */
+  editorPresentationDefault?: PuckProductionPresentationEditorDefault;
+  /** A non-ratio host fallback needed to give fill-parent sources a public runtime parent. */
   technicalRuntime?: {
     height: PuckProductionPresentationDimension;
   };
   geometry: PuckProductionPresentationGeometry;
+  officialExampleProps?: {
+    text: string;
+    className: string;
+    as: string;
+    velocity: number;
+    rotation: number;
+    scale: number;
+    duration: number;
+    returnAfter: number;
+    provenance: "officialExample";
+  };
+};
+
+export type PuckProductionVisualStyleCapabilities = {
+  background: PuckProductionBackgroundCapability;
+  textColor: PuckProductionTextColorCapability;
 };
 
 type PuckPropRuleOptions = { editable?: boolean; required?: boolean };
@@ -105,8 +173,11 @@ export type PuckRegistryManifestEntry = {
   sourceTier: "PRO" | "FREE";
   sourceProvenance: "REGISTRY";
   sourceKind: "component" | "pro-block";
+  backgroundCapability: PuckProductionBackgroundCapability;
+  textColorCapability: PuckProductionTextColorCapability;
   officialSlug: string;
   physicalSource: string;
+  sourcePropKeys: readonly string[];
   rendererSource: string;
   legacyIds: readonly string[];
   editorAdapter: string;
@@ -114,6 +185,8 @@ export type PuckRegistryManifestEntry = {
   host: PuckProductionHostSpec | null;
   definiteHeight: number | null;
   runtimeFamily: string | null;
+  runtimeRealm?: PuckRuntimeRealm;
+  interactionPolicy: PuckInteractionPolicy;
   presentationContract?: PuckProductionPresentationContract;
   documentVersions: readonly [1];
   props: Readonly<Record<string, PuckPropRule>>;
@@ -164,11 +237,11 @@ const presentationDimension = (
   provenance: PuckProductionPresentationDimension["provenance"],
 ): PuckProductionPresentationDimension => ({ value, provenance });
 
-const SOURCE_FILL_SURFACE_GEOMETRY = {
+const SOURCE_FILL_SURFACE_GEOMETRY: PuckProductionPresentationSourceGeometry = {
   width: { value: "100%", provenance: "source" },
   height: { value: "100%", provenance: "source" },
   definiteParent: { required: true, provenance: "source" },
-} as const;
+};
 
 const fullSurfacePresentation = (
   technicalHeight: number,
@@ -183,7 +256,44 @@ const fullSurfacePresentation = (
   geometry: { kind: "fullSurface" },
 });
 
+const intrinsicPresentation = (
+  geometry: PuckProductionPresentationGeometry = { kind: "intrinsic" },
+): PuckProductionPresentationContract => ({
+  target: "componentRoot",
+  overflow: "visible",
+  provenance: "source",
+  geometry,
+});
+
+const sourceMinPresentation = (
+  minHeight: number,
+): PuckProductionPresentationContract => ({
+  target: "componentRoot",
+  overflow: "visible",
+  provenance: "source",
+  geometry: {
+    kind: "minHeight",
+    minHeight: presentationDimension(minHeight, "source"),
+  },
+});
+
+const viewportPresentation = (): PuckProductionPresentationContract => ({
+  target: "componentRoot",
+  overflow: "visible",
+  provenance: "source",
+  geometry: {
+    kind: "viewport",
+    viewportHeight: { value: "100vh", provenance: "source" },
+  },
+});
+
+/**
+ * Production component scene contracts. This is a catalog data table: the
+ * renderer never branches on a component id. Every entry below was checked
+ * against its physical root/source measurements before being classified.
+ */
 const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProductionPresentationContract>> = {
+  // Parent-sized source roots render directly into the provided host/stage.
   "component:lightspeed": fullSurfacePresentation(480),
   "component:light-droplets": fullSurfacePresentation(480),
   "component:frame-border": {
@@ -211,6 +321,38 @@ const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProduc
   "current-free:magic-rings": fullSurfacePresentation(480),
   "current-free:strands": fullSurfacePresentation(480),
   "current-free:floating-lines": fullSurfacePresentation(480),
+
+  // Source-authored DOM/content geometry stays natural.
+  "control-3:blur-highlight": intrinsicPresentation(),
+  "component:credit-card": intrinsicPresentation(),
+  "component:device": intrinsicPresentation(),
+  "component:page-flip": intrinsicPresentation(),
+  "component:skewed-carousel": intrinsicPresentation(),
+  "component:tumble-carousel": intrinsicPresentation(),
+  "component:modal-cards": intrinsicPresentation(),
+  "starter:circle-stack-tw": intrinsicPresentation({
+    kind: "intrinsic",
+    authoredWidth: presentationDimension(490, "source"),
+    authoredHeight: presentationDimension(540, "source"),
+  }),
+  "starter:rotating-cards-tw": intrinsicPresentation(),
+
+  // The source itself declares these minimum/fixed dimensions.
+  "control-3:empty-state-3": sourceMinPresentation(560),
+  "control-6:card-2": sourceMinPresentation(560),
+  "starter:magic-transform-tw": {
+    ...sourceMinPresentation(560),
+    editorPresentationDefault: {
+      width: presentationDimension(1280, "editorPresentationDefault"),
+      height: presentationDimension(560, "editorPresentationDefault"),
+    },
+  },
+
+  // These components intentionally represent viewport/scroll behavior.
+  "component:circle-gallery": viewportPresentation(),
+  "component:scroll-stack": viewportPresentation(),
+  "starter:scroll-mask-tw": viewportPresentation(),
+  "current-free:splash-cursor": viewportPresentation(),
 };
 
 function productionPresentationContract(catalogKey: string) {
@@ -225,6 +367,14 @@ const batch3EditorContract = (catalogKey: PuckBatch3CatalogKey): ComponentEditor
   return contract;
 };
 
+type PuckBatch4CatalogKey = keyof typeof PUCK_BATCH_4_EDITOR_CONTRACTS;
+
+const batch4EditorContract = (catalogKey: PuckBatch4CatalogKey): ComponentEditorContract => {
+  const contract = PUCK_BATCH_4_EDITOR_CONTRACTS[catalogKey];
+  if (!contract) throw new Error(`Missing Batch 4 editor contract: ${catalogKey}`);
+  return contract;
+};
+
 type PilotManifestEntry = Omit<
   PuckRegistryManifestEntry,
   | "documentVersions"
@@ -232,12 +382,85 @@ type PilotManifestEntry = Omit<
   | "sourceKind"
   | "officialSlug"
   | "physicalSource"
+  | "sourcePropKeys"
   | "rendererSource"
   | "legacyIds"
   | "host"
+  | "backgroundCapability"
   | "definiteHeight"
   | "runtimeFamily"
->;
+  | "textColorCapability"
+  | "interactionPolicy"
+> & {
+  host?: PuckProductionHostSpec | null;
+  backgroundCapability?: PuckProductionBackgroundCapability;
+  textColorCapability?: PuckProductionTextColorCapability;
+};
+
+const NONE_BACKGROUND_CAPABILITY: PuckProductionBackgroundCapability = {
+  supported: false,
+  target: "none",
+};
+
+const NONE_TEXT_COLOR_CAPABILITY: PuckProductionTextColorCapability = {
+  supported: false,
+  target: "none",
+};
+
+/**
+ * The manifest is the only production description of where the shared
+ * Background field is allowed to render. Host layout metadata such as
+ * sourceCssVariable and surfaceBackground remains separate: those values are
+ * source fidelity/layout contracts, not editor Background targets.
+ *
+ * Entries in this table are verified host/source-root contracts. Source prop
+ * capabilities are resolved from the generated source schema below so a
+ * component cannot receive a shared style field just because common host
+ * props happen to exist in the manifest.
+ */
+export const PUCK_PRODUCTION_BACKGROUND_CAPABILITIES: Readonly<Record<string, PuckProductionBackgroundCapability>> = {
+  "pro-block:hero-16": { supported: true, target: "sourceRoot" },
+  "pro-block:hero-14": { supported: true, target: "sourceRoot" },
+  "pro-block:hero-6": { supported: true, target: "sourceRoot" },
+  "pro-block:cta-9": { supported: true, target: "sourceRoot" },
+  "pro-block:hero-17": { supported: true, target: "sourceRoot" },
+  "pro-block:hero-19": { supported: true, target: "sourceRoot" },
+  "pro-block:navigation-4": { supported: true, target: "sourceRoot" },
+  "pro-block:cta-8": { supported: true, target: "sourceRoot" },
+  "pro-block:navigation-11": { supported: true, target: "sourceRoot" },
+  "pro-block:navigation-14": { supported: true, target: "sourceRoot" },
+};
+
+/** Optional explicit overrides are reserved for verified semantic targets. */
+export const PUCK_PRODUCTION_VISUAL_STYLE_CAPABILITIES: Readonly<Record<string, PuckProductionVisualStyleCapabilities>> = {};
+
+function generatedSourceColorCapability(
+  catalogKey: string,
+  prop: "backgroundColor" | "textColor",
+): PuckProductionBackgroundCapability | PuckProductionTextColorCapability | undefined {
+  const sourceProps = generatedByCatalogKey.get(catalogKey)?.props as Readonly<Record<string, PuckPropRule>> | undefined;
+  const rule = sourceProps?.[prop];
+  return rule?.kind === "string" && rule.format === "color"
+    ? { supported: true, target: "sourceProp", prop }
+    : undefined;
+}
+
+export function puckProductionBackgroundCapability(catalogKey: string): PuckProductionBackgroundCapability {
+  const explicit = PUCK_PRODUCTION_VISUAL_STYLE_CAPABILITIES[catalogKey]?.background;
+  const sourceProp = generatedSourceColorCapability(catalogKey, "backgroundColor");
+  return explicit
+    ?? (sourceProp?.target === "sourceProp" ? sourceProp : undefined)
+    ?? PUCK_PRODUCTION_BACKGROUND_CAPABILITIES[catalogKey]
+    ?? NONE_BACKGROUND_CAPABILITY;
+}
+
+export function puckProductionTextColorCapability(catalogKey: string): PuckProductionTextColorCapability {
+  const explicit = PUCK_PRODUCTION_VISUAL_STYLE_CAPABILITIES[catalogKey]?.textColor;
+  const sourceProp = generatedSourceColorCapability(catalogKey, "textColor");
+  return explicit
+    ?? (sourceProp?.target === "sourceProp" ? sourceProp : undefined)
+    ?? NONE_TEXT_COLOR_CAPABILITY;
+}
 
 const HERO_14_EDITOR_CONTRACT = {
   componentId: "reactbits.hero-14",
@@ -276,6 +499,7 @@ const HERO_14_EDITOR_CONTRACT = {
     { fieldKey: "buttonLabel", path: ["buttonLabel"], valueType: "text" },
     { fieldKey: "linkLabel", path: ["linkLabel"], valueType: "text" },
   ],
+  nativePuck: { fields: ["headingLine1"] },
 } as const satisfies ComponentEditorContract;
 
 const entry = (input: PilotManifestEntry): PuckRegistryManifestEntry => {
@@ -286,13 +510,17 @@ const entry = (input: PilotManifestEntry): PuckRegistryManifestEntry => {
   documentVersions: [1],
   sourceProvenance: "REGISTRY",
   sourceKind: generated.sourceKind,
+  backgroundCapability: input.backgroundCapability ?? puckProductionBackgroundCapability(input.catalogKey),
+  textColorCapability: input.textColorCapability ?? puckProductionTextColorCapability(input.catalogKey),
   officialSlug: generated.officialSlug,
   physicalSource: generated.physicalSource,
+  sourcePropKeys: Object.keys(input.props),
   rendererSource: generated.rendererSource,
   legacyIds: generated.legacyIds,
-  host: generated.host as PuckProductionHostSpec | null,
+  host: input.host ?? generated.host as PuckProductionHostSpec | null,
   definiteHeight: generated.definiteHeight,
   runtimeFamily: generated.runtimeFamily,
+  interactionPolicy: resolvePuckInteractionPolicy(input.catalogKey),
   ...(productionPresentationContract(input.catalogKey)
     ? { presentationContract: productionPresentationContract(input.catalogKey) }
     : {}),
@@ -366,16 +594,20 @@ export const PUCK_PILOT_BASELINE_MANIFEST = [
     sourceTier: "PRO",
     editorAdapter: "adapted-cta-9",
     publicRenderer: "adapted-cta-9",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "dom" },
     props: {
       heading: text(240),
       description: text(1_000),
       buttonLabel: text(120),
+      leftCardImage: url(),
+      leftCardHeadline: text(240),
+      leftCardMeta: text(160),
+      rightCardContext: text(240),
+      rightCardTitle: text(160),
+      rightCardDescription: text(1_000),
     },
-    defaults: {
-      heading: "Ready to make the switch?",
-      description: "Bring your workspace over in minutes — we’ll handle the heavy lifting.",
-      buttonLabel: "Request a free migration",
-    },
+    defaults: batch4EditorContract("pro-block:cta-9").defaultProps,
+    editorContract: batch4EditorContract("pro-block:cta-9"),
   }),
   entry({
     id: "reactbits.pricing-3",
@@ -569,6 +801,7 @@ const hero6EditorContract = {
       ],
     },
   ],
+  nativePuck: { arrays: ["slides"] },
 } as const satisfies ComponentEditorContract;
 
 const HERO6_OVERRIDE = {
@@ -581,15 +814,29 @@ const PUCK_PRODUCTION_EDITOR_CONTRACTS: Readonly<Partial<Record<string, Componen
   ...PUCK_BATCH_1_EDITOR_CONTRACTS,
   ...PUCK_BATCH_2_EDITOR_CONTRACTS,
   ...PUCK_BATCH_3_EDITOR_CONTRACTS,
+  ...PUCK_BATCH_4_EDITOR_CONTRACTS,
 };
 
 type PuckProductionManifestOverride = Partial<Pick<
   PuckRegistryManifestEntry,
-  "editorAdapter" | "publicRenderer" | "rendererSource" | "host" | "props" | "defaults" | "presentationContract"
+  | "editorAdapter"
+  | "publicRenderer"
+  | "rendererSource"
+  | "host"
+  | "props"
+  | "defaults"
+  | "runtimeRealm"
+  | "presentationContract"
 >>;
 
 const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProductionManifestOverride>> = {
   "control-6:text-scatter-tw": {
+    // The official demo is:
+    // <div className="flex min-h-[400px] items-center justify-center">
+    //   <TextScatter className="text-4xl md:text-6xl font-bold text-center tracking-tighter" as="h2" />
+    // </div>
+    // The wrapper semantics belong on the shared presentation root;
+    // the source-supported className/as props stay deliberately non-editable.
     presentationContract: {
       target: "componentRoot",
       rootLayout: {
@@ -603,7 +850,35 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
         kind: "minHeight",
         minHeight: presentationDimension(400, "officialDemo"),
       },
+      officialExampleProps: {
+        text: "Bounce Back.",
+        className: "text-4xl md:text-6xl font-bold text-center tracking-tighter",
+        as: "h2",
+        velocity: 200,
+        rotation: 90,
+        scale: 1,
+        duration: 2,
+        returnAfter: 1,
+        provenance: "officialExample",
+      },
     },
+    props: {
+      className: nonEditableText(240),
+      as: nonEditableText(16),
+    },
+    defaults: {
+      className: "text-4xl md:text-6xl font-bold text-center tracking-tighter",
+      as: "h2",
+    },
+  },
+  // These two official sources use browser globals for their WebGL/canvas
+  // runtime. Keep the capability in metadata so all render surfaces can use
+  // the same iframe-native boundary without source-specific branches.
+  "current-free:magic-rings": {
+    runtimeRealm: "iframeNative",
+  },
+  "current-free:splash-cursor": {
+    runtimeRealm: "iframeNative",
   },
   "pro-block:hero-8": {
     editorAdapter: "adapted-hero-8",
@@ -778,6 +1053,166 @@ const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProduction
     },
     defaults: navigation13EditorContract.defaultProps,
   },
+  "pro-block:hero-16": {
+    editorAdapter: "adapted-hero-16",
+    publicRenderer: "adapted-hero-16",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-16",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "none" },
+    props: {
+      logoUrl: url(),
+      logoAlt: text(240),
+      headingLine1: text(240),
+      headingLine2: text(240),
+      headingLine3: text(240),
+      description: text(1_000),
+      primaryButtonLabel: text(160),
+      primaryButtonHref: text(2_048),
+      secondaryButtonHref: text(2_048),
+    },
+    defaults: batch4EditorContract("pro-block:hero-16").defaultProps,
+  },
+  "pro-block:hero-17": {
+    editorAdapter: "adapted-hero-17",
+    publicRenderer: "adapted-hero-17",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-17",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "none" },
+    props: {
+      badge: text(240),
+      headingLine1: text(240),
+      headingLine2: text(240),
+      description: text(1_000),
+      buttonLabel: text(160),
+      heroImageUrl: url(),
+      heroImageAlt: text(240),
+      gallery: editableArray({ src: url(), alt: text(240) }, 8),
+    },
+    defaults: batch4EditorContract("pro-block:hero-17").defaultProps,
+  },
+  "pro-block:hero-19": {
+    editorAdapter: "adapted-hero-19",
+    publicRenderer: "adapted-hero-19",
+    rendererSource: "@/components/puck-site-editor/adapted-library/hero/hero-19",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "dom" },
+    props: {
+      eyebrow: text(240),
+      heading: text(240),
+      description: text(1_000),
+      primaryButtonLabel: text(160),
+      secondaryButtonLabel: text(160),
+      securityTrustLabel: text(160),
+      launchTrustLabel: text(160),
+      billingRunLabel: text(160),
+      billingRunMeta: text(240),
+      billingStatusLabel: text(120),
+      recognizedLabel: text(240),
+      recognizedValue: text(120),
+      recognizedPercent: numeric(0, 100, true),
+      recognizedPlanLabel: text(240),
+      paymentReceivedLabel: text(160),
+      paymentReceivedDetail: text(240),
+      approvalCompleteLabel: text(160),
+      approvalCompleteDetail: text(240),
+      invoices: editableArray({
+        initials: text(16),
+        name: text(160),
+        terms: text(160),
+        status: text(120),
+      }, 12),
+    },
+    defaults: batch4EditorContract("pro-block:hero-19").defaultProps,
+  },
+  "pro-block:navigation-4": {
+    editorAdapter: "adapted-navigation-4",
+    publicRenderer: "adapted-navigation-4",
+    rendererSource: "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-4",
+    host: { profile: "section", width: "full", height: "intrinsic", runtimeRisk: "none" },
+    props: {
+      mobileBrandLine1: text(160),
+      mobileBrandLine2: text(160),
+      desktopBrandLine1: text(160),
+      desktopBrandLine2: text(160),
+      openMenuLabel: text(120),
+      closeMenuLabel: text(120),
+      navItems: editableArray({
+        iconToken: choice("home", "works", "profile", "contact"),
+        label: text(160),
+        href: text(2_048),
+      }, 8),
+    },
+    defaults: batch4EditorContract("pro-block:navigation-4").defaultProps,
+  },
+  "pro-block:cta-8": {
+    editorAdapter: "adapted-cta-8",
+    publicRenderer: "adapted-cta-8",
+    rendererSource: "@/components/puck-site-editor/adapted-library/cta-8",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "dom" },
+    props: {
+      buttonLabel: text(160),
+      trialLabel: text(240),
+      word: text(120),
+    },
+    defaults: batch4EditorContract("pro-block:cta-8").defaultProps,
+  },
+  "pro-block:navigation-11": {
+    editorAdapter: "adapted-navigation-11",
+    publicRenderer: "adapted-navigation-11",
+    rendererSource: "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-11",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "dom" },
+    props: {
+      brandName: text(120),
+      loginLabel: text(120),
+      loginHref: text(2_048),
+      primaryActionLabel: text(160),
+      primaryActionHref: text(2_048),
+      openMenuLabel: text(120),
+      closeMenuLabel: text(120),
+      sectionGroups: editableArray({ label: text(120), heading: text(160) }, 8),
+      cards: editableArray({
+        sectionLabel: text(120),
+        title: text(160),
+        desc: text(500),
+        img: url(),
+        href: text(2_048),
+      }, 32),
+      footerPartnerLinks: editableArray({ label: text(200), href: text(2_048) }, 12),
+      footerLegalLinks: editableArray({ label: text(200), href: text(2_048) }, 12),
+    },
+    defaults: batch4EditorContract("pro-block:navigation-11").defaultProps,
+  },
+  "pro-block:navigation-14": {
+    editorAdapter: "adapted-navigation-14",
+    publicRenderer: "adapted-navigation-14",
+    rendererSource: "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-14",
+    host: { profile: "section", width: "full", height: "intrinsic", overflow: "source", runtimeRisk: "dom" },
+    props: {
+      brandName: text(120),
+      brandHref: text(2_048),
+      pricingLabel: text(120),
+      pricingHref: text(2_048),
+      loginLabel: text(120),
+      loginHref: text(2_048),
+      primaryActionLabel: text(160),
+      primaryActionHref: text(2_048),
+      openMenuLabel: text(120),
+      closeMenuLabel: text(120),
+      learnMoreLabel: text(160),
+      sectionGroups: editableArray({
+        label: text(120),
+        featuredTag: text(120),
+        featuredTitle: text(240),
+        featuredDescription: text(1_000),
+        featuredHref: text(2_048),
+      }, 8),
+      items: editableArray({
+        sectionLabel: text(120),
+        iconToken: choice("dashboard", "log", "radar", "trend", "workflow", "compass", "book", "file", "chart"),
+        title: text(200),
+        description: text(500),
+        href: text(2_048),
+      }, 32),
+    },
+    defaults: batch4EditorContract("pro-block:navigation-14").defaultProps,
+  },
 };
 
 const expandedEntry = (
@@ -797,8 +1232,14 @@ const expandedEntry = (
     sourceTier: generated.sourceTier,
     sourceProvenance: "REGISTRY",
     sourceKind: generated.sourceKind,
+    backgroundCapability: puckProductionBackgroundCapability(generated.catalogKey),
+    textColorCapability: puckProductionTextColorCapability(generated.catalogKey),
     officialSlug: generated.officialSlug,
     physicalSource: generated.physicalSource,
+    sourcePropKeys: [...new Set([
+      ...Object.keys(generated.props),
+      ...Object.keys(override?.props ?? {}),
+    ])],
     rendererSource: override?.rendererSource ?? generated.rendererSource,
     legacyIds: generated.legacyIds,
     editorAdapter: override?.editorAdapter ?? "production-source",
@@ -806,6 +1247,8 @@ const expandedEntry = (
     host: (override?.host ?? generated.host) as PuckProductionHostSpec | null,
     definiteHeight: generated.definiteHeight,
     runtimeFamily: generated.runtimeFamily,
+    interactionPolicy: resolvePuckInteractionPolicy(generated.catalogKey),
+    ...(override?.runtimeRealm ? { runtimeRealm: override.runtimeRealm } : {}),
     ...(presentationContract ? { presentationContract } : {}),
     documentVersions: [1],
     props: {

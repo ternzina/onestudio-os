@@ -1,8 +1,9 @@
 "use client";
 
-import { createUsePuck, Drawer } from "@puckeditor/core";
-import { useRef, useState, type ReactNode } from "react";
+import { createUsePuck } from "@puckeditor/core";
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { PUCK_PRODUCTION_MANIFEST } from "@/lib/puck-site-editor/registry-manifest";
+import type { PuckDocumentComponent } from "@/lib/puck-site-editor/document";
 import {
   createProductLibraryMetadata,
   matchesProductLibrarySearch,
@@ -11,6 +12,14 @@ import {
 } from "@/lib/puck-site-editor/product-library";
 import styles from "./product-library-drawer.module.css";
 import { PuckProductionProperties } from "./production-properties-panel";
+import {
+  guardProductionPreviewNavigation,
+  guardProductionPreviewSubmit,
+  ProductionFieldLabel,
+  useProductionEditorTheme,
+} from "./production-editor-ux";
+import { PuckProductionBlock } from "./public-renderer";
+import { ProductionPreviewViewport } from "./production-preview-fit";
 
 const productItems = PUCK_PRODUCTION_MANIFEST.map((entry) => ({
   entry,
@@ -67,13 +76,77 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
   );
 }
 
+function ProductionLibraryPreview({
+  entry,
+  isDark,
+  previewRef,
+  onPointerStay,
+  onPointerLeave,
+}: {
+  entry: (typeof PUCK_PRODUCTION_MANIFEST)[number];
+  isDark: boolean;
+  previewRef: RefObject<HTMLElement | null>;
+  onPointerStay: () => void;
+  onPointerLeave: () => void;
+}) {
+  const component: PuckDocumentComponent = {
+    type: entry.id,
+    props: {
+      id: `production-library-preview-${entry.id}`,
+      ...structuredClone(entry.defaults),
+    },
+  };
+
+  return (
+    <section
+      className={`${styles.preview} ${isDark ? `${styles.darkPreview} dark` : ""}`}
+      aria-label={`${entry.label} live preview`}
+      ref={previewRef}
+      onPointerEnter={onPointerStay}
+      onPointerMove={onPointerStay}
+      onPointerLeave={onPointerLeave}
+      onClickCapture={guardProductionPreviewNavigation}
+      onAuxClickCapture={guardProductionPreviewNavigation}
+      onSubmitCapture={guardProductionPreviewSubmit}
+    >
+      <header className={styles.previewHead}>
+        <strong>{entry.label}</strong>
+      </header>
+      <div className={styles.previewStage}>
+        {entry.presentationContract?.geometry.kind === "fullSurface" ? (
+          <div
+            className={styles.previewMount}
+            data-preview-kind={entry.sourceKind}
+            data-production-preview-fill="direct"
+          >
+            <PuckProductionBlock component={component} runtimeMode="library-preview" />
+          </div>
+        ) : (
+          <ProductionPreviewViewport presentation={entry.presentationContract}>
+            <div className={styles.previewMount} data-preview-kind={entry.sourceKind}>
+              <PuckProductionBlock component={component} runtimeMode="library-preview" />
+            </div>
+          </ProductionPreviewViewport>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function PuckPilotProductLibrary() {
+  const isDark = useProductionEditorTheme();
   const dispatch = usePuck((state) => state.dispatch);
   const content = usePuck((state) => state.appState.data.content);
+  const selection = usePuck((state) => state.appState.ui.itemSelector);
   const [query, setQuery] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<ProductLibraryCategory>>(
     () => new Set(PRODUCT_LIBRARY_CATEGORY_ORDER),
   );
+  const libraryRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const visibleItems = normalizedQuery
     ? productItems.filter((item) => matchesProductLibrarySearch(item.metadata, normalizedQuery))
@@ -82,6 +155,71 @@ export function PuckPilotProductLibrary() {
     const items = visibleItems.filter((item) => item.entry.taxonomy === category);
     return items.length ? [{ category, items }] : [];
   });
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  }, []);
+
+  const closePreview = useCallback(() => {
+    if (openTimer.current) clearTimeout(openTimer.current);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    openTimer.current = null;
+    closeTimer.current = null;
+    setActiveId(null);
+  }, []);
+
+  useEffect(() => () => {
+    if (openTimer.current) clearTimeout(openTimer.current);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  useEffect(() => {
+    if (selection) closePreview();
+  }, [closePreview, selection]);
+
+  useEffect(() => {
+    if (query) closePreview();
+  }, [closePreview, query]);
+
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!libraryRef.current?.contains(target) && !previewRef.current?.contains(target)) closePreview();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [closePreview]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closePreview();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [closePreview]);
+
+  useEffect(() => {
+    window.addEventListener("puck-theme-preview-hold", cancelClose);
+    return () => window.removeEventListener("puck-theme-preview-hold", cancelClose);
+  }, [cancelClose]);
+
+  const scheduleClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(closePreview, 120);
+  }, [cancelClose, closePreview]);
+
+  const showPreview = useCallback((id: string) => {
+    cancelClose();
+    if (activeId === id) return;
+    if (openTimer.current) clearTimeout(openTimer.current);
+    // Keep the current live source visible while the replacement lazy source
+    // resolves; PuckProductionBlock remains the shared runtime contract.
+    openTimer.current = setTimeout(() => {
+      setActiveId(id);
+      openTimer.current = null;
+    }, 150);
+  }, [activeId, cancelClose]);
 
   const toggleCategory = (category: ProductLibraryCategory) => {
     setCollapsedCategories((previous) => {
@@ -93,6 +231,7 @@ export function PuckPilotProductLibrary() {
   };
 
   const add = (componentType: string) => {
+    closePreview();
     const destinationIndex = content.length;
     dispatch({
       type: "insert",
@@ -109,10 +248,21 @@ export function PuckPilotProductLibrary() {
     });
   };
 
+  const activeEntry = activeId
+    ? productItems.find((item) => item.entry.id === activeId)?.entry
+    : undefined;
+
   return (
-    <aside className={styles.library} aria-label="Product component library">
+    <aside
+      ref={libraryRef}
+      className={`${styles.library} ${isDark ? styles.darkLibrary : ""}`}
+      aria-label="Product component library"
+      onPointerEnter={cancelClose}
+      onPointerLeave={scheduleClose}
+    >
       <header className={styles.header}>
         <h2>Библиотека блоков</h2>
+        <p className={styles.subtitle}>Hover a block to preview it</p>
         <div className={styles.search}>
           <input
             aria-label="Поиск блоков"
@@ -152,24 +302,35 @@ export function PuckPilotProductLibrary() {
               </h3>
               {!collapsed ? (
                 <div className={styles.items} id={contentId}>
-                  <Drawer>
-                    {items.map(({ entry }) => (
-                      <div className={styles.item} key={entry.id}>
-                        <Drawer.Item name={entry.id} label={entry.label} />
-                        <span className={styles.tierBadge} data-tier={entry.sourceTier}>
-                          {entry.sourceTier}
-                        </span>
+                  <div className={styles.libraryGrid}>
+                    {items.map(({ entry }, index) => (
+                      <article
+                        className={styles.card}
+                        key={entry.id}
+                        onPointerEnter={() => showPreview(entry.id)}
+                      >
+                        <button
+                          className={styles.cardMain}
+                          type="button"
+                          aria-label={`Add ${entry.label} from card`}
+                          onFocus={() => showPreview(entry.id)}
+                          onClick={() => add(entry.id)}
+                        >
+                          <span className={styles.cardNumber}>{String(index + 1).padStart(2, "0")}</span>
+                          <strong>{entry.label}</strong>
+                        </button>
                         <button
                           className={styles.addButton}
                           type="button"
-                          aria-label={`Добавить ${entry.label}`}
+                          aria-label={`Add ${entry.label}`}
+                          onFocus={() => showPreview(entry.id)}
                           onClick={() => add(entry.id)}
                         >
                           +
                         </button>
-                      </div>
+                      </article>
                     ))}
-                  </Drawer>
+                  </div>
                 </div>
               ) : null}
             </section>
@@ -178,6 +339,15 @@ export function PuckPilotProductLibrary() {
           <p className={styles.empty} role="status">No matching components.</p>
         )}
       </div>
+      {activeEntry ? (
+        <ProductionLibraryPreview
+          entry={activeEntry}
+          isDark={isDark}
+          previewRef={previewRef}
+          onPointerStay={cancelClose}
+          onPointerLeave={scheduleClose}
+        />
+      ) : null}
     </aside>
   );
 }
@@ -185,4 +355,5 @@ export function PuckPilotProductLibrary() {
 export const PUCK_PRODUCTION_EDITOR_OVERRIDES = {
   headerActions: PuckPilotHeaderActions,
   fields: PuckProductionProperties,
+  fieldLabel: ProductionFieldLabel,
 } as const;

@@ -41,7 +41,15 @@ test("production renderer and registry have no editor-lab dependency", () => {
     "components/puck-site-editor/production-registry.tsx",
     "components/puck-site-editor/public-renderer.tsx",
     "components/puck-site-editor/editor-config.tsx",
+    "components/puck-site-editor/production-editor-ux.tsx",
+    "components/puck-site-editor/production-interaction-firewall.ts",
+    "components/puck-site-editor/production-runtime-frame.tsx",
+    "components/puck-site-editor/production-color-field.ts",
+    "components/puck-site-editor/production-editor-locale.ts",
+    "components/puck-site-editor/production-preview-fit.tsx",
+    "components/puck-site-editor/production-preview-fit.module.css",
     "components/puck-site-editor/production-component-sources.tsx",
+    "lib/puck-site-editor/preview-fit.ts",
     "lib/puck-site-editor/document.ts",
     "lib/puck-site-editor/registry-manifest.ts",
     "lib/puck-site-editor/generated-registry-data.ts",
@@ -66,9 +74,10 @@ test("production interaction mode uses the shared iframe retargeting contract", 
   const editorConfig = read("components/puck-site-editor/editor-config.tsx");
   const renderer = read("components/puck-site-editor/public-renderer.tsx");
   const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
+  const editorUx = read("components/puck-site-editor/production-editor-ux.tsx");
 
-  assert.match(editorConfig, /useScaledIframeInteractionRetargeting/);
-  assert.match(editorConfig, /root: \{ render: PuckProductionCanvasRoot \}/);
+  assert.match(editorUx, /useScaledIframeInteractionRetargeting/);
+  assert.match(editorConfig, /root: \{ render: ProductionPuckCanvasRoot \}/);
   assert.match(drawer, /Interact with page/);
   assert.match(drawer, /Edit layout/);
   assert.match(renderer, /data-production-component=/);

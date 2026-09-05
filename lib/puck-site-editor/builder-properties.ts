@@ -9,6 +9,21 @@ import {
   resetEditorField,
   resetEditorGroup,
 } from "./builder-contract.ts";
+import type {
+  PuckProductionBackgroundCapability,
+  PuckProductionTextColorCapability,
+} from "./registry-manifest.ts";
+
+export const PRODUCTION_SHARED_STYLE_FIELD_KEYS = ["backgroundColor", "textColor"] as const;
+
+type ProductionSharedStyleFieldKey = (typeof PRODUCTION_SHARED_STYLE_FIELD_KEYS)[number];
+
+const productionSharedStyleFieldMeta: Readonly<Record<ProductionSharedStyleFieldKey, { label: string; fallback: string }>> = {
+  backgroundColor: { label: "Background", fallback: "#ffffff" },
+  textColor: { label: "Text color", fallback: "#171717" },
+};
+
+export const PRODUCTION_SHARED_STYLE_FIELD_META = productionSharedStyleFieldMeta;
 
 export const PRODUCTION_PROPERTIES_GROUP_LABELS: Readonly<Record<ProductionEditorFieldGroup, string>> = {
   CONTENT: "Содержание",
@@ -21,6 +36,106 @@ export const PRODUCTION_PROPERTIES_GROUP_LABELS: Readonly<Record<ProductionEdito
 };
 
 export const PRODUCTION_PROPERTIES_GROUP_ORDER = PRODUCTION_EDITOR_FIELD_GROUPS;
+
+const emptyEditorContract = (componentId: string): ComponentEditorContract => ({
+  componentId,
+  defaultProps: {},
+  fields: [],
+  contentFields: [],
+  mediaFields: [],
+  actionFields: [],
+  arrays: [],
+  inlineFields: [],
+});
+
+export function productionPropertiesContract(
+  componentId: string,
+  contract: ComponentEditorContract | undefined,
+  manifestDefaults: Readonly<Record<string, unknown>>,
+  backgroundCapability?: PuckProductionBackgroundCapability,
+  textColorCapability?: PuckProductionTextColorCapability,
+): ComponentEditorContract {
+  const base = contract ?? emptyEditorContract(componentId);
+  const defaultProps = { ...base.defaultProps } as Record<string, ProductionEditorValue>;
+  // A missing capability is intentionally unsupported. Common host props are
+  // storage/layout data, not evidence that a source has a meaningful visual
+  // override.
+  const backgroundSupported = backgroundCapability?.supported === true;
+  const textColorSupported = textColorCapability?.supported === true;
+  const fields = base.fields.filter((field) =>
+    (backgroundSupported || field.key !== "backgroundColor")
+    && (textColorSupported || field.key !== "textColor"),
+  );
+  const existingKeys = new Set(fields.map((field) => field.key));
+
+  const sharedStyleFields = PRODUCTION_SHARED_STYLE_FIELD_KEYS.filter((key) =>
+    key === "backgroundColor" ? backgroundSupported : textColorSupported,
+  );
+
+  if (!backgroundSupported) delete defaultProps.backgroundColor;
+  if (!textColorSupported) delete defaultProps.textColor;
+
+  for (const key of sharedStyleFields) {
+    const meta = productionSharedStyleFieldMeta[key];
+    const originalValue = typeof manifestDefaults[key] === "string" ? manifestDefaults[key] : meta.fallback;
+    if (!existingKeys.has(key)) {
+      fields.push({
+        key,
+        path: [key],
+        group: "STYLE",
+        label: meta.label,
+        type: "color",
+        originalValue,
+        inlineEditable: false,
+        mediaEligible: false,
+        resettable: true,
+      });
+      existingKeys.add(key);
+    }
+    if (!(key in defaultProps)) defaultProps[key] = originalValue;
+  }
+
+  const nativePuckFields = [
+    ...(backgroundSupported ? ["backgroundColor"] : []),
+    ...(textColorSupported ? ["textColor"] : []),
+    ...(base.nativePuck?.fields ?? []).filter((key) =>
+      !PRODUCTION_SHARED_STYLE_FIELD_KEYS.includes(key as ProductionSharedStyleFieldKey),
+    ),
+  ];
+
+  return {
+    ...base,
+    defaultProps,
+    fields,
+    nativePuck: {
+      ...base.nativePuck,
+      fields: nativePuckFields,
+    },
+  };
+}
+
+/**
+ * Keeps the transitional Properties UX focused on fields it still owns. The
+ * canonical contract and defaults remain intact so reset actions can restore
+ * native Puck fields as part of the same component reset.
+ */
+export function productionPropertiesContractForManualPanel(contract: ComponentEditorContract): ComponentEditorContract {
+  const nativeFields = new Set(contract.nativePuck?.fields ?? []);
+  const nativeArrays = new Set(contract.nativePuck?.arrays ?? []);
+  const manualFields = contract.fields.filter((field) => !nativeFields.has(field.key));
+  const manualArrays = contract.arrays.filter((array) => !nativeArrays.has(array.key));
+  const manualFieldKeys = new Set(manualFields.map((field) => field.key));
+
+  return {
+    ...contract,
+    fields: manualFields,
+    contentFields: contract.contentFields.filter((fieldKey) => manualFieldKeys.has(fieldKey)),
+    mediaFields: contract.mediaFields.filter((field) => manualFieldKeys.has(field.fieldKey)),
+    actionFields: contract.actionFields.filter((fieldKey) => manualFieldKeys.has(fieldKey)),
+    arrays: manualArrays,
+    inlineFields: contract.inlineFields.filter((field) => manualFieldKeys.has(field.fieldKey)),
+  };
+}
 
 function clone(value: ProductionEditorValue): ProductionEditorValue {
   if (Array.isArray(value)) return value.map(clone);
@@ -51,6 +166,18 @@ export function productionFieldsByGroup(contract: ComponentEditorContract) {
     fields: contract.fields.filter((field) => field.group === group),
     arrays: contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)),
   }));
+}
+
+/** Resolves native Puck fields to the same canonical semantic group metadata. */
+export function productionNativeFieldGroup(
+  contract: ComponentEditorContract,
+  fieldName: string,
+): ProductionEditorFieldGroup | undefined {
+  if (contract.nativePuck?.arrays?.includes(fieldName)) {
+    return contract.arrays.find((array) => array.key === fieldName)?.group;
+  }
+  if (!contract.nativePuck?.fields?.includes(fieldName)) return undefined;
+  return contract.fields.find((field) => field.key === fieldName)?.group;
 }
 
 export function filterProductionEditorContract(contract: ComponentEditorContract, query: string) {

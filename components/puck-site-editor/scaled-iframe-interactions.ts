@@ -2,6 +2,42 @@
 
 import { useEffect, type RefObject } from "react";
 
+export type PointerFrameRect = Pick<DOMRect, "left" | "top">;
+
+export type PointerScale = {
+  x: number;
+  y: number;
+};
+
+/**
+ * Convert a point from the parent document into iframe CSS pixels.
+ *
+ * This is the conversion needed for events observed by the parent document.
+ * Events observed by an iframe document have already been converted by the
+ * browser and must not be passed through this function a second time.
+ */
+export function mapParentPointerToIframe(
+  point: Pick<MouseEvent, "clientX" | "clientY">,
+  frameRect: PointerFrameRect,
+  scale: PointerScale,
+) {
+  return {
+    clientX: (point.clientX - frameRect.left) / (scale.x > 0 ? scale.x : 1),
+    clientY: (point.clientY - frameRect.top) / (scale.y > 0 ? scale.y : 1),
+  };
+}
+
+/**
+ * Pointer coordinates from an iframe document are already in that document's
+ * CSS-pixel coordinate space, including CSS transforms on the iframe's
+ * parent. Keep this explicit so the two event realms cannot be mixed again.
+ */
+export function mapIframeDocumentPointer(
+  point: Pick<MouseEvent, "clientX" | "clientY">,
+) {
+  return { clientX: point.clientX, clientY: point.clientY };
+}
+
 export function useScaledIframeInteractionRetargeting(
   rootRef: RefObject<HTMLElement | null>,
 ) {
@@ -70,6 +106,8 @@ export function useScaledIframeInteractionRetargeting(
       target.dispatchEvent(forwarded);
     };
 
+    // Movement stays native on the official source root. Only click-like
+    // events need the shared scaled-canvas retargeting used by Puck controls.
     const eventTypes = ["pointerdown", "pointerup", "click"] as const;
     eventTypes.forEach((type) => document.addEventListener(type, retargetScaledInteraction, true));
     return () => {

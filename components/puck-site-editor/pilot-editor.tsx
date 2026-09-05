@@ -9,10 +9,12 @@ import {
   PuckPilotProductLibrary,
   PUCK_PRODUCTION_EDITOR_OVERRIDES,
 } from "./product-library-drawer";
+import { ProductionEditorProvider } from "./production-editor-ux";
 import { createPuckPilotFixture } from "@/lib/puck-site-editor/pilot-fixture";
 import { puckDataToDocument, puckDocumentToData, type ProductionPuckData } from "@/lib/puck-site-editor/data-adapter";
 import type { PuckDocumentV1 } from "@/lib/puck-site-editor/document";
 import { readLocalPuckDocument, writeLocalPuckDocument } from "@/lib/puck-site-editor/client-local-store";
+import { PUCK_PRODUCTION_AUTHORING_UI } from "@/lib/puck-site-editor/authoring-viewport";
 import styles from "./pilot-editor.module.css";
 
 type PilotEditorProps = {
@@ -112,7 +114,7 @@ export default function PuckPilotEditor({
   if (!data) return <div className={styles.loading} role="status">Loading Puck pilot…</div>;
 
   return (
-    <div className={styles.shell} data-puck-pilot-editor data-business-context={businessId} data-locale={locale}>
+    <ProductionEditorProvider locale={locale} businessId={businessId} pilot>
       <div className={styles.toolbar}>
         <strong>Puck Site Editor Pilot</strong>
         <span data-save-status={status}>{status === "unsaved" ? "Unsaved changes" : status === "error" ? "Validation error" : "Saved"}</span>
@@ -134,15 +136,7 @@ export default function PuckPilotEditor({
             rightSideBarVisible: true,
             previewMode: "edit",
             plugin: { current: "library" },
-            viewports: {
-              current: { width: 1280, height: "auto" },
-              controlsVisible: true,
-              options: [
-                { label: "Desktop", width: 1280, height: "auto" },
-                { label: "Tablet", width: 768, height: "auto" },
-                { label: "Mobile", width: 390, height: "auto" },
-              ],
-            },
+            viewports: PUCK_PRODUCTION_AUTHORING_UI,
           }}
           dictionary={{
             "plugin-blocks": "Блоки",
@@ -153,6 +147,6 @@ export default function PuckPilotEditor({
           <Puck.Layout />
         </Puck>
       </div>
-    </div>
+    </ProductionEditorProvider>
   );
 }

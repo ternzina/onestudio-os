@@ -18,6 +18,11 @@ import {
   X,
 } from "lucide-react";
 import { resolveIconToken } from "@/lib/puck-site-editor/icon-token";
+import {
+  navigation14ContentDefaults,
+  type Navigation14Item,
+  type Navigation14SectionGroup,
+} from "../../../content-editability-batch-4-contracts";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -33,91 +38,19 @@ export const navigation14Icons = {
   chart: BarChart3,
 } as const;
 export type Navigation14IconToken = keyof typeof navigation14Icons;
-export type Navigation14Section = {
-  label: string;
-  featuredTag: string;
-  featuredTitle: string;
-  featuredDescription: string;
-  items: Array<{ iconToken: Navigation14IconToken; title: string; description: string }>;
+export type Navigation14Section = Navigation14SectionGroup & {
+  items: readonly Navigation14Item[];
 };
 
-export const navigation14Sections: Navigation14Section[] = [
-  { label: "Product",
-    items: [
-      {
-        iconToken: "dashboard",
-        title: "Command center",
-        description:
-          "One operating view for every launch, owner, and deadline.",
-      },
-      {
-        iconToken: "log",
-        title: "Decision logs",
-        description: "Turn scattered updates into a searchable product memory.",
-      },
-      {
-        iconToken: "radar",
-        title: "Signal review",
-        description: "Rank feedback by source, volume, and revenue at stake.",
-      },
-    ],
-    featuredTag: "New",
-    featuredTitle: "Vault Signals is GA",
-    featuredDescription:
-      "Cluster feedback from 40+ sources into themes your roadmap can act on.",
-  },
-  { label: "Solutions",
-    items: [
-      {
-        iconToken: "trend",
-        title: "For growth teams",
-        description:
-          "Catch conversion blockers before they cost you a quarter.",
-      },
-      {
-        iconToken: "workflow",
-        title: "For operations",
-        description:
-          "Keep approvals, owners, and risk visible across workstreams.",
-      },
-      {
-        iconToken: "compass",
-        title: "For founders",
-        description:
-          "Bring customer evidence into every roadmap and revenue call.",
-      },
-    ],
-    featuredTag: "Case study",
-    featuredTitle: "How Relay cut churn 18%",
-    featuredDescription:
-      "Six months of Vault reviews distilled into one retention play.",
-  },
-  { label: "Resources",
-    items: [
-      {
-        iconToken: "book",
-        title: "Field notes",
-        description:
-          "Practical breakdowns from teams shipping complex products.",
-      },
-      {
-        iconToken: "file",
-        title: "Playbooks",
-        description:
-          "Templates for launches, research reviews, and postmortems.",
-      },
-      {
-        iconToken: "chart",
-        title: "Benchmarks",
-        description: "How 400 teams structure customer intelligence at scale.",
-      },
-    ],
-    featuredTag: "Guide",
-    featuredTitle: "The customer evidence stack",
-    featuredDescription:
-      "A field guide to instrumenting decisions, not just dashboards.",
-  },
-];
+function buildSections(
+  sectionGroups: readonly Navigation14SectionGroup[],
+  items: readonly Navigation14Item[],
+): Navigation14Section[] {
+  return sectionGroups.map((section) => ({
+    ...section,
+    items: items.filter((item) => item.sectionLabel === section.label),
+  }));
+}
 
 const arrowReveal: Variants = {
   rest: { opacity: 0, x: -4 },
@@ -127,18 +60,46 @@ const arrowReveal: Variants = {
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950";
 
+export type AdaptedNavigation14Props = {
+  brandName: string;
+  brandHref: string;
+  pricingLabel: string;
+  pricingHref: string;
+  loginLabel: string;
+  loginHref: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  openMenuLabel: string;
+  closeMenuLabel: string;
+  learnMoreLabel: string;
+  sectionGroups: readonly Navigation14SectionGroup[];
+  items: readonly Navigation14Item[];
+};
+
 export default function AdaptedNavigation14({
-  sections = navigation14Sections,
-}: {
-  sections?: Navigation14Section[];
-}) {
+  brandName,
+  brandHref,
+  pricingLabel,
+  pricingHref,
+  loginLabel,
+  loginHref,
+  primaryActionLabel,
+  primaryActionHref,
+  openMenuLabel,
+  closeMenuLabel,
+  learnMoreLabel,
+  sectionGroups,
+  items,
+}: AdaptedNavigation14Props = navigation14ContentDefaults) {
+  const sections = buildSections(sectionGroups, items);
   const sectionKeys = sections.map((section) => section.label);
   const sectionMap = Object.fromEntries(
     sections.map((section) => [section.label, section]),
   );
   const [active, setActive] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>("Product");
+  const [expanded, setExpanded] = useState<string | null>(sectionKeys[0] ?? null);
+  const currentSection = active ? sectionMap[active] : null;
 
   useEffect(() => {
     if (!active && !mobileOpen) return;
@@ -166,14 +127,14 @@ export default function AdaptedNavigation14({
             <div className="mx-auto flex h-[72px] w-full max-w-[1400px] items-center justify-between gap-4">
               <div className="flex items-center gap-8">
                 <a
-                  href="#"
+                  href={brandHref}
                   className={`flex items-center gap-2.5 rounded-sm text-neutral-950 dark:text-white ${focusRing}`}
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-950 dark:bg-white">
                     <span className="h-2.5 w-2.5 rounded-[3px] border-[1.5px] border-white dark:border-neutral-950" />
                   </span>
                   <span className="text-[15px] font-semibold tracking-tight">
-                    Vault
+                    {brandName}
                   </span>
                 </a>
 
@@ -213,27 +174,27 @@ export default function AdaptedNavigation14({
                     </button>
                   ))}
                   <a
-                    href="#"
+                    href={pricingHref}
                     onMouseEnter={() => setActive(null)}
                     className={`rounded-full px-3.5 py-2 text-sm font-medium text-neutral-500 transition-colors duration-200 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white ${focusRing}`}
                   >
-                    Pricing
+                    {pricingLabel}
                   </a>
                 </div>
               </div>
 
               <div className="hidden items-center gap-2 md:flex">
                 <a
-                  href="#"
+                  href={loginHref}
                   className={`rounded-full px-4 py-2 text-sm font-medium text-neutral-600 transition-colors duration-200 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white ${focusRing}`}
                 >
-                  Log in
+                  {loginLabel}
                 </a>
                 <a
-                  href="#"
+                  href={primaryActionHref}
                   className={`rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 ${focusRing}`}
                 >
-                  Request access
+                  {primaryActionLabel}
                 </a>
               </div>
 
@@ -242,7 +203,7 @@ export default function AdaptedNavigation14({
                 onClick={() => setMobileOpen((value) => !value)}
                 aria-expanded={mobileOpen}
                 aria-controls="nav14-mobile"
-                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-label={mobileOpen ? closeMenuLabel : openMenuLabel}
                 className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-neutral-950 transition-colors duration-200 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-900 md:hidden ${focusRing}`}
               >
                 {mobileOpen ? (
@@ -255,7 +216,7 @@ export default function AdaptedNavigation14({
           </motion.nav>
 
           <AnimatePresence>
-            {active && (
+            {currentSection && (
               <motion.div
                 key="panel"
                 id="nav14-panel"
@@ -275,12 +236,12 @@ export default function AdaptedNavigation14({
                     className="mx-auto grid w-full max-w-[1400px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_320px] lg:px-8"
                   >
                     <div className="grid gap-1 sm:grid-cols-3">
-                      {sectionMap[active].items.map((item) => {
+                      {currentSection.items.map((item) => {
                         const Icon = resolveIconToken(item.iconToken, navigation14Icons);
                         return (
                         <motion.a
                           key={item.title}
-                          href="#"
+                          href={item.href}
                           initial="rest"
                           animate="rest"
                           whileHover="hover"
@@ -306,21 +267,21 @@ export default function AdaptedNavigation14({
                     </div>
 
                     <a
-                      href="#"
+                      href={currentSection.featuredHref}
                       className={`group flex flex-col justify-between rounded-2xl bg-neutral-50 p-5 transition-colors duration-200 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800/80 ${focusRing}`}
                     >
                       <span className="inline-flex w-fit items-center rounded-full border border-neutral-300 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-                        {sectionMap[active].featuredTag}
+                        {currentSection.featuredTag}
                       </span>
                       <span className="mt-6">
                         <span className="block text-sm font-semibold text-neutral-950 dark:text-white">
-                          {sectionMap[active].featuredTitle}
+                          {currentSection.featuredTitle}
                         </span>
                         <span className="mt-1.5 block text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                          {sectionMap[active].featuredDescription}
+                          {currentSection.featuredDescription}
                         </span>
                         <span className="mt-4 flex items-center gap-1.5 text-sm font-medium text-neutral-950 dark:text-white">
-                          Learn more
+                          {learnMoreLabel}
                           <ArrowRight className="h-3.5 w-3.5" />
                         </span>
                       </span>
@@ -377,7 +338,7 @@ export default function AdaptedNavigation14({
                                 return (
                                 <a
                                   key={item.title}
-                                  href="#"
+                                  href={item.href}
                                   onClick={() => setMobileOpen(false)}
                                   className={`flex items-start gap-3 rounded-xl p-3 transition-colors duration-200 hover:bg-neutral-50 dark:hover:bg-neutral-900 ${focusRing}`}
                                 >
@@ -401,24 +362,24 @@ export default function AdaptedNavigation14({
                     </div>
                   ))}
                   <a
-                    href="#"
+                    href={pricingHref}
                     onClick={() => setMobileOpen(false)}
                     className={`mt-2 flex w-full items-center justify-between rounded-xl px-3 py-3.5 text-[15px] font-medium text-neutral-950 transition-colors duration-200 hover:bg-neutral-50 dark:text-white dark:hover:bg-neutral-900 ${focusRing}`}
                   >
-                    Pricing
+                    {pricingLabel}
                   </a>
                   <div className="mt-3 grid gap-2 px-3">
                     <a
-                      href="#"
+                      href={loginHref}
                       className={`rounded-full border border-neutral-300 px-5 py-3 text-center text-sm font-medium text-neutral-900 transition-colors duration-200 hover:bg-neutral-50 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-900 ${focusRing}`}
                     >
-                      Log in
+                      {loginLabel}
                     </a>
                     <a
-                      href="#"
+                      href={primaryActionHref}
                       className={`rounded-full bg-black px-5 py-3 text-center text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 ${focusRing}`}
                     >
-                      Request access
+                      {primaryActionLabel}
                     </a>
                   </div>
                 </div>

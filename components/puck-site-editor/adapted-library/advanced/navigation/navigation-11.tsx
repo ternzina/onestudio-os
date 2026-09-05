@@ -3,121 +3,55 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronRight, ExternalLink, Menu, X } from "lucide-react";
+import {
+  navigation11ContentDefaults,
+  type Navigation11Card,
+  type Navigation11SectionGroup,
+  type Navigation11FooterLink,
+} from "../../../content-editability-batch-4-contracts";
 
-export type Navigation11Section = {
-  label: string;
-  heading: string;
-  cards: Array<{ title: string; desc: string; img: string }>;
+type Navigation11Section = Navigation11SectionGroup & {
+  cards: readonly Navigation11Card[];
 };
 
-export const navigation11Sections: Navigation11Section[] = [
-  { label: "Overview",
-    heading: "Overview",
-    cards: [
-      {
-        title: "100+ Lab Tests",
-        desc: "A full panel reviewed by clinicians, refreshed every six months.",
-        img: "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Member Portal",
-        desc: "Track trends, flag changes, and annotate results over time.",
-        img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Coaching Calls",
-        desc: "Quarterly sessions with a health coach matched to your goals.",
-        img: "https://images.unsplash.com/photo-1573497491208-6b1acb260507?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Preventive Plans",
-        desc: "Clear next steps tailored to what your numbers are saying.",
-        img: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop",
-      },
-    ],
-  },
-  { label: "Stories",
-    heading: "Stories",
-    cards: [
-      {
-        title: "From burnt out to steady",
-        desc: "How Ana rebuilt her energy in six months of steady check-ins.",
-        img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "A founder's reset",
-        desc: "Marcus on stopping the grind long enough to read his own labs.",
-        img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Finding the small flag",
-        desc: "Why Priya credits Northwind with catching a marker early.",
-        img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Back to the trails",
-        desc: "Dan's return to weekly 10ks after a year of chasing sleep.",
-        img: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop",
-      },
-    ],
-  },
-  { label: "Our Why",
-    heading: "Our Why",
-    cards: [
-      {
-        title: "Quiet medicine",
-        desc: "We believe in care that listens longer than it prescribes.",
-        img: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Whole-body view",
-        desc: "One panel, read together, not scattered across specialists.",
-        img: "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Research first",
-        desc: "Peer-reviewed signals over whatever is loud this week.",
-        img: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Built to last",
-        desc: "A practice you stay with, not a subscription you churn from.",
-        img: "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?q=80&w=800&auto=format&fit=crop",
-      },
-    ],
-  },
-  { label: "FAQs",
-    heading: "FAQs",
-    cards: [
-      {
-        title: "How does billing work?",
-        desc: "Monthly or annual, cancel anytime, no prorated surprises.",
-        img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Who reads my results?",
-        desc: "A licensed clinician on the Northwind team, not a model.",
-        img: "https://images.unsplash.com/photo-1550831107-1553da8c8464?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Does this replace doctors?",
-        desc: "No. We're the panel between your annual visits.",
-        img: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop",
-      },
-      {
-        title: "Where is testing done?",
-        desc: "At accredited partner labs in all 50 states.",
-        img: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop",
-      },
-    ],
-  },
-];
+function buildSections(
+  sectionGroups: readonly Navigation11SectionGroup[],
+  cards: readonly Navigation11Card[],
+): Navigation11Section[] {
+  return sectionGroups.map((section) => ({
+    ...section,
+    cards: cards.filter((card) => card.sectionLabel === section.label),
+  }));
+}
+
+export type AdaptedNavigation11Props = {
+  brandName: string;
+  loginLabel: string;
+  loginHref: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  openMenuLabel: string;
+  closeMenuLabel: string;
+  sectionGroups: readonly Navigation11SectionGroup[];
+  cards: readonly Navigation11Card[];
+  footerPartnerLinks: readonly Navigation11FooterLink[];
+  footerLegalLinks: readonly Navigation11FooterLink[];
+};
 
 export default function AdaptedNavigation11({
-  sections = navigation11Sections,
-}: {
-  sections?: Navigation11Section[];
-}) {
+  brandName,
+  loginLabel,
+  loginHref,
+  primaryActionLabel,
+  primaryActionHref,
+  openMenuLabel,
+  closeMenuLabel,
+  sectionGroups,
+  cards,
+  footerPartnerLinks,
+  footerLegalLinks,
+}: AdaptedNavigation11Props = navigation11ContentDefaults) {
+  const sections = buildSections(sectionGroups, cards);
   const links = sections.map((section) => section.label);
   const [active, setActive] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -163,7 +97,7 @@ export default function AdaptedNavigation11({
                 setMobileOpen((o) => !o);
                 if (mobileOpen) setActive(null);
               }}
-              aria-label="Toggle menu"
+              aria-label={mobileOpen ? closeMenuLabel : openMenuLabel}
               className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer"
             >
               {mobileOpen ? (
@@ -177,20 +111,23 @@ export default function AdaptedNavigation11({
               href="#"
               className="md:absolute md:left-1/2 md:-translate-x-1/2 text-white font-semibold text-base sm:text-lg tracking-tight lowercase pointer-events-none whitespace-nowrap"
             >
-              northwind
+              {brandName}
             </a>
           </div>
 
           <div className="flex items-center gap-1">
             <a
-              href="#"
+              href={loginHref}
               className="hidden sm:inline-flex text-sm text-neutral-300 hover:text-white px-3 py-2"
             >
-              Login
+              {loginLabel}
             </a>
-            <button className="inline-flex items-center rounded-full bg-orange-500 text-white text-xs sm:text-sm font-medium px-3 sm:px-5 py-2 hover:bg-orange-600 transition-colors cursor-pointer whitespace-nowrap">
-              Start Testing
-            </button>
+            <a
+              href={primaryActionHref}
+              className="inline-flex items-center rounded-full bg-orange-500 text-white text-xs sm:text-sm font-medium px-3 sm:px-5 py-2 hover:bg-orange-600 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              {primaryActionLabel}
+            </a>
           </div>
         </motion.nav>
 
@@ -251,7 +188,7 @@ export default function AdaptedNavigation11({
                       {current.cards.map((c) => (
                         <a
                           key={c.title}
-                          href="#"
+                          href={c.href}
                           className="group rounded-2xl bg-neutral-50 dark:bg-neutral-800 overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
                         >
                           <div className="aspect-4/3 w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
@@ -278,40 +215,26 @@ export default function AdaptedNavigation11({
 
                 <div className="mt-8 pt-5 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between text-xs text-neutral-600 dark:text-neutral-400">
                   <div className="flex flex-wrap items-center gap-4">
-                    <a
-                      href="#"
-                      className="inline-flex items-center gap-1 hover:text-neutral-900 dark:hover:text-white"
-                    >
-                      World&apos;s Healthiest{" "}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    <a
-                      href="#"
-                      className="inline-flex items-center gap-1 hover:text-neutral-900 dark:hover:text-white"
-                    >
-                      The Founder Health Coalition{" "}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
+                    {footerPartnerLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        className="inline-flex items-center gap-1 hover:text-neutral-900 dark:hover:text-white"
+                      >
+                        {link.label} <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ))}
                   </div>
                   <div className="flex flex-wrap items-center gap-4">
-                    <a
-                      href="#"
-                      className="hover:text-neutral-900 dark:hover:text-white"
-                    >
-                      Privacy Policy
-                    </a>
-                    <a
-                      href="#"
-                      className="hover:text-neutral-900 dark:hover:text-white"
-                    >
-                      Informed Medical Consent
-                    </a>
-                    <a
-                      href="#"
-                      className="hover:text-neutral-900 dark:hover:text-white"
-                    >
-                      Terms & Conditions
-                    </a>
+                    {footerLegalLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        className="hover:text-neutral-900 dark:hover:text-white"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>

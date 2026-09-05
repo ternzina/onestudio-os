@@ -6,23 +6,27 @@ import {
   type PrimitivePuckPropRule,
   type PuckPropRule,
 } from "@/lib/puck-site-editor/registry-manifest";
+import { PRODUCTION_SHARED_STYLE_FIELD_KEYS } from "@/lib/puck-site-editor/builder-properties";
 import type { PuckDocumentComponent } from "@/lib/puck-site-editor/document";
+import { buildNativePuckFields } from "@/lib/puck-site-editor/native-puck-fields";
 import { PRODUCT_LIBRARY_CATEGORY_ORDER } from "@/lib/puck-site-editor/product-library";
 import { PuckProductionBlock } from "./public-renderer";
-import { useScaledIframeInteractionRetargeting } from "./scaled-iframe-interactions";
-import { useRef, type ReactNode } from "react";
-
-function PuckProductionCanvasRoot({ children }: { children: ReactNode }) {
-  const rootRef = useRef<HTMLElement>(null);
-  useScaledIframeInteractionRetargeting(rootRef);
-  return <main ref={rootRef}>{children}</main>;
-}
+import { ProductionColorInput } from "./production-color-field";
+import { ProductionPuckCanvasRoot } from "./production-editor-ux";
 
 function fieldForRule(label: string, rule: PrimitivePuckPropRule): Field {
   if (rule.kind === "boolean") return { type: "radio", label, options: [{ label: "Yes", value: true }, { label: "No", value: false }] };
   if (rule.kind === "number") return { type: "number", label, min: rule.min, max: rule.max };
   if (rule.kind === "enum") return { type: "select", label, options: rule.values.map((value) => ({ label: value, value })) };
-  if (rule.format === "color") return { type: "text", label };
+  if (rule.format === "color") {
+    return {
+      type: "custom",
+      label,
+      render: ({ id, value, onChange, readOnly }) => (
+        <ProductionColorInput id={id} label={label} value={value} onChange={onChange} readOnly={readOnly} />
+      ),
+    };
+  }
   return { type: rule.maxLength > 240 ? "textarea" : "text", label };
 }
 
@@ -70,13 +74,23 @@ function contractOwnsTopLevelProp(
 
 const components = Object.fromEntries(
   PUCK_PRODUCTION_MANIFEST.map((entry) => {
+    const nativeFields = buildNativePuckFields(entry);
     const config: ComponentConfig = {
       label: entry.label,
-      fields: Object.fromEntries(
-        Object.entries(entry.props)
-          .filter(([name, rule]) => name !== "id" && rule.editable !== false && !contractOwnsTopLevelProp(name, entry))
-          .map(([name, rule]) => [name, fieldFor(name, rule)]),
-      ),
+      fields: {
+        ...nativeFields,
+        ...Object.fromEntries(
+          Object.entries(entry.props)
+            .filter(([name, rule]) => name !== "id"
+              && rule.editable !== false
+              && nativeFields[name] === undefined
+              && !PRODUCTION_SHARED_STYLE_FIELD_KEYS.includes(name as (typeof PRODUCTION_SHARED_STYLE_FIELD_KEYS)[number])
+              && !contractOwnsTopLevelProp(name, entry))
+            .map(([name, rule]) => [name, fieldFor(name, rule)]),
+        ),
+      },
+      // Production entries use Puck's inline dragRef contract.
+      inline: true,
       defaultProps: structuredClone(entry.defaults),
       render: (props) => {
         const puck = props.puck;
@@ -86,7 +100,13 @@ const components = Object.fromEntries(
             Object.entries(props).filter(([name]) => name !== "puck" && name !== "editMode"),
           ) as PuckDocumentComponent["props"],
         };
-        return <PuckProductionBlock component={component} dragRef={puck.dragRef} runtimeMode="authoring" />;
+        return (
+          <PuckProductionBlock
+            component={component}
+            dragRef={puck.dragRef}
+            runtimeMode={puck?.dragRef ? "authoring" : "interactive"}
+          />
+        );
       },
     };
     return [entry.id, config];
@@ -98,7 +118,7 @@ const categoryNames = PRODUCT_LIBRARY_CATEGORY_ORDER.filter((taxonomy) =>
 );
 
 export const PUCK_PRODUCTION_EDITOR_CONFIG: Config = {
-  root: { render: PuckProductionCanvasRoot },
+  root: { render: ProductionPuckCanvasRoot },
   components,
   categories: Object.fromEntries(
     categoryNames.map((taxonomy) => [

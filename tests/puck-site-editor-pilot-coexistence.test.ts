@@ -46,7 +46,9 @@ test("pilot uses local scoped persistence and production renderer without changi
   assert.match(editor, /label: "Библиотека"/);
   assert.match(editor, /"plugin-blocks": "Блоки"/);
   assert.match(editor, /"plugin-outline": "Структура"/);
-  assert.match(library, /<Drawer\.Item name=\{entry\.id\} label=\{entry\.label\} \/>/);
+  assert.match(library, /className=\{styles\.libraryGrid\}/);
+  assert.match(library, /<PuckProductionBlock component=\{component\} runtimeMode="library-preview" \/>/);
+  assert.match(library, /data-preview-kind=\{entry\.sourceKind\}/);
   assert.match(library, /type: "insert"/);
   assert.doesNotMatch(library, /drawer: PuckPilotProductLibrary/);
   assert.match(editor, /writeLocalPuckDocument\("draft"/);

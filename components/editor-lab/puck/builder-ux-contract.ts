@@ -71,17 +71,16 @@ export function createBlockDefaultSnapshot(
 
 export function copyCompatibleStyle(
   source: ComponentData,
-  component: ComponentConfig,
+  _component: ComponentConfig,
   contract: StyleTransferContract,
 ): StyleTransferSnapshot {
   const keys = contract.get(source.type) ?? new Set<string>();
-  const defaults = (component.defaultProps ?? {}) as Record<string, unknown>;
+  // A copied style represents only explicit editor choices. Filling missing
+  // values from a component config turns native source defaults into sticky
+  // overrides when pasted into a different block.
   const values = Object.fromEntries([...keys]
-    .filter((key) => source.props[key] !== undefined || defaults[key] !== undefined)
-    .map((key) => [
-      key,
-      cloneBuilderValue(source.props[key] ?? defaults[key]),
-    ]));
+    .filter((key) => source.props[key] !== undefined)
+    .map((key) => [key, cloneBuilderValue(source.props[key])]));
   return { sourceType: source.type, values };
 }
 
@@ -119,18 +118,19 @@ function setDesktopValue(current: unknown, next: unknown) {
 
 export function applyStylePreset(
   target: ComponentData,
-  component: ComponentConfig,
+  _component: ComponentConfig,
   contract: StyleTransferContract,
   preset: BuilderStylePreset,
 ): ComponentData {
   const supported = contract.get(target.type) ?? new Set<string>();
-  const defaults = (component.defaultProps ?? {}) as Record<string, unknown>;
   const nextProps = { ...target.props };
 
   for (const key of supported) {
     if (preset === "Original") {
-      if (defaults[key] !== undefined) nextProps[key] = cloneBuilderValue(defaults[key]);
-      else delete nextProps[key];
+      // Original is an absence of an editor override. Passing a cached config
+      // default here can materially differ from an official/adapted source
+      // default and makes pointer effects appear subdued after a reset.
+      delete nextProps[key];
       continue;
     }
     const value = presetValue(key, preset);

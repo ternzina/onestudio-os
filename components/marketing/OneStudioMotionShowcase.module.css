@@ -1,0 +1,662 @@
+.section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(112px, 11vw, 168px) 0 clamp(118px, 12vw, 178px);
+  background:
+    radial-gradient(ellipse 90% 72% at 84% 22%, color-mix(in srgb, var(--os-public-color-accent) 12%, transparent), transparent 70%),
+    radial-gradient(ellipse 75% 80% at 14% 88%, color-mix(in srgb, var(--os-public-color-accent-strong) 10%, transparent), transparent 72%),
+    var(--os-public-color-chocolate);
+  color: var(--os-public-color-cream);
+  scroll-margin-top: 24px;
+}
+
+.section::before {
+  position: absolute;
+  top: -18%;
+  right: -10%;
+  width: min(780px, 72vw);
+  height: min(780px, 72vw);
+  border: 1px solid color-mix(in srgb, var(--os-public-color-accent) 8%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.composition {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  align-items: stretch;
+  gap: clamp(48px, 6vw, 112px);
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1fr);
+}
+
+.infoColumn,
+.previewColumn,
+.intro,
+.controls {
+  min-width: 0;
+}
+
+.previewColumn {
+  display: flex;
+  min-height: var(--preview-height, clamp(500px, 36vw, 640px));
+  flex-direction: column;
+}
+
+.infoColumn {
+  display: flex;
+  min-height: var(--preview-height, clamp(500px, 36vw, 640px));
+  flex-direction: column;
+}
+
+.intro {
+  padding-top: clamp(8px, 1.5vw, 22px);
+}
+
+.eyebrow {
+  display: flex;
+  margin: 0 0 22px;
+  align-items: center;
+  gap: 12px;
+  color: var(--os-public-color-accent);
+}
+
+.eyebrow > span {
+  display: inline-block;
+  width: 35px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--os-public-color-accent);
+}
+
+.title {
+  max-width: 630px;
+  margin: 0;
+  color: var(--os-public-color-cream);
+}
+
+.titleAccent {
+  color: var(--os-public-color-accent);
+}
+
+.supporting {
+  max-width: 520px;
+  margin: clamp(26px, 3vw, 40px) 0 0;
+  color: var(--os-public-color-muted);
+}
+
+.controls {
+  margin-top: auto;
+}
+
+.selectorLabel {
+  display: block;
+  margin-bottom: 13px;
+  color: color-mix(in srgb, var(--os-public-color-muted) 78%, var(--os-public-color-accent));
+  text-transform: uppercase;
+}
+
+.tabs {
+  display: grid;
+  border-top: 1px solid var(--os-public-color-border-dark);
+}
+
+.tab {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 54px;
+  padding: 0 4px;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+  border-bottom: 1px solid var(--os-public-color-border-dark);
+  background: transparent;
+  color: var(--os-public-color-muted);
+  cursor: pointer;
+  grid-template-columns: 34px minmax(0, 1fr) 22px;
+  text-align: left;
+  transition: color 220ms ease, padding 220ms ease, border-color 220ms ease;
+}
+
+.tab > span:nth-child(2) {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.tab::before {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--os-public-color-accent);
+  content: "";
+  transition: width 260ms ease;
+}
+
+.tab:hover,
+.tab:focus-visible {
+  padding-left: 8px;
+  color: var(--os-public-color-cream);
+}
+
+.tab:focus-visible {
+  outline: 1px solid var(--os-public-color-accent);
+  outline-offset: -2px;
+}
+
+.tabActive {
+  color: var(--os-public-color-cream);
+}
+
+.tabActive::before {
+  width: 34px;
+}
+
+.tabNumber {
+  color: color-mix(in srgb, var(--os-public-color-muted) 64%, transparent);
+  font: 650 var(--os-public-micro-size) / 1 var(--os-public-font-family);
+  letter-spacing: .08em;
+  transition: color 220ms ease;
+}
+
+.tabActive .tabNumber {
+  color: var(--os-public-color-accent);
+}
+
+.tabArrow {
+  justify-self: end;
+  color: color-mix(in srgb, var(--os-public-color-muted) 45%, transparent);
+  font-size: 16px;
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 220ms ease, transform 220ms ease, color 220ms ease;
+}
+
+.tab:hover .tabArrow,
+.tab:focus-visible .tabArrow,
+.tabActive .tabArrow {
+  color: var(--os-public-color-accent);
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.moreLink {
+  display: flex;
+  max-width: 100%;
+  width: fit-content;
+  margin-top: 19px;
+  align-items: center;
+  gap: 9px;
+  color: var(--os-public-color-accent);
+  text-decoration: none;
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.moreLink b {
+  color: var(--os-public-color-accent-strong);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 220ms ease;
+}
+
+.moreLink:hover,
+.moreLink:focus-visible {
+  color: var(--os-public-color-cream);
+  transform: translateX(3px);
+}
+
+.moreLink:focus-visible {
+  outline: 1px solid var(--os-public-color-accent);
+  outline-offset: 4px;
+}
+
+.activeLabel > i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--os-public-color-accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--os-public-color-accent) 55%, transparent);
+}
+
+.note {
+  max-width: 440px;
+  margin: auto 0 0;
+  padding-top: clamp(14px, 1.5vw, 22px);
+  color: color-mix(in srgb, var(--os-public-color-muted) 75%, var(--os-public-color-accent));
+}
+
+:global(.os-site) .note {
+  font-weight: var(--os-public-section-copy-weight);
+  letter-spacing: normal;
+}
+
+.showcaseFrame {
+  position: relative;
+  display: flex;
+  height: var(--preview-height, clamp(500px, 36vw, 640px));
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--os-public-color-border-dark);
+  border-radius: 10px;
+  background: var(--os-public-color-surface);
+  box-shadow: 0 32px 90px color-mix(in srgb, var(--os-public-color-chocolate) 66%, transparent);
+}
+
+.frameBar {
+  display: flex;
+  min-height: 48px;
+  padding: 0 clamp(17px, 2.2vw, 30px);
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--os-public-color-border-dark);
+  color: var(--os-public-color-muted);
+}
+
+.frameLabel,
+.activeLabel {
+  min-width: 0;
+}
+
+.activeLabel {
+  display: inline-flex;
+  max-width: 50%;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 9px;
+  color: color-mix(in srgb, var(--os-public-color-cream) 75%, var(--os-public-color-accent));
+  overflow-wrap: break-word;
+  text-align: right;
+  white-space: normal;
+}
+
+.effectViewport {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 68% 80% at 50% 48%, color-mix(in srgb, var(--os-public-color-accent) 10%, transparent), transparent 72%),
+    var(--os-public-color-surface);
+}
+
+.effectViewport::after {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-cream) 4%, transparent);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.effectStage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.effectStage > * {
+  width: 100%;
+  height: 100%;
+}
+
+.effectPlaceholder {
+  position: absolute;
+  inset: 0;
+}
+
+.catalogPreviewStage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 76% 82% at 50% 48%, color-mix(in srgb, var(--os-public-color-accent) 11%, transparent), transparent 72%),
+    var(--os-public-color-surface);
+}
+
+.catalogPreviewPlaceholder {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--os-public-color-muted);
+}
+
+.galleryAdapter,
+.motionAdapter {
+  display: block;
+}
+
+.galleryEffect,
+.tiltedEffect {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.galleryCard {
+  border: 1px solid color-mix(in srgb, var(--os-public-color-cream) 28%, transparent);
+  box-shadow: 0 18px 42px color-mix(in srgb, var(--os-public-color-chocolate) 42%, transparent);
+}
+
+.effectLoading {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--os-public-color-muted);
+}
+
+/* Adapters keep the source blocks live while giving their full sections a
+   bounded logical canvas. The source component files remain the visual source
+   of truth; these rules only control the marketing preview host. */
+.waitlistAdapter > :global(section),
+.heroAdapter > :global(section),
+.socialProofAdapter > :global(section) {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: var(--os-public-color-chocolate) !important;
+}
+
+.waitlistAdapter > :global(section) {
+  padding: 26px 28px !important;
+}
+
+.waitlistAdapter > :global(section) > :global(div),
+.socialProofAdapter > :global(section) > :global(div) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.waitlistAdapter :global(section > div > div) {
+  height: 100% !important;
+  gap: clamp(18px, 3vw, 38px) !important;
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr) !important;
+}
+
+.waitlistAdapter :global(section h2) {
+  max-width: 360px !important;
+  color: var(--os-public-color-cream) !important;
+  font-size: clamp(21px, 2.3vw, 32px) !important;
+}
+
+.waitlistAdapter :global(section label) {
+  color: var(--os-public-color-muted) !important;
+}
+
+.waitlistAdapter :global(section input[type="text"]),
+.waitlistAdapter :global(section input[type="email"]) {
+  border-color: var(--os-public-color-border-dark) !important;
+  background: var(--os-public-color-surface) !important;
+  color: var(--os-public-color-cream) !important;
+}
+
+.waitlistAdapter :global(section button[type="submit"]) {
+  background: var(--os-public-color-accent) !important;
+  color: var(--os-public-color-chocolate) !important;
+}
+
+.waitlistAdapter :global(section > div > div > div:nth-child(2)) {
+  gap: clamp(9px, 1.25vw, 18px) !important;
+}
+
+.waitlistAdapter :global(section > div > div > div:nth-child(2) > div) {
+  min-width: 0;
+}
+
+.heroAdapter > :global(section) {
+  background: var(--os-public-color-chocolate) !important;
+}
+
+.heroAdapter :global(section > div:first-child) {
+  padding-top: 28px !important;
+}
+
+.heroAdapter :global(section h1) {
+  max-width: 560px !important;
+  color: var(--os-public-color-cream) !important;
+  font-size: clamp(25px, 3.6vw, 54px) !important;
+}
+
+.heroAdapter :global(section p) {
+  color: var(--os-public-color-muted) !important;
+}
+
+.heroAdapter :global(section button) {
+  border-color: var(--os-public-color-border-dark) !important;
+  background: var(--os-public-color-surface) !important;
+  color: var(--os-public-color-cream) !important;
+}
+
+.socialProofAdapter > :global(section) {
+  padding: 28px 28px 22px !important;
+}
+
+.socialProofAdapter :global(section h2) {
+  max-width: 520px !important;
+  color: var(--os-public-color-cream) !important;
+  font-size: clamp(24px, 3.2vw, 48px) !important;
+}
+
+.socialProofAdapter :global(section a) {
+  background: var(--os-public-color-accent) !important;
+  color: var(--os-public-color-chocolate) !important;
+}
+
+.socialProofAdapter :global(section > div > div:first-child) {
+  margin-bottom: 28px !important;
+}
+
+.socialProofAdapter :global(section > div > div:nth-child(2) > div),
+.socialProofAdapter :global(section > div > div:nth-child(2) > div > div > div) {
+  min-height: 0 !important;
+}
+
+.socialProofAdapter :global(section [class*="h-[600px]"]) {
+  height: calc(100% - 28px) !important;
+}
+
+.socialProofAdapter :global(section [class*="bg-white"]) {
+  background: color-mix(in srgb, var(--os-public-color-surface) 88%, white) !important;
+}
+
+.socialProofAdapter :global(section [class*="text-neutral-900"]),
+.socialProofAdapter :global(section [class*="text-neutral-100"]) {
+  color: var(--os-public-color-cream) !important;
+}
+
+.socialProofAdapter :global(section [class*="text-neutral-700"]),
+.socialProofAdapter :global(section [class*="text-neutral-600"]),
+.socialProofAdapter :global(section [class*="text-neutral-400"]),
+.socialProofAdapter :global(section [class*="text-neutral-300"]) {
+  color: var(--os-public-color-muted) !important;
+}
+
+@media (min-width: 1600px) {
+  .composition {
+    gap: clamp(70px, 6vw, 150px);
+    grid-template-columns: minmax(0, .74fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .composition {
+    gap: 54px;
+    grid-template-columns: 1fr;
+  }
+
+  .infoColumn {
+    min-height: 0;
+  }
+
+  .previewColumn {
+    min-height: 0;
+  }
+
+  .intro {
+    max-width: 760px;
+  }
+
+  .controls {
+    max-width: 700px;
+  }
+
+  .showcaseFrame {
+    height: clamp(500px, 59vw, 620px);
+  }
+}
+
+@media (max-width: 900px) {
+  /* The source previews use viewport breakpoints while living in a bounded
+     canvas. Give their inner layouts the canvas height so text and controls
+     keep their own space at tablet widths. */
+  .waitlistAdapter > :global(section) > :global(div),
+  .socialProofAdapter > :global(section) > :global(div) {
+    height: 100% !important;
+  }
+
+  .waitlistAdapter :global(section > div > div > div:nth-child(2)) {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .waitlistAdapter :global(section h2) {
+    line-height: 1.15 !important;
+  }
+
+  .socialProofAdapter :global(section > div > div:nth-child(2)) {
+    min-height: 0 !important;
+    flex: 1 1 auto;
+  }
+
+  .socialProofAdapter :global(section [class*="h-[600px]"]) {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 650px) {
+  .section {
+    padding: 92px 0 108px;
+  }
+
+  .composition {
+    gap: 40px;
+  }
+
+  .intro {
+    padding-top: 0;
+  }
+
+  .supporting {
+    max-width: 560px;
+  }
+
+  .controls {
+    margin-top: 34px;
+  }
+
+  .tabs {
+    display: flex;
+    max-width: 100%;
+    padding-bottom: 1px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    min-width: 154px;
+    min-height: 52px;
+    padding-inline: 9px;
+    border-bottom-color: var(--os-public-color-border-dark);
+  }
+
+  .tab:hover,
+  .tab:focus-visible {
+    padding-left: 13px;
+  }
+
+  .tabActive::before {
+    width: 26px;
+  }
+
+  .showcaseFrame {
+    height: clamp(420px, 112vw, 540px);
+    border-radius: 8px;
+  }
+
+  .frameBar {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .frameLabel {
+    display: none;
+  }
+
+  .activeLabel {
+    max-width: 100%;
+    margin-left: auto;
+  }
+
+  .waitlistAdapter > :global(section),
+  .socialProofAdapter > :global(section) {
+    padding: 22px 20px !important;
+  }
+
+  .waitlistAdapter :global(section > div > div) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .waitlistAdapter :global(section > div > div > div:nth-child(2)) {
+    display: none !important;
+  }
+
+  .heroAdapter :global(section > div:first-child) {
+    align-items: flex-start !important;
+    padding-top: 25px !important;
+    text-align: left !important;
+  }
+
+  .heroAdapter :global(section h1) {
+    font-size: clamp(24px, 8vw, 40px) !important;
+  }
+
+  .heroAdapter :global(section button) {
+    width: auto !important;
+  }
+
+  .socialProofAdapter :global(section h2) {
+    font-size: clamp(23px, 7vw, 34px) !important;
+  }
+
+  .socialProofAdapter :global(section > div > div:first-child) {
+    margin-bottom: 20px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab::before,
+  .tabArrow,
+  .tabNumber,
+  .moreLink {
+    transition-duration: 0ms;
+  }
+}
