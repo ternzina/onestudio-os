@@ -86,7 +86,7 @@ const components = Object.fromEntries(
             Object.entries(props).filter(([name]) => name !== "puck" && name !== "editMode"),
           ) as PuckDocumentComponent["props"],
         };
-        return <PuckProductionBlock component={component} dragRef={puck.dragRef} />;
+        return <PuckProductionBlock component={component} dragRef={puck.dragRef} runtimeMode="authoring" />;
       },
     };
     return [entry.id, config];

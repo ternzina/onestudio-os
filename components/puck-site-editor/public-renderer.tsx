@@ -8,6 +8,10 @@ import {
   type PuckProductionRegistryEntry,
 } from "./production-registry";
 import styles from "./public-renderer.module.css";
+import {
+  resolvePuckProductionPresentationStyle,
+  type ProductionRuntimeMode,
+} from "@/lib/puck-site-editor/presentation-runtime";
 
 const widths: Record<string, string> = {
   full: "none",
@@ -34,20 +38,24 @@ function splitProps(component: PuckDocumentComponent) {
 
 function ProductionSourceHost({
   entry,
+  runtimeMode,
   children,
 }: {
   entry: PuckProductionRegistryEntry;
+  runtimeMode: ProductionRuntimeMode;
   children: ReactNode;
 }) {
   const spec = entry.host;
-  const fallbackHeight = entry.definiteHeight
-    ?? (entry.runtimeFamily === "full-surface" ? 480 : null);
-  if (!spec && !fallbackHeight) return <>{children}</>;
+  const presentationContract = entry.presentationContract;
+  const presentationStyle = resolvePuckProductionPresentationStyle(presentationContract, runtimeMode);
+  const fallbackHeight = entry.definiteHeight;
+  if (!spec && !fallbackHeight && !presentationContract) return <>{children}</>;
 
   const style: CSSProperties & Record<string, string | number | undefined> = {
     width: "100%",
     minWidth: 0,
     position: "relative",
+    ...presentationStyle,
   };
   if (fallbackHeight) {
     style.height = fallbackHeight;
@@ -61,7 +69,7 @@ function ProductionSourceHost({
     style.minHeight = spec.sourceMinHeight.value;
   }
   if (spec?.height === "aspect" && spec.aspectRatio) style.aspectRatio = spec.aspectRatio.value;
-  if (spec?.overflow === "clip") style.overflow = "hidden";
+  if (!presentationContract && spec?.overflow === "clip") style.overflow = "hidden";
   if (spec?.align === "center") {
     style.display = "flex";
     style.alignItems = "center";
@@ -102,6 +110,7 @@ function ProductionSourceHost({
     <div
       data-production-host-profile={spec?.profile ?? entry.runtimeFamily ?? "definite"}
       data-production-runtime-risk={spec?.runtimeRisk ?? "none"}
+      data-production-presentation-geometry={presentationContract?.geometry.kind}
       style={style}
     >
       {content}
@@ -112,9 +121,11 @@ function ProductionSourceHost({
 export function PuckProductionBlock({
   component,
   dragRef,
+  runtimeMode = "public",
 }: {
   component: PuckDocumentComponent;
   dragRef?: Ref<HTMLDivElement>;
+  runtimeMode?: ProductionRuntimeMode;
 }) {
   const { entry, componentProps, resolvedProps: props } = splitProps(component);
   const style = {
@@ -137,7 +148,7 @@ export function PuckProductionBlock({
       style={style}
     >
       <Suspense fallback={<div data-production-component-loading style={{ minHeight: entry.definiteHeight ?? 120 }} />}>
-        <ProductionSourceHost entry={entry}>
+        <ProductionSourceHost entry={entry} runtimeMode={runtimeMode}>
           {entry.renderPublic(componentProps)}
         </ProductionSourceHost>
       </Suspense>

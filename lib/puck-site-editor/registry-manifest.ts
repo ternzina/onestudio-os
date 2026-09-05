@@ -16,6 +16,45 @@ export const PUCK_REGISTRY_VERSION = "onestudio-puck-1" as const;
 
 export type PuckProductTaxonomy = ProductLibraryCategory;
 
+export type PuckProductionPresentationProvenance =
+  | "source"
+  | "officialDemo"
+  | "technicalRuntime"
+  | "editorPresentationDefault";
+
+export type PuckProductionPresentationDimension = {
+  value: number;
+  provenance: PuckProductionPresentationProvenance;
+};
+
+export type PuckProductionPresentationRootLayout = {
+  display: "flex";
+  alignItems: "center";
+  justifyContent: "center";
+};
+
+export type PuckProductionPresentationGeometry = {
+  kind: "minHeight" | "fullSurface";
+  minHeight?: PuckProductionPresentationDimension;
+  aspectRatio?: PuckProductionPresentationDimension;
+};
+
+export type PuckProductionPresentationContract = {
+  target: "componentRoot";
+  rootLayout?: PuckProductionPresentationRootLayout;
+  overflow: "visible" | "clip";
+  provenance: "source" | "officialDemo";
+  sourceGeometry?: {
+    width: { value: string; provenance: "source" };
+    height: { value: string; provenance: "source" };
+    definiteParent: { required: true; provenance: "source" };
+  };
+  technicalRuntime?: {
+    height: PuckProductionPresentationDimension;
+  };
+  geometry: PuckProductionPresentationGeometry;
+};
+
 type PuckPropRuleOptions = { editable?: boolean; required?: boolean };
 
 export type PrimitivePuckPropRule = PuckPropRuleOptions & (
@@ -75,6 +114,7 @@ export type PuckRegistryManifestEntry = {
   host: PuckProductionHostSpec | null;
   definiteHeight: number | null;
   runtimeFamily: string | null;
+  presentationContract?: PuckProductionPresentationContract;
   documentVersions: readonly [1];
   props: Readonly<Record<string, PuckPropRule>>;
   defaults: Readonly<Record<string, unknown>>;
@@ -118,6 +158,64 @@ export const PUCK_COMMON_DEFAULTS = {
 const generatedByCatalogKey = new Map<string, (typeof PUCK_EXPANDED_REGISTRY_DATA)[number]>(
   PUCK_EXPANDED_REGISTRY_DATA.map((item) => [item.catalogKey, item]),
 );
+
+const presentationDimension = (
+  value: number,
+  provenance: PuckProductionPresentationDimension["provenance"],
+): PuckProductionPresentationDimension => ({ value, provenance });
+
+const SOURCE_FILL_SURFACE_GEOMETRY = {
+  width: { value: "100%", provenance: "source" },
+  height: { value: "100%", provenance: "source" },
+  definiteParent: { required: true, provenance: "source" },
+} as const;
+
+const fullSurfacePresentation = (
+  technicalHeight: number,
+): PuckProductionPresentationContract => ({
+  target: "componentRoot",
+  overflow: "clip",
+  provenance: "source",
+  sourceGeometry: SOURCE_FILL_SURFACE_GEOMETRY,
+  technicalRuntime: {
+    height: presentationDimension(technicalHeight, "technicalRuntime"),
+  },
+  geometry: { kind: "fullSurface" },
+});
+
+const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProductionPresentationContract>> = {
+  "component:lightspeed": fullSurfacePresentation(480),
+  "component:light-droplets": fullSurfacePresentation(480),
+  "component:frame-border": {
+    ...fullSurfacePresentation(480),
+    geometry: {
+      kind: "fullSurface",
+      aspectRatio: presentationDimension(1.64, "editorPresentationDefault"),
+    },
+  },
+  "starter:flicker-tw": fullSurfacePresentation(480),
+  "component:dot-shift": fullSurfacePresentation(480),
+  "component:click-stack": fullSurfacePresentation(500),
+  "component:glitch-text": fullSurfacePresentation(320),
+  "component:bending-marquee": fullSurfacePresentation(520),
+  "component:card-spread": fullSurfacePresentation(520),
+  "component:tilted-tiles": fullSurfacePresentation(520),
+  "component:liquid-ascii": fullSurfacePresentation(480),
+  "component:text-cube": fullSurfacePresentation(480),
+  "component:cursor-wave": fullSurfacePresentation(480),
+  "component:gradient-carousel": fullSurfacePresentation(620),
+  "component:vortex": fullSurfacePresentation(480),
+  "component:glue-dots": fullSurfacePresentation(480),
+  "current-free:glow-cursor": fullSurfacePresentation(480),
+  "current-free:particle-text": fullSurfacePresentation(480),
+  "current-free:magic-rings": fullSurfacePresentation(480),
+  "current-free:strands": fullSurfacePresentation(480),
+  "current-free:floating-lines": fullSurfacePresentation(480),
+};
+
+function productionPresentationContract(catalogKey: string) {
+  return PUCK_PRODUCTION_PRESENTATION_CONTRACTS[catalogKey];
+}
 
 type PuckBatch3CatalogKey = keyof typeof PUCK_BATCH_3_EDITOR_CONTRACTS;
 
@@ -195,6 +293,9 @@ const entry = (input: PilotManifestEntry): PuckRegistryManifestEntry => {
   host: generated.host as PuckProductionHostSpec | null,
   definiteHeight: generated.definiteHeight,
   runtimeFamily: generated.runtimeFamily,
+  ...(productionPresentationContract(input.catalogKey)
+    ? { presentationContract: productionPresentationContract(input.catalogKey) }
+    : {}),
   props: { ...PUCK_COMMON_PROP_RULES, ...input.props },
   defaults: { ...PUCK_COMMON_DEFAULTS, ...input.defaults },
   };
@@ -484,10 +585,26 @@ const PUCK_PRODUCTION_EDITOR_CONTRACTS: Readonly<Partial<Record<string, Componen
 
 type PuckProductionManifestOverride = Partial<Pick<
   PuckRegistryManifestEntry,
-  "editorAdapter" | "publicRenderer" | "rendererSource" | "host" | "props" | "defaults"
+  "editorAdapter" | "publicRenderer" | "rendererSource" | "host" | "props" | "defaults" | "presentationContract"
 >>;
 
 const PUCK_PRODUCTION_MANIFEST_OVERRIDES: Readonly<Record<string, PuckProductionManifestOverride>> = {
+  "control-6:text-scatter-tw": {
+    presentationContract: {
+      target: "componentRoot",
+      rootLayout: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      overflow: "visible",
+      provenance: "officialDemo",
+      geometry: {
+        kind: "minHeight",
+        minHeight: presentationDimension(400, "officialDemo"),
+      },
+    },
+  },
   "pro-block:hero-8": {
     editorAdapter: "adapted-hero-8",
     publicRenderer: "adapted-hero-8",
@@ -670,6 +787,8 @@ const expandedEntry = (
   const editorContract = generated.id === "RB_batch7_hero_6"
     ? HERO6_OVERRIDE.editorContract
     : PUCK_PRODUCTION_EDITOR_CONTRACTS[generated.catalogKey];
+  const presentationContract = override?.presentationContract
+    ?? productionPresentationContract(generated.catalogKey);
   return {
     id: generated.id,
     catalogKey: generated.catalogKey,
@@ -687,6 +806,7 @@ const expandedEntry = (
     host: (override?.host ?? generated.host) as PuckProductionHostSpec | null,
     definiteHeight: generated.definiteHeight,
     runtimeFamily: generated.runtimeFamily,
+    ...(presentationContract ? { presentationContract } : {}),
     documentVersions: [1],
     props: {
       ...PUCK_COMMON_PROP_RULES,
