@@ -16,6 +16,10 @@ import {
   resetProductionEditorField,
   resetProductionEditorGroup,
   updateProductionEditorArrayItem,
+  addProductionEditorArrayItem,
+  removeProductionEditorArrayItem,
+  reorderProductionEditorArrayItem,
+  reorderProductionEditorArrayItem,
   updateProductionEditorField,
 } from "@/lib/puck-site-editor/builder-properties";
 import styles from "./production-properties-panel.module.css";
@@ -25,6 +29,7 @@ import { resolvePuckProductionFieldValue } from "@/lib/puck-site-editor/producti
 import { ProductionPuckNumberInput } from "./production-puck-scalar-field";
 
 const usePuck = createUsePuck();
+type ProductionPropsUpdate = (next: Record<string, ProductionEditorValue> | ((current: Readonly<Record<string, ProductionEditorValue>>) => Record<string, ProductionEditorValue>)) => void;
 
 type ProductionPropertiesPanelProps = {
   children: ReactNode;
@@ -79,7 +84,7 @@ function ContractField({
   field: ProductionEditorField;
   props: Readonly<Record<string, ProductionEditorValue>>;
   contract: ComponentEditorContract;
-  update: (next: Record<string, ProductionEditorValue>) => void;
+  update: ProductionPropsUpdate;
 }) {
   const locale = useProductionEditorLocale();
   const value = resolvePuckProductionFieldValue(props, contract.defaultProps, field.path) as ProductionEditorPrimitive;
@@ -102,7 +107,7 @@ function ContractArrays({
   contract: ComponentEditorContract;
   props: Readonly<Record<string, ProductionEditorValue>>;
   group: ProductionEditorFieldGroup;
-  update: (next: Record<string, ProductionEditorValue>) => void;
+  update: ProductionPropsUpdate;
 }) {
   const locale = useProductionEditorLocale();
   return contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)).map((array) => {
@@ -117,12 +122,17 @@ function ContractArrays({
           {field.type === "media" && item && typeof item === "object" && !Array.isArray(item) && typeof item[field.key] === "string" ? <img className={styles.mediaPreview} src={item[field.key]} alt="" /> : null}
           <ProductionFieldInput id={`production-${array.key}-${index}-${field.key}`} field={field} value={item && typeof item === "object" && !Array.isArray(item) ? (item[field.key] as ProductionEditorPrimitive) : null} onChange={(next) => update(updateProductionEditorArrayItem(props, contract, array.key, index, field.key, next))} />
         </div>)}
+        <div className={styles.groupActions}>
+          <button type="button" onClick={() => update(removeProductionEditorArrayItem(props, contract, array.key, index))}>Удалить</button>
+          {index > 0 ? <button type="button" onClick={() => update((current) => reorderProductionEditorArrayItem(current, contract, array.key, index, index - 1))}>Выше</button> : null}
+          {index < items.length - 1 ? <button type="button" onClick={() => update((current) => reorderProductionEditorArrayItem(current, contract, array.key, index, index + 1))}>Ниже</button> : null}
+        </div>
       </div>
-    ))}</fieldset>;
+    ))}<button type="button" onClick={() => update(addProductionEditorArrayItem(props, contract, array.key))}>Добавить {array.itemLabel}</button></fieldset>;
   });
 }
 
-function ContractProperties({ contract, resetContract, props, update }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: (next: Record<string, ProductionEditorValue>) => void }) {
+function ContractProperties({ contract, resetContract, props, update }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: ProductionPropsUpdate }) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "MOTION", "RESPONSIVE"]));
   const filtered = useMemo(() => filterProductionEditorContract(contract, query), [contract, query]);
@@ -207,9 +217,14 @@ export function PuckProductionProperties({ children, itemSelector }: ProductionP
   const panelContract = contract ? productionPropertiesContractForManualPanel(contract) : undefined;
   if (!selected || !entry || !contract || !panelContract) return <>{children}</>;
   const props = selected.props as Record<string, ProductionEditorValue>;
-  const update = (nextProps: Record<string, ProductionEditorValue>) => {
+  const update: ProductionPropsUpdate = (nextProps) => {
     dispatch({ type: "setData", recordHistory: true, data: (previous) => ({
-      content: previous.content.map((component, index) => index === itemSelector!.index && component.type === selected.type ? { ...component, props: nextProps } : component),
+      content: previous.content.map((component) => {
+        if (component.type !== selected.type) return component;
+        if (previous.content[itemSelector!.index] !== component) return component;
+        const resolvedProps = typeof nextProps === "function" ? nextProps(component.props as Record<string, ProductionEditorValue>) : nextProps;
+        return { ...component, props: resolvedProps };
+      }),
     }) });
   };
   return <>

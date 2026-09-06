@@ -14,6 +14,9 @@ import {
   resetProductionEditorField,
   resetProductionEditorGroup,
   updateProductionEditorArrayItem,
+  addProductionEditorArrayItem,
+  removeProductionEditorArrayItem,
+  reorderProductionEditorArrayItem,
   updateProductionEditorField,
 } from "../lib/puck-site-editor/builder-properties.ts";
 import {
@@ -203,6 +206,46 @@ test("bounded array item updates are supported without an arbitrary JSON editor"
     }],
   };
   assert.deepEqual(updateProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 0, "title", "Edited"), { cards: [{ id: "one", title: "Edited" }] });
+});
+
+test("shared collection operations preserve empty arrays and legacy item shapes", () => {
+  const contract = {
+    componentId: "collection.test",
+    defaultProps: { cards: [{ id: "one", title: "First" }, { id: "two", title: "Second" }] },
+    fields: [], contentFields: [], mediaFields: [], actionFields: [], inlineFields: [],
+    arrays: [{ key: "cards", path: ["cards"], group: "CONTENT", label: "Cards", itemLabel: "Card", defaultItems: [{ id: "one", title: "First" }, { id: "two", title: "Second" }], itemFields: [
+      { key: "id", path: ["id"], group: "CONTENT", label: "ID", type: "text", inlineEditable: false, mediaEligible: false, resettable: true },
+      { key: "title", path: ["title"], group: "CONTENT", label: "Title", type: "text", inlineEditable: true, mediaEligible: false, resettable: true },
+    ] }],
+  } as const;
+  const empty = { cards: [] };
+  assert.deepEqual(addProductionEditorArrayItem(empty, contract, "cards").cards, [{ id: "one", title: "First" }]);
+  assert.deepEqual(removeProductionEditorArrayItem({ cards: [{ id: "one", title: "Edited" }] }, contract, "cards", 0), { cards: [] });
+  const edited = updateProductionEditorArrayItem(contract.defaultProps, contract, "cards", 1, "title", "Edited");
+  const reordered = reorderProductionEditorArrayItem(edited, contract, "cards", 1, 0);
+  assert.deepEqual(reordered.cards, [{ id: "two", title: "Edited" }, { id: "one", title: "First" }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(reordered)), reordered);
+  const legacy = addProductionEditorArrayItem({ cards: [{ title: "Legacy" }] }, contract, "cards");
+  assert.deepEqual(legacy.cards, [{ title: "Legacy" }, { id: "one", title: "First" }]);
+});
+
+test("shared collection reorder uses the current row for sequential moves", () => {
+  const arrayContract = {
+    componentId: "collection.sequential",
+    defaultProps: { cards: [{ id: "a", title: "A" }, { id: "b", title: "B" }, { id: "c", title: "C" }, { id: "d", title: "D" }] },
+    fields: [], contentFields: [], mediaFields: [], actionFields: [], inlineFields: [],
+    arrays: [{ key: "cards", path: ["cards"], group: "CONTENT", label: "Cards", itemLabel: "Card", defaultItems: [], itemFields: [] }],
+  } as const;
+  const ids = (value: ProductionEditorValue) => (value as readonly { id: string }[]).map((item) => item.id);
+  const downOnce = reorderProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 0, 1);
+  const downTwice = reorderProductionEditorArrayItem(downOnce, arrayContract, "cards", 1, 2);
+  assert.deepEqual(ids(downTwice.cards), ["b", "c", "a", "d"]);
+  const upOnce = reorderProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 3, 2);
+  const upTwice = reorderProductionEditorArrayItem(upOnce, arrayContract, "cards", 2, 1);
+  assert.deepEqual(ids(upTwice.cards), ["a", "d", "b", "c"]);
+  assert.deepEqual(ids(reorderProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 0, 0).cards), ["a", "b", "c", "d"]);
+  assert.deepEqual(ids(reorderProductionEditorArrayItem(arrayContract.defaultProps, arrayContract, "cards", 3, 3).cards), ["a", "b", "c", "d"]);
+  assert.equal((downTwice.cards as readonly { title: string }[])[2].title, "A");
 });
 
 test("Hero 6 slide content and media use the shared grouped array editor", () => {

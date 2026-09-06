@@ -1,6 +1,7 @@
 import {
   PRODUCTION_EDITOR_FIELD_GROUPS,
   type ComponentEditorContract,
+  type ProductionEditorArraySchema,
   type ProductionEditorField,
   type ProductionEditorFieldGroup,
   type ProductionEditorPrimitive,
@@ -159,6 +160,26 @@ function setPath(
   return next;
 }
 
+function arrayFor(props: Readonly<Record<string, ProductionEditorValue>>, array: ProductionEditorArraySchema) {
+  const value = getPathValue(props, array.path);
+  return Array.isArray(value) ? value : undefined;
+}
+
+function getPathValue(props: Readonly<Record<string, ProductionEditorValue>>, path: readonly string[]) {
+  let value: ProductionEditorValue | undefined = props;
+  for (const segment of path) {
+    if (!value || Array.isArray(value) || typeof value !== "object") return undefined;
+    value = (value as Readonly<Record<string, ProductionEditorValue>>)[segment];
+  }
+  return value;
+}
+
+function findArray(contract: ComponentEditorContract, key: string) {
+  const array = contract.arrays.find((candidate) => candidate.key === key);
+  if (!array) throw new Error(`Unknown production editor array: ${key}`);
+  return array;
+}
+
 export function productionFieldsByGroup(contract: ComponentEditorContract) {
   return PRODUCTION_PROPERTIES_GROUP_ORDER.map((group) => ({
     group,
@@ -226,14 +247,39 @@ export function updateProductionEditorArrayItem(
   fieldKey: string,
   value: ProductionEditorPrimitive,
 ) {
-  const array = contract.arrays.find((candidate) => candidate.key === arrayKey);
-  if (!array || !array.itemFields.some((field) => field.key === fieldKey)) throw new Error(`Unknown production editor array field: ${arrayKey}.${fieldKey}`);
-  const current = props[array.path[0]];
+  const array = findArray(contract, arrayKey);
+  if (!array.itemFields.some((field) => field.key === fieldKey)) throw new Error(`Unknown production editor array field: ${arrayKey}.${fieldKey}`);
+  const current = arrayFor(props, array);
   if (!Array.isArray(current) || !current[itemIndex] || typeof current[itemIndex] !== "object" || Array.isArray(current[itemIndex])) {
     throw new Error(`Invalid production editor array value: ${arrayKey}`);
   }
   const nextItems = current.map((item, index) => index === itemIndex ? { ...item, [fieldKey]: value } : clone(item));
   return setPath(props, array.path, nextItems);
+}
+
+export function addProductionEditorArrayItem(props: Readonly<Record<string, ProductionEditorValue>>, contract: ComponentEditorContract, arrayKey: string) {
+  const array = findArray(contract, arrayKey);
+  const current = arrayFor(props, array) ?? [];
+  const template = array.defaultItems[0] ?? {};
+  const next = { ...template } as Record<string, ProductionEditorValue>;
+  return setPath(props, array.path, [...current, next]);
+}
+
+export function removeProductionEditorArrayItem(props: Readonly<Record<string, ProductionEditorValue>>, contract: ComponentEditorContract, arrayKey: string, itemIndex: number) {
+  const array = findArray(contract, arrayKey);
+  const current = arrayFor(props, array);
+  if (!current || itemIndex < 0 || itemIndex >= current.length) throw new Error(`Invalid production editor array index: ${arrayKey}`);
+  return setPath(props, array.path, current.filter((_, index) => index !== itemIndex));
+}
+
+export function reorderProductionEditorArrayItem(props: Readonly<Record<string, ProductionEditorValue>>, contract: ComponentEditorContract, arrayKey: string, fromIndex: number, toIndex: number) {
+  const array = findArray(contract, arrayKey);
+  const current = arrayFor(props, array);
+  if (!current || fromIndex < 0 || fromIndex >= current.length || toIndex < 0 || toIndex >= current.length) throw new Error(`Invalid production editor array index: ${arrayKey}`);
+  const next = [...current];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return setPath(props, array.path, next);
 }
 
 export function resetProductionEditorField(
