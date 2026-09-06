@@ -58,6 +58,78 @@ test("draft and published storage round-trip without information loss", () => {
   assert.equal(published.seo_title, "SEO stays outside Puck");
 });
 
+test("representative document preserves edited fields, identity, order, and draft/public publish boundary", async () => {
+  const repository = new InMemoryPuckContentRepository();
+  const service = createPuckPersistenceService(repository);
+  const original = createPuckPilotFixture("en");
+  const edited = structuredClone(original);
+
+  const scalar = edited.content.find((item) => Object.values(item.props).some((value) => typeof value === "string"))!;
+  const scalarKey = Object.keys(scalar.props).find((key) => key !== "id" && typeof scalar.props[key] === "string")!;
+  scalar.props[scalarKey] = "edited-string";
+  const media = edited.content.find((item) => Object.keys(item.props).some((key) => /image|media|url/i.test(key)));
+  if (media) {
+    const mediaKey = Object.keys(media.props).find((key) => /image|media|url/i.test(key) && typeof media!.props[key] === "string");
+    if (mediaKey) media.props[mediaKey] = "/uploads/edited-media.webp";
+  }
+  const repeater = edited.content.find((item) => Object.values(item.props).some(Array.isArray));
+  if (repeater) {
+    const repeaterKey = Object.keys(repeater.props).find((key) => Array.isArray(repeater!.props[key]));
+    if (repeaterKey) repeater.props[repeaterKey] = [...(repeater.props[repeaterKey] as unknown[])].reverse();
+  }
+  const emptyEligible = edited.content.find((item) => Object.values(item.props).some(Array.isArray));
+  if (emptyEligible) {
+    const emptyKey = Object.keys(emptyEligible.props).find((key) => Array.isArray(emptyEligible!.props[key]));
+    if (emptyKey) emptyEligible.props[emptyKey] = [];
+  }
+  const zeroFalse = edited.content.find((item) => Object.values(item.props).some((value) => typeof value === "number" || typeof value === "boolean"));
+  if (zeroFalse) {
+    for (const key of Object.keys(zeroFalse.props)) {
+      if (typeof zeroFalse.props[key] === "number") zeroFalse.props[key] = 0;
+      if (typeof zeroFalse.props[key] === "boolean") zeroFalse.props[key] = false;
+    }
+  }
+  edited.content = [edited.content.at(-1)!, ...edited.content.slice(0, -1)];
+
+  await service.savePuckDraft(context("roundtrip"), edited, legacy);
+  const reloaded = await service.loadDraft(context("roundtrip"), { locale: "en", pageId: "pilot-home" });
+  assert.deepEqual(reloaded, edited);
+  await repository.writePublished({ businessId: "roundtrip", locale: "en", pageId: "pilot-home" }, attachPuckDocument(legacy, original));
+  const previousPublished = await repository.readPublished({ businessId: "roundtrip", locale: "en", pageId: "pilot-home" });
+  assert.ok(previousPublished);
+  assert.deepEqual(readPuckDocument(previousPublished), original);
+  const published = await service.publishPuckDraft(context("roundtrip"), { locale: "en", pageId: "pilot-home" });
+  assert.deepEqual(published, edited);
+});
+
+test("failed save and publish do not report or replace persisted snapshots", async () => {
+  class FailingRepository extends InMemoryPuckContentRepository {
+    failDraft = false;
+    failPublished = false;
+    override async writeDraft(scope: Parameters<InMemoryPuckContentRepository["writeDraft"]>[0], content: Parameters<InMemoryPuckContentRepository["writeDraft"]>[1]) {
+      if (this.failDraft) throw new Error("save failed");
+      return super.writeDraft(scope, content);
+    }
+    override async writePublished(scope: Parameters<InMemoryPuckContentRepository["writePublished"]>[0], content: Parameters<InMemoryPuckContentRepository["writePublished"]>[1]) {
+      if (this.failPublished) throw new Error("publish failed");
+      return super.writePublished(scope, content);
+    }
+  }
+  const repository = new FailingRepository();
+  const service = createPuckPersistenceService(repository);
+  const document = createPuckPilotFixture("en");
+  await service.savePuckDraft(context("safety"), document, legacy);
+  const scope = { businessId: "safety", locale: "en", pageId: "pilot-home" };
+  const before = await repository.readDraft(scope);
+  repository.failDraft = true;
+  await assert.rejects(() => service.savePuckDraft(context("safety"), { ...document, content: [] }, legacy), /save failed/);
+  assert.deepEqual(await repository.readDraft(scope), before);
+  repository.failDraft = false;
+  repository.failPublished = true;
+  await assert.rejects(() => service.publishPuckDraft(context("safety"), scope), /publish failed/);
+  assert.equal(await repository.readPublished(scope), null);
+});
+
 test("tenant and locale scopes cannot overwrite each other", async () => {
   const repository = new InMemoryPuckContentRepository();
   const service = createPuckPersistenceService(repository);
