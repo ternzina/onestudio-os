@@ -51,8 +51,11 @@ test("CashPath reveals respect reduced motion without changing LeadsGate mountin
   const source = await readFile(new URL("../components/public/cashpath/CashPathSite.tsx", import.meta.url), "utf8");
   assert.match(source, /useReducedMotion/);
   assert.match(source, /initial=\{reducedMotion \? false/);
-  assert.match(source, /viewport=\{\{ once: true, amount: 0\.15 \}\}/);
-  assert.match(source, /<CashPathReveal><section id="request"/);
+  assert.match(source, /distance: isMobile \? 40 : 64/);
+  assert.match(source, /duration: isMobile \? 0\.8 : 1/);
+  assert.match(source, /viewport=\{\{ once: true, amount: 0\.32 \}\}/);
+  assert.match(source, /index \* 0\.1/);
+  assert.match(source, /<CashPathReveal \{\.\.\.reveal\}><section id="request"/);
   assert.match(source, /leadsgate_form/);
   assert.match(source, /preview=\{site\.business\.id === "cashpath-demo"\}/);
 });
