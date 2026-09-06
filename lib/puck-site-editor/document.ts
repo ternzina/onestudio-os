@@ -3,6 +3,7 @@ import {
   PUCK_REGISTRY_VERSION,
   type PuckPropRule,
 } from "./registry-manifest.ts";
+import { isProductionColor } from "./production-color.ts";
 
 export const PUCK_DOCUMENT_VERSION = 1 as const;
 export const PUCK_DOCUMENT_MAX_BYTES = 512_000;
@@ -71,7 +72,6 @@ function exactKeys(
 
 const safeUrl = (value: string) =>
   value.startsWith("/") || /^https:\/\/[A-Za-z0-9.-]+(?::\d+)?(?:[/?#][^\s]*)?$/i.test(value);
-const safeColor = (value: string) => /^#[0-9a-f]{3,8}$/i.test(value);
 
 function validateRule(value: unknown, rule: PuckPropRule, path: string, errors: string[]) {
   if (rule.kind === "string") {
@@ -81,7 +81,7 @@ function validateRule(value: unknown, rule: PuckPropRule, path: string, errors: 
     }
     if (value.length > rule.maxLength) errors.push(`${path}: string is too long`);
     if (rule.format === "url" && !safeUrl(value)) errors.push(`${path}: unsafe URL`);
-    if (rule.format === "color" && !safeColor(value)) errors.push(`${path}: invalid color`);
+    if (rule.format === "color" && !isProductionColor(value)) errors.push(`${path}: invalid color`);
     return;
   }
   if (rule.kind === "boolean") {
@@ -95,7 +95,10 @@ function validateRule(value: unknown, rule: PuckPropRule, path: string, errors: 
     return;
   }
   if (rule.kind === "enum") {
-    if (typeof value !== "string" || !rule.values.includes(value)) errors.push(`${path}: unsupported value`);
+    // Preserve unknown values from older registry versions. The Puck field
+    // exposes them as a legacy option, while new values still come from the
+    // manifest options metadata.
+    if (typeof value !== "string") errors.push(`${path}: expected string`);
     return;
   }
   if (rule.kind === "object") {

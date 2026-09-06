@@ -4,6 +4,8 @@ import type {
 } from "./registry-manifest.ts";
 import { PUCK_COMMON_PROP_RULES } from "./registry-manifest.ts";
 
+const PUCK_PRESENTATION_PROP_KEYS = new Set(["puck", "editMode"]);
+
 export type PuckProductionBackgroundRouting = {
   target: PuckProductionBackgroundTarget;
   edited: boolean;
@@ -25,6 +27,7 @@ export function resolvePuckProductionSourceProps(
 
   const componentProps = Object.fromEntries(
     Object.entries(resolvedProps).filter(([key]) => {
+      if (PUCK_PRESENTATION_PROP_KEYS.has(key)) return false;
       const isBackgroundSourceProp = backgroundRouting.sourceProp?.prop === key;
       const isBackgroundValue = key === "backgroundColor";
       return isBackgroundSourceProp || (!isBackgroundValue && (!(key in PUCK_COMMON_PROP_RULES) || sourceProps.has(key)));

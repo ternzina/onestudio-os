@@ -12,51 +12,80 @@ import type { PuckDocumentComponent } from "@/lib/puck-site-editor/document";
 import { buildNativePuckFields } from "@/lib/puck-site-editor/native-puck-fields";
 import { PRODUCT_LIBRARY_CATEGORY_ORDER } from "@/lib/puck-site-editor/product-library";
 import { PuckProductionBlock } from "./public-renderer";
+import { createProductionPuckScalarField } from "./production-puck-scalar-field";
 import { ProductionColorInput } from "./production-color-field";
 import { ProductionPuckCanvasRoot } from "./production-editor-ux";
 import { useInsideProductionRuntime } from "./production-runtime-context";
 
 const usePuck = createUsePuck();
 
-function fieldForRule(label: string, rule: PrimitivePuckPropRule): Field {
-  if (rule.kind === "boolean") return { type: "radio", label, options: [{ label: "Yes", value: true }, { label: "No", value: false }] };
-  if (rule.kind === "number") return { type: "number", label, min: rule.min, max: rule.max };
-  if (rule.kind === "enum") return { type: "select", label, options: rule.values.map((value) => ({ label: value, value })) };
+function fieldForRule(label: string, rule: PrimitivePuckPropRule, defaultValue?: unknown): Field {
+  if (rule.kind === "boolean") return createProductionPuckScalarField({ label, kind: "boolean", defaultValue });
+  if (rule.kind === "number") return createProductionPuckScalarField({
+    label,
+    kind: "number",
+    defaultValue,
+    min: rule.min,
+    max: rule.max,
+    step: rule.step,
+  });
+  if (rule.kind === "enum") return createProductionPuckScalarField({
+    label,
+    kind: "select",
+    defaultValue,
+    options: rule.values.map((value) => ({ label: value, value })),
+  });
   if (rule.format === "color") {
     return {
       type: "custom",
       label,
       render: ({ id, value, onChange, readOnly }) => (
-        <ProductionColorInput id={id} label={label} value={value} onChange={onChange} readOnly={readOnly} />
+        <ProductionColorInput id={id} label={label} value={value === undefined ? defaultValue : value} onChange={onChange} readOnly={readOnly} />
       ),
     };
   }
-  return { type: rule.maxLength > 240 ? "textarea" : "text", label };
+  return createProductionPuckScalarField({
+    label,
+    kind: rule.maxLength > 240 ? "textarea" : "text",
+    defaultValue,
+  });
 }
 
-function labelFor(name: string) {
+export function humanizePuckFieldKey(name: string) {
   return name.replace(/([A-Z])/g, " $1").replace(/^./, (character) => character.toUpperCase());
 }
 
-function fieldFor(name: string, rule: PuckPropRule): Field {
+export function labelForPuckRule(name: string, rule: PrimitivePuckPropRule | PuckPropRule): string {
+  return ("label" in rule && typeof rule.label === "string" && rule.label.trim())
+    || ("title" in rule && typeof rule.title === "string" && rule.title.trim())
+    || humanizePuckFieldKey(name);
+}
+
+function defaultAt(value: unknown, key: string) {
+  return value && typeof value === "object" && !Array.isArray(value) && Object.prototype.hasOwnProperty.call(value, key)
+    ? (value as Record<string, unknown>)[key]
+    : undefined;
+}
+
+function fieldFor(name: string, rule: PuckPropRule, defaultValue?: unknown): Field {
   if (rule.kind === "object") {
     return {
       type: "object",
-      label: labelFor(name),
+      label: labelForPuckRule(name, rule),
       objectFields: Object.fromEntries(
         Object.entries(rule.properties)
           .filter(([, itemRule]) => itemRule.editable !== false)
-          .map(([itemName, itemRule]) => [itemName, fieldFor(itemName, itemRule)]),
+          .map(([itemName, itemRule]) => [itemName, fieldFor(itemName, itemRule, defaultAt(defaultValue, itemName))]),
       ),
     };
   }
-  if (rule.kind !== "array") return fieldForRule(labelFor(name), rule);
+  if (rule.kind !== "array") return fieldForRule(labelForPuckRule(name, rule), rule, defaultValue);
   if (rule.item.kind !== "object") {
     throw new Error(`Editable production array requires object items: ${name}`);
   }
   return {
     type: "array",
-    label: labelFor(name),
+    label: labelForPuckRule(name, rule),
     arrayFields: Object.fromEntries(
       Object.entries(rule.item.properties)
         .filter(([, itemRule]) => itemRule.editable !== false)
@@ -133,7 +162,7 @@ const components = Object.fromEntries(
               && nativeFields[name] === undefined
               && !PRODUCTION_SHARED_STYLE_FIELD_KEYS.includes(name as (typeof PRODUCTION_SHARED_STYLE_FIELD_KEYS)[number])
               && !contractOwnsTopLevelProp(name, entry))
-            .map(([name, rule]) => [name, fieldFor(name, rule)]),
+            .map(([name, rule]) => [name, fieldFor(name, rule, entry.defaults[name])]),
         ),
       },
       // Production entries use Puck's inline dragRef contract.

@@ -12,7 +12,17 @@ import { ProductionColorInput } from "../../components/puck-site-editor/producti
 
 type ContractField = ProductionEditorField | ProductionEditorArrayItemField;
 
-function nativeFieldForContractField(field: ContractField): Field {
+function getContractValue(value: Readonly<Record<string, unknown>>, path: readonly string[]) {
+  let current: unknown = value;
+  for (const segment of path) {
+    if (!current || typeof current !== "object" || Array.isArray(current)) return undefined;
+    if (!Object.prototype.hasOwnProperty.call(current, segment)) return undefined;
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return current;
+}
+
+function nativeFieldForContractField(field: ContractField, defaultValue?: unknown): Field {
   if (field.type === "boolean") {
     return {
       type: "radio",
@@ -23,11 +33,12 @@ function nativeFieldForContractField(field: ContractField): Field {
       ],
     };
   }
-  if (field.type === "number") return { type: "number", label: field.label, min: field.min, max: field.max };
+  if (field.type === "number") return { type: "number", label: field.label, min: field.min, max: field.max, step: field.step };
   if (field.type === "select") {
     return { type: "select", label: field.label, options: field.options?.map((option) => ({ label: option.label, value: option.value })) ?? [] };
   }
   if (field.type === "textarea") return { type: "textarea", label: field.label };
+  if (field.type === "text") return { type: "text", label: field.label };
   if (field.type === "color") {
     return {
       type: "custom",
@@ -35,7 +46,7 @@ function nativeFieldForContractField(field: ContractField): Field {
       render: ({ id, value, onChange, readOnly }): ReactElement => createElement(ProductionColorInput, {
         id,
         label: field.label,
-        value,
+        value: value === undefined ? defaultValue : value,
         onChange,
         readOnly,
       }),
@@ -103,7 +114,7 @@ export function buildNativePuckFields(
 
   const fields: Record<string, Field> = {};
   for (const field of contract.fields) {
-    if (ownership.fields.has(field.key)) fields[field.key] = nativeFieldForContractField(field);
+    if (ownership.fields.has(field.key)) fields[field.key] = nativeFieldForContractField(field, getContractValue(contract.defaultProps, field.path));
   }
   for (const array of contract.arrays) {
     if (ownership.arrays.has(array.key)) fields[array.key] = nativeArrayFieldForContract(array, entry.props[array.key]);

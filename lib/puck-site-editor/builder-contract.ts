@@ -37,6 +37,7 @@ export type ProductionEditorField = {
   options?: readonly { value: string; label: string }[];
   min?: number;
   max?: number;
+  step?: number;
   inlineEditable: boolean;
   mediaEligible: boolean;
   resettable: boolean;
@@ -134,6 +135,7 @@ function validateField(
   }
   if (field.type !== "select" && field.options) errors.push(`${prefix}.options: only select supports options`);
   if ((field.min !== undefined || field.max !== undefined) && field.type !== "number") errors.push(`${prefix}.range: only number supports min/max`);
+  if (field.step !== undefined && (field.type !== "number" || !Number.isFinite(field.step) || field.step <= 0)) errors.push(`${prefix}.step: only positive finite number supports step`);
   if (field.min !== undefined && field.max !== undefined && field.min > field.max) errors.push(`${prefix}.range: invalid`);
   if (field.type === "media" && !field.mediaEligible) errors.push(`${prefix}.mediaEligible: media must be eligible`);
   if ("originalValue" in field) {

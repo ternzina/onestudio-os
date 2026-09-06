@@ -83,3 +83,9 @@ test("production interaction mode uses the shared iframe retargeting contract", 
   assert.match(renderer, /data-production-component=/);
   assert.doesNotMatch(renderer, /data-puck-component=/);
 });
+
+test("Interact with page keeps the Puck-owned component inspector visible", () => {
+  const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
+  assert.match(drawer, /previewMode: "interactive",\s+leftSideBarVisible: false,\s+\/\/ Keep the Puck-owned inspector mounted[\s\S]*rightSideBarVisible: true/);
+  assert.match(drawer, /previewMode: "edit",\s+\.\.\.editSidebarsRef\.current/);
+});

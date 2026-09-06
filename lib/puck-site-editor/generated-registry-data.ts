@@ -1576,7 +1576,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "duration": {
         "kind": "number",
         "min": 0.5,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.5
       }
     },
     "defaults": {
@@ -2931,7 +2932,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "documentDuration": {
         "kind": "number",
         "min": -1000000,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.1
       }
     },
     "defaults": {
@@ -2981,7 +2983,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "interval": {
         "kind": "number",
         "min": 0.2,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.1
       }
     },
     "defaults": {
@@ -6395,7 +6398,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "price": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "seats": {
               "kind": "string",
@@ -8428,7 +8432,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "id": {
               "kind": "number",
               "min": 1,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "title": {
               "kind": "string",
@@ -8538,7 +8543,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "id": {
               "kind": "number",
               "min": 1,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "title": {
               "kind": "string",
@@ -9925,12 +9931,14 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "runs": {
               "kind": "number",
               "min": 0,
-              "max": 5000000
+              "max": 5000000,
+              "step": 1000
             },
             "monthly": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             }
           },
           "editable": false
@@ -9946,12 +9954,14 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "seats": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "monthly": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             }
           },
           "editable": false
@@ -10247,7 +10257,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "price": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             }
           },
           "editable": false
@@ -10323,12 +10334,14 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "monthly": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "yearly": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "description": {
               "kind": "string",
@@ -10760,7 +10773,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
             "count": {
               "kind": "number",
               "min": 0,
-              "max": 1000000
+              "max": 1000000,
+              "step": 1
             },
             "turns": {
               "kind": "array",
@@ -11850,7 +11864,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "trailWidth": {
         "kind": "number",
         "min": 0.1,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.1
       },
       "followSpeed": {
         "kind": "number",
@@ -11865,7 +11880,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "pulseSpeed": {
         "kind": "number",
         "min": -1000000,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.1
       },
       "idleFade": {
         "kind": "boolean"
@@ -11928,12 +11944,14 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "particleSize": {
         "kind": "number",
         "min": 0.6,
-        "max": 1000000
+        "max": 1000000,
+        "step": 0.1
       },
       "density": {
         "kind": "number",
         "min": 2,
-        "max": 1000000
+        "max": 1000000,
+        "step": 1
       },
       "color": {
         "kind": "string",
@@ -11948,7 +11966,8 @@ export const PUCK_EXPANDED_REGISTRY_DATA = [
       "gatherDuration": {
         "kind": "number",
         "min": 1,
-        "max": 1000000
+        "max": 1000000,
+        "step": 100
       },
       "trigger": {
         "kind": "enum",

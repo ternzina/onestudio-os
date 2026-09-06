@@ -123,12 +123,12 @@ export type PuckProductionVisualStyleCapabilities = {
   textColor: PuckProductionTextColorCapability;
 };
 
-type PuckPropRuleOptions = { editable?: boolean; required?: boolean };
+type PuckPropRuleOptions = { editable?: boolean; required?: boolean; label?: string; title?: string };
 
 export type PrimitivePuckPropRule = PuckPropRuleOptions & (
   | { kind: "string"; maxLength: number; format?: "url" | "color" }
   | { kind: "boolean" }
-  | { kind: "number"; min: number; max: number }
+  | { kind: "number"; min: number; max: number; step?: number }
   | { kind: "enum"; values: readonly string[] }
 );
 
@@ -198,7 +198,13 @@ const text = (maxLength = 2_000): PrimitivePuckPropRule => ({ kind: "string", ma
 const url = (): PrimitivePuckPropRule => ({ kind: "string", maxLength: 2_048, format: "url" });
 const color = (): PrimitivePuckPropRule => ({ kind: "string", maxLength: 32, format: "color" });
 const choice = (...values: string[]): PrimitivePuckPropRule => ({ kind: "enum", values });
-const numeric = (min: number, max: number, editable = false): PrimitivePuckPropRule => ({ kind: "number", min, max, editable });
+const numeric = (min: number, max: number, editable = false, step?: number): PrimitivePuckPropRule => ({
+  kind: "number",
+  min,
+  max,
+  ...(step === undefined ? {} : { step }),
+  editable,
+});
 const nonEditableText = (maxLength = 2_000): PrimitivePuckPropRule => ({ kind: "string", maxLength, editable: false });
 const editableArray = (
   properties: Readonly<Record<string, PuckPropRule>>,
@@ -694,11 +700,11 @@ export const PUCK_PILOT_BASELINE_MANIFEST = [
     props: {
       color: color(),
       secondaryColor: color(),
-      trailLength: { kind: "number", min: 2, max: 64 },
-      trailWidth: { kind: "number", min: 0.1, max: 64 },
-      followSpeed: { kind: "number", min: 0.01, max: 0.99 },
-      opacity: { kind: "number", min: 0, max: 1 },
-      pulseSpeed: { kind: "number", min: 0, max: 20 },
+      trailLength: { kind: "number", min: 2, max: 64, step: 1 },
+      trailWidth: { kind: "number", min: 0.1, max: 64, step: 0.1 },
+      followSpeed: { kind: "number", min: 0.01, max: 0.99, step: 0.01 },
+      opacity: { kind: "number", min: 0, max: 1, step: 0.05 },
+      pulseSpeed: { kind: "number", min: 0, max: 20, step: 0.1 },
       idleFade: { kind: "boolean" },
       blendMode: choice("screen", "normal", "plus-lighter"),
       enabled: { kind: "boolean" },

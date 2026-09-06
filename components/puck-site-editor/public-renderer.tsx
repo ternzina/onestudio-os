@@ -11,6 +11,7 @@ import {
   resolvePuckProductionSourceProps,
   type PuckProductionBackgroundRouting,
 } from "@/lib/puck-site-editor/production-background";
+import { resolvePuckProductionProps } from "@/lib/puck-site-editor/production-props";
 import {
   resolvePuckRuntimeRealm,
   shouldUseIframeNativeRuntime,
@@ -49,7 +50,7 @@ const spacing: Record<string, string> = {
 function splitProps(component: PuckDocumentComponent) {
   const entry = PUCK_PRODUCTION_REGISTRY_BY_ID.get(component.type);
   if (!entry) throw new Error(`Unknown production Puck component: ${component.type}`);
-  const resolvedProps = { ...entry.defaults, ...component.props };
+  const resolvedProps = resolvePuckProductionProps(entry.defaults, component.props);
   const backgroundRouting = resolvePuckProductionBackgroundRouting(
     entry.backgroundCapability,
     resolvedProps.backgroundColor,
@@ -246,6 +247,10 @@ export function PuckProductionBlock({
     shouldUseIframeNativeRuntime(entry, effectiveRuntimeMode)
     || useLibraryPreviewViewportRuntime
   );
+  const normalizedRuntimeComponent: PuckDocumentComponent = {
+    ...component,
+    props: props as PuckDocumentComponent["props"],
+  };
   const style = {
     "--puck-block-max-width": widths[String(props.layoutWidth)] ?? widths.full,
     "--puck-block-padding": spacing[String(props.paddingY)] ?? spacing.none,
@@ -287,7 +292,7 @@ export function PuckProductionBlock({
         >
           {useIframeNativeRuntime ? (
             <ProductionRuntimeFrame
-              component={component}
+              component={normalizedRuntimeComponent}
               background={entry.host?.surfaceBackground?.value}
               theme={isDark ? "dark" : "light"}
               runtimeMode={effectiveRuntimeMode}

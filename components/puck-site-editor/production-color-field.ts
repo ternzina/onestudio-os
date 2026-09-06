@@ -2,12 +2,10 @@
 
 import { createElement, type ChangeEvent, type ReactElement } from "react";
 import { translateAdminText } from "../../lib/i18n/admin.ts";
+import { productionColorToPickerHex } from "../../lib/puck-site-editor/production-color.ts";
 import { useProductionEditorLocale } from "./production-editor-locale.ts";
 
 export const PRODUCTION_COLOR_PICKER_FALLBACK = "#000000";
-
-const shortHexColor = /^#([0-9a-f]{3})$/i;
-const fullHexColor = /^#[0-9a-f]{6}$/i;
 
 /**
  * The browser color input only accepts opaque six-digit colors. Unsupported
@@ -18,12 +16,7 @@ export function normalizeProductionColorPickerValue(
   value: unknown,
   fallback = PRODUCTION_COLOR_PICKER_FALLBACK,
 ) {
-  if (typeof value !== "string") return fallback;
-  const candidate = value.trim();
-  if (fullHexColor.test(candidate)) return candidate;
-  const shortMatch = candidate.match(shortHexColor);
-  if (!shortMatch) return fallback;
-  return `#${shortMatch[1].split("").map((digit) => `${digit}${digit}`).join("")}`;
+  return productionColorToPickerHex(value, fallback);
 }
 
 type ProductionColorInputProps = {

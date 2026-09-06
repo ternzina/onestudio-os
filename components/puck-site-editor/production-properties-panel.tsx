@@ -21,6 +21,8 @@ import {
 import styles from "./production-properties-panel.module.css";
 import { useProductionEditorLocale } from "./production-editor-ux";
 import { translateAdminText } from "@/lib/i18n/admin";
+import { resolvePuckProductionFieldValue } from "@/lib/puck-site-editor/production-props";
+import { ProductionPuckNumberInput } from "./production-puck-scalar-field";
 
 const usePuck = createUsePuck();
 
@@ -41,24 +43,31 @@ function valueAt(props: Readonly<Record<string, ProductionEditorValue>>, path: r
 
 function ProductionFieldInput({
   field,
+  id,
   value,
   onChange,
 }: {
   field: ProductionEditorField | ProductionEditorArrayItemField;
+  id: string;
   value: ProductionEditorPrimitive;
   onChange: (value: ProductionEditorPrimitive) => void;
 }) {
   const handleText = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event.target.value);
-  if (field.type === "textarea") return <textarea aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} rows={4} />;
-  if (field.type === "boolean") return <input aria-label={field.label} checked={value === true} onChange={(event) => onChange(event.target.checked)} type="checkbox" />;
-  if (field.type === "number") return <input aria-label={field.label} value={typeof value === "number" ? value : ""} min={field.min} max={field.max} onChange={(event) => onChange(event.target.value === "" ? 0 : Number(event.target.value))} type="number" />;
-  if (field.type === "select") return (
-    <select aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={(event) => onChange(event.target.value)}>
-      {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-    </select>
-  );
-  if (field.type === "text") return <input aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type="text" />;
-  return <input aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type={field.type === "url" || field.type === "media" ? "url" : "text"} />;
+  if (field.type === "textarea") return <textarea id={id} aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} rows={4} />;
+  if (field.type === "boolean") return <input id={id} aria-label={field.label} checked={value === true} onChange={(event) => onChange(event.target.checked)} type="checkbox" />;
+  if (field.type === "number") return <ProductionPuckNumberInput id={id} label={field.label} value={value} min={field.min} max={field.max} step={field.step} onChange={onChange} />;
+  if (field.type === "select") {
+    const currentValue = typeof value === "string" ? value : "";
+    const hasKnownValue = field.options?.some((option) => option.value === currentValue);
+    return (
+      <select id={id} aria-label={field.label} value={currentValue} onChange={(event) => onChange(event.target.value)}>
+        {currentValue && !hasKnownValue ? <option value={currentValue}>Legacy: {currentValue}</option> : null}
+        {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+    );
+  }
+  if (field.type === "text") return <input id={id} aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type="text" />;
+  return <input id={id} aria-label={field.label} value={typeof value === "string" ? value : ""} onChange={handleText} type={field.type === "url" || field.type === "media" ? "url" : "text"} />;
 }
 
 function ContractField({
@@ -73,12 +82,12 @@ function ContractField({
   update: (next: Record<string, ProductionEditorValue>) => void;
 }) {
   const locale = useProductionEditorLocale();
-  const value = valueAt(props, field.path) as ProductionEditorPrimitive;
+  const value = resolvePuckProductionFieldValue(props, contract.defaultProps, field.path) as ProductionEditorPrimitive;
   return (
     <div className={styles.field} data-production-field={field.key} data-field-type={field.type}>
-      <label>{translateAdminText(locale, field.label)}</label>
+      {field.type !== "number" ? <label htmlFor={`production-${field.key}`}>{translateAdminText(locale, field.label)}</label> : null}
       {field.type === "media" && typeof value === "string" ? <img className={styles.mediaPreview} src={value} alt="" /> : null}
-      <ProductionFieldInput field={field} value={value} onChange={(next) => update(updateProductionEditorField(props, contract, field.key, next))} />
+      <ProductionFieldInput id={`production-${field.key}`} field={field} value={value} onChange={(next) => update(updateProductionEditorField(props, contract, field.key, next))} />
       {field.resettable ? <button type="button" onClick={() => update(resetProductionEditorField(props, contract, field.key))}>Вернуть оригинал</button> : null}
     </div>
   );
@@ -104,9 +113,9 @@ function ContractArrays({
       <div className={styles.arrayItem} key={`${array.key}-${index}`} data-production-array-item={array.key}>
         <strong>{array.itemLabel} {index + 1}</strong>
         {itemFields.map((field) => <div className={styles.field} data-production-array-field={`${array.key}.${field.key}`} data-field-type={field.type} key={field.key}>
-          <label>{translateAdminText(locale, field.label)}</label>
+          {field.type !== "number" ? <label htmlFor={`production-${array.key}-${index}-${field.key}`}>{translateAdminText(locale, field.label)}</label> : null}
           {field.type === "media" && item && typeof item === "object" && !Array.isArray(item) && typeof item[field.key] === "string" ? <img className={styles.mediaPreview} src={item[field.key]} alt="" /> : null}
-          <ProductionFieldInput field={field} value={item && typeof item === "object" && !Array.isArray(item) ? (item[field.key] as ProductionEditorPrimitive) : null} onChange={(next) => update(updateProductionEditorArrayItem(props, contract, array.key, index, field.key, next))} />
+          <ProductionFieldInput id={`production-${array.key}-${index}-${field.key}`} field={field} value={item && typeof item === "object" && !Array.isArray(item) ? (item[field.key] as ProductionEditorPrimitive) : null} onChange={(next) => update(updateProductionEditorArrayItem(props, contract, array.key, index, field.key, next))} />
         </div>)}
       </div>
     ))}</fieldset>;

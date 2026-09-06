@@ -55,7 +55,11 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
               ui: {
                 previewMode: "interactive",
                 leftSideBarVisible: false,
-                rightSideBarVisible: false,
+                // Keep the Puck-owned inspector mounted while the canvas enters
+                // interaction mode. Selection and field state remain the single
+                // source of truth in Puck; only the canvas authoring chrome is
+                // hidden.
+                rightSideBarVisible: true,
               },
             });
             return;

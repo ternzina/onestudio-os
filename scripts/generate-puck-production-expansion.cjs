@@ -218,6 +218,7 @@ function ruleFromSamples(samples, field, name, editable = true) {
       kind: "number",
       min: Number.isFinite(field?.min) ? field.min : Math.min(-1_000_000, ...numbers),
       max: Number.isFinite(field?.max) ? field.max : Math.max(1_000_000, ...numbers),
+      ...(Number.isFinite(field?.step) && field.step > 0 ? { step: field.step } : {}),
       ...base,
     };
   }
