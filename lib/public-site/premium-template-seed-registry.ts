@@ -10,6 +10,7 @@ import { createVowPremiumTemplateSeed as PACKAGE_7_SEED } from "./vow-premium-te
 import { createLumeaPremiumTemplateSeed as PACKAGE_8_SEED } from "./lumea-premium-template-seed.ts";
 import { createRastemCenterPremiumTemplateSeed as PACKAGE_9_SEED } from "./rastem-center-premium-template-seed.ts";
 import { createBlacklineTattooPremiumTemplateSeed as PACKAGE_10_SEED } from "./blackline-tattoo-premium-template-seed.ts";
+import { createCashPathPremiumTemplateSeed as PACKAGE_11_SEED } from "./cashpath-premium-template-seed.ts";
 import type { PremiumTemplateSeedFactory } from "./premium-template-seed-factory.ts";
 
 const factories = {
@@ -24,5 +25,6 @@ const factories = {
   "lumea-beauty": PACKAGE_8_SEED,
   "rastem-center": PACKAGE_9_SEED,
   "blackline-tattoo": PACKAGE_10_SEED,
+  "cashpath": PACKAGE_11_SEED,
 } satisfies Record<string, PremiumTemplateSeedFactory>;
 export function getPremiumTemplateSeedFactory(templateKey: string | null | undefined) { return templateKey ? factories[templateKey as keyof typeof factories] : undefined; }

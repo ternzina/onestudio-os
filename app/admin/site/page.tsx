@@ -4461,7 +4461,7 @@ function CustomPagePreview({
 }
 
 function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
-  if (block.kind === "spacer" || block.kind === "html_embed") {
+  if (block.kind === "spacer" || block.kind === "html_embed" || block.kind === "leadsgate_form") {
     return <PublicCustomBlock block={block} />;
   }
   const customColors = block.colors?.mode === "custom";
@@ -7396,6 +7396,14 @@ function CustomBlockSettings({
     { id: "embed-url", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => onChange("embed_url", value.slice(0, 2048)) },
     { id: "embed-title", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => onChange("embed_title", value.slice(0, 160)) },
     { id: "embed-height", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => onChange("embed_height", boundedPublicEmbedHeight(Number(value))) },
+  ]} />;
+
+  if (block.kind === "leadsgate_form") return <SharedEditorFieldList fields={[
+    { id: "visibility", type: "toggle", label: t("Show block on site"), checked: block.is_visible !== false, disabled, onChange: value => onChange("is_visible", value) },
+    { id: "provider-note", type: "notice", text: "Live requests are disabled in the editor. OneStudio does not receive or store applicant information." },
+    { id: "aid", type: "text", label: "Affiliate ID", value: block.leadsgate_aid ?? "", disabled, onChange: value => onChange("leadsgate_aid", value.replace(/\\D/g, "").slice(0, 12)) },
+    { id: "title", type: "textarea", label: t("Heading"), rows: 3, value: block.title, disabled, onChange: value => onChange("title", value) },
+    { id: "text", type: "textarea", label: t("Text"), rows: 3, value: block.text, disabled, onChange: value => onChange("text", value) },
   ]} />;
 
   if (block.kind === "spacer") return <>

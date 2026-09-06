@@ -10,6 +10,7 @@ import { VOW_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_7_CUSTOMPAG
 import { LUMEA_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_8_CUSTOMPAGE } from "./lumea-premium-template-custom-page-runtime-adapter.ts";
 import { RASTEM_CENTER_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_9_CUSTOMPAGE } from "./rastem-center-premium-template-custom-page-runtime-adapter.ts";
 import { BLACKLINE_TATTOO_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_10_CUSTOMPAGE } from "./blackline-tattoo-premium-template-custom-page-runtime-adapter.ts";
+import { CASHPATH_PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTER as PACKAGE_11_CUSTOMPAGE } from "./cashpath-premium-template-custom-page-runtime-adapter.ts";
 import { createPremiumTemplateCustomPageRuntimeRegistry } from "./premium-template-custom-page-runtime-registry-builder.ts";
 import { getPremiumTemplateDefinition, PREMIUM_TEMPLATE_DEFINITIONS } from "./premium-template-registry.ts";
 
@@ -25,4 +26,5 @@ export const { runtimes: PREMIUM_TEMPLATE_CUSTOM_PAGE_RUNTIME_ADAPTERS, get: get
   "lumea-beauty": PACKAGE_8_CUSTOMPAGE,
   "rastem-center": PACKAGE_9_CUSTOMPAGE,
   "blackline-tattoo": PACKAGE_10_CUSTOMPAGE,
+  "cashpath": PACKAGE_11_CUSTOMPAGE,
 }), PREMIUM_TEMPLATE_DEFINITIONS, getPremiumTemplateDefinition);

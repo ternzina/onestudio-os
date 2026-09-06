@@ -1,7 +1,7 @@
 export const PREMIUM_TEMPLATE_PACKAGE_VERSION = "1.0" as const;
 
 export type LocalizedText = Readonly<{ ru: string; en: string }>;
-export type PremiumDemoGroup = "studio" | "beauty" | "wellness" | "education" | "events";
+export type PremiumDemoGroup = "studio" | "beauty" | "wellness" | "education" | "events" | "business";
 
 export type PremiumTemplatePackageManifest<TemplateKey extends string = string> = Readonly<{
   packageVersion: typeof PREMIUM_TEMPLATE_PACKAGE_VERSION;

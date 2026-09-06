@@ -907,6 +907,69 @@ export const PREMIUM_TEMPLATE_PACKAGE_MANIFESTS = [
       "/templates/blackline-tattoo/noir-frame-light-night.webp",
       "/templates/blackline-tattoo/noir-frame-light-dusk.webp"
     ]
+  },
+  {
+    "packageVersion": "1.0",
+    "templateKey": "cashpath",
+    "name": "CashPath",
+    "description": "A modern US financial lead-generation site with a restricted provider request form.",
+    "category": "creative_service",
+    "aliases": [
+      "cashpath",
+      "fintech"
+    ],
+    "access": "free",
+    "library": {
+      "tier": "standard",
+      "visible": true,
+      "order": 12
+    },
+    "preview": {
+      "collectionVisible": false,
+      "group": "business",
+      "order": 12,
+      "title": {
+        "ru": "CashPath",
+        "en": "CashPath"
+      },
+      "description": {
+        "ru": "Финансовый сайт CashPath",
+        "en": "A clear path to personal loan options."
+      },
+      "alt": {
+        "ru": "CashPath",
+        "en": "CashPath"
+      },
+      "route": "/demos/cashpath",
+      "image": "/templates/cashpath/preview.svg",
+      "accent": "#167A6A",
+      "dark": "#182B29",
+      "surface": "#F7F5EF"
+    },
+    "persistence": {
+      "schemaVersion": "1.0",
+      "compatibleSince": "cashpath-1.0",
+      "contentNamespace": true
+    },
+    "database": {
+      "templateKey": "cashpath",
+      "installable": true
+    },
+    "capabilities": {
+      "customerCreatable": true,
+      "editorSelectable": true,
+      "previewRenderable": true,
+      "publicHome": true,
+      "customPages": true,
+      "seoMetadata": true,
+      "nativeSections": true,
+      "customBlocks": true
+    },
+    "nativeSectionIds": [
+      "hero",
+      "footer"
+    ],
+    "assets": []
   }
 ] as const satisfies readonly PremiumTemplatePackageManifest[];
 export const PREMIUM_TEMPLATE_PACKAGES = PREMIUM_TEMPLATE_PACKAGE_MANIFESTS;

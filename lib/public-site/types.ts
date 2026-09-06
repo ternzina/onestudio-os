@@ -276,6 +276,7 @@ export type PublicSiteCustomBlockKind =
   | "media_text"
   | "columns"
   | "html_embed"
+  | "leadsgate_form"
   | "spacer";
 export type PublicSiteCoreBlockPresetId = "about" | "services" | "team" | "pricing" | "contact" | "portfolio" | "gallery" | "reviews" | "faq" | "text" | "text-media" | "cards" | "video" | "cta" | "html-embed" | "spacer-divider";
 export type PublicSiteCustomBlockTone = "light" | "accent" | "dark";
@@ -415,6 +416,9 @@ export type PublicSiteCustomBlock = {
   embed_url?: string;
   embed_title?: string;
   embed_height?: number;
+  /** A constrained affiliate form configuration; never accepts script source. */
+  leadsgate_aid?: string;
+  leadsgate_template?: "wallet-lines";
   spacer_size?: PublicSiteBlockSpacing;
   show_divider?: boolean;
   divider_thickness?: 1 | 2 | 3;

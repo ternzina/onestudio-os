@@ -1,7 +1,7 @@
 import { PREMIUM_TEMPLATE_PACKAGE_MANIFESTS } from "./public-site/premium-template-package-catalog.ts";
 import type { PremiumTemplatePackageManifest } from "./public-site/premium-template-package.ts";
 
-export type DemoGroup = "studio" | "beauty" | "wellness" | "education" | "events";
+export type DemoGroup = "studio" | "beauty" | "wellness" | "education" | "events" | "business";
 
 export type DemoPalette = {
   name: string;

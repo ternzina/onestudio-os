@@ -9,6 +9,7 @@ values
   ('align-pilates-studio', 'align-pilates-studio', true, true),
   ('blackline-tattoo', 'blackline-tattoo', true, true),
   ('bloom-floral-studio', 'bloom-floral-studio', true, true),
+  ('cashpath', 'cashpath', true, true),
   ('gloss-nail-studio', 'gloss-nail-studio', true, true),
   ('lumea-beauty', 'lumea-beauty', true, true),
   ('pawhaus-grooming-studio', 'pawhaus-grooming-studio', true, true),
