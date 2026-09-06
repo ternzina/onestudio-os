@@ -59,3 +59,20 @@ test("CashPath reveals respect reduced motion without changing LeadsGate mountin
   assert.match(source, /leadsgate_form/);
   assert.match(source, /preview=\{site\.business\.id === "cashpath-demo"\}/);
 });
+
+test("CashPath has branded custom pages, a safe idempotent missing-page merge, and reachable site settings", async () => {
+  const adapter = await readFile(new URL("../lib/public-site/cashpath-premium-template-custom-page-runtime-adapter.ts", import.meta.url), "utf8");
+  const renderer = await readFile(new URL("../components/public/cashpath/CashPathCustomPage.tsx", import.meta.url), "utf8");
+  const merge = await readFile(new URL("../lib/public-site/cashpath-pages.ts", import.meta.url), "utf8");
+  const editor = await readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
+  assert.match(adapter, /CashPathCustomPage/);
+  assert.doesNotMatch(adapter, /PublicCustomPage/);
+  assert.doesNotMatch(renderer, /OneStudio|Создано|Главная|Вернуться|Онлайн-запись/);
+  assert.match(merge, /content\.template_id !== "cashpath"/);
+  assert.match(merge, /!existing\.some\(\(current\) => current\.slug === page\.slug\)/);
+  assert.match(merge, /terms-of-use.*e-consent.*advertiser-disclosure.*do-not-sell-share.*disclaimer/s);
+  assert.match(editor, /Add missing CashPath pages/);
+  assert.match(editor, /mergeMissingCashPathPages/);
+  assert.match(editor, /label: "Настройки сайта"/);
+  assert.match(editor, /setSiteSettingsOpen\(true\)/);
+});

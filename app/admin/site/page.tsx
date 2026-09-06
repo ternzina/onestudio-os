@@ -86,6 +86,7 @@ import {
 } from "@/lib/public-site/premium-template-editor-canvas-registry";
 import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
+import { mergeMissingCashPathPages, missingCashPathPages } from "@/lib/public-site/cashpath-pages";
 import {
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
@@ -2231,6 +2232,12 @@ function VisualBuilder({
     setEditingEnabled(true);
   }
 
+  const missingCashPathSystemPages = missingCashPathPages(draft);
+  function addMissingCashPathPages() {
+    onReplaceDraft(mergeMissingCashPathPages(draft), "cashpath:missing-pages");
+    setPageLibraryOpen(false);
+  }
+
   function addCustomBlock(
     kind: PublicSiteCustomBlockKind,
     target: "home" | "page",
@@ -2828,6 +2835,7 @@ function VisualBuilder({
         addPage: { id: "add-page", label: t("+ Add page"), disabled: !canConfigure, onClick: () => setPageLibraryOpen(true) },
         design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign },
         seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
+        siteSettings: { id: "site-settings", label: "Настройки сайта", onClick: () => setSiteSettingsOpen(true) },
         auxiliaryAction: isPremiumNativeHome
           ? {
               id: "restore-template",
@@ -3772,6 +3780,7 @@ function VisualBuilder({
                 </span>
               </div>
             </button>
+            {draft.template_id === "cashpath" ? <button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button> : null}
           </div>
         </div>
       ) : null}

@@ -138,6 +138,7 @@ export type EditorCommandModel = {
   addPage?: EditorCommandAction;
   design: EditorCommandAction;
   seo: EditorCommandAction;
+  siteSettings?: EditorCommandAction;
   contextualAction?: EditorCommandAction;
   auxiliaryAction?: EditorCommandAction;
 };
