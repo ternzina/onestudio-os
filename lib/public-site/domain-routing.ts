@@ -88,6 +88,16 @@ export async function routeCustomDomain(request: NextRequest) {
     return NextResponse.rewrite(unavailable);
   }
 
+  if (resolution.is_redirect) {
+    return NextResponse.redirect(
+      new URL(
+        request.nextUrl.pathname + request.nextUrl.search,
+        `https://${resolution.canonical_domain}`,
+      ),
+      308,
+    );
+  }
+
   const cleanPath = cleanCustomPath(
     request.nextUrl.pathname,
     resolution.business_slug,

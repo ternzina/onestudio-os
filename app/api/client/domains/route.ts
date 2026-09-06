@@ -68,6 +68,9 @@ type PromotionResult = {
   replacement?: ReplacementRow;
 };
 
+const PENDING_DOMAIN_REFRESH_MS = 60_000;
+const VERIFICATION_REFRESH_MS = 5 * 60_000;
+
 function jsonError(error: string, message: string, status: number) {
   return NextResponse.json({ ok: false, error, message }, { status });
 }
@@ -228,6 +231,46 @@ async function saveReplacementSyncResult(
   return data as ReplacementRow;
 }
 
+function refreshDelay(domain: DomainRow) {
+  return domain.status === "verification_required"
+    ? VERIFICATION_REFRESH_MS
+    : PENDING_DOMAIN_REFRESH_MS;
+}
+
+function shouldRefreshPendingDomain(domain: DomainRow) {
+  if (domain.status === "active" || domain.status === "error") return false;
+  const checkedAt = domain.last_checked_at
+    ? Date.parse(domain.last_checked_at)
+    : 0;
+  return !Number.isFinite(checkedAt) || Date.now() - checkedAt >= refreshDelay(domain);
+}
+
+async function refreshPendingDomainIfDue(
+  admin: SupabaseClient,
+  businessId: string,
+  domain: DomainRow | null,
+) {
+  if (!domain || !shouldRefreshPendingDomain(domain)) return domain;
+
+  try {
+    const result = await inspectVercelDomain(
+      domain.domain,
+      domain.ownership_verification_required,
+    );
+    return await saveSyncResult(admin, businessId, result);
+  } catch (error) {
+    const code = vercelDomainError(error);
+    const { data, error: updateError } = await admin
+      .from("public_site_domains")
+      .update({ last_error: code, last_checked_at: new Date().toISOString() })
+      .eq("business_id", businessId)
+      .select("*")
+      .single();
+    if (updateError) throw updateError;
+    return data as DomainRow;
+  }
+}
+
 async function payloadForBusiness(
   admin: SupabaseClient,
   businessId: string,
@@ -236,10 +279,11 @@ async function payloadForBusiness(
   const business = await readBusiness(admin, businessId);
   if (!business) return null;
 
-  const [domain, replacement] = await Promise.all([
+  const [storedDomain, replacement] = await Promise.all([
     readDomain(admin, businessId),
     readReplacement(admin, businessId),
   ]);
+  const domain = await refreshPendingDomainIfDue(admin, businessId, storedDomain);
 
   return {
     ok: true,

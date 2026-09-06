@@ -9,6 +9,8 @@ export type PublicSiteDomainResolution = {
   business_id: string;
   business_slug: string;
   primary_locale: string;
+  canonical_domain: string;
+  is_redirect: boolean;
 };
 
 type HeaderReader = {

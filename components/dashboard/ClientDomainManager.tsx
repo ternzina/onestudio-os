@@ -163,6 +163,12 @@ export default function ClientDomainManager({
   }, [load]);
 
   useEffect(() => {
+    if (!payload?.domain || payload.domain.status === "active" || payload.domain.status === "error") return;
+    const timer = window.setInterval(() => void load(), 30_000);
+    return () => window.clearInterval(timer);
+  }, [load, payload?.domain?.status]);
+
+  useEffect(() => {
     if (!message) return;
     const timer = window.setTimeout(() => setMessage(""), 7_000);
     return () => window.clearTimeout(timer);

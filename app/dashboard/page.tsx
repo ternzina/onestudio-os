@@ -55,11 +55,12 @@ type Workspace = WorkspaceManagementRow & {
   publication_logo_url: string | null;
   custom_domain: string | null;
   custom_domain_active: boolean;
+  custom_domain_status: string | null;
 };
 
 type DomainManagementPayload = {
-  domain?: string;
-  status?: string;
+  ok?: boolean;
+  domain?: { domain?: string; status?: string } | null;
 };
 
 type EditorPayload = {
@@ -201,24 +202,24 @@ export default function DashboardPage() {
             publication_logo_url: null,
             custom_domain: null,
             custom_domain_active: false,
+            custom_domain_status: null,
           } satisfies Workspace;
         }
 
-        const [{ data: editor }, { data: domainState }] = await Promise.all([
+        const [{ data: editor }, domainResponse] = await Promise.all([
           supabase.rpc("get_public_site_editor", {
             p_business_id: workspace.business_id,
           }),
-          supabase.rpc("get_public_site_domain_management", {
-            p_business_id: workspace.business_id,
-          }),
+          fetch(`/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`, {
+            cache: "no-store",
+          }).then(async (response) => response.ok ? response.json() : null),
         ]);
 
         const payload =
           editor && typeof editor === "object" ? (editor as EditorPayload) : null;
-        const domainPayload =
-          domainState && typeof domainState === "object"
-            ? (domainState as DomainManagementPayload)
-            : null;
+        const domainPayload = domainResponse && typeof domainResponse === "object"
+          ? (domainResponse as DomainManagementPayload)
+          : null;
         const primaryLocale = payload?.site?.primary_locale || "ru";
         const primaryRecord = payload?.locales?.find(
           (item) => item.locale === primaryLocale,
@@ -256,10 +257,11 @@ export default function DashboardPage() {
             payload?.site?.logo_published_url ||
             null,
           custom_domain:
-            typeof domainPayload?.domain === "string"
-              ? domainPayload.domain
+            typeof domainPayload?.domain?.domain === "string"
+              ? domainPayload.domain.domain
               : null,
-          custom_domain_active: domainPayload?.status === "active",
+          custom_domain_active: domainPayload?.domain?.status === "active",
+          custom_domain_status: domainPayload?.domain?.status || null,
         } satisfies Workspace;
       }),
     );
@@ -271,6 +273,12 @@ export default function DashboardPage() {
   useEffect(() => {
     void loadDashboard();
   }, [loadDashboard]);
+
+  useEffect(() => {
+    if (!workspaces.some((workspace) => workspace.custom_domain && !workspace.custom_domain_active)) return;
+    const timer = window.setInterval(() => void loadDashboard(), 30_000);
+    return () => window.clearInterval(timer);
+  }, [loadDashboard, workspaces]);
 
   const activeWorkspaces = useMemo(
     () => workspaces.filter((workspace) => workspace.status !== "archived"),
@@ -1031,7 +1039,9 @@ function NextSteps({
             number="04"
             title="Добавьте собственный домен"
             description={
-              workspace.site_is_published
+              workspace.custom_domain && !workspace.custom_domain_active
+                ? `${workspace.custom_domain}: настройка DNS и HTTPS продолжается автоматически.`
+                : workspace.site_is_published
                 ? "Подключите адрес клиента и получите точные DNS-записи."
                 : "Сначала опубликуйте сайт, затем подключите адрес клиента."
             }
@@ -1044,7 +1054,9 @@ function NextSteps({
                 >
                   {workspace.custom_domain_active
                     ? "Управлять доменом →"
-                    : "Подключить домен →"}
+                    : workspace.custom_domain
+                      ? "Проверить настройку →"
+                      : "Подключить домен →"}
                 </Link>
               ) : undefined
             }
