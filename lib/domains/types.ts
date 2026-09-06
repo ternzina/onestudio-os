@@ -33,6 +33,8 @@ export type ClientDomainRecord = {
   dns_records: DomainDnsRecord[];
   last_error: string | null;
   last_checked_at: string | null;
+  certificate_retry_at: string | null;
+  certificate_retry_count: number;
   created_at: string;
   updated_at: string;
 };

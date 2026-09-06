@@ -236,6 +236,16 @@ async function claimDomain(domain: string) {
   );
 }
 
+export async function issueVercelCertificate(domains: string[]) {
+  const { teamId } = requiredConfig();
+  const cns = [...new Set(domains.map((domain) => domain.trim().toLowerCase()).filter(Boolean))];
+  if (cns.length === 0) return;
+  await vercelRequest<Record<string, unknown>>(
+    `/v8/certs?teamId=${encodeURIComponent(teamId)}`,
+    { method: "POST", body: JSON.stringify({ cns }) },
+  );
+}
+
 function preferredIpv4(config: DomainConfig) {
   return [...(config.recommendedIPv4 || [])]
     .sort((a, b) => (a.rank || 99) - (b.rank || 99))[0]

@@ -8,6 +8,7 @@ import type {
 } from "@/lib/domains/types";
 import {
   connectVercelDomain,
+  issueVercelCertificate,
   inspectVercelDomain,
   removeVercelDomain,
   vercelDomainError,
@@ -70,6 +71,9 @@ type PromotionResult = {
 
 const PENDING_DOMAIN_REFRESH_MS = 60_000;
 const VERIFICATION_REFRESH_MS = 5 * 60_000;
+const CERTIFICATE_GRACE_MS = 10 * 60_000;
+const CERTIFICATE_RETRY_COOLDOWN_MS = 6 * 60 * 60_000;
+const MAX_CERTIFICATE_RETRIES = 2;
 
 function jsonError(error: string, message: string, status: number) {
   return NextResponse.json({ ok: false, error, message }, { status });
@@ -257,7 +261,29 @@ async function refreshPendingDomainIfDue(
       domain.domain,
       domain.ownership_verification_required,
     );
-    return await saveSyncResult(admin, businessId, result);
+    const refreshed = await saveSyncResult(admin, businessId, result);
+    const createdAt = Date.parse(domain.created_at);
+    const retriedAt = domain.certificate_retry_at ? Date.parse(domain.certificate_retry_at) : 0;
+    const eligible = result.vercelVerified && result.dnsConfigured && !result.sslReady
+      && Number.isFinite(createdAt) && Date.now() - createdAt >= CERTIFICATE_GRACE_MS
+      && domain.certificate_retry_count < MAX_CERTIFICATE_RETRIES
+      && (!Number.isFinite(retriedAt) || Date.now() - retriedAt >= CERTIFICATE_RETRY_COOLDOWN_MS);
+    if (!eligible) return refreshed;
+    try {
+      await issueVercelCertificate([result.domain, ...(result.redirectDomain ? [result.redirectDomain] : [])]);
+      await admin.from("public_site_domains").update({
+        certificate_retry_at: new Date().toISOString(),
+        certificate_retry_count: domain.certificate_retry_count + 1,
+        last_error: "https_certificate_retry_requested",
+      }).eq("business_id", businessId);
+    } catch (error) {
+      await admin.from("public_site_domains").update({
+        certificate_retry_at: new Date().toISOString(),
+        certificate_retry_count: domain.certificate_retry_count + 1,
+        last_error: `certificate_retry_${vercelDomainError(error)}`,
+      }).eq("business_id", businessId);
+    }
+    return await readDomain(admin, businessId);
   } catch (error) {
     const code = vercelDomainError(error);
     const { data, error: updateError } = await admin
