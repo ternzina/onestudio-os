@@ -1,7 +1,7 @@
 "use client";
 
 import { createUsePuck } from "@puckeditor/core";
-import { Children, isValidElement, useMemo, useState, type ChangeEvent, type ReactElement, type ReactNode } from "react";
+import { Children, isValidElement, useMemo, useState, type ChangeEvent, type DragEvent, type ReactElement, type ReactNode } from "react";
 import type { ComponentEditorContract, ProductionEditorArrayItemField, ProductionEditorField, ProductionEditorFieldGroup, ProductionEditorPrimitive, ProductionEditorValue } from "@/lib/puck-site-editor/builder-contract";
 import { PUCK_PRODUCTION_REGISTRY_BY_ID } from "./production-registry";
 import {
@@ -109,13 +109,37 @@ function ContractArrays({
   update: ProductionPropsUpdate;
 }) {
   const locale = useProductionEditorLocale();
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
   return contract.arrays.filter((array) => array.itemFields.some((field) => field.group === group)).map((array) => {
     const items = valueAt(props, array.path);
     if (!Array.isArray(items)) return null;
     const itemFields = array.itemFields.filter((field) => field.group === group);
+    const clearDrag = () => { setDraggedIndex(null); setDropIndex(null); };
+    const handleDragStart = (event: DragEvent<HTMLButtonElement>, index: number) => {
+      setDraggedIndex(index);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", String(index));
+    };
+    const handleDragOver = (event: DragEvent<HTMLDivElement>, index: number) => {
+      if (draggedIndex === null || draggedIndex === index) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+      const rect = event.currentTarget.getBoundingClientRect();
+      setDropIndex(index + (event.clientY > rect.top + rect.height / 2 ? 1 : 0));
+    };
+    const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      const fromIndex = draggedIndex;
+      const insertionIndex = dropIndex;
+      clearDrag();
+      if (fromIndex === null || insertionIndex === null) return;
+      const toIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
+      if (toIndex !== fromIndex) update((current) => reorderProductionEditorArrayItem(current, contract, array.key, fromIndex, toIndex));
+    };
     return <fieldset className={styles.array} key={array.key}><legend>{translateAdminText(locale, array.label)}</legend>{items.map((item, index) => (
-      <div className={styles.arrayItem} key={`${array.key}-${index}`} data-production-array-item={array.key}>
-        <strong>{array.itemLabel} {index + 1}</strong>
+      <div className={`${styles.arrayItem}${draggedIndex === index ? ` ${styles.dragging}` : ""}${dropIndex === index || dropIndex === index + 1 ? ` ${styles.dropTarget}` : ""}`} key={`${array.key}-${index}`} data-production-array-item={array.key} onDragOver={(event) => handleDragOver(event, index)} onDrop={handleDrop}>
+        <div className={styles.arrayItemHeader}><button className={styles.dragHandle} type="button" draggable={items.length > 1} aria-label="Переместить элемент" title="Переместить элемент" onDragStart={(event) => handleDragStart(event, index)} onDragEnd={clearDrag}>⠿</button><strong>{array.itemLabel} {index + 1}</strong></div>
         {itemFields.map((field) => <div className={styles.field} data-production-array-field={`${array.key}.${field.key}`} data-field-type={field.type} key={field.key}>
           {field.type !== "number" ? <label htmlFor={`production-${array.key}-${index}-${field.key}`}>{translateAdminText(locale, field.label)}</label> : null}
           {field.type === "media" && item && typeof item === "object" && !Array.isArray(item) && typeof item[field.key] === "string" ? <img className={styles.mediaPreview} src={item[field.key]} alt="" /> : null}
