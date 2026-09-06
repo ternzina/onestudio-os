@@ -19,7 +19,6 @@ import {
   addProductionEditorArrayItem,
   removeProductionEditorArrayItem,
   reorderProductionEditorArrayItem,
-  reorderProductionEditorArrayItem,
   updateProductionEditorField,
 } from "@/lib/puck-site-editor/builder-properties";
 import styles from "./production-properties-panel.module.css";
