@@ -85,3 +85,41 @@ test("public-site page persistence uses a 200-page technical guardrail without t
   assert.doesNotMatch(migration, /custom_count >= (?:32|200)/);
   assert.match(editor, /Сайт содержит слишком много страниц для одного сохранения\. Ничего не удалено\./);
 });
+
+test("terminal Site Settings wrapper preserves generic settings without bypassing the premium save chain", async () => {
+  const migration = await readFile(new URL("../supabase/migrations/20260907010000_public_site_settings_terminal_persistence_1_1.sql", import.meta.url), "utf8");
+  assert.match(migration, /rename to save_public_site_draft_v_site_settings_terminal_1_1/);
+  assert.match(migration, /v_saved := public\.save_public_site_draft_v_site_settings_terminal_1_1\(/);
+  assert.match(migration, /v_saved := coalesce\(v_saved, '\{\}'::jsonb\) \|\| jsonb_build_object\(/);
+  for (const field of ["site_summary", "seo_keywords", "favicon_url", "show_social_icons", "social_links", "google_analytics_id", "meta_pixel_id"]) {
+    assert.match(migration, new RegExp(`'${field}'`), `${field} is terminally persisted`);
+    assert.match(migration, new RegExp(`v_source \\? '${field}'`), `${field} distinguishes absent from explicit clear`);
+  }
+  assert.match(migration, /normalize_public_site_media_url/);
+  assert.match(migration, /normalize_public_site_social_links/);
+  assert.match(migration, /\^G-\[A-Z0-9\]\{4,20\}\$/);
+  assert.match(migration, /\^\[0-9\]\{5,32\}\$/);
+  assert.match(migration, /update public\.public_site_locales[\s\S]*draft_content = v_saved/s);
+});
+
+test("CashPath settings, sparse pages, and publish contract retain meaningful saved content", async () => {
+  const seed = await readFile(new URL("../lib/public-site/cashpath-premium-template-seed.ts", import.meta.url), "utf8");
+  const migration = await readFile(new URL("../supabase/migrations/20260907010000_public_site_settings_terminal_persistence_1_1.sql", import.meta.url), "utf8");
+  const publish = await readFile(new URL("../supabase/migrations/20260731191000_public_site_logo_draft_publish_hotfix.sql", import.meta.url), "utf8");
+  const editor = await readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
+  assert.match(seed, /seo_keywords: "personal loan options, online personal loan options/);
+  assert.match(seed, /favicon_url: "\/templates\/cashpath\/favicon\.svg"/);
+  assert.match(seed, /leadsgate_aid: "4848"/);
+  assert.match(seed, /leadsgate_template: "wallet-lines"/);
+  assert.match(migration, /when v_source \? 'favicon_url' then v_source->>'favicon_url'/);
+  assert.match(migration, /when v_source \? 'social_links' then v_source->'social_links'/);
+  assert.match(migration, /when v_source \? 'show_social_icons'/);
+  assert.match(publish, /set published_content = draft_content/);
+  assert.match(editor, /function normalizedPage\(/);
+  assert.match(editor, /function normalizedPageBlock\(/);
+  assert.match(editor, /function normalizedSocialLinks\(/);
+  assert.match(editor, /seo_no_index: source\.seo_no_index === true/);
+  assert.match(editor, /show_in_navigation: source\.show_in_navigation !== false/);
+  assert.match(editor, /\(saved\?\.pages \?\? \[\]\)\.map\(normalizedPage\)/);
+  assert.doesNotMatch(editor, /stableJsonSignature\(saved\?\.pages \?\? \[\]\) === stableJsonSignature\(draft\.pages \?\? \[\]\)/);
+});

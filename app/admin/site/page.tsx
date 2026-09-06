@@ -268,12 +268,130 @@ function nativeActionStylesRoundTripMatches(
     === stableJsonSignature(draft.native_action_styles ?? {});
 }
 
-function pagesRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
-  return stableJsonSignature(saved?.pages ?? []) === stableJsonSignature(draft.pages ?? []);
+function normalizedText(value: unknown, limit: number) {
+  return (typeof value === "string" ? value : "")
+    .trim()
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .slice(0, limit);
 }
+
+function normalizedMediaUrl(value: unknown) {
+  const url = normalizedText(value, 500);
+  return (url.startsWith("/") && !url.startsWith("//") && !/\s/.test(url))
+    || /^https:\/\/\S+$/.test(url)
+    ? url
+    : "";
+}
+
+function normalizedPageBlock(block: unknown) {
+  const source = block && typeof block === "object" ? block as Record<string, unknown> : {};
+  const sourceCards = Array.isArray(source.cards) ? source.cards : [];
+  return {
+    id: normalizedText(source.id, 72),
+    kind: normalizedText(source.kind, 40),
+    eyebrow: normalizedText(source.eyebrow, 100),
+    title: normalizedText(source.title, 180),
+    text: normalizedText(source.text, 4000),
+    items: normalizedText(source.items, 5000),
+    button_label: normalizedText(source.button_label, 80),
+    button_url: normalizedText(source.button_url, 500),
+    is_visible: source.is_visible !== false,
+    media_urls: (Array.isArray(source.media_urls) ? source.media_urls : []).map(normalizedMediaUrl),
+    video_url: normalizedMediaUrl(source.video_url),
+    video_poster_url: normalizedMediaUrl(source.video_poster_url),
+    media_url: normalizedMediaUrl(source.media_url),
+    media_alt: normalizedText(source.media_alt, 180),
+    cards: sourceCards.map((card) => {
+      const item = card && typeof card === "object" ? card as Record<string, unknown> : {};
+      return {
+        id: normalizedText(item.id, 72),
+        title: normalizedText(item.title, 180),
+        text: normalizedText(item.text, 1000),
+        button_label: normalizedText(item.button_label, 80),
+        button_url: normalizedText(item.button_url, 500),
+        image_url: normalizedMediaUrl(item.image_url),
+      };
+    }),
+  };
+}
+
+function normalizedPage(page: unknown) {
+  const source = page && typeof page === "object" ? page as Record<string, unknown> : {};
+  return {
+    id: normalizedText(source.id, 72),
+    type: normalizedText(source.type, 20),
+    slug: normalizedText(source.slug, 60),
+    nav_label: normalizedText(source.nav_label, 60),
+    eyebrow: normalizedText(source.eyebrow, 100),
+    title: normalizedText(source.title, 160),
+    intro: normalizedText(source.intro, 1000),
+    is_visible: source.is_visible !== false,
+    show_in_navigation: source.show_in_navigation !== false,
+    show_booking_cta: source.show_booking_cta !== false,
+    seo_title: normalizedText(source.seo_title, 70),
+    seo_description: normalizedText(source.seo_description, 170),
+    seo_image_url: normalizedMediaUrl(source.seo_image_url),
+    seo_no_index: source.seo_no_index === true,
+    blocks: (Array.isArray(source.blocks) ? source.blocks : []).map(normalizedPageBlock),
+  };
+}
+
+function pagesRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
+  return stableJsonSignature((saved?.pages ?? []).map(normalizedPage))
+    === stableJsonSignature((draft.pages ?? []).map(normalizedPage));
+}
+
+function normalizedSocialLinks(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  return value.reduce<Array<{ id: string; platform: string; url: string }>>((links, item) => {
+    if (!item || typeof item !== "object" || links.length >= 12) return links;
+    const source = item as Record<string, unknown>;
+    const platform = normalizedText(source.platform, 40);
+    const url = normalizedText(source.url, 500);
+    if (!platform || !/^https:\/\/\S+$/.test(url)) return links;
+    const id = normalizedText(source.id, 72) || `social-${links.length + 1}`;
+    if (seen.has(id)) return links;
+    seen.add(id);
+    links.push({ id, platform, url });
+    return links;
+  }, []);
+}
+
 function siteSettingsRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
-  const keys = ["seo_keywords", "favicon_url", "seo_title", "seo_description", "seo_image_url", "seo_no_index"] as const;
-  return keys.every((key) => (saved?.[key] ?? "") === (draft[key] ?? ""));
+  const normalizedGoogleAnalyticsId = (value: unknown) => {
+    const id = normalizedText(value, 24).toUpperCase();
+    return /^G-[A-Z0-9]{4,20}$/.test(id) ? id : "";
+  };
+  const normalizedMetaPixelId = (value: unknown) => {
+    const id = normalizedText(value, 32);
+    return /^[0-9]{5,32}$/.test(id) ? id : "";
+  };
+  return stableJsonSignature({
+    site_summary: normalizedText(saved?.site_summary, 500),
+    seo_keywords: normalizedText(saved?.seo_keywords, 500),
+    favicon_url: normalizedMediaUrl(saved?.favicon_url),
+    show_social_icons: saved?.show_social_icons === true,
+    social_links: normalizedSocialLinks(saved?.social_links),
+    google_analytics_id: normalizedGoogleAnalyticsId(saved?.google_analytics_id),
+    meta_pixel_id: normalizedMetaPixelId(saved?.meta_pixel_id),
+    seo_title: normalizedText(saved?.seo_title, 70),
+    seo_description: normalizedText(saved?.seo_description, 170),
+    seo_image_url: normalizedMediaUrl(saved?.seo_image_url),
+    seo_no_index: saved?.seo_no_index === true,
+  }) === stableJsonSignature({
+    site_summary: normalizedText(draft.site_summary, 500),
+    seo_keywords: normalizedText(draft.seo_keywords, 500),
+    favicon_url: normalizedMediaUrl(draft.favicon_url),
+    show_social_icons: draft.show_social_icons === true,
+    social_links: normalizedSocialLinks(draft.social_links),
+    google_analytics_id: normalizedGoogleAnalyticsId(draft.google_analytics_id),
+    meta_pixel_id: normalizedMetaPixelId(draft.meta_pixel_id),
+    seo_title: normalizedText(draft.seo_title, 70),
+    seo_description: normalizedText(draft.seo_description, 170),
+    seo_image_url: normalizedMediaUrl(draft.seo_image_url),
+    seo_no_index: draft.seo_no_index === true,
+  });
 }
 
 function cloneCustomBlockForDuplicate(
