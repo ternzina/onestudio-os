@@ -44,6 +44,14 @@ export function buildPremiumUniversalInspectorFields({ block, disabled, onChange
     { id: "embed-height", group: "content", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => patch("embed_height", boundedPublicEmbedHeight(Number(value))) },
   ];
   const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "premium");
+  if (block.kind === "leadsgate_form") return [
+    { id: "leadsgate-help", group: "content", type: "notice", text: "This official provider form is live only on the public site. OneStudio never receives or stores application fields." },
+    { id: "leadsgate-aid", group: "content", type: "text", label: "Affiliate ID", value: block.leadsgate_aid ?? "", disabled, onChange: value => patch("leadsgate_aid", value.replace(/\D/g, "").slice(0, 12)) },
+    { id: "leadsgate-template", group: "content", type: "select", label: "Form template", value: block.leadsgate_template ?? "wallet-lines", disabled, onChange: () => patch("leadsgate_template", "wallet-lines"), options: [{ value: "wallet-lines", label: "Wallet Lines" }] },
+    { id: "leadsgate-eyebrow", group: "content", type: "text", label: t("Eyebrow"), value: block.eyebrow, disabled, onChange: value => patch("eyebrow", value) },
+    { id: "leadsgate-title", group: "content", type: "textarea", label: t("Heading"), rows: 3, value: block.title, disabled, onChange: value => patch("title", value) },
+    { id: "leadsgate-text", group: "content", type: "textarea", label: t("Text"), rows: 3, value: block.text, disabled, onChange: value => patch("text", value) },
+  ];
   const groups: { id: string; title?: string; card?: boolean; fields: EditorInspectorField[] }[] = [];
   const appearance: EditorInspectorField[] = visual.layout || visual.spacing || visual.sectionHeight || visual.animation
     ? buildBlockLayoutInspectorFields({ value: block, disabled, t, idPrefix: "universal-layout", onChange: (key, value) => onChange({ ...block, [key]: value }, String(key)) })

@@ -10,6 +10,7 @@ import { VOW_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_7_CONTRACT } from "./vow-premi
 import { LUMEA_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_8_CONTRACT } from "./lumea-premium-template-contract.ts";
 import { RASTEM_CENTER_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_9_CONTRACT } from "./rastem-center-premium-template-contract.ts";
 import { BLACKLINE_TATTOO_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_10_CONTRACT } from "./blackline-tattoo-premium-template-contract.ts";
+import { CASHPATH_PREMIUM_TEMPLATE_CONTRACT as PACKAGE_11_CONTRACT } from "./cashpath-premium-template-contract.ts";
 import { createPremiumTemplateContractRegistry } from "./premium-template-registry-builder.ts";
 
 export const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateDefinition } = createPremiumTemplateContractRegistry(Object.values({
@@ -24,4 +25,5 @@ export const { contracts: PREMIUM_TEMPLATE_DEFINITIONS, get: getPremiumTemplateD
   "lumea-beauty": PACKAGE_8_CONTRACT,
   "rastem-center": PACKAGE_9_CONTRACT,
   "blackline-tattoo": PACKAGE_10_CONTRACT,
+  "cashpath": PACKAGE_11_CONTRACT,
 }));

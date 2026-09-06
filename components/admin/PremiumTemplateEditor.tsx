@@ -59,7 +59,7 @@ const fields: Record<PremiumKidsBlockType, Field[]> = {
   faq: [["faq_title", "Heading", "text"], ["faq", "Questions: question | answer", "lines"]],
   final: [["final_cta_eyebrow", "Eyebrow", "input"], ["final_cta_title", "Heading", "text"], ["final_cta_label", "Button", "input"]],
   footer: [["footer_description", "Description", "text"], ["contact_email", "Email", "input"], ["contact_phone", "Phone number", "input"], ["contact_address", "Address", "text"]],
-  text: [], features: [], cta: [], media_text: [], columns: [], slider: [], collage: [], video: [], html_embed: [], spacer: [],
+  text: [], features: [], cta: [], media_text: [], columns: [], slider: [], collage: [], video: [], html_embed: [], leadsgate_form: [], spacer: [],
 };
 
 function newBlockId(type: PremiumKidsBlockType) {

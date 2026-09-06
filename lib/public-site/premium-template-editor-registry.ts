@@ -10,6 +10,7 @@ import { VOW_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_7_EDITOR } from "./vow-p
 import { LUMEA_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_8_EDITOR } from "./lumea-premium-template-editor-adapter.ts";
 import { RASTEM_CENTER_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_9_EDITOR } from "./rastem-center-premium-template-editor-adapter.ts";
 import { BLACKLINE_TATTOO_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_10_EDITOR } from "./blackline-tattoo-premium-template-editor-adapter.ts";
+import { CASHPATH_PREMIUM_TEMPLATE_EDITOR_ADAPTER as PACKAGE_11_EDITOR } from "./cashpath-premium-template-editor-adapter.ts";
 import { createPremiumTemplateEditorRegistry } from "./premium-template-editor-registry-builder.ts";
 export { validatePremiumTemplateEditorAdapterRegistry } from "./premium-template-editor-registry-builder.ts";
 import { getPremiumTemplateDefinition } from "./premium-template-registry.ts";
@@ -26,4 +27,5 @@ export const { adapters: PREMIUM_TEMPLATE_EDITOR_ADAPTERS, get: getPremiumTempla
   "lumea-beauty": PACKAGE_8_EDITOR,
   "rastem-center": PACKAGE_9_EDITOR,
   "blackline-tattoo": PACKAGE_10_EDITOR,
+  "cashpath": PACKAGE_11_EDITOR,
 }), getPremiumTemplateDefinition);

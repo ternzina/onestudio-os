@@ -19,21 +19,21 @@ export default function PublicCustomPage({
   site,
   page,
   brandTagline,
+  basePath,
 }: {
   site: PublicSiteData;
   page: PublicSitePage;
   brandTagline?: string;
+  basePath?: string;
 }) {
   const { business, company, content, capabilities } = site;
   const localized =
     business.locale === business.primary_locale ? null : business.locale;
-  const homeHref = publicSitePath(business.slug, localized);
+  const homeHref = basePath ?? publicSitePath(business.slug, localized);
   const bookingHref = `/book/${business.slug}`;
-  const pageHref = publicCustomPagePath(
-    business.slug,
-    page.slug,
-    localized,
-  );
+  const pageHref = basePath
+    ? `${basePath === "/" ? "" : basePath}/p/${page.slug}`
+    : publicCustomPagePath(business.slug, page.slug, localized);
 
   return (
     <main

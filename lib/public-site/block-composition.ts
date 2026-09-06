@@ -62,6 +62,7 @@ const defaultElements: Record<PublicSiteCustomBlockKind, readonly PublicSiteComp
   media_text: ["eyebrow", "title", "text", "action"],
   columns: ["eyebrow", "title", "text", "cards"],
   html_embed: ["title", "text"],
+  leadsgate_form: ["eyebrow", "title", "text"],
   spacer: [],
 };
 

@@ -33,6 +33,7 @@ const CANONICAL_BLOCK_KIND_LABELS: Readonly<Record<PublicSiteCustomBlockKind, st
   collage: "Collage",
   video: "Video block",
   html_embed: "HTML / Embed",
+  leadsgate_form: "LeadsGate request form",
   spacer: "Spacer / Divider",
 };
 

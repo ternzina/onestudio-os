@@ -40,7 +40,7 @@ export function publicSiteCustomBlockVisualCapabilities(
   runtime: "standard" | "premium" = "standard",
 ): PublicSiteVisualCapabilities {
   const supported = runtime === "standard" || runtime === "premium";
-  const structural = kind === "spacer" || kind === "html_embed";
+  const structural = kind === "spacer" || kind === "html_embed" || kind === "leadsgate_form";
   const mediaSizing = kind === "slider" || kind === "video" || kind === "media_text" || kind === "collage" || kind === "columns";
   const multiMediaLayout = kind === "collage";
   return {
@@ -73,6 +73,7 @@ export const PUBLIC_SITE_CUSTOM_BLOCK_REGISTRY = [
   { kind: "collage", label: "Collage", description: "Several photographs arranged on the left, center or right.", premiumSupported: true },
   { kind: "video", label: "Video block", description: "YouTube, Vimeo or a direct video file.", premiumSupported: true },
   { kind: "html_embed", label: "HTML / Embed", description: "Safe custom markup or a secure external widget.", premiumSupported: true },
+  { kind: "leadsgate_form", label: "LeadsGate request form", description: "A restricted LeadsGate affiliate form. No applicant data is stored by OneStudio.", premiumSupported: true },
   { kind: "spacer", label: "Spacer / Divider", description: "Add breathing room or a subtle dividing line.", premiumSupported: true },
 ] as const satisfies readonly PublicSiteCustomBlockDefinition[];
 
@@ -115,6 +116,7 @@ export function createPublicSiteCustomBlock(kind: PublicSiteCustomBlockKind, id 
     media_text: { eyebrow: "О СТУДИИ", title: "Текст и изображение рядом", text: "Расскажите о студии, услуге или мастере. Медиа можно расположить слева или справа.", items: "", button_label: "Подробнее" },
     columns: { eyebrow: "ВАЖНОЕ", title: "Два или три смысловых блока", text: "Соберите короткий раздел из нескольких аккуратных карточек.", items: "Первый блок · Добавьте короткое описание\nВторой блок · Добавьте короткое описание\nТретий блок · Добавьте короткое описание", button_label: "" },
     html_embed: { eyebrow: "", title: "", text: "", items: "", button_label: "" },
+    leadsgate_form: { eyebrow: "REQUEST OPTIONS", title: "Start your request", text: "Your request is handled by our participating-provider form.", items: "", button_label: "" },
     spacer: { eyebrow: "", title: "", text: "", items: "", button_label: "" },
   };
   const preset = presets[kind];
@@ -137,6 +139,8 @@ export function createPublicSiteCustomBlock(kind: PublicSiteCustomBlockKind, id 
     html_source: kind === "html_embed" ? '<div style="padding: 24px; background-color: #f5f5f5; border-radius: 16px; color: #222"><h3 style="font-size: 28px; margin: 0 0 12px">Ваш HTML-блок</h3><p style="font-size: 16px; margin: 0">Этот текст создан HTML-кодом.</p></div>' : undefined,
     embed_title: kind === "html_embed" ? "Внешний виджет" : undefined,
     embed_height: kind === "html_embed" ? 420 : undefined,
+    leadsgate_aid: kind === "leadsgate_form" ? "" : undefined,
+    leadsgate_template: kind === "leadsgate_form" ? "wallet-lines" : undefined,
     spacer_size: kind === "spacer" ? "normal" : undefined,
     show_divider: kind === "spacer" ? false : undefined,
     divider_thickness: kind === "spacer" ? 1 : undefined,
