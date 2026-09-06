@@ -1,0 +1,316 @@
+.page {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--os-public-color-ivory);
+  color: var(--os-public-color-dark);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 0 var(--os-public-container-gutter) clamp(64px, 6vw, 96px);
+  color: var(--os-public-color-cream);
+  background:
+    radial-gradient(ellipse 68% 90% at 76% 48%, rgba(255, 107, 53, .19), transparent 70%),
+    var(--os-public-color-chocolate);
+}
+
+.hero::before {
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  background-image: radial-gradient(rgba(255, 185, 130, .42) .7px, transparent .8px);
+  background-size: 24px 24px;
+  content: "";
+  mask-image: radial-gradient(ellipse at 72% 48%, black, transparent 74%);
+  pointer-events: none;
+}
+
+.hero::after {
+  position: absolute;
+  right: -8%;
+  bottom: -36%;
+  width: min(56vw, 760px);
+  height: min(56vw, 760px);
+  border: 1px solid rgba(255, 129, 74, .18);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.header,
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: var(--os-public-container-width);
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  height: 92px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 214, 194, .17);
+}
+
+.header :global(.os-brand) {
+  gap: 14px;
+  color: var(--os-public-color-cream);
+}
+
+.header :global(.os-brand > span:last-child) {
+  font-size: var(--os-public-brand-size);
+  font-weight: 470;
+  letter-spacing: .18em;
+}
+
+.header :global(.os-brand em) {
+  color: #ff9a6d;
+  font-size: var(--os-public-brand-suffix-size);
+}
+
+.header :global(.os-mark) {
+  width: 36px;
+  height: 36px;
+  border-color: rgba(255, 249, 244, .48);
+  background: rgba(255, 249, 244, .08);
+  box-shadow: 0 0 0 1px rgba(255, 107, 53, .08);
+}
+
+.header :global(.os-mark i) {
+  border-color: rgba(255, 249, 244, .64);
+}
+
+.header :global(.os-mark i:nth-child(1)) {
+  border-color: #c9b5aa;
+}
+
+.header :global(.os-mark i:nth-child(2)) {
+  border-color: #ff814a;
+}
+
+.header :global(.os-mark i:nth-child(3)) {
+  background: #fff9f4;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+}
+
+.language {
+  display: flex;
+  gap: 1px;
+  padding: 3px;
+  border: 1px solid rgba(255, 214, 194, .27);
+  border-radius: 999px;
+  background: rgba(255, 249, 244, .05);
+}
+
+.language button {
+  width: 38px;
+  height: 29px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--os-public-color-muted);
+  background: transparent;
+  cursor: pointer;
+  font: 650 var(--os-public-language-size) / 1 var(--os-public-font-family);
+  letter-spacing: .08em;
+}
+
+.language button:hover,
+.language button:focus-visible {
+  color: var(--os-public-color-cream);
+}
+
+.language button:focus-visible {
+  outline: 2px solid var(--os-public-color-accent);
+  outline-offset: 3px;
+}
+
+.languageActive {
+  color: var(--os-public-color-cream) !important;
+  background: #3a1d10 !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 129, 74, .8);
+}
+
+.heroInner {
+  padding-top: clamp(84px, 10vw, 144px);
+}
+
+.heroCopy {
+  max-width: 850px;
+  padding-left: var(--os-public-content-offset);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: #ff9a6d;
+}
+
+.eyebrow span {
+  display: block;
+  width: 35px;
+  height: 1px;
+  flex: 0 0 35px;
+  background: var(--os-public-color-accent);
+}
+
+.heroTitle {
+  max-width: 830px;
+  margin: 26px 0 28px;
+  color: var(--os-public-color-cream);
+}
+
+.heroLead {
+  max-width: 660px;
+  margin: 0;
+  color: #c8b9b0;
+}
+
+.contactSection {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(106px, 12vw, 180px) var(--os-public-container-gutter) clamp(72px, 8vw, 112px);
+  background:
+    radial-gradient(ellipse 70% 100% at 78% 36%, rgba(255, 129, 74, .14), transparent 68%),
+    #f3ecdf;
+}
+
+.contactSection::after {
+  position: absolute;
+  top: 50%;
+  left: 73%;
+  width: min(48vw, 640px);
+  height: min(48vw, 640px);
+  border: 1px solid rgba(120, 93, 71, .14);
+  border-radius: 50%;
+  content: "";
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.contactInner {
+  position: relative;
+  z-index: 1;
+  width: var(--os-public-container-width);
+  margin-inline: auto;
+  padding-left: var(--os-public-content-offset);
+}
+
+.contactTitle {
+  max-width: 760px;
+  margin: 0 0 24px;
+  color: var(--os-public-color-dark);
+}
+
+.contactText {
+  max-width: 600px;
+  margin: 0;
+  color: var(--os-public-color-muted-on-light);
+}
+
+.contactAction {
+  display: inline-flex;
+  margin-top: 36px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--os-public-color-accent-strong);
+  color: var(--os-public-color-accent-strong);
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.contactAction:hover,
+.contactAction:focus-visible {
+  border-color: var(--os-public-color-dark);
+  color: var(--os-public-color-dark);
+}
+
+.contactAction:focus-visible {
+  outline: 2px solid var(--os-public-color-accent-strong);
+  outline-offset: 5px;
+}
+
+@media (max-width: 1180px) {
+  .header,
+  .heroInner,
+  .contactInner {
+    width: calc(100% - 36px);
+  }
+
+  .heroCopy,
+  .contactInner {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-bottom: 72px;
+  }
+
+  .header {
+    height: 75px;
+  }
+
+  .header :global(.os-brand) {
+    gap: 10px;
+  }
+
+  .header :global(.os-mark) {
+    width: 31px;
+    height: 31px;
+  }
+
+  .language button {
+    width: 34px;
+  }
+
+  .heroInner {
+    padding-top: 88px;
+  }
+
+  .heroTitle {
+    margin-block: 22px 24px;
+  }
+
+  .heroLead {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .contactSection {
+    padding-block: 96px 112px;
+  }
+
+  .contactText {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+}
+
+@media (max-width: 390px) {
+  .header,
+  .heroInner,
+  .contactInner {
+    width: calc(100% - 32px);
+  }
+
+  .header :global(.os-brand > span:last-child) {
+    font-size: 13px;
+  }
+
+  .header :global(.os-brand em) {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contactAction {
+    transition: none;
+  }
+}

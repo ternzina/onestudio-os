@@ -1,0 +1,2 @@
+import { legal as englishLegal } from "../en/legal";
+export const legal = { ...englishLegal, privacy: { ...englishLegal.privacy, eyebrow: "Конфіденційність і дані Google API", title: "Політика конфіденційності", intro: "Юридична версія цього документа доступна англійською мовою. Нижче наведено затверджений англомовний текст політики.", }, terms: { ...englishLegal.terms, eyebrow: "Умови сервісу", title: "Умови використання", intro: "Юридична версія цього документа доступна англійською мовою. Нижче наведено затверджений англомовний текст умов." } } as const;

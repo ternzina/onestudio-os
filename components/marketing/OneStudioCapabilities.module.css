@@ -1,0 +1,707 @@
+.section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(118px, 11vw, 184px) 0 clamp(126px, 12vw, 198px);
+  background:
+    radial-gradient(ellipse 52% 42% at 92% 24%, color-mix(in srgb, var(--blue) 9%, transparent), transparent 75%),
+    radial-gradient(ellipse 48% 40% at 10% 78%, color-mix(in srgb, var(--mint) 7%, transparent), transparent 78%),
+    radial-gradient(ellipse 70% 65% at 86% 12%, color-mix(in srgb, var(--os-public-color-accent) 11%, transparent), transparent 72%),
+    radial-gradient(ellipse 75% 60% at 8% 92%, color-mix(in srgb, var(--os-public-color-accent-strong) 9%, transparent), transparent 75%),
+    var(--os-public-color-chocolate);
+  color: var(--os-public-color-cream);
+}
+
+.section::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: .28;
+  background-image: radial-gradient(color-mix(in srgb, var(--os-public-color-accent) 34%, transparent) .65px, transparent .8px);
+  background-size: 27px 27px;
+  mask-image: radial-gradient(ellipse 90% 90% at 64% 44%, black, transparent 80%);
+  pointer-events: none;
+}
+
+.intro {
+  display: grid;
+  gap: clamp(42px, 7vw, 118px);
+  align-items: end;
+  grid-template-columns: minmax(0, 1.2fr) minmax(270px, .8fr);
+}
+
+.eyebrow {
+  display: flex;
+  margin: 0 0 23px;
+  align-items: center;
+  gap: 12px;
+  color: var(--os-public-color-accent);
+}
+
+.eyebrow span {
+  display: inline-block;
+  width: 36px;
+  height: 1px;
+  background: var(--os-public-color-accent);
+}
+
+.title {
+  margin: 0;
+  color: var(--os-public-color-cream);
+}
+
+.title strong {
+  color: var(--os-public-color-accent);
+  font: inherit;
+}
+
+.introAside {
+  padding: 0 0 8px 26px;
+  border-left: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 92%, transparent);
+}
+
+.introAside p {
+  margin: 0;
+  color: var(--os-public-color-muted);
+}
+
+.introAside p + p {
+  margin-top: 25px;
+  color: color-mix(in srgb, var(--os-public-color-accent) 76%, var(--os-public-color-muted));
+}
+
+.bento {
+  position: relative;
+  display: grid;
+  gap: clamp(13px, 1.05vw, 24px);
+  margin-top: clamp(68px, 7vw, 112px);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: minmax(350px, 1.04fr) minmax(306px, .9fr) minmax(332px, .9fr);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 88%, transparent);
+  border-radius: clamp(18px, 1.35vw, 30px);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--os-public-color-surface) 97%, var(--os-public-color-accent) 3%), var(--os-public-color-surface));
+  box-shadow: 0 26px 80px color-mix(in srgb, var(--os-public-color-chocolate) 78%, transparent);
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), border-color .35s ease, box-shadow .45s ease;
+}
+
+.bookingCard { grid-column: 1 / span 5; grid-row: 1 / span 2; }
+.crmCard { grid-column: 6 / span 4; grid-row: 1; }
+.paymentsCard { grid-column: 10 / span 3; grid-row: 1; }
+.automationCard { grid-column: 6 / span 4; grid-row: 2; }
+.analyticsCard { grid-column: 10 / span 3; grid-row: 2 / span 2; }
+.siteCard { grid-column: 1 / span 9; grid-row: 3; }
+
+.cardCopy {
+  position: relative;
+  z-index: 2;
+  padding: clamp(25px, 2.35vw, 45px) clamp(25px, 2.45vw, 48px) 0;
+}
+
+.cardIndex {
+  display: block;
+  margin-bottom: 22px;
+  color: color-mix(in srgb, var(--os-public-color-accent) 72%, var(--os-public-color-muted));
+  font: 10px var(--font-geist-mono), monospace;
+  letter-spacing: .14em;
+}
+
+.card h3 {
+  margin: 0 0 15px;
+  color: var(--os-public-color-cream);
+}
+
+.cardCopy p {
+  margin: 0;
+  color: var(--os-public-color-muted);
+}
+
+.bookingCard .cardCopy,
+.analyticsCard .cardCopy {
+  padding-bottom: 0;
+}
+
+.mockTopbar,
+.paymentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: color-mix(in srgb, var(--os-public-color-muted) 85%, var(--os-public-color-cream));
+  font: 9px var(--font-geist-mono), monospace;
+  letter-spacing: .13em;
+}
+
+.mockTopbar b,
+.paymentHeader > span,
+.paymentHeader > b {
+  font: inherit;
+  font-weight: 650;
+}
+
+.uiLabel {
+  display: block;
+  color: color-mix(in srgb, var(--os-public-color-muted) 76%, var(--os-public-color-cream));
+  font: 8px var(--font-geist-mono), monospace;
+  letter-spacing: .13em;
+}
+
+/* Booking: the primary scene keeps the calendar useful and explains the value of booking. */
+.bookingVisual {
+  display: flex;
+  min-height: 0;
+  margin: auto clamp(19px, 2.45vw, 48px) clamp(23px, 2.3vw, 46px);
+  padding: clamp(20px, 2vw, 36px);
+  flex: 1;
+  flex-direction: column;
+  gap: clamp(21px, 2vw, 34px);
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 78%, transparent);
+  border-radius: clamp(13px, 1vw, 22px);
+  background: linear-gradient(148deg, color-mix(in srgb, var(--os-public-color-cream) 9%, var(--os-public-color-surface)), color-mix(in srgb, var(--os-public-color-chocolate) 40%, var(--os-public-color-surface)));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--os-public-color-cream) 7%, transparent), 0 21px 50px color-mix(in srgb, var(--os-public-color-chocolate) 43%, transparent);
+}
+
+.bookingUpperZone {
+  display: flex;
+  min-height: 0;
+  width: 100%;
+  flex: 0 1 auto;
+}
+
+.bookingLayout {
+  display: grid;
+  min-height: 0;
+  width: 100%;
+  gap: clamp(18px, 2.1vw, 40px);
+  grid-template-columns: minmax(0, 1.05fr) minmax(190px, .95fr);
+}
+
+.bookingCalendar {
+  min-width: 0;
+  padding: clamp(12px, 1.25vw, 23px);
+  border: 1px solid color-mix(in srgb, var(--blue) 24%, var(--os-public-color-border-dark));
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--blue) 12%, transparent), transparent 42%),
+    color-mix(in srgb, var(--os-public-color-cream) 4%, transparent);
+}
+
+.weekdays,
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  margin-bottom: 13px;
+  color: color-mix(in srgb, var(--blue) 72%, var(--os-public-color-cream));
+  font: 8px var(--font-geist-mono), monospace;
+  letter-spacing: .07em;
+  text-align: center;
+}
+
+.days {
+  gap: 7px 3px;
+}
+
+.days span {
+  display: grid;
+  min-width: 22px;
+  width: 100%;
+  max-width: clamp(22px, 2.1vw, 32px);
+  justify-self: center;
+  aspect-ratio: 1;
+  place-items: center;
+  color: color-mix(in srgb, var(--os-public-color-cream) 73%, var(--os-public-color-muted));
+  font: 11px var(--font-geist-sans), Arial, sans-serif;
+}
+
+.days .selectedDay {
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--blue) 88%, var(--os-public-color-cream));
+  color: var(--os-public-color-chocolate);
+  font-weight: 700;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--blue) 15%, transparent), 0 8px 18px color-mix(in srgb, var(--blue) 18%, transparent);
+}
+
+.bookingDetails {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 11px;
+}
+
+.selectField {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 92%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--os-public-color-cream) 7%, transparent);
+  color: var(--os-public-color-cream);
+  font: 11px var(--font-geist-sans), Arial, sans-serif;
+}
+
+.selectField b {
+  min-width: 0;
+  overflow-wrap: break-word;
+  font-weight: 540;
+}
+.selectField span { flex: 0 0 auto; color: var(--os-public-color-accent); font-size: 15px; }
+
+.bookingDetails .uiLabel:nth-of-type(2) { margin-top: 14px; }
+
+.slotGrid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.slotGrid span {
+  display: grid;
+  min-height: 33px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 84%, transparent);
+  border-radius: 7px;
+  color: color-mix(in srgb, var(--os-public-color-cream) 76%, var(--os-public-color-muted));
+  font: 10px var(--font-geist-mono), monospace;
+}
+
+.slotGrid .activeSlot {
+  border-color: color-mix(in srgb, var(--blue) 88%, var(--os-public-color-cream));
+  background: color-mix(in srgb, var(--blue) 88%, var(--os-public-color-cream));
+  color: var(--os-public-color-chocolate);
+  font-weight: 700;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--blue) 24%, transparent);
+}
+
+.bookingBenefits {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: clamp(16px, 1.55vw, 27px);
+  flex-direction: column;
+  gap: clamp(18px, 1.8vw, 30px);
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 78%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--os-public-color-cream) 5%, transparent);
+}
+
+.benefitsHeading {
+  max-width: 13ch;
+  margin: 0;
+  color: var(--os-public-color-cream);
+}
+
+.benefitGrid {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.benefitItem {
+  display: flex;
+  min-width: 0;
+  padding: clamp(13px, 1.35vw, 23px) clamp(13px, 1.45vw, 25px);
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 70%, transparent);
+}
+
+.benefitItem:nth-child(-n + 2) {
+  border-top: 0;
+}
+
+.benefitItem:nth-child(even) {
+  border-left: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 70%, transparent);
+}
+
+.benefitTitle {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--os-public-color-cream);
+}
+
+.benefitNumber {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  color: color-mix(in srgb, var(--os-public-color-accent) 82%, var(--os-public-color-muted));
+  letter-spacing: .12em;
+}
+
+.benefitCopy {
+  max-width: 31ch;
+  margin: 0;
+  color: var(--os-public-color-muted);
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+/* The lower section becomes a single editorial column when the card is narrow. */
+@media (max-width: 650px) {
+  .benefitGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefitItem:nth-child(-n + 2) {
+    border-top: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 70%, transparent);
+  }
+
+  .benefitItem:first-child {
+    border-top: 0;
+  }
+
+  .benefitItem:nth-child(even) {
+    border-left: 0;
+  }
+}
+
+/* Site & content: the only light editorial canvas in the dark chapter. */
+.siteVisual {
+  display: flex;
+  min-width: 0;
+  margin: auto clamp(19px, 2.45vw, 48px) clamp(23px, 2.25vw, 44px);
+  flex: 1;
+  align-items: end;
+}
+
+.siteWindow {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 75%, transparent);
+  border-radius: clamp(12px, 1vw, 20px);
+  background: var(--os-public-color-ivory);
+  box-shadow: 0 24px 45px color-mix(in srgb, var(--os-public-color-chocolate) 45%, transparent);
+}
+
+.siteChrome {
+  display: grid;
+  height: 29px;
+  padding: 0 12px;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px solid color-mix(in srgb, var(--os-public-color-dark) 13%, transparent);
+  background: color-mix(in srgb, var(--os-public-color-dark) 8%, var(--os-public-color-ivory));
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+}
+
+.siteChrome > span { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in srgb, var(--os-public-color-accent) 70%, var(--os-public-color-ivory)); }
+.siteChrome > span:nth-child(2) { background: color-mix(in srgb, var(--os-public-color-accent) 45%, var(--os-public-color-ivory)); }
+.siteChrome > span:nth-child(3) { background: color-mix(in srgb, var(--mint) 72%, var(--os-public-color-ivory)); }
+.siteChrome small { justify-self: center; overflow: hidden; color: color-mix(in srgb, var(--os-public-color-dark) 52%, var(--os-public-color-ivory)); font: 8px var(--font-geist-mono), monospace; letter-spacing: .03em; text-overflow: ellipsis; white-space: nowrap; }
+.siteChrome b { color: var(--os-public-color-accent-strong); font: 12px var(--font-geist-sans), Arial, sans-serif; font-weight: 400; }
+
+.siteContentPreview {
+  display: grid;
+  min-height: 225px;
+  grid-template-columns: 126px minmax(0, 1fr);
+}
+
+.siteSidebar {
+  display: flex;
+  min-width: 0;
+  padding: 19px 14px;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid color-mix(in srgb, var(--os-public-color-dark) 12%, transparent);
+  background: color-mix(in srgb, var(--os-public-color-dark) 4%, var(--os-public-color-ivory));
+  color: var(--os-public-color-dark);
+}
+
+.siteSidebar .uiLabel { margin-bottom: 2px; color: color-mix(in srgb, var(--os-public-color-dark) 43%, var(--os-public-color-ivory)); font-size: 7px; }
+.siteSidebar .uiLabel:nth-of-type(2) { margin-top: 9px; }
+.siteSidebar > b { display: flex; align-items: center; justify-content: space-between; gap: 7px; color: color-mix(in srgb, var(--os-public-color-dark) 61%, var(--os-public-color-ivory)); font: 10px var(--font-geist-sans), Arial, sans-serif; font-weight: 520; }
+.siteSidebar > b small { color: color-mix(in srgb, var(--os-public-color-dark) 34%, var(--os-public-color-ivory)); font: 8px var(--font-geist-mono), monospace; }
+.siteSidebar > .activePage { color: var(--os-public-color-accent-strong); }
+
+.mediaThumbs { display: grid; gap: 5px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mediaThumb { position: relative; display: grid; aspect-ratio: 1; place-items: end start; overflow: hidden; padding: 4px; border-radius: 4px; background: color-mix(in srgb, var(--os-public-color-ivory) 92%, var(--blue)); color: var(--os-public-color-dark); font: 7px var(--font-geist-mono), monospace; font-style: normal; }
+.mediaThumb::before { position: absolute; z-index: 0; inset: 11% 13% 25%; border: 1px solid color-mix(in srgb, var(--os-public-color-dark) 30%, transparent); border-radius: 3px; background: linear-gradient(145deg, color-mix(in srgb, var(--blue) 36%, var(--os-public-color-ivory)), color-mix(in srgb, var(--blue) 16%, var(--os-public-color-dark))); content: ""; }
+.mediaThumb:nth-child(2) { background: color-mix(in srgb, var(--os-public-color-ivory) 91%, var(--mint)); }
+.mediaThumb:nth-child(2)::before { background: linear-gradient(145deg, color-mix(in srgb, var(--mint) 44%, var(--os-public-color-ivory)), color-mix(in srgb, var(--mint) 17%, var(--os-public-color-dark))); transform: translateY(2px); }
+.mediaThumb:nth-child(3) { background: color-mix(in srgb, var(--os-public-color-ivory) 91%, var(--os-public-color-accent)); }
+.mediaThumb:nth-child(3)::before { background: linear-gradient(145deg, color-mix(in srgb, var(--os-public-color-accent) 49%, var(--os-public-color-ivory)), color-mix(in srgb, var(--os-public-color-accent) 18%, var(--os-public-color-dark))); transform: translateY(-1px); }
+.mediaThumb::after { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--os-public-color-dark) 62%, transparent)); content: ""; pointer-events: none; }
+.mediaThumb span { position: relative; z-index: 2; color: var(--os-public-color-ivory); }
+.mediaThumbActive { box-shadow: 0 0 0 1px var(--os-public-color-accent), 0 0 0 3px color-mix(in srgb, var(--os-public-color-accent) 18%, transparent); }
+
+.siteCanvas {
+  display: flex;
+  min-width: 0;
+  padding: 20px clamp(20px, 2.1vw, 37px) 13px;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--os-public-color-ivory) 88%, var(--os-public-color-accent) 12%);
+  color: var(--os-public-color-dark);
+}
+
+.siteCanvasNav,
+.siteCanvasFooter { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.siteCanvasNav { color: color-mix(in srgb, var(--os-public-color-dark) 57%, var(--os-public-color-ivory)); font: 8px var(--font-geist-mono), monospace; letter-spacing: .05em; }
+.siteCanvasNav span { height: 1px; margin-left: auto; flex: 0 1 34px; background: color-mix(in srgb, var(--os-public-color-dark) 25%, transparent); }
+.siteCanvasNav i { width: 18px; height: 6px; border-top: 1px solid var(--os-public-color-dark); border-bottom: 1px solid var(--os-public-color-dark); }
+.siteCanvasHero { display: grid; min-height: 118px; margin: 10px 0 8px; align-items: center; gap: 22px; grid-template-columns: minmax(0, .9fr) minmax(130px, 1.1fr); }
+.siteCanvasHero > div > span { color: var(--os-public-color-accent-strong); font: 8px var(--font-geist-mono), monospace; letter-spacing: .13em; }
+.siteCanvasHero strong { display: block; margin-top: 9px; color: var(--os-public-color-dark); font: clamp(22px, 2.5vw, 42px) var(--font-geist-sans), Arial, sans-serif; font-weight: 620; letter-spacing: -.065em; line-height: .94; }
+.siteCanvasComposition {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: 118px;
+  margin: 0;
+  overflow: hidden;
+  padding: 10px;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--blue) 28%, var(--os-public-color-ivory));
+  border-radius: 9px;
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--blue) 30%, transparent), transparent 42%),
+    radial-gradient(circle at 90% 82%, color-mix(in srgb, var(--mint) 25%, transparent), transparent 46%),
+    linear-gradient(145deg, color-mix(in srgb, var(--os-public-color-ivory) 92%, var(--blue)), color-mix(in srgb, var(--os-public-color-ivory) 86%, var(--mint)));
+  box-shadow: 0 12px 22px color-mix(in srgb, var(--os-public-color-dark) 18%, transparent);
+  color: var(--os-public-color-dark);
+}
+
+.compositionHeader,
+.compositionFooter { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.compositionHeader { color: color-mix(in srgb, var(--os-public-color-dark) 64%, var(--os-public-color-ivory)); font: 6px var(--font-geist-mono), monospace; letter-spacing: .08em; }
+.compositionHeader span { padding: 2px 4px; border: 1px solid color-mix(in srgb, var(--blue) 52%, transparent); border-radius: 3px; color: color-mix(in srgb, var(--blue) 86%, var(--os-public-color-dark)); }
+.compositionBody { position: relative; z-index: 1; display: grid; min-height: 0; flex: 1; gap: 7px; grid-template-columns: minmax(0, 1.15fr) minmax(44px, .85fr); }
+.compositionGraph { display: flex; min-width: 0; padding: 7px 7px 3px; align-items: end; justify-content: space-between; gap: 4px; border: 1px solid color-mix(in srgb, var(--os-public-color-dark) 13%, transparent); border-radius: 5px; background: color-mix(in srgb, var(--os-public-color-ivory) 48%, transparent); }
+.compositionGraph i { width: 14%; height: 38%; border-radius: 2px 2px 1px 1px; background: color-mix(in srgb, var(--blue) 82%, var(--os-public-color-ivory)); }
+.compositionGraph i:nth-child(2) { height: 64%; background: color-mix(in srgb, var(--mint) 76%, var(--os-public-color-ivory)); }
+.compositionGraph i:nth-child(3) { height: 51%; background: color-mix(in srgb, var(--os-public-color-accent) 76%, var(--os-public-color-ivory)); }
+.compositionGraph i:nth-child(4) { height: 82%; background: color-mix(in srgb, var(--blue) 62%, var(--os-public-color-ivory)); }
+.compositionGraph i:nth-child(5) { height: 72%; background: color-mix(in srgb, var(--mint) 64%, var(--os-public-color-ivory)); }
+.compositionGrid { display: grid; min-width: 0; gap: 4px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.compositionGrid i { min-height: 0; border-radius: 4px; background: linear-gradient(145deg, color-mix(in srgb, var(--blue) 38%, var(--os-public-color-ivory)), color-mix(in srgb, var(--blue) 18%, var(--os-public-color-dark))); }
+.compositionGrid i:nth-child(2) { background: linear-gradient(145deg, color-mix(in srgb, var(--mint) 50%, var(--os-public-color-ivory)), color-mix(in srgb, var(--mint) 20%, var(--os-public-color-dark))); }
+.compositionGrid i:nth-child(3) { background: linear-gradient(145deg, color-mix(in srgb, var(--os-public-color-accent) 54%, var(--os-public-color-ivory)), color-mix(in srgb, var(--os-public-color-accent) 24%, var(--os-public-color-dark))); }
+.compositionGrid i:nth-child(4) { background: color-mix(in srgb, var(--os-public-color-dark) 9%, transparent); }
+.compositionFooter span { height: 2px; flex: 1; border-radius: 999px; background: color-mix(in srgb, var(--os-public-color-dark) 18%, transparent); }
+.compositionFooter span:first-child { flex: 1.7; background: color-mix(in srgb, var(--blue) 68%, var(--os-public-color-ivory)); }
+.siteCanvasDetail { display: flex; min-width: 0; padding: 6px 0; align-items: baseline; justify-content: space-between; gap: 10px; border-top: 1px solid color-mix(in srgb, var(--os-public-color-dark) 15%, transparent); color: color-mix(in srgb, var(--os-public-color-dark) 50%, var(--os-public-color-ivory)); }
+.siteCanvasDetail small { flex: 0 0 auto; font: 7px var(--font-geist-mono), monospace; letter-spacing: .1em; }
+.siteCanvasDetail b { overflow: hidden; color: color-mix(in srgb, var(--os-public-color-dark) 71%, var(--os-public-color-ivory)); font: 9px var(--font-geist-sans), Arial, sans-serif; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
+.siteCanvasFooter { padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--os-public-color-dark) 15%, transparent); color: color-mix(in srgb, var(--os-public-color-dark) 47%, var(--os-public-color-ivory)); font: 8px var(--font-geist-mono), monospace; }
+.siteCanvasFooter b { color: color-mix(in srgb, var(--mint) 83%, var(--os-public-color-dark)); font-weight: 650; }
+
+/* CRM: list + selected record, reflecting the canonical client history. */
+.crmVisual {
+  display: flex;
+  min-height: 0;
+  margin: auto clamp(19px, 2.2vw, 42px) clamp(22px, 2vw, 37px);
+  padding: clamp(17px, 1.7vw, 29px);
+  flex: 1;
+  flex-direction: column;
+  gap: 17px;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 79%, transparent);
+  border-radius: clamp(12px, .9vw, 18px);
+  background: color-mix(in srgb, var(--os-public-color-cream) 4%, transparent);
+}
+
+.crmLayout { display: grid; min-height: 0; gap: 14px; flex: 1; grid-template-columns: minmax(145px, .83fr) minmax(0, 1.17fr); }
+.crmList { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.personRow { position: relative; display: grid; min-width: 0; padding: 9px 8px; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: 9px; grid-template-columns: 25px minmax(0, 1fr) 6px; }
+.selectedPerson { border-color: color-mix(in srgb, var(--os-public-color-accent) 31%, transparent); background: color-mix(in srgb, var(--os-public-color-accent) 8%, transparent); }
+.personRow > span:nth-child(2) { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.personRow b { overflow: hidden; color: color-mix(in srgb, var(--os-public-color-cream) 87%, var(--os-public-color-muted)); font: 10px var(--font-geist-sans), Arial, sans-serif; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
+.personRow small { color: var(--os-public-color-muted); font: 8px var(--font-geist-mono), monospace; }
+.personRow > i { width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--mint) 82%, var(--os-public-color-muted)); }
+.avatar,
+.avatarLarge { display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--os-public-color-accent) 25%, var(--os-public-color-surface)); color: var(--os-public-color-accent); font: 8px var(--font-geist-mono), monospace; font-weight: 650; }
+.avatar { width: 25px; height: 25px; }
+.avatarLarge { width: 35px; height: 35px; font-size: 10px; }
+.crmRecord { display: flex; min-width: 0; padding: 16px; flex-direction: column; border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 75%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--os-public-color-chocolate) 22%, transparent); }
+.recordHeading { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.recordHeading > span:last-child { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.recordHeading b { overflow: hidden; color: var(--os-public-color-cream); font: 11px var(--font-geist-sans), Arial, sans-serif; font-weight: 580; text-overflow: ellipsis; white-space: nowrap; }
+.recordHeading small { color: var(--os-public-color-muted); font: 8px var(--font-geist-mono), monospace; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 17px; }
+.tags span { padding: 5px 7px; border: 1px solid color-mix(in srgb, var(--os-public-color-accent) 37%, transparent); border-radius: 999px; color: color-mix(in srgb, var(--os-public-color-accent) 86%, var(--os-public-color-cream)); font: 8px var(--font-geist-mono), monospace; }
+.tags span + span { border-color: color-mix(in srgb, var(--os-public-color-border-dark) 87%, transparent); color: var(--os-public-color-muted); }
+.historyRow { display: flex; margin-top: auto; padding-top: 14px; flex-direction: column; gap: 5px; border-top: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 72%, transparent); }
+.historyRow small { color: color-mix(in srgb, var(--os-public-color-muted) 78%, var(--os-public-color-cream)); font: 8px var(--font-geist-mono), monospace; letter-spacing: .09em; }
+.historyRow b { color: var(--os-public-color-cream); font: 10px var(--font-geist-sans), Arial, sans-serif; font-weight: 520; }
+
+/* Payments: a compact amount/status scene with restrained green success. */
+.paymentsVisual {
+  display: flex;
+  min-height: 0;
+  margin: auto clamp(18px, 2vw, 37px) clamp(21px, 2vw, 37px);
+  padding: clamp(19px, 1.8vw, 31px);
+  flex: 1;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 78%, transparent);
+  border-radius: clamp(12px, .9vw, 18px);
+  background: radial-gradient(circle at 84% 16%, color-mix(in srgb, var(--os-public-color-accent) 18%, transparent), transparent 48%), color-mix(in srgb, var(--os-public-color-cream) 4%, transparent);
+}
+
+.paymentHeader { color: var(--os-public-color-muted); }
+.paymentHeader > b { display: inline-flex; align-items: center; gap: 6px; color: color-mix(in srgb, var(--mint) 84%, var(--os-public-color-cream)); }
+.paymentHeader > b i { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mint) 14%, transparent); }
+.paymentAmount { display: flex; margin: auto 0; align-items: baseline; gap: 10px; color: var(--os-public-color-cream); }
+.paymentAmount strong { font: clamp(35px, 3.7vw, 68px) var(--font-geist-sans), Arial, sans-serif; font-weight: 570; letter-spacing: -.075em; line-height: .95; }
+.paymentAmount span { color: color-mix(in srgb, var(--os-public-color-muted) 80%, var(--os-public-color-cream)); font: 11px var(--font-geist-mono), monospace; }
+.paymentRelation { display: grid; gap: 14px; padding-top: 17px; border-top: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 74%, transparent); grid-template-columns: minmax(0, 1fr) auto; }
+.paymentRelation span { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.paymentRelation small { color: var(--os-public-color-muted); font: 8px var(--font-geist-mono), monospace; letter-spacing: .09em; }
+.paymentRelation b { overflow: hidden; color: var(--os-public-color-cream); font: 10px var(--font-geist-sans), Arial, sans-serif; font-weight: 540; text-overflow: ellipsis; white-space: nowrap; }
+.illustrative { display: block; margin-top: 17px; color: color-mix(in srgb, var(--os-public-color-muted) 78%, transparent); font: 8px var(--font-geist-mono), monospace; letter-spacing: .1em; }
+
+/* Automation: a small three-step capability preview, not a second journey. */
+.automationVisual {
+  display: flex;
+  min-height: 0;
+  margin: auto clamp(20px, 2.2vw, 42px) clamp(21px, 2vw, 37px);
+  padding: clamp(17px, 1.8vw, 30px);
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 78%, transparent);
+  border-radius: clamp(12px, .9vw, 18px);
+  background: color-mix(in srgb, var(--os-public-color-cream) 4%, transparent);
+}
+
+.activeStatus { display: inline-flex; align-items: center; gap: 6px; color: color-mix(in srgb, var(--mint) 82%, var(--os-public-color-cream)); }
+.activeStatus i { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+.automationFlow { display: grid; min-width: 0; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.automationStep { position: relative; min-width: 0; }
+.automationNode { display: flex; min-width: 0; min-height: 46px; padding: 9px 10px; align-items: center; gap: 9px; border: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 80%, transparent); border-radius: 9px; background: color-mix(in srgb, var(--os-public-color-chocolate) 18%, transparent); }
+.automationNode > span { color: color-mix(in srgb, var(--os-public-color-accent) 74%, var(--os-public-color-muted)); font: 8px var(--font-geist-mono), monospace; }
+.automationNode b { min-width: 0; color: var(--os-public-color-cream); font: 10px var(--font-geist-sans), Arial, sans-serif; font-weight: 540; overflow-wrap: break-word; }
+.automationStep > small { display: block; min-width: 0; margin-top: 8px; color: var(--os-public-color-muted); font: 8px var(--font-geist-mono), monospace; overflow-wrap: break-word; }
+.connector { position: absolute; top: 23px; right: -11px; width: 14px; height: 1px; background: color-mix(in srgb, var(--os-public-color-accent) 52%, var(--os-public-color-border-dark)); }
+.connector::after { position: absolute; top: -2px; right: 0; width: 4px; height: 4px; border-top: 1px solid var(--os-public-color-accent); border-right: 1px solid var(--os-public-color-accent); content: ""; transform: rotate(45deg); }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    z-index: 3;
+    border-color: color-mix(in srgb, var(--os-public-color-accent) 34%, var(--os-public-color-border-dark));
+    box-shadow: 0 34px 94px color-mix(in srgb, var(--os-public-color-chocolate) 82%, transparent), 0 0 0 1px color-mix(in srgb, var(--os-public-color-accent) 9%, transparent);
+    transform: translateY(-4px);
+  }
+}
+
+@media (min-width: 1920px) {
+  .bento { gap: clamp(18px, 1vw, 28px); grid-template-rows: minmax(390px, 1.08fr) minmax(340px, .92fr) minmax(365px, .92fr); }
+  .cardCopy { padding-top: clamp(30px, 2.35vw, 52px); }
+  .bookingVisual,
+  .siteVisual,
+  .crmVisual,
+  .paymentsVisual,
+  .automationVisual { margin-left: clamp(24px, 2.5vw, 60px); margin-right: clamp(24px, 2.5vw, 60px); }
+}
+
+@media (max-width: 1180px) {
+  .intro { gap: 28px; grid-template-columns: minmax(0, 1.08fr) minmax(250px, .92fr); }
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+  .bookingCard,
+  .siteCard,
+  .automationCard,
+  .analyticsCard { grid-column: 1 / -1; grid-row: auto; }
+  .crmCard,
+  .paymentsCard { grid-column: auto; grid-row: auto; }
+  .bookingCard { min-height: 620px; }
+  .siteCard { min-height: 365px; }
+  .analyticsCard { min-height: 470px; }
+  .siteContentPreview { min-height: 238px; }
+  .bookingLayout { grid-template-columns: minmax(0, 1fr) minmax(220px, .85fr); }
+}
+
+@media (max-width: 760px) {
+  .intro { grid-template-columns: 1fr; }
+  .introAside { padding: 24px 0 0; border-top: 1px solid color-mix(in srgb, var(--os-public-color-border-dark) 92%, transparent); border-left: 0; }
+}
+
+@media (max-width: 650px) {
+  .section { padding: 92px 0 108px; }
+  .bento { display: grid; margin-top: 55px; grid-template-columns: minmax(0, 1fr); }
+  .card,
+  .bookingCard,
+  .siteCard,
+  .crmCard,
+  .paymentsCard,
+  .automationCard,
+  .analyticsCard { grid-column: auto; grid-row: auto; min-height: 0; }
+  .cardCopy { padding: 26px 22px 0; }
+  .cardIndex { margin-bottom: 17px; }
+  .bookingCard { min-height: 0; }
+  .bookingVisual,
+  .siteVisual,
+  .crmVisual,
+  .paymentsVisual,
+  .automationVisual { margin: 33px 16px 16px; }
+  .bookingVisual { padding: 16px; gap: 18px; }
+  .bookingLayout { gap: 17px; grid-template-columns: 1fr; }
+  .bookingDetails { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 8px 11px; }
+  .bookingDetails .uiLabel:nth-of-type(2) { margin-top: 0; }
+  .selectField { min-height: 38px; }
+  .slotGrid { grid-column: 1 / -1; }
+  .bookingBenefits { padding: 15px; gap: 16px; }
+  .benefitItem { padding: 14px 0; gap: 14px; }
+  .siteContentPreview { min-height: 248px; grid-template-columns: 98px minmax(0, 1fr); }
+  .siteSidebar { padding: 15px 10px; }
+  .siteCanvas { padding: 16px 18px 11px; }
+  .siteCanvasHero { gap: 12px; grid-template-columns: minmax(0, .92fr) minmax(88px, 1.08fr); }
+  .crmLayout { gap: 9px; grid-template-columns: minmax(111px, .8fr) minmax(0, 1.2fr); }
+  .crmVisual { padding: 15px; }
+  .crmRecord { padding: 12px; }
+  .personRow { grid-template-columns: 23px minmax(0, 1fr) 5px; padding: 8px 5px; }
+  .avatar { width: 23px; height: 23px; }
+  .personRow b { font-size: 9px; }
+  .automationFlow { gap: 5px; }
+  .automationNode { padding: 8px 7px; gap: 6px; }
+  .automationNode b { font-size: 9px; }
+  .connector { right: -9px; width: 11px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { animation: capabilityReveal .72s cubic-bezier(.22, 1, .36, 1) both; }
+  .bookingCard { animation-delay: .04s; }
+  .siteCard { animation-delay: .1s; }
+  .crmCard { animation-delay: .16s; }
+  .paymentsCard { animation-delay: .22s; }
+  .automationCard { animation-delay: .28s; }
+  .analyticsCard { animation-delay: .34s; }
+  .activeSlot { animation: slotPulse 4.8s ease-in-out .9s infinite; }
+  .connector::after { animation: connectorPulse 3.8s ease-in-out 1.1s infinite; }
+}
+
+@keyframes capabilityReveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slotPulse {
+  0%, 100% { box-shadow: 0 8px 20px color-mix(in srgb, var(--blue) 24%, transparent); }
+  50% { box-shadow: 0 8px 24px color-mix(in srgb, var(--blue) 42%, transparent), 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+}
+
+@keyframes connectorPulse {
+  0%, 100% { opacity: .45; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section :where(*) { animation: none !important; transition: none !important; }
+  .card { opacity: 1; transform: none; }
+}

@@ -1,0 +1,73 @@
+export const about = {
+    languageLabel: "Language",
+    hero: {
+      eyebrow: "ABOUT ONESTUDIO",
+      title: ["Your business doesn't need", "another service."],
+      lead: "It needs a place where the website, the clients and the everyday work are connected instead of living apart.",
+    },
+    idea: {
+      eyebrow: "01 / THE IDEA",
+      title: ["A website is only", "the beginning."],
+      paragraphs: [
+        "OneStudio started with a simple idea: a beautiful website shouldn't end at a “Get in touch” button.",
+        "Behind it, there can be a system that helps a business take bookings, work with clients, manage content and add the tools it needs as it grows.",
+      ],
+      note: "The public side and the daily work, together",
+    },
+    why: {
+      eyebrow: "02 / WHY ONESTUDIO",
+      title: ["Fewer disconnected", "tools.", "More connection between them."],
+      intro: "For many businesses, one workflow becomes a collection of separate places doing related jobs.",
+      problemLabel: "WHAT THAT LOOKS LIKE",
+      problemItems: ["The website lives in one service", "Bookings in another", "Clients in a spreadsheet", "Photos in scattered folders", "Notifications somewhere else"],
+      body: "OneStudio aims to bring the public website and the working processes around one business together. An action that starts on the website can stay connected to what happens next.",
+      visualLabel: "ONE BUSINESS",
+      visualCaption: "The website and the working processes share one context.",
+      visualItems: ["Website", "Booking", "Clients", "Work"],
+    },
+    modularity: {
+      eyebrow: "03 / MODULARITY",
+      title: ["Not every business", "needs everything."],
+      body: "That is why OneStudio is built from modules. Use the website and only the working capabilities you need, then add more when there is a real reason for them.",
+      note: "Add modules when the need becomes real",
+      visualLabel: "ONESTUDIO MODULES",
+      coreLabel: "YOUR BUSINESS",
+      modules: ["Website & editor", "Booking", "Clients", "Payments", "Notifications", "Media / portfolio", "Analytics"],
+    },
+    design: {
+      eyebrow: "04 / DESIGN",
+      title: ["Your website should change", "with the business."],
+      body: "A ready-made design is a starting point, not a cage. Change the copy, images, blocks and styling, while a component library gives you more ways to shape the content.",
+      cards: [
+        { label: "Demos", title: "A clear starting point", body: "Choose a direction and see what the website can look like in a live scenario.", href: "/demos" },
+        { label: "Site Editor", title: "The content stays yours", body: "Change the copy, images and blocks as the business changes." },
+        { label: "Components", title: "More ways to tell the story", body: "A component library helps create different rhythms and page formats." },
+        { label: "Responsive", title: "One site, different screens", body: "The experience should stay useful on a phone, tablet and large screen." },
+      ],
+    },
+    growth: {
+      eyebrow: "05 / EVOLUTION",
+      title: ["OneStudio is not", "considered finished."],
+      body: "New templates, working modules and design capabilities arrive gradually. Each addition should solve a clear problem, rather than simply making the feature list longer.",
+      note: "The product grows around real problems",
+      items: ["New templates", "Working modules", "Design capabilities"],
+    },
+    principles: {
+      eyebrow: "06 / PRINCIPLES",
+      title: "How we think about the product",
+      items: [
+        { title: "Clear", body: "Tools should make sense without a technical vocabulary." },
+        { title: "Connected", body: "Data and actions should not break between different parts of the business." },
+        { title: "Flexible", body: "The business chooses its pages, design and working modules." },
+        { title: "Purposeful", body: "A new feature should solve a real problem." },
+      ],
+    },
+    cta: {
+      eyebrow: "NEXT STEP",
+      title: ["See how it", "works."],
+      body: "Explore the features or start with a ready-made design, then build your own view of OneStudio.",
+      features: "Features",
+      demos: "Templates",
+      contactLabel: "Have a question?",
+    },
+  } as const;

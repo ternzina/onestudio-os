@@ -1,0 +1,315 @@
+.page {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--os-public-color-ivory);
+  color: var(--os-public-color-dark);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 0 var(--os-public-container-gutter) clamp(68px, 8vw, 106px);
+  color: var(--os-public-color-cream);
+  background:
+    radial-gradient(ellipse 68% 90% at 76% 48%, rgba(255, 107, 53, .19), transparent 70%),
+    var(--os-public-color-chocolate);
+}
+
+.hero::before,
+.designSection::before {
+  position: absolute;
+  inset: 0;
+  opacity: .2;
+  background-image: radial-gradient(rgba(255, 185, 130, .42) .7px, transparent .8px);
+  background-size: 24px 24px;
+  content: "";
+  mask-image: radial-gradient(ellipse at 72% 48%, black, transparent 74%);
+  pointer-events: none;
+}
+
+.hero::after,
+.designSection::after {
+  position: absolute;
+  right: -10%;
+  bottom: -42%;
+  width: min(58vw, 780px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 129, 74, .18);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.heroInner {
+  padding-top: clamp(112px, 11vw, 164px);
+}
+
+.heroCopy {
+  max-width: 850px;
+}
+
+.eyebrow,
+.sectionEyebrow,
+.designEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.eyebrow,
+.designEyebrow {
+  color: var(--os-public-color-accent);
+}
+
+.sectionEyebrow {
+  color: var(--os-public-color-accent-strong);
+}
+
+.eyebrow span,
+.sectionEyebrow span,
+.designEyebrow span {
+  display: block;
+  width: 35px;
+  height: 1px;
+  flex: 0 0 35px;
+  background: currentColor;
+}
+
+.heroTitle {
+  max-width: 850px;
+  margin: 27px 0 28px;
+  color: var(--os-public-color-cream);
+}
+
+.heroTitle span {
+  display: block;
+}
+
+.heroTitle span:last-child {
+  color: var(--os-public-color-accent);
+}
+
+.heroLead {
+  max-width: 700px;
+  margin: 0;
+  color: var(--os-public-color-muted);
+}
+
+.faqSection {
+  padding: clamp(76px, 8vw, 128px) var(--os-public-container-gutter);
+  background: var(--os-public-color-ivory);
+}
+
+.sectionTitle {
+  max-width: 820px;
+  margin: 24px 0 0;
+  color: var(--os-public-color-dark);
+}
+
+.designCardIndex {
+  color: var(--os-public-color-accent-strong);
+}
+
+.designSection {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(88px, 10vw, 146px) var(--os-public-container-gutter) clamp(92px, 11vw, 156px);
+  color: var(--os-public-color-cream);
+  background:
+    radial-gradient(circle at 12% 22%, color-mix(in srgb, var(--os-public-color-accent) 14%, transparent), transparent 26%),
+    var(--os-public-color-chocolate);
+}
+
+.designSection::before {
+  opacity: .12;
+  mask-image: radial-gradient(ellipse at 28% 35%, black, transparent 68%);
+}
+
+.designSection::after {
+  top: 12%;
+  right: -8%;
+  bottom: auto;
+  width: min(46vw, 660px);
+  border-color: color-mix(in srgb, var(--os-public-color-accent) 16%, transparent);
+}
+
+.designEyebrow {
+  color: var(--os-public-color-accent);
+}
+
+.designIntro {
+  display: grid;
+  position: relative;
+  gap: clamp(36px, 8vw, 140px);
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr);
+  align-items: end;
+}
+
+.designTitle {
+  max-width: 760px;
+  margin: 23px 0 0;
+  color: var(--os-public-color-cream);
+}
+
+.designCopy {
+  min-width: 0;
+}
+
+.designLead {
+  max-width: 570px;
+  margin: 0;
+  color: var(--os-public-color-muted);
+}
+
+.designPrice {
+  margin: 27px 0 0;
+  color: var(--os-public-color-accent);
+  font-size: clamp(30px, 3vw, 48px);
+  font-weight: 700;
+  letter-spacing: -.05em;
+}
+
+.designTagline {
+  margin: 9px 0 0;
+  color: var(--os-public-color-cream);
+}
+
+.designNote {
+  max-width: 580px;
+  margin: 22px 0 0;
+  color: var(--os-public-color-muted);
+}
+
+.outlineCta {
+  display: inline-flex;
+  min-height: 48px;
+  margin-top: 27px;
+  padding: 0 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid color-mix(in srgb, var(--os-public-color-cream) 35%, transparent);
+  border-radius: 999px;
+  color: var(--os-public-color-cream);
+  background: color-mix(in srgb, var(--os-public-color-cream) 6%, transparent);
+  transition: transform .25s ease, background-color .25s ease;
+}
+
+.outlineCta:hover,
+.outlineCta:focus-visible {
+  background: color-mix(in srgb, var(--os-public-color-cream) 14%, transparent);
+  transform: translateY(-2px);
+}
+
+.outlineCta:focus-visible,
+.faqMore:focus-visible {
+  outline: 2px solid var(--os-public-color-accent);
+  outline-offset: 4px;
+}
+
+.designGrid {
+  display: grid;
+  position: relative;
+  gap: 15px;
+  margin-top: clamp(46px, 6vw, 72px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.designCard {
+  min-width: 0;
+  min-height: 210px;
+  padding: 25px 25px 28px;
+  border: 1px solid var(--os-public-color-border-dark);
+  border-radius: 21px;
+  background: color-mix(in srgb, var(--os-public-color-cream) 5.5%, transparent);
+  transition: transform .3s ease, background-color .3s ease;
+}
+
+.designCard:hover {
+  background: color-mix(in srgb, var(--os-public-color-cream) 10%, transparent);
+  transform: translateY(-4px);
+}
+
+.designCardLabel {
+  margin: 43px 0 0;
+  color: var(--os-public-color-cream);
+}
+
+.designCardDescription {
+  margin: 11px 0 0;
+  color: var(--os-public-color-muted);
+}
+
+.faqIntro {
+  display: flex;
+  justify-content: space-between;
+}
+
+.faqFooter {
+  margin-top: 28px;
+}
+
+.faqMore {
+  display: inline-flex;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--os-public-color-accent-strong);
+  color: var(--os-public-color-dark);
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.faqMore:hover {
+  border-color: var(--os-public-color-dark);
+  color: var(--os-public-color-dark);
+}
+
+@media (max-width: 900px) {
+  .designIntro {
+    grid-template-columns: 1fr;
+  }
+
+  .designGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-bottom: 72px;
+  }
+
+  .heroInner {
+    padding-top: 112px;
+  }
+
+  .heroTitle {
+    margin-block: 22px 24px;
+    font-size: clamp(42px, 12vw, 68px);
+  }
+
+  .heroLead,
+  .designLead {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .designGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .designSection {
+    padding-block: 82px 92px;
+  }
+
+  .designCard {
+    min-height: 184px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .designCard,
+  .outlineCta,
+  .faqMore {
+    transition: none;
+  }
+}
