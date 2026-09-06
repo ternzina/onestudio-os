@@ -76,3 +76,12 @@ test("CashPath has branded custom pages, a safe idempotent missing-page merge, a
   assert.match(editor, /label: "Настройки сайта"/);
   assert.match(editor, /setSiteSettingsOpen\(true\)/);
 });
+
+test("public-site page persistence uses a 200-page technical guardrail without truncation", async () => {
+  const migration = await readFile(new URL("../supabase/migrations/20260906100000_public_site_page_seo_persistence_fix_1_0.sql", import.meta.url), "utf8");
+  const editor = await readFile(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
+  assert.match(migration, /> 200/);
+  assert.match(migration, /public_site_page_limit_exceeded/);
+  assert.doesNotMatch(migration, /custom_count >= (?:32|200)/);
+  assert.match(editor, /Сайт содержит слишком много страниц для одного сохранения\. Ничего не удалено\./);
+});

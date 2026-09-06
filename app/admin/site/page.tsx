@@ -268,6 +268,14 @@ function nativeActionStylesRoundTripMatches(
     === stableJsonSignature(draft.native_action_styles ?? {});
 }
 
+function pagesRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
+  return stableJsonSignature(saved?.pages ?? []) === stableJsonSignature(draft.pages ?? []);
+}
+function siteSettingsRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
+  const keys = ["seo_keywords", "favicon_url", "seo_title", "seo_description", "seo_image_url", "seo_no_index"] as const;
+  return keys.every((key) => (saved?.[key] ?? "") === (draft[key] ?? ""));
+}
+
 function cloneCustomBlockForDuplicate(
   block: PublicSiteCustomBlock,
 ): PublicSiteCustomBlock {
@@ -987,7 +995,7 @@ export default function AdminSitePage() {
     });
 
     if (saveError) {
-      setError(saveError.message);
+      setError(saveError.message.includes("public_site_page_limit_exceeded") ? "Сайт содержит слишком много страниц для одного сохранения. Ничего не удалено." : saveError.message);
       setSaving(false);
       return false;
     }
@@ -1008,6 +1016,8 @@ export default function AdminSitePage() {
       setSaving(false);
       return false;
     }
+    if (!pagesRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил список страниц. Изменения оставлены в редакторе."); setSaving(false); return false; }
+    if (!siteSettingsRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил настройки сайта. Изменения оставлены в редакторе."); setSaving(false); return false; }
 
     if (!(await saveSiteLogoDraft())) {
       setSaving(false);
@@ -1044,6 +1054,7 @@ export default function AdminSitePage() {
         setSaving(false);
         return false;
       }
+      if (!pagesRoundTripMatches(draftToSave, publishedContent) || !siteSettingsRoundTripMatches(draftToSave, publishedContent)) { setError("Публикация не подтверждена: сервер изменил страницы или настройки сайта."); setSaving(false); return false; }
       setMessage(t("Site published."));
     } else {
       setMessage(t("Draft saved."));
