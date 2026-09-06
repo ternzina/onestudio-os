@@ -75,7 +75,7 @@ export type WebsiteProcessStep = {
   description: string;
 };
 
-export type WebsitePortfolioKey = "sisters-studio" | "bembi" | "noir-frame" | "velora-house";
+export type WebsitePortfolioKey = "sisters-studio" | "bembi" | "noir-frame" | "velora-house" | "cashpath";
 
 export type WebsitePortfolioCard = Readonly<{
   key: WebsitePortfolioKey;
@@ -89,6 +89,7 @@ export const websitePortfolioCards: readonly WebsitePortfolioCard[] = [
   { key: "bembi", name: "Bembi", url: "https://bembi.biz/", previewImage: "/images/portfolio/bembi.png" },
   { key: "noir-frame", name: "NOIR FRAME — Premium Photo Studio", url: "https://joowy.net/", previewImage: "/images/demos/premium-studio/bright/hero.webp" },
   { key: "velora-house", name: "VELORA HOUSE", url: "https://planetaprincesas.com/", previewImage: "/templates/velora/hero-cinematic.webp" },
+  { key: "cashpath", name: "CashPath", url: "https://cashpath.org/", previewImage: "/templates/cashpath/hero-woman-wide-v2.png" },
 ];
 
 export type WebsiteContent = {

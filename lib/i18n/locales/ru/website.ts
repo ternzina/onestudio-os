@@ -49,5 +49,6 @@ export const website = {
     bembi: { projectType: "Клиентский проект", cta: "Открыть сайт", description: null, alt: null },
     "noir-frame": { projectType: "OneStudio Original", cta: "Открыть сайт", description: "Премиальная фотостудия с portfolio viewer, 3D-туром и before/after.", alt: "Светлый зал фотостудии NOIR FRAME" },
     "velora-house": { projectType: "OneStudio Original", cta: "Открыть сайт", description: "Свадьбы, частные ужины и корпоративные события в трёх выразительных залах.", alt: "Вечерний зал VELORA HOUSE" },
+    cashpath: { projectType: "Клиентский проект", cta: "Открыть сайт", description: "Понятный сервис для подбора вариантов потребительского займа.", alt: "Сайт CashPath с вариантами потребительского займа" },
   },
 } as const;

@@ -1,51 +1,21 @@
-"use client";
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import CashPathNotFound from "@/components/public/cashpath/CashPathNotFound";
+import PublicSiteNotFoundClient from "@/components/public/PublicSiteNotFound";
+import { requestHostname, resolvePublicSiteDomain } from "@/lib/public-site/domain-resolution";
+import { getPublicSite } from "@/lib/public-site/data";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
-function publicHomeFromPath(pathname: string) {
-  const parts = pathname.split("/").filter(Boolean);
-  const siteIndex = parts.indexOf("site");
-  const businessSlug = parts[siteIndex + 1];
-  if (!businessSlug) return "/demos";
+export default async function PublicSiteNotFound() {
+  const headerStore = await headers();
+  const hostname = requestHostname(headerStore);
+  const resolution = hostname ? await resolvePublicSiteDomain(hostname) : null;
+  const site = resolution ? await getPublicSite(resolution.business_slug, resolution.primary_locale) : null;
 
-  const possibleLocale = parts[siteIndex + 2];
-  const hasLocale =
-    Boolean(possibleLocale) &&
-    possibleLocale !== "p" &&
-    possibleLocale !== "portfolio";
+  if (site?.content.template_id === "cashpath") return <CashPathNotFound />;
 
-  return hasLocale
-    ? `/site/${businessSlug}/${possibleLocale}`
-    : `/site/${businessSlug}`;
-}
-
-export default function PublicSiteNotFound() {
-  const pathname = usePathname();
-  const homeHref = publicHomeFromPath(pathname);
-
-  return (
-    <main className="grid min-h-screen place-items-center bg-[#fffaf8] px-6 text-[#3b211f]">
-      <section className="w-full max-w-2xl rounded-[36px] border border-black/8 bg-white p-8 text-center shadow-[0_30px_100px_rgba(59,33,31,0.12)] sm:p-14">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#9d3151]">
-          Ошибка 404
-        </p>
-        <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-6xl">
-          Такой страницы нет
-        </h1>
-        <p className="mx-auto mt-5 max-w-lg text-base leading-8 text-black/55">
-          Возможно, страница была скрыта, удалена или её адрес изменился.
-        </p>
-        <Link
-          href={homeHref}
-          className="mt-8 inline-flex min-h-12 items-center rounded-xl bg-[#3b211f] px-7 text-sm font-semibold text-white"
-        >
-          Вернуться на сайт
-          <span className="ml-8" aria-hidden="true">
-            →
-          </span>
-        </Link>
-      </section>
-    </main>
-  );
+  return <PublicSiteNotFoundClient />;
 }

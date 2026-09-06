@@ -20,11 +20,15 @@ export default function PublicCustomPage({
   page,
   brandTagline,
   basePath,
+  showPlatformCredit = true,
+  labels,
 }: {
   site: PublicSiteData;
   page: PublicSitePage;
   brandTagline?: string;
   basePath?: string;
+  showPlatformCredit?: boolean;
+  labels?: { home?: string; backToHome?: string };
 }) {
   const { business, company, content, capabilities } = site;
   const localized =
@@ -62,7 +66,7 @@ export default function PublicCustomPage({
             ) : null}
           </Link>
           <nav className="flex items-center gap-6 text-xs font-semibold text-black/60">
-            <Link href={homeHref}>Главная</Link>
+            <Link href={homeHref}>{labels?.home || "Главная"}</Link>
             <Link href={pageHref} aria-current="page" className="text-[var(--site-accent)]">
               {page.nav_label}
             </Link>
@@ -131,9 +135,9 @@ export default function PublicCustomPage({
             © {new Date().getFullYear()}{" "}
             {content.brand_name || company.display_name || business.name}
           </p>
-          <Link href={homeHref}>Вернуться на главную</Link>
+          <Link href={homeHref}>{labels?.backToHome || "Вернуться на главную"}</Link>
           <PublicSocialLinks content={content} light />
-          <p className="text-white/60">Создано на OneStudio OS</p>
+          {showPlatformCredit ? <p className="text-white/60">Создано на OneStudio OS</p> : null}
         </div>
       </footer>
       <PublicSiteAnalytics content={content} />
