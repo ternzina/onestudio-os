@@ -208,6 +208,27 @@ async function saveSyncResult(
   businessId: string,
   result: VercelDomainSyncResult,
 ) {
+  const current = await readDomain(admin, businessId);
+  // The canonical host already proved live must not disappear because a later
+  // companion-host TLS probe is briefly unavailable. A verified ownership
+  // loss still follows the normal lifecycle and can deactivate the domain.
+  if (
+    current?.status === "active" &&
+    current.vercel_verified &&
+    current.dns_configured &&
+    current.ssl_ready &&
+    result.vercelVerified &&
+    !result.sslReady
+  ) {
+    const { data, error } = await admin
+      .from("public_site_domains")
+      .update({ last_error: result.lastError, last_checked_at: new Date().toISOString() })
+      .eq("business_id", businessId)
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as DomainRow;
+  }
   const { data, error } = await admin
     .from("public_site_domains")
     .update(syncUpdate(result))

@@ -1,6 +1,11 @@
 begin;
 
-create or replace function public.resolve_public_site_domain(p_domain text)
+-- PostgreSQL cannot change a function's OUT-column row type in place.
+-- This migration is intentionally still unapplied; replace the exact old
+-- text-argument signature before creating the redirect-aware resolver.
+drop function if exists public.resolve_public_site_domain(text);
+
+create function public.resolve_public_site_domain(p_domain text)
 returns table (
   business_id uuid,
   business_slug text,
