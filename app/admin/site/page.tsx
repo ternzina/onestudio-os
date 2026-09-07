@@ -91,6 +91,7 @@ import {
   needsCashPathRequestFormRepair,
   repairCashPathRequestForm,
 } from "@/lib/public-site/cashpath-form-repair";
+import { needsCashPathFullPageUpgrade, upgradeCashPathFullPages } from "@/lib/public-site/cashpath-page-content-upgrade";
 import {
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
@@ -2425,6 +2426,11 @@ function VisualBuilder({
     );
     setPageLibraryOpen(false);
   }
+  const needsCashPathPagesUpgrade = needsCashPathFullPageUpgrade(draft);
+  function upgradeCashPathPagesInDraft() {
+    onReplaceDraft(upgradeCashPathFullPages(draft), "cashpath:full-pages-upgrade");
+    setPageLibraryOpen(false);
+  }
 
   function addCustomBlock(
     kind: PublicSiteCustomBlockKind,
@@ -3968,7 +3974,7 @@ function VisualBuilder({
                 </span>
               </div>
             </button>
-            {draft.template_id === "cashpath" ? <><button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button>{needsCashPathFormRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathRequestFormInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Восстановить форму заявки</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит старый текстовый блок CashPath на форму заявки. Остальные страницы и настройки не изменятся.</p></button> : null}</> : null}
+            {draft.template_id === "cashpath" ? <><button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button>{needsCashPathPagesUpgrade ? <button type="button" disabled={!canConfigure} onClick={upgradeCashPathPagesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Сделать страницы полноценными</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит только старые страницы-заглушки CashPath на полноценные информационные страницы. SEO и уже отредактированные страницы не изменятся.</p></button> : null}{needsCashPathFormRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathRequestFormInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Восстановить форму заявки</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит старый текстовый блок CashPath на форму заявки. Остальные страницы и настройки не изменятся.</p></button> : null}</> : null}
           </div>
         </div>
       ) : null}
