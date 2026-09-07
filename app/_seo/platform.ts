@@ -4,6 +4,7 @@ import { DEFAULT_DESCRIPTION, DEFAULT_KEYWORDS, SITE_NAME, SITE_URL } from "./si
 export const PLATFORM_MARKETING_PATHS = [
   "/",
   "/features",
+  "/solutions",
   "/demos",
   "/components",
   "/pricing",

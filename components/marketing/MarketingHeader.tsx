@@ -119,6 +119,7 @@ export default function MarketingHeader({
 
   const productItems: readonly NavigationItem[] = [
     { label: t.footer.links.features, href: "/features" },
+    { label: t.footer.links.solutions, href: "/solutions" },
     { label: t.footer.links.templates, href: "/demos" },
     { label: t.footer.links.components, href: "/components" },
     { label: t.footer.links.pricing, href: "/pricing" },

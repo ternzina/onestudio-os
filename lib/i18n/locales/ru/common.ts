@@ -34,7 +34,7 @@ export const common = {
     oneStudio: "ONESTUDIO",
     information: "ИНФОРМАЦИЯ",
     links: {
-      features: "Функции",
+      features: "Функции", solutions: "Решения",
       templates: "Шаблоны",
       components: "Компоненты",
       pricing: "Тарифы",

@@ -1,0 +1,4 @@
+import type { Metadata } from "next"; import { notFound } from "next/navigation"; import { SolutionDetail } from "../SolutionPage"; import { getSolution, SOLUTIONS } from "@/lib/seo/solutions"; import { SITE_URL } from "../../_seo/site";
+export function generateStaticParams(){return SOLUTIONS.map(({slug})=>({slug}));}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const s=getSolution((await params).slug); if(!s) return {}; return {title:s.title,description:s.description,alternates:{canonical:new URL(`/solutions/${s.slug}`,SITE_URL).toString()},openGraph:{title:s.title,description:s.description},robots:{index:true,follow:true}};}
+export default async function Page({params}:{params:Promise<{slug:string}>}){const s=getSolution((await params).slug);if(!s)notFound();return <SolutionDetail solution={s}/>;}
