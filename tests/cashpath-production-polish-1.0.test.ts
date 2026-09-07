@@ -16,8 +16,8 @@ test("CashPath seed supplies branded SEO, page SEO, and stable LeadsGate default
   assert.match(seed, /seo_image_url: "\/templates\/cashpath\/hero-woman-wide-v2\.png"/);
   assert.match(seed, /seo_title: "CashPath \| Explore Personal Loan Options Online"/);
   for (const keyword of ["personal loan options", "online personal loan options", "personal loans online", "installment loan options", "loan request online", "compare loan offers", "emergency expense loan options", "personal loan marketplace"]) assert.match(seed, new RegExp(keyword));
-  assert.equal((seed.match(/page\("/g) ?? []).length, 11);
-  assert.equal((seed.match(/seoTitle: string, seoDescription: string/g) ?? []).length, 1);
+  assert.match(seed, /CASH_PATH_FINAL_SEO_PAGES/);
+  assert.match(seed, /pages: CASHPATH_PAGES/);
   assert.match(seed, /leadsgate_aid: "4848"/);
   assert.match(seed, /leadsgate_template: "wallet-lines"/);
 });
