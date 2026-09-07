@@ -9,7 +9,7 @@ export const common = {
   footer: {
     ...englishCommon.footer,
     navigationLabel: "Nawigacja OneStudio", brandDescription: "Strona, design i narzędzia dla Twojego projektu.", product: "PRODUKT", oneStudio: "ONESTUDIO", information: "INFORMACJE",
-    links: { features: "Funkcje", templates: "Szablony", components: "Komponenty", pricing: "Cennik", about: "O OneStudio", website: "Strona pod klucz", faq: "FAQ", blog: "Dziennik", contact: "Kontakt", privacy: "Prywatność", terms: "Warunki" }, copyright: "© OneStudio OS - wszelkie prawa zastrzeżone",
+    links: { features: "Funkcje", solutions: "Rozwiązania", templates: "Szablony", components: "Komponenty", pricing: "Cennik", about: "O OneStudio", website: "Strona pod klucz", faq: "FAQ", blog: "Dziennik", contact: "Kontakt", privacy: "Prywatność", terms: "Warunki" }, copyright: "© OneStudio OS - wszelkie prawa zastrzeżone",
   },
   legal: { navigationLabel: "Nawigacja prawna", lastUpdated: "Ostatnia aktualizacja" },
   metadata: {

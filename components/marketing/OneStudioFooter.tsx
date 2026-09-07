@@ -37,6 +37,7 @@ export function OneStudioFooter({ lang }: { lang: Locale }) {
       title: t.footer.product,
       links: [
         { label: t.footer.links.features, href: "/features", kind: "route" },
+        { label: t.footer.links.solutions, href: "/solutions", kind: "route" },
         { label: t.footer.links.templates, href: "/demos", kind: "route" },
         { label: t.footer.links.components, href: "/components", kind: "route" },
         { label: t.footer.links.pricing, href: "/pricing", kind: "route" },

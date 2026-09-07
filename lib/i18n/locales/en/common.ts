@@ -35,6 +35,7 @@ export const common = {
     information: "INFORMATION",
     links: {
       features: "Features",
+      solutions: "Solutions",
       templates: "Templates",
       components: "Components",
       pricing: "Pricing",
