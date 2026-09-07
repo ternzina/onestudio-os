@@ -21,10 +21,14 @@ import { useScaledIframeInteractionRetargeting } from "./scaled-iframe-interacti
 import { useProductionInteractionFirewall } from "./production-interaction-firewall";
 import styles from "./pilot-editor.module.css";
 
-const ProductionEditorThemeContext = createContext(false);
+const ProductionEditorThemeContext = createContext({ isDark: false, toggle: () => {} });
 
 export function useProductionEditorTheme() {
-  return useContext(ProductionEditorThemeContext);
+  return useContext(ProductionEditorThemeContext).isDark;
+}
+
+export function useProductionEditorThemeToggle() {
+  return useContext(ProductionEditorThemeContext).toggle;
 }
 
 export function ProductionEditorThemeProvider({
@@ -35,7 +39,7 @@ export function ProductionEditorThemeProvider({
   children: ReactNode;
 }) {
   return (
-    <ProductionEditorThemeContext.Provider value={isDark}>
+    <ProductionEditorThemeContext.Provider value={{ isDark, toggle: () => {} }}>
       {children}
     </ProductionEditorThemeContext.Provider>
   );
@@ -62,12 +66,11 @@ export function ProductionEditorProvider({
       data-locale={locale}
       data-theme={isDark ? "dark" : "light"}
     >
-      <ProductionEditorThemeProvider isDark={isDark}>
+      <ProductionEditorThemeContext.Provider value={{ isDark, toggle: () => setIsDark((current) => !current) }}>
         <ProductionEditorLocaleProvider locale={locale}>
-          <ProductionEditorThemeToggle onToggle={() => setIsDark((current) => !current)} />
           {children}
         </ProductionEditorLocaleProvider>
-      </ProductionEditorThemeProvider>
+      </ProductionEditorThemeContext.Provider>
     </div>
   );
 }

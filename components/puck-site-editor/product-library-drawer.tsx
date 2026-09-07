@@ -2,6 +2,7 @@
 
 import { createUsePuck } from "@puckeditor/core";
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Eye, Moon, Sun, Wrench } from "lucide-react";
 import { PUCK_PRODUCTION_MANIFEST } from "@/lib/puck-site-editor/registry-manifest";
 import type { PuckDocumentComponent } from "@/lib/puck-site-editor/document";
 import {
@@ -18,6 +19,7 @@ import {
   guardProductionPreviewSubmit,
   ProductionFieldLabel,
   useProductionEditorTheme,
+  useProductionEditorThemeToggle,
 } from "./production-editor-ux";
 import { PuckProductionBlock } from "./public-renderer";
 import { ProductionPreviewViewport } from "./production-preview-fit";
@@ -41,13 +43,39 @@ function PuckPilotHeaderActions() {
   const leftSideBarVisible = usePuck((state) => state.appState.ui.leftSideBarVisible);
   const rightSideBarVisible = usePuck((state) => state.appState.ui.rightSideBarVisible);
   const interactive = previewMode === "interactive";
+  const isDark = useProductionEditorTheme();
+  const toggleTheme = useProductionEditorThemeToggle();
   const editSidebarsRef = useRef({ leftSideBarVisible: true, rightSideBarVisible: true });
 
   return (
-    <>
+    <div
+      className={styles.headerActions}
+      aria-label="Preview mode"
+      style={{ display: "inline-flex", alignItems: "center", gap: 8, flex: "0 0 auto", marginRight: 12, whiteSpace: "nowrap" }}
+    >
       <button
         type="button"
+        aria-label="Редактирование"
+        title="Редактирование"
+        aria-pressed={!interactive}
+        style={{ width: 38, minWidth: 38, height: 38, padding: 0, flex: "0 0 38px" }}
+        onClick={() => {
+          if (interactive) {
+            dispatch({
+              type: "setUi",
+              ui: { previewMode: "edit", ...editSidebarsRef.current },
+            });
+          }
+        }}
+      >
+        <Wrench size={19} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        aria-label="Интерактивный режим"
+        title="Интерактивный режим"
         aria-pressed={interactive}
+        style={{ width: 38, minWidth: 38, height: 38, padding: 0, flex: "0 0 38px" }}
         onClick={() => {
           if (!interactive) {
             editSidebarsRef.current = { leftSideBarVisible, rightSideBarVisible };
@@ -62,18 +90,14 @@ function PuckPilotHeaderActions() {
             });
             return;
           }
-          dispatch({
-            type: "setUi",
-            ui: {
-              previewMode: "edit",
-              ...editSidebarsRef.current,
-            },
-          });
         }}
       >
-        <span>{interactive ? "Edit" : "Interact"}</span>
+        <Eye size={19} aria-hidden="true" />
       </button>
-    </>
+      <button type="button" aria-label={isDark ? "Включить светлую тему" : "Включить тёмную тему"} title={isDark ? "Включить светлую тему" : "Включить тёмную тему"} aria-pressed={isDark} onClick={toggleTheme} style={{ width: 38, minWidth: 38, height: 38, padding: 0, flex: "0 0 38px" }}>
+        {isDark ? <Sun size={19} aria-hidden="true" /> : <Moon size={19} aria-hidden="true" />}
+      </button>
+    </div>
   );
 }
 

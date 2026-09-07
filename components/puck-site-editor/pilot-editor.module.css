@@ -157,6 +157,45 @@
 
 .toolbar button[aria-pressed] { min-width: 104px; font-weight: 700; }
 
+/* Puck mounts headerActions inside its right-side tools row. Keep both mode
+ * controls stable and give the row room before viewport/actions consume it. */
+.shell :global([class*="PuckHeader-tools"]) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.headerActions button {
+  min-width: 38px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.headerActions button[aria-pressed="false"] { border-color: #d6d3d1; background: #fff; color: #57534e; }
+
+.headerActions button[aria-pressed="true"] {
+  border-color: #1c1917;
+  background: #1c1917;
+  color: #fff;
+}
+
+.dark .headerActions button[aria-pressed="true"] {
+  border-color: #f8fafc;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
 .dark .toolbar span {
   color: #cbd5e1;
 }
