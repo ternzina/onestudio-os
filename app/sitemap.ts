@@ -36,7 +36,11 @@ async function platformWorkspaceEntries(
       entries
         .filter((entry) => !entry.custom_domain)
         .map(async (entry) => {
-          const locale = entry.is_primary ? null : entry.locale;
+          // The SEO-path RPC has already selected a published locale. Always
+          // load that locale explicitly: passing null can select legacy
+          // settings content instead of the current published locale content.
+          const locale = entry.locale;
+          const pathLocale = entry.is_primary ? null : locale;
           const site = await getPublicSite(entry.business_slug, locale);
 
           if (!site || site.content.seo_no_index === true) return [];
@@ -44,7 +48,7 @@ async function platformWorkspaceEntries(
           const lastModified = validDate(entry.updated_at);
           const home: MetadataRoute.Sitemap[number] = {
             url: new URL(
-              publicSitePath(entry.business_slug, locale),
+              publicSitePath(entry.business_slug, pathLocale),
               SITE_URL,
             ).toString(),
             lastModified,
@@ -66,12 +70,12 @@ async function platformWorkspaceEntries(
                   ? publicSitePagePath(
                       entry.business_slug,
                       page.slug,
-                      locale,
+                      pathLocale,
                     )
                   : publicCustomPagePath(
                       entry.business_slug,
                       page.slug,
-                      locale,
+                      pathLocale,
                     ),
                 SITE_URL,
               ).toString(),
@@ -106,14 +110,17 @@ async function customDomainEntries(
   return (
     await Promise.all(
       entries.map(async (entry) => {
-        const locale = entry.is_primary ? null : entry.locale;
+        // See platformWorkspaceEntries: the sitemap must render the exact
+        // locale returned by the published SEO-path registry.
+        const locale = entry.locale;
+        const pathLocale = entry.is_primary ? null : locale;
         const site = await getPublicSite(entry.business_slug, locale);
 
         if (!site || site.content.seo_no_index === true) return [];
 
         const lastModified = validDate(entry.updated_at);
         const home: MetadataRoute.Sitemap[number] = {
-          url: new URL(cleanPublicSitePath(locale), origin).toString(),
+          url: new URL(cleanPublicSitePath(pathLocale), origin).toString(),
           lastModified,
           changeFrequency: "weekly",
           priority: entry.is_primary ? 1 : 0.9,
@@ -131,7 +138,7 @@ async function customDomainEntries(
             url: new URL(
               cleanPublicPagePath(
                 page.slug,
-                locale,
+                pathLocale,
                 page.type === "custom",
               ),
               origin,
