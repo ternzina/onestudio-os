@@ -25,6 +25,10 @@
 .shell :global(.puck-editor label) { font-size: var(--editor-font-label); line-height: 1.4; }
 .shell :global(.puck-editor h2), .shell :global(.puck-editor h3) { font-size: var(--editor-font-heading); line-height: 1.4; }
 
+/* Product Library owns block insertion. In Puck 0.23 the nav wrapper contains
+   Nav > Nav-list > NavItem; the built-in Blocks/Hammer NavItem is first. */
+.shell :global([class*="PuckLayout-nav"] ul[class*="Nav-list"] > li[class*="NavItem"]:first-child) { display: none; }
+
 .dark {
   background: #000;
   color: #f8fafc;

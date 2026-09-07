@@ -166,7 +166,7 @@ function ContractProperties({ contract, resetContract, props, update }: { contra
     {groups.map(({ group, label, fields, arrays }) => {
       const isCollapsed = !query && collapsed.has(group);
       return <section className={styles.group} key={group} data-production-group={group}>
-        <button type="button" className={styles.groupToggle} aria-expanded={!isCollapsed} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group)) next.delete(group); else next.add(group); return next; })}>{label}<span>{isCollapsed ? "▸" : "▾"}</span></button>
+        <button type="button" className={styles.groupToggle} aria-expanded={!isCollapsed} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group)) next.delete(group); else next.add(group); return next; })}><span>{label}</span><span aria-hidden="true">{isCollapsed ? "▸" : "▾"}</span></button>
         {!isCollapsed ? <div className={styles.groupContent}>
           <div className={styles.groupActions}><button type="button" onClick={() => update(resetProductionEditorGroup(props, resetContract, group))}>Сбросить группу</button></div>
           {fields.map((field) => <ContractField key={field.key} field={field} props={props} contract={contract} update={update} />)}
@@ -217,16 +217,50 @@ export function NativePuckFieldsBySemanticGroup({
     {PRODUCTION_PROPERTIES_GROUP_ORDER.map((group) => {
       const items = grouped.get(group);
       if (!items?.length) return null;
-      return <section className={styles.nativeGroup} data-production-native-group={group} key={group}>
-        <h3>{PRODUCTION_PROPERTIES_GROUP_LABELS[group]}</h3>
+      return <CollapsiblePropertiesGroup
+        className={styles.nativeGroup}
+        dataAttribute="data-production-native-group"
+        dataValue={group}
+        heading={PRODUCTION_PROPERTIES_GROUP_LABELS[group]}
+        key={group}
+      >
         <div className={styles.nativeGroupContent}>{items}</div>
-      </section>;
+      </CollapsiblePropertiesGroup>;
     })}
     {additional.length ? <section className={styles.genericFallback} data-production-generic-controls>
       <h2>Дополнительные настройки</h2>
       {additional}
     </section> : null}
   </>;
+}
+
+function CollapsiblePropertiesGroup({
+  children,
+  className,
+  dataAttribute,
+  dataValue,
+  heading,
+}: {
+  children: ReactNode;
+  className?: string;
+  dataAttribute: "data-production-group" | "data-production-native-group";
+  dataValue: string;
+  heading: string;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const contentId = `production-group-${dataValue.toLowerCase()}`;
+  return <section className={className} {...{ [dataAttribute]: dataValue }}>
+    <button
+      type="button"
+      className={styles.groupToggle}
+      aria-controls={contentId}
+      aria-expanded={!collapsed}
+      onClick={() => setCollapsed((value) => !value)}
+    >
+      <span>{heading}</span><span aria-hidden="true">{collapsed ? "▸" : "▾"}</span>
+    </button>
+    {!collapsed ? <div id={contentId}>{children}</div> : null}
+  </section>;
 }
 
 export function PuckProductionProperties({ children, itemSelector }: ProductionPropertiesPanelProps) {
