@@ -33,6 +33,7 @@ test("sitemaps use the uncached published-site fetch while normal public renderi
   assert.match(data, /export const getPublicSite = cache\(fetchPublicSite\)/);
   assert.match(data, /export const getFreshPublicSite = fetchPublicSite/);
   assert.match(sitemap, /getFreshPublicSite/);
+  assert.match(sitemap, /entry\.seo_no_index === true/);
   assert.doesNotMatch(sitemap, /console\.info\("custom_domain_sitemap_entry"/);
 });
 
@@ -50,4 +51,21 @@ test("custom-domain sitemap keeps the resolved origin and clean public page path
   assert.match(sitemap, /cleanPublicSitePath\(pathLocale\), origin/);
   assert.match(sitemap, /cleanPublicPagePath\(/);
   assert.match(robots, /new URL\("\/sitemap\.xml", origin\)/);
+});
+
+test("published SEO-path registry exposes locale-level sitemap indexability", async () => {
+  const migration = await readFile(
+    new URL(
+      "../supabase/migrations/20260907190000_public_site_sitemap_indexability_1_0.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+
+  assert.match(migration, /seo_no_index boolean/);
+  assert.match(
+    migration,
+    /coalesce\(\(locale_data\.published_content->>'seo_no_index'\)::boolean, false\)/,
+  );
+  assert.match(migration, /drop function if exists public\.list_public_site_seo_paths\(text\)/);
 });

@@ -9,6 +9,7 @@ export type PublicSiteSeoPath = {
   is_primary: boolean;
   updated_at: string;
   custom_domain: string | null;
+  seo_no_index: boolean;
 };
 
 function createPublicSupabaseClient() {

@@ -43,7 +43,7 @@ async function platformWorkspaceEntries(
           const pathLocale = entry.is_primary ? null : locale;
           const site = await getFreshPublicSite(entry.business_slug, locale);
 
-          if (!site || site.content.seo_no_index === true) return [];
+          if (!site || entry.seo_no_index === true) return [];
 
           const lastModified = validDate(entry.updated_at);
           const home: MetadataRoute.Sitemap[number] = {
@@ -116,7 +116,7 @@ async function customDomainEntries(
         const pathLocale = entry.is_primary ? null : locale;
         const site = await getFreshPublicSite(entry.business_slug, locale);
 
-        if (!site || site.content.seo_no_index === true) return [];
+        if (!site || entry.seo_no_index === true) return [];
 
         const lastModified = validDate(entry.updated_at);
         const home: MetadataRoute.Sitemap[number] = {
