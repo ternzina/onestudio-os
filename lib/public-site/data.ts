@@ -23,18 +23,25 @@ function createPublicSupabaseClient() {
   });
 }
 
-export const getPublicSite = cache(
-  async (businessSlug: string, locale?: string | null) => {
-    const supabase = createPublicSupabaseClient();
-    const { data, error } = await supabase.rpc("get_public_site", {
-      p_business_slug: businessSlug,
-      p_locale: locale || null,
-    });
+async function fetchPublicSite(
+  businessSlug: string,
+  locale?: string | null,
+) {
+  const supabase = createPublicSupabaseClient();
+  const { data, error } = await supabase.rpc("get_public_site", {
+    p_business_slug: businessSlug,
+    p_locale: locale || null,
+  });
 
-    if (error || !data || typeof data !== "object") return null;
-    return data as unknown as PublicSiteData;
-  },
-);
+  if (error || !data || typeof data !== "object") return null;
+  return data as unknown as PublicSiteData;
+}
+
+export const getPublicSite = cache(fetchPublicSite);
+
+// A sitemap is a dynamic published-content index. It must not retain a stale
+// React request-cache entry after a site's locale content changes.
+export const getFreshPublicSite = fetchPublicSite;
 
 export async function listPublicSitePaths() {
   const supabase = createPublicSupabaseClient();

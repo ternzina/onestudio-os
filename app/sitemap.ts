@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { SITE_URL } from "./_seo/site";
 import { isCanonicalPlatformHostname, isTechnicalPlatformHostname } from "@/lib/domains/normalize";
 import {
-  getPublicSite,
+  getFreshPublicSite,
   listPublicSiteSeoPaths,
   type PublicSiteSeoPath,
 } from "@/lib/public-site/data";
@@ -41,7 +41,7 @@ async function platformWorkspaceEntries(
           // settings content instead of the current published locale content.
           const locale = entry.locale;
           const pathLocale = entry.is_primary ? null : locale;
-          const site = await getPublicSite(entry.business_slug, locale);
+          const site = await getFreshPublicSite(entry.business_slug, locale);
 
           if (!site || site.content.seo_no_index === true) return [];
 
@@ -114,7 +114,7 @@ async function customDomainEntries(
         // locale returned by the published SEO-path registry.
         const locale = entry.locale;
         const pathLocale = entry.is_primary ? null : locale;
-        const site = await getPublicSite(entry.business_slug, locale);
+        const site = await getFreshPublicSite(entry.business_slug, locale);
 
         if (!site || site.content.seo_no_index === true) return [];
 

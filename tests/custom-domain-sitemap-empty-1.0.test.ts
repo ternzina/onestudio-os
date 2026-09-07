@@ -9,15 +9,31 @@ test("sitemaps load the explicit published SEO locale for platform and custom do
   );
 
   const explicitLocaleCalls = sitemap.match(
-    /getPublicSite\(entry\.business_slug, locale\)/g,
+    /getFreshPublicSite\(entry\.business_slug, locale\)/g,
   );
 
   assert.equal(explicitLocaleCalls?.length, 2);
   assert.match(
     sitemap,
-    /const locale = entry\.locale;\s*const pathLocale = entry\.is_primary \? null : locale;[\s\S]*?getPublicSite\(entry\.business_slug, locale\)/,
+    /const locale = entry\.locale;\s*const pathLocale = entry\.is_primary \? null : locale;[\s\S]*?getFreshPublicSite\(entry\.business_slug, locale\)/,
   );
   assert.doesNotMatch(sitemap, /entry\.is_primary \? null : entry\.locale/);
+});
+
+test("sitemaps use the uncached published-site fetch while normal public rendering remains cached", async () => {
+  const data = await readFile(
+    new URL("../lib/public-site/data.ts", import.meta.url),
+    "utf8",
+  );
+  const sitemap = await readFile(
+    new URL("../app/sitemap.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(data, /export const getPublicSite = cache\(fetchPublicSite\)/);
+  assert.match(data, /export const getFreshPublicSite = fetchPublicSite/);
+  assert.match(sitemap, /getFreshPublicSite/);
+  assert.doesNotMatch(sitemap, /console\.info\("custom_domain_sitemap_entry"/);
 });
 
 test("custom-domain sitemap keeps the resolved origin and clean public page paths", async () => {
