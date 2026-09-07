@@ -11,7 +11,7 @@ export const common = {
     navigationLabel: "Навігація OneStudio",
     brandDescription: "Сайт, дизайн та інструменти для вашого проєкту.",
     product: "ПРОДУКТ", oneStudio: "ONESTUDIO", information: "ІНФОРМАЦІЯ",
-    links: { features: "Можливості", templates: "Шаблони", components: "Компоненти", pricing: "Тарифи", about: "Про OneStudio", website: "Сайт під ключ", faq: "FAQ", blog: "Журнал", contact: "Контакти", privacy: "Конфіденційність", terms: "Умови" },
+    links: { features: "Можливості", solutions: "Рішення", templates: "Шаблони", components: "Компоненти", pricing: "Тарифи", about: "Про OneStudio", website: "Сайт під ключ", faq: "FAQ", blog: "Журнал", contact: "Контакти", privacy: "Конфіденційність", terms: "Умови" },
     copyright: "© OneStudio OS - усі права захищено",
   },
   legal: { navigationLabel: "Юридична навігація", lastUpdated: "Оновлено" },

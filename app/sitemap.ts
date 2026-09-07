@@ -23,6 +23,7 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
+import { SOLUTION_PATHS } from "@/lib/seo/solutions";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ function platformMarketingEntries(): MetadataRoute.Sitemap {
     .map((template) => template.gallery.previewRoute)
     .filter((route): route is string => Boolean(route));
   const demoPaths = DEMOS.map((demo) => `/demos/${demo.slug}`);
-  return [...new Set([...PLATFORM_MARKETING_PATHS, ...demoPaths, ...catalogDemoPaths])].map((path) => ({
+  return [...new Set([...PLATFORM_MARKETING_PATHS, ...SOLUTION_PATHS, ...demoPaths, ...catalogDemoPaths])].map((path) => ({
     url: new URL(path, SITE_URL).toString(),
   }));
 }
