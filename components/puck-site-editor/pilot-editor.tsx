@@ -33,9 +33,12 @@ export default function PuckPilotEditor({
   const fallback = initialDocument ?? createPuckPilotFixture(locale);
   const scope = { businessId, locale, pageId: fallback.metadata.pageId };
   const [data, setData] = useState<Data | null>(null);
-  const [status, setStatus] = useState<"saved" | "unsaved" | "error">("saved");
+  const [status, setStatus] = useState<"clean" | "dirty" | "saving" | "save-error">("clean");
+  const [publishStatus, setPublishStatus] = useState<"idle" | "publishing" | "published" | "publish-error">("idle");
+  const [publishedDrift, setPublishedDrift] = useState(false);
   const [message, setMessage] = useState("");
   const documentRef = useRef(fallback);
+  const savedDocumentRef = useRef(fallback);
   const plugins = useMemo(() => [{
     name: "library",
     label: "Библиотека",
@@ -46,13 +49,16 @@ export default function PuckPilotEditor({
   useEffect(() => {
     try {
       const loaded = readLocalPuckDocument("draft", scope) ?? fallback;
+      const published = readLocalPuckDocument("published", scope);
       documentRef.current = loaded;
+      savedDocumentRef.current = loaded;
+      setPublishedDrift(Boolean(published && JSON.stringify(loaded) !== JSON.stringify(published)));
       setData(puckDocumentToData(loaded) as Data);
-      setStatus("saved");
+      setStatus("clean");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load pilot draft");
       setData(puckDocumentToData(fallback) as Data);
-      setStatus("error");
+      setStatus("save-error");
     }
   }, [businessId, locale]);
 
@@ -77,37 +83,52 @@ export default function PuckPilotEditor({
 
   const onChange = useCallback((next: Data) => {
     try {
-      documentRef.current = toDocument(next);
-      setStatus("unsaved");
+      const nextDocument = toDocument(next);
+      documentRef.current = nextDocument;
+      setStatus(JSON.stringify(nextDocument) === JSON.stringify(savedDocumentRef.current) ? "clean" : "dirty");
       setMessage("");
     } catch (error) {
-      setStatus("error");
+      setStatus("save-error");
       setMessage(error instanceof Error ? error.message : "Document validation failed");
     }
   }, [toDocument]);
 
-  const save = useCallback(() => {
+  const save = useCallback(async () => {
+    if (status === "saving") return;
+    const snapshot = documentRef.current;
+    setStatus("saving");
+    setMessage("");
     try {
-      documentRef.current = writeLocalPuckDocument("draft", scope, documentRef.current);
-      setStatus("saved");
-      setMessage("Local/test draft saved");
+      await Promise.resolve();
+      writeLocalPuckDocument("draft", scope, snapshot);
+      savedDocumentRef.current = snapshot;
+      const published = readLocalPuckDocument("published", scope);
+      setPublishedDrift(Boolean(published && JSON.stringify(snapshot) !== JSON.stringify(published)));
+      setStatus(JSON.stringify(documentRef.current) === JSON.stringify(snapshot) ? "clean" : "dirty");
     } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Save failed");
+      setStatus("save-error");
+      setMessage(error instanceof Error ? error.message : "Не удалось сохранить");
     }
-  }, [businessId, locale, scope.pageId]);
+  }, [businessId, locale, scope.pageId, status]);
 
-  const publish = useCallback((next: Data) => {
+  const publish = useCallback(async (next: Data) => {
+    const document = toDocument(next);
+    if (JSON.stringify(document) !== JSON.stringify(savedDocumentRef.current)) {
+      setMessage("Сначала сохраните изменения");
+      setPublishStatus("idle");
+      return;
+    }
+    setPublishStatus("publishing");
+    setMessage("");
     try {
-      const document = toDocument(next);
+      await Promise.resolve();
       writeLocalPuckDocument("draft", scope, document);
       writeLocalPuckDocument("published", scope, document);
-      documentRef.current = document;
-      setStatus("saved");
-      setMessage("Publish simulation complete — no production RPC executed");
+      setPublishedDrift(false);
+      setPublishStatus("published");
     } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Publish simulation failed");
+      setPublishStatus("publish-error");
+      setMessage(error instanceof Error ? error.message : "Не удалось опубликовать");
     }
   }, [businessId, locale, scope.pageId, toDocument]);
 
@@ -117,10 +138,26 @@ export default function PuckPilotEditor({
     <ProductionEditorProvider locale={locale} businessId={businessId} pilot>
       <div className={styles.toolbar}>
         <strong>Puck Site Editor Pilot</strong>
-        <span data-save-status={status}>{status === "unsaved" ? "Unsaved changes" : status === "error" ? "Validation error" : "Saved"}</span>
-        <button type="button" data-primary="true" onClick={save}>Save draft</button>
+        <span className={styles.saveStatus} data-save-status={status} aria-live="polite">
+          {status === "dirty" ? "Есть несохранённые изменения" : status === "saving" ? "Сохранение…" : status === "save-error" ? "Не удалось сохранить" : "Сохранено ✓"}
+        </span>
+        {publishedDrift ? <span className={styles.driftStatus}>Есть неопубликованные изменения</span> : null}
+        <button type="button" data-primary="true" onClick={save} disabled={status === "clean" || status === "saving"}>
+          {status === "saving" ? "Сохранение…" : status === "save-error" ? "Сохранить снова" : "Сохранить"}
+        </button>
+        <button
+          type="button"
+          data-publish-action="true"
+          onClick={() => void publish(data)}
+          disabled={status !== "clean" || publishStatus === "publishing"}
+        >
+          Опубликовать
+        </button>
         <Link href={publicPreviewHref}>Open public pilot render</Link>
-        {message ? <span role={status === "error" ? "alert" : "status"}>{message}</span> : null}
+        {publishStatus !== "idle" ? <span className={styles.publishStatus} aria-live="polite">
+          {publishStatus === "publishing" ? "Публикация…" : publishStatus === "published" ? "Опубликовано ✓" : "Не удалось опубликовать"}
+        </span> : null}
+        {message ? <span role={status === "save-error" || publishStatus === "publish-error" ? "alert" : "status"}>{message}</span> : null}
       </div>
       <div className={styles.editor}>
         <Puck

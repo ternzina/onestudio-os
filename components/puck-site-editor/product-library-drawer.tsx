@@ -35,7 +35,7 @@ const productItems = PUCK_PRODUCTION_MANIFEST.map((entry) => ({
 }));
 const usePuck = createUsePuck();
 
-function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
+function PuckPilotHeaderActions() {
   const dispatch = usePuck((state) => state.dispatch);
   const previewMode = usePuck((state) => state.appState.ui.previewMode);
   const leftSideBarVisible = usePuck((state) => state.appState.ui.leftSideBarVisible);
@@ -73,7 +73,6 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
       >
         <span>{interactive ? "Edit" : "Interact"}</span>
       </button>
-      {children}
     </>
   );
 }

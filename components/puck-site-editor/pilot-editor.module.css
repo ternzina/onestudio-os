@@ -76,7 +76,8 @@
 }
 
 .toolbar {
-  position: sticky;
+  position: fixed;
+  inset: 0 0 auto;
   top: 0;
   z-index: 30;
   display: flex;
@@ -108,6 +109,26 @@
   line-height: 1.4;
 }
 
+.toolbar .saveStatus,
+.toolbar .publishStatus,
+.toolbar .driftStatus {
+  display: inline-flex;
+  align-items: center;
+  min-width: 190px;
+  color: #292524;
+  font-weight: 600;
+}
+
+.toolbar .driftStatus { color: #9a3412; }
+
+.toolbar .saveStatus[data-save-status="dirty"] { color: #9a3412; }
+.toolbar .saveStatus[data-save-status="saving"],
+.toolbar .publishStatus { color: #1d4ed8; }
+.toolbar .saveStatus[data-save-status="save-error"],
+.toolbar .publishStatus:has(+ [role="alert"]) { color: #b91c1c; }
+
+.toolbar button:disabled { cursor: not-allowed; opacity: 0.58; }
+
 .toolbar button[aria-pressed] { min-width: 104px; font-weight: 700; }
 
 .dark .toolbar span {
@@ -133,6 +154,12 @@
   color: white;
 }
 
+.toolbar button[data-publish-action="true"] {
+  border-color: #166534;
+  background: #166534;
+  color: white;
+}
+
 .dark .toolbar button,
 .dark .toolbar a {
   border-color: #475569;
@@ -147,7 +174,8 @@
 }
 
 .editor {
-  height: calc(100vh - 59px);
+  height: 100vh;
+  margin-top: 58px;
   background: var(--puck-canvas-color-bg);
 }
 
