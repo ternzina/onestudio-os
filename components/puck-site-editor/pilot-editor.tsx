@@ -2,6 +2,7 @@
 
 import "@puckeditor/core/puck.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Puck, type Data } from "@puckeditor/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "./editor-config";
@@ -37,6 +38,9 @@ export default function PuckPilotEditor({
   const [publishStatus, setPublishStatus] = useState<"idle" | "publishing" | "published" | "publish-error">("idle");
   const [publishedDrift, setPublishedDrift] = useState(false);
   const [message, setMessage] = useState("");
+  const [leaveHref, setLeaveHref] = useState<string | null>(null);
+  const allowNavigationRef = useRef(false);
+  const router = useRouter();
   const documentRef = useRef(fallback);
   const savedDocumentRef = useRef(fallback);
   const plugins = useMemo(() => [{
@@ -132,6 +136,35 @@ export default function PuckPilotEditor({
     }
   }, [businessId, locale, scope.pageId, toDocument]);
 
+  const isDirty = status !== "clean";
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (allowNavigationRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  const requestLeave = useCallback((href: string) => {
+    if (!isDirty) {
+      router.push(href);
+      return;
+    }
+    setLeaveHref(href);
+  }, [isDirty, router]);
+
+  const confirmLeave = useCallback(() => {
+    if (!leaveHref) return;
+    allowNavigationRef.current = true;
+    router.push(leaveHref);
+    setLeaveHref(null);
+    window.setTimeout(() => { allowNavigationRef.current = false; }, 0);
+  }, [leaveHref, router]);
+
   if (!data) return <div className={styles.loading} role="status">Loading Puck pilot…</div>;
 
   return (
@@ -153,7 +186,10 @@ export default function PuckPilotEditor({
         >
           Опубликовать
         </button>
-        <Link href={publicPreviewHref}>Open public pilot render</Link>
+        <Link href={publicPreviewHref} onClick={(event) => {
+          event.preventDefault();
+          requestLeave(publicPreviewHref);
+        }}>Open public pilot render</Link>
         {publishStatus !== "idle" ? <span className={styles.publishStatus} aria-live="polite">
           {publishStatus === "publishing" ? "Публикация…" : publishStatus === "published" ? "Опубликовано ✓" : "Не удалось опубликовать"}
         </span> : null}
@@ -185,6 +221,20 @@ export default function PuckPilotEditor({
           <Puck.Layout />
         </Puck>
       </div>
+      {leaveHref ? (
+        <div className={styles.leaveBackdrop} role="presentation">
+          <div className={styles.leaveDialog} role="dialog" aria-modal="true" aria-labelledby="leave-dialog-title" onKeyDown={(event) => {
+            if (event.key === "Escape") setLeaveHref(null);
+          }} tabIndex={-1} ref={(node) => node?.focus()}>
+            <h2 id="leave-dialog-title">Есть несохранённые изменения</h2>
+            <p>Выйти без сохранения?</p>
+            <div className={styles.leaveActions}>
+              <button type="button" onClick={() => setLeaveHref(null)}>Остаться</button>
+              <button type="button" data-primary="true" onClick={confirmLeave}>Выйти без сохранения</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </ProductionEditorProvider>
   );
 }
