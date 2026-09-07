@@ -101,6 +101,8 @@ import {
 import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset, resolvePublicSiteBlockDisplayName } from "@/lib/public-site/core-block-library";
 import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH } from "@/lib/public-site/safe-html";
 import { supabase } from "@/lib/supabase";
+import type { ClientDomainPayload, ClientDomainRecord } from "@/lib/domains/types";
+import { activePublicDomain, publicSiteOrigin, sitemapEligiblePageCount } from "@/lib/public-site/search-visibility";
 import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
 import {
   buildBlockLayoutInspectorFields,
@@ -659,6 +661,8 @@ export default function AdminSitePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
+  const [publishHiddenWarningOpen, setPublishHiddenWarningOpen] = useState(false);
+  const [publicDomain, setPublicDomain] = useState<ClientDomainRecord | null>(null);
   const [designDialogOpen, setDesignDialogOpen] = useState(false);
   const [seoDialogOpen, setSeoDialogOpen] = useState(false);
   const [publishSucceeded, setPublishSucceeded] = useState(false);
@@ -797,6 +801,16 @@ export default function AdminSitePage() {
   useEffect(() => {
     void loadEditor();
   }, [loadEditor]);
+
+  useEffect(() => {
+    if (!workspace?.business_id) return;
+    let cancelled = false;
+    void fetch(`/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`)
+      .then(async (response) => response.ok ? await response.json() as ClientDomainPayload : null)
+      .then((payload) => { if (!cancelled) setPublicDomain(payload?.domain ?? null); })
+      .catch(() => { if (!cancelled) setPublicDomain(null); });
+    return () => { cancelled = true; };
+  }, [workspace?.business_id]);
 
   const selectedRecord = useMemo(
     () =>
@@ -1247,6 +1261,22 @@ export default function AdminSitePage() {
     if (published) setPublishSucceeded(true);
   }
 
+  const hasActiveCustomDomain = Boolean(activePublicDomain(publicDomain));
+  const publicOrigin = publicSiteOrigin(publicDomain);
+  const sitemapEligibleCount = draft ? sitemapEligiblePageCount(draft) : 0;
+  function requestPublish() {
+    if (hasActiveCustomDomain && draft?.seo_no_index === true) {
+      setPublishHiddenWarningOpen(true);
+      return;
+    }
+    void saveDraft({ publish: true });
+  }
+
+  function publishHidden() {
+    setPublishHiddenWarningOpen(false);
+    void saveDraft({ publish: true });
+  }
+
   async function addLocale() {
     if (!workspace || !editor || !canConfigure) return;
     const rawLocale = window.prompt(t("Language code"), "en");
@@ -1463,7 +1493,7 @@ export default function AdminSitePage() {
               onClick={() =>
                 clientMode
                   ? openClientPublicationReview()
-                  : void saveDraft({ publish: true })
+                  : requestPublish()
               }
               disabled={saving || !canConfigure}
               className="rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-40"
@@ -1492,6 +1522,11 @@ export default function AdminSitePage() {
             label={t("Published languages")}
             value={String(editor.locales.filter((item) => item.published_content).length)}
           />
+        </section>
+
+        <section className={`mt-6 rounded-[28px] border p-5 sm:p-6 ${draft.seo_no_index === true ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">Поиск Google и Bing</p>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{draft.seo_no_index === true ? "Сайт скрыт от поисковых систем" : "Индексация включена"}</h2><p className="mt-2 max-w-2xl text-sm leading-6">Если выключено, опубликованный сайт может открываться по прямой ссылке, но Google и Bing не должны добавлять его в поиск.</p><p className="mt-2 text-xs font-semibold">Страниц для sitemap: {sitemapEligibleCount}</p></div><label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">Разрешить поисковым системам индексировать сайт<input type="checkbox" checked={draft.seo_no_index !== true} disabled={!canConfigure} onChange={(event) => replaceDraft({ ...draft, seo_no_index: !event.target.checked }, "seo:site:seo_no_index")} /></label></div>
         </section>
 
         <section className="mt-6 rounded-[28px] border border-[#cfded9] bg-[linear-gradient(135deg,#f7fbfa_0%,#edf5f2_100%)] p-5 shadow-[0_18px_55px_rgba(31,70,65,0.08)] sm:p-6">
@@ -1599,7 +1634,7 @@ export default function AdminSitePage() {
           onUndo={undoEditorChange}
           onRedo={redoEditorChange}
           onSave={() => void saveDraft()}
-          onPublish={() => clientMode ? openClientPublicationReview() : void saveDraft({ publish: true })}
+          onPublish={() => clientMode ? openClientPublicationReview() : requestPublish()}
           onOpenDesign={() => setDesignDialogOpen(true)}
           onOpenSeo={() => setSeoDialogOpen(true)}
         /> : <VisualBuilder
@@ -1628,7 +1663,7 @@ export default function AdminSitePage() {
           onPublish={() =>
             clientMode
               ? openClientPublicationReview()
-              : void saveDraft({ publish: true })
+              : requestPublish()
           }
           onSave={() => void saveDraft()}
           onSectionChange={setSelectedSection}
@@ -1664,6 +1699,7 @@ export default function AdminSitePage() {
           draft={draft}
           canConfigure={canConfigure}
           saving={saving}
+          publicOrigin={publicOrigin}
           onChange={replaceDraft}
           onSave={() => void saveDraft()}
           onClose={() => setSeoDialogOpen(false)}
@@ -1868,6 +1904,7 @@ export default function AdminSitePage() {
           }}
         />
       ) : null}
+      {publishHiddenWarningOpen ? <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700">Поиск Google и Bing</p><h2 className="mt-2 text-2xl font-semibold">Сайт скрыт от Google и Bing</h2><p className="mt-3 text-sm leading-6 text-[#5f5a53]">Он будет доступен по прямой ссылке, но поисковым системам будет указано не индексировать его.</p><div className="mt-6 flex flex-wrap justify-end gap-3"><button type="button" onClick={() => setPublishHiddenWarningOpen(false)} className="rounded-xl border border-black/10 px-4 py-3 text-sm font-semibold">Вернуться и включить индексацию</button><button type="button" onClick={publishHidden} disabled={saving} className="rounded-xl bg-[#17191f] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40">Опубликовать скрытым</button></div></div></div> : null}
     </main>
   );
 }
