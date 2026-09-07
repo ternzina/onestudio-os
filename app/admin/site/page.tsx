@@ -2029,33 +2029,41 @@ function VisualBuilder({
       selectionFromCanvasScrollRef.current = false;
       return;
     }
-    const canvas = workspaceCanvasRef.current;
-    if (!canvas) return;
-    const anchor = selectedCustomBlockId
-      ? `custom:${selectedCustomBlockId}`
-      : isPremiumNativeHome
-        ? getPremiumEditorSection(premiumEditorAdapter!, selectedPremiumNativeSection)?.anchor
-          ?? premiumEditorAdapter!.initialSectionId
-        : selectedSection;
-    const target = canvas.querySelector<HTMLElement>(
-      `[data-editor-anchor="${anchor}"]`,
-    );
-    if (!target) return;
+    const frame = window.requestAnimationFrame(() => {
+      const canvas = workspaceCanvasRef.current;
+      if (!canvas) return;
+      const anchor = selectedCustomBlockId
+        ? `custom:${selectedCustomBlockId}`
+        : activePageId
+          ? `page:${activePageId}:${selectedPagePart === "booking" ? "booking" : selectedPagePart === "gallery" ? "gallery" : "intro"}`
+          : isPremiumNativeHome
+            ? getPremiumEditorSection(premiumEditorAdapter!, selectedPremiumNativeSection)?.anchor
+              ?? premiumEditorAdapter!.initialSectionId
+            : selectedSection;
+      const target = canvas.querySelector<HTMLElement>(
+        `[data-editor-anchor="${anchor}"]`,
+      );
+      if (!target) return;
 
-    programmaticCanvasScrollUntilRef.current = Date.now() + 700;
-    const canvasRect = canvas.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const top =
-      canvas.scrollTop +
-      (targetRect.top - canvasRect.top) -
-      Math.max(24, (canvas.clientHeight - targetRect.height) / 2);
-    canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      // The editor canvas, not the window or navigator, owns preview scrolling.
+      // Calculate against that container after the selected page has rendered.
+      programmaticCanvasScrollUntilRef.current = Date.now() + 700;
+      const canvasRect = canvas.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const scrollPadding = Number.parseFloat(
+        window.getComputedStyle(canvas).scrollPaddingTop,
+      ) || 0;
+      const top = canvas.scrollTop + (targetRect.top - canvasRect.top) - scrollPadding;
+      canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [
     activePageId,
     isPremiumNativeHome,
     premiumEditorAdapter,
     selectedCustomBlockId,
     selectedPremiumNativeSection,
+    selectedPagePart,
     selectedSection,
   ]);
 
@@ -2736,11 +2744,11 @@ function VisualBuilder({
 
   const navigatorSections: EditorNavigatorModel["sections"] = activePage
     ? [
-        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("intro") },
+        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => { setSelectedPagePart("intro"); setSelectedCustomBlockId(""); setSettingsOpen(true); } },
         ...(activePage.type === "portfolio"
-          ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => setSelectedPagePart("gallery") }]
+          ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => { setSelectedPagePart("gallery"); setSelectedCustomBlockId(""); setSettingsOpen(true); } }]
           : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
-        { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => setSelectedPagePart("booking"), onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
+        { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => { setSelectedPagePart("booking"); setSelectedCustomBlockId(""); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
       ? [
@@ -4427,6 +4435,7 @@ function PortfolioPagePreview({
 
       <button
         type="button"
+        data-editor-anchor={`page:${page.id}:intro`}
         onClick={() => editingEnabled && onPartChange("intro")}
         className={`relative block w-full overflow-hidden px-8 py-14 text-left sm:px-12 sm:py-20 ${editableClass("intro")}`}
       >
@@ -4449,6 +4458,7 @@ function PortfolioPagePreview({
 
       <button
         type="button"
+        data-editor-anchor={`page:${page.id}:gallery`}
         onClick={() => editingEnabled && onPartChange("gallery")}
         className={`relative block w-full px-5 pb-12 text-left sm:px-8 ${editableClass("gallery")}`}
       >
@@ -4537,6 +4547,7 @@ function PortfolioPagePreview({
       {page.show_booking_cta ? (
         <button
           type="button"
+          data-editor-anchor={`page:${page.id}:booking`}
           onClick={() => editingEnabled && onPartChange("booking")}
           className={`relative block w-full bg-[var(--site-dark)] px-8 py-12 text-left text-white sm:px-12 ${editableClass("booking")}`}
         >
@@ -4606,6 +4617,7 @@ function CustomPagePreview({
 
       <button
         type="button"
+        data-editor-anchor={`page:${page.id}:intro`}
         onClick={() => editingEnabled && onPartChange("intro")}
         className={`relative block w-full px-8 py-16 text-left sm:px-12 ${selected("intro")}`}
       >
@@ -4615,9 +4627,10 @@ function CustomPagePreview({
         <h2 className="mt-5 max-w-3xl font-serif text-4xl leading-tight sm:text-6xl">
           <PublicRichHeading value={page.title} />
         </h2>
-        <p className="mt-6 max-w-xl text-xs leading-6 text-black/55">
-          {page.intro}
-        </p>
+        <PublicRichText
+          value={page.intro}
+          className="mt-6 max-w-xl text-xs leading-6 text-black/55"
+        />
       </button>
 
       {(page.blocks ?? []).map((block) => (
@@ -4645,6 +4658,7 @@ function CustomPagePreview({
       {page.show_booking_cta ? (
         <button
           type="button"
+          data-editor-anchor={`page:${page.id}:booking`}
           onClick={() => editingEnabled && onPartChange("booking")}
           className={`block w-full bg-[var(--site-dark)] px-8 py-12 text-left text-white sm:px-12 ${selected("booking")}`}
         >
