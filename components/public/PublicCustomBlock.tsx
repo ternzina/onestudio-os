@@ -152,12 +152,14 @@ export default function PublicCustomBlock({
   services = [],
   buttonTheme,
   preview = false,
+  compactLeadsGate = false,
 }: {
   block: PublicSiteCustomBlock;
   bookingHref?: string;
   services?: PublicSiteService[];
   buttonTheme?: PublicSiteButtonTheme;
   preview?: boolean;
+  compactLeadsGate?: boolean;
 }) {
   if (block.is_visible === false) return null;
 
@@ -227,7 +229,7 @@ export default function PublicCustomBlock({
   }
 
   if (block.kind === "leadsgate_form") {
-    return <section data-public-custom-block-id={block.id} data-editor-anchor={`custom:${block.id}`} className="border-y border-black/8 bg-white/60 px-5 py-16 text-[#24302d] sm:py-20"><div className="mx-auto max-w-3xl"><p className="text-xs font-semibold tracking-[.18em] text-[var(--site-accent)]">{block.eyebrow}</p><h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{block.title}</h2><p className="mt-3 max-w-2xl text-base leading-7 text-black/65">{block.text}</p><div className="mt-8 rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6"><LeadsGateForm aid={block.leadsgate_aid ?? ""} template={block.leadsgate_template ?? "wallet-lines"} preview={preview} /></div></div></section>;
+    return <section data-public-custom-block-id={block.id} data-editor-anchor={`custom:${block.id}`} className="border-y border-black/8 bg-white/60 px-5 py-16 text-[#24302d] sm:py-20"><div className="mx-auto max-w-3xl"><p className="text-xs font-semibold tracking-[.18em] text-[var(--site-accent)]">{block.eyebrow}</p><h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{block.title}</h2><p className="mt-3 max-w-2xl text-base leading-7 text-black/65">{block.text}</p><div className="mt-8 rounded-3xl border border-black/10 bg-white p-4 shadow-sm sm:p-6"><LeadsGateForm aid={block.leadsgate_aid ?? ""} template={block.leadsgate_template ?? "wallet-lines"} preview={preview} compact={compactLeadsGate} /></div></div></section>;
   }
 
   if (block.kind === "collage") {
