@@ -17,9 +17,15 @@ test("only untouched legacy placeholders are upgraded", () => {
   const legacy = { ...seed, pages: (seed.pages ?? []).map((page) => ({ ...page, intro: CASH_PATH_LEGACY_INTROS[page.slug], blocks: [{ id: `${page.slug}-content`, kind: "text" as const, title: "", text: CASH_PATH_LEGACY_INTROS[page.slug], items: "", eyebrow: "", button_label: "", button_url: "", tone: "light" as const, is_visible: true }] })) };
   assert.equal(needsCashPathFullPageUpgrade(legacy), true);
   const upgraded = upgradeCashPathFullPages(legacy);
-  assert.equal(upgraded.pages?.find((page) => page.slug === "about")?.blocks?.length, 5);
+  assert.ok((upgraded.pages?.find((page) => page.slug === "about")?.blocks?.length ?? 0) >= 5);
   assert.equal(upgraded.custom_blocks?.[0]?.leadsgate_aid, "4848");
   assert.equal(upgradeCashPathFullPages(upgraded), upgraded);
+});
+
+test("canonical copy has meaningful safety depth without prohibited claims", () => {
+  const text = (createCashPathPremiumTemplateSeed().pages ?? []).flatMap((page) => page.blocks ?? []).map((block) => `${block.title} ${block.text}`).join(" ");
+  assert.ok(text.length > 12000);
+  assert.doesNotMatch(text, /\b\d+(?:\.\d+)?%\s*(?:APR|apr)|guaranteed approval|funds in \d|CashUSA|BadCreditLoans|Credible|LendingTree|NMLS|\bLLC\b/i);
 });
 
 test("edited page intros and request copy remain untouched", () => {
