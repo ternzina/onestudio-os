@@ -1,0 +1,20 @@
+.header {
+  padding-bottom: 2px;
+}
+
+.selected {
+  display: grid;
+  gap: 2px;
+  padding: 10px 11px;
+  border: 1px solid #d4d4d8;
+  border-left: 3px solid #6366f1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.eyebrow {
+  color: #52525b;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}

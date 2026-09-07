@@ -141,6 +141,7 @@ export default function PuckPilotEditor({
           dictionary={{
             "plugin-blocks": "Блоки",
             "plugin-outline": "Структура",
+            "plugin-fields": "Настройки",
             "outline-header-title": "Структура",
           }}
         >

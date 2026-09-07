@@ -22,6 +22,7 @@ import {
   updateProductionEditorField,
 } from "@/lib/puck-site-editor/builder-properties";
 import styles from "./production-properties-panel.module.css";
+import headerStyles from "./selected-block-header.module.css";
 import { useProductionEditorLocale } from "./production-editor-ux";
 import { translateAdminText } from "@/lib/i18n/admin";
 import { resolvePuckProductionFieldValue } from "@/lib/puck-site-editor/production-props";
@@ -155,14 +156,21 @@ function ContractArrays({
   });
 }
 
-function ContractProperties({ contract, resetContract, props, update }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: ProductionPropsUpdate }) {
+function ContractProperties({ contract, resetContract, props, update, displayName, selectedType }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: ProductionPropsUpdate; displayName: string; selectedType: string }) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "MOTION", "RESPONSIVE"]));
   const filtered = useMemo(() => filterProductionEditorContract(contract, query), [contract, query]);
   const groups = productionFieldsByGroup(filtered).filter(({ fields, arrays }) => fields.length + arrays.length > 0);
 
-  return <section className={styles.panel} data-production-properties>
-    <header><h2>Свойства блока</h2><input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={() => update(resetProductionEditorBlock(props, resetContract))}>Вернуть блок к оригиналу</button></header>
+  return <section className={styles.panel} data-production-properties data-selected-block-id={String(props.id ?? "")}>
+    <header className={headerStyles.header}>
+      <div className={headerStyles.selected} data-selected-block-type={selectedType}>
+        <span className={headerStyles.eyebrow}>Настройки</span>
+        <h2>{displayName}</h2>
+      </div>
+      <input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
+      <button type="button" onClick={() => update(resetProductionEditorBlock(props, resetContract))}>Вернуть блок к оригиналу</button>
+    </header>
     {groups.map(({ group, label, fields, arrays }) => {
       const isCollapsed = !query && collapsed.has(group);
       return <section className={styles.group} key={group} data-production-group={group}>
@@ -285,7 +293,7 @@ export function PuckProductionProperties({ children, itemSelector }: ProductionP
     }) });
   };
   return <>
-    <ContractProperties contract={panelContract} resetContract={contract} props={props} update={update} />
+    <ContractProperties contract={panelContract} resetContract={contract} props={props} update={update} displayName={entry.label} selectedType={selected.type} />
     <NativePuckFieldsBySemanticGroup contract={contract}>{children}</NativePuckFieldsBySemanticGroup>
   </>;
 }
