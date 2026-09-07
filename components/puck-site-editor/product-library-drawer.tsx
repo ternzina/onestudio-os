@@ -54,11 +54,8 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
               type: "setUi",
               ui: {
                 previewMode: "interactive",
-                leftSideBarVisible: false,
-                // Keep the Puck-owned inspector mounted while the canvas enters
-                // interaction mode. Selection and field state remain the single
-                // source of truth in Puck; only the canvas authoring chrome is
-                // hidden.
+                leftSideBarVisible: true,
+                // Keep both sidebars mounted so selection and panel geometry stay stable.
                 rightSideBarVisible: true,
               },
             });
@@ -73,7 +70,7 @@ function PuckPilotHeaderActions({ children }: { children: ReactNode }) {
           });
         }}
       >
-        {interactive ? "Edit layout" : "Interact with page"}
+        <span>{interactive ? "Edit" : "Interact"}</span>
       </button>
       {children}
     </>

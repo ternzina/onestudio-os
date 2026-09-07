@@ -11,7 +11,19 @@
   --puck-color-border: #e7e5e4;
   --puck-color-text: #171717;
   --puck-canvas-color-text: #171717;
+  --editor-font-body: 16px;
+  --editor-font-label: 15px;
+  --editor-font-control: 16px;
+  --editor-font-heading: 16px;
+  --editor-font-helper: 14px;
 }
+
+/* Scoped to editor chrome; public render and block typography are untouched. */
+.shell :global(.puck-editor) { font-size: var(--editor-font-body); }
+.shell :global(.puck-editor button), .shell :global(.puck-editor a) { font-size: var(--editor-font-label); line-height: 1.4; }
+.shell :global(.puck-editor input), .shell :global(.puck-editor textarea), .shell :global(.puck-editor select) { font-size: var(--editor-font-control); line-height: 1.4; min-height: 38px; }
+.shell :global(.puck-editor label) { font-size: var(--editor-font-label); line-height: 1.4; }
+.shell :global(.puck-editor h2), .shell :global(.puck-editor h3) { font-size: var(--editor-font-heading); line-height: 1.4; }
 
 .dark {
   background: #000;
@@ -87,8 +99,12 @@
 
 .toolbar span {
   color: #57534e;
-  font-size: 12px;
+  min-height: 40px;
+  font-size: 15px;
+  line-height: 1.4;
 }
+
+.toolbar button[aria-pressed] { min-width: 104px; font-weight: 700; }
 
 .dark .toolbar span {
   color: #cbd5e1;

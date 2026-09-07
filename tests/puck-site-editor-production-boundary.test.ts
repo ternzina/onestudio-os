@@ -78,14 +78,22 @@ test("production interaction mode uses the shared iframe retargeting contract", 
 
   assert.match(editorUx, /useScaledIframeInteractionRetargeting/);
   assert.match(editorConfig, /root: \{ render: ProductionPuckCanvasRoot \}/);
-  assert.match(drawer, /Interact with page/);
-  assert.match(drawer, /Edit layout/);
+  assert.match(drawer, /interactive \? "Edit" : "Interact"/);
   assert.match(renderer, /data-production-component=/);
   assert.doesNotMatch(renderer, /data-puck-component=/);
 });
 
 test("Interact with page keeps the Puck-owned component inspector visible", () => {
   const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
-  assert.match(drawer, /previewMode: "interactive",\s+leftSideBarVisible: false,\s+\/\/ Keep the Puck-owned inspector mounted[\s\S]*rightSideBarVisible: true/);
+  assert.match(drawer, /previewMode: "interactive",\s+leftSideBarVisible: true,[\s\S]*rightSideBarVisible: true/);
   assert.match(drawer, /previewMode: "edit",\s+\.\.\.editSidebarsRef\.current/);
+});
+
+test("editor mode controls and typography stay stable and scoped", () => {
+  const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
+  const styles = read("components/puck-site-editor/pilot-editor.module.css");
+  assert.match(drawer, /aria-pressed=\{interactive\}/);
+  assert.match(drawer, /interactive \? "Edit" : "Interact"/);
+  assert.match(styles, /--editor-font-body: 16px/);
+  assert.match(styles, /\.shell :global\(\.puck-editor\)/);
 });
