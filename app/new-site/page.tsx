@@ -1,10 +1,14 @@
 import CanonicalSiteCreationWizard from "./CanonicalSiteCreationWizard";
+import type { Metadata } from "next";
+import { createPrivatePageMetadata } from "@/app/_seo/site";
 import { getTemplateCatalogRecord } from "@/lib/public-site/template-catalog";
 import type { TemplateCreationMode, TemplateKey } from "@/lib/public-site/template-catalog";
 
 type NewSitePageProps = {
   searchParams: Promise<{ template?: string; mode?: string }>;
 };
+
+export const metadata: Metadata = createPrivatePageMetadata("/new-site", "Create your OneStudio site");
 
 export default async function NewSitePage({ searchParams }: NewSitePageProps) {
   const params = await searchParams;

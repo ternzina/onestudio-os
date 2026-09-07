@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { defaultLocale, normalizeLocale, type Locale } from "./config";
+import { normalizeLocale, platformMarketingLocale, type Locale } from "./config";
 
 export const localeStorageKey = "onestudio-locale";
 
-export function useLocale(initialLocale: Locale = defaultLocale) {
+export function useLocale(initialLocale: Locale = platformMarketingLocale) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
 
   useEffect(() => {

@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
+import { PLATFORM_MARKETING_PATHS } from "./_seo/platform";
 import { SITE_URL } from "./_seo/site";
+import { DEMOS } from "@/lib/demo-catalog";
+import { getPublicDemoTemplateChoices } from "@/lib/public-site/template-catalog";
 import { isCanonicalPlatformHostname, isTechnicalPlatformHostname } from "@/lib/domains/normalize";
 import {
   getFreshPublicSite,
@@ -22,6 +25,16 @@ import {
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
 
 export const dynamic = "force-dynamic";
+
+function platformMarketingEntries(): MetadataRoute.Sitemap {
+  const catalogDemoPaths = getPublicDemoTemplateChoices()
+    .map((template) => template.gallery.previewRoute)
+    .filter((route): route is string => Boolean(route));
+  const demoPaths = DEMOS.map((demo) => `/demos/${demo.slug}`);
+  return [...new Set([...PLATFORM_MARKETING_PATHS, ...demoPaths, ...catalogDemoPaths])].map((path) => ({
+    url: new URL(path, SITE_URL).toString(),
+  }));
+}
 
 function validDate(value: string) {
   const date = new Date(value);
@@ -184,13 +197,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const publicSites = await listPublicSiteSeoPaths();
   const workspacePages = await platformWorkspaceEntries(publicSites);
 
-  return [
-    {
-      url: SITE_URL.toString(),
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    ...workspacePages,
-  ];
+  return [...platformMarketingEntries(), ...workspacePages];
 }

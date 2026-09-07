@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { defaultLocale } from "@/lib/i18n/config";
+import { platformMarketingLocale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n";
 import ContactPageClient from "./ContactPageClient";
 
 export const metadata: Metadata = {
-  ...getTranslations(defaultLocale).common.metadata.contact,
+  ...getTranslations(platformMarketingLocale).common.metadata.contact,
   alternates: { canonical: "/contact" },
 };
 
