@@ -663,6 +663,7 @@ export default function AdminSitePage() {
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
   const [publishHiddenWarningOpen, setPublishHiddenWarningOpen] = useState(false);
   const [publicDomain, setPublicDomain] = useState<ClientDomainRecord | null>(null);
+  const [indexNowConfigured, setIndexNowConfigured] = useState(false);
   const [designDialogOpen, setDesignDialogOpen] = useState(false);
   const [seoDialogOpen, setSeoDialogOpen] = useState(false);
   const [publishSucceeded, setPublishSucceeded] = useState(false);
@@ -811,6 +812,8 @@ export default function AdminSitePage() {
       .catch(() => { if (!cancelled) setPublicDomain(null); });
     return () => { cancelled = true; };
   }, [workspace?.business_id]);
+
+  useEffect(() => { void fetch("/api/admin/indexnow-status").then((response) => response.ok ? response.json() : null).then((payload) => setIndexNowConfigured(payload?.configured === true)).catch(() => setIndexNowConfigured(false)); }, []);
 
   const selectedRecord = useMemo(
     () =>
@@ -1203,20 +1206,14 @@ export default function AdminSitePage() {
     }
 
     if (options?.publish) {
-      const { data: publishedData, error: publishError } = await supabase.rpc(
-        "publish_public_site",
-        {
-          p_business_id: workspace.business_id,
-          p_locale: selectedLocale,
-        },
-      );
-
-      if (publishError) {
-        setError(publishError.message);
+      const publishResponse = await fetch("/api/admin/public-site/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ businessId: workspace.business_id, locale: selectedLocale }) });
+      const publishPayload = await publishResponse.json().catch(() => null) as { publishedContent?: PublicSiteContent; error?: string } | null;
+      if (!publishResponse.ok || !publishPayload?.publishedContent) {
+        setError(publishPayload?.error || "Публикация не выполнена.");
         setSaving(false);
         return false;
       }
-      const publishedContent = publishedData as PublicSiteContent | null;
+      const publishedContent = publishPayload.publishedContent;
       if (!templateContentRoundTripMatches(draftToSave, publishedContent)) {
         setError("Публикация Premium не подтверждена: сервер не вернул полную композицию шаблона. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
         setSaving(false);
@@ -1526,7 +1523,7 @@ export default function AdminSitePage() {
 
         <section className={`mt-6 rounded-[28px] border p-5 sm:p-6 ${draft.seo_no_index === true ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"}`}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">Поиск Google и Bing</p>
-          <div className="mt-3 flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{draft.seo_no_index === true ? "Сайт скрыт от поисковых систем" : "Индексация включена"}</h2><p className="mt-2 max-w-2xl text-sm leading-6">Если выключено, опубликованный сайт может открываться по прямой ссылке, но Google и Bing не должны добавлять его в поиск.</p><p className="mt-2 text-xs font-semibold">Страниц для sitemap: {sitemapEligibleCount}</p></div><label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">Разрешить поисковым системам индексировать сайт<input type="checkbox" checked={draft.seo_no_index !== true} disabled={!canConfigure} onChange={(event) => replaceDraft({ ...draft, seo_no_index: !event.target.checked }, "seo:site:seo_no_index")} /></label></div>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{draft.seo_no_index === true ? "Сайт скрыт от поисковых систем" : "Индексация включена"}</h2><p className="mt-2 max-w-2xl text-sm leading-6">Если выключено, опубликованный сайт может открываться по прямой ссылке, но Google и Bing не должны добавлять его в поиск.</p><p className="mt-2 text-xs font-semibold">Страниц для sitemap: {sitemapEligibleCount}</p><p className="mt-2 text-xs font-semibold">{indexNowConfigured ? "Автоматические уведомления Bing включены" : "IndexNow не настроен на сервере"}</p></div><label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">Разрешить поисковым системам индексировать сайт<input type="checkbox" checked={draft.seo_no_index !== true} disabled={!canConfigure} onChange={(event) => replaceDraft({ ...draft, seo_no_index: !event.target.checked }, "seo:site:seo_no_index")} /></label></div>
         </section>
 
         <section className="mt-6 rounded-[28px] border border-[#cfded9] bg-[linear-gradient(135deg,#f7fbfa_0%,#edf5f2_100%)] p-5 shadow-[0_18px_55px_rgba(31,70,65,0.08)] sm:p-6">
@@ -1700,6 +1697,7 @@ export default function AdminSitePage() {
           canConfigure={canConfigure}
           saving={saving}
           publicOrigin={publicOrigin}
+          indexNowConfigured={indexNowConfigured}
           onChange={replaceDraft}
           onSave={() => void saveDraft()}
           onClose={() => setSeoDialogOpen(false)}
