@@ -3,7 +3,7 @@
 import "@puckeditor/core/puck.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Puck, type Data } from "@puckeditor/core";
+import { createUsePuck, Puck, type Data } from "@puckeditor/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PUCK_PRODUCTION_EDITOR_CONFIG } from "./editor-config";
 import {
@@ -25,6 +25,46 @@ type PilotEditorProps = {
   publicPreviewHref: string;
 };
 
+const usePuck = createUsePuck();
+
+function PuckEditorKeyboardShortcuts({ onSave }: { onSave: () => void }) {
+  const undo = usePuck((state) => state.history.back);
+  const redo = usePuck((state) => state.history.forward);
+
+  useEffect(() => {
+    const isTextEditingTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      return target.matches("input, textarea, [contenteditable='true'], [contenteditable='']")
+        || Boolean(target.closest("[contenteditable='true'], [contenteditable='']"));
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.isComposing || event.key === "Process") return;
+      const modifier = event.metaKey || event.ctrlKey;
+      if (!modifier) return;
+
+      const key = event.key.toLowerCase();
+      if (key === "s") {
+        event.preventDefault();
+        onSave();
+        return;
+      }
+      if (isTextEditingTarget(event.target)) return;
+      if (key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+      } else if (key === "y" && event.ctrlKey && !event.metaKey && !event.shiftKey) {
+        event.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onSave, redo, undo]);
+
+  return null;
+}
+
 export default function PuckPilotEditor({
   businessId,
   locale,
@@ -43,6 +83,7 @@ export default function PuckPilotEditor({
   const router = useRouter();
   const documentRef = useRef(fallback);
   const savedDocumentRef = useRef(fallback);
+  const savingRef = useRef(false);
   const plugins = useMemo(() => [{
     name: "library",
     label: "Библиотека",
@@ -98,7 +139,8 @@ export default function PuckPilotEditor({
   }, [toDocument]);
 
   const save = useCallback(async () => {
-    if (status === "saving") return;
+    if (savingRef.current || status === "saving" || status === "clean") return;
+    savingRef.current = true;
     const snapshot = documentRef.current;
     setStatus("saving");
     setMessage("");
@@ -112,6 +154,8 @@ export default function PuckPilotEditor({
     } catch (error) {
       setStatus("save-error");
       setMessage(error instanceof Error ? error.message : "Не удалось сохранить");
+    } finally {
+      savingRef.current = false;
     }
   }, [businessId, locale, scope.pageId, status]);
 
@@ -218,6 +262,7 @@ export default function PuckPilotEditor({
             "outline-header-title": "Структура",
           }}
         >
+          <PuckEditorKeyboardShortcuts onSave={() => void save()} />
           <Puck.Layout />
         </Puck>
       </div>
