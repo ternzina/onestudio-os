@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import { DEFAULT_DESCRIPTION, DEFAULT_KEYWORDS, SITE_NAME, SITE_URL } from "./site";
 
+export const PLATFORM_MARKETING_PATHS = [
+  "/",
+  "/features",
+  "/demos",
+  "/components",
+  "/pricing",
+  "/website",
+  "/about",
+  "/faq",
+  "/blog",
+  "/contact",
+] as const;
+
 export const platformMetadata: Metadata = {
   metadataBase: SITE_URL,
   applicationName: SITE_NAME,

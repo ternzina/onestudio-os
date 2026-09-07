@@ -15,6 +15,9 @@ export type Locale = (typeof supportedLocales)[number];
 
 export const defaultLocale: Locale = "ru";
 
+/** Default for the canonical OneStudio marketing surface only. */
+export const platformMarketingLocale: Locale = "en";
+
 export const contactTopicValues = [
   "platform",
   "website",
