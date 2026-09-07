@@ -168,7 +168,7 @@ function ContractProperties({ contract, resetContract, props, update, displayNam
         <span className={headerStyles.eyebrow}>Настройки</span>
         <h2>{displayName}</h2>
       </div>
-      <input aria-label="Поиск настроек" placeholder="Поиск настроек…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
+      <div className={styles.searchControl}><label htmlFor="production-settings-search">Поиск настроек</label><input id="production-settings-search" aria-label="Найти настройку" placeholder="Найти настройку…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); setQuery(""); } }} />{query ? <button type="button" aria-label="Очистить поиск настроек" onClick={() => setQuery("")}>×</button> : null}</div>
       <button type="button" onClick={() => update(resetProductionEditorBlock(props, resetContract))}>Вернуть блок к оригиналу</button>
     </header>
     {groups.map(({ group, label, fields, arrays }) => {
@@ -293,7 +293,7 @@ export function PuckProductionProperties({ children, itemSelector }: ProductionP
     }) });
   };
   return <>
-    <ContractProperties contract={panelContract} resetContract={contract} props={props} update={update} displayName={entry.label} selectedType={selected.type} />
+    <ContractProperties key={String(selected.props.id)} contract={panelContract} resetContract={contract} props={props} update={update} displayName={entry.label} selectedType={selected.type} />
     <NativePuckFieldsBySemanticGroup contract={contract}>{children}</NativePuckFieldsBySemanticGroup>
   </>;
 }

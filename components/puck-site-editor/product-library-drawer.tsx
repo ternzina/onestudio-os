@@ -12,6 +12,7 @@ import {
 } from "@/lib/puck-site-editor/product-library";
 import styles from "./product-library-drawer.module.css";
 import { PuckProductionProperties } from "./production-properties-panel";
+import { PuckProductionOutline } from "./structure-search";
 import {
   guardProductionPreviewNavigation,
   guardProductionPreviewSubmit,
@@ -354,4 +355,5 @@ export const PUCK_PRODUCTION_EDITOR_OVERRIDES = {
   headerActions: PuckPilotHeaderActions,
   fields: PuckProductionProperties,
   fieldLabel: ProductionFieldLabel,
+  outline: PuckProductionOutline,
 } as const;

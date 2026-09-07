@@ -1,0 +1,15 @@
+"use client";
+import { createUsePuck } from "@puckeditor/core";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
+import { PUCK_PRODUCTION_REGISTRY_BY_ID } from "./production-registry";
+import styles from "./pilot-editor.module.css";
+const usePuck = createUsePuck();
+const humanize = (value: string) => value.replace(/[._-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+export function PuckProductionOutline({ children }: { children: ReactNode }) {
+  const content = usePuck((state) => state.appState.data.content); const dispatch = usePuck((state) => state.dispatch); const selectedId = usePuck((state) => state.selectedItem?.props.id ?? null);
+  const [query, setQuery] = useState(""); const [activeIndex, setActiveIndex] = useState(0); const normalized = query.trim().toLocaleLowerCase();
+  const results = useMemo(() => { const occurrences = new Map<string, number>(); return content.flatMap((component, index) => { const label = PUCK_PRODUCTION_REGISTRY_BY_ID.get(component.type)?.label || humanize(component.type); const occurrence = (occurrences.get(label) ?? 0) + 1; occurrences.set(label, occurrence); if (normalized && !label.toLocaleLowerCase().includes(normalized) && !component.type.toLocaleLowerCase().includes(normalized)) return []; return [{ id: String(component.props.id), index, label, occurrence }]; }); }, [content, normalized]);
+  const clear = () => { setQuery(""); setActiveIndex(0); }; const select = (result: (typeof results)[number]) => dispatch({ type: "setUi", ui: { itemSelector: { index: result.index, zone: "root:default-zone" } } });
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => { if (event.key === "Escape") { event.preventDefault(); clear(); return; } if (!results.length) return; if (event.key === "ArrowDown") { event.preventDefault(); setActiveIndex((value) => (value + 1) % results.length); } if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((value) => (value - 1 + results.length) % results.length); } if (event.key === "Enter") { event.preventDefault(); select(results[activeIndex] ?? results[0]); } };
+  return <div className={styles.outlineSearch}><div className={styles.searchRow}><label htmlFor="puck-structure-search">Поиск структуры</label><input id="puck-structure-search" aria-label="Найти блок на странице" placeholder="Найти блок на странице…" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} onKeyDown={onKeyDown} />{query ? <button type="button" aria-label="Очистить поиск структуры" onClick={clear}>×</button> : null}</div>{normalized ? <div className={styles.searchResults} role="listbox" aria-label="Результаты поиска структуры">{results.length ? results.map((result, index) => <button key={result.id} type="button" role="option" aria-selected={selectedId === result.id} className={index === activeIndex ? styles.searchResultActive : undefined} onClick={() => select(result)}>{result.label}{result.occurrence > 1 ? ` · ${result.occurrence}` : ""}</button>) : <p role="status">Ничего не найдено</p>}</div> : null}{children}</div>;
+}
