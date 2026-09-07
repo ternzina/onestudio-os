@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { defaultLocale } from "@/lib/i18n/config";
+import { platformMarketingLocale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n";
 import BlogPageClient from "./BlogPageClient";
 
 export const metadata: Metadata = {
-  ...getTranslations(defaultLocale).common.metadata.blog,
+  ...getTranslations(platformMarketingLocale).common.metadata.blog,
   alternates: { canonical: "/blog" },
 };
 

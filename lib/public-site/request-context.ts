@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { getPublicSite } from "./data";
-import { requestHtmlLang, safeLocale } from "../seo/request";
+import { classifyHostname, requestHtmlLang, safeLocale, PLATFORM_MARKETING_LOCALE } from "../seo/request";
 
 export type PublicSiteRequestContext = {
   customDomain: string | null;
@@ -30,7 +30,10 @@ export async function getRequestHtmlLang() {
   if (explicitLocale) return requestHtmlLang(headerStore);
 
   const businessSlug = headerStore.get("x-onestudio-business-slug");
-  if (!businessSlug) return requestHtmlLang(headerStore);
+  if (!businessSlug) {
+    const host = headerStore.get("x-forwarded-host") || headerStore.get("host") || "";
+    return classifyHostname(host) === "tenant" ? requestHtmlLang(headerStore) : PLATFORM_MARKETING_LOCALE;
+  }
   const site = await getPublicSite(businessSlug);
   return safeLocale(site?.business.locale || site?.business.primary_locale);
 }

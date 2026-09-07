@@ -1,6 +1,7 @@
 import { hostnameWithoutPort } from "../domains/normalize.ts";
 
 export const PLATFORM_LOCALE = "ru";
+export const PLATFORM_MARKETING_LOCALE = "en";
 
 export type HostKind = "canonical-platform" | "technical-platform" | "localhost" | "tenant";
 

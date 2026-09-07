@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { defaultLocale } from "@/lib/i18n/config";
+import { platformMarketingLocale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n";
 import PricingPageClient from "./PricingPageClient";
 
 export const metadata: Metadata = {
-  ...getTranslations(defaultLocale).common.metadata.pricing,
+  ...getTranslations(platformMarketingLocale).common.metadata.pricing,
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {
