@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 
-const FORM_SCRIPT = "https://apichannels.com/form/app2/actionInit.js";
+const FORM_SCRIPT = "https://apichannels.com/form/applicationInit.js";
 const TRACK_SCRIPT = "https://apichannels.com/form/track.js";
 
 function loadScript(source: string, id: string) {
@@ -35,11 +35,19 @@ export default function LeadsGateForm({ aid, template = "wallet-lines", preview 
     // The provider's documented API uses this global configuration and fixed target id.
     // Keep it scoped to a single mounted public form to prevent duplicate remount injection.
     target.id = "_lg_form_";
-    (window as Window & { _lg_form_init_?: unknown; _lg_track_init?: unknown })._lg_form_init_ = { aid, template };
-    (window as Window & { _lg_form_init_?: unknown; _lg_track_init?: unknown })._lg_track_init = { aid: Number(aid) };
-    Promise.all([loadScript(FORM_SCRIPT, "onestudio-leadsgate-form"), loadScript(TRACK_SCRIPT, "onestudio-leadsgate-track")]).catch(() => {
+    const providerWindow = window as Window & {
+      _lg_form_init_?: unknown;
+      _lg_track_init_?: unknown;
+    };
+    providerWindow._lg_form_init_ = { aid, template };
+    providerWindow._lg_track_init_ = { aid: Number(aid) };
+
+    // The application renderer is required. Tracking is independent and must
+    // never replace a usable provider form when analytics is unavailable.
+    loadScript(FORM_SCRIPT, "onestudio-leadsgate-form").catch(() => {
       if (!cancelled) target.textContent = "The request form is temporarily unavailable. Please try again later.";
     });
+    void loadScript(TRACK_SCRIPT, "onestudio-leadsgate-track").catch(() => {});
     return () => { cancelled = true; if (target.id === "_lg_form_") target.id = targetId; };
   }, [aid, isPreview, targetId, template]);
 
