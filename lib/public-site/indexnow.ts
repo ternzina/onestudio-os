@@ -37,7 +37,9 @@ export async function submitIndexNow(urls: string[], fetcher: typeof fetch = fet
   if (!key || !host || unique.length === 0) return { status: "disabled", host, urlCount: unique.length };
   if (unique.length > INDEXNOW_PUBLISH_MAX_URLS || unique.some((url) => new URL(url).host !== host)) return { status: "failed", host, urlCount: unique.length };
   try {
-    const response = await fetcher(INDEXNOW_ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ host, key, keyLocation: `https://${host}/${key}.txt`, urlList: unique }), signal: AbortSignal.timeout(8_000) });
+    // Root-hosted key files are the primary IndexNow verification option. The
+    // compact payload avoids an unnecessary keyLocation field in that mode.
+    const response = await fetcher(INDEXNOW_ENDPOINT, { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body: JSON.stringify({ host, key, urlList: unique }), signal: AbortSignal.timeout(8_000) });
     const status = response.status === 200 ? "accepted" : response.status === 202 ? "accepted_pending" : response.ok ? "submitted" : "failed";
     return { status, host, urlCount: unique.length, httpStatus: response.status };
   } catch { return { status: "failed", host, urlCount: unique.length }; }
