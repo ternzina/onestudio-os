@@ -72,3 +72,12 @@
      opt-in and only wraps manifest entries with target: sourceRoot. */
   background-color: var(--puck-source-background) !important;
 }
+
+/* Only the audited direct source root is normalized in authoring. This does
+   not reach nested panels/scroll realms and is absent from the public path. */
+[data-production-editor-viewport-height="natural"] > :global(.min-h-screen),
+[data-production-editor-viewport-height="natural"] > :global(.h-screen),
+[data-production-editor-viewport-height="natural"] > :global([class*="min-h-"]) {
+  height: auto !important;
+  min-height: 0 !important;
+}

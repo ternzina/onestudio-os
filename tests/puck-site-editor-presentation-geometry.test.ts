@@ -244,6 +244,20 @@ test("representative components resolve through generic geometry metadata", () =
   assert.equal(entry("current-free:splash-cursor").presentationContract?.geometry.kind, "viewport");
 });
 
+test("audited natural viewport sections opt into editor-only root normalization", () => {
+  for (const slug of ["hero-14", "cta-9", "cta-10", "faq-4", "about-8"]) {
+    const item = PUCK_PRODUCTION_MANIFEST.find((entry) => entry.officialSlug === slug);
+    assert.equal(item?.presentationContract?.editorViewportHeightPolicy, "natural", slug);
+    assert.equal(item?.presentationContract?.geometry.kind, "intrinsic", slug);
+  }
+  for (const key of ["component:circle-gallery", "component:scroll-stack", "starter:scroll-mask-tw", "current-free:splash-cursor"]) {
+    assert.equal(entry(key).presentationContract?.editorViewportHeightPolicy, undefined, key);
+    assert.equal(entry(key).presentationContract?.geometry.kind, "viewport", key);
+  }
+  assert.equal(entry("component:tilted-tiles").presentationContract?.geometry.kind, "fullSurface");
+  assert.equal(entry("component:frame-border").presentationContract?.geometry.kind, "fullSurface");
+});
+
 test("Text Scatter and marketing blocks retain separate presentation contracts", () => {
   const textScatter = entry("control-6:text-scatter-tw");
   assert.equal(textScatter.presentationContract?.geometry.kind, "minHeight");
@@ -256,7 +270,10 @@ test("Text Scatter and marketing blocks retain separate presentation contracts",
 
   const marketing = PUCK_PRODUCTION_MANIFEST.filter((item) => item.sourceKind === "pro-block");
   assert.equal(marketing.length > 0, true);
-  assert.equal(marketing.every((item) => item.presentationContract === undefined), true);
+  assert.equal(marketing.every((item) =>
+    item.presentationContract === undefined
+    || item.presentationContract.editorViewportHeightPolicy === "natural"
+  ), true);
   assert.equal(marketing.every((item) => item.host?.profile !== "canvas"), true);
 });
 

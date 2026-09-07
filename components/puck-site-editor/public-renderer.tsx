@@ -77,6 +77,8 @@ function ProductionSourceHost({
   const presentationContract = entry.presentationContract;
   const rootLayout = presentationContract?.rootLayout;
   const presentationGeometry = presentationContract?.geometry;
+  const naturalizeViewportHeight = runtimeMode === "authoring"
+    && presentationContract?.editorViewportHeightPolicy === "natural";
   const presentationOverflow = presentationContract?.overflow;
   const preservesVisiblePresentationOverflow = presentationOverflow === "visible";
   const isWrapperTarget = backgroundRouting.target === "wrapper";
@@ -207,6 +209,7 @@ function ProductionSourceHost({
       data-production-background-target={backgroundRouting.target}
       data-production-presentation-geometry={presentationGeometry?.kind}
       data-production-presentation-root-layout={rootLayout ? "flex-center" : undefined}
+      data-production-editor-viewport-height={naturalizeViewportHeight ? "natural" : undefined}
       style={style}
     >
       {content}

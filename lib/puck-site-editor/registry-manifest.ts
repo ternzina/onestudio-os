@@ -92,6 +92,9 @@ export type PuckProductionPresentationGeometry = {
 export type PuckProductionPresentationContract = {
   /** The production surface is the selected counterpart of the source contract. */
   target: "componentRoot";
+  /** Editor-only normalization for a source root that authored viewport height
+   * but is otherwise an intrinsic content section. */
+  editorViewportHeightPolicy?: "natural";
   /** Typed layout applied to the ProductionSourceHost presentation root. */
   rootLayout?: PuckProductionPresentationRootLayout;
   /** The source/public overflow contract, independent of preview chrome. */
@@ -294,6 +297,33 @@ const viewportPresentation = (): PuckProductionPresentationContract => ({
 });
 
 /**
+ * Source-backed natural sections. The policy is deliberately keyed by the
+ * already-audited official slug list; it is not a renderer/component-name
+ * heuristic. Viewport/stage entries remain on their explicit contracts.
+ */
+const NATURAL_VIEWPORT_HEIGHT_SLUGS = new Set([
+  "navigation-12", "hero-14", "cta-9", "social-proof-10", "contact-6",
+  "navigation-13", "hero-16", "showcase-4", "how-it-works-4", "social-proof-3",
+  "showcase-5", "navigation-5", "faq-4", "faq-3", "faq-5", "about-8", "about-9",
+  "waitlist-2", "features-6", "how-it-works-5", "stats-6", "features-8", "features-9",
+  "navigation-2", "hero-6", "cta-4", "cta-6", "cta-7", "navigation-4", "navigation-7",
+  "navigation-8", "showcase-1", "social-proof-11", "cta-8", "hero-19", "hero-17",
+  "blog-6", "ecommerce-7", "auth-3", "hero-9", "auth-2", "hero-5", "hero-8",
+  "hero-15", "hero-20", "about-10", "about-12", "social-proof-12", "navigation-9",
+  "navigation-11", "navigation-14", "cta-10", "navigation-15", "hero-18", "ecommerce-1",
+  "ecommerce-2", "pricing-7", "pricing-8", "pricing-9", "pricing-10", "contact-7",
+  "contact-8", "hero-7",
+]);
+
+const naturalViewportPresentation = (): PuckProductionPresentationContract => ({
+  target: "componentRoot",
+  editorViewportHeightPolicy: "natural",
+  overflow: "visible",
+  provenance: "source",
+  geometry: { kind: "intrinsic" },
+});
+
+/**
  * Production component scene contracts. This is a catalog data table: the
  * renderer never branches on a component id. Every entry below was checked
  * against its physical root/source measurements before being classified.
@@ -362,7 +392,12 @@ const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProduc
 };
 
 function productionPresentationContract(catalogKey: string) {
-  return PUCK_PRODUCTION_PRESENTATION_CONTRACTS[catalogKey];
+  const explicit = PUCK_PRODUCTION_PRESENTATION_CONTRACTS[catalogKey];
+  if (explicit) return explicit;
+  const generated = generatedByCatalogKey.get(catalogKey);
+  return generated && NATURAL_VIEWPORT_HEIGHT_SLUGS.has(generated.officialSlug)
+    ? naturalViewportPresentation()
+    : undefined;
 }
 
 type PuckBatch3CatalogKey = keyof typeof PUCK_BATCH_3_EDITOR_CONTRACTS;
