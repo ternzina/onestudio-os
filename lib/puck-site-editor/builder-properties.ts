@@ -19,9 +19,9 @@ export const PRODUCTION_SHARED_STYLE_FIELD_KEYS = ["backgroundColor", "textColor
 
 type ProductionSharedStyleFieldKey = (typeof PRODUCTION_SHARED_STYLE_FIELD_KEYS)[number];
 
-const productionSharedStyleFieldMeta: Readonly<Record<ProductionSharedStyleFieldKey, { label: string; fallback: string }>> = {
-  backgroundColor: { label: "Background", fallback: "#ffffff" },
-  textColor: { label: "Text color", fallback: "#171717" },
+const productionSharedStyleFieldMeta: Readonly<Record<ProductionSharedStyleFieldKey, { label: string }>> = {
+  backgroundColor: { label: "Background" },
+  textColor: { label: "Text color" },
 };
 
 export const PRODUCTION_SHARED_STYLE_FIELD_META = productionSharedStyleFieldMeta;
@@ -78,7 +78,8 @@ export function productionPropertiesContract(
 
   for (const key of sharedStyleFields) {
     const meta = productionSharedStyleFieldMeta[key];
-    const originalValue = typeof manifestDefaults[key] === "string" ? manifestDefaults[key] : meta.fallback;
+    const originalValue = manifestDefaults[key];
+    if (typeof originalValue !== "string") continue;
     if (!existingKeys.has(key)) {
       fields.push({
         key,
@@ -288,6 +289,19 @@ export function resetProductionEditorField(
   fieldKey: string,
 ) {
   return resetEditorField(props, contract, fieldKey);
+}
+
+export function resolveOriginalFieldValue(contract: ComponentEditorContract, fieldKey: string): ProductionEditorValue | undefined {
+  const field = contract.fields.find((candidate) => candidate.key === fieldKey);
+  if (!field || !field.resettable) return undefined;
+  return field.originalValue !== undefined ? clone(field.originalValue) : getPathValue(contract.defaultProps, field.path);
+}
+
+export function resetProductionEditorArray(props: Readonly<Record<string, ProductionEditorValue>>, contract: ComponentEditorContract, arrayKey: string) {
+  const array = findArray(contract, arrayKey);
+  const defaults = getPathValue(contract.defaultProps, array.path);
+  if (!Array.isArray(defaults)) return Object.fromEntries(Object.entries(props).map(([key, value]) => [key, clone(value)]));
+  return setPath(props, array.path, defaults);
 }
 
 export function resetProductionEditorGroup(

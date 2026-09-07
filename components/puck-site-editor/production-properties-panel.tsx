@@ -12,9 +12,9 @@ import {
   productionNativeFieldGroup,
   productionPropertiesContract,
   productionPropertiesContractForManualPanel,
-  resetProductionEditorBlock,
   resetProductionEditorField,
-  resetProductionEditorGroup,
+  resetProductionEditorArray,
+  resolveOriginalFieldValue,
   updateProductionEditorArrayItem,
   addProductionEditorArrayItem,
   removeProductionEditorArrayItem,
@@ -88,12 +88,13 @@ function ContractField({
 }) {
   const locale = useProductionEditorLocale();
   const value = resolvePuckProductionFieldValue(props, contract.defaultProps, field.path) as ProductionEditorPrimitive;
+  const original = resolveOriginalFieldValue(contract, field.key);
+  const canReset = original !== undefined && JSON.stringify(value) !== JSON.stringify(original);
   return (
     <div className={styles.field} data-production-field={field.key} data-field-type={field.type}>
-      {field.type !== "number" ? <label htmlFor={`production-${field.key}`}>{translateAdminText(locale, field.label)}</label> : null}
+      <div className={styles.fieldLabel}><label htmlFor={`production-${field.key}`}>{translateAdminText(locale, field.label)}</label>{canReset ? <button className={styles.resetButton} type="button" title="Сбросить к исходному" aria-label={`Сбросить к исходному: ${field.label}`} onClick={() => update(resetProductionEditorField(props, contract, field.key))}>Сбросить</button> : null}</div>
       {field.type === "media" && typeof value === "string" ? <img className={styles.mediaPreview} src={value} alt="" /> : null}
       <ProductionFieldInput id={`production-${field.key}`} field={field} value={value} onChange={(next) => update(updateProductionEditorField(props, contract, field.key, next))} />
-      {field.resettable ? <button type="button" onClick={() => update(resetProductionEditorField(props, contract, field.key))}>Вернуть оригинал</button> : null}
     </div>
   );
 }
@@ -138,7 +139,9 @@ function ContractArrays({
       const toIndex = insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
       if (toIndex !== fromIndex) update((current) => reorderProductionEditorArrayItem(current, contract, array.key, fromIndex, toIndex));
     };
-    return <fieldset className={styles.array} key={array.key}><legend>{translateAdminText(locale, array.label)}</legend>{items.map((item, index) => (
+    const defaults = valueAt(contract.defaultProps, array.path);
+    const canReset = Array.isArray(defaults) && JSON.stringify(items) !== JSON.stringify(defaults);
+    return <fieldset className={styles.array} key={array.key}><legend>{translateAdminText(locale, array.label)}{canReset ? <button className={styles.resetButton} type="button" title="Сбросить список к исходному" onClick={() => update(resetProductionEditorArray(props, contract, array.key))}>Сбросить список</button> : null}</legend>{items.map((item, index) => (
       <div className={`${styles.arrayItem}${draggedIndex === index ? ` ${styles.dragging}` : ""}${dropIndex === index || dropIndex === index + 1 ? ` ${styles.dropTarget}` : ""}`} key={`${array.key}-${index}`} data-production-array-item={array.key} onDragOver={(event) => handleDragOver(event, index)} onDrop={handleDrop}>
         <div className={styles.arrayItemHeader}><button className={styles.dragHandle} type="button" draggable={items.length > 1} aria-label="Переместить элемент" title="Переместить элемент" onDragStart={(event) => handleDragStart(event, index)} onDragEnd={clearDrag}>⠿</button><strong>{array.itemLabel} {index + 1}</strong></div>
         {itemFields.map((field) => <div className={styles.field} data-production-array-field={`${array.key}.${field.key}`} data-field-type={field.type} key={field.key}>
@@ -156,7 +159,7 @@ function ContractArrays({
   });
 }
 
-function ContractProperties({ contract, resetContract, props, update, displayName, selectedType }: { contract: ComponentEditorContract; resetContract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: ProductionPropsUpdate; displayName: string; selectedType: string }) {
+function ContractProperties({ contract, props, update, displayName, selectedType }: { contract: ComponentEditorContract; props: Readonly<Record<string, ProductionEditorValue>>; update: ProductionPropsUpdate; displayName: string; selectedType: string }) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<ProductionEditorFieldGroup>>(() => new Set(["LAYOUT", "MOTION", "RESPONSIVE"]));
   const filtered = useMemo(() => filterProductionEditorContract(contract, query), [contract, query]);
@@ -169,14 +172,12 @@ function ContractProperties({ contract, resetContract, props, update, displayNam
         <h2>{displayName}</h2>
       </div>
       <div className={styles.searchControl}><label htmlFor="production-settings-search">Поиск настроек</label><input id="production-settings-search" aria-label="Найти настройку" placeholder="Найти настройку…" type="search" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); setQuery(""); } }} />{query ? <button type="button" aria-label="Очистить поиск настроек" onClick={() => setQuery("")}>×</button> : null}</div>
-      <button type="button" onClick={() => update(resetProductionEditorBlock(props, resetContract))}>Вернуть блок к оригиналу</button>
     </header>
     {groups.map(({ group, label, fields, arrays }) => {
       const isCollapsed = !query && collapsed.has(group);
       return <section className={styles.group} key={group} data-production-group={group}>
         <button type="button" className={styles.groupToggle} aria-expanded={!isCollapsed} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group)) next.delete(group); else next.add(group); return next; })}><span>{label}</span><span aria-hidden="true">{isCollapsed ? "▸" : "▾"}</span></button>
         {!isCollapsed ? <div className={styles.groupContent}>
-          <div className={styles.groupActions}><button type="button" onClick={() => update(resetProductionEditorGroup(props, resetContract, group))}>Сбросить группу</button></div>
           {fields.map((field) => <ContractField key={field.key} field={field} props={props} contract={contract} update={update} />)}
           <ContractArrays contract={contract} props={props} group={group} update={update} />
         </div> : null}
@@ -293,7 +294,7 @@ export function PuckProductionProperties({ children, itemSelector }: ProductionP
     }) });
   };
   return <>
-    <ContractProperties key={String(selected.props.id)} contract={panelContract} resetContract={contract} props={props} update={update} displayName={entry.label} selectedType={selected.type} />
+    <ContractProperties key={String(selected.props.id)} contract={panelContract} props={props} update={update} displayName={entry.label} selectedType={selected.type} />
     <NativePuckFieldsBySemanticGroup contract={contract}>{children}</NativePuckFieldsBySemanticGroup>
   </>;
 }
