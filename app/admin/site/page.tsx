@@ -272,6 +272,42 @@ function nativeActionStylesRoundTripMatches(
     === stableJsonSignature(draft.native_action_styles ?? {});
 }
 
+type LeadsGateFormSignature = {
+  id: string;
+  kind: "leadsgate_form";
+  aid: string;
+  template: string;
+};
+
+function leadsgateFormSignatures(content: PublicSiteContent | null): LeadsGateFormSignature[] {
+  if (!content) return [];
+  const blocks = [
+    ...(content.custom_blocks ?? []),
+    ...(content.pages ?? []).flatMap((page) => page.blocks ?? []),
+  ];
+  return blocks.flatMap((block) => block.kind === "leadsgate_form" ? [{
+    id: block.id,
+    kind: "leadsgate_form" as const,
+    aid: block.leadsgate_aid ?? "",
+    template: block.leadsgate_template ?? "",
+  }] : []);
+}
+
+function leadsgateFormsRoundTripMatches(
+  draft: PublicSiteContent,
+  saved: PublicSiteContent | null,
+) {
+  const submitted = leadsgateFormSignatures(draft);
+  if (!submitted.length) return true;
+  const returned = leadsgateFormSignatures(saved);
+  return submitted.every((form) => returned.some((candidate) => (
+    candidate.id === form.id
+    && candidate.kind === form.kind
+    && candidate.aid === form.aid
+    && candidate.template === form.template
+  )));
+}
+
 function normalizedText(value: unknown, limit: number) {
   return (typeof value === "string" ? value : "")
     .trim()
@@ -1138,6 +1174,11 @@ export default function AdminSitePage() {
       setSaving(false);
       return false;
     }
+    if (!leadsgateFormsRoundTripMatches(draftToSave, savedDraftContent)) {
+      setError("Форма заявки не была сохранена сервером. Черновик сохранён в редакторе, данные формы не удалены.");
+      setSaving(false);
+      return false;
+    }
     if (!pagesRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил список страниц. Изменения оставлены в редакторе."); setSaving(false); return false; }
     if (!siteSettingsRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил настройки сайта. Изменения оставлены в редакторе."); setSaving(false); return false; }
 
@@ -1173,6 +1214,11 @@ export default function AdminSitePage() {
       }
       if (!nativeActionStylesRoundTripMatches(draftToSave, publishedContent)) {
         setError("Публикация не подтверждена: сервер изменил оформление кнопок Premium. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
+        setSaving(false);
+        return false;
+      }
+      if (!leadsgateFormsRoundTripMatches(draftToSave, publishedContent)) {
+        setError("Публикация не подтверждена: сервер не сохранил форму заявки. Черновик сохранён в редакторе.");
         setSaving(false);
         return false;
       }
