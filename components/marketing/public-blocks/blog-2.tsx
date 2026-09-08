@@ -6,6 +6,7 @@ import BlogPreview from "@/components/blog-previews/BlogPreview";
 import type { BlogPreviewId } from "@/components/blog-previews/blog-preview-registry";
 import type { Locale } from "@/lib/i18n/config";
 import styles from "./blog-2.module.css";
+import Link from "next/link";
 
 export type Blog2Lang = Locale;
 export type Blog2Tone =
@@ -37,6 +38,7 @@ export type Blog2Article = {
   category: string;
   excerpt: string;
   tone?: Blog2Tone;
+  href?: string;
 };
 
 export type Blog2Props = {
@@ -126,7 +128,16 @@ export function Blog2({
               <div className={styles.grid}>
                 {sortedArticles.map((article, index) => (
                   <Blog2CardReveal index={index} key={article.id}>
-                    <div className={styles.card}>
+                    {article.href ? <Link href={article.href} className={styles.card} aria-label={`Read ${article.title}`}>
+                      <div className={styles.cover}>
+                        <BlogPreview componentId={article.componentId} title={article.title} />
+                      </div>
+                      <div className={styles.cardBody}>
+                        <div className={styles.meta}><span>{article.category}</span><time dateTime={article.publishedAt}>{article.date}</time></div>
+                        <h3>{article.title}</h3><p>{article.excerpt}</p>
+                        <div className={styles.cardFoot}><span>{articleNoteLabel}</span><span className={styles.arrow} aria-hidden="true">↗</span></div>
+                      </div>
+                    </Link> : <div className={styles.card}>
                       <div className={styles.cover}>
                         <BlogPreview componentId={article.componentId} title={article.title} />
                       </div>
@@ -143,7 +154,7 @@ export function Blog2({
                           <span className={styles.arrow} aria-hidden="true">↗</span>
                         </div>
                       </div>
-                    </div>
+                    </div>}
                   </Blog2CardReveal>
                 ))}
               </div>
