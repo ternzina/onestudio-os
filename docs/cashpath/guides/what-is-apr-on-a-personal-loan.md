@@ -1,5 +1,6 @@
 ---
 slug: what-is-apr-on-a-personal-loan
+order: 1
 nav_label: What Is APR?
 eyebrow: PERSONAL LOAN GUIDE
 seo_title: "What Is APR on a Personal Loan? | CashPath"

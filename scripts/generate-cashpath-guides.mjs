@@ -194,6 +194,7 @@ function parseGuide(source, file) {
       ].join(" "),
     ).match(/[A-Za-z0-9][A-Za-z0-9'’-]*/g)?.length ?? 0;
   return {
+    guide_order: Number(values.order || 9999),
     id: values.slug,
     type: "custom",
     slug: values.slug,
@@ -227,7 +228,10 @@ const sourceSha256 = crypto
   .createHash("sha256")
   .update(source.map(({ file, content }) => `${file}\n${content}`).join("\n"))
   .digest("hex");
-const guides = source.map(({ file, content }) => parseGuide(content, file));
+const guides = source
+  .map(({ file, content }) => parseGuide(content, file))
+  .sort((left, right) => left.guide_order - right.guide_order)
+  .map(({ guide_order, ...guide }) => guide);
 if (new Set(guides.map((guide) => guide.slug)).size !== guides.length)
   fail("Duplicate guide slug");
 

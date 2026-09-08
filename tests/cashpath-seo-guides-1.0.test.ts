@@ -25,7 +25,7 @@ test("CashPath guide generator is current and emits the complete APR guide", () 
     stdio: "pipe",
   });
   const guide = apr();
-  assert.equal(CASH_PATH_GUIDES.length, 1);
+  assert.equal(CASH_PATH_GUIDES.length, 2);
   assert.equal(guide.nav_label, "What Is APR?");
   assert.equal(guide.title, "What Is APR on a Personal Loan?");
   assert.equal(guide.seo_title, "What Is APR on a Personal Loan? | CashPath");
@@ -119,9 +119,9 @@ test("missing-guide installer is CashPath-only, append-only, and idempotent", ()
     ],
     layout_order: ["custom:cashpath-request"],
   } as PublicSiteContent;
-  assert.equal(missingCashPathGuides(cashpath).length, 1);
+  assert.equal(missingCashPathGuides(cashpath).length, 2);
   const installed = installMissingCashPathGuides(cashpath);
-  assert.equal(installed.pages?.length, 2);
+  assert.equal(installed.pages?.length, 3);
   assert.equal(installed.pages?.[0], existing);
   assert.equal(installed.custom_blocks, cashpath.custom_blocks);
   assert.equal(installed.layout_order, cashpath.layout_order);
@@ -150,12 +150,11 @@ test("CashPath footers discover only a visible and indexable installed guide", a
     ),
   ]);
   for (const source of [home, customPage]) {
-    assert.match(
-      source,
-      /candidate\.slug === "what-is-apr-on-a-personal-loan"/,
-    );
-    assert.match(source, /candidate\.is_visible !== false/);
-    assert.match(source, /candidate\.seo_no_index !== true/);
-    assert.match(source, /What Is APR\?/);
+    assert.match(source, /CASH_PATH_GUIDES/);
+    assert.match(source, /guide\.slug/);
+    assert.match(source, /is_visible !== false/);
+    assert.match(source, /seo_no_index !== true/);
+    assert.match(source, /guide\.nav_label/);
+    assert.doesNotMatch(source, /hasAprGuide/);
   }
 });

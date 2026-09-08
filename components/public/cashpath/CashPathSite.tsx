@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
+import { CASH_PATH_GUIDES } from "@/lib/public-site/cashpath-guides.generated";
 import type { PremiumTemplatePublicHomeRendererProps } from "@/lib/public-site/premium-template-runtime-adapter";
 import styles from "./CashPathSite.module.css";
 
@@ -27,7 +28,7 @@ export default function CashPathSite({ site, basePath }: PremiumTemplatePublicHo
   const form = site.content.custom_blocks?.find((block) => block.kind === "leadsgate_form");
   const scroll = () => document.getElementById("request")?.scrollIntoView({ behavior: "smooth" });
   const page = (slug: string) => `${basePath === "/" ? "" : basePath}/p/${slug}`;
-  const hasAprGuide = (site.content.pages ?? []).some((candidate) => candidate.slug === "what-is-apr-on-a-personal-loan" && candidate.is_visible !== false && candidate.seo_no_index !== true);
+  const guideLinks = CASH_PATH_GUIDES.filter((guide) => (site.content.pages ?? []).some((page) => page.slug === guide.slug && page.is_visible !== false && page.seo_no_index !== true)).map((guide) => [guide.nav_label, guide.slug] as [string, string]);
   const reveal = { reducedMotion, distance: isMobile ? 40 : 64, duration: isMobile ? 0.8 : 1 };
   const stagger = (delay: number) => ({ initial: reducedMotion ? false : { opacity: 0, y: 28 }, whileInView: reducedMotion ? undefined : { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.32 }, transition: { duration: isMobile ? 0.8 : 0.95, delay: reducedMotion ? 0 : delay, ease: [0.16, 1, 0.3, 1] as const } });
   return <main className={styles.site}>
@@ -40,6 +41,6 @@ export default function CashPathSite({ site, basePath }: PremiumTemplatePublicHo
     <CashPathReveal {...reveal}><section id="faq" className={`${styles.section} ${styles.faq}`}><p className={styles.eyebrow}>FAQ</p><h2>Questions, answered clearly.</h2>{faq.map(([question, answer], index) => <article key={question}><button onClick={() => setActive(active === index ? -1 : index)}>{question}<span>{active === index ? "−" : "+"}</span></button>{active === index && <p>{answer}</p>}</article>)}</section></CashPathReveal>
     <CashPathReveal {...reveal}><aside className={styles.responsible}>Borrowing comes with costs. Review all rates, fees and repayment terms before accepting an offer, and borrow only what you can reasonably repay. <a href={page("responsible-lending")}>Responsible Lending →</a></aside></CashPathReveal>
     <CashPathReveal {...reveal}><section className={styles.final}><p className={styles.eyebrow}>WHEN YOU'RE READY</p><h2>Ready to explore your options?</h2><button onClick={scroll}>Start Your Request →</button></section></CashPathReveal>
-    <CashPathReveal {...reveal}><footer id="about" className={styles.footer}><div><a className={styles.brand} href="#top">Cash<span>Path</span><i /></a><p>CashPath is not a lender and does not make credit decisions.</p></div><div><b>Explore</b>{([["About", "about"], ["Contact", "contact"], ["FAQ", "faq"], ["Rates & Fees", "rates-fees"], ["Responsible Lending", "responsible-lending"], ...(hasAprGuide ? [["What Is APR?", "what-is-apr-on-a-personal-loan"]] : [])] as Array<[string, string]>).map(([text, slug]) => <a key={slug} href={page(slug)}>{text}</a>)}</div><div><b>Information</b>{[["Privacy Policy", "privacy-policy"], ["Terms of Use", "terms-of-use"], ["E-Consent", "e-consent"], ["Advertiser Disclosure", "advertiser-disclosure"], ["Do Not Sell or Share My Personal Information", "do-not-sell-share"], ["Disclaimer", "disclaimer"]].map(([text, slug]) => <a key={slug} href={page(slug)}>{text}</a>)}</div><small>© {new Date().getFullYear()} CashPath.</small></footer></CashPathReveal>
+    <CashPathReveal {...reveal}><footer id="about" className={styles.footer}><div><a className={styles.brand} href="#top">Cash<span>Path</span><i /></a><p>CashPath is not a lender and does not make credit decisions.</p></div><div><b>Explore</b>{([["About", "about"], ["Contact", "contact"], ["FAQ", "faq"], ["Rates & Fees", "rates-fees"], ["Responsible Lending", "responsible-lending"], ...guideLinks] as Array<[string, string]>).map(([text, slug]) => <a key={slug} href={page(slug)}>{text}</a>)}</div><div><b>Information</b>{[["Privacy Policy", "privacy-policy"], ["Terms of Use", "terms-of-use"], ["E-Consent", "e-consent"], ["Advertiser Disclosure", "advertiser-disclosure"], ["Do Not Sell or Share My Personal Information", "do-not-sell-share"], ["Disclaimer", "disclaimer"]].map(([text, slug]) => <a key={slug} href={page(slug)}>{text}</a>)}</div><small>© {new Date().getFullYear()} CashPath.</small></footer></CashPathReveal>
   </main>;
 }
