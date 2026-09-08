@@ -1,4 +1,5 @@
 type ProductionProps = Readonly<Record<string, unknown>>;
+import type { PuckEditorThemePresentation } from "./registry-manifest.ts";
 
 function readPath(value: unknown, path: readonly string[]) {
   let current: unknown = value;
@@ -22,6 +23,21 @@ export function resolvePuckProductionProps(
   const resolved: Record<string, unknown> = { ...defaults };
   for (const key of Object.keys(storedProps)) {
     resolved[key] = storedProps[key];
+  }
+  return resolved;
+}
+
+/** Apply transient editor theme values only when the document has not supplied
+ * a meaningful value for that field. */
+export function resolvePuckEditorThemeProps(
+  defaults: ProductionProps,
+  storedProps: ProductionProps,
+  presentation: PuckEditorThemePresentation | undefined,
+): Record<string, unknown> {
+  const resolved = resolvePuckProductionProps(defaults, storedProps);
+  for (const [key, value] of Object.entries(presentation?.props ?? {})) {
+    const stored = storedProps[key];
+    if (!(key in storedProps) || Object.is(stored, defaults[key])) resolved[key] = value;
   }
   return resolved;
 }

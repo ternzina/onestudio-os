@@ -11,7 +11,7 @@ import {
   resolvePuckProductionSourceProps,
   type PuckProductionBackgroundRouting,
 } from "@/lib/puck-site-editor/production-background";
-import { resolvePuckProductionProps } from "@/lib/puck-site-editor/production-props";
+import { resolvePuckEditorThemeProps } from "@/lib/puck-site-editor/production-props";
 import {
   resolvePuckRuntimeRealm,
   shouldUseIframeNativeRuntime,
@@ -47,10 +47,12 @@ const spacing: Record<string, string> = {
   airy: "80px",
 };
 
-function splitProps(component: PuckDocumentComponent) {
+function splitProps(component: PuckDocumentComponent, theme: "light" | "dark", editorOnly: boolean) {
   const entry = PUCK_PRODUCTION_REGISTRY_BY_ID.get(component.type);
   if (!entry) throw new Error(`Unknown production Puck component: ${component.type}`);
-  const resolvedProps = resolvePuckProductionProps(entry.defaults, component.props);
+  const resolvedProps = editorOnly
+    ? resolvePuckEditorThemeProps(entry.defaults, component.props, entry.presentationContract?.editorThemePresentation?.[theme])
+    : { ...entry.defaults, ...component.props };
   const backgroundRouting = resolvePuckProductionBackgroundRouting(
     entry.backgroundCapability,
     resolvedProps.backgroundColor,
@@ -210,6 +212,9 @@ function ProductionSourceHost({
       data-production-presentation-geometry={presentationGeometry?.kind}
       data-production-presentation-root-layout={rootLayout ? "flex-center" : undefined}
       data-production-editor-viewport-height={naturalizeViewportHeight ? "natural" : undefined}
+      data-production-logical-measurement={presentationContract?.editorLogicalMeasurement}
+      data-production-logical-width={authoringStage?.width}
+      data-production-logical-height={authoringStage?.height}
       style={style}
     >
       {content}
@@ -229,11 +234,15 @@ export function PuckProductionBlock({
   mainViewportWidth?: number | string;
   runtimeMode?: ProductionRuntimeMode;
 }) {
-  const { entry, componentProps, resolvedProps: props, backgroundRouting } = splitProps(component);
+  const isDark = useProductionEditorTheme();
+  const { entry, componentProps, resolvedProps: props, backgroundRouting } = splitProps(
+    component,
+    isDark ? "dark" : "light",
+    runtimeMode !== "public",
+  );
   const isInsideRuntime = useInsideProductionRuntime();
   const runtimeContextMode = useProductionRuntimeMode();
   const effectiveRuntimeMode = isInsideRuntime && runtimeContextMode ? runtimeContextMode : runtimeMode;
-  const isDark = useProductionEditorTheme();
   const rootRef = useRef<HTMLDivElement>(null);
   useImperativeHandle(dragRef, () => rootRef.current as HTMLDivElement);
   const loadingHeight = entry.definiteHeight
@@ -296,7 +305,10 @@ export function PuckProductionBlock({
           {useIframeNativeRuntime ? (
             <ProductionRuntimeFrame
               component={normalizedRuntimeComponent}
-              background={entry.host?.surfaceBackground?.value}
+              background={effectiveRuntimeMode !== "public"
+                ? entry.presentationContract?.editorThemePresentation?.[isDark ? "dark" : "light"]?.surface
+                  ?? entry.host?.surfaceBackground?.value
+                : entry.host?.surfaceBackground?.value}
               theme={isDark ? "dark" : "light"}
               runtimeMode={effectiveRuntimeMode}
             />

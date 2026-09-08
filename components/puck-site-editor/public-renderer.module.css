@@ -37,9 +37,9 @@
    keeps the DPR-sized drawing buffer but cannot apply its logical CSS size via
    the cross-realm instanceof HTMLCanvasElement check. Parent-sized production
    hosts restore that CSS contract without touching ordinary HTML canvases. */
-.surface :global([data-production-presentation-geometry="fullSurface"] canvas) {
-  width: 100%;
-  height: 100%;
+.surface[data-puck-runtime-mode="library-preview"][data-production-presentation-geometry="fullSurface"] canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .surface[data-motion="none"] *,

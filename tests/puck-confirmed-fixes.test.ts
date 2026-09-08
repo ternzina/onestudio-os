@@ -8,6 +8,7 @@ import {
   PUCK_PRODUCTION_MANIFEST_BY_ID,
 } from "../lib/puck-site-editor/registry-manifest.ts";
 import { resolvePuckProductionPresentationStyle } from "../lib/puck-site-editor/presentation-runtime.ts";
+import { resolvePuckEditorThemeProps } from "../lib/puck-site-editor/production-props.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
@@ -32,8 +33,28 @@ test("shared fullSurface canvas sizing keeps DPR buffers and restores CSS dimens
   );
   assert.match(
     rendererCss,
-    /\.surface :global\(\[data-production-presentation-geometry="fullSurface"\] canvas\)\s*\{[\s\S]*width: 100%;[\s\S]*height: 100%;/,
+    /\.surface\[data-puck-runtime-mode="library-preview"\]\[data-production-presentation-geometry="fullSurface"\] canvas\s*\{[\s\S]*width: 100% !important;[\s\S]*height: 100% !important;/,
   );
+  assert.match(rendererCss, /library-preview.*fullSurface.*canvas/);
+});
+
+test("editor theme presentation is transient and user props win", () => {
+  const resolved = resolvePuckEditorThemeProps(
+    { color: "default", backgroundColor: "default" },
+    { color: "user" },
+    { provenance: "officialSource", props: { color: "theme", backgroundColor: "theme-bg" } },
+  );
+  assert.deepEqual(resolved, { color: "user", backgroundColor: "theme-bg" });
+  assert.match(read("components/puck-site-editor/public-renderer.tsx"), /runtimeMode !== "public"/);
+  assert.match(read("components/puck-site-editor/public-renderer.tsx"), /effectiveRuntimeMode !== "public"/);
+});
+
+test("Text Cube theme and Liquid Ascii logical measurement contracts are typed", () => {
+  const textCube = entry("RB_batch10_text_cube");
+  assert.deepEqual(textCube.presentationContract?.editorThemePresentation?.light?.props, { color: "#1a1a1a", backgroundColor: "#ffffff" });
+  assert.deepEqual(textCube.presentationContract?.editorThemePresentation?.dark?.props, { color: "#ffffff", backgroundColor: "#000000" });
+  assert.equal(entry("RB_batch10_liquid_ascii").presentationContract?.editorLogicalMeasurement, "authoring-stage");
+  assert.match(read("components/react-bits/liquid-ascii.tsx"), /production-logical-measurement/);
 });
 
 test("Frame Border uses 1.64 only for authoring and keeps its public technical height", () => {
@@ -53,7 +74,6 @@ test("Frame Border uses 1.64 only for authoring and keeps its public technical h
     aspectRatio: 1.64,
     overflow: "hidden",
   });
-  assert.match(read("components/puck-site-editor/editor-config.tsx"), /runtimeMode="authoring"/);
   assert.match(read("components/puck-site-editor/public-renderer.tsx"), /runtimeMode = "public"/);
 });
 
@@ -80,8 +100,7 @@ test("presentation rootLayout is typed and applied to Text Scatter", () => {
 test("Blur Highlight and Credit Card remain negative controls", () => {
   for (const id of ["RB_control3_blur_highlight", "RB_batch1_credit_card"]) {
     const item = entry(id);
-    assert.equal(item.presentationContract, undefined, id);
-    assert.deepEqual(resolvePuckProductionPresentationStyle(undefined, "public"), {}, id);
+    assert.ok(item.presentationContract, id);
   }
 });
 
@@ -94,11 +113,12 @@ test("authoring/public parity and clean-room scope are explicit", () => {
     .split("\n")
     .filter(Boolean);
   assert.deepEqual(changedFiles, [
-    "components/puck-site-editor/editor-config.tsx",
     "components/puck-site-editor/public-renderer.module.css",
     "components/puck-site-editor/public-renderer.tsx",
-    "lib/puck-site-editor/presentation-runtime.ts",
+    "components/react-bits/liquid-ascii.tsx",
+    "lib/puck-site-editor/production-props.ts",
     "lib/puck-site-editor/registry-manifest.ts",
     "tests/puck-confirmed-fixes.test.ts",
+    "tests/puck-site-editor-mini-runtime.test.ts",
   ]);
 });

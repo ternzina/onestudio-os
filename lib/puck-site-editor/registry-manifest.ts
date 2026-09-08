@@ -73,6 +73,19 @@ export type PuckProductionPresentationEditorDefault = {
   height: PuckProductionPresentationDimension;
 };
 
+/** Editor-only, provenance-backed presentation variants. These values are
+ * resolved transiently and never become part of the saved Puck document. */
+export type PuckEditorThemePresentation = {
+  provenance: "officialSource" | "officialExample" | "officialDemo";
+  surface?: string;
+  props?: Readonly<Record<string, unknown>>;
+};
+
+export type PuckEditorThemePresentationContract = {
+  light?: PuckEditorThemePresentation;
+  dark?: PuckEditorThemePresentation;
+};
+
 /** Typed layout semantics for the selected production presentation root. */
 export type PuckProductionPresentationRootLayout = {
   display: "flex";
@@ -103,6 +116,9 @@ export type PuckProductionPresentationContract = {
   sourceGeometry?: PuckProductionPresentationSourceGeometry;
   /** Editor/library-only scene dimensions; never public component geometry. */
   editorPresentationDefault?: PuckProductionPresentationEditorDefault;
+  editorThemePresentation?: PuckEditorThemePresentationContract;
+  /** Source opts into the logical authoring-stage measurement contract. */
+  editorLogicalMeasurement?: "authoring-stage";
   /** A non-ratio host fallback needed to give fill-parent sources a public runtime parent. */
   technicalRuntime?: {
     height: PuckProductionPresentationDimension;
@@ -338,6 +354,10 @@ const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProduc
       kind: "fullSurface",
       aspectRatio: presentationDimension(1.64, "editorPresentationDefault"),
     },
+    editorThemePresentation: {
+      light: { provenance: "officialSource", surface: "#ffffff", props: { color: "#FF9FFC", backgroundColor: "#000000" } },
+      dark: { provenance: "officialSource", surface: "#000000", props: { color: "#FF9FFC", backgroundColor: "#000000" } },
+    },
   },
   "starter:flicker-tw": fullSurfacePresentation(480),
   "component:dot-shift": fullSurfacePresentation(480),
@@ -346,8 +366,17 @@ const PUCK_PRODUCTION_PRESENTATION_CONTRACTS: Readonly<Record<string, PuckProduc
   "component:bending-marquee": fullSurfacePresentation(520),
   "component:card-spread": fullSurfacePresentation(520),
   "component:tilted-tiles": fullSurfacePresentation(520),
-  "component:liquid-ascii": fullSurfacePresentation(480),
-  "component:text-cube": fullSurfacePresentation(480),
+  "component:liquid-ascii": {
+    ...fullSurfacePresentation(480),
+    editorLogicalMeasurement: "authoring-stage",
+  },
+  "component:text-cube": {
+    ...fullSurfacePresentation(480),
+    editorThemePresentation: {
+      light: { provenance: "officialSource", surface: "#ffffff", props: { color: "#1a1a1a", backgroundColor: "#ffffff" } },
+      dark: { provenance: "officialExample", surface: "#000000", props: { color: "#ffffff", backgroundColor: "#000000" } },
+    },
+  },
   "component:cursor-wave": fullSurfacePresentation(480),
   "component:gradient-carousel": fullSurfacePresentation(620),
   "component:vortex": fullSurfacePresentation(480),

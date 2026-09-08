@@ -608,7 +608,12 @@ const LiquidAscii: React.FC<LiquidAsciiProps> = ({
   const buildSim = useCallback(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
+    const logicalHost = wrap.closest<HTMLElement>('[data-production-logical-measurement="authoring-stage"]');
+    const logicalWidth = Number(logicalHost?.dataset.productionLogicalWidth);
+    const logicalHeight = Number(logicalHost?.dataset.productionLogicalHeight);
     const rect = wrap.getBoundingClientRect();
+    const measureWidth = logicalWidth > 0 ? logicalWidth : wrap.clientWidth || rect.width;
+    const measureHeight = logicalHeight > 0 ? logicalHeight : wrap.clientHeight || rect.height;
     const cs = cfgRef.current.cellSize;
 
     const tmpCanvas = document.createElement("canvas");
@@ -621,8 +626,8 @@ const LiquidAscii: React.FC<LiquidAsciiProps> = ({
     }
     const lspacing = cs - charW;
 
-    const cols = Math.ceil(rect.width / cs) + 4;
-    const rows = Math.ceil(rect.height / cs) + 4;
+    const cols = Math.ceil(measureWidth / cs) + 4;
+    const rows = Math.ceil(measureHeight / cs) + 4;
     const resolution = rows;
 
     const simH = 2.0;
@@ -689,9 +694,12 @@ const LiquidAscii: React.FC<LiquidAsciiProps> = ({
 
     const toSim = (clientX: number, clientY: number) => {
       const rect = wrap.getBoundingClientRect();
+      const logicalHost = wrap.closest<HTMLElement>('[data-production-logical-measurement="authoring-stage"]');
+      const logicalWidth = Number(logicalHost?.dataset.productionLogicalWidth) || wrap.clientWidth || rect.width;
+      const logicalHeight = Number(logicalHost?.dataset.productionLogicalHeight) || wrap.clientHeight || rect.height;
       const st = stateRef.current;
-      const mx = clientX - rect.left;
-      const my = clientY - rect.top;
+      const mx = (clientX - rect.left) * (logicalWidth / Math.max(rect.width, 1));
+      const my = (clientY - rect.top) * (logicalHeight / Math.max(rect.height, 1));
       return {
         x: mx / st.scale,
         y: (st.rows * cfgRef.current.cellSize - my) / st.scale,

@@ -53,6 +53,16 @@ test("Circle Gallery MINI uses the live owner viewport for canonical contain fit
   assert.match(drawer, /data-production-preview-scroll-realm=\{entry\.presentationContract\?\.geometry\.kind === "viewport" \? "local" : undefined\}/);
 });
 
+test("full-surface MINI uses the canonical viewport scene path", () => {
+  const drawer = read("components/puck-site-editor/product-library-drawer.tsx");
+  const fit = read("components/puck-site-editor/production-preview-fit.tsx");
+  assert.match(drawer, /<ProductionPreviewViewport presentation=\{entry\.presentationContract\}>[\s\S]*data-production-preview-fill=\{entry\.presentationContract\?\.geometry\.kind === "fullSurface" \? "direct" : undefined\}/);
+  assert.match(fit, /const sourceWindow = viewport\.ownerDocument\.defaultView/);
+  assert.match(fit, /calculateProductionPreviewFit\(/);
+  assert.match(fit, /transform: `translate\(\$\{fit\.left\}px, \$\{fit\.top\}px\) scale\(\$\{fit\.scale\}\)`/);
+  assert.match(read("components/puck-site-editor/production-preview-fit.module.css"), /\.scene\s*\{[\s\S]*transform-origin: top left;/);
+});
+
 test("Scroll Mask registry defaults make insert data valid and source props renderable", () => {
   const mask = entry("RB_batch11_scroll_mask");
   const source = read("components/react-bits/scroll-mask.tsx");
