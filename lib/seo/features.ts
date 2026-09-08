@@ -23,7 +23,7 @@ export const FEATURE_SEO: readonly FeatureSeoEntry[] = [
   {
     slug: "online-booking",
     path: "/features/online-booking",
-    title: "Online Booking Website Builder for Service Businesses | OneStudio",
+    title: "Online Booking Website Builder for Service Businesses",
     description: "Add online booking to your business website with availability, schedules, client records, payments and notifications in one OneStudio system.",
     searchIntent: ["website builder with online booking", "online booking website builder", "website with appointment booking", "online booking for service businesses"],
     eyebrow: "ONLINE BOOKING",
@@ -40,7 +40,7 @@ export const FEATURE_SEO: readonly FeatureSeoEntry[] = [
   {
     slug: "crm",
     path: "/features/crm",
-    title: "Website Builder with CRM for Service Businesses | OneStudio",
+    title: "Website Builder with CRM for Service Businesses",
     description: "Build your website and manage client records, booking history, contacts, notes and payments in the same OneStudio workspace.",
     searchIntent: ["website builder with CRM", "website with built in CRM", "CRM for service businesses", "small business website with CRM"],
     eyebrow: "CLIENTS AND CRM",
