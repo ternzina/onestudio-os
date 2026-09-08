@@ -20,7 +20,7 @@ import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
-import { richTextPlainText } from "@/lib/public-site/rich-text";
+import { isRichTextValue, richTextPlainText } from "@/lib/public-site/rich-text";
 import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
@@ -93,6 +93,10 @@ import {
 } from "@/lib/public-site/cashpath-form-repair";
 import { needsCashPathFullPageUpgrade, upgradeCashPathFullPages } from "@/lib/public-site/cashpath-page-content-upgrade";
 import { installMissingCashPathGuides, missingCashPathGuides } from "@/lib/public-site/cashpath-guides";
+import {
+  needsCashPathGuideRichTextRepair,
+  repairCashPathGuideRichText,
+} from "@/lib/public-site/cashpath-guide-richtext-repair";
 import {
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
@@ -313,7 +317,9 @@ function leadsgateFormsRoundTripMatches(
 }
 
 function normalizedText(value: unknown, limit: number) {
-  return (typeof value === "string" ? value : "")
+  const text = typeof value === "string" ? value : "";
+  if (isRichTextValue(text)) return text;
+  return text
     .trim()
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .slice(0, limit);
@@ -2471,6 +2477,7 @@ function VisualBuilder({
     setPageLibraryOpen(false);
   }
   const needsCashPathPagesUpgrade = needsCashPathFullPageUpgrade(draft);
+  const needsCashPathGuideRepair = needsCashPathGuideRichTextRepair(draft);
   const missingGuides = missingCashPathGuides(draft);
   function installCashPathGuidesInDraft() {
     onReplaceDraft(installMissingCashPathGuides(draft), "cashpath:guides");
@@ -2478,6 +2485,10 @@ function VisualBuilder({
   }
   function upgradeCashPathPagesInDraft() {
     onReplaceDraft(upgradeCashPathFullPages(draft), "cashpath:full-pages-upgrade");
+    setPageLibraryOpen(false);
+  }
+  function repairCashPathGuideRichTextInDraft() {
+    onReplaceDraft(repairCashPathGuideRichText(draft), "cashpath:guide-richtext-repair");
     setPageLibraryOpen(false);
   }
 
@@ -4023,7 +4034,7 @@ function VisualBuilder({
                 </span>
               </div>
             </button>
-            {draft.template_id === "cashpath" ? <><button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button>{missingGuides.length ? <button type="button" disabled={!canConfigure} onClick={installCashPathGuidesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Добавить новые SEO-гайды</h3><p className="mt-2 text-sm text-[#182b29]/70">Добавляет отсутствующие SEO-гайды только в черновик. Существующие страницы и настройки не изменятся.</p></button> : null}{needsCashPathPagesUpgrade ? <button type="button" disabled={!canConfigure} onClick={upgradeCashPathPagesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Сделать страницы полноценными</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит только старые страницы-заглушки CashPath на полноценные информационные страницы. SEO и уже отредактированные страницы не изменятся.</p></button> : null}{needsCashPathFormRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathRequestFormInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Восстановить форму заявки</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит старый текстовый блок CashPath на форму заявки. Остальные страницы и настройки не изменятся.</p></button> : null}</> : null}
+            {draft.template_id === "cashpath" ? <><button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button>{missingGuides.length ? <button type="button" disabled={!canConfigure} onClick={installCashPathGuidesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Добавить новые SEO-гайды</h3><p className="mt-2 text-sm text-[#182b29]/70">Добавляет отсутствующие SEO-гайды только в черновик. Существующие страницы и настройки не изменятся.</p></button> : null}{needsCashPathGuideRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathGuideRichTextInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Исправить повреждённый текст SEO-гайда</h3><p className="mt-2 text-sm text-[#182b29]/70">Восстановит только повреждённые rich-text поля зарегистрированных SEO-гайдов. Остальные тексты, страницы и настройки не изменятся.</p></button> : null}{needsCashPathPagesUpgrade ? <button type="button" disabled={!canConfigure} onClick={upgradeCashPathPagesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Сделать страницы полноценными</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит только старые страницы-заглушки CashPath на полноценные информационные страницы. SEO и уже отредактированные страницы не изменятся.</p></button> : null}{needsCashPathFormRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathRequestFormInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Восстановить форму заявки</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит старый текстовый блок CashPath на форму заявки. Остальные страницы и настройки не изменятся.</p></button> : null}</> : null}
           </div>
         </div>
       ) : null}
