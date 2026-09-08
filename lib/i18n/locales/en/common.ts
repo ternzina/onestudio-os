@@ -59,39 +59,39 @@ export const common = {
       description: "A website, design and operating modules for service businesses.",
     },
     about: {
-      title: "About OneStudio - OneStudio OS",
+      title: "About OneStudio",
       description: "Why OneStudio connects your website, clients and daily work in one system.",
     },
     blog: {
-      title: "Journal - OneStudio OS",
+      title: "Journal",
       description: "New components, design capabilities and OneStudio updates - concise and useful.",
     },
     contact: {
-      title: "Contact - OneStudio",
+      title: "Contact",
       description: "Contact OneStudio about the platform, plans or a turnkey website.",
     },
     demos: {
-      title: "Templates - OneStudio",
+      title: "Templates",
       description: "Ready-made OneStudio website designs for different projects.",
     },
     faq: {
-      title: "FAQ - OneStudio OS",
+      title: "FAQ",
       description: "Answers about launching, customizing and using OneStudio.",
     },
     features: {
-      title: "Features - OneStudio",
+      title: "Features",
       description: "Website, booking, clients and working tools in OneStudio.",
     },
     components: {
-      title: "Components - OneStudio OS",
+      title: "Components",
       description: "A library of OneStudio components, blocks and design capabilities.",
     },
     pricing: {
-      title: "Pricing - OneStudio OS",
+      title: "Pricing",
       description: "Choose a OneStudio plan for your website and working modules.",
     },
     website: {
-      title: "Turnkey website - OneStudio OS",
+      title: "Turnkey website",
       description: "We create, configure and launch a turnkey website in OneStudio.",
     },
     privacy: {
