@@ -44,6 +44,29 @@ test("rich-text migration defines atomic serialized limits rather than cutting J
   assert.doesNotMatch(migration, /'intro',left\(trim\(coalesce\(item->>'intro'/);
 });
 
+test("alignment hardening maps blocks by inherited final identity and cards after filtering", async () => {
+  const migration = await readFile(
+    new URL("../supabase/migrations/20260909020000_public_site_rich_text_alignment_2_0_2.sql", import.meta.url),
+    "utf8",
+  );
+  assert.match(migration, /normalize_public_site_custom_blocks_v_richtext_201\(p_blocks\)/);
+  assert.match(migration, /array_position\(v_source_ids, v_item->>'id'\)/);
+  assert.match(migration, /if v_block_id = any\(v_source_ids\) then/);
+  assert.match(migration, /jsonb_typeof\(v_source_card\) = 'object'/);
+  assert.match(migration, /v_source_card->>'text', 2000, 40000/);
+  assert.doesNotMatch(migration, /join source using \(ordinality\)/);
+});
+
+test("alignment hardening rejects rich-text container nodes without children", async () => {
+  const migration = await readFile(
+    new URL("../supabase/migrations/20260909020000_public_site_rich_text_alignment_2_0_2.sql", import.meta.url),
+    "utf8",
+  );
+  assert.match(migration, /coalesce\(jsonb_typeof\(p_node->'children'\), ''\) <> 'array'/);
+  assert.match(migration, /v_type = 'text'/);
+  assert.match(migration, /v_type = 'br'/);
+});
+
 test("repair restores only malformed registered guide rich-text fields", () => {
   const first = cloneGuide("what-is-apr-on-a-personal-loan");
   const second = cloneGuide("apr-vs-interest-rate");
