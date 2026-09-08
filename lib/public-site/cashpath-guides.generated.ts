@@ -1,12 +1,12 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY.
  * Source: docs/cashpath/guides/*.md
- * Source SHA-256: 3a208c4c3f0bc9e6c80ed01d7ac6d1f9f9855037c45cd42e8fee25784286ac15
+ * Source SHA-256: deb8d9b1779583ba77b205cd7138d699c86abace1a9c4060e4e712796b8cfc4e
  * Regenerate with: node scripts/generate-cashpath-guides.mjs
  */
 
 import type { PublicSitePage } from "./types.ts";
 
-export const CASH_PATH_GUIDES_SOURCE_SHA256 = "3a208c4c3f0bc9e6c80ed01d7ac6d1f9f9855037c45cd42e8fee25784286ac15";
+export const CASH_PATH_GUIDES_SOURCE_SHA256 = "deb8d9b1779583ba77b205cd7138d699c86abace1a9c4060e4e712796b8cfc4e";
 
 export type CashPathGuide = PublicSitePage & { section_count: number; plain_text_word_count: number };
 
@@ -300,5 +300,192 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
     ],
     "section_count": 11,
     "plain_text_word_count": 1317
+  },
+  {
+    "id": "how-to-compare-personal-loan-offers",
+    "type": "custom",
+    "slug": "how-to-compare-personal-loan-offers",
+    "nav_label": "Compare Loan Offers",
+    "eyebrow": "PERSONAL LOAN GUIDE",
+    "title": "How to Compare Personal Loan Offers",
+    "intro": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Comparing personal loan offers is easier when you use the same questions for each one. A headline rate or a low payment can be useful information, but neither answers every question about cost, repayment, or the agreement itself. Put the disclosures you receive side by side and take time to understand what each offer actually says.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"This guide focuses on how to compare offers, rather than on how APR is calculated. For a plain-English foundation, read \"},{\"type\":\"a\",\"href\":\"/p/what-is-apr-on-a-personal-loan\",\"children\":[{\"type\":\"text\",\"text\":\"What Is APR on a Personal Loan?\"}]},{\"type\":\"text\",\"text\":\" and \"},{\"type\":\"a\",\"href\":\"/p/apr-vs-interest-rate\",\"children\":[{\"type\":\"text\",\"text\":\"APR vs. Interest Rate\"}]},{\"type\":\"text\",\"text\":\". CashPath is not a lender and does not make credit decisions, determine rates or fees, or make an offer of credit.\"}]}]}}",
+    "is_visible": true,
+    "show_in_navigation": false,
+    "show_booking_cta": false,
+    "seo_title": "How to Compare Personal Loan Offers | CashPath",
+    "seo_description": "Learn how to compare personal loan offers by reviewing APR, interest rate, fees, payment amount, loan term, and lender disclosures before deciding.",
+    "seo_no_index": false,
+    "blocks": [
+      {
+        "id": "how-to-compare-personal-loan-offers-1",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Start by comparing similar offers",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Begin with offers that are similar enough to compare fairly. Look at the amount offered, the purpose and structure of the loan, and the repayment term. A payment shown for one amount or term may not mean much next to a payment for a very different amount or term.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"It can help to write each offer on one page or in a simple table. Keep the provider's disclosures with your notes. If an important detail is missing or unclear, ask the provider before deciding. Comparing similar terms makes differences in cost and repayment easier to see.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-2",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Compare APR with APR",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR is a broader annualized measure of borrowing cost. Depending on the offer and applicable disclosure rules, it can reflect the interest rate plus certain finance charges. Use it as a starting point for comparing offers with similar amounts and terms.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Compare APR with APR, not one offer's APR with another offer's interest rate. Those figures can describe different parts of the cost picture. APR also does not replace the agreement or tell you every possible charge. The provider's current disclosures control for the specific offer you are considering. See \"},{\"type\":\"a\",\"href\":\"/p/what-is-apr-on-a-personal-loan\",\"children\":[{\"type\":\"text\",\"text\":\"What Is APR on a Personal Loan?\"}]},{\"type\":\"text\",\"text\":\" and \"},{\"type\":\"a\",\"href\":\"/p/apr-vs-interest-rate\",\"children\":[{\"type\":\"text\",\"text\":\"APR vs. Interest Rate\"}]},{\"type\":\"text\",\"text\":\" for more context.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-3",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Check the interest rate and whether it can change",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The interest rate describes the cost charged for borrowing the principal. It is an important number, but it is not the same as APR and it does not describe every term in an offer.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Personal installment loan rates may be fixed or adjustable depending on the product and provider. Do not assume that every personal loan uses the same rate structure. Check the actual offer and agreement to see how the rate is described and whether it can change. The CFPB explains the general difference between a \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"loan interest rate and APR\"}]},{\"type\":\"text\",\"text\":\"; the provider's documents explain the terms offered to you.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-4",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Look beyond the headline rate to fees",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The rate shown in an offer is only part of the cost picture. Personal installment loans can involve fees or charges depending on the provider and the agreement. The CFPB identifies examples that can include an origination fee, a documentation fee, late fees, and optional insurance when applicable.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Read the disclosures to identify which charges apply, when they may be charged, and whether they are optional. If an upfront or origination fee is deducted from the proceeds, pay attention to both the amount you are borrowing or obligated to repay and the amount of money you actually receive. A fee is not automatically a reason to accept or reject an offer, but it should be understood before you decide. The CFPB's \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"personal installment loan fee guidance\"}]},{\"type\":\"text\",\"text\":\" and CashPath's \"},{\"type\":\"a\",\"href\":\"/p/rates-fees\",\"children\":[{\"type\":\"text\",\"text\":\"Rates & Fees\"}]},{\"type\":\"text\",\"text\":\" page can help frame the questions to ask.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-5",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Compare the payment amount and payment schedule",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"A payment needs to fit your budget, but the smallest payment alone does not prove an offer is cheaper. A lower periodic payment can be associated with a different amount, term, rate, fee structure, or payment schedule.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Review the payment amount, how often it is due, the first payment timing if it is disclosed, and the number of scheduled payments. Put those details next to regular household expenses and other obligations. If a payment feels difficult to manage before you accept, take that concern seriously and ask the provider for clarification.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-6",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Compare the repayment term and total cost",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The repayment term is the period over which scheduled payments are made. A longer term can spread repayment across more time. A shorter term may result in larger periodic payments. Both cost and affordability deserve attention.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"When other terms are comparable, a longer term can change the total amount paid over the life of the loan. Actual cost depends on the rate, fees, agreement, and payment structure, so do not rely on a universal rule. Review total scheduled repayment where it is disclosed, then consider whether the payments are realistic for your circumstances. CashPath's \"},{\"type\":\"a\",\"href\":\"/p/responsible-lending\",\"children\":[{\"type\":\"text\",\"text\":\"Responsible Lending\"}]},{\"type\":\"text\",\"text\":\" page has general reminders about reviewing repayment ability.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-7",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Check how much money you actually receive",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Requested amount, loan amount, and net proceeds can be different. The amount you request is what you ask for. The loan amount is the amount stated in an offer. Net proceeds are the money actually delivered after any disclosed deduction that applies.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"For example, Offer A could show a lower interest rate but have an origination fee deducted from the proceeds. Offer B could have a slightly higher rate with no comparable deduction. The headline rate alone does not establish which offer fits a consumer better. Compare what you would receive, what you would repay, and the terms that connect those two amounts.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-8",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Read the late-payment and early-repayment terms",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Read the agreement for late-payment charges, returned-payment charges, and the consequences described for missed payments. These terms can affect the cost and difficulty of repayment if a payment is not made as scheduled.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Also check whether early repayment is allowed and whether any early-repayment-related charge applies. Do not assume every lender charges a prepayment penalty, and do not assume every lender allows penalty-free early payoff. The actual agreement controls. If the wording is unclear, ask the provider to explain it before accepting.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-9",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Make sure you know who is actually offering the loan",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Before accepting an offer, identify the actual credit provider, its contact information, where the offer terms and disclosures come from, and which company will receive payments if that information is stated. These details matter when you have a question about an offer or a payment obligation.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath is not a lender. CashPath does not determine APR, interest rates, fees, approval, or funding, and it does not make credit decisions. The provider offering credit is responsible for its offer and disclosures. Read the provider's agreement, not only an introductory page or message.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-10",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Watch for loan-offer red flags",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Be cautious when someone says approval is guaranteed before meaningful review, demands payment in exchange for a guarantee that a loan will be provided, pressures you to act immediately after unexpected contact, or seeks sensitive information through suspicious messages or links. A company that is difficult to identify or verify also deserves extra care.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Not every upfront or application-related fee means fraud. The FTC notes that legitimate lenders can require an application or appraisal fee in some circumstances. The warning sign is a demand for money in exchange for a promise or guarantee of credit. Read the FTC's \"},{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/articles/what-know-about-advance-fee-loans\",\"children\":[{\"type\":\"text\",\"text\":\"What To Know About Advance-Fee Loans\"}]},{\"type\":\"text\",\"text\":\" for more on recognizing that distinction.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-11",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "A simple personal loan comparison checklist",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Use the same checklist for each offer you are seriously considering:\"}]},{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Provider name and contact details\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Amount offered and amount actually received\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"APR and interest rate\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Whether the rate is fixed or adjustable\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Upfront or origination fees and other disclosed charges\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Payment amount and payment frequency\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Number of scheduled payments and repayment term\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Total scheduled repayment where disclosed\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Late-payment and returned-payment charges\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Early repayment terms\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Questions that still need clarification\"}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"This list does not replace the provider's disclosures. It helps you compare those disclosures consistently and identify questions before you agree to anything. For answers to common questions about CashPath and provider responsibility, visit the \"},{\"type\":\"a\",\"href\":\"/p/faq\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath FAQ\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-12",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Which personal loan offer is best?",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"There is no single metric that determines the best offer for every borrower. A lower-cost offer may have a payment that does not fit someone's budget. A lower payment may come with different term or total-cost tradeoffs.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The practical decision depends on cost, payment affordability, term, fees, the agreement, and your own circumstances. This guide provides general educational information, not individualized financial advice. If an offer is difficult to understand or does not fit your budget, it may be appropriate to pause and seek clarification or consider alternatives.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-13",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "The bottom line",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Compare like with like. Read APR, rate, fees, payment, term, and total repayment together. Review the actual provider agreement before accepting, and do not pay for a promise of guaranteed credit.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath is not a lender and does not make credit decisions or determine APR, interest rates, fees, approval, or funding. This guide is general educational information only.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-14",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Sources and further reading",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-personal-installment-loan-en-2114/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is a personal installment loan?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Do personal installment loans have fees?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/articles/what-know-about-advance-fee-loans\",\"children\":[{\"type\":\"text\",\"text\":\"Federal Trade Commission: What To Know About Advance-Fee Loans\"}]}]}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      }
+    ],
+    "section_count": 14,
+    "plain_text_word_count": 1520
   }
 ];

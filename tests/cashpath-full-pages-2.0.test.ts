@@ -32,7 +32,7 @@ test("CashPath generated corpus is current, complete, and matches its canonical 
 
 test("future CashPath tenants use every generated page and generated SEO metadata", () => {
   const seed = createCashPathPremiumTemplateSeed();
-  assert.equal(seed.pages?.length, 13);
+  assert.equal(seed.pages?.length, 14);
   for (const generated of CASH_PATH_FINAL_SEO_PAGES) {
     const page: NonNullable<typeof seed.pages>[number] | undefined = seed.pages?.find((candidate) => candidate.slug === generated.slug);
     assert.ok(page, `seed is missing ${generated.slug}`);
