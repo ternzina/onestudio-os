@@ -1,0 +1,12 @@
+.page { min-height: 100vh; background: #f5f1e8; color: #1c1c1c; padding: 48px 20px 100px; }
+.article { max-width: 820px; margin: auto; background: #fff; padding: clamp(28px, 6vw, 76px); border-radius: 28px; box-shadow: 0 18px 60px rgba(40,30,20,.08); }
+.back, .related a, .article a { color: #8a6427; text-decoration: underline; text-underline-offset: 3px; }
+.eyebrow { margin: 48px 0 14px; color: #8a6427; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.article h1 { margin: 0; max-width: 760px; font-size: clamp(38px, 7vw, 72px); line-height: .98; letter-spacing: -.055em; }
+.lead { font-size: 21px; line-height: 1.55; color: #625b50; margin: 28px 0 64px; }
+.article section { margin-top: 52px; }
+.article h2 { font-size: clamp(25px, 4vw, 38px); letter-spacing: -.04em; margin: 0 0 18px; }
+.article h3 { font-size: 19px; margin-top: 24px; }
+.article p, .article li { font-size: 17px; line-height: 1.75; color: #4b463f; }
+.article ul { padding-left: 24px; }
+.related { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 64px; padding-top: 28px; border-top: 1px solid #e5ded3; }

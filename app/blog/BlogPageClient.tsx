@@ -8,13 +8,14 @@ import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { getTranslations } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import styles from "./page.module.css";
+import { JOURNAL_ARTICLES } from "@/lib/seo/journal-articles";
 
 
 
 export default function BlogPageClient() {
   const [lang, setLang] = useLocale();
   const t = getTranslations(lang).blog;
-  const articles = t.articles as readonly Blog2Article[];
+  const articles = [...JOURNAL_ARTICLES.map((article, index) => ({ id: article.slug, componentId: (["hero-7", "hero-12", "hero-18"] as const)[index], title: article.title, publishedAt: article.publishedAt, date: "September 8, 2026", category: article.category, excerpt: article.excerpt, href: article.path })), ...(t.articles as readonly Blog2Article[])];
 
   return (
     <main className={`${styles.page} os-site`}>
