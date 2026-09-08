@@ -14,14 +14,8 @@ import { SharedEditorFieldList } from "@/components/admin/SharedEditorInspector"
 import TypographyControls from "@/components/admin/TypographyControls";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import TemplateEditorRuntime from "@/components/admin/TemplateEditorRuntime";
-import {
-  OneStudioDesignDialog,
-  OneStudioSeoDialog,
-} from "@/components/admin/OneStudioSystemDialogs";
-import type {
-  EditorInspectorAction,
-  EditorNavigatorModel,
-} from "@/lib/public-site/editor-spec";
+import { OneStudioDesignDialog, OneStudioSeoDialog } from "@/components/admin/OneStudioSystemDialogs";
+import type { EditorInspectorAction, EditorNavigatorModel } from "@/lib/public-site/editor-spec";
 import PublicRichHeading from "@/components/public/PublicRichHeading";
 import PublicRichText from "@/components/public/PublicRichText";
 import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
@@ -74,10 +68,7 @@ import {
   type SiteTemplate,
 } from "@/lib/public-site/templates";
 import { evaluatePublicationReadiness } from "@/lib/public-site/publication-readiness";
-import {
-  getActiveEditorDesigns,
-  SITE_TEMPLATE_REGISTRY,
-} from "@/lib/public-site/template-registry";
+import { getActiveEditorDesigns, SITE_TEMPLATE_REGISTRY } from "@/lib/public-site/template-registry";
 import { buildSitePreviewHref } from "@/lib/public-site/preview-contract";
 import { selectExecutableTemplate } from "@/lib/public-site/template-selection";
 import {
@@ -95,47 +86,24 @@ import {
 } from "@/lib/public-site/premium-template-editor-canvas-registry";
 import { getPremiumTemplateEditorControl } from "@/lib/public-site/premium-template-editor-controls-registry";
 import { createOneStudioPage } from "@/lib/public-site/one-studio-pages";
-import {
-  mergeMissingCashPathPages,
-  missingCashPathPages,
-} from "@/lib/public-site/cashpath-pages";
+import { mergeMissingCashPathPages, missingCashPathPages } from "@/lib/public-site/cashpath-pages";
 import {
   needsCashPathRequestFormRepair,
   repairCashPathRequestForm,
 } from "@/lib/public-site/cashpath-form-repair";
-import {
-  needsCashPathFullPageUpgrade,
-  upgradeCashPathFullPages,
-} from "@/lib/public-site/cashpath-page-content-upgrade";
-import {
-  installMissingCashPathGuides,
-  missingCashPathGuides,
-} from "@/lib/public-site/cashpath-guides";
+import { needsCashPathFullPageUpgrade, upgradeCashPathFullPages } from "@/lib/public-site/cashpath-page-content-upgrade";
+import { installMissingCashPathGuides, missingCashPathGuides } from "@/lib/public-site/cashpath-guides";
 import {
   createPublicSiteCustomBlock as createCustomBlock,
   defaultPublicSiteColumnCards as defaultColumnCards,
   publicSiteBlockColumnCards as blockColumnCards,
   publicSiteCustomBlockVisualCapabilities,
 } from "@/lib/public-site/custom-block-registry";
-import {
-  PUBLIC_SITE_CORE_BLOCK_LIBRARY,
-  createPublicSiteCoreBlockPreset,
-  resolvePublicSiteBlockDisplayName,
-} from "@/lib/public-site/core-block-library";
-import {
-  boundedPublicEmbedHeight,
-  PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH,
-} from "@/lib/public-site/safe-html";
+import { PUBLIC_SITE_CORE_BLOCK_LIBRARY, createPublicSiteCoreBlockPreset, resolvePublicSiteBlockDisplayName } from "@/lib/public-site/core-block-library";
+import { boundedPublicEmbedHeight, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH } from "@/lib/public-site/safe-html";
 import { supabase } from "@/lib/supabase";
-import type {
-  ClientDomainPayload,
-  ClientDomainRecord,
-} from "@/lib/domains/types";
-import {
-  activePublicDomain,
-  publicSiteOrigin,
-  sitemapEligiblePageCount,
-} from "@/lib/public-site/search-visibility";
+import type { ClientDomainPayload, ClientDomainRecord } from "@/lib/domains/types";
+import { activePublicDomain, publicSiteOrigin, sitemapEligiblePageCount } from "@/lib/public-site/search-visibility";
 import { setTemplateContentPath } from "@/lib/public-site/immutable-deep-path";
 import {
   buildBlockLayoutInspectorFields,
@@ -204,11 +172,7 @@ type ImageTarget =
     }
   | {
       kind: "list";
-      key:
-        | "service_image_urls"
-        | "team_image_urls"
-        | "membership_image_urls"
-        | "gift_image_urls";
+      key: "service_image_urls" | "team_image_urls" | "membership_image_urls" | "gift_image_urls";
       index: number;
       label: string;
     }
@@ -267,14 +231,11 @@ function contentSignature(content: PublicSiteContent | null) {
 }
 
 function stableJsonSignature(value: unknown): string {
-  if (Array.isArray(value))
-    return `[${value.map(stableJsonSignature).join(",")}]`;
+  if (Array.isArray(value)) return `[${value.map(stableJsonSignature).join(",")}]`;
   if (value && typeof value === "object") {
     return `{${Object.entries(value as Record<string, unknown>)
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(
-        ([key, item]) => `${JSON.stringify(key)}:${stableJsonSignature(item)}`,
-      )
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableJsonSignature(item)}`)
       .join(",")}}`;
   }
   return JSON.stringify(value) ?? "null";
@@ -285,14 +246,10 @@ function templateContentRoundTripMatches(
   saved: PublicSiteContent | null,
 ) {
   const templateId = draft.template_id;
-  const expected = templateId
-    ? draft.template_content?.[templateId]
-    : undefined;
+  const expected = templateId ? draft.template_content?.[templateId] : undefined;
   if (!templateId || expected === undefined) return true;
-  return (
-    stableJsonSignature(saved?.template_content?.[templateId] ?? null) ===
-    stableJsonSignature(expected)
-  );
+  return stableJsonSignature(saved?.template_content?.[templateId] ?? null)
+    === stableJsonSignature(expected);
 }
 
 function layoutOrderRoundTripMatches(
@@ -300,10 +257,8 @@ function layoutOrderRoundTripMatches(
   saved: PublicSiteContent | null,
 ) {
   if (!Array.isArray(draft.layout_order)) return true;
-  return (
-    stableJsonSignature(saved?.layout_order ?? null) ===
-    stableJsonSignature(draft.layout_order)
-  );
+  return stableJsonSignature(saved?.layout_order ?? null)
+    === stableJsonSignature(draft.layout_order);
 }
 
 function canonicalizeDraftLayoutForSave(content: PublicSiteContent) {
@@ -317,10 +272,8 @@ function nativeActionStylesRoundTripMatches(
   draft: PublicSiteContent,
   saved: PublicSiteContent | null,
 ) {
-  return (
-    stableJsonSignature(saved?.native_action_styles ?? {}) ===
-    stableJsonSignature(draft.native_action_styles ?? {})
-  );
+  return stableJsonSignature(saved?.native_action_styles ?? {})
+    === stableJsonSignature(draft.native_action_styles ?? {});
 }
 
 type LeadsGateFormSignature = {
@@ -330,26 +283,18 @@ type LeadsGateFormSignature = {
   template: string;
 };
 
-function leadsgateFormSignatures(
-  content: PublicSiteContent | null,
-): LeadsGateFormSignature[] {
+function leadsgateFormSignatures(content: PublicSiteContent | null): LeadsGateFormSignature[] {
   if (!content) return [];
   const blocks = [
     ...(content.custom_blocks ?? []),
     ...(content.pages ?? []).flatMap((page) => page.blocks ?? []),
   ];
-  return blocks.flatMap((block) =>
-    block.kind === "leadsgate_form"
-      ? [
-          {
-            id: block.id,
-            kind: "leadsgate_form" as const,
-            aid: block.leadsgate_aid ?? "",
-            template: block.leadsgate_template ?? "",
-          },
-        ]
-      : [],
-  );
+  return blocks.flatMap((block) => block.kind === "leadsgate_form" ? [{
+    id: block.id,
+    kind: "leadsgate_form" as const,
+    aid: block.leadsgate_aid ?? "",
+    template: block.leadsgate_template ?? "",
+  }] : []);
 }
 
 function leadsgateFormsRoundTripMatches(
@@ -359,15 +304,12 @@ function leadsgateFormsRoundTripMatches(
   const submitted = leadsgateFormSignatures(draft);
   if (!submitted.length) return true;
   const returned = leadsgateFormSignatures(saved);
-  return submitted.every((form) =>
-    returned.some(
-      (candidate) =>
-        candidate.id === form.id &&
-        candidate.kind === form.kind &&
-        candidate.aid === form.aid &&
-        candidate.template === form.template,
-    ),
-  );
+  return submitted.every((form) => returned.some((candidate) => (
+    candidate.id === form.id
+    && candidate.kind === form.kind
+    && candidate.aid === form.aid
+    && candidate.template === form.template
+  )));
 }
 
 function normalizedText(value: unknown, limit: number) {
@@ -379,17 +321,14 @@ function normalizedText(value: unknown, limit: number) {
 
 function normalizedMediaUrl(value: unknown) {
   const url = normalizedText(value, 500);
-  return (url.startsWith("/") && !url.startsWith("//") && !/\s/.test(url)) ||
-    /^https:\/\/\S+$/.test(url)
+  return (url.startsWith("/") && !url.startsWith("//") && !/\s/.test(url))
+    || /^https:\/\/\S+$/.test(url)
     ? url
     : "";
 }
 
 function normalizedPageBlock(block: unknown) {
-  const source =
-    block && typeof block === "object"
-      ? (block as Record<string, unknown>)
-      : {};
+  const source = block && typeof block === "object" ? block as Record<string, unknown> : {};
   const sourceCards = Array.isArray(source.cards) ? source.cards : [];
   return {
     id: normalizedText(source.id, 72),
@@ -401,18 +340,13 @@ function normalizedPageBlock(block: unknown) {
     button_label: normalizedText(source.button_label, 80),
     button_url: normalizedText(source.button_url, 500),
     is_visible: source.is_visible !== false,
-    media_urls: (Array.isArray(source.media_urls) ? source.media_urls : []).map(
-      normalizedMediaUrl,
-    ),
+    media_urls: (Array.isArray(source.media_urls) ? source.media_urls : []).map(normalizedMediaUrl),
     video_url: normalizedMediaUrl(source.video_url),
     video_poster_url: normalizedMediaUrl(source.video_poster_url),
     media_url: normalizedMediaUrl(source.media_url),
     media_alt: normalizedText(source.media_alt, 180),
     cards: sourceCards.map((card) => {
-      const item =
-        card && typeof card === "object"
-          ? (card as Record<string, unknown>)
-          : {};
+      const item = card && typeof card === "object" ? card as Record<string, unknown> : {};
       return {
         id: normalizedText(item.id, 72),
         title: normalizedText(item.title, 180),
@@ -426,8 +360,7 @@ function normalizedPageBlock(block: unknown) {
 }
 
 function normalizedPage(page: unknown) {
-  const source =
-    page && typeof page === "object" ? (page as Record<string, unknown>) : {};
+  const source = page && typeof page === "object" ? page as Record<string, unknown> : {};
   return {
     id: normalizedText(source.id, 72),
     type: normalizedText(source.type, 20),
@@ -443,46 +376,33 @@ function normalizedPage(page: unknown) {
     seo_description: normalizedText(source.seo_description, 170),
     seo_image_url: normalizedMediaUrl(source.seo_image_url),
     seo_no_index: source.seo_no_index === true,
-    blocks: (Array.isArray(source.blocks) ? source.blocks : []).map(
-      normalizedPageBlock,
-    ),
+    blocks: (Array.isArray(source.blocks) ? source.blocks : []).map(normalizedPageBlock),
   };
 }
 
-function pagesRoundTripMatches(
-  draft: PublicSiteContent,
-  saved: PublicSiteContent | null,
-) {
-  return (
-    stableJsonSignature((saved?.pages ?? []).map(normalizedPage)) ===
-    stableJsonSignature((draft.pages ?? []).map(normalizedPage))
-  );
+function pagesRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
+  return stableJsonSignature((saved?.pages ?? []).map(normalizedPage))
+    === stableJsonSignature((draft.pages ?? []).map(normalizedPage));
 }
 
 function normalizedSocialLinks(value: unknown) {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
-  return value.reduce<Array<{ id: string; platform: string; url: string }>>(
-    (links, item) => {
-      if (!item || typeof item !== "object" || links.length >= 12) return links;
-      const source = item as Record<string, unknown>;
-      const platform = normalizedText(source.platform, 40);
-      const url = normalizedText(source.url, 500);
-      if (!platform || !/^https:\/\/\S+$/.test(url)) return links;
-      const id = normalizedText(source.id, 72) || `social-${links.length + 1}`;
-      if (seen.has(id)) return links;
-      seen.add(id);
-      links.push({ id, platform, url });
-      return links;
-    },
-    [],
-  );
+  return value.reduce<Array<{ id: string; platform: string; url: string }>>((links, item) => {
+    if (!item || typeof item !== "object" || links.length >= 12) return links;
+    const source = item as Record<string, unknown>;
+    const platform = normalizedText(source.platform, 40);
+    const url = normalizedText(source.url, 500);
+    if (!platform || !/^https:\/\/\S+$/.test(url)) return links;
+    const id = normalizedText(source.id, 72) || `social-${links.length + 1}`;
+    if (seen.has(id)) return links;
+    seen.add(id);
+    links.push({ id, platform, url });
+    return links;
+  }, []);
 }
 
-function siteSettingsRoundTripMatches(
-  draft: PublicSiteContent,
-  saved: PublicSiteContent | null,
-) {
+function siteSettingsRoundTripMatches(draft: PublicSiteContent, saved: PublicSiteContent | null) {
   const normalizedGoogleAnalyticsId = (value: unknown) => {
     const id = normalizedText(value, 24).toUpperCase();
     return /^G-[A-Z0-9]{4,20}$/.test(id) ? id : "";
@@ -491,38 +411,31 @@ function siteSettingsRoundTripMatches(
     const id = normalizedText(value, 32);
     return /^[0-9]{5,32}$/.test(id) ? id : "";
   };
-  return (
-    stableJsonSignature({
-      site_summary: normalizedText(saved?.site_summary, 500),
-      seo_keywords: normalizedText(saved?.seo_keywords, 500),
-      favicon_url: normalizedMediaUrl(saved?.favicon_url),
-      show_social_icons: saved?.show_social_icons === true,
-      social_links: normalizedSocialLinks(saved?.social_links),
-      google_analytics_id: normalizedGoogleAnalyticsId(
-        saved?.google_analytics_id,
-      ),
-      meta_pixel_id: normalizedMetaPixelId(saved?.meta_pixel_id),
-      seo_title: normalizedText(saved?.seo_title, 70),
-      seo_description: normalizedText(saved?.seo_description, 170),
-      seo_image_url: normalizedMediaUrl(saved?.seo_image_url),
-      seo_no_index: saved?.seo_no_index === true,
-    }) ===
-    stableJsonSignature({
-      site_summary: normalizedText(draft.site_summary, 500),
-      seo_keywords: normalizedText(draft.seo_keywords, 500),
-      favicon_url: normalizedMediaUrl(draft.favicon_url),
-      show_social_icons: draft.show_social_icons === true,
-      social_links: normalizedSocialLinks(draft.social_links),
-      google_analytics_id: normalizedGoogleAnalyticsId(
-        draft.google_analytics_id,
-      ),
-      meta_pixel_id: normalizedMetaPixelId(draft.meta_pixel_id),
-      seo_title: normalizedText(draft.seo_title, 70),
-      seo_description: normalizedText(draft.seo_description, 170),
-      seo_image_url: normalizedMediaUrl(draft.seo_image_url),
-      seo_no_index: draft.seo_no_index === true,
-    })
-  );
+  return stableJsonSignature({
+    site_summary: normalizedText(saved?.site_summary, 500),
+    seo_keywords: normalizedText(saved?.seo_keywords, 500),
+    favicon_url: normalizedMediaUrl(saved?.favicon_url),
+    show_social_icons: saved?.show_social_icons === true,
+    social_links: normalizedSocialLinks(saved?.social_links),
+    google_analytics_id: normalizedGoogleAnalyticsId(saved?.google_analytics_id),
+    meta_pixel_id: normalizedMetaPixelId(saved?.meta_pixel_id),
+    seo_title: normalizedText(saved?.seo_title, 70),
+    seo_description: normalizedText(saved?.seo_description, 170),
+    seo_image_url: normalizedMediaUrl(saved?.seo_image_url),
+    seo_no_index: saved?.seo_no_index === true,
+  }) === stableJsonSignature({
+    site_summary: normalizedText(draft.site_summary, 500),
+    seo_keywords: normalizedText(draft.seo_keywords, 500),
+    favicon_url: normalizedMediaUrl(draft.favicon_url),
+    show_social_icons: draft.show_social_icons === true,
+    social_links: normalizedSocialLinks(draft.social_links),
+    google_analytics_id: normalizedGoogleAnalyticsId(draft.google_analytics_id),
+    meta_pixel_id: normalizedMetaPixelId(draft.meta_pixel_id),
+    seo_title: normalizedText(draft.seo_title, 70),
+    seo_description: normalizedText(draft.seo_description, 170),
+    seo_image_url: normalizedMediaUrl(draft.seo_image_url),
+    seo_no_index: draft.seo_no_index === true,
+  });
 }
 
 function cloneCustomBlockForDuplicate(
@@ -532,9 +445,7 @@ function cloneCustomBlockForDuplicate(
   return {
     ...cloneEditorValue(block),
     id: nextId,
-    title: richTextPlainText(block.title)
-      ? `${richTextPlainText(block.title)} · копия`
-      : "Копия блока",
+    title: richTextPlainText(block.title) ? `${richTextPlainText(block.title)} · копия` : "Копия блока",
     cards: block.cards?.map((card, index) => ({
       ...card,
       id: `${nextId}-card-${index + 1}`,
@@ -569,10 +480,7 @@ function isDirectVideoUrl(value: string) {
 }
 
 function isInvalidImageUrl(value: string) {
-  return (
-    Boolean(value.trim()) &&
-    (isVideoProviderUrl(value) || isDirectVideoUrl(value))
-  );
+  return Boolean(value.trim()) && (isVideoProviderUrl(value) || isDirectVideoUrl(value));
 }
 
 function resolveEditorVideoPreview(value: string) {
@@ -595,35 +503,17 @@ function resolveEditorVideoPreview(value: string) {
         (parts[0] === "shorts" || parts[0] === "live" || parts[0] === "embed"
           ? parts[1]
           : "");
-      return id
-        ? {
-            kind: "embed" as const,
-            url: `https://www.youtube-nocookie.com/embed/${id}`,
-          }
-        : null;
+      return id ? { kind: "embed" as const, url: `https://www.youtube-nocookie.com/embed/${id}` } : null;
     }
 
     if (host === "youtu.be") {
       const id = parsed.pathname.split("/").filter(Boolean)[0];
-      return id
-        ? {
-            kind: "embed" as const,
-            url: `https://www.youtube-nocookie.com/embed/${id}`,
-          }
-        : null;
+      return id ? { kind: "embed" as const, url: `https://www.youtube-nocookie.com/embed/${id}` } : null;
     }
 
     if (host === "vimeo.com" || host === "player.vimeo.com") {
-      const id = parsed.pathname
-        .split("/")
-        .filter(Boolean)
-        .findLast((part) => /^\d+$/.test(part));
-      return id
-        ? {
-            kind: "embed" as const,
-            url: `https://player.vimeo.com/video/${id}`,
-          }
-        : null;
+      const id = parsed.pathname.split("/").filter(Boolean).findLast((part) => /^\d+$/.test(part));
+      return id ? { kind: "embed" as const, url: `https://player.vimeo.com/video/${id}` } : null;
     }
 
     if (isDirectVideoUrl(trimmed)) {
@@ -657,40 +547,32 @@ function findInvalidDraftImage(content: PublicSiteContent) {
     ...(content.gift_image_urls ?? []),
   ];
   if (listImages.some(isInvalidImageUrl)) return "изображение в списке";
-  if (
-    Object.values(content.service_card_images ?? {}).some(isInvalidImageUrl)
-  ) {
+  if (Object.values(content.service_card_images ?? {}).some(isInvalidImageUrl)) {
     return "изображение карточки услуги";
   }
   for (const [section, settings] of Object.entries(
     content.system_section_settings ?? {},
   ) as Array<[string, PublicSiteSystemSectionSettings]>) {
-    if (
-      settings.background_image_url &&
-      isInvalidImageUrl(settings.background_image_url)
-    ) {
+    if (settings.background_image_url && isInvalidImageUrl(settings.background_image_url)) {
       return `фон системного раздела «${section}»`;
     }
   }
 
   for (const block of content.custom_blocks ?? []) {
-    if (block.media_url && isInvalidImageUrl(block.media_url))
-      return `изображение блока «${richTextPlainText(block.title) || block.id}»`;
-    if (block.video_poster_url && isInvalidImageUrl(block.video_poster_url))
-      return `обложка видео «${richTextPlainText(block.title) || block.id}»`;
-    if ((block.media_urls ?? []).some(isInvalidImageUrl))
-      return `фотография блока «${richTextPlainText(block.title) || block.id}»`;
+    if (block.media_url && isInvalidImageUrl(block.media_url)) return `изображение блока «${richTextPlainText(block.title) || block.id}»`;
+    if (block.video_poster_url && isInvalidImageUrl(block.video_poster_url)) return `обложка видео «${richTextPlainText(block.title) || block.id}»`;
+    if ((block.media_urls ?? []).some(isInvalidImageUrl)) return `фотография блока «${richTextPlainText(block.title) || block.id}»`;
     for (const card of block.cards ?? []) {
-      if (card.media_url && isInvalidImageUrl(card.media_url))
-        return `изображение карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
-      if (card.video_poster_url && isInvalidImageUrl(card.video_poster_url))
-        return `обложка видео карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
+      if (card.media_url && isInvalidImageUrl(card.media_url)) return `изображение карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
+      if (card.video_poster_url && isInvalidImageUrl(card.video_poster_url)) return `обложка видео карточки «${card.title || richTextPlainText(block.title) || block.id}»`;
     }
   }
 
   return null;
 }
-const defaultSectionOrder: PublicSiteSection[] = [...PUBLIC_SITE_SECTION_ORDER];
+const defaultSectionOrder: PublicSiteSection[] = [
+  ...PUBLIC_SITE_SECTION_ORDER,
+];
 const sectionVisibilityKey: Record<
   PublicSiteSection,
   | "show_services"
@@ -731,10 +613,13 @@ const sectionLabelKey = {
   contact: "Contact",
 } as const;
 
-function contentFromLocale(editor: PublicSiteEditorData, locale: string) {
-  const record = editor.locales.find((item) => item.locale === locale) ?? null;
-  const draftContent =
-    record?.draft_content ?? record?.published_content ?? null;
+function contentFromLocale(
+  editor: PublicSiteEditorData,
+  locale: string,
+) {
+  const record =
+    editor.locales.find((item) => item.locale === locale) ?? null;
+  const draftContent = record?.draft_content ?? record?.published_content ?? null;
 
   if (!draftContent) return null;
 
@@ -754,6 +639,7 @@ function publicHref(editor: PublicSiteEditorData, locale: string) {
     ? `/site/${editor.business.slug}`
     : `/site/${editor.business.slug}/${locale}`;
 }
+
 
 function SiteEditorHeader() {
   return <AdminHeader />;
@@ -776,19 +662,18 @@ export default function AdminSitePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
-  const [publishHiddenWarningOpen, setPublishHiddenWarningOpen] =
-    useState(false);
-  const [publicDomain, setPublicDomain] = useState<ClientDomainRecord | null>(
-    null,
-  );
+  const [publishHiddenWarningOpen, setPublishHiddenWarningOpen] = useState(false);
+  const [publicDomain, setPublicDomain] = useState<ClientDomainRecord | null>(null);
   const [indexNowConfigured, setIndexNowConfigured] = useState(false);
   const [designDialogOpen, setDesignDialogOpen] = useState(false);
   const [seoDialogOpen, setSeoDialogOpen] = useState(false);
   const [publishSucceeded, setPublishSucceeded] = useState(false);
   const [publishWasAlreadyPublished, setPublishWasAlreadyPublished] =
     useState(false);
-  const [selectedSection, setSelectedSection] = useState<CanvasSection>("hero");
-  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
+  const [selectedSection, setSelectedSection] =
+    useState<CanvasSection>("hero");
+  const [previewDevice, setPreviewDevice] =
+    useState<PreviewDevice>("desktop");
   const undoStackRef = useRef<EditorHistoryEntry[]>([]);
   const redoStackRef = useRef<EditorHistoryEntry[]>([]);
   const [undoDepth, setUndoDepth] = useState(0);
@@ -810,117 +695,110 @@ export default function AdminSitePage() {
     syncHistoryDepth();
   }, [syncHistoryDepth]);
 
-  const pushEditorHistory = useCallback(
-    (
-      currentDraft: PublicSiteContent,
-      currentLogoUrl: string,
-      group?: string,
-    ) => {
-      const now = Date.now();
-      const normalizedGroup = group ?? null;
-      const last = undoStackRef.current.at(-1);
-      const shouldCoalesce = Boolean(
-        normalizedGroup &&
-        last?.group === normalizedGroup &&
-        now - last.createdAt <= HISTORY_GROUP_WINDOW_MS,
-      );
+  const pushEditorHistory = useCallback((
+    currentDraft: PublicSiteContent,
+    currentLogoUrl: string,
+    group?: string,
+  ) => {
+    const now = Date.now();
+    const normalizedGroup = group ?? null;
+    const last = undoStackRef.current.at(-1);
+    const shouldCoalesce = Boolean(
+      normalizedGroup &&
+      last?.group === normalizedGroup &&
+      now - last.createdAt <= HISTORY_GROUP_WINDOW_MS,
+    );
 
-      if (shouldCoalesce && last) {
-        last.createdAt = now;
-      } else {
-        undoStackRef.current.push({
-          draft: clonePublicSiteContent(currentDraft),
-          logoUrl: currentLogoUrl,
-          group: normalizedGroup,
-          createdAt: now,
-        });
-        if (undoStackRef.current.length > MAX_EDITOR_HISTORY) {
-          undoStackRef.current.shift();
-        }
+    if (shouldCoalesce && last) {
+      last.createdAt = now;
+    } else {
+      undoStackRef.current.push({
+        draft: clonePublicSiteContent(currentDraft),
+        logoUrl: currentLogoUrl,
+        group: normalizedGroup,
+        createdAt: now,
+      });
+      if (undoStackRef.current.length > MAX_EDITOR_HISTORY) {
+        undoStackRef.current.shift();
       }
-      redoStackRef.current = [];
-      syncHistoryDepth();
-    },
-    [syncHistoryDepth],
-  );
+    }
+    redoStackRef.current = [];
+    syncHistoryDepth();
+  }, [syncHistoryDepth]);
 
   const canConfigure = workspace
     ? ["owner", "admin", "manager"].includes(workspace.role)
     : false;
 
-  const loadEditor = useCallback(
-    async (preferredLocale?: string, options?: { silent?: boolean }) => {
-      const silent = options?.silent === true;
-      if (!silent) setLoading(true);
-      setError("");
+  const loadEditor = useCallback(async (
+    preferredLocale?: string,
+    options?: { silent?: boolean },
+  ) => {
+    const silent = options?.silent === true;
+    if (!silent) setLoading(true);
+    setError("");
 
-      const { data: workspaceData, error: workspaceError } =
-        await supabase.rpc("list_my_businesses");
-      const workspaces = (workspaceData ?? []) as Workspace[];
-      const requestedBusinessId =
-        typeof window === "undefined"
-          ? null
-          : new URLSearchParams(window.location.search).get("business");
-      const current =
-        (requestedBusinessId
-          ? workspaces.find((item) => item.business_id === requestedBusinessId)
-          : null) ??
-        workspaces.find((item) => item.is_default) ??
-        workspaces[0] ??
-        null;
+    const { data: workspaceData, error: workspaceError } = await supabase.rpc(
+      "list_my_businesses",
+    );
+    const workspaces = (workspaceData ?? []) as Workspace[];
+    const requestedBusinessId =
+      typeof window === "undefined"
+        ? null
+        : new URLSearchParams(window.location.search).get("business");
+    const current =
+      (requestedBusinessId
+        ? workspaces.find((item) => item.business_id === requestedBusinessId)
+        : null)
+      ?? workspaces.find((item) => item.is_default)
+      ?? workspaces[0]
+      ?? null;
 
-      if (workspaceError || !current) {
-        setError(
-          workspaceError?.message || t("No active workspace was found."),
-        );
-        if (!silent) setLoading(false);
-        return;
-      }
-
-      if (requestedBusinessId && !current.is_default) {
-        await supabase.rpc("set_default_business", {
-          p_business_id: current.business_id,
-        });
-      }
-
-      const { data, error: editorError } = await supabase.rpc(
-        "get_public_site_editor",
-        { p_business_id: current.business_id },
-      );
-
-      if (editorError || !data || typeof data !== "object") {
-        setError(
-          editorError?.message ||
-            t("Public site settings could not be loaded."),
-        );
-        if (!silent) setLoading(false);
-        return;
-      }
-
-      const nextEditor = data as unknown as PublicSiteEditorData;
-      const locale =
-        preferredLocale &&
-        nextEditor.locales.some((item) => item.locale === preferredLocale)
-          ? preferredLocale
-          : nextEditor.site.primary_locale;
-
-      const loadedDraft = contentFromLocale(nextEditor, locale);
-      setWorkspace(current);
-      setEditor(nextEditor);
-      setSelectedLocale(locale);
-      draftRef.current = loadedDraft;
-      setDraft(loadedDraft);
-      setTemplateSavedKey(loadedDraft?.template_id || "standard");
-      const loadedLogoUrl =
-        nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
-      setLogoUrl(loadedLogoUrl);
-      setSavedLogoUrl(loadedLogoUrl);
-      setSavedDraftSignature(contentSignature(loadedDraft));
-      resetEditorHistory();
+    if (workspaceError || !current) {
+      setError(workspaceError?.message || t("No active workspace was found."));
       if (!silent) setLoading(false);
-    },
-    [resetEditorHistory, t],
-  );
+      return;
+    }
+
+    if (requestedBusinessId && !current.is_default) {
+      await supabase.rpc("set_default_business", {
+        p_business_id: current.business_id,
+      });
+    }
+
+    const { data, error: editorError } = await supabase.rpc(
+      "get_public_site_editor",
+      { p_business_id: current.business_id },
+    );
+
+    if (editorError || !data || typeof data !== "object") {
+      setError(editorError?.message || t("Public site settings could not be loaded."));
+      if (!silent) setLoading(false);
+      return;
+    }
+
+    const nextEditor = data as unknown as PublicSiteEditorData;
+    const locale =
+      preferredLocale &&
+      nextEditor.locales.some((item) => item.locale === preferredLocale)
+        ? preferredLocale
+        : nextEditor.site.primary_locale;
+
+    const loadedDraft = contentFromLocale(nextEditor, locale);
+    setWorkspace(current);
+    setEditor(nextEditor);
+    setSelectedLocale(locale);
+    draftRef.current = loadedDraft;
+    setDraft(loadedDraft);
+    setTemplateSavedKey(loadedDraft?.template_id || "standard");
+    const loadedLogoUrl =
+      nextEditor.site.logo_draft_url ?? nextEditor.company?.logo_url ?? "";
+    setLogoUrl(loadedLogoUrl);
+    setSavedLogoUrl(loadedLogoUrl);
+    setSavedDraftSignature(contentSignature(loadedDraft));
+    resetEditorHistory();
+    if (!silent) setLoading(false);
+  }, [resetEditorHistory, t]);
 
   useEffect(() => {
     void loadEditor();
@@ -929,29 +807,14 @@ export default function AdminSitePage() {
   useEffect(() => {
     if (!workspace?.business_id) return;
     let cancelled = false;
-    void fetch(
-      `/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`,
-    )
-      .then(async (response) =>
-        response.ok ? ((await response.json()) as ClientDomainPayload) : null,
-      )
-      .then((payload) => {
-        if (!cancelled) setPublicDomain(payload?.domain ?? null);
-      })
-      .catch(() => {
-        if (!cancelled) setPublicDomain(null);
-      });
-    return () => {
-      cancelled = true;
-    };
+    void fetch(`/api/client/domains?businessId=${encodeURIComponent(workspace.business_id)}`)
+      .then(async (response) => response.ok ? await response.json() as ClientDomainPayload : null)
+      .then((payload) => { if (!cancelled) setPublicDomain(payload?.domain ?? null); })
+      .catch(() => { if (!cancelled) setPublicDomain(null); });
+    return () => { cancelled = true; };
   }, [workspace?.business_id]);
 
-  useEffect(() => {
-    void fetch("/api/admin/indexnow-status")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload) => setIndexNowConfigured(payload?.configured === true))
-      .catch(() => setIndexNowConfigured(false));
-  }, []);
+  useEffect(() => { void fetch("/api/admin/indexnow-status").then((response) => response.ok ? response.json() : null).then((payload) => setIndexNowConfigured(payload?.configured === true)).catch(() => setIndexNowConfigured(false)); }, []);
 
   const selectedRecord = useMemo(
     () =>
@@ -959,7 +822,10 @@ export default function AdminSitePage() {
     [editor, selectedLocale],
   );
 
-  const currentDraftSignature = useMemo(() => contentSignature(draft), [draft]);
+  const currentDraftSignature = useMemo(
+    () => contentSignature(draft),
+    [draft],
+  );
   const hasUnsavedChanges = Boolean(
     draft &&
     (currentDraftSignature !== savedDraftSignature || logoUrl !== savedLogoUrl),
@@ -979,7 +845,9 @@ export default function AdminSitePage() {
     () =>
       evaluatePublicationReadiness({
         businessName: editor?.business.name || workspace?.name || "",
-        content: draft ? (draft as unknown as Record<string, unknown>) : null,
+        content: draft
+          ? (draft as unknown as Record<string, unknown>)
+          : null,
         serviceCount: editor?.services?.length ?? 0,
         portfolioCount: editor?.portfolio?.length ?? 0,
         logoUrl,
@@ -994,16 +862,14 @@ export default function AdminSitePage() {
       !window.confirm(
         "В этом языке есть несохранённые изменения. Переключиться и потерять их?",
       )
-    )
-      return;
+    ) return;
     const nextDraft = contentFromLocale(editor, locale);
     setSelectedLocale(locale);
     draftRef.current = nextDraft;
     setDraft(nextDraft);
     setTemplateSavedKey(nextDraft?.template_id || "standard");
     setSavedDraftSignature(contentSignature(nextDraft));
-    const nextLogo =
-      editor.site.logo_draft_url ?? editor.company?.logo_url ?? "";
+    const nextLogo = editor.site.logo_draft_url ?? editor.company?.logo_url ?? "";
     setLogoUrl(nextLogo);
     setSavedLogoUrl(nextLogo);
     resetEditorHistory();
@@ -1013,7 +879,10 @@ export default function AdminSitePage() {
     setPublishSucceeded(false);
   }
 
-  function replaceDraft(nextDraft: PublicSiteContent, historyGroup?: string) {
+  function replaceDraft(
+    nextDraft: PublicSiteContent,
+    historyGroup?: string,
+  ) {
     const current = draftRef.current ?? draft;
     if (!current || contentSignature(current) === contentSignature(nextDraft)) {
       return;
@@ -1035,11 +904,7 @@ export default function AdminSitePage() {
         selectExecutableTemplate(current, templateKey),
       );
     } catch (selectionError) {
-      setError(
-        selectionError instanceof Error
-          ? selectionError.message
-          : "Template selection failed.",
-      );
+      setError(selectionError instanceof Error ? selectionError.message : "Template selection failed.");
       return;
     }
     const previousSavedTemplateKey = templateSavedKey;
@@ -1081,32 +946,26 @@ export default function AdminSitePage() {
         draftRef.current = current;
         setDraft(current);
         setTemplateSavedKey(previousSavedTemplateKey);
-        setError(
-          "Шаблон не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.",
-        );
+        setError("Шаблон не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.");
         setTemplateSavingKey("");
         setSaving(false);
         return;
       }
       draftRef.current = savedContent;
       setDraft(savedContent);
-      setEditor((currentEditor) =>
-        currentEditor
-          ? {
-              ...currentEditor,
-              locales: currentEditor.locales.map((locale) =>
-                locale.locale === selectedLocale
-                  ? { ...locale, draft_content: savedContent }
-                  : locale,
-              ),
-            }
-          : currentEditor,
-      );
+      setEditor((currentEditor) => currentEditor ? {
+        ...currentEditor,
+        locales: currentEditor.locales.map((locale) =>
+          locale.locale === selectedLocale
+            ? { ...locale, draft_content: savedContent }
+            : locale
+        ),
+      } : currentEditor);
       setSavedDraftSignature(contentSignature(savedContent));
       setTemplateSavedKey(templateKey);
       const templateName =
-        SITE_TEMPLATE_REGISTRY.find((template) => template.key === templateKey)
-          ?.name ?? templateKey;
+        SITE_TEMPLATE_REGISTRY.find((template) => template.key === templateKey)?.name
+        ?? templateKey;
       setMessage(`${templateName} сохранён в черновик.`);
     }
 
@@ -1214,16 +1073,14 @@ export default function AdminSitePage() {
     syncHistoryDepth();
   }
 
+
   function moveSection(section: PublicSiteSection, direction: -1 | 1) {
     if (!draft) return;
     const order = resolvePublicSiteLayoutOrder(draft);
     const currentIndex = order.indexOf(sectionLayoutId(section));
     const nextIndex = currentIndex + direction;
     if (currentIndex < 0 || nextIndex < 0 || nextIndex >= order.length) return;
-    [order[currentIndex], order[nextIndex]] = [
-      order[nextIndex],
-      order[currentIndex],
-    ];
+    [order[currentIndex], order[nextIndex]] = [order[nextIndex], order[currentIndex]];
     replaceDraft({
       ...draft,
       layout_order: order,
@@ -1233,14 +1090,9 @@ export default function AdminSitePage() {
 
   async function installTemplate(template: SiteTemplate) {
     if (!draft || !workspace || !canConfigure) return;
-    if (
-      !window.confirm(
-        t(
-          "Apply this template? Current page texts and colors will be replaced, and its editable sample services and portfolio will be added.",
-        ),
-      )
-    )
-      return;
+    if (!window.confirm(
+      t("Apply this template? Current page texts and colors will be replaced, and its editable sample services and portfolio will be added."),
+    )) return;
     resetEditorHistory();
     setDraft(applySiteTemplate(draft, template));
     setLogoUrl(template.logoUrl ?? "");
@@ -1261,9 +1113,7 @@ export default function AdminSitePage() {
       setError(seedError.message);
       setMessage("");
     } else {
-      setMessage(
-        t("Complete template added. Review it, then save or publish."),
-      );
+      setMessage(t("Complete template added. Review it, then save or publish."));
     }
     setSaving(false);
   }
@@ -1294,7 +1144,9 @@ export default function AdminSitePage() {
     const draftToSave = canonicalizeDraftLayoutForSave(currentDraft);
 
     if (logoUrl && isInvalidImageUrl(logoUrl)) {
-      setError("Нельзя сохранить: в поле «Логотип» вставлена ссылка на видео.");
+      setError(
+        "Нельзя сохранить: в поле «Логотип» вставлена ссылка на видео.",
+      );
       setMessage("");
       return false;
     }
@@ -1312,69 +1164,42 @@ export default function AdminSitePage() {
     setError("");
     setMessage("");
 
-    const { data: savedDraftData, error: saveError } = await supabase.rpc(
-      "save_public_site_draft",
-      {
-        p_business_id: workspace.business_id,
-        p_locale: selectedLocale,
-        p_content: draftToSave,
-        p_make_primary: selectedLocale === editor.site.primary_locale,
-      },
-    );
+    const { data: savedDraftData, error: saveError } = await supabase.rpc("save_public_site_draft", {
+      p_business_id: workspace.business_id,
+      p_locale: selectedLocale,
+      p_content: draftToSave,
+      p_make_primary: selectedLocale === editor.site.primary_locale,
+    });
 
     if (saveError) {
-      setError(
-        saveError.message.includes("public_site_page_limit_exceeded")
-          ? "Сайт содержит слишком много страниц для одного сохранения. Ничего не удалено."
-          : saveError.message,
-      );
+      setError(saveError.message.includes("public_site_page_limit_exceeded") ? "Сайт содержит слишком много страниц для одного сохранения. Ничего не удалено." : saveError.message);
       setSaving(false);
       return false;
     }
 
     const savedDraftContent = savedDraftData as PublicSiteContent | null;
     if (!templateContentRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Черновик Premium не сохранён: сервер не вернул полную композицию шаблона. Изменения оставлены в редакторе.",
-      );
+      setError("Черновик Premium не сохранён: сервер не вернул полную композицию шаблона. Изменения оставлены в редакторе.");
       setSaving(false);
       return false;
     }
     if (!layoutOrderRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Черновик не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.",
-      );
+      setError("Черновик не сохранён: сервер изменил порядок блоков. Изменения оставлены в редакторе.");
       setSaving(false);
       return false;
     }
     if (!nativeActionStylesRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Черновик не сохранён: сервер изменил оформление кнопок Premium. Изменения оставлены в редакторе.",
-      );
+      setError("Черновик не сохранён: сервер изменил оформление кнопок Premium. Изменения оставлены в редакторе.");
       setSaving(false);
       return false;
     }
     if (!leadsgateFormsRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Форма заявки не была сохранена сервером. Черновик сохранён в редакторе, данные формы не удалены.",
-      );
+      setError("Форма заявки не была сохранена сервером. Черновик сохранён в редакторе, данные формы не удалены.");
       setSaving(false);
       return false;
     }
-    if (!pagesRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Черновик не сохранён полностью: сервер изменил список страниц. Изменения оставлены в редакторе.",
-      );
-      setSaving(false);
-      return false;
-    }
-    if (!siteSettingsRoundTripMatches(draftToSave, savedDraftContent)) {
-      setError(
-        "Черновик не сохранён полностью: сервер изменил настройки сайта. Изменения оставлены в редакторе.",
-      );
-      setSaving(false);
-      return false;
-    }
+    if (!pagesRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил список страниц. Изменения оставлены в редакторе."); setSaving(false); return false; }
+    if (!siteSettingsRoundTripMatches(draftToSave, savedDraftContent)) { setError("Черновик не сохранён полностью: сервер изменил настройки сайта. Изменения оставлены в редакторе."); setSaving(false); return false; }
 
     if (!(await saveSiteLogoDraft())) {
       setSaving(false);
@@ -1382,20 +1207,8 @@ export default function AdminSitePage() {
     }
 
     if (options?.publish) {
-      const publishResponse = await fetch("/api/admin/public-site/publish", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          businessId: workspace.business_id,
-          locale: selectedLocale,
-        }),
-      });
-      const publishPayload = (await publishResponse
-        .json()
-        .catch(() => null)) as {
-        publishedContent?: PublicSiteContent;
-        error?: string;
-      } | null;
+      const publishResponse = await fetch("/api/admin/public-site/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ businessId: workspace.business_id, locale: selectedLocale }) });
+      const publishPayload = await publishResponse.json().catch(() => null) as { publishedContent?: PublicSiteContent; error?: string } | null;
       if (!publishResponse.ok || !publishPayload?.publishedContent) {
         setError(publishPayload?.error || "Публикация не выполнена.");
         setSaving(false);
@@ -1403,43 +1216,26 @@ export default function AdminSitePage() {
       }
       const publishedContent = publishPayload.publishedContent;
       if (!templateContentRoundTripMatches(draftToSave, publishedContent)) {
-        setError(
-          "Публикация Premium не подтверждена: сервер не вернул полную композицию шаблона. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.",
-        );
+        setError("Публикация Premium не подтверждена: сервер не вернул полную композицию шаблона. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
         setSaving(false);
         return false;
       }
       if (!layoutOrderRoundTripMatches(draftToSave, publishedContent)) {
-        setError(
-          "Публикация не подтверждена: сервер изменил порядок блоков. Проверьте опубликованную версию.",
-        );
+        setError("Публикация не подтверждена: сервер изменил порядок блоков. Проверьте опубликованную версию.");
         setSaving(false);
         return false;
       }
       if (!nativeActionStylesRoundTripMatches(draftToSave, publishedContent)) {
-        setError(
-          "Публикация не подтверждена: сервер изменил оформление кнопок Premium. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.",
-        );
+        setError("Публикация не подтверждена: сервер изменил оформление кнопок Premium. Черновик сохранён; проверьте опубликованную версию перед повторной попыткой.");
         setSaving(false);
         return false;
       }
       if (!leadsgateFormsRoundTripMatches(draftToSave, publishedContent)) {
-        setError(
-          "Публикация не подтверждена: сервер не сохранил форму заявки. Черновик сохранён в редакторе.",
-        );
+        setError("Публикация не подтверждена: сервер не сохранил форму заявки. Черновик сохранён в редакторе.");
         setSaving(false);
         return false;
       }
-      if (
-        !pagesRoundTripMatches(draftToSave, publishedContent) ||
-        !siteSettingsRoundTripMatches(draftToSave, publishedContent)
-      ) {
-        setError(
-          "Публикация не подтверждена: сервер изменил страницы или настройки сайта.",
-        );
-        setSaving(false);
-        return false;
-      }
+      if (!pagesRoundTripMatches(draftToSave, publishedContent) || !siteSettingsRoundTripMatches(draftToSave, publishedContent)) { setError("Публикация не подтверждена: сервер изменил страницы или настройки сайта."); setSaving(false); return false; }
       setMessage(t("Site published."));
     } else {
       setMessage(t("Draft saved."));
@@ -1495,12 +1291,15 @@ export default function AdminSitePage() {
 
     setSaving(true);
     setError("");
-    const { error: saveError } = await supabase.rpc("save_public_site_draft", {
-      p_business_id: workspace.business_id,
-      p_locale: locale,
-      p_content: {},
-      p_make_primary: false,
-    });
+    const { error: saveError } = await supabase.rpc(
+      "save_public_site_draft",
+      {
+        p_business_id: workspace.business_id,
+        p_locale: locale,
+        p_content: {},
+        p_make_primary: false,
+      },
+    );
     if (saveError) setError(saveError.message);
     else {
       await loadEditor(locale, { silent: true });
@@ -1513,12 +1312,15 @@ export default function AdminSitePage() {
     if (!workspace || !draft || !canConfigure) return;
     setSaving(true);
     setError("");
-    const { error: saveError } = await supabase.rpc("save_public_site_draft", {
-      p_business_id: workspace.business_id,
-      p_locale: selectedLocale,
-      p_content: canonicalizeDraftLayoutForSave(draft),
-      p_make_primary: true,
-    });
+    const { error: saveError } = await supabase.rpc(
+      "save_public_site_draft",
+      {
+        p_business_id: workspace.business_id,
+        p_locale: selectedLocale,
+        p_content: canonicalizeDraftLayoutForSave(draft),
+        p_make_primary: true,
+      },
+    );
     if (saveError) setError(saveError.message);
     else if (await saveSiteLogoDraft()) {
       await loadEditor(selectedLocale, { silent: true });
@@ -1570,13 +1372,8 @@ export default function AdminSitePage() {
     {
       id: "brand",
       title: t("Brand and logo"),
-      description: t(
-        "Add the business name and logo visitors should recognize.",
-      ),
-      complete: Boolean(
-        (draft.brand_name || editor.business.name || "").trim() &&
-        logoUrl.trim(),
-      ),
+      description: t("Add the business name and logo visitors should recognize."),
+      complete: Boolean((draft.brand_name || editor.business.name || "").trim() && logoUrl.trim()),
     },
     {
       id: "hero",
@@ -1587,17 +1384,13 @@ export default function AdminSitePage() {
     {
       id: "services",
       title: t("Services and prices"),
-      description: t(
-        "Check the service cards and replace demo prices with real ones.",
-      ),
+      description: t("Check the service cards and replace demo prices with real ones."),
       complete: Boolean((editor.services ?? []).length),
     },
     {
       id: "contacts",
       title: t("Contacts"),
-      description: t(
-        "Add at least one way for clients to contact the business.",
-      ),
+      description: t("Add at least one way for clients to contact the business."),
       complete: Boolean(
         [draft.contact_email, draft.contact_phone, draft.contact_address].some(
           (value) => Boolean(value?.trim()),
@@ -1607,9 +1400,7 @@ export default function AdminSitePage() {
     {
       id: "publish",
       title: t("Publish"),
-      description: t(
-        "Save the draft, review the site and publish the selected language.",
-      ),
+      description: t("Save the draft, review the site and publish the selected language."),
       complete: editor.site.is_published,
     },
   ];
@@ -1674,9 +1465,7 @@ export default function AdminSitePage() {
             <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6f6c65]">
               {clientMode
                 ? "Меняйте тексты, изображения, цвета и блоки. Сохраняйте черновик и публикуйте сайт, когда всё готово."
-                : t(
-                    "Edit the content, control visible blocks and arrange them in the order visitors should see.",
-                  )}
+                : t("Edit the content, control visible blocks and arrange them in the order visitors should see.")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -1700,7 +1489,9 @@ export default function AdminSitePage() {
             <button
               type="button"
               onClick={() =>
-                clientMode ? openClientPublicationReview() : requestPublish()
+                clientMode
+                  ? openClientPublicationReview()
+                  : requestPublish()
               }
               disabled={saving || !canConfigure}
               className="rounded-full bg-[#17191f] px-5 py-3 text-xs font-semibold text-white disabled:opacity-40"
@@ -1727,53 +1518,13 @@ export default function AdminSitePage() {
           />
           <StatusCard
             label={t("Published languages")}
-            value={String(
-              editor.locales.filter((item) => item.published_content).length,
-            )}
+            value={String(editor.locales.filter((item) => item.published_content).length)}
           />
         </section>
 
-        <section
-          className={`mt-6 rounded-[28px] border p-5 sm:p-6 ${draft.seo_no_index === true ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"}`}
-        >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">
-            Поиск Google и Bing
-          </p>
-          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {draft.seo_no_index === true
-                  ? "Сайт скрыт от поисковых систем"
-                  : "Индексация включена"}
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6">
-                Если выключено, опубликованный сайт может открываться по прямой
-                ссылке, но Google и Bing не должны добавлять его в поиск.
-              </p>
-              <p className="mt-2 text-xs font-semibold">
-                Страниц для sitemap: {sitemapEligibleCount}
-              </p>
-              <p className="mt-2 text-xs font-semibold">
-                {indexNowConfigured
-                  ? "Автоматические уведомления Bing включены"
-                  : "IndexNow не настроен на сервере"}
-              </p>
-            </div>
-            <label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">
-              Разрешить поисковым системам индексировать сайт
-              <input
-                type="checkbox"
-                checked={draft.seo_no_index !== true}
-                disabled={!canConfigure}
-                onChange={(event) =>
-                  replaceDraft(
-                    { ...draft, seo_no_index: !event.target.checked },
-                    "seo:site:seo_no_index",
-                  )
-                }
-              />
-            </label>
-          </div>
+        <section className={`mt-6 rounded-[28px] border p-5 sm:p-6 ${draft.seo_no_index === true ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">Поиск Google и Bing</p>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-xl font-semibold">{draft.seo_no_index === true ? "Сайт скрыт от поисковых систем" : "Индексация включена"}</h2><p className="mt-2 max-w-2xl text-sm leading-6">Если выключено, опубликованный сайт может открываться по прямой ссылке, но Google и Bing не должны добавлять его в поиск.</p><p className="mt-2 text-xs font-semibold">Страниц для sitemap: {sitemapEligibleCount}</p><p className="mt-2 text-xs font-semibold">{indexNowConfigured ? "Автоматические уведомления Bing включены" : "IndexNow не настроен на сервере"}</p></div><label className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold">Разрешить поисковым системам индексировать сайт<input type="checkbox" checked={draft.seo_no_index !== true} disabled={!canConfigure} onChange={(event) => replaceDraft({ ...draft, seo_no_index: !event.target.checked }, "seo:site:seo_no_index")} /></label></div>
         </section>
 
         <section className="mt-6 rounded-[28px] border border-[#cfded9] bg-[linear-gradient(135deg,#f7fbfa_0%,#edf5f2_100%)] p-5 shadow-[0_18px_55px_rgba(31,70,65,0.08)] sm:p-6">
@@ -1786,18 +1537,14 @@ export default function AdminSitePage() {
                 {t("Prepare the site in five clear steps")}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#607470]">
-                {t(
-                  "The full editor is already ready below. This checklist shows what should be replaced before the first publication.",
-                )}
+                {t("The full editor is already ready below. This checklist shows what should be replaced before the first publication.")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <div className="min-w-[150px]">
                 <div className="flex items-center justify-between text-[11px] font-semibold text-[#47645f]">
                   <span>{t("Progress")}</span>
-                  <span>
-                    {completedQuickStartSteps}/{quickStartSteps.length}
-                  </span>
+                  <span>{completedQuickStartSteps}/{quickStartSteps.length}</span>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/80">
                   <div
@@ -1840,11 +1587,7 @@ export default function AdminSitePage() {
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-[#e5eeeb] text-[#57716b]"
                     }`}
-                    aria-label={
-                      step.complete
-                        ? t("Quick start completed")
-                        : t("Quick start not completed")
-                    }
+                    aria-label={step.complete ? t("Quick start completed") : t("Quick start not completed")}
                   >
                     {step.complete ? "✓" : index + 1}
                   </span>
@@ -1860,93 +1603,80 @@ export default function AdminSitePage() {
           </div>
         </section>
 
-        {message || error ? (
-          <div
-            className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error ? "border-red-200 bg-red-50 text-red-700" : "border-green-200 bg-green-50 text-green-800"}`}
-          >
+        {(message || error) ? (
+          <div className={`mt-6 rounded-2xl border px-5 py-4 text-sm ${error ? "border-red-200 bg-red-50 text-red-700" : "border-green-200 bg-green-50 text-green-800"}`}>
             {error || message}
           </div>
         ) : null}
 
         {!canConfigure ? (
           <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-            {t(
-              "Only an owner, administrator or manager can edit the public site.",
-            )}
+            {t("Only an owner, administrator or manager can edit the public site.")}
           </div>
         ) : null}
 
-        {draft.template_id === "premium-kids-center" ? (
-          <PremiumTemplateEditor
-            businessId={workspace.business_id}
-            businessSlug={editor.business.slug}
-            businessName={editor.business.name}
-            locale={selectedLocale}
-            draft={draft}
-            disabled={!canConfigure}
-            saving={saving}
-            hasUnsavedChanges={hasUnsavedChanges}
-            device={previewDevice}
-            canUndo={undoDepth > 0}
-            canRedo={redoDepth > 0}
-            onChange={(nextDraft, historyGroup) =>
-              replaceDraft(
-                nextDraft,
-                historyGroup ?? "premium-template-content",
-              )
-            }
-            onDeviceChange={setPreviewDevice}
-            onUndo={undoEditorChange}
-            onRedo={redoEditorChange}
-            onSave={() => void saveDraft()}
-            onPublish={() =>
-              clientMode ? openClientPublicationReview() : requestPublish()
-            }
-            onOpenDesign={() => setDesignDialogOpen(true)}
-            onOpenSeo={() => setSeoDialogOpen(true)}
-          />
-        ) : (
-          <VisualBuilder
-            businessId={workspace.business_id}
-            businessSlug={editor.business.slug}
-            businessName={editor.business.name}
-            logoUrl={logoUrl}
-            savedLogoUrl={savedLogoUrl}
-            services={editor.services ?? []}
-            portfolio={editor.portfolio ?? []}
-            locales={editor.locales.map((item) => item.locale)}
-            primaryLocale={editor.site.primary_locale}
-            selectedLocale={selectedLocale}
-            canConfigure={canConfigure}
-            draft={draft}
-            previewDevice={previewDevice}
-            selectedSection={selectedSection}
-            saving={saving}
-            t={t}
-            onDeviceChange={setPreviewDevice}
-            onAddLocale={() => void addLocale()}
-            onLocaleChange={chooseLocale}
-            onTemplate={installTemplate}
-            onOpenDesign={() => setDesignDialogOpen(true)}
-            onOpenSeo={() => setSeoDialogOpen(true)}
-            onPublish={() =>
-              clientMode ? openClientPublicationReview() : requestPublish()
-            }
-            onSave={() => void saveDraft()}
-            onSectionChange={setSelectedSection}
-            onUpdate={update}
-            onReplaceDraft={replaceDraft}
-            onLogoChange={updateLogo}
-            hasUnsavedChanges={hasUnsavedChanges}
-            canUndo={undoDepth > 0}
-            canRedo={redoDepth > 0}
-            onUndo={undoEditorChange}
-            onRedo={redoEditorChange}
-            onUpdateTeam={updateTeam}
-            onUpdateGift={updateGift}
-            onUpdateMembership={updateMembership}
-          />
-        )}
+        {draft.template_id === "premium-kids-center" ? <PremiumTemplateEditor
+          businessId={workspace.business_id}
+          businessSlug={editor.business.slug}
+          businessName={editor.business.name}
+          locale={selectedLocale}
+          draft={draft}
+          disabled={!canConfigure}
+          saving={saving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          device={previewDevice}
+          canUndo={undoDepth > 0}
+          canRedo={redoDepth > 0}
+          onChange={(nextDraft, historyGroup) => replaceDraft(nextDraft, historyGroup ?? "premium-template-content")}
+          onDeviceChange={setPreviewDevice}
+          onUndo={undoEditorChange}
+          onRedo={redoEditorChange}
+          onSave={() => void saveDraft()}
+          onPublish={() => clientMode ? openClientPublicationReview() : requestPublish()}
+          onOpenDesign={() => setDesignDialogOpen(true)}
+          onOpenSeo={() => setSeoDialogOpen(true)}
+        /> : <VisualBuilder
+          businessId={workspace.business_id}
+          businessSlug={editor.business.slug}
+          businessName={editor.business.name}
+          logoUrl={logoUrl}
+          savedLogoUrl={savedLogoUrl}
+          services={editor.services ?? []}
+          portfolio={editor.portfolio ?? []}
+          locales={editor.locales.map((item) => item.locale)}
+          primaryLocale={editor.site.primary_locale}
+          selectedLocale={selectedLocale}
+          canConfigure={canConfigure}
+          draft={draft}
+          previewDevice={previewDevice}
+          selectedSection={selectedSection}
+          saving={saving}
+          t={t}
+          onDeviceChange={setPreviewDevice}
+          onAddLocale={() => void addLocale()}
+          onLocaleChange={chooseLocale}
+          onTemplate={installTemplate}
+          onOpenDesign={() => setDesignDialogOpen(true)}
+          onOpenSeo={() => setSeoDialogOpen(true)}
+          onPublish={() =>
+            clientMode
+              ? openClientPublicationReview()
+              : requestPublish()
+          }
+          onSave={() => void saveDraft()}
+          onSectionChange={setSelectedSection}
+          onUpdate={update}
+          onReplaceDraft={replaceDraft}
+          onLogoChange={updateLogo}
+          hasUnsavedChanges={hasUnsavedChanges}
+          canUndo={undoDepth > 0}
+          canRedo={redoDepth > 0}
+          onUndo={undoEditorChange}
+          onRedo={redoEditorChange}
+          onUpdateTeam={updateTeam}
+          onUpdateGift={updateGift}
+          onUpdateMembership={updateMembership}
+        />}
 
         <OneStudioDesignDialog
           open={designDialogOpen}
@@ -1974,324 +1704,178 @@ export default function AdminSitePage() {
           onClose={() => setSeoDialogOpen(false)}
         />
 
-        {draft.template_id !== "premium-kids-center" ? (
-          <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold">
-              <span>{t("Advanced site settings")}</span>
-              <span
-                className="text-lg transition group-open:rotate-45"
-                aria-hidden="true"
-              >
-                +
-              </span>
-            </summary>
-            <div className="grid gap-6 border-t border-black/8 p-5 xl:grid-cols-[minmax(0,1fr)_420px] sm:p-7">
-              <section className="rounded-[30px] border border-black/8 bg-white/80 p-5 shadow-[0_22px_75px_rgba(30,30,30,0.06)] sm:p-7">
-                <div className="flex flex-wrap items-center gap-2">
-                  {editor.locales.map((locale) => (
-                    <button
-                      key={locale.locale}
-                      type="button"
-                      onClick={() => chooseLocale(locale.locale)}
-                      className={`rounded-full px-4 py-2 text-xs font-semibold ${
-                        locale.locale === selectedLocale
-                          ? "bg-[#17191f] text-white"
-                          : "border border-black/10 bg-white"
-                      }`}
-                    >
-                      {locale.locale.toUpperCase()}
-                      {locale.locale === editor.site.primary_locale
-                        ? " · ★"
-                        : ""}
-                      {locale.published_content ? " · ✓" : ""}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => void addLocale()}
-                    disabled={saving || !canConfigure}
-                    className="rounded-full border border-dashed border-black/20 px-4 py-2 text-xs font-semibold disabled:opacity-40"
-                  >
-                    {t("+ Language")}
-                  </button>
-                  {selectedLocale !== editor.site.primary_locale ? (
-                    <button
-                      type="button"
-                      onClick={() => void makePrimary()}
-                      disabled={saving || !canConfigure}
-                      className="rounded-full border border-[#9a742e]/30 bg-[#f8f0df] px-4 py-2 text-xs font-semibold text-[#4f3a12] disabled:opacity-40"
-                    >
-                      {t("Make primary")}
-                    </button>
-                  ) : null}
-                </div>
-
-                <div className="mt-8 grid gap-7">
-                  <EditorGroup title={t("Hero")}>
-                    <Field label={t("Eyebrow")}>
-                      <input
-                        className={inputClass}
-                        value={draft.hero_eyebrow}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("hero_eyebrow", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Main title")} wide>
-                      <input
-                        className={inputClass}
-                        value={draft.hero_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("hero_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Introduction")} wide>
-                      <RichTextEditor
-                        value={draft.hero_text}
-                        disabled={!canConfigure}
-                        onChange={(value) => update("hero_text", value)}
-                      />
-                    </Field>
-                    <Field label={t("Booking button")}>
-                      <input
-                        className={inputClass}
-                        value={draft.booking_label}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("booking_label", event.target.value)
-                        }
-                      />
-                    </Field>
-                  </EditorGroup>
-
-                  <EditorGroup title={t("Sections")}>
-                    <div className="sm:col-span-2 grid gap-2">
-                      {(draft.section_order ?? defaultSectionOrder).map(
-                        (section, index, order) => (
-                          <SectionOrderRow
-                            key={section}
-                            label={t(sectionLabelKey[section])}
-                            checked={Boolean(
-                              draft[sectionVisibilityKey[section]],
-                            )}
-                            disabled={!canConfigure}
-                            first={index === 0}
-                            last={index === order.length - 1}
-                            onToggle={(value) =>
-                              update(sectionVisibilityKey[section], value)
-                            }
-                            onUp={() => moveSection(section, -1)}
-                            onDown={() => moveSection(section, 1)}
-                          />
-                        ),
-                      )}
-                    </div>
-                    <Field label={t("Services heading")}>
-                      <input
-                        className={inputClass}
-                        value={draft.services_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("services_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Portfolio heading")}>
-                      <input
-                        className={inputClass}
-                        value={draft.portfolio_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("portfolio_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("About heading")}>
-                      <input
-                        className={inputClass}
-                        value={draft.about_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("about_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Contact heading")}>
-                      <input
-                        className={inputClass}
-                        value={draft.contact_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("contact_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("About text")} wide>
-                      <RichTextEditor
-                        value={draft.about_text}
-                        disabled={!canConfigure}
-                        onChange={(value) => update("about_text", value)}
-                      />
-                    </Field>
-                  </EditorGroup>
-
-                  <EditorGroup title={t("Navigation labels")}>
-                    <Field label={t("Services")}>
-                      <input
-                        className={inputClass}
-                        value={draft.services_label}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("services_label", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Portfolio")}>
-                      <input
-                        className={inputClass}
-                        value={draft.portfolio_label}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("portfolio_label", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("About")}>
-                      <input
-                        className={inputClass}
-                        value={draft.about_label}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("about_label", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("Contact")}>
-                      <input
-                        className={inputClass}
-                        value={draft.contact_label}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("contact_label", event.target.value)
-                        }
-                      />
-                    </Field>
-                  </EditorGroup>
-
-                  <EditorGroup title={t("SEO")}>
-                    <Field label={t("SEO title")}>
-                      <input
-                        maxLength={70}
-                        className={inputClass}
-                        value={draft.seo_title}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("seo_title", event.target.value)
-                        }
-                      />
-                    </Field>
-                    <Field label={t("SEO description")} wide>
-                      <textarea
-                        maxLength={170}
-                        rows={4}
-                        className={inputClass}
-                        value={draft.seo_description}
-                        disabled={!canConfigure}
-                        onChange={(event) =>
-                          update("seo_description", event.target.value)
-                        }
-                      />
-                    </Field>
-                  </EditorGroup>
-                </div>
-
-                {editor.site.is_published ? (
-                  <div className="mt-8 border-t border-black/8 pt-6">
-                    <button
-                      type="button"
-                      disabled={saving || !canConfigure}
-                      onClick={() => void unpublish()}
-                      className="text-xs font-semibold text-red-600 disabled:opacity-40"
-                    >
-                      {t("Unpublish site")}
-                    </button>
-                  </div>
-                ) : null}
-              </section>
-
-              <aside className="xl:sticky xl:top-28 xl:self-start">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
-                  {t("Draft preview")}
-                </p>
-                <div
-                  className="overflow-hidden rounded-[30px] border border-black/10 shadow-[0_30px_90px_rgba(30,30,30,0.12)]"
-                  style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
+        {draft.template_id !== "premium-kids-center" ? <details className="group mt-6 rounded-[24px] border border-black/8 bg-white/70">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-sm font-semibold">
+            <span>{t("Advanced site settings")}</span>
+            <span className="text-lg transition group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+        <div className="grid gap-6 border-t border-black/8 p-5 xl:grid-cols-[minmax(0,1fr)_420px] sm:p-7">
+          <section className="rounded-[30px] border border-black/8 bg-white/80 p-5 shadow-[0_22px_75px_rgba(30,30,30,0.06)] sm:p-7">
+            <div className="flex flex-wrap items-center gap-2">
+              {editor.locales.map((locale) => (
+                <button
+                  key={locale.locale}
+                  type="button"
+                  onClick={() => chooseLocale(locale.locale)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold ${
+                    locale.locale === selectedLocale
+                      ? "bg-[#17191f] text-white"
+                      : "border border-black/10 bg-white"
+                  }`}
                 >
-                  <div className="border-b border-black/8 px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.16em]">
-                    {editor.business.name}
-                  </div>
-                  <div className="relative overflow-hidden px-6 py-14">
-                    <div
-                      className="absolute -right-12 top-4 h-48 w-48 rounded-full border opacity-20"
-                      style={{ borderColor: draft.theme_accent ?? "#9a742e" }}
-                    />
-                    <p
-                      className="relative text-[9px] font-semibold uppercase tracking-[0.22em]"
-                      style={{ color: draft.theme_accent ?? "#9a742e" }}
-                    >
-                      {draft.hero_eyebrow}
-                    </p>
-                    <h2 className="relative mt-4 text-4xl font-semibold tracking-[-0.06em]">
-                      {draft.hero_title}
-                    </h2>
-                    <PublicRichText
-                      value={draft.hero_text}
-                      className="relative mt-5 text-xs leading-6 text-[#6f6c65]"
-                    />
-                    <span
-                      className="relative mt-6 inline-flex rounded-full px-5 py-3 text-[10px] font-semibold text-white"
-                      style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
-                    >
-                      {draft.booking_label}
-                    </span>
-                  </div>
-                  {draft.show_services ? (
-                    <div
-                      className="px-6 py-8 text-white"
-                      style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}
-                    >
-                      <p
-                        className="text-[9px] uppercase tracking-[0.18em]"
-                        style={{ color: draft.theme_accent ?? "#9a742e" }}
-                      >
-                        {draft.services_label}
-                      </p>
-                      <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                        {draft.services_title}
-                      </h3>
-                      <div className="mt-5 grid grid-cols-2 gap-2">
-                        <span className="h-20 rounded-xl border border-white/10" />
-                        <span className="h-20 rounded-xl border border-white/10" />
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-                <p className="mt-4 text-xs leading-5 text-[#716d65]">
-                  {selectedRecord?.published_content
-                    ? t(
-                        "Visitors still see the last published version until you publish this draft.",
-                      )
-                    : t(
-                        "This language is not visible to visitors until it is published.",
-                      )}
-                </p>
-              </aside>
+                  {locale.locale.toUpperCase()}
+                  {locale.locale === editor.site.primary_locale ? " · ★" : ""}
+                  {locale.published_content ? " · ✓" : ""}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => void addLocale()}
+                disabled={saving || !canConfigure}
+                className="rounded-full border border-dashed border-black/20 px-4 py-2 text-xs font-semibold disabled:opacity-40"
+              >
+                {t("+ Language")}
+              </button>
+              {selectedLocale !== editor.site.primary_locale ? (
+                <button
+                  type="button"
+                  onClick={() => void makePrimary()}
+                  disabled={saving || !canConfigure}
+                  className="rounded-full border border-[#9a742e]/30 bg-[#f8f0df] px-4 py-2 text-xs font-semibold text-[#4f3a12] disabled:opacity-40"
+                >
+                  {t("Make primary")}
+                </button>
+              ) : null}
             </div>
-          </details>
-        ) : null}
+
+            <div className="mt-8 grid gap-7">
+              <EditorGroup title={t("Hero")}>
+                <Field label={t("Eyebrow")}>
+                  <input className={inputClass} value={draft.hero_eyebrow} disabled={!canConfigure} onChange={(event) => update("hero_eyebrow", event.target.value)} />
+                </Field>
+                <Field label={t("Main title")} wide>
+                  <input className={inputClass} value={draft.hero_title} disabled={!canConfigure} onChange={(event) => update("hero_title", event.target.value)} />
+                </Field>
+                <Field label={t("Introduction")} wide>
+                  <RichTextEditor value={draft.hero_text} disabled={!canConfigure} onChange={(value) => update("hero_text", value)} />
+                </Field>
+                <Field label={t("Booking button")}>
+                  <input className={inputClass} value={draft.booking_label} disabled={!canConfigure} onChange={(event) => update("booking_label", event.target.value)} />
+                </Field>
+              </EditorGroup>
+
+              <EditorGroup title={t("Sections")}>
+                <div className="sm:col-span-2 grid gap-2">
+                  {(draft.section_order ?? defaultSectionOrder).map((section, index, order) => (
+                    <SectionOrderRow
+                      key={section}
+                      label={t(sectionLabelKey[section])}
+                      checked={Boolean(draft[sectionVisibilityKey[section]])}
+                      disabled={!canConfigure}
+                      first={index === 0}
+                      last={index === order.length - 1}
+                      onToggle={(value) => update(sectionVisibilityKey[section], value)}
+                      onUp={() => moveSection(section, -1)}
+                      onDown={() => moveSection(section, 1)}
+                    />
+                  ))}
+                </div>
+                <Field label={t("Services heading")}>
+                  <input className={inputClass} value={draft.services_title} disabled={!canConfigure} onChange={(event) => update("services_title", event.target.value)} />
+                </Field>
+                <Field label={t("Portfolio heading")}>
+                  <input className={inputClass} value={draft.portfolio_title} disabled={!canConfigure} onChange={(event) => update("portfolio_title", event.target.value)} />
+                </Field>
+                <Field label={t("About heading")}>
+                  <input className={inputClass} value={draft.about_title} disabled={!canConfigure} onChange={(event) => update("about_title", event.target.value)} />
+                </Field>
+                <Field label={t("Contact heading")}>
+                  <input className={inputClass} value={draft.contact_title} disabled={!canConfigure} onChange={(event) => update("contact_title", event.target.value)} />
+                </Field>
+                <Field label={t("About text")} wide>
+                  <RichTextEditor value={draft.about_text} disabled={!canConfigure} onChange={(value) => update("about_text", value)} />
+                </Field>
+              </EditorGroup>
+
+              <EditorGroup title={t("Navigation labels")}>
+                <Field label={t("Services")}>
+                  <input className={inputClass} value={draft.services_label} disabled={!canConfigure} onChange={(event) => update("services_label", event.target.value)} />
+                </Field>
+                <Field label={t("Portfolio")}>
+                  <input className={inputClass} value={draft.portfolio_label} disabled={!canConfigure} onChange={(event) => update("portfolio_label", event.target.value)} />
+                </Field>
+                <Field label={t("About")}>
+                  <input className={inputClass} value={draft.about_label} disabled={!canConfigure} onChange={(event) => update("about_label", event.target.value)} />
+                </Field>
+                <Field label={t("Contact")}>
+                  <input className={inputClass} value={draft.contact_label} disabled={!canConfigure} onChange={(event) => update("contact_label", event.target.value)} />
+                </Field>
+              </EditorGroup>
+
+              <EditorGroup title={t("SEO")}>
+                <Field label={t("SEO title")}>
+                  <input maxLength={70} className={inputClass} value={draft.seo_title} disabled={!canConfigure} onChange={(event) => update("seo_title", event.target.value)} />
+                </Field>
+                <Field label={t("SEO description")} wide>
+                  <textarea maxLength={170} rows={4} className={inputClass} value={draft.seo_description} disabled={!canConfigure} onChange={(event) => update("seo_description", event.target.value)} />
+                </Field>
+              </EditorGroup>
+            </div>
+
+            {editor.site.is_published ? (
+              <div className="mt-8 border-t border-black/8 pt-6">
+                <button type="button" disabled={saving || !canConfigure} onClick={() => void unpublish()} className="text-xs font-semibold text-red-600 disabled:opacity-40">
+                  {t("Unpublish site")}
+                </button>
+              </div>
+            ) : null}
+          </section>
+
+          <aside className="xl:sticky xl:top-28 xl:self-start">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#9a742e]">
+              {t("Draft preview")}
+            </p>
+            <div className="overflow-hidden rounded-[30px] border border-black/10 shadow-[0_30px_90px_rgba(30,30,30,0.12)]"
+              style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}>
+              <div className="border-b border-black/8 px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.16em]">
+                {editor.business.name}
+              </div>
+              <div className="relative overflow-hidden px-6 py-14">
+                <div className="absolute -right-12 top-4 h-48 w-48 rounded-full border opacity-20" style={{ borderColor: draft.theme_accent ?? "#9a742e" }} />
+                <p className="relative text-[9px] font-semibold uppercase tracking-[0.22em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
+                  {draft.hero_eyebrow}
+                </p>
+                <h2 className="relative mt-4 text-4xl font-semibold tracking-[-0.06em]">
+                  {draft.hero_title}
+                </h2>
+                <PublicRichText value={draft.hero_text} className="relative mt-5 text-xs leading-6 text-[#6f6c65]" />
+                <span className="relative mt-6 inline-flex rounded-full px-5 py-3 text-[10px] font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>
+                  {draft.booking_label}
+                </span>
+              </div>
+              {draft.show_services ? (
+                <div className="px-6 py-8 text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>
+                  <p className="text-[9px] uppercase tracking-[0.18em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
+                    {draft.services_label}
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                    {draft.services_title}
+                  </h3>
+                  <div className="mt-5 grid grid-cols-2 gap-2">
+                    <span className="h-20 rounded-xl border border-white/10" />
+                    <span className="h-20 rounded-xl border border-white/10" />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-[#716d65]">
+              {selectedRecord?.published_content
+                ? t("Visitors still see the last published version until you publish this draft.")
+                : t("This language is not visible to visitors until it is published.")}
+            </p>
+          </aside>
+        </div>
+        </details> : null}
       </div>
 
       {clientMode && publishReviewOpen ? (
@@ -2319,43 +1903,7 @@ export default function AdminSitePage() {
           }}
         />
       ) : null}
-      {publishHiddenWarningOpen ? (
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 p-4"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700">
-              Поиск Google и Bing
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold">
-              Сайт скрыт от Google и Bing
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-[#5f5a53]">
-              Он будет доступен по прямой ссылке, но поисковым системам будет
-              указано не индексировать его.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setPublishHiddenWarningOpen(false)}
-                className="rounded-xl border border-black/10 px-4 py-3 text-sm font-semibold"
-              >
-                Вернуться и включить индексацию
-              </button>
-              <button
-                type="button"
-                onClick={publishHidden}
-                disabled={saving}
-                className="rounded-xl bg-[#17191f] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40"
-              >
-                Опубликовать скрытым
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {publishHiddenWarningOpen ? <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700">Поиск Google и Bing</p><h2 className="mt-2 text-2xl font-semibold">Сайт скрыт от Google и Bing</h2><p className="mt-3 text-sm leading-6 text-[#5f5a53]">Он будет доступен по прямой ссылке, но поисковым системам будет указано не индексировать его.</p><div className="mt-6 flex flex-wrap justify-end gap-3"><button type="button" onClick={() => setPublishHiddenWarningOpen(false)} className="rounded-xl border border-black/10 px-4 py-3 text-sm font-semibold">Вернуться и включить индексацию</button><button type="button" onClick={publishHidden} disabled={saving} className="rounded-xl bg-[#17191f] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40">Опубликовать скрытым</button></div></div></div> : null}
     </main>
   );
 }
@@ -2454,8 +2002,7 @@ function VisualBuilder({
     "intro" | "gallery" | "blocks" | "booking"
   >("intro");
   const [selectedCustomBlockId, setSelectedCustomBlockId] = useState("");
-  const [selectedPremiumNativeSection, setSelectedPremiumNativeSection] =
-    useState("hero");
+  const [selectedPremiumNativeSection, setSelectedPremiumNativeSection] = useState("hero");
   const [editingEnabled, setEditingEnabled] = useState(true);
   const [draggedBlockId, setDraggedBlockId] = useState("");
   const [, setDragOverBlockId] = useState("");
@@ -2480,9 +2027,7 @@ function VisualBuilder({
     setSettingsOpen(true);
   }, []);
 
-  const premiumEditorAdapter = getPremiumTemplateEditorAdapter(
-    draft.template_id,
-  );
+  const premiumEditorAdapter = getPremiumTemplateEditorAdapter(draft.template_id);
   const layoutOrder = premiumEditorAdapter
     ? premiumEditorAdapter.normalizeLayout(
         draft.layout_order ?? [],
@@ -2494,15 +2039,15 @@ function VisualBuilder({
   const activePage =
     selectedPageId === "home"
       ? null
-      : (pages.find((page) => page.id === selectedPageId) ?? null);
+      : pages.find((page) => page.id === selectedPageId) ?? null;
   const activePageId = activePage?.id ?? "";
   const selectedCustomBlock = activePage
-    ? ((activePage.blocks ?? []).find(
+    ? (activePage.blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
-      ) ?? null)
-    : ((draft.custom_blocks ?? []).find(
+      ) ?? null
+    : (draft.custom_blocks ?? []).find(
         (block) => block.id === selectedCustomBlockId,
-      ) ?? null);
+      ) ?? null;
   const hasPremiumEditorCanvas = Boolean(
     getPremiumTemplateEditorCanvasRenderer(draft.template_id),
   );
@@ -2510,13 +2055,7 @@ function VisualBuilder({
   const isPremiumNativeSelection = isPremiumNativeHome && !selectedCustomBlock;
 
   useEffect(() => {
-    if (
-      premiumEditorAdapter &&
-      !isPremiumEditorSectionId(
-        premiumEditorAdapter,
-        selectedPremiumNativeSection,
-      )
-    ) {
+    if (premiumEditorAdapter && !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) {
       setSelectedPremiumNativeSection(premiumEditorAdapter.initialSectionId);
     }
   }, [premiumEditorAdapter, selectedPremiumNativeSection]);
@@ -2534,10 +2073,8 @@ function VisualBuilder({
         : activePageId
           ? `page:${activePageId}:${selectedPagePart === "booking" ? "booking" : selectedPagePart === "gallery" ? "gallery" : "intro"}`
           : isPremiumNativeHome
-            ? (getPremiumEditorSection(
-                premiumEditorAdapter!,
-                selectedPremiumNativeSection,
-              )?.anchor ?? premiumEditorAdapter!.initialSectionId)
+            ? getPremiumEditorSection(premiumEditorAdapter!, selectedPremiumNativeSection)?.anchor
+              ?? premiumEditorAdapter!.initialSectionId
             : selectedSection;
       const target = canvas.querySelector<HTMLElement>(
         `[data-editor-anchor="${anchor}"]`,
@@ -2549,11 +2086,10 @@ function VisualBuilder({
       programmaticCanvasScrollUntilRef.current = Date.now() + 700;
       const canvasRect = canvas.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
-      const scrollPadding =
-        Number.parseFloat(window.getComputedStyle(canvas).scrollPaddingTop) ||
-        0;
-      const top =
-        canvas.scrollTop + (targetRect.top - canvasRect.top) - scrollPadding;
+      const scrollPadding = Number.parseFloat(
+        window.getComputedStyle(canvas).scrollPaddingTop,
+      ) || 0;
+      const top = canvas.scrollTop + (targetRect.top - canvasRect.top) - scrollPadding;
       canvas.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     });
     return () => window.cancelAnimationFrame(frame);
@@ -2568,8 +2104,7 @@ function VisualBuilder({
   ]);
 
   function syncSelectionFromCanvasScroll() {
-    if (activePageId || Date.now() < programmaticCanvasScrollUntilRef.current)
-      return;
+    if (activePageId || Date.now() < programmaticCanvasScrollUntilRef.current) return;
     const canvas = workspaceCanvasRef.current;
     if (!canvas) return;
     if (workspaceScrollFrameRef.current !== null) {
@@ -2578,15 +2113,12 @@ function VisualBuilder({
     workspaceScrollFrameRef.current = window.requestAnimationFrame(() => {
       const canvasRect = canvas.getBoundingClientRect();
       const focusY = canvasRect.top + Math.min(canvas.clientHeight * 0.42, 360);
-      const anchors = canvas.querySelectorAll<HTMLElement>(
-        "[data-editor-anchor]",
-      );
+      const anchors = canvas.querySelectorAll<HTMLElement>("[data-editor-anchor]");
       let closest: HTMLElement | null = null;
       let distance = Number.POSITIVE_INFINITY;
       anchors.forEach((item) => {
         const rect = item.getBoundingClientRect();
-        if (rect.bottom < canvasRect.top || rect.top > canvasRect.bottom)
-          return;
+        if (rect.bottom < canvasRect.top || rect.top > canvasRect.bottom) return;
         const itemFocus = Math.max(rect.top, Math.min(focusY, rect.bottom));
         const nextDistance = Math.abs(itemFocus - focusY);
         if (nextDistance < distance) {
@@ -2608,10 +2140,9 @@ function VisualBuilder({
         }
         return;
       }
-      const anchoredPremiumSection =
-        premiumEditorAdapter && isPremiumNativeHome
-          ? getPremiumEditorSectionByAnchor(premiumEditorAdapter, anchor)
-          : undefined;
+      const anchoredPremiumSection = premiumEditorAdapter && isPremiumNativeHome
+        ? getPremiumEditorSectionByAnchor(premiumEditorAdapter, anchor)
+        : undefined;
       if (anchoredPremiumSection) {
         if (
           selectedCustomBlockId ||
@@ -2637,14 +2168,11 @@ function VisualBuilder({
     });
   }
 
-  useEffect(
-    () => () => {
-      if (workspaceScrollFrameRef.current !== null) {
-        window.cancelAnimationFrame(workspaceScrollFrameRef.current);
-      }
-    },
-    [],
-  );
+  useEffect(() => () => {
+    if (workspaceScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(workspaceScrollFrameRef.current);
+    }
+  }, []);
 
   const selectedLayoutItem = selectedCustomBlock
     ? customBlockLayoutId(selectedCustomBlock.id)
@@ -2719,8 +2247,7 @@ function VisualBuilder({
     );
   }
   const activeTemplate =
-    SITE_TEMPLATES.find((template) => template.id === draft.template_id) ??
-    null;
+    SITE_TEMPLATES.find((template) => template.id === draft.template_id) ?? null;
   const previewServices: PublicSiteService[] = services.length
     ? services
     : (activeTemplate?.services ?? []).map((service, index) => ({
@@ -2950,10 +2477,7 @@ function VisualBuilder({
     setPageLibraryOpen(false);
   }
   function upgradeCashPathPagesInDraft() {
-    onReplaceDraft(
-      upgradeCashPathFullPages(draft),
-      "cashpath:full-pages-upgrade",
-    );
+    onReplaceDraft(upgradeCashPathFullPages(draft), "cashpath:full-pages-upgrade");
     setPageLibraryOpen(false);
   }
 
@@ -2962,9 +2486,7 @@ function VisualBuilder({
     target: "home" | "page",
     presetId?: PublicSiteCustomBlock["preset_id"],
   ) {
-    const block = presetId
-      ? createPublicSiteCoreBlockPreset(presetId)
-      : createCustomBlock(kind);
+    const block = presetId ? createPublicSiteCoreBlockPreset(presetId) : createCustomBlock(kind);
     if (target === "page" && activePage) {
       updatePage("blocks", [...(activePage.blocks ?? []), block]);
       setSelectedPagePart("blocks");
@@ -3002,9 +2524,7 @@ function VisualBuilder({
       const block = (page.blocks ?? []).find((item) => item.id === blockId);
       if (block) return block;
     }
-    return (
-      (draft.custom_blocks ?? []).find((block) => block.id === blockId) ?? null
-    );
+    return (draft.custom_blocks ?? []).find((block) => block.id === blockId) ?? null;
   }
 
   function updateCustomBlockById<Key extends keyof PublicSiteCustomBlock>(
@@ -3113,10 +2633,7 @@ function VisualBuilder({
           toIndex,
         });
         if (next.some((token, index) => token !== layoutOrder[index])) {
-          onReplaceDraft(
-            { ...draft, layout_order: next },
-            premiumEditorAdapter.history.layout,
-          );
+          onReplaceDraft({ ...draft, layout_order: next }, premiumEditorAdapter.history.layout);
         }
       } else {
         const next = reorderItems(layoutOrder, draggedBlockId, targetId);
@@ -3130,9 +2647,7 @@ function VisualBuilder({
       );
       updatePage(
         "blocks",
-        nextIds
-          .map((id) => blockMap.get(id))
-          .filter(Boolean) as PublicSiteCustomBlock[],
+        nextIds.map((id) => blockMap.get(id)).filter(Boolean) as PublicSiteCustomBlock[],
       );
     }
     finishBlockDrag();
@@ -3169,17 +2684,8 @@ function VisualBuilder({
   }
 
   function resetSelectedPremiumSection() {
-    if (
-      !premiumEditorAdapter ||
-      !isPremiumNativeSelection ||
-      !isPremiumEditorSectionId(
-        premiumEditorAdapter,
-        selectedPremiumNativeSection,
-      )
-    )
-      return;
-    if (!window.confirm("Вернуть этот блок к исходному содержимому шаблона?"))
-      return;
+    if (!premiumEditorAdapter || !isPremiumNativeSelection || !isPremiumEditorSectionId(premiumEditorAdapter, selectedPremiumNativeSection)) return;
+    if (!window.confirm("Вернуть этот блок к исходному содержимому шаблона?")) return;
     onReplaceDraft(
       premiumEditorAdapter.resetSection(draft, selectedPremiumNativeSection),
       premiumEditorAdapter.history.reset(selectedPremiumNativeSection),
@@ -3195,10 +2701,7 @@ function VisualBuilder({
     ) {
       return;
     }
-    onReplaceDraft(
-      premiumEditorAdapter.restoreTemplate(draft),
-      premiumEditorAdapter.history.restore,
-    );
+    onReplaceDraft(premiumEditorAdapter.restoreTemplate(draft), premiumEditorAdapter.history.restore);
     setSelectedCustomBlockId("");
     setSelectedPremiumNativeSection(premiumEditorAdapter.initialSectionId);
     setSettingsOpen(true);
@@ -3214,23 +2717,13 @@ function VisualBuilder({
       updatePage("blocks", blocks);
     } else {
       const blocks = [...(draft.custom_blocks ?? [])];
-      const blockIndex = blocks.findIndex(
-        (block) => block.id === targetBlock.id,
-      );
-      blocks.splice(
-        blockIndex < 0 ? blocks.length : blockIndex + 1,
-        0,
-        duplicate,
-      );
+      const blockIndex = blocks.findIndex((block) => block.id === targetBlock.id);
+      blocks.splice(blockIndex < 0 ? blocks.length : blockIndex + 1, 0, duplicate);
       const currentLayoutId = customBlockLayoutId(targetBlock.id);
       const duplicateLayoutId = customBlockLayoutId(duplicate.id);
       const order = [...layoutOrder];
       const layoutIndex = order.indexOf(currentLayoutId);
-      order.splice(
-        layoutIndex < 0 ? order.length : layoutIndex + 1,
-        0,
-        duplicateLayoutId,
-      );
+      order.splice(layoutIndex < 0 ? order.length : layoutIndex + 1, 0, duplicateLayoutId);
       onReplaceDraft({
         ...draft,
         custom_blocks: blocks,
@@ -3292,349 +2785,154 @@ function VisualBuilder({
 
   const navigatorSections: EditorNavigatorModel["sections"] = activePage
     ? [
-        {
-          id: `${activePage.id}:intro`,
-          key: `${activePage.id}:intro`,
-          label: t("Page intro"),
-          index: 0,
-          selected: selectedPagePart === "intro",
-          visible: true,
-          locked: true,
-          capabilities: { select: true },
-          onSelect: () => {
-            setSelectedPagePart("intro");
-            setSelectedCustomBlockId("");
-            setSettingsOpen(true);
-          },
-        },
+        { id: `${activePage.id}:intro`, key: `${activePage.id}:intro`, label: t("Page intro"), index: 0, selected: selectedPagePart === "intro", visible: true, locked: true, capabilities: { select: true }, onSelect: () => { setSelectedPagePart("intro"); setSelectedCustomBlockId(""); setSettingsOpen(true); } },
         ...(activePage.type === "portfolio"
-          ? [
-              {
-                id: `${activePage.id}:gallery`,
-                key: `${activePage.id}:gallery`,
-                label: t("Nail gallery"),
-                index: 1,
-                selected: selectedPagePart === "gallery",
-                visible: true,
-                locked: true,
-                capabilities: { select: true },
-                onSelect: () => {
-                  setSelectedPagePart("gallery");
-                  setSelectedCustomBlockId("");
-                  setSettingsOpen(true);
-                },
-              },
-            ]
-          : (activePage.blocks ?? []).map((block, index, blocks) => ({
-              id: block.id,
-              key: block.id,
-              label: resolvePublicSiteBlockDisplayName(block, t),
-              index: index + 1,
-              selected: selectedCustomBlockId === block.id,
-              visible: block.is_visible !== false,
-              disabled: !canConfigure || !editingEnabled,
-              canMoveUp: index > 0,
-              canMoveDown: index < blocks.length - 1,
-              capabilities: {
-                select: true,
-                visibility: true,
-                duplicate: true,
-                delete: true,
-                reorder: true,
-                move: true,
-              },
-              onSelect: () => {
-                setSelectedPagePart("blocks");
-                setSelectedCustomBlockId(block.id);
-                setSettingsOpen(true);
-              },
-              onVisibilityChange: (visible: boolean) =>
-                updateCustomBlockById(block.id, "is_visible", visible),
-              onDuplicate: () => duplicateCustomBlock(block),
-              onDelete: () => removeCustomBlock(block),
-              onMove: (direction: -1 | 1) => movePageBlock(block.id, direction),
-              onDragStart: () => startBlockDrag(block.id, "page"),
-              onDragOver: () => setDragOverBlockId(block.id),
-              onDrop: () => dropBlock(block.id, "page"),
-              onDragEnd: finishBlockDrag,
-            }))),
-        {
-          id: `${activePage.id}:booking`,
-          key: `${activePage.id}:booking`,
-          label: t("Booking call to action"),
-          index:
-            activePage.type === "portfolio"
-              ? 2
-              : (activePage.blocks?.length ?? 0) + 1,
-          selected: selectedPagePart === "booking",
-          visible: activePage.show_booking_cta,
-          locked: true,
-          capabilities: { select: true, visibility: true },
-          onSelect: () => {
-            setSelectedPagePart("booking");
-            setSelectedCustomBlockId("");
-            setSettingsOpen(true);
-          },
-          onVisibilityChange: (visible: boolean) =>
-            updatePage("show_booking_cta", visible),
-        },
+          ? [{ id: `${activePage.id}:gallery`, key: `${activePage.id}:gallery`, label: t("Nail gallery"), index: 1, selected: selectedPagePart === "gallery", visible: true, locked: true, capabilities: { select: true }, onSelect: () => { setSelectedPagePart("gallery"); setSelectedCustomBlockId(""); setSettingsOpen(true); } }]
+          : (activePage.blocks ?? []).map((block, index, blocks) => ({ id: block.id, key: block.id, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < blocks.length - 1, capabilities: { select: true, visibility: true, duplicate: true, delete: true, reorder: true, move: true }, onSelect: () => { setSelectedPagePart("blocks"); setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => movePageBlock(block.id, direction), onDragStart: () => startBlockDrag(block.id, "page"), onDragOver: () => setDragOverBlockId(block.id), onDrop: () => dropBlock(block.id, "page"), onDragEnd: finishBlockDrag }))),
+        { id: `${activePage.id}:booking`, key: `${activePage.id}:booking`, label: t("Booking call to action"), index: (activePage.type === "portfolio" ? 2 : (activePage.blocks?.length ?? 0) + 1), selected: selectedPagePart === "booking", visible: activePage.show_booking_cta, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => { setSelectedPagePart("booking"); setSelectedCustomBlockId(""); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updatePage("show_booking_cta", visible) },
       ]
     : premiumEditorAdapter && isPremiumNativeHome
       ? [
-          ...(premiumEditorAdapter.fixedEditorSections ?? []).map(
-            (definition, index) => ({
-              id: premiumEditorAdapter.nativeToken(definition.id),
-              key: premiumEditorAdapter.nativeToken(definition.id),
-              label: definition.label,
-              index,
-              selected:
-                !selectedCustomBlockId &&
-                selectedPremiumNativeSection === definition.id,
-              visible: premiumEditorAdapter.isSectionVisible(
-                draft,
-                definition.id,
+          ...(premiumEditorAdapter.fixedEditorSections ?? []).map((definition, index) => ({
+            id: premiumEditorAdapter.nativeToken(definition.id),
+            key: premiumEditorAdapter.nativeToken(definition.id),
+            label: definition.label,
+            index,
+            selected: !selectedCustomBlockId && selectedPremiumNativeSection === definition.id,
+            visible: premiumEditorAdapter.isSectionVisible(draft, definition.id),
+            required: true,
+            locked: true,
+            disabled: !canConfigure || !editingEnabled,
+            capabilities: {
+              select: true,
+              visibility: definition.capabilities.visibility,
+              reorder: false,
+              reset: definition.capabilities.reset,
+            },
+            onSelect: () => {
+              setSelectedCustomBlockId("");
+              setSelectedPremiumNativeSection(definition.id);
+              setSettingsOpen(true);
+            },
+            onVisibilityChange: (visible: boolean) =>
+              onReplaceDraft(
+                premiumEditorAdapter.setSectionVisibility(draft, definition.id, visible),
+                premiumEditorAdapter.history.visibility(definition.id),
               ),
+          })),
+          ...layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>((item, index) => {
+          const movementInput = {
+            tokens: layoutOrder,
+            customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
+            fromIndex: index,
+          };
+          const canMoveUp = canMovePremiumEditorLayoutItem(premiumEditorAdapter, { ...movementInput, direction: -1 });
+          const canMoveDown = canMovePremiumEditorLayoutItem(premiumEditorAdapter, { ...movementInput, direction: 1 });
+
+          const id = premiumEditorAdapter.nativeSectionId(item);
+          if (id) {
+            const definition = getPremiumEditorSection(premiumEditorAdapter, id);
+            if (!definition) return [];
+            const pinned = definition.pinning !== undefined;
+            return [{
+              id: item,
+              key: item,
+              label: definition.label,
+              index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
+              selected: !selectedCustomBlockId && selectedPremiumNativeSection === id,
+              visible: premiumEditorAdapter.isSectionVisible(draft, id),
               required: true,
-              locked: true,
+              locked: pinned,
               disabled: !canConfigure || !editingEnabled,
+              canMoveUp: !pinned && canMoveUp,
+              canMoveDown: !pinned && canMoveDown,
               capabilities: {
                 select: true,
                 visibility: definition.capabilities.visibility,
-                reorder: false,
+                reorder: definition.capabilities.reorder,
+                move: definition.capabilities.reorder,
                 reset: definition.capabilities.reset,
               },
               onSelect: () => {
                 setSelectedCustomBlockId("");
-                setSelectedPremiumNativeSection(definition.id);
+                setSelectedPremiumNativeSection(id);
                 setSettingsOpen(true);
               },
-              onVisibilityChange: (visible: boolean) =>
-                onReplaceDraft(
-                  premiumEditorAdapter.setSectionVisibility(
-                    draft,
-                    definition.id,
-                    visible,
-                  ),
-                  premiumEditorAdapter.history.visibility(definition.id),
-                ),
-            }),
-          ),
-          ...layoutOrder.flatMap<EditorNavigatorModel["sections"][number]>(
-            (item, index) => {
-              const movementInput = {
-                tokens: layoutOrder,
-                customBlockIds: (draft.custom_blocks ?? []).map(
-                  (block) => block.id,
-                ),
-                fromIndex: index,
-              };
-              const canMoveUp = canMovePremiumEditorLayoutItem(
-                premiumEditorAdapter,
-                { ...movementInput, direction: -1 },
-              );
-              const canMoveDown = canMovePremiumEditorLayoutItem(
-                premiumEditorAdapter,
-                { ...movementInput, direction: 1 },
-              );
-
-              const id = premiumEditorAdapter.nativeSectionId(item);
-              if (id) {
-                const definition = getPremiumEditorSection(
-                  premiumEditorAdapter,
-                  id,
-                );
-                if (!definition) return [];
-                const pinned = definition.pinning !== undefined;
-                return [
-                  {
-                    id: item,
-                    key: item,
-                    label: definition.label,
-                    index:
-                      index +
-                      (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
-                    selected:
-                      !selectedCustomBlockId &&
-                      selectedPremiumNativeSection === id,
-                    visible: premiumEditorAdapter.isSectionVisible(draft, id),
-                    required: true,
-                    locked: pinned,
-                    disabled: !canConfigure || !editingEnabled,
-                    canMoveUp: !pinned && canMoveUp,
-                    canMoveDown: !pinned && canMoveDown,
-                    capabilities: {
-                      select: true,
-                      visibility: definition.capabilities.visibility,
-                      reorder: definition.capabilities.reorder,
-                      move: definition.capabilities.reorder,
-                      reset: definition.capabilities.reset,
-                    },
-                    onSelect: () => {
-                      setSelectedCustomBlockId("");
-                      setSelectedPremiumNativeSection(id);
-                      setSettingsOpen(true);
-                    },
-                    onVisibilityChange: (visible: boolean) =>
-                      onReplaceDraft(
-                        premiumEditorAdapter.setSectionVisibility(
-                          draft,
-                          id,
-                          visible,
-                        ),
-                        premiumEditorAdapter.history.visibility(id),
-                      ),
-                    onDragStart: pinned
-                      ? undefined
-                      : () => startBlockDrag(item, "home"),
-                    onDragOver: pinned
-                      ? undefined
-                      : () => setDragOverBlockId(item),
-                    onDrop: pinned ? undefined : () => dropBlock(item, "home"),
-                    onDragEnd: pinned ? undefined : finishBlockDrag,
-                    onMove: pinned
-                      ? undefined
-                      : (direction: -1 | 1) =>
-                          movePremiumLayoutItem(item, direction),
-                  },
-                ];
-              }
-
-              if (!item.startsWith("custom:")) return [];
-              const blockId = item.slice("custom:".length);
-              const block = (draft.custom_blocks ?? []).find(
-                (candidate) => candidate.id === blockId,
-              );
-              if (!block) return [];
-              return [
-                {
-                  id: item,
-                  key: item,
-                  label: resolvePublicSiteBlockDisplayName(block, t),
-                  index:
-                    index +
-                    (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
-                  selected: selectedCustomBlockId === block.id,
-                  visible: block.is_visible !== false,
-                  disabled: !canConfigure || !editingEnabled,
-                  canMoveUp,
-                  canMoveDown,
-                  capabilities: {
-                    select: true,
-                    visibility: true,
-                    duplicate: true,
-                    delete: true,
-                    reorder: true,
-                    move: true,
-                  },
-                  onSelect: () => {
-                    setSelectedCustomBlockId(block.id);
-                    setSettingsOpen(true);
-                  },
-                  onVisibilityChange: (visible: boolean) =>
-                    updateCustomBlockById(block.id, "is_visible", visible),
-                  onDuplicate: () => duplicateCustomBlock(block),
-                  onDelete: () => removeCustomBlock(block),
-                  onDragStart: () => startBlockDrag(item, "home"),
-                  onDragOver: () => setDragOverBlockId(item),
-                  onDrop: () => dropBlock(item, "home"),
-                  onDragEnd: finishBlockDrag,
-                  onMove: (direction: -1 | 1) =>
-                    movePremiumLayoutItem(item, direction),
-                },
-              ];
-            },
-          ),
-        ]
-      : [
-          {
-            id: "hero",
-            key: "hero",
-            label: t("Hero"),
-            index: 0,
-            selected: !selectedCustomBlockId && selectedSection === "hero",
-            visible: draft.show_hero !== false,
-            locked: true,
-            capabilities: { select: true, visibility: true },
-            onSelect: () => chooseSection("hero"),
             onVisibilityChange: (visible: boolean) =>
-              onUpdate("show_hero", visible),
-          },
-          ...layoutOrder.flatMap((item, index) => {
-            if (item.startsWith("section:")) {
-              const section = item.slice(
-                "section:".length,
-              ) as PublicSiteSection;
-              return [
-                {
-                  id: item,
-                  key: item,
-                  label: t(sectionLabelKey[section]),
-                  index: index + 1,
-                  selected:
-                    !selectedCustomBlockId && selectedSection === section,
-                  visible: Boolean(draft[sectionVisibilityKey[section]]),
-                  disabled: !canConfigure || !editingEnabled,
-                  canMoveUp: index > 0,
-                  canMoveDown: index < layoutOrder.length - 1,
-                  capabilities: {
-                    select: true,
-                    visibility: true,
-                    reorder: true,
-                    move: true,
-                  },
-                  onSelect: () => chooseSection(section),
-                  onVisibilityChange: (visible: boolean) =>
-                    onUpdate(sectionVisibilityKey[section], visible),
-                  onMove: (direction: -1 | 1) =>
-                    moveLayoutItem(item, direction),
-                  onDragStart: () => startBlockDrag(item, "home"),
-                  onDragOver: () => setDragOverBlockId(item),
-                  onDrop: () => dropBlock(item, "home"),
-                  onDragEnd: finishBlockDrag,
-                },
-              ];
-            }
-            const blockId = item.slice("custom:".length);
-            const block = (draft.custom_blocks ?? []).find(
-              (candidate) => candidate.id === blockId,
-            );
-            if (!block) return [];
-            return [
-              {
-                id: item,
-                key: item,
-                label: resolvePublicSiteBlockDisplayName(block, t),
-                index: index + 1,
-                selected: selectedCustomBlockId === block.id,
-                visible: block.is_visible !== false,
-                disabled: !canConfigure || !editingEnabled,
-                canMoveUp: index > 0,
-                canMoveDown: index < layoutOrder.length - 1,
-                capabilities: {
-                  select: true,
-                  visibility: true,
-                  reorder: true,
-                  move: true,
-                  duplicate: true,
-                  delete: true,
-                },
-                onSelect: () => {
-                  setSelectedCustomBlockId(block.id);
-                  setSettingsOpen(true);
-                },
-                onVisibilityChange: (visible: boolean) =>
-                  updateCustomBlockById(block.id, "is_visible", visible),
-                onDuplicate: () => duplicateCustomBlock(block),
-                onDelete: () => removeCustomBlock(block),
-                onMove: (direction: -1 | 1) => moveLayoutItem(item, direction),
-                onDragStart: () => startBlockDrag(item, "home"),
-                onDragOver: () => setDragOverBlockId(item),
-                onDrop: () => dropBlock(item, "home"),
-                onDragEnd: finishBlockDrag,
-              },
-            ];
-          }),
-        ];
+              onReplaceDraft(
+                premiumEditorAdapter.setSectionVisibility(draft, id, visible),
+                premiumEditorAdapter.history.visibility(id),
+              ),
+              onDragStart: pinned
+                ? undefined
+                : () => startBlockDrag(item, "home"),
+              onDragOver: pinned
+                ? undefined
+                : () => setDragOverBlockId(item),
+              onDrop: pinned
+                ? undefined
+                : () => dropBlock(item, "home"),
+              onDragEnd: pinned ? undefined : finishBlockDrag,
+              onMove: pinned
+                ? undefined
+                : (direction: -1 | 1) => movePremiumLayoutItem(item, direction),
+            }];
+          }
+
+          if (!item.startsWith("custom:")) return [];
+          const blockId = item.slice("custom:".length);
+          const block = (draft.custom_blocks ?? []).find(
+            (candidate) => candidate.id === blockId,
+          );
+          if (!block) return [];
+          return [{
+            id: item,
+            key: item,
+            label: resolvePublicSiteBlockDisplayName(block, t),
+            index: index + (premiumEditorAdapter.fixedEditorSections?.length ?? 0),
+            selected: selectedCustomBlockId === block.id,
+            visible: block.is_visible !== false,
+            disabled: !canConfigure || !editingEnabled,
+            canMoveUp,
+            canMoveDown,
+            capabilities: {
+              select: true,
+              visibility: true,
+              duplicate: true,
+              delete: true,
+              reorder: true,
+              move: true,
+            },
+            onSelect: () => {
+              setSelectedCustomBlockId(block.id);
+              setSettingsOpen(true);
+            },
+            onVisibilityChange: (visible: boolean) =>
+              updateCustomBlockById(block.id, "is_visible", visible),
+            onDuplicate: () => duplicateCustomBlock(block),
+            onDelete: () => removeCustomBlock(block),
+            onDragStart: () => startBlockDrag(item, "home"),
+            onDragOver: () => setDragOverBlockId(item),
+            onDrop: () => dropBlock(item, "home"),
+            onDragEnd: finishBlockDrag,
+            onMove: (direction: -1 | 1) =>
+              movePremiumLayoutItem(item, direction),
+          }];
+        }),
+      ]
+      : [
+        { id: "hero", key: "hero", label: t("Hero"), index: 0, selected: !selectedCustomBlockId && selectedSection === "hero", visible: draft.show_hero !== false, locked: true, capabilities: { select: true, visibility: true }, onSelect: () => chooseSection("hero"), onVisibilityChange: (visible: boolean) => onUpdate("show_hero", visible) },
+        ...layoutOrder.flatMap((item, index) => {
+          if (item.startsWith("section:")) {
+            const section = item.slice("section:".length) as PublicSiteSection;
+            return [{ id: item, key: item, label: t(sectionLabelKey[section]), index: index + 1, selected: !selectedCustomBlockId && selectedSection === section, visible: Boolean(draft[sectionVisibilityKey[section]]), disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true }, onSelect: () => chooseSection(section), onVisibilityChange: (visible: boolean) => onUpdate(sectionVisibilityKey[section], visible), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+          }
+          const blockId = item.slice("custom:".length);
+          const block = (draft.custom_blocks ?? []).find(candidate => candidate.id === blockId);
+          if (!block) return [];
+          return [{ id: item, key: item, label: resolvePublicSiteBlockDisplayName(block, t), index: index + 1, selected: selectedCustomBlockId === block.id, visible: block.is_visible !== false, disabled: !canConfigure || !editingEnabled, canMoveUp: index > 0, canMoveDown: index < layoutOrder.length - 1, capabilities: { select: true, visibility: true, reorder: true, move: true, duplicate: true, delete: true }, onSelect: () => { setSelectedCustomBlockId(block.id); setSettingsOpen(true); }, onVisibilityChange: (visible: boolean) => updateCustomBlockById(block.id, "is_visible", visible), onDuplicate: () => duplicateCustomBlock(block), onDelete: () => removeCustomBlock(block), onMove: (direction: -1 | 1) => moveLayoutItem(item, direction), onDragStart: () => startBlockDrag(item, "home"), onDragOver: () => setDragOverBlockId(item), onDrop: () => dropBlock(item, "home"), onDragEnd: finishBlockDrag }];
+        }),
+      ];
   const premiumEditorPreviewSite: PublicSiteData = {
     business: {
       id: businessId,
@@ -3667,1632 +2965,990 @@ function VisualBuilder({
             return {
               id: definition.token,
               label: definition.label,
-              description: t(
-                "A native section of this design. Select it or reveal it without creating a duplicate.",
-              ),
+              description: t("A native section of this design. Select it or reveal it without creating a duplicate."),
               stateLabel: visible ? "On page" : "Hidden",
-              onAdd: () => choosePremiumTemplateLibrarySection(definition.id),
+              onAdd: () =>
+                choosePremiumTemplateLibrarySection(definition.id),
             };
           },
         )
       : [];
   const navigatorModel: EditorNavigatorModel = {
-    heading: t("Page blocks"),
-    sections: navigatorSections,
-    expanded: blocksOpen,
-    onExpandedChange: setBlocksOpen,
-    onCollapse: () => setBlocksOpen(false),
-    addBlock:
-      activePage?.type === "portfolio"
-        ? undefined
-        : {
-            label: t("+ Add block"),
-            disabled: !canConfigure,
-            onClick: () => setLibraryOpen(true),
-          },
-    footerNotice: activePage
-      ? t(
-          "This is a separate public page with its own address and navigation item.",
-        )
-      : t("Choose a ready block from the library."),
+    heading: t("Page blocks"), sections: navigatorSections, expanded: blocksOpen, onExpandedChange: setBlocksOpen, onCollapse: () => setBlocksOpen(false),
+    addBlock: activePage?.type === "portfolio" ? undefined : { label: t("+ Add block"), disabled: !canConfigure, onClick: () => setLibraryOpen(true) },
+    footerNotice: activePage ? t("This is a separate public page with its own address and navigation item.") : t("Choose a ready block from the library."),
   };
   const selectedPremiumLayoutItem = selectedCustomBlock
     ? customBlockLayoutId(selectedCustomBlock.id)
-    : (premiumEditorAdapter?.nativeToken(selectedPremiumNativeSection) ?? "");
-  const selectedPremiumLayoutIndex = layoutOrder.indexOf(
-    selectedPremiumLayoutItem,
-  );
+    : premiumEditorAdapter?.nativeToken(selectedPremiumNativeSection) ?? "";
+  const selectedPremiumLayoutIndex = layoutOrder.indexOf(selectedPremiumLayoutItem);
   const selectedPremiumMovementInput = {
     tokens: layoutOrder,
     customBlockIds: (draft.custom_blocks ?? []).map((block) => block.id),
     fromIndex: selectedPremiumLayoutIndex,
   };
-  const selectedPremiumCanMoveUp = premiumEditorAdapter
-    ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
-        ...selectedPremiumMovementInput,
-        direction: -1,
-      })
-    : false;
-  const selectedPremiumCanMoveDown = premiumEditorAdapter
-    ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
-        ...selectedPremiumMovementInput,
-        direction: 1,
-      })
-    : false;
+  const selectedPremiumCanMoveUp = premiumEditorAdapter ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
+    ...selectedPremiumMovementInput,
+    direction: -1,
+  }) : false;
+  const selectedPremiumCanMoveDown = premiumEditorAdapter ? canMovePremiumEditorLayoutItem(premiumEditorAdapter, {
+    ...selectedPremiumMovementInput,
+    direction: 1,
+  }) : false;
 
   const selectedPremiumDefinition = premiumEditorAdapter
-    ? getPremiumEditorSection(
-        premiumEditorAdapter,
-        selectedPremiumNativeSection,
-      )
+    ? getPremiumEditorSection(premiumEditorAdapter, selectedPremiumNativeSection)
     : undefined;
-  const inspectorActions: EditorInspectorAction[] =
-    isPremiumNativeSelection &&
-    premiumEditorAdapter &&
-    selectedPremiumDefinition
-      ? [
-          ...(selectedPremiumDefinition.capabilities.reorder
-            ? [
-                {
-                  id: "move-up",
-                  label: `↑ ${t("Up")}`,
-                  disabled:
-                    !canConfigure ||
-                    !editingEnabled ||
-                    !selectedPremiumCanMoveUp,
-                  onClick: () =>
-                    movePremiumLayoutItem(selectedPremiumLayoutItem, -1),
-                },
-                {
-                  id: "move-down",
-                  label: `↓ ${t("Down")}`,
-                  disabled:
-                    !canConfigure ||
-                    !editingEnabled ||
-                    !selectedPremiumCanMoveDown,
-                  onClick: () =>
-                    movePremiumLayoutItem(selectedPremiumLayoutItem, 1),
-                },
-              ]
-            : []),
-          {
-            id: "reset",
-            label: t("Restore this block to the original"),
-            disabled: !canConfigure || !editingEnabled,
-            onClick: resetSelectedPremiumSection,
-          },
-        ]
-      : selectedCustomBlock
-        ? [
-            {
-              id: "duplicate",
-              label: t("Duplicate block"),
-              disabled: !canConfigure || !editingEnabled,
-              onClick: () => duplicateCustomBlock(selectedCustomBlock),
-            },
-            {
-              id: "move-up",
-              label: `↑ ${t("Up")}`,
-              disabled:
-                !canConfigure ||
-                !editingEnabled ||
-                (activePage
-                  ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id
-                  : isPremiumNativeHome
-                    ? !selectedPremiumCanMoveUp
-                    : selectedIndex <= 0),
-              onClick: () =>
-                activePage
-                  ? movePageBlock(selectedCustomBlock.id, -1)
-                  : isPremiumNativeHome
-                    ? movePremiumLayoutItem(
-                        customBlockLayoutId(selectedCustomBlock.id),
-                        -1,
-                      )
-                    : moveLayoutItem(
-                        customBlockLayoutId(selectedCustomBlock.id),
-                        -1,
-                      ),
-            },
-            {
-              id: "move-down",
-              label: `↓ ${t("Down")}`,
-              disabled:
-                !canConfigure ||
-                !editingEnabled ||
-                (activePage
-                  ? (activePage.blocks ?? []).at(-1)?.id ===
-                    selectedCustomBlock.id
-                  : isPremiumNativeHome
-                    ? !selectedPremiumCanMoveDown
-                    : selectedIndex === layoutOrder.length - 1),
-              onClick: () =>
-                activePage
-                  ? movePageBlock(selectedCustomBlock.id, 1)
-                  : isPremiumNativeHome
-                    ? movePremiumLayoutItem(
-                        customBlockLayoutId(selectedCustomBlock.id),
-                        1,
-                      )
-                    : moveLayoutItem(
-                        customBlockLayoutId(selectedCustomBlock.id),
-                        1,
-                      ),
-            },
-            {
-              id: "delete",
-              label: t("Remove block"),
-              tone: "danger",
-              disabled: !canConfigure || !editingEnabled,
-              onClick: () => removeCustomBlock(selectedCustomBlock),
-            },
-          ]
-        : !activePage && selectedSection !== "hero"
+  const inspectorActions: EditorInspectorAction[] = isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition
+    ? [
+        ...(selectedPremiumDefinition.capabilities.reorder
           ? [
               {
                 id: "move-up",
                 label: `↑ ${t("Up")}`,
-                disabled:
-                  !canConfigure || !editingEnabled || selectedIndex <= 0,
-                onClick: () =>
-                  moveLayoutItem(sectionLayoutId(selectedSection), -1),
+                disabled: !canConfigure || !editingEnabled || !selectedPremiumCanMoveUp,
+                onClick: () => movePremiumLayoutItem(selectedPremiumLayoutItem, -1),
               },
               {
                 id: "move-down",
                 label: `↓ ${t("Down")}`,
-                disabled:
-                  !canConfigure ||
-                  !editingEnabled ||
-                  selectedIndex === layoutOrder.length - 1,
-                onClick: () =>
-                  moveLayoutItem(sectionLayoutId(selectedSection), 1),
+                disabled: !canConfigure || !editingEnabled || !selectedPremiumCanMoveDown,
+                onClick: () => movePremiumLayoutItem(selectedPremiumLayoutItem, 1),
               },
             ]
-          : [];
+          : []),
+        {
+          id: "reset",
+          label: t("Restore this block to the original"),
+          disabled: !canConfigure || !editingEnabled,
+          onClick: resetSelectedPremiumSection,
+        },
+      ]
+    : selectedCustomBlock ? [
+    { id: "duplicate", label: t("Duplicate block"), disabled: !canConfigure || !editingEnabled, onClick: () => duplicateCustomBlock(selectedCustomBlock) },
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? [])[0]?.id === selectedCustomBlock.id : isPremiumNativeHome ? !selectedPremiumCanMoveUp : selectedIndex <= 0), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, -1) : isPremiumNativeHome ? movePremiumLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || (activePage ? (activePage.blocks ?? []).at(-1)?.id === selectedCustomBlock.id : isPremiumNativeHome ? !selectedPremiumCanMoveDown : selectedIndex === layoutOrder.length - 1), onClick: () => activePage ? movePageBlock(selectedCustomBlock.id, 1) : isPremiumNativeHome ? movePremiumLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) : moveLayoutItem(customBlockLayoutId(selectedCustomBlock.id), 1) },
+    { id: "delete", label: t("Remove block"), tone: "danger", disabled: !canConfigure || !editingEnabled, onClick: () => removeCustomBlock(selectedCustomBlock) },
+  ] : !activePage && selectedSection !== "hero" ? [
+    { id: "move-up", label: `↑ ${t("Up")}`, disabled: !canConfigure || !editingEnabled || selectedIndex <= 0, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), -1) },
+    { id: "move-down", label: `↓ ${t("Down")}`, disabled: !canConfigure || !editingEnabled || selectedIndex === layoutOrder.length - 1, onClick: () => moveLayoutItem(sectionLayoutId(selectedSection), 1) },
+  ] : [];
 
-  return (
-    <>
-      <TemplateEditorRuntime
-        templateKey={draft.template_id ?? "standard"}
-        designName={
-          SITE_TEMPLATE_REGISTRY.find((item) => item.key === draft.template_id)
-            ?.name ?? t("Base OneStudio design")
-        }
-        draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`}
-        previewHref={buildSitePreviewHref({
-          templateKey: draft.template_id ?? "standard",
-          businessSlug,
-          locale: selectedLocale,
-        })}
-        device={previewDevice}
-        editingEnabled={editingEnabled}
-        saving={saving || !canConfigure}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onDeviceChange={onDeviceChange}
-        onEditingChange={(enabled) => {
-          setEditingEnabled(enabled);
-          if (enabled) setSettingsOpen(true);
-        }}
-        onUndo={onUndo}
-        onRedo={onRedo}
-        onSave={onSave}
-        onPublish={onPublish}
-        libraryOpen={libraryOpen}
-        onLibraryClose={() => setLibraryOpen(false)}
-        templateLibraryItems={
-          isPremiumNativeHome
-            ? premiumTemplateLibraryItems
-            : activePage?.type === "custom"
-              ? []
-              : defaultSectionOrder.map((section) => ({
-                  id: section,
-                  label: sectionLabelKey[section],
-                  description: `${sectionLabelKey[section]} block description`,
-                  stateLabel: Boolean(draft[sectionVisibilityKey[section]])
-                    ? "On page"
-                    : "Add",
-                  onAdd: () => addBlock(section),
-                }))
-        }
-        universalLibraryItems={PUBLIC_SITE_CORE_BLOCK_LIBRARY.map(
-          ({ id, kind, label, description, category }) => ({
-            id,
-            label,
-            description,
-            category,
-            stateLabel: category,
-            onAdd: () =>
-              addCustomBlock(
-                kind,
-                activePage?.type === "custom" ? "page" : "home",
-                id,
-              ),
-          }),
-        )}
-        commandModel={{
-          pageLabel: t("Page"),
-          pages: [
-            {
-              id: "home",
-              label: t("Home"),
-              selected: selectedPageId === "home",
-              onSelect: () => choosePage("home"),
+  return (<>
+    <TemplateEditorRuntime
+      templateKey={draft.template_id ?? "standard"}
+      designName={SITE_TEMPLATE_REGISTRY.find(item => item.key === draft.template_id)?.name ?? t("Base OneStudio design")}
+      draftLabel={`${t("Draft")} · ${hasUnsavedChanges ? t("Unsaved") : t("Saved")}`}
+      previewHref={buildSitePreviewHref({ templateKey: draft.template_id ?? "standard", businessSlug, locale: selectedLocale })}
+      device={previewDevice}
+      editingEnabled={editingEnabled}
+      saving={saving || !canConfigure}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      onDeviceChange={onDeviceChange}
+      onEditingChange={(enabled) => { setEditingEnabled(enabled); if (enabled) setSettingsOpen(true); }}
+      onUndo={onUndo}
+      onRedo={onRedo}
+      onSave={onSave}
+      onPublish={onPublish}
+      libraryOpen={libraryOpen}
+      onLibraryClose={() => setLibraryOpen(false)}
+      templateLibraryItems={isPremiumNativeHome
+        ? premiumTemplateLibraryItems
+        : activePage?.type === "custom"
+          ? []
+          : defaultSectionOrder.map(section => ({
+              id: section,
+              label: sectionLabelKey[section],
+              description: `${sectionLabelKey[section]} block description`,
+              stateLabel: Boolean(draft[sectionVisibilityKey[section]]) ? "On page" : "Add",
+              onAdd: () => addBlock(section),
+            }))}
+      universalLibraryItems={PUBLIC_SITE_CORE_BLOCK_LIBRARY.map(({ id, kind, label, description, category }) => ({
+        id,
+        label,
+        description,
+        category,
+        stateLabel: category,
+        onAdd: () => addCustomBlock(kind, activePage?.type === "custom" ? "page" : "home", id),
+      }))}
+      commandModel={{
+        pageLabel: t("Page"),
+        pages: [{ id: "home", label: t("Home"), selected: selectedPageId === "home", onSelect: () => choosePage("home") }, ...pages.map(page => ({ id: page.id, label: `${page.nav_label}${page.is_visible === false ? ` · ${t("Hidden")}` : ""}`, selected: selectedPageId === page.id, onSelect: () => choosePage(page.id) }))],
+        addPage: { id: "add-page", label: t("+ Add page"), disabled: !canConfigure, onClick: () => setPageLibraryOpen(true) },
+        design: { id: "design", label: t("Design"), tone: "accent", onClick: onOpenDesign },
+        seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
+        siteSettings: { id: "site-settings", label: "Настройки сайта", onClick: () => setSiteSettingsOpen(true) },
+        auxiliaryAction: isPremiumNativeHome
+          ? {
+              id: "restore-template",
+              label: premiumEditorAdapter?.restoreLabel ?? t("Restore original template"),
+              disabled: !canConfigure || saving || !editingEnabled,
+              onClick: restoreOriginalPremiumTemplate,
+            }
+          : {
+              id: "restore",
+              label: t("Restore initial demo"),
+              disabled: !canConfigure || saving || !activeTemplate,
+              onClick: () => { if (activeTemplate) void onTemplate(activeTemplate); },
             },
-            ...pages.map((page) => ({
-              id: page.id,
-              label: `${page.nav_label}${page.is_visible === false ? ` · ${t("Hidden")}` : ""}`,
-              selected: selectedPageId === page.id,
-              onSelect: () => choosePage(page.id),
-            })),
-          ],
-          addPage: {
-            id: "add-page",
-            label: t("+ Add page"),
-            disabled: !canConfigure,
-            onClick: () => setPageLibraryOpen(true),
-          },
-          design: {
-            id: "design",
-            label: t("Design"),
-            tone: "accent",
-            onClick: onOpenDesign,
-          },
-          seo: { id: "seo", label: t("SEO pages"), onClick: onOpenSeo },
-          siteSettings: {
-            id: "site-settings",
-            label: "Настройки сайта",
-            onClick: () => setSiteSettingsOpen(true),
-          },
-          auxiliaryAction: isPremiumNativeHome
-            ? {
-                id: "restore-template",
-                label:
-                  premiumEditorAdapter?.restoreLabel ??
-                  t("Restore original template"),
-                disabled: !canConfigure || saving || !editingEnabled,
-                onClick: restoreOriginalPremiumTemplate,
-              }
-            : {
-                id: "restore",
-                label: t("Restore initial demo"),
-                disabled: !canConfigure || saving || !activeTemplate,
-                onClick: () => {
-                  if (activeTemplate) void onTemplate(activeTemplate);
-                },
-              },
-          contextualAction: {
-            id: "duplicate",
-            label: `⧉ ${t("Duplicate block")}`,
-            disabled: !canConfigure || !editingEnabled || !selectedCustomBlock,
-            onClick: () => {
-              if (selectedCustomBlock) duplicateCustomBlock();
-            },
-          },
-        }}
-        navigatorModel={navigatorModel}
+        contextualAction: { id: "duplicate", label: `⧉ ${t("Duplicate block")}`, disabled: !canConfigure || !editingEnabled || !selectedCustomBlock, onClick: () => { if (selectedCustomBlock) duplicateCustomBlock(); } },
+      }}
+      navigatorModel={navigatorModel}
 
-        canvasRef={workspaceCanvasRef}
-        canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
-        canvas={
-          <>
-            {premiumEditorAdapter && !hasPremiumEditorCanvas ? (
-              <PublicPremiumActionStyles
-                content={draft}
-                templateKey={premiumEditorAdapter.templateKey}
+      canvasRef={workspaceCanvasRef}
+      canvasProps={{ onScroll: syncSelectionFromCanvasScroll }}
+      canvas={<>
+          {premiumEditorAdapter && !hasPremiumEditorCanvas ? <PublicPremiumActionStyles content={draft} templateKey={premiumEditorAdapter.templateKey} /> : null}
+          {hasPremiumEditorCanvas && !activePage ? <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg"><PremiumTemplateEditorCanvas templateKey={draft.template_id} content={draft} basePath="#" site={premiumEditorPreviewSite} /></div> : <div
+            className={publicSiteDesignClass(
+              draft,
+              `mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
+                previewDevice === "mobile"
+                  ? "max-w-[390px] rounded-[28px]"
+                  : previewDevice === "tablet"
+                    ? "max-w-[820px] rounded-[22px]"
+                    : blocksOpen && settingsOpen
+                      ? "max-w-[920px] rounded-lg"
+                      : blocksOpen || settingsOpen
+                        ? "max-w-[1120px] rounded-lg"
+                        : "max-w-none rounded-lg"
+              }`,
+            )}
+            style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
+          >
+            {activePage?.type === "portfolio" ? (
+              <PortfolioPagePreview
+                page={activePage}
+                draft={draft}
+                portfolio={previewPortfolio}
+                bookingHref={`/book/${businessSlug}`}
+                editingEnabled={editingEnabled}
+                selectedPart={selectedPagePart === "blocks" ? "intro" : selectedPagePart}
+                onPartChange={setSelectedPagePart}
               />
-            ) : null}
-            {hasPremiumEditorCanvas && !activePage ? (
-              <div className="mx-auto max-w-[1120px] overflow-hidden rounded-lg">
-                <PremiumTemplateEditorCanvas
-                  templateKey={draft.template_id}
-                  content={draft}
-                  basePath="#"
-                  site={premiumEditorPreviewSite}
-                />
-              </div>
+            ) : activePage ? (
+              <CustomPagePreview
+                page={activePage}
+                draft={draft}
+                editingEnabled={editingEnabled}
+                selectedPart={selectedPagePart}
+                selectedBlockId={selectedCustomBlockId}
+                onPartChange={setSelectedPagePart}
+                onBlockChange={(blockId) => {
+                  setSelectedPagePart("blocks");
+                  setSelectedCustomBlockId(blockId);
+                }}
+              />
             ) : (
-              <div
-                className={publicSiteDesignClass(
-                  draft,
-                  `mx-auto w-full overflow-hidden text-[#191b20] shadow-[0_28px_80px_rgba(25,27,32,0.18)] transition-all ${
-                    previewDevice === "mobile"
-                      ? "max-w-[390px] rounded-[28px]"
-                      : previewDevice === "tablet"
-                        ? "max-w-[820px] rounded-[22px]"
-                        : blocksOpen && settingsOpen
-                          ? "max-w-[920px] rounded-lg"
-                          : blocksOpen || settingsOpen
-                            ? "max-w-[1120px] rounded-lg"
-                            : "max-w-none rounded-lg"
-                  }`,
-                )}
-                style={{ backgroundColor: draft.theme_surface ?? "#f3f0e9" }}
-              >
-                {activePage?.type === "portfolio" ? (
-                  <PortfolioPagePreview
-                    page={activePage}
-                    draft={draft}
-                    portfolio={previewPortfolio}
-                    bookingHref={`/book/${businessSlug}`}
-                    editingEnabled={editingEnabled}
-                    selectedPart={
-                      selectedPagePart === "blocks" ? "intro" : selectedPagePart
-                    }
-                    onPartChange={setSelectedPagePart}
-                  />
-                ) : activePage ? (
-                  <CustomPagePreview
-                    page={activePage}
-                    draft={draft}
-                    editingEnabled={editingEnabled}
-                    selectedPart={selectedPagePart}
-                    selectedBlockId={selectedCustomBlockId}
-                    onPartChange={setSelectedPagePart}
-                    onBlockChange={(blockId) => {
-                      setSelectedPagePart("blocks");
-                      setSelectedCustomBlockId(blockId);
-                    }}
+            <>
+            <CanvasBlock
+              anchorId="hero"
+              active={editingEnabled && !selectedCustomBlockId && selectedSection === "hero"}
+              muted={draft.show_hero === false}
+              onClick={() => editingEnabled && chooseSection("hero")}
+            >
+              {draft.show_announcement !== false && draft.announcement_text ? (
+                <div
+                  className="px-4 py-2 text-center text-[9px] font-medium text-white"
+                  style={{ backgroundColor: draft.theme_accent ?? "#a60918" }}
+                >
+                  {draft.announcement_text}
+                </div>
+              ) : null}
+              <div className={`relative flex items-center border-b border-black/10 px-6 py-5 ${draft.header_logo_position === "center" ? "justify-center" : "justify-between"}`}>
+                {draft.header_logo_position === "center" ? (
+                  <span className="absolute left-6 text-sm">☰</span>
+                ) : null}
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={draft.brand_name || businessName}
+                    className={`${draft.header_logo_size === "small" ? "max-h-8 max-w-[130px]" : draft.header_logo_size === "large" ? "max-h-16 max-w-[240px]" : "max-h-12 max-w-[180px]"} object-contain object-left`}
                   />
                 ) : (
-                  <>
-                    <CanvasBlock
-                      anchorId="hero"
-                      active={
-                        editingEnabled &&
-                        !selectedCustomBlockId &&
-                        selectedSection === "hero"
-                      }
-                      muted={draft.show_hero === false}
-                      onClick={() => editingEnabled && chooseSection("hero")}
-                    >
-                      {draft.show_announcement !== false &&
-                      draft.announcement_text ? (
-                        <div
-                          className="px-4 py-2 text-center text-[9px] font-medium text-white"
-                          style={{
-                            backgroundColor: draft.theme_accent ?? "#a60918",
-                          }}
-                        >
-                          {draft.announcement_text}
-                        </div>
-                      ) : null}
-                      <div
-                        className={`relative flex items-center border-b border-black/10 px-6 py-5 ${draft.header_logo_position === "center" ? "justify-center" : "justify-between"}`}
-                      >
-                        {draft.header_logo_position === "center" ? (
-                          <span className="absolute left-6 text-sm">☰</span>
-                        ) : null}
-                        {logoUrl ? (
-                          <img
-                            src={logoUrl}
-                            alt={draft.brand_name || businessName}
-                            className={`${draft.header_logo_size === "small" ? "max-h-8 max-w-[130px]" : draft.header_logo_size === "large" ? "max-h-16 max-w-[240px]" : "max-h-12 max-w-[180px]"} object-contain object-left`}
-                          />
-                        ) : (
-                          <span
-                            className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em]"
-                            style={{ color: draft.theme_dark ?? "#17191f" }}
-                          >
-                            {draft.brand_name || businessName}
-                            <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">
-                              NAIL STUDIO
-                            </small>
-                          </span>
-                        )}
-                        {draft.header_logo_position !== "center" ? (
-                          <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
-                            {draft.services_label} · {draft.portfolio_label} ·{" "}
-                            {draft.contact_label}
-                          </span>
-                        ) : null}
-                      </div>
-                      {draft.hero_layout === "cover" && draft.hero_image_url ? (
-                        <div className="relative min-h-[420px] overflow-hidden bg-black text-white">
-                          <img
-                            src={draft.hero_image_url}
-                            alt=""
-                            className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
-                          <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">
-                              {draft.hero_eyebrow}
-                            </p>
-                            <h2
-                              data-editor-heading="hero"
-                              style={publicSystemSectionHeadingStyle(
-                                draft,
-                                "hero",
-                              )}
-                              className={publicSystemSectionHeadingClass(
-                                draft,
-                                "hero",
-                                `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`,
-                              )}
-                            >
-                              <PublicRichHeading value={draft.hero_title} />
-                            </h2>
-                            <PublicRichText
-                              value={draft.hero_text}
-                              className="mt-6 text-sm leading-7 text-white/75"
-                            />
-                            <div className="mt-7 flex flex-wrap gap-3">
-                              <span
-                                className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white"
-                                style={{
-                                  backgroundColor:
-                                    draft.theme_accent ?? "#9a742e",
-                                }}
-                              >
-                                {draft.hero_primary_label ||
-                                  draft.booking_label}
-                              </span>
-                              {draft.show_hero_secondary !== false ? (
-                                <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">
-                                  {draft.hero_secondary_label || t("More")}
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div
-                          className={`relative overflow-hidden ${draft.hero_layout !== "text" && draft.hero_image_url ? "grid lg:grid-cols-[0.9fr_1.1fr]" : ""}`}
-                        >
-                          <div
-                            className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}
-                          >
-                            <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
-                            <p
-                              className="relative text-[10px] font-semibold uppercase tracking-[0.24em]"
-                              style={{ color: draft.theme_accent ?? "#9a742e" }}
-                            >
-                              {draft.hero_eyebrow}
-                            </p>
-                            <h2
-                              data-editor-heading="hero"
-                              style={publicSystemSectionHeadingStyle(
-                                draft,
-                                "hero",
-                              )}
-                              className={publicSystemSectionHeadingClass(
-                                draft,
-                                "hero",
-                                `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`,
-                              )}
-                            >
-                              <PublicRichHeading value={draft.hero_title} />
-                            </h2>
-                            <PublicRichText
-                              value={draft.hero_text}
-                              className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]"
-                            />
-                            <div className="relative mt-7 flex flex-wrap gap-3">
-                              <span
-                                className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white"
-                                style={{
-                                  backgroundColor:
-                                    draft.theme_dark ?? "#17191f",
-                                }}
-                              >
-                                {draft.hero_primary_label ||
-                                  draft.booking_label}
-                              </span>
-                              {draft.show_hero_secondary !== false ? (
-                                <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">
-                                  {draft.hero_secondary_label || t("More")}
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                          {draft.hero_layout !== "text" &&
-                          draft.hero_image_url ? (
-                            <div
-                              className={`relative min-h-80 overflow-hidden lg:min-h-full ${previewDevice === "mobile" ? "order-2" : draft.hero_image_placement === "left" ? "order-1" : "order-2"}`}
-                            >
-                              <img
-                                src={draft.hero_image_url}
-                                alt=""
-                                className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      )}
-                    </CanvasBlock>
-                    <div className="flex flex-col">
-                      {sectionOrder.map((section, index) => {
-                        const visible = Boolean(
-                          draft[sectionVisibilityKey[section]],
-                        );
-                        return (
-                          <CanvasBlock
-                            key={section}
-                            anchorId={section}
-                            order={layoutOrder.indexOf(
-                              sectionLayoutId(section),
-                            )}
-                            active={
-                              editingEnabled &&
-                              !selectedCustomBlockId &&
-                              selectedSection === section
-                            }
-                            muted={!visible}
-                            onClick={() =>
-                              editingEnabled && chooseSection(section)
-                            }
-                          >
-                            <div
-                              className={publicSystemSectionClass(
-                                draft,
-                                section,
-                                section === "services"
-                                  ? "py-12 text-white sm:py-16"
-                                  : index % 2
-                                    ? "bg-white/70 py-12 sm:py-16"
-                                    : "py-12 sm:py-16",
-                                false,
-                              )}
-                              style={publicSystemSectionStyle(draft, section, {
-                                ...(section === "services"
-                                  ? {
-                                      backgroundColor:
-                                        draft.theme_dark ?? "#191b20",
-                                    }
-                                  : {}),
-                              })}
-                            >
-                              <div
-                                className={publicSystemSectionContentClass(
-                                  draft,
-                                  section,
-                                )}
-                              >
-                                {!publicSystemSectionVisibleOnDevice(
-                                  draft,
-                                  section,
-                                  previewDevice,
-                                ) ? (
-                                  <p className="mb-4 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[9px] font-semibold text-amber-800">
-                                    {t("Hidden on selected device")}
-                                  </p>
-                                ) : null}
-                                <p
-                                  className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                                  style={{
-                                    color: draft.theme_accent ?? "#9a742e",
-                                  }}
-                                >
-                                  {(draft[
-                                    `${section}_label` as keyof PublicSiteContent
-                                  ] as string | undefined) ??
-                                    t(sectionLabelKey[section])}
-                                </p>
-                                <h3
-                                  data-editor-heading={section}
-                                  style={publicSystemSectionHeadingStyle(
-                                    draft,
-                                    section,
-                                  )}
-                                  className="mt-4 text-3xl font-semibold tracking-[-0.045em]"
-                                >
-                                  <PublicRichHeading
-                                    value={
-                                      (draft[
-                                        `${section}_title` as keyof PublicSiteContent
-                                      ] as string | undefined) ??
-                                      t(sectionLabelKey[section])
-                                    }
-                                  />
-                                </h3>
-                                <CanvasSectionPreview
-                                  section={section}
-                                  draft={draft}
-                                  services={previewServices}
-                                  portfolio={previewPortfolio}
-                                />
-                              </div>
-                            </div>
-                          </CanvasBlock>
-                        );
-                      })}
-                      {(draft.custom_blocks ?? []).map((block) => (
-                        <CanvasBlock
-                          key={block.id}
-                          anchorId={`custom:${block.id}`}
-                          order={layoutOrder.indexOf(
-                            customBlockLayoutId(block.id),
-                          )}
-                          active={
-                            editingEnabled && selectedCustomBlockId === block.id
-                          }
-                          muted={block.is_visible === false}
-                          onClick={() =>
-                            editingEnabled && setSelectedCustomBlockId(block.id)
-                          }
-                        >
-                          <CustomBlockPreview block={block} />
-                        </CanvasBlock>
-                      ))}
-                    </div>
-                    <footer
-                      className="px-8 py-8 text-white sm:px-12"
-                      style={{ backgroundColor: draft.theme_dark ?? "#191b20" }}
-                    >
-                      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          {logoUrl ? (
-                            <img
-                              src={logoUrl}
-                              alt={draft.brand_name || businessName}
-                              className="max-h-10 max-w-[170px] object-contain object-left"
-                            />
-                          ) : (
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em]">
-                              {draft.brand_name || businessName}
-                            </p>
-                          )}
-                          {draft.footer_note ? (
-                            <PublicRichText
-                              value={draft.footer_note}
-                              className="mt-3 max-w-md text-[9px] leading-5 text-white/55"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="text-[9px] leading-5 text-white/65 sm:text-right">
-                          {draft.contact_email ? (
-                            <p>{draft.contact_email}</p>
-                          ) : null}
-                          {draft.contact_phone ? (
-                            <p>{draft.contact_phone}</p>
-                          ) : null}
-                          {draft.show_social_icons &&
-                          draft.social_links?.length ? (
-                            <p>
-                              {t("Social networks · {count}", {
-                                count: draft.social_links.length,
-                              })}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                      <p className="mt-5 border-t border-white/15 pt-4 text-[8px] text-white/35">
-                        © {new Date().getFullYear()}{" "}
-                        {draft.brand_name || businessName} · OneStudio OS
-                      </p>
-                    </footer>
-                  </>
+                  <span className="-translate-y-0.5 font-serif text-2xl tracking-[0.04em]"
+                    style={{ color: draft.theme_dark ?? "#17191f" }}>
+                    {draft.brand_name || businessName}
+                    <small className="mt-1 block pl-0.5 font-sans text-[6px] font-semibold tracking-[0.4em] opacity-60">NAIL STUDIO</small>
+                  </span>
                 )}
+                {draft.header_logo_position !== "center" ? (
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#4f4b45]">
+                    {draft.services_label} · {draft.portfolio_label} · {draft.contact_label}
+                  </span>
+                ) : null}
               </div>
-            )}
-          </>
-        }
-
-        inspectorModel={{
-          heading: t("Block settings"),
-          title: selectedCustomBlock
-            ? resolvePublicSiteBlockDisplayName(selectedCustomBlock, t)
-            : activePage
-              ? activePage.nav_label
-              : isPremiumNativeSelection
-                ? (selectedPremiumDefinition?.label ?? t("Template"))
-                : selectedSection === "hero"
-                  ? t("Hero")
-                  : t(sectionLabelKey[selectedSection]),
-          expanded: settingsOpen,
-          onExpandedChange: setSettingsOpen,
-          onCollapse: () => setSettingsOpen(false),
-          fields:
-            isPremiumNativeSelection &&
-            premiumEditorAdapter &&
-            selectedPremiumDefinition
-              ? [
-                  {
-                    id: "native-section-visibility",
-                    group: "content",
-                    type: "toggle",
-                    label: t("Show block"),
-                    checked: premiumEditorAdapter.isSectionVisible(
+              {draft.hero_layout === "cover" && draft.hero_image_url ? (
+                <div className="relative min-h-[420px] overflow-hidden bg-black text-white">
+                  <img
+                    src={draft.hero_image_url}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+                  <div className="relative max-w-2xl px-8 py-20 sm:px-12 sm:py-28">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70">{draft.hero_eyebrow}</p>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `mt-5 break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
+                    <PublicRichText value={draft.hero_text} className="mt-6 text-sm leading-7 text-white/75" />
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_accent ?? "#9a742e" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-white/35 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={`relative overflow-hidden ${draft.hero_layout !== "text" && draft.hero_image_url ? "grid lg:grid-cols-[0.9fr_1.1fr]" : ""}`}>
+                  <div className={`relative px-8 py-16 sm:px-12 sm:py-24 ${previewDevice === "mobile" ? "order-1" : draft.hero_image_placement === "left" ? "order-2" : "order-1"}`}>
+                    <div className="absolute -left-20 top-4 h-64 w-64 rounded-full border border-current/10" />
+                    <p className="relative text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>{draft.hero_eyebrow}</p>
+                    <h2 data-editor-heading="hero" style={publicSystemSectionHeadingStyle(draft, "hero")} className={publicSystemSectionHeadingClass(draft, "hero", `relative mt-5 max-w-2xl break-words font-semibold tracking-[-0.06em] [overflow-wrap:anywhere] ${previewHeroTitleClass}`)}><PublicRichHeading value={draft.hero_title} /></h2>
+                    <PublicRichText value={draft.hero_text} className="relative mt-6 max-w-xl text-sm leading-7 text-[#656159]" />
+                    <div className="relative mt-7 flex flex-wrap gap-3">
+                      <span className="os-site-button inline-flex rounded-full px-6 py-3 text-xs font-semibold text-white" style={{ backgroundColor: draft.theme_dark ?? "#17191f" }}>{draft.hero_primary_label || draft.booking_label}</span>
+                      {draft.show_hero_secondary !== false ? <span className="os-site-button inline-flex rounded-full border border-black/15 px-6 py-3 text-xs font-semibold">{draft.hero_secondary_label || t("More")}</span> : null}
+                    </div>
+                  </div>
+                  {draft.hero_layout !== "text" && draft.hero_image_url ? (
+                    <div className={`relative min-h-80 overflow-hidden lg:min-h-full ${previewDevice === "mobile" ? "order-2" : draft.hero_image_placement === "left" ? "order-1" : "order-2"}`}>
+                      <img
+                        src={draft.hero_image_url}
+                        alt=""
+                        className={`absolute inset-0 h-full w-full ${draft.hero_image_fit === "contain" ? "object-contain" : "object-cover"} ${draft.hero_image_position === "top" ? "object-top" : draft.hero_image_position === "bottom" ? "object-bottom" : "object-center"}`}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </CanvasBlock>
+            <div className="flex flex-col">
+            {sectionOrder.map((section, index) => {
+              const visible = Boolean(draft[sectionVisibilityKey[section]]);
+              return (
+                <CanvasBlock
+                  key={section}
+                  anchorId={section}
+                  order={layoutOrder.indexOf(sectionLayoutId(section))}
+                  active={editingEnabled && !selectedCustomBlockId && selectedSection === section}
+                  muted={!visible}
+                  onClick={() => editingEnabled && chooseSection(section)}
+                >
+                  <div
+                    className={publicSystemSectionClass(
                       draft,
-                      selectedPremiumDefinition.id,
-                    ),
-                    disabled: !canConfigure || !editingEnabled,
-                    onChange: (visible: boolean) =>
-                      onReplaceDraft(
-                        premiumEditorAdapter.setSectionVisibility(
-                          draft,
-                          selectedPremiumDefinition.id,
-                          visible,
-                        ),
-                        premiumEditorAdapter.history.visibility(
-                          selectedPremiumDefinition.id,
-                        ),
-                      ),
-                  },
-                  ...premiumEditorAdapter.buildInspectorFields({
-                    content: draft,
-                    sectionId: selectedPremiumDefinition.id,
-                    disabled: !canConfigure || !editingEnabled,
-                    services: previewServices,
-                    portfolio: previewPortfolio,
-                    onChooseMedia: (target) =>
-                      openMediaPicker(target as ImageTarget),
-                    onChange: onReplaceDraft,
-                  }),
-                  {
-                    id: "premium-template-native-control",
-                    group: "content",
-                    type: "custom",
-                    customContent: getPremiumTemplateEditorControl({
-                      templateKey: premiumEditorAdapter.templateKey,
-                      sectionId: selectedPremiumDefinition.id,
-                      content: draft,
-                      disabled: !canConfigure || !editingEnabled,
-                      services: previewServices,
-                      portfolio: previewPortfolio,
-                      onChange: onReplaceDraft,
-                      onChooseMedia: (target) =>
-                        openMediaPicker(target as ImageTarget),
-                    }),
-                  },
-                ]
-              : [
-                  {
-                    id: "base-semantic-widget",
-                    group: "content",
-                    type: "custom",
-                    customContent: (
-                      <>
-                        {activePage ? (
-                          <>
-                            {selectedPagePart === "intro" ? (
-                              <>
-                                <CompactField
-                                  label={t("Navigation label")}
-                                  value={activePage.nav_label}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("nav_label", value)
-                                  }
-                                />
-                                {activePage.type === "custom" ? (
-                                  <CompactField
-                                    label={t("Page address")}
-                                    value={activePage.slug}
-                                    disabled={!canConfigure || !editingEnabled}
-                                    onChange={(value) =>
-                                      updatePage(
-                                        "slug",
-                                        value
-                                          .toLowerCase()
-                                          .replace(/[^a-z0-9-]+/g, "-")
-                                          .replace(/^-+|-+$/g, "")
-                                          .slice(0, 60),
-                                      )
-                                    }
-                                  />
-                                ) : null}
-                                <CompactField
-                                  label={t("Eyebrow")}
-                                  value={activePage.eyebrow}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("eyebrow", value)
-                                  }
-                                />
-                                <RichTextEditor
-                                  label={t("Main title")}
-                                  value={activePage.title}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  variant="heading"
-                                  onChange={(value) =>
-                                    updatePage("title", value)
-                                  }
-                                />
-                                <TypographyControls
-                                  title={t("Page title")}
-                                  description={
-                                    richTextPlainText(activePage.title) ||
-                                    t("Untitled")
-                                  }
-                                  value={activePage.title_typography}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("title_typography", value)
-                                  }
-                                />
-                                <RichTextEditor
-                                  label={t("Introduction")}
-                                  value={activePage.intro}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("intro", value)
-                                  }
-                                />
-                                <Toggle
-                                  label={t("Show page on site")}
-                                  checked={activePage.is_visible !== false}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("is_visible", value)
-                                  }
-                                />
-                                <Toggle
-                                  label={t("Show in navigation")}
-                                  checked={activePage.show_in_navigation}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("show_in_navigation", value)
-                                  }
-                                />
-                                {activePage.type === "custom" ? (
-                                  <button
-                                    type="button"
-                                    onClick={removeActivePage}
-                                    disabled={!canConfigure || !editingEnabled}
-                                    className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 disabled:opacity-40"
-                                  >
-                                    {t("Remove page")}
-                                  </button>
-                                ) : null}
-                              </>
-                            ) : null}
-                            {selectedPagePart === "gallery" ? (
-                              <div className="grid gap-3">
-                                <p className="text-xs leading-6 text-[#716d65]">
-                                  {t(
-                                    "Portfolio cards use the shared Portfolio module, so changes appear on the home page and this page together.",
-                                  )}
-                                </p>
-                                <Link
-                                  href="/admin/portfolio"
-                                  className="rounded-xl bg-[#321722] px-4 py-3 text-center text-xs font-semibold text-white"
-                                >
-                                  {t("Edit portfolio works")}
-                                </Link>
-                              </div>
-                            ) : null}
-                            {selectedPagePart === "blocks" &&
-                            selectedCustomBlock ? (
-                              <>
-                                <CustomBlockSettings
-                                  block={selectedCustomBlock}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  colorDisabled={!canConfigure}
-                                  t={t}
-                                  siteAccent={draft.theme_accent ?? "#9d3151"}
-                                  siteDark={draft.theme_dark ?? "#321722"}
-                                  siteSurface={draft.theme_surface ?? "#fff7f5"}
-                                  onChange={updateCustomBlock}
-                                  onChooseImage={(key, label) =>
-                                    openMediaPicker({
-                                      kind: "block",
-                                      blockId: selectedCustomBlock.id,
-                                      key,
-                                      label,
-                                    })
-                                  }
-                                  onChooseListImage={(index, label) =>
-                                    openMediaPicker({
-                                      kind: "block-list",
-                                      blockId: selectedCustomBlock.id,
-                                      key: "media_urls",
-                                      index,
-                                      label,
-                                    })
-                                  }
-                                  onChooseCardImage={(cardIndex, key, label) =>
-                                    openMediaPicker({
-                                      kind: "block-card",
-                                      blockId: selectedCustomBlock.id,
-                                      cardIndex,
-                                      key,
-                                      label,
-                                    })
-                                  }
-                                />
-                              </>
-                            ) : null}
-                            {selectedPagePart === "booking" ? (
-                              <>
-                                <Toggle
-                                  label={t("Show booking block")}
-                                  checked={activePage.show_booking_cta}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    updatePage("show_booking_cta", value)
-                                  }
-                                />
-                                <Link
-                                  href={`/book/${businessSlug}`}
-                                  target="_blank"
-                                  className="rounded-xl border border-black/10 px-4 py-3 text-center text-xs font-semibold"
-                                >
-                                  {t("Open booking calendar")}
-                                </Link>
-                                <Link
-                                  href="/admin/availability"
-                                  className="rounded-xl bg-[#321722] px-4 py-3 text-center text-xs font-semibold text-white"
-                                >
-                                  {t("Configure available time")}
-                                </Link>
-                              </>
-                            ) : null}
-                          </>
-                        ) : selectedCustomBlock ? (
-                          <>
-                            <CustomBlockSettings
-                              block={selectedCustomBlock}
-                              disabled={!canConfigure || !editingEnabled}
-                              colorDisabled={!canConfigure}
-                              t={t}
-                              siteAccent={draft.theme_accent ?? "#9d3151"}
-                              siteDark={draft.theme_dark ?? "#321722"}
-                              siteSurface={draft.theme_surface ?? "#fff7f5"}
-                              onChange={updateCustomBlock}
-                              onChooseImage={(key, label) =>
-                                openMediaPicker({
-                                  kind: "block",
-                                  blockId: selectedCustomBlock.id,
-                                  key,
-                                  label,
-                                })
-                              }
-                              onChooseListImage={(index, label) =>
-                                openMediaPicker({
-                                  kind: "block-list",
-                                  blockId: selectedCustomBlock.id,
-                                  key: "media_urls",
-                                  index,
-                                  label,
-                                })
-                              }
-                              onChooseCardImage={(cardIndex, key, label) =>
-                                openMediaPicker({
-                                  kind: "block-card",
-                                  blockId: selectedCustomBlock.id,
-                                  cardIndex,
-                                  key,
-                                  label,
-                                })
-                              }
-                            />
-                          </>
-                        ) : selectedSection === "hero" ? (
-                          <>
-                            <Toggle
-                              label={t("Show hero block")}
-                              checked={draft.show_hero !== false}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) => onUpdate("show_hero", value)}
-                            />
-                            <BlockColorsEditor
-                              colors={draft.section_colors?.hero}
-                              defaults={sectionColorDefaults}
-                              disabled={!canConfigure}
-                              t={t}
-                              onChange={updateSectionColors}
-                            />
-                            <Toggle
-                              label={t("Show announcement bar")}
-                              checked={draft.show_announcement !== false}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate("show_announcement", value)
-                              }
-                            />
-                            <CompactField
-                              label={t("Announcement text")}
-                              value={draft.announcement_text ?? ""}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate("announcement_text", value)
-                              }
-                            />
-                            <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">
-                              {t("Header settings")}
-                            </div>
-                            <Toggle
-                              label={t("Sticky header")}
-                              checked={draft.header_sticky === true}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate("header_sticky", value)
-                              }
-                            />
-                            <CompactSelect
-                              label={t("Logo size")}
-                              value={draft.header_logo_size ?? "medium"}
-                              disabled={!canConfigure || !editingEnabled}
-                              options={[
-                                { value: "small", label: t("Small") },
-                                { value: "medium", label: t("Medium") },
-                                { value: "large", label: t("Large") },
-                              ]}
-                              onChange={(value) =>
-                                onUpdate(
-                                  "header_logo_size",
-                                  value as "small" | "medium" | "large",
-                                )
-                              }
-                            />
-                            <CompactSelect
-                              label={t("Logo position")}
-                              value={draft.header_logo_position ?? "left"}
-                              disabled={!canConfigure || !editingEnabled}
-                              options={[
-                                { value: "left", label: t("Left") },
-                                { value: "center", label: t("Center") },
-                              ]}
-                              onChange={(value) =>
-                                onUpdate(
-                                  "header_logo_position",
-                                  value as "left" | "center",
-                                )
-                              }
-                            />
-                            <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">
-                              {t("Hero settings")}
-                            </div>
-                            <CompactSelect
-                              label={t("Hero layout")}
-                              value={draft.hero_layout ?? "split"}
-                              disabled={!canConfigure || !editingEnabled}
-                              options={[
-                                {
-                                  value: "split",
-                                  label: t("Image beside text"),
-                                },
-                                {
-                                  value: "cover",
-                                  label: t("Image as background"),
-                                },
-                                { value: "text", label: t("Text only") },
-                              ]}
-                              onChange={(value) =>
-                                onUpdate(
-                                  "hero_layout",
-                                  value as "split" | "cover" | "text",
-                                )
-                              }
-                            />
-                            <CompactSelect
-                              label={t("Image fit")}
-                              value={draft.hero_image_fit ?? "cover"}
-                              disabled={
-                                !canConfigure ||
-                                !editingEnabled ||
-                                draft.hero_layout === "text"
-                              }
-                              options={[
-                                { value: "cover", label: t("Fill and crop") },
-                                {
-                                  value: "contain",
-                                  label: t("Show whole image"),
-                                },
-                              ]}
-                              onChange={(value) =>
-                                onUpdate(
-                                  "hero_image_fit",
-                                  value as "cover" | "contain",
-                                )
-                              }
-                            />
-                            <CompactSelect
-                              label={t("Image position")}
-                              value={
-                                draft.hero_image_placement === "left"
-                                  ? "left"
-                                  : "right"
-                              }
-                              disabled={
-                                !canConfigure ||
-                                !editingEnabled ||
-                                draft.hero_layout !== "split"
-                              }
-                              options={[
-                                { value: "right", label: t("Right") },
-                                { value: "left", label: t("Left") },
-                              ]}
-                              onChange={(value) =>
-                                onUpdate(
-                                  "hero_image_placement",
-                                  value as "left" | "right",
-                                )
-                              }
-                            />
-                            <CompactField
-                              label={t("Eyebrow")}
-                              value={draft.hero_eyebrow}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate("hero_eyebrow", value)
-                              }
-                            />
-                            <RichTextEditor
-                              label={t("Main title")}
-                              value={draft.hero_title}
-                              disabled={!canConfigure || !editingEnabled}
-                              variant="heading"
-                              onChange={(value) =>
-                                onUpdate("hero_title", value)
-                              }
-                            />
-                            <SectionHeadingTypographyEditor
-                              settings={selectedSystemSectionSettings}
-                              heading={richTextPlainText(draft.hero_title)}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={updateSystemSectionSettings}
-                            />
-                            <RichTextEditor
-                              label={t("Introduction")}
-                              value={draft.hero_text}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) => onUpdate("hero_text", value)}
-                            />
-                            <SiteEditorActionField
-                              label={t("Primary button")}
-                              text={
-                                draft.hero_primary_label ?? draft.booking_label
-                              }
-                              href={draft.hero_primary_url ?? ""}
-                              disabled={!canConfigure || !editingEnabled}
-                              destinations={[
-                                { value: "#contact", label: t("Contact") },
-                                { value: "#services", label: t("Services") },
-                                { value: "#portfolio", label: t("Portfolio") },
-                                { value: "#about", label: t("About") },
-                              ]}
-                              onTextChange={(value) =>
-                                onUpdate("hero_primary_label", value)
-                              }
-                              onHrefChange={(value) =>
-                                onUpdate("hero_primary_url", value)
-                              }
-                            />
-                            <Toggle
-                              label={t("Show secondary button")}
-                              checked={draft.show_hero_secondary !== false}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate("show_hero_secondary", value)
-                              }
-                            />
-                            <SiteEditorActionField
-                              label={t("Secondary button")}
-                              text={draft.hero_secondary_label ?? ""}
-                              href={draft.hero_secondary_url ?? ""}
-                              disabled={
-                                !canConfigure ||
-                                !editingEnabled ||
-                                draft.show_hero_secondary === false
-                              }
-                              destinations={[
-                                { value: "#portfolio", label: t("Portfolio") },
-                                { value: "#services", label: t("Services") },
-                                { value: "#about", label: t("About") },
-                                { value: "#contact", label: t("Contact") },
-                              ]}
-                              onTextChange={(value) =>
-                                onUpdate("hero_secondary_label", value)
-                              }
-                              onHrefChange={(value) =>
-                                onUpdate("hero_secondary_url", value)
-                              }
-                            />
-                            <ImageEditor
-                              label={t("Hero image")}
-                              value={draft.hero_image_url ?? ""}
-                              disabled={!canConfigure || !editingEnabled}
-                              t={t}
-                              onChange={(value) =>
-                                onUpdate("hero_image_url", value)
-                              }
-                              onChoose={() =>
-                                openMediaPicker({
-                                  kind: "content",
-                                  key: "hero_image_url",
-                                  label: t("Hero image"),
-                                })
-                              }
-                            />
-                            <SystemSectionSettingsEditor
-                              settings={selectedSystemSectionSettings}
-                              disabled={!canConfigure || !editingEnabled}
-                              allowBackground
-                              t={t}
-                              onChange={updateSystemSectionSettings}
-                              onChooseImage={() =>
-                                openMediaPicker({
-                                  kind: "section-background",
-                                  section: "hero",
-                                  label: `${t("Hero settings")} · ${t("Image as background")}`,
-                                })
-                              }
-                            />
-                            <BlockColorsEditor
-                              colors={draft.section_colors?.hero}
-                              defaults={sectionColorDefaults}
-                              disabled={!canConfigure || !editingEnabled}
-                              t={t}
-                              onChange={updateSectionColors}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <Toggle
-                              label={t("Show block")}
-                              checked={Boolean(draft[visibilityKey!])}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate(visibilityKey!, value)
-                              }
-                            />
-                            <SystemSectionSettingsEditor
-                              settings={selectedSystemSectionSettings}
-                              disabled={!canConfigure || !editingEnabled}
-                              allowBackground
-                              t={t}
-                              onChange={updateSystemSectionSettings}
-                              onChooseImage={() =>
-                                openMediaPicker({
-                                  kind: "section-background",
-                                  section: selectedSection,
-                                  label: `${t(sectionLabelKey[selectedSection])} · ${t("Image as background")}`,
-                                })
-                              }
-                            />
-                            <BlockColorsEditor
-                              colors={draft.section_colors?.[selectedSection]}
-                              defaults={sectionColorDefaults}
-                              disabled={!canConfigure}
-                              t={t}
-                              onChange={updateSectionColors}
-                            />
-                            <RichTextEditor
-                              label={t("Heading")}
-                              value={
-                                (draft[
-                                  `${selectedSection}_title` as keyof PublicSiteContent
-                                ] as string | undefined) ?? ""
-                              }
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={(value) =>
-                                onUpdate(
-                                  `${selectedSection}_title` as keyof PublicSiteContent,
-                                  value,
-                                )
-                              }
-                              variant="heading"
-                            />
-                            <SectionHeadingTypographyEditor
-                              settings={selectedSystemSectionSettings}
-                              heading={richTextPlainText(
-                                (draft[
-                                  `${selectedSection}_title` as keyof PublicSiteContent
-                                ] as string | undefined) ??
-                                  t(sectionLabelKey[selectedSection]),
-                              )}
-                              disabled={!canConfigure || !editingEnabled}
-                              onChange={updateSystemSectionSettings}
-                            />
-                            {selectedSection === "about" ? (
-                              <>
-                                <RichTextEditor
-                                  label={t("Text")}
-                                  value={draft.about_text}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("about_text", value)
-                                  }
-                                />
-                                <ImageEditor
-                                  label={`${t("About")} · ${t("Image")}`}
-                                  value={draft.about_image_url ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  t={t}
-                                  onChange={(value) =>
-                                    onUpdate("about_image_url", value)
-                                  }
-                                  onChoose={() =>
-                                    openMediaPicker({
-                                      kind: "content",
-                                      key: "about_image_url",
-                                      label: `${t("About")} · ${t("Image")}`,
-                                    })
-                                  }
-                                />
-                                <CompactField
-                                  label={t("Feature cards")}
-                                  value={draft.about_facts ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("about_facts", value)
-                                  }
-                                  multiline
-                                />
-                                <p className="-mt-2 text-[11px] leading-5 text-[#817c72]">
-                                  {"5+ · лет опыта / 5+ · years of experience"}
-                                </p>
-                                <SiteEditorActionField
-                                  label={t("Button")}
-                                  text={draft.about_button_label ?? ""}
-                                  href={draft.about_button_url ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  destinations={[
-                                    { value: "#contact", label: t("Contact") },
-                                    {
-                                      value: "#services",
-                                      label: t("Services"),
-                                    },
-                                    {
-                                      value: "#portfolio",
-                                      label: t("Portfolio"),
-                                    },
-                                  ]}
-                                  onTextChange={(value) =>
-                                    onUpdate("about_button_label", value)
-                                  }
-                                  onHrefChange={(value) =>
-                                    onUpdate("about_button_url", value)
-                                  }
-                                />
-                              </>
-                            ) : null}
-                            {selectedSection === "services" ? (
-                              <ServicesSectionEditor
-                                services={previewServices}
-                                draft={draft}
-                                disabled={!canConfigure || !editingEnabled}
-                                t={t}
-                                onUpdate={onUpdate}
-                                onChooseImage={(service) =>
-                                  openMediaPicker({
-                                    kind: "service-card",
-                                    slug: service.slug,
-                                    label: `${t("Service image")}: ${service.title}`,
-                                  })
-                                }
-                              />
-                            ) : null}
-                            {selectedSection === "portfolio" ? (
-                              <PortfolioSectionEditor
-                                projects={previewPortfolio}
-                                draft={draft}
-                                disabled={!canConfigure || !editingEnabled}
-                                t={t}
-                                onUpdate={onUpdate}
-                              />
-                            ) : null}
-                            {selectedSection === "team" ? (
-                              <TeamEditor
-                                items={draft.team_items ?? ""}
-                                images={draft.team_image_urls ?? []}
-                                disabled={!canConfigure || !editingEnabled}
-                                t={t}
-                                onChange={onUpdateTeam}
-                                onChooseImage={(index) =>
-                                  openMediaPicker({
-                                    kind: "list",
-                                    key: "team_image_urls",
-                                    index,
-                                    label: `${t("Team photo")} ${index + 1}`,
-                                  })
-                                }
-                              />
-                            ) : null}
-                            {selectedSection === "reviews" ? (
-                              <ReviewsEditor
-                                reviews={publicSiteReviews(draft)}
-                                disabled={!canConfigure || !editingEnabled}
-                                t={t}
-                                onChange={(reviews) =>
-                                  onUpdate("reviews", reviews)
-                                }
-                              />
-                            ) : null}
-                            {selectedSection === "membership" ? (
-                              <div className="grid gap-3">
-                                <RichTextEditor
-                                  label="Вводный текст клуба"
-                                  value={draft.membership_text ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("membership_text", value)
-                                  }
-                                />
-                                <MembershipCardsEditor
-                                  items={draft.membership_items ?? ""}
-                                  images={
-                                    draft.membership_image_urls ?? [
-                                      draft.membership_image_url || "",
-                                    ]
-                                  }
-                                  disabled={!canConfigure || !editingEnabled}
-                                  t={t}
-                                  onChange={onUpdateMembership}
-                                  onChooseImage={(index) =>
-                                    openMediaPicker({
-                                      kind: "list",
-                                      key: "membership_image_urls",
-                                      index,
-                                      label: `Изображение уровня клуба ${index + 1}`,
-                                    })
-                                  }
-                                />
-                              </div>
-                            ) : null}
-                            {selectedSection === "booking" ? (
-                              <RichTextEditor
-                                label={t("Text")}
-                                value={draft.booking_text ?? ""}
-                                disabled={!canConfigure || !editingEnabled}
-                                onChange={(value) =>
-                                  onUpdate("booking_text", value)
-                                }
-                              />
-                            ) : null}
-                            {selectedSection === "safety" ? (
-                              <SafetyCardsEditor
-                                items={draft.safety_items ?? ""}
-                                disabled={!canConfigure || !editingEnabled}
-                                t={t}
-                                onChange={(value) =>
-                                  onUpdate("safety_items", value)
-                                }
-                              />
-                            ) : null}
-                            {selectedSection === "gift" ? (
-                              <div className="grid gap-3">
-                                <RichTextEditor
-                                  label={t("Text")}
-                                  value={draft.gift_text ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("gift_text", value)
-                                  }
-                                />
-                                <GiftCertificatesEditor
-                                  items={draft.gift_items ?? ""}
-                                  images={
-                                    draft.gift_image_urls ?? [
-                                      draft.gift_image_url || "",
-                                    ]
-                                  }
-                                  disabled={!canConfigure || !editingEnabled}
-                                  t={t}
-                                  onChange={onUpdateGift}
-                                  onChooseImage={(index) =>
-                                    openMediaPicker({
-                                      kind: "list",
-                                      key: "gift_image_urls",
-                                      index,
-                                      label: `Изображение сертификата ${index + 1}`,
-                                    })
-                                  }
-                                />
-                              </div>
-                            ) : null}
-                            {selectedSection === "faq" ? (
-                              <div className="grid gap-3">
-                                <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
-                                  Каждый вопрос хранится как отдельная карточка.
-                                  Карточки можно добавлять, удалять и
-                                  переставлять. В предпросмотре нажмите на
-                                  вопрос, чтобы увидеть ответ.
-                                </div>
-                                <DelimitedItemsEditor
-                                  label={t("Questions and answers")}
-                                  value={draft.faq_items ?? ""}
-                                  delimiter="|"
-                                  fields={[t("Question"), t("Answer")]}
-                                  defaults={[
-                                    t("New question"),
-                                    t("Add an answer"),
-                                  ]}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  t={t}
-                                  onChange={(value) =>
-                                    onUpdate("faq_items", value)
-                                  }
-                                />
-                              </div>
-                            ) : null}
-                            {selectedSection === "contact" ? (
-                              <div className="grid gap-3">
-                                <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
-                                  Контакты сохраняются в черновике этой языковой
-                                  версии. На публичном сайте они изменятся
-                                  только после публикации.
-                                </div>
-                                <CompactField
-                                  label="Email для посетителей"
-                                  value={draft.contact_email ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_email", value)
-                                  }
-                                />
-                                <CompactField
-                                  label="Телефон для посетителей"
-                                  value={draft.contact_phone ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_phone", value)
-                                  }
-                                />
-                                <CompactField
-                                  label={t("Opening hours")}
-                                  value={draft.contact_hours ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_hours", value)
-                                  }
-                                />
-                                <CompactField
-                                  label={t("Address shown on site")}
-                                  value={draft.contact_address ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_address", value)
-                                  }
-                                />
-                                <CompactField
-                                  label={t("Map search address")}
-                                  value={draft.map_query ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("map_query", value)
-                                  }
-                                />
-                                <RichTextEditor
-                                  label="Подсказка посетителю"
-                                  value={draft.contact_note ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_note", value)
-                                  }
-                                />
-                                <CompactField
-                                  label="Текст кнопки маршрута"
-                                  value={draft.contact_route_label ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("contact_route_label", value)
-                                  }
-                                />
-                                <RichTextEditor
-                                  label="Короткий текст в подвале"
-                                  value={draft.footer_note ?? ""}
-                                  disabled={!canConfigure || !editingEnabled}
-                                  onChange={(value) =>
-                                    onUpdate("footer_note", value)
-                                  }
-                                />
-                                <p className="text-[11px] leading-5 text-[#716d65]">
-                                  Карта использует отдельный поисковый адрес.
-                                  Социальные сети редактируются в «Настройках
-                                  сайта» и выводятся здесь и в подвале.
-                                </p>
-                              </div>
-                            ) : null}
-                          </>
-                        )}
-                        <div className="mt-8 rounded-2xl bg-[#f6f4ef] p-4 text-xs leading-6 text-[#716d65]">
-                          {editingEnabled
-                            ? t(
-                                "Select any block in the page preview to edit it here.",
-                              )
-                            : t("Turn editing on to change this page.")}
-                        </div>
-                      </>
-                    ),
-                  },
-                ],
-          actions: inspectorActions,
-        }}
-      />
+                      section,
+                      section === "services"
+                        ? "py-12 text-white sm:py-16"
+                        : index % 2
+                          ? "bg-white/70 py-12 sm:py-16"
+                          : "py-12 sm:py-16",
+                      false,
+                    )}
+                    style={publicSystemSectionStyle(draft, section, {
+                      ...(section === "services"
+                        ? { backgroundColor: draft.theme_dark ?? "#191b20" }
+                        : {}),
+                    })}
+                  >
+                    <div className={publicSystemSectionContentClass(draft, section)}>
+                      {!publicSystemSectionVisibleOnDevice(draft, section, previewDevice) ? (
+                        <p className="mb-4 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[9px] font-semibold text-amber-800">
+                          {t("Hidden on selected device")}
+                        </p>
+                      ) : null}
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: draft.theme_accent ?? "#9a742e" }}>
+                        {(draft[`${section}_label` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])}
+                      </p>
+                      <h3 data-editor-heading={section} style={publicSystemSectionHeadingStyle(draft, section)} className="mt-4 text-3xl font-semibold tracking-[-0.045em]">
+                        <PublicRichHeading value={(draft[`${section}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[section])} />
+                      </h3>
+                      <CanvasSectionPreview
+                        section={section}
+                        draft={draft}
+                        services={previewServices}
+                        portfolio={previewPortfolio}
+                      />
+                    </div>
+                  </div>
+                </CanvasBlock>
+              );
+            })}
+            {(draft.custom_blocks ?? []).map((block) => (
+              <CanvasBlock
+                key={block.id}
+                anchorId={`custom:${block.id}`}
+                order={layoutOrder.indexOf(customBlockLayoutId(block.id))}
+                active={editingEnabled && selectedCustomBlockId === block.id}
+                muted={block.is_visible === false}
+                onClick={() =>
+                  editingEnabled && setSelectedCustomBlockId(block.id)
+                }
+              >
+                <CustomBlockPreview block={block} />
+              </CanvasBlock>
+            ))}
+            </div>
+            <footer
+              className="px-8 py-8 text-white sm:px-12"
+              style={{ backgroundColor: draft.theme_dark ?? "#191b20" }}
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={draft.brand_name || businessName}
+                      className="max-h-10 max-w-[170px] object-contain object-left"
+                    />
+                  ) : (
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em]">
+                      {draft.brand_name || businessName}
+                    </p>
+                  )}
+                  {draft.footer_note ? (
+                    <PublicRichText value={draft.footer_note} className="mt-3 max-w-md text-[9px] leading-5 text-white/55" />
+                  ) : null}
+                </div>
+                <div className="text-[9px] leading-5 text-white/65 sm:text-right">
+                  {draft.contact_email ? <p>{draft.contact_email}</p> : null}
+                  {draft.contact_phone ? <p>{draft.contact_phone}</p> : null}
+                  {draft.show_social_icons && draft.social_links?.length ? (
+                    <p>{t("Social networks · {count}", { count: draft.social_links.length })}</p>
+                  ) : null}
+                </div>
+              </div>
+              <p className="mt-5 border-t border-white/15 pt-4 text-[8px] text-white/35">
+                © {new Date().getFullYear()} {draft.brand_name || businessName} · OneStudio OS
+              </p>
+            </footer>
+            </>
+            )}
+          </div>}
+        </>}
+
+      inspectorModel={{
+        heading: t("Block settings"),
+        title: selectedCustomBlock ? resolvePublicSiteBlockDisplayName(selectedCustomBlock, t) : activePage ? activePage.nav_label : isPremiumNativeSelection ? selectedPremiumDefinition?.label ?? t("Template") : selectedSection === "hero" ? t("Hero") : t(sectionLabelKey[selectedSection]),
+        expanded: settingsOpen,
+        onExpandedChange: setSettingsOpen,
+        onCollapse: () => setSettingsOpen(false),
+        fields: isPremiumNativeSelection && premiumEditorAdapter && selectedPremiumDefinition ? [
+          {
+            id: "native-section-visibility",
+            group: "content",
+            type: "toggle",
+            label: t("Show block"),
+            checked: premiumEditorAdapter.isSectionVisible(draft, selectedPremiumDefinition.id),
+            disabled: !canConfigure || !editingEnabled,
+            onChange: (visible: boolean) =>
+              onReplaceDraft(
+                premiumEditorAdapter.setSectionVisibility(draft, selectedPremiumDefinition.id, visible),
+                premiumEditorAdapter.history.visibility(selectedPremiumDefinition.id),
+              ),
+          },
+          ...premiumEditorAdapter.buildInspectorFields({
+            content: draft,
+            sectionId: selectedPremiumDefinition.id,
+            disabled: !canConfigure || !editingEnabled,
+            services: previewServices,
+            portfolio: previewPortfolio,
+            onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
+            onChange: onReplaceDraft,
+          }),
+          {
+            id: "premium-template-native-control",
+            group: "content",
+            type: "custom",
+            customContent: getPremiumTemplateEditorControl({
+              templateKey: premiumEditorAdapter.templateKey,
+              sectionId: selectedPremiumDefinition.id,
+              content: draft,
+              disabled: !canConfigure || !editingEnabled,
+              services: previewServices,
+              portfolio: previewPortfolio,
+              onChange: onReplaceDraft,
+              onChooseMedia: (target) => openMediaPicker(target as ImageTarget),
+            }),
+          },
+        ] : [{ id: "base-semantic-widget", group: "content", type: "custom", customContent: <>
+            {activePage ? (
+              <>
+                {selectedPagePart === "intro" ? (
+                  <>
+                    <CompactField label={t("Navigation label")} value={activePage.nav_label} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("nav_label", value)} />
+                    {activePage.type === "custom" ? (
+                      <CompactField
+                        label={t("Page address")}
+                        value={activePage.slug}
+                        disabled={!canConfigure || !editingEnabled}
+                        onChange={(value) =>
+                          updatePage(
+                            "slug",
+                            value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]+/g, "-")
+                              .replace(/^-+|-+$/g, "")
+                              .slice(0, 60),
+                          )
+                        }
+                      />
+                    ) : null}
+                    <CompactField label={t("Eyebrow")} value={activePage.eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("eyebrow", value)} />
+                    <RichTextEditor label={t("Main title")} value={activePage.title} disabled={!canConfigure || !editingEnabled} variant="heading" onChange={(value) => updatePage("title", value)} />
+                    <TypographyControls title={t("Page title")} description={richTextPlainText(activePage.title) || t("Untitled")} value={activePage.title_typography} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("title_typography", value)} />
+                    <RichTextEditor label={t("Introduction")} value={activePage.intro} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("intro", value)} />
+                    <Toggle
+                      label={t("Show page on site")}
+                      checked={activePage.is_visible !== false}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => updatePage("is_visible", value)}
+                    />
+                    <Toggle label={t("Show in navigation")} checked={activePage.show_in_navigation} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("show_in_navigation", value)} />
+                    {activePage.type === "custom" ? (
+                      <button
+                        type="button"
+                        onClick={removeActivePage}
+                        disabled={!canConfigure || !editingEnabled}
+                        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 disabled:opacity-40"
+                      >
+                        {t("Remove page")}
+                      </button>
+                    ) : null}
+                  </>
+                ) : null}
+                {selectedPagePart === "gallery" ? (
+                  <div className="grid gap-3">
+                    <p className="text-xs leading-6 text-[#716d65]">
+                      {t("Portfolio cards use the shared Portfolio module, so changes appear on the home page and this page together.")}
+                    </p>
+                    <Link href="/admin/portfolio" className="rounded-xl bg-[#321722] px-4 py-3 text-center text-xs font-semibold text-white">
+                      {t("Edit portfolio works")}
+                    </Link>
+                  </div>
+                ) : null}
+                {selectedPagePart === "blocks" && selectedCustomBlock ? (
+                  <>
+                    <CustomBlockSettings
+                      block={selectedCustomBlock}
+                      disabled={!canConfigure || !editingEnabled}
+                      colorDisabled={!canConfigure}
+                      t={t}
+                      siteAccent={draft.theme_accent ?? "#9d3151"}
+                      siteDark={draft.theme_dark ?? "#321722"}
+                      siteSurface={draft.theme_surface ?? "#fff7f5"}
+                      onChange={updateCustomBlock}
+                      onChooseImage={(key, label) =>
+                        openMediaPicker({
+                          kind: "block",
+                          blockId: selectedCustomBlock.id,
+                          key,
+                          label,
+                        })
+                      }
+                      onChooseListImage={(index, label) =>
+                        openMediaPicker({
+                          kind: "block-list",
+                          blockId: selectedCustomBlock.id,
+                          key: "media_urls",
+                          index,
+                          label,
+                        })
+                      }
+                      onChooseCardImage={(cardIndex, key, label) =>
+                        openMediaPicker({
+                          kind: "block-card",
+                          blockId: selectedCustomBlock.id,
+                          cardIndex,
+                          key,
+                          label,
+                        })
+                      }
+                    />
+                  </>
+                ) : null}
+                {selectedPagePart === "booking" ? (
+                  <>
+                    <Toggle label={t("Show booking block")} checked={activePage.show_booking_cta} disabled={!canConfigure || !editingEnabled} onChange={(value) => updatePage("show_booking_cta", value)} />
+                    <Link href={`/book/${businessSlug}`} target="_blank" className="rounded-xl border border-black/10 px-4 py-3 text-center text-xs font-semibold">
+                      {t("Open booking calendar")}
+                    </Link>
+                    <Link href="/admin/availability" className="rounded-xl bg-[#321722] px-4 py-3 text-center text-xs font-semibold text-white">
+                      {t("Configure available time")}
+                    </Link>
+                  </>
+                ) : null}
+              </>
+            ) : selectedCustomBlock ? (
+              <>
+                <CustomBlockSettings
+                  block={selectedCustomBlock}
+                  disabled={!canConfigure || !editingEnabled}
+                  colorDisabled={!canConfigure}
+                  t={t}
+                  siteAccent={draft.theme_accent ?? "#9d3151"}
+                  siteDark={draft.theme_dark ?? "#321722"}
+                  siteSurface={draft.theme_surface ?? "#fff7f5"}
+                  onChange={updateCustomBlock}
+                  onChooseImage={(key, label) =>
+                    openMediaPicker({
+                      kind: "block",
+                      blockId: selectedCustomBlock.id,
+                      key,
+                      label,
+                    })
+                  }
+                  onChooseListImage={(index, label) =>
+                    openMediaPicker({
+                      kind: "block-list",
+                      blockId: selectedCustomBlock.id,
+                      key: "media_urls",
+                      index,
+                      label,
+                    })
+                  }
+                  onChooseCardImage={(cardIndex, key, label) =>
+                    openMediaPicker({
+                      kind: "block-card",
+                      blockId: selectedCustomBlock.id,
+                      cardIndex,
+                      key,
+                      label,
+                    })
+                  }
+                />
+              </>
+            ) : selectedSection === "hero" ? (
+              <>
+                <Toggle
+                  label={t("Show hero block")}
+                  checked={draft.show_hero !== false}
+                  disabled={!canConfigure || !editingEnabled}
+                  onChange={(value) => onUpdate("show_hero", value)}
+                />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.hero}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure}
+                  t={t}
+                  onChange={updateSectionColors}
+                />
+                <Toggle label={t("Show announcement bar")} checked={draft.show_announcement !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_announcement", value)} />
+                <CompactField label={t("Announcement text")} value={draft.announcement_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("announcement_text", value)} />
+                <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">{t("Header settings")}</div>
+                <Toggle label={t("Sticky header")} checked={draft.header_sticky === true} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("header_sticky", value)} />
+                <CompactSelect
+                  label={t("Logo size")}
+                  value={draft.header_logo_size ?? "medium"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "small", label: t("Small") },
+                    { value: "medium", label: t("Medium") },
+                    { value: "large", label: t("Large") },
+                  ]}
+                  onChange={(value) => onUpdate("header_logo_size", value as "small" | "medium" | "large")}
+                />
+                <CompactSelect
+                  label={t("Logo position")}
+                  value={draft.header_logo_position ?? "left"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "left", label: t("Left") },
+                    { value: "center", label: t("Center") },
+                  ]}
+                  onChange={(value) => onUpdate("header_logo_position", value as "left" | "center")}
+                />
+                <div className="mt-2 border-t border-black/8 pt-4 text-xs font-semibold">{t("Hero settings")}</div>
+                <CompactSelect
+                  label={t("Hero layout")}
+                  value={draft.hero_layout ?? "split"}
+                  disabled={!canConfigure || !editingEnabled}
+                  options={[
+                    { value: "split", label: t("Image beside text") },
+                    { value: "cover", label: t("Image as background") },
+                    { value: "text", label: t("Text only") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_layout", value as "split" | "cover" | "text")}
+                />
+                <CompactSelect
+                  label={t("Image fit")}
+                  value={draft.hero_image_fit ?? "cover"}
+                  disabled={!canConfigure || !editingEnabled || draft.hero_layout === "text"}
+                  options={[
+                    { value: "cover", label: t("Fill and crop") },
+                    { value: "contain", label: t("Show whole image") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_image_fit", value as "cover" | "contain")}
+                />
+                <CompactSelect
+                  label={t("Image position")}
+                  value={draft.hero_image_placement === "left" ? "left" : "right"}
+                  disabled={!canConfigure || !editingEnabled || draft.hero_layout !== "split"}
+                  options={[
+                    { value: "right", label: t("Right") },
+                    { value: "left", label: t("Left") },
+                  ]}
+                  onChange={(value) => onUpdate("hero_image_placement", value as "left" | "right")}
+                />
+                <CompactField label={t("Eyebrow")} value={draft.hero_eyebrow} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_eyebrow", value)} />
+                <RichTextEditor label={t("Main title")} value={draft.hero_title} disabled={!canConfigure || !editingEnabled} variant="heading" onChange={(value) => onUpdate("hero_title", value)} />
+                <SectionHeadingTypographyEditor
+                  settings={selectedSystemSectionSettings}
+                  heading={richTextPlainText(draft.hero_title)}
+                  disabled={!canConfigure || !editingEnabled}
+                  onChange={updateSystemSectionSettings}
+                />
+                <RichTextEditor label={t("Introduction")} value={draft.hero_text} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("hero_text", value)} />
+                <SiteEditorActionField
+                  label={t("Primary button")}
+                  text={draft.hero_primary_label ?? draft.booking_label}
+                  href={draft.hero_primary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled}
+                  destinations={[
+                    { value: "#contact", label: t("Contact") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#about", label: t("About") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_primary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_primary_url", value)}
+                />
+                <Toggle label={t("Show secondary button")} checked={draft.show_hero_secondary !== false} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("show_hero_secondary", value)} />
+                <SiteEditorActionField
+                  label={t("Secondary button")}
+                  text={draft.hero_secondary_label ?? ""}
+                  href={draft.hero_secondary_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled || draft.show_hero_secondary === false}
+                  destinations={[
+                    { value: "#portfolio", label: t("Portfolio") },
+                    { value: "#services", label: t("Services") },
+                    { value: "#about", label: t("About") },
+                    { value: "#contact", label: t("Contact") },
+                  ]}
+                  onTextChange={(value) => onUpdate("hero_secondary_label", value)}
+                  onHrefChange={(value) => onUpdate("hero_secondary_url", value)}
+                />
+                <ImageEditor
+                  label={t("Hero image")}
+                  value={draft.hero_image_url ?? ""}
+                  disabled={!canConfigure || !editingEnabled}
+                  t={t}
+                  onChange={(value) => onUpdate("hero_image_url", value)}
+                  onChoose={() =>
+                    openMediaPicker({
+                      kind: "content",
+                      key: "hero_image_url",
+                      label: t("Hero image"),
+                    })
+                  }
+                />
+                <SystemSectionSettingsEditor
+                  settings={selectedSystemSectionSettings}
+                  disabled={!canConfigure || !editingEnabled}
+                  allowBackground
+                  t={t}
+                  onChange={updateSystemSectionSettings}
+                  onChooseImage={() =>
+                    openMediaPicker({
+                      kind: "section-background",
+                      section: "hero",
+                      label: `${t("Hero settings")} · ${t("Image as background")}`,
+                    })
+                  }
+                />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.hero}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure || !editingEnabled}
+                  t={t}
+                  onChange={updateSectionColors}
+                />
+              </>
+            ) : (
+              <>
+                <Toggle label={t("Show block")} checked={Boolean(draft[visibilityKey!])} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate(visibilityKey!, value)} />
+                <SystemSectionSettingsEditor
+                  settings={selectedSystemSectionSettings}
+                  disabled={!canConfigure || !editingEnabled}
+                  allowBackground
+                  t={t}
+                  onChange={updateSystemSectionSettings}
+                  onChooseImage={() =>
+                    openMediaPicker({
+                      kind: "section-background",
+                      section: selectedSection,
+                      label: `${t(sectionLabelKey[selectedSection])} · ${t("Image as background")}`,
+                    })
+                  }
+                />
+                <BlockColorsEditor
+                  colors={draft.section_colors?.[selectedSection]}
+                  defaults={sectionColorDefaults}
+                  disabled={!canConfigure}
+                  t={t}
+                  onChange={updateSectionColors}
+                />
+                <RichTextEditor
+                  label={t("Heading")}
+                  value={(draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? ""}
+                  disabled={!canConfigure || !editingEnabled}
+                  onChange={(value) => onUpdate(`${selectedSection}_title` as keyof PublicSiteContent, value)}
+                  variant="heading"
+                />
+                <SectionHeadingTypographyEditor
+                  settings={selectedSystemSectionSettings}
+                  heading={richTextPlainText((draft[`${selectedSection}_title` as keyof PublicSiteContent] as string | undefined) ?? t(sectionLabelKey[selectedSection]))}
+                  disabled={!canConfigure || !editingEnabled}
+                  onChange={updateSystemSectionSettings}
+                />
+                {selectedSection === "about" ? (
+                  <>
+                    <RichTextEditor
+                      label={t("Text")}
+                      value={draft.about_text}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_text", value)}
+                    />
+                    <ImageEditor
+                      label={`${t("About")} · ${t("Image")}`}
+                      value={draft.about_image_url ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={(value) => onUpdate("about_image_url", value)}
+                      onChoose={() =>
+                        openMediaPicker({
+                          kind: "content",
+                          key: "about_image_url",
+                          label: `${t("About")} · ${t("Image")}`,
+                        })
+                      }
+                    />
+                    <CompactField
+                      label={t("Feature cards")}
+                      value={draft.about_facts ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("about_facts", value)}
+                      multiline
+                    />
+                    <p className="-mt-2 text-[11px] leading-5 text-[#817c72]">
+                      {"5+ · лет опыта / 5+ · years of experience"}
+                    </p>
+                    <SiteEditorActionField
+                      label={t("Button")}
+                      text={draft.about_button_label ?? ""}
+                      href={draft.about_button_url ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      destinations={[
+                        { value: "#contact", label: t("Contact") },
+                        { value: "#services", label: t("Services") },
+                        { value: "#portfolio", label: t("Portfolio") },
+                      ]}
+                      onTextChange={(value) => onUpdate("about_button_label", value)}
+                      onHrefChange={(value) => onUpdate("about_button_url", value)}
+                    />
+                  </>
+                ) : null}
+                {selectedSection === "services" ? (
+                  <ServicesSectionEditor
+                    services={previewServices}
+                    draft={draft}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onUpdate={onUpdate}
+                    onChooseImage={(service) =>
+                      openMediaPicker({
+                        kind: "service-card",
+                        slug: service.slug,
+                        label: `${t("Service image")}: ${service.title}`,
+                      })
+                    }
+                  />
+                ) : null}
+                {selectedSection === "portfolio" ? (
+                  <PortfolioSectionEditor
+                    projects={previewPortfolio}
+                    draft={draft}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onUpdate={onUpdate}
+                  />
+                ) : null}
+                {selectedSection === "team" ? (
+                  <TeamEditor
+                    items={draft.team_items ?? ""}
+                    images={draft.team_image_urls ?? []}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onChange={onUpdateTeam}
+                    onChooseImage={(index) =>
+                      openMediaPicker({
+                        kind: "list",
+                        key: "team_image_urls",
+                        index,
+                        label: `${t("Team photo")} ${index + 1}`,
+                      })
+                    }
+                  />
+                ) : null}
+                {selectedSection === "reviews" ? (
+                  <ReviewsEditor
+                    reviews={publicSiteReviews(draft)}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onChange={(reviews) => onUpdate("reviews", reviews)}
+                  />
+                ) : null}
+                {selectedSection === "membership" ? (
+                  <div className="grid gap-3">
+                    <RichTextEditor
+                      label="Вводный текст клуба"
+                      value={draft.membership_text ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("membership_text", value)}
+                    />
+                    <MembershipCardsEditor
+                      items={draft.membership_items ?? ""}
+                      images={
+                        draft.membership_image_urls
+                        ?? [draft.membership_image_url || ""]
+                      }
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={onUpdateMembership}
+                      onChooseImage={(index) =>
+                        openMediaPicker({
+                          kind: "list",
+                          key: "membership_image_urls",
+                          index,
+                          label: `Изображение уровня клуба ${index + 1}`,
+                        })
+                      }
+                    />
+                  </div>
+                ) : null}
+                {selectedSection === "booking" ? (
+                  <RichTextEditor label={t("Text")} value={draft.booking_text ?? ""} disabled={!canConfigure || !editingEnabled} onChange={(value) => onUpdate("booking_text", value)} />
+                ) : null}
+                {selectedSection === "safety" ? (
+                  <SafetyCardsEditor
+                    items={draft.safety_items ?? ""}
+                    disabled={!canConfigure || !editingEnabled}
+                    t={t}
+                    onChange={(value) => onUpdate("safety_items", value)}
+                  />
+                ) : null}
+                {selectedSection === "gift" ? (
+                  <div className="grid gap-3">
+                    <RichTextEditor
+                      label={t("Text")}
+                      value={draft.gift_text ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("gift_text", value)}
+                    />
+                    <GiftCertificatesEditor
+                      items={draft.gift_items ?? ""}
+                      images={
+                        draft.gift_image_urls
+                        ?? [draft.gift_image_url || ""]
+                      }
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={onUpdateGift}
+                      onChooseImage={(index) =>
+                        openMediaPicker({
+                          kind: "list",
+                          key: "gift_image_urls",
+                          index,
+                          label: `Изображение сертификата ${index + 1}`,
+                        })
+                      }
+                    />
+                  </div>
+                ) : null}
+                {selectedSection === "faq" ? (
+                  <div className="grid gap-3">
+                    <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+                      Каждый вопрос хранится как отдельная карточка. Карточки можно добавлять,
+                      удалять и переставлять. В предпросмотре нажмите на вопрос, чтобы увидеть ответ.
+                    </div>
+                    <DelimitedItemsEditor
+                      label={t("Questions and answers")}
+                      value={draft.faq_items ?? ""}
+                      delimiter="|"
+                      fields={[t("Question"), t("Answer")]}
+                      defaults={[t("New question"), t("Add an answer")]}
+                      disabled={!canConfigure || !editingEnabled}
+                      t={t}
+                      onChange={(value) => onUpdate("faq_items", value)}
+                    />
+                  </div>
+                ) : null}
+                {selectedSection === "contact" ? (
+                  <div className="grid gap-3">
+                    <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
+                      Контакты сохраняются в черновике этой языковой версии. На публичном сайте они изменятся только после публикации.
+                    </div>
+                    <CompactField
+                      label="Email для посетителей"
+                      value={draft.contact_email ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_email", value)}
+                    />
+                    <CompactField
+                      label="Телефон для посетителей"
+                      value={draft.contact_phone ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_phone", value)}
+                    />
+                    <CompactField
+                      label={t("Opening hours")}
+                      value={draft.contact_hours ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_hours", value)}
+                    />
+                    <CompactField
+                      label={t("Address shown on site")}
+                      value={draft.contact_address ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_address", value)}
+                    />
+                    <CompactField
+                      label={t("Map search address")}
+                      value={draft.map_query ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("map_query", value)}
+                    />
+                    <RichTextEditor
+                      label="Подсказка посетителю"
+                      value={draft.contact_note ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_note", value)}
+                    />
+                    <CompactField
+                      label="Текст кнопки маршрута"
+                      value={draft.contact_route_label ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("contact_route_label", value)}
+                    />
+                    <RichTextEditor
+                      label="Короткий текст в подвале"
+                      value={draft.footer_note ?? ""}
+                      disabled={!canConfigure || !editingEnabled}
+                      onChange={(value) => onUpdate("footer_note", value)}
+                    />
+                    <p className="text-[11px] leading-5 text-[#716d65]">
+                      Карта использует отдельный поисковый адрес. Социальные сети редактируются в «Настройках сайта» и выводятся здесь и в подвале.
+                    </p>
+                  </div>
+                ) : null}
+              </>
+            )}
+          <div className="mt-8 rounded-2xl bg-[#f6f4ef] p-4 text-xs leading-6 text-[#716d65]">
+            {editingEnabled
+              ? t("Select any block in the page preview to edit it here.")
+              : t("Turn editing on to change this page.")}
+          </div>
+        </> }], actions: inspectorActions}}
+    />
 
       {pageLibraryOpen ? (
         <div
@@ -5307,25 +3963,11 @@ function VisualBuilder({
           <div className="max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-auto rounded-[30px] bg-[#f8f7f3] p-6 shadow-[0_35px_120px_rgba(0,0,0,0.4)] sm:p-8">
             <div className="flex items-start justify-between gap-5">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">
-                  {t("Ready-made pages")}
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">
-                  {t("Add a page")}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-[#716d65]">
-                  {t(
-                    "The page is added to the site navigation and can be edited immediately.",
-                  )}
-                </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">{t("Ready-made pages")}</p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{t("Add a page")}</h2>
+                <p className="mt-3 text-sm leading-6 text-[#716d65]">{t("The page is added to the site navigation and can be edited immediately.")}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setPageLibraryOpen(false)}
-                className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold"
-              >
-                ×
-              </button>
+              <button type="button" onClick={() => setPageLibraryOpen(false)} className="rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold">×</button>
             </div>
             <button
               type="button"
@@ -5334,38 +3976,19 @@ function VisualBuilder({
             >
               <div className="grid min-h-44 gap-4 bg-[#321722] p-6 text-white sm:grid-cols-[1fr_0.85fr]">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#efc8d3]">
-                    GLOSS · PAGE
-                  </p>
-                  <h3 className="mt-5 text-4xl font-semibold tracking-[-0.06em]">
-                    {t("Portfolio")}
-                  </h3>
-                  <p className="mt-3 text-xs leading-6 text-white/55">
-                    {t(
-                      "A separate gallery page with many works and a booking button.",
-                    )}
-                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#efc8d3]">GLOSS · PAGE</p>
+                  <h3 className="mt-5 text-4xl font-semibold tracking-[-0.06em]">{t("Portfolio")}</h3>
+                  <p className="mt-3 text-xs leading-6 text-white/55">{t("A separate gallery page with many works and a booking button.")}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {previewPortfolio.slice(0, 4).map((project) => (
-                    <img
-                      key={project.slug}
-                      src={project.image_url ?? ""}
-                      alt=""
-                      className="h-20 w-full rounded-xl object-cover"
-                    />
+                    <img key={project.slug} src={project.image_url ?? ""} alt="" className="h-20 w-full rounded-xl object-cover" />
                   ))}
                 </div>
               </div>
               <div className="flex items-center justify-between gap-4 p-5">
-                <span className="text-sm font-semibold">
-                  {pages.some((page) => page.type === "portfolio")
-                    ? t("Open page")
-                    : t("Add portfolio page")}
-                </span>
-                <span className="rounded-full bg-[#f5e5ea] px-4 py-2 text-xs font-semibold text-[#8d2d4a]">
-                  →
-                </span>
+                <span className="text-sm font-semibold">{pages.some((page) => page.type === "portfolio") ? t("Open page") : t("Add portfolio page")}</span>
+                <span className="rounded-full bg-[#f5e5ea] px-4 py-2 text-xs font-semibold text-[#8d2d4a]">→</span>
               </div>
             </button>
             <button
@@ -5382,9 +4005,7 @@ function VisualBuilder({
                     {t("Custom page")}
                   </h3>
                   <p className="mt-3 text-xs leading-6 text-black/55">
-                    {t(
-                      "Start with a text block, then add features and calls to action.",
-                    )}
+                    {t("Start with a text block, then add features and calls to action.")}
                   </p>
                 </div>
                 <div className="grid content-center gap-2">
@@ -5402,90 +4023,7 @@ function VisualBuilder({
                 </span>
               </div>
             </button>
-            {draft.template_id === "cashpath" ? (
-              <>
-                <button
-                  type="button"
-                  disabled={
-                    !canConfigure || missingCashPathSystemPages.length === 0
-                  }
-                  onClick={addMissingCashPathPages}
-                  className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">
-                    CashPath system pages
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold">
-                    {missingCashPathSystemPages.length
-                      ? "Add missing CashPath pages"
-                      : "CashPath system pages are complete"}
-                  </h3>
-                  <p className="mt-2 text-sm text-white/70">
-                    {missingCashPathSystemPages.length
-                      ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.`
-                      : "All canonical CashPath pages already exist."}
-                  </p>
-                </button>
-                {missingGuides.length ? (
-                  <button
-                    type="button"
-                    disabled={!canConfigure}
-                    onClick={installCashPathGuidesInDraft}
-                    className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"
-                  >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">
-                      CashPath
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold">
-                      Добавить новые SEO-гайды
-                    </h3>
-                    <p className="mt-2 text-sm text-[#182b29]/70">
-                      Добавляет отсутствующие SEO-гайды только в черновик.
-                      Существующие страницы и настройки не изменятся.
-                    </p>
-                  </button>
-                ) : null}
-                {needsCashPathPagesUpgrade ? (
-                  <button
-                    type="button"
-                    disabled={!canConfigure}
-                    onClick={upgradeCashPathPagesInDraft}
-                    className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"
-                  >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">
-                      CashPath
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold">
-                      Сделать страницы полноценными
-                    </h3>
-                    <p className="mt-2 text-sm text-[#182b29]/70">
-                      Заменит только старые страницы-заглушки CashPath на
-                      полноценные информационные страницы. SEO и уже
-                      отредактированные страницы не изменятся.
-                    </p>
-                  </button>
-                ) : null}
-                {needsCashPathFormRepair ? (
-                  <button
-                    type="button"
-                    disabled={!canConfigure}
-                    onClick={repairCashPathRequestFormInDraft}
-                    className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"
-                  >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">
-                      CashPath
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold">
-                      Восстановить форму заявки
-                    </h3>
-                    <p className="mt-2 text-sm text-[#182b29]/70">
-                      Заменит старый текстовый блок CashPath на форму заявки.
-                      Остальные страницы и настройки не изменятся.
-                    </p>
-                  </button>
-                ) : null}
-              </>
-            ) : null}
+            {draft.template_id === "cashpath" ? <><button type="button" disabled={!canConfigure || missingCashPathSystemPages.length === 0} onClick={addMissingCashPathPages} className="mt-4 w-full rounded-[24px] border border-[#182b29]/15 bg-[#182b29] p-5 text-left text-[#f7f5ef] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c8ef22]">CashPath system pages</p><h3 className="mt-2 text-xl font-semibold">{missingCashPathSystemPages.length ? "Add missing CashPath pages" : "CashPath system pages are complete"}</h3><p className="mt-2 text-sm text-white/70">{missingCashPathSystemPages.length ? `Adds draft-only pages: ${missingCashPathSystemPages.join(", ")}. Existing pages are unchanged.` : "All canonical CashPath pages already exist."}</p></button>{missingGuides.length ? <button type="button" disabled={!canConfigure} onClick={installCashPathGuidesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Добавить новые SEO-гайды</h3><p className="mt-2 text-sm text-[#182b29]/70">Добавляет отсутствующие SEO-гайды только в черновик. Существующие страницы и настройки не изменятся.</p></button> : null}{needsCashPathPagesUpgrade ? <button type="button" disabled={!canConfigure} onClick={upgradeCashPathPagesInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Сделать страницы полноценными</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит только старые страницы-заглушки CashPath на полноценные информационные страницы. SEO и уже отредактированные страницы не изменятся.</p></button> : null}{needsCashPathFormRepair ? <button type="button" disabled={!canConfigure} onClick={repairCashPathRequestFormInDraft} className="mt-4 w-full rounded-[24px] border border-[#167a6a]/25 bg-[#e8f5f1] p-5 text-left text-[#182b29] disabled:opacity-50"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#167a6a]">CashPath</p><h3 className="mt-2 text-xl font-semibold">Восстановить форму заявки</h3><p className="mt-2 text-sm text-[#182b29]/70">Заменит старый текстовый блок CashPath на форму заявки. Остальные страницы и настройки не изменятся.</p></button> : null}</> : null}
           </div>
         </div>
       ) : null}
@@ -5496,8 +4034,7 @@ function VisualBuilder({
           aria-modal="true"
           aria-label={t("Site settings")}
           onMouseDown={(event) => {
-            if (event.currentTarget === event.target)
-              setSiteSettingsOpen(false);
+            if (event.currentTarget === event.target) setSiteSettingsOpen(false);
           }}
         >
           <div className="max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-auto rounded-[30px] bg-[#f8f7f3] p-5 shadow-[0_35px_120px_rgba(0,0,0,0.4)] sm:p-8">
@@ -5510,9 +4047,7 @@ function VisualBuilder({
                   {t("Site settings")}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[#716d65]">
-                  {t(
-                    "Manage search basics, colors, social links, languages and analytics in one place.",
-                  )}
+                  {t("Manage search basics, colors, social links, languages and analytics in one place.")}
                 </p>
               </div>
               <button
@@ -5527,13 +4062,10 @@ function VisualBuilder({
 
             <section className="mt-7 grid gap-4 rounded-[24px] border border-[#9d3151]/20 bg-white p-5 sm:p-6">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">
-                  Бренд
-                </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9d3151]">Бренд</p>
                 <h3 className="mt-2 text-lg font-semibold">Логотип сайта</h3>
                 <p className="mt-2 text-sm leading-6 text-[#716d65]">
-                  Отдельный логотип для шапки сайта. Это не favicon и не
-                  изображение Open Graph.
+                  Отдельный логотип для шапки сайта. Это не favicon и не изображение Open Graph.
                 </p>
               </div>
               <ImageEditor
@@ -5567,8 +4099,7 @@ function VisualBuilder({
                   Вернуть логотип демо
                 </button>
                 <p className="text-xs leading-5 text-[#716d65]">
-                  В опубликованном сайте логотип изменится только после кнопки
-                  «Опубликовать».
+                  В опубликованном сайте логотип изменится только после кнопки «Опубликовать».
                 </p>
               </div>
             </section>
@@ -5581,18 +4112,14 @@ function VisualBuilder({
                   value={draft.site_summary ?? ""}
                   disabled={!canConfigure}
                   multiline
-                  onChange={(value) =>
-                    onUpdate("site_summary", value.slice(0, 500))
-                  }
+                  onChange={(value) => onUpdate("site_summary", value.slice(0, 500))}
                 />
                 <CompactField
                   label={t("Keywords, separated by commas")}
                   value={draft.seo_keywords ?? ""}
                   disabled={!canConfigure}
                   multiline
-                  onChange={(value) =>
-                    onUpdate("seo_keywords", value.slice(0, 500))
-                  }
+                  onChange={(value) => onUpdate("seo_keywords", value.slice(0, 500))}
                 />
                 <ImageEditor
                   label={t("Site icon (favicon)")}
@@ -5625,9 +4152,7 @@ function VisualBuilder({
               </section>
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
-                <h3 className="text-lg font-semibold">
-                  {t("Colors and languages")}
-                </h3>
+                <h3 className="text-lg font-semibold">{t("Colors and languages")}</h3>
 
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
@@ -5659,9 +4184,7 @@ function VisualBuilder({
                           }`}
                         >
                           <span>
-                            <strong className="block text-sm">
-                              {t(preset.name)}
-                            </strong>
+                            <strong className="block text-sm">{t(preset.name)}</strong>
                             <span className="mt-1 block text-[11px] text-[#716d65]">
                               #9d3151 · #321722 · #fff7f5
                             </span>
@@ -5739,9 +4262,7 @@ function VisualBuilder({
               </section>
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
-                <h3 className="text-lg font-semibold">
-                  {t("Social networks")}
-                </h3>
+                <h3 className="text-lg font-semibold">{t("Social networks")}</h3>
                 <Toggle
                   label={t("Show social network icons")}
                   checked={draft.show_social_icons === true}
@@ -5757,9 +4278,7 @@ function VisualBuilder({
               </section>
 
               <section className="grid content-start gap-4 rounded-[24px] border border-black/8 bg-white p-5 sm:p-6">
-                <h3 className="text-lg font-semibold">
-                  {t("Analytics integrations")}
-                </h3>
+                <h3 className="text-lg font-semibold">{t("Analytics integrations")}</h3>
                 <CompactField
                   label={t("Google Analytics 4 tag ID")}
                   value={draft.google_analytics_id ?? ""}
@@ -5777,9 +4296,7 @@ function VisualBuilder({
                   }
                 />
                 <p className="text-xs leading-6 text-[#716d65]">
-                  {t(
-                    "Analytics scripts load only on this workspace public site after it is published.",
-                  )}
+                  {t("Analytics scripts load only on this workspace public site after it is published.")}
                 </p>
               </section>
             </div>
@@ -5832,12 +4349,8 @@ function VisualBuilder({
                 <p className="mt-3 text-sm text-[#716d65]">
                   {imageTarget?.kind === "block" &&
                   imageTarget.key === "video_url"
-                    ? t(
-                        "Choose an existing video. Upload permissions remain controlled by the media library.",
-                      )
-                    : t(
-                        "Choose an existing image. Upload permissions remain controlled by the media library.",
-                      )}
+                    ? t("Choose an existing video. Upload permissions remain controlled by the media library.")
+                    : t("Choose an existing image. Upload permissions remain controlled by the media library.")}
                 </p>
               </div>
               <button
@@ -5868,9 +4381,7 @@ function VisualBuilder({
               </Link>
             </div>
             {mediaLoading ? (
-              <p className="mt-8 text-sm text-[#716d65]">
-                {t("Loading media…")}
-              </p>
+              <p className="mt-8 text-sm text-[#716d65]">{t("Loading media…")}</p>
             ) : mediaError ? (
               <p className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                 {t("Images could not be loaded for this account.")} {mediaError}
@@ -5945,16 +4456,11 @@ function PortfolioPagePreview({
 
   return (
     <div
-      className={publicSiteDesignClass(
-        draft,
-        page.is_visible === false ? "opacity-45 grayscale" : "",
-      )}
-      style={
-        {
-          "--site-accent": draft.theme_accent ?? "#9d3151",
-          "--site-dark": draft.theme_dark ?? "#321722",
-        } as React.CSSProperties
-      }
+      className={publicSiteDesignClass(draft, page.is_visible === false ? "opacity-45 grayscale" : "")}
+      style={{
+        "--site-accent": draft.theme_accent ?? "#9d3151",
+        "--site-dark": draft.theme_dark ?? "#321722",
+      } as React.CSSProperties}
     >
       <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
         <span className="text-xs font-semibold uppercase tracking-[0.2em]">
@@ -5984,16 +4490,10 @@ function PortfolioPagePreview({
           {page.eyebrow}
         </p>
         <div className="relative mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <h2
-            style={publicTypographyStyle(page.title_typography)}
-            className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl"
-          >
+          <h2 style={publicTypographyStyle(page.title_typography)} className="text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">
             <PublicRichHeading value={page.title} />
           </h2>
-          <PublicRichText
-            value={page.intro}
-            className="text-xs leading-6 text-black/55"
-          />
+          <PublicRichText value={page.intro} className="text-xs leading-6 text-black/55" />
         </div>
       </button>
 
@@ -6140,16 +4640,11 @@ function CustomPagePreview({
 
   return (
     <div
-      className={publicSiteDesignClass(
-        draft,
-        page.is_visible === false ? "opacity-45 grayscale" : "",
-      )}
-      style={
-        {
-          "--site-accent": draft.theme_accent ?? "#9d3151",
-          "--site-dark": draft.theme_dark ?? "#321722",
-        } as React.CSSProperties
-      }
+      className={publicSiteDesignClass(draft, page.is_visible === false ? "opacity-45 grayscale" : "")}
+      style={{
+        "--site-accent": draft.theme_accent ?? "#9d3151",
+        "--site-dark": draft.theme_dark ?? "#321722",
+      } as React.CSSProperties}
     >
       <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
         <span className="font-serif text-xl">{draft.brand_name}</span>
@@ -6186,7 +4681,9 @@ function CustomPagePreview({
           data-editor-anchor={`custom:${block.id}`}
           onClick={() => editingEnabled && onBlockChange(block.id)}
           className={`relative block w-full text-left ${
-            block.is_visible === false ? "opacity-35 grayscale" : ""
+            block.is_visible === false
+              ? "opacity-35 grayscale"
+              : ""
           } ${
             editingEnabled && selectedBlockId === block.id
               ? "ring-2 ring-inset ring-[#b58a36]"
@@ -6222,11 +4719,7 @@ function CustomPagePreview({
 }
 
 function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
-  if (
-    block.kind === "spacer" ||
-    block.kind === "html_embed" ||
-    block.kind === "leadsgate_form"
-  ) {
+  if (block.kind === "spacer" || block.kind === "html_embed" || block.kind === "leadsgate_form") {
     return <PublicCustomBlock block={block} />;
   }
   const customColors = block.colors?.mode === "custom";
@@ -6235,28 +4728,24 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
   const style = customColors
     ? "border-y border-black/8"
     : dark
-      ? "bg-[#321722] text-white"
-      : accent
-        ? "bg-[#9d3151] text-white"
-        : "border-y border-black/8 bg-white/70 text-[#321722]";
+    ? "bg-[#321722] text-white"
+    : accent
+      ? "bg-[#9d3151] text-white"
+      : "border-y border-black/8 bg-white/70 text-[#321722]";
   const inlineStyle = colorOverrideStyle(block.colors);
   const mediaStyle = publicSiteCustomBlockMediaStyle(block);
   const mediaVariables = publicSiteMediaVariables(block);
   const composition = resolvePublicSiteBlockComposition(block);
   const compositionStyle = publicSiteBlockCompositionStyle(block);
-  const compositionAttributes = composition.enabled
-    ? {
-        "data-os-composition": "enabled" as const,
-        "data-os-composition-layout": composition.layout,
-        "data-os-composition-mobile-layout": composition.mobileLayout,
-        "data-os-composition-kind": block.kind,
-        "data-os-composition-card-layout": composition.cardLayout,
-        "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
-      }
-    : {};
-  const itemStyle = (
-    element: Parameters<typeof publicSiteCompositionItemStyle>[1],
-  ) => publicSiteCompositionItemStyle(block, element);
+  const compositionAttributes = composition.enabled ? {
+    "data-os-composition": "enabled" as const,
+    "data-os-composition-layout": composition.layout,
+    "data-os-composition-mobile-layout": composition.mobileLayout,
+    "data-os-composition-kind": block.kind,
+    "data-os-composition-card-layout": composition.cardLayout,
+    "data-os-composition-mobile-card-layout": composition.mobileCardLayout,
+  } : {};
+  const itemStyle = (element: Parameters<typeof publicSiteCompositionItemStyle>[1]) => publicSiteCompositionItemStyle(block, element);
   const buttonStyle = publicSiteButtonStyle(block);
   const mediaSize = {
     full: "w-full",
@@ -6322,360 +4811,242 @@ function CustomBlockPreview({ block }: { block: PublicSiteCustomBlock }) {
           style={{ ...mediaVariables, ...compositionStyle }}
           data-os-media-mobile-position={block.media_mobile_position ?? "after"}
           data-os-composition-media-position={mediaOnRight ? "right" : "left"}
-          data-os-composition-mobile-media-position={
-            block.media_mobile_position ?? "after"
-          }
+          data-os-composition-mobile-media-position={block.media_mobile_position ?? "after"}
           {...compositionAttributes}
         >
-          <div
-            data-os-media-slot
-            data-os-composition-slot="media"
-            className={mediaOnRight ? "lg:order-2" : "lg:order-1"}
-          >
+        <div data-os-media-slot data-os-composition-slot="media" className={mediaOnRight ? "lg:order-2" : "lg:order-1"}>
+          <div className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`} style={mediaStyle}>
             <div
-              className={`mx-auto ${mediaSize} ${mediaFrame} overflow-hidden`}
-              style={mediaStyle}
+              className={`os-managed-media-frame relative grid place-items-center bg-black/10 ${
+                block.media_frame === "none" ? "" : "rounded-lg"
+              } ${mediaHeight}`}
             >
-              <div
-                className={`os-managed-media-frame relative grid place-items-center bg-black/10 ${
-                  block.media_frame === "none" ? "" : "rounded-lg"
-                } ${mediaHeight}`}
-              >
-                {block.media_type === "calendar" ? (
-                  <div className="h-full w-full bg-white p-3 text-[#321722]">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#9d3151]">
-                      Календарь записи
-                    </p>
-                    <div className="mt-3 grid grid-cols-7 gap-1">
-                      {Array.from({ length: 21 }, (_, index) => (
-                        <span
-                          key={index}
-                          className={`grid aspect-square place-items-center rounded text-[8px] ${
-                            index === 10
-                              ? "bg-[#9d3151] text-white"
-                              : "bg-[#fff2f5]"
-                          }`}
-                        >
-                          {index + 1}
-                        </span>
-                      ))}
-                    </div>
-                    <span className="mt-3 flex min-h-8 items-center justify-center rounded bg-[#9d3151] text-[8px] font-semibold text-white">
-                      Показать свободное время
-                    </span>
+              {block.media_type === "calendar" ? (
+                <div className="h-full w-full bg-white p-3 text-[#321722]">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#9d3151]">
+                    Календарь записи
+                  </p>
+                  <div className="mt-3 grid grid-cols-7 gap-1">
+                    {Array.from({ length: 21 }, (_, index) => (
+                      <span
+                        key={index}
+                        className={`grid aspect-square place-items-center rounded text-[8px] ${
+                          index === 10 ? "bg-[#9d3151] text-white" : "bg-[#fff2f5]"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                    ))}
                   </div>
-                ) : block.media_type === "video" ? (
-                  <>
-                    {block.video_poster_url ? (
-                      <img
-                        src={block.video_poster_url}
-                        alt=""
-                        className={`os-managed-media h-full w-full ${mediaFit}`}
-                      />
-                    ) : null}
-                    <span className="absolute text-4xl text-white">▶</span>
-                  </>
-                ) : block.media_url ? (
-                  <img
-                    src={block.media_url}
-                    alt=""
-                    className={`os-managed-media h-full w-full ${mediaFit}`}
-                  />
-                ) : (
-                  <span className="text-xs opacity-45">Фото или видео</span>
-                )}
-              </div>
+                  <span className="mt-3 flex min-h-8 items-center justify-center rounded bg-[#9d3151] text-[8px] font-semibold text-white">
+                    Показать свободное время
+                  </span>
+                </div>
+              ) : block.media_type === "video" ? (
+                <>
+                  {block.video_poster_url ? (
+                    <img
+                      src={block.video_poster_url}
+                      alt=""
+                      className={`os-managed-media h-full w-full ${mediaFit}`}
+                    />
+                  ) : null}
+                  <span className="absolute text-4xl text-white">▶</span>
+                </>
+              ) : block.media_url ? (
+                <img
+                  src={block.media_url}
+                  alt=""
+                  className={`os-managed-media h-full w-full ${mediaFit}`}
+                />
+              ) : (
+                <span className="text-xs opacity-45">Фото или видео</span>
+              )}
             </div>
           </div>
-          <div
-            data-os-media-body
-            className={`os-composition-sequence ${mediaOnRight ? "lg:order-1" : "lg:order-2"}`}
-            data-os-composition={composition.enabled ? "enabled" : undefined}
-          >
-            <p
-              data-os-composition-slot="eyebrow"
-              style={itemStyle("eyebrow")}
-              className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60"
-            >
-              {block.eyebrow}
-            </p>
-            <h3
-              data-os-composition-slot="title"
-              style={{
-                ...publicTypographyStyle(block.title_typography),
-                ...itemStyle("title"),
-              }}
-              className="mt-4 font-serif text-3xl"
-            >
-              <PublicRichHeading value={block.title} />
-            </h3>
-            {composition.enabled ? (
-              <div data-os-composition-slot="text" style={itemStyle("text")}>
-                <PublicRichText
-                  value={block.text}
-                  className="mt-4 text-xs leading-6 opacity-65"
-                />
-              </div>
-            ) : (
-              <PublicRichText
-                value={block.text}
-                className="mt-4 text-xs leading-6 opacity-65"
-              />
-            )}
-            {block.button_label ? (
-              <span
-                data-os-composition-slot="action"
-                style={{ ...buttonStyle, ...itemStyle("action") }}
-                className="mt-6 inline-flex items-center rounded-md font-semibold"
-              >
-                {block.button_label}
-              </span>
-            ) : null}
-          </div>
+        </div>
+        <div data-os-media-body className={`os-composition-sequence ${mediaOnRight ? "lg:order-1" : "lg:order-2"}`} data-os-composition={composition.enabled ? "enabled" : undefined}>
+          <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
+            {block.eyebrow}
+          </p>
+          <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
+          {composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />}
+          {block.button_label ? (
+            <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
+              {block.button_label}
+            </span>
+          ) : null}
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`}
-      style={inlineStyle}
-    >
-      <div
-        className={`os-block-composition mx-auto w-full ${contentWidth}`}
-        style={compositionStyle}
-        {...compositionAttributes}
-      >
-        <p
-          data-os-composition-slot="eyebrow"
-          style={itemStyle("eyebrow")}
-          className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60"
+    <div className={`px-8 sm:px-12 ${paddingTop} ${paddingBottom} ${sectionHeight} ${style}`} style={inlineStyle}>
+      <div className={`os-block-composition mx-auto w-full ${contentWidth}`} style={compositionStyle} {...compositionAttributes}>
+      <p data-os-composition-slot="eyebrow" style={itemStyle("eyebrow")} className="text-[9px] font-semibold uppercase tracking-[0.2em] opacity-60">
+        {block.eyebrow}
+      </p>
+      <h3 data-os-composition-slot="title" style={{ ...publicTypographyStyle(block.title_typography), ...itemStyle("title") }} className="mt-4 font-serif text-3xl"><PublicRichHeading value={block.title} /></h3>
+      {composition.enabled && block.kind === "columns" && block.text ? (
+        <div data-os-composition-slot="text" style={itemStyle("text")}>
+          <PublicRichText value={block.text} className="mt-4 text-xs leading-6 opacity-65" />
+        </div>
+      ) : null}
+      {block.kind === "features" || block.kind === "columns" ? (
+        <div
+          data-os-composition-slot="cards"
+          style={itemStyle("cards")}
+          className={`mt-6 grid gap-2 ${
+            block.kind === "columns" && block.columns_count === 2
+              ? "sm:grid-cols-2"
+              : "sm:grid-cols-3"
+          }`}
         >
-          {block.eyebrow}
-        </p>
-        <h3
-          data-os-composition-slot="title"
-          style={{
-            ...publicTypographyStyle(block.title_typography),
-            ...itemStyle("title"),
-          }}
-          className="mt-4 font-serif text-3xl"
-        >
-          <PublicRichHeading value={block.title} />
-        </h3>
-        {composition.enabled && block.kind === "columns" && block.text ? (
-          <div data-os-composition-slot="text" style={itemStyle("text")}>
-            <PublicRichText
-              value={block.text}
-              className="mt-4 text-xs leading-6 opacity-65"
-            />
-          </div>
-        ) : null}
-        {block.kind === "features" || block.kind === "columns" ? (
-          <div
-            data-os-composition-slot="cards"
-            style={itemStyle("cards")}
-            className={`mt-6 grid gap-2 ${
-              block.kind === "columns" && block.columns_count === 2
-                ? "sm:grid-cols-2"
-                : "sm:grid-cols-3"
-            }`}
-          >
-            {(block.kind === "columns"
-              ? blockColumnCards(block)
-                  .slice(0, block.columns_count ?? 3)
-                  .map((card) => ({
-                    key: card.id,
-                    title: card.title,
-                    text: card.text,
-                    image:
-                      card.media_type === "image"
-                        ? card.media_url
-                        : card.video_poster_url,
-                    video: card.media_type === "video",
-                  }))
-              : previewLines(block.items).map((item) => ({
-                  key: item,
-                  title: item,
-                  text: "",
-                  image: "",
-                  video: false,
+          {(block.kind === "columns"
+            ? blockColumnCards(block)
+                .slice(0, block.columns_count ?? 3)
+                .map((card) => ({
+                  key: card.id,
+                  title: card.title,
+                  text: card.text,
+                  image:
+                    card.media_type === "image"
+                      ? card.media_url
+                      : card.video_poster_url,
+                  video: card.media_type === "video",
                 }))
-            ).map((card) => (
-              <span
-                key={card.key}
-                data-os-composition-card
-                data-os-composition-has-media={card.image ? "true" : "false"}
-                className="overflow-hidden rounded-xl border border-current/15 text-[10px] leading-5"
-              >
-                {card.image ? (
-                  <span
-                    data-os-composition-card-media
-                    className="os-managed-media-surface relative block aspect-[4/3] overflow-hidden bg-black/10"
-                    style={mediaVariables}
-                  >
-                    <img
-                      src={card.image}
-                      alt=""
-                      className="os-managed-media h-full w-full object-cover"
-                    />
-                    {card.video ? (
-                      <span className="absolute inset-0 grid place-items-center text-2xl text-white">
-                        ▶
-                      </span>
-                    ) : null}
-                  </span>
-                ) : null}
-                <span className="block p-3">
-                  <strong className="block">{card.title}</strong>
-                  {card.text ? (
-                    <PublicRichText
-                      value={card.text}
-                      className="mt-1 block opacity-60"
-                    />
+            : previewLines(block.items).map((item) => ({
+                key: item,
+                title: item,
+                text: "",
+                image: "",
+                video: false,
+              }))
+          ).map((card) => (
+            <span
+              key={card.key}
+              data-os-composition-card
+              data-os-composition-has-media={card.image ? "true" : "false"}
+              className="overflow-hidden rounded-xl border border-current/15 text-[10px] leading-5"
+            >
+              {card.image ? (
+                <span data-os-composition-card-media className="os-managed-media-surface relative block aspect-[4/3] overflow-hidden bg-black/10" style={mediaVariables}>
+                  <img src={card.image} alt="" className="os-managed-media h-full w-full object-cover" />
+                  {card.video ? (
+                    <span className="absolute inset-0 grid place-items-center text-2xl text-white">
+                      ▶
+                    </span>
                   ) : null}
                 </span>
+              ) : null}
+              <span className="block p-3">
+                <strong className="block">{card.title}</strong>
+                {card.text ? (
+                  <PublicRichText value={card.text} className="mt-1 block opacity-60" />
+                ) : null}
               </span>
+            </span>
+          ))}
+        </div>
+      ) : block.kind !== "slider" && block.kind !== "video" ? (
+        composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
+      ) : block.text ? (
+        composition.enabled ? <div data-os-composition-slot="text" style={itemStyle("text")}><PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" /></div> : <PublicRichText value={block.text} className="mt-4 max-w-2xl text-xs leading-6 opacity-65" />
+      ) : null}
+      {block.kind === "collage" ? (
+        <div
+          data-os-composition-slot="media"
+          className={`mt-6 ${
+            block.media_position === "left"
+              ? "mr-auto"
+              : block.media_position === "right"
+                ? "ml-auto"
+                : "mx-auto"
+          } ${mediaSize} ${mediaFrame}`}
+          style={{ ...mediaStyle, ...itemStyle("media") }}
+        >
+          <div
+            data-os-media-columns={block.media_columns ?? 4}
+            data-os-media-mobile-columns={block.media_mobile_columns ?? 2}
+            className={`os-managed-media-grid overflow-hidden ${
+              mediaHeightMode === "auto"
+                ? ""
+                : `${mediaHeight} [grid-auto-rows:minmax(0,1fr)]`
+            } ${block.media_frame === "none" ? "" : "rounded-lg"}`}
+          >
+            {(block.media_urls ?? []).slice(0, 8).map((image, index) => (
+              <div
+                key={`${block.id}-collage-preview-${index}`}
+                className={`os-managed-media-surface relative overflow-hidden bg-black/10 ${
+                  mediaHeightMode === "auto"
+                    ? index === 0 && (block.media_urls ?? []).length >= 3
+                      ? "row-span-2 min-h-40"
+                      : "min-h-20"
+                    : index === 0 && (block.media_urls ?? []).length >= 3
+                      ? "row-span-2 h-full min-h-0"
+                      : "h-full min-h-0"
+                }`}
+              >
+                {image ? (
+                  <img
+                    src={image}
+                    alt=""
+                    className={`os-managed-media absolute inset-0 h-full w-full ${mediaFit}`}
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
-        ) : block.kind !== "slider" && block.kind !== "video" ? (
-          composition.enabled ? (
-            <div data-os-composition-slot="text" style={itemStyle("text")}>
-              <PublicRichText
-                value={block.text}
-                className="mt-4 max-w-2xl text-xs leading-6 opacity-65"
+        </div>
+      ) : null}
+
+      {block.kind === "slider" ? (
+        <div data-os-composition-slot="media" className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={{ ...mediaStyle, ...itemStyle("media") }}>
+          <div className={`os-managed-media-frame relative bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+            {(block.media_urls ?? [])[0] ? (
+              <img
+                src={(block.media_urls ?? [])[0]}
+                alt=""
+                className={`os-managed-media h-full w-full ${mediaFit}`}
               />
-            </div>
-          ) : (
-            <PublicRichText
-              value={block.text}
-              className="mt-4 max-w-2xl text-xs leading-6 opacity-65"
-            />
-          )
-        ) : block.text ? (
-          composition.enabled ? (
-            <div data-os-composition-slot="text" style={itemStyle("text")}>
-              <PublicRichText
-                value={block.text}
-                className="mt-4 max-w-2xl text-xs leading-6 opacity-65"
-              />
-            </div>
-          ) : (
-            <PublicRichText
-              value={block.text}
-              className="mt-4 max-w-2xl text-xs leading-6 opacity-65"
-            />
-          )
-        ) : null}
-        {block.kind === "collage" ? (
-          <div
-            data-os-composition-slot="media"
-            className={`mt-6 ${
-              block.media_position === "left"
-                ? "mr-auto"
-                : block.media_position === "right"
-                  ? "ml-auto"
-                  : "mx-auto"
-            } ${mediaSize} ${mediaFrame}`}
-            style={{ ...mediaStyle, ...itemStyle("media") }}
-          >
-            <div
-              data-os-media-columns={block.media_columns ?? 4}
-              data-os-media-mobile-columns={block.media_mobile_columns ?? 2}
-              className={`os-managed-media-grid overflow-hidden ${
-                mediaHeightMode === "auto"
-                  ? ""
-                  : `${mediaHeight} [grid-auto-rows:minmax(0,1fr)]`
-              } ${block.media_frame === "none" ? "" : "rounded-lg"}`}
-            >
-              {(block.media_urls ?? []).slice(0, 8).map((image, index) => (
-                <div
-                  key={`${block.id}-collage-preview-${index}`}
-                  className={`os-managed-media-surface relative overflow-hidden bg-black/10 ${
-                    mediaHeightMode === "auto"
-                      ? index === 0 && (block.media_urls ?? []).length >= 3
-                        ? "row-span-2 min-h-40"
-                        : "min-h-20"
-                      : index === 0 && (block.media_urls ?? []).length >= 3
-                        ? "row-span-2 h-full min-h-0"
-                        : "h-full min-h-0"
+            ) : null}
+            <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+              {(block.media_urls ?? []).map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-1.5 rounded-full bg-white ${
+                    index === 0 ? "w-5" : "w-1.5 opacity-60"
                   }`}
-                >
-                  {image ? (
-                    <img
-                      src={image}
-                      alt=""
-                      className={`os-managed-media absolute inset-0 h-full w-full ${mediaFit}`}
-                    />
-                  ) : null}
-                </div>
+                />
               ))}
             </div>
           </div>
-        ) : null}
-
-        {block.kind === "slider" ? (
-          <div
-            data-os-composition-slot="media"
-            className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}
-            style={{ ...mediaStyle, ...itemStyle("media") }}
-          >
-            <div
-              className={`os-managed-media-frame relative bg-black/10 ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}
-            >
-              {(block.media_urls ?? [])[0] ? (
-                <img
-                  src={(block.media_urls ?? [])[0]}
-                  alt=""
-                  className={`os-managed-media h-full w-full ${mediaFit}`}
-                />
-              ) : null}
-              <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
-                {(block.media_urls ?? []).map((_, index) => (
-                  <span
-                    key={index}
-                    className={`h-1.5 rounded-full bg-white ${
-                      index === 0 ? "w-5" : "w-1.5 opacity-60"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-            <p className="mt-2 text-[10px] opacity-55">
-              {block.slide_interval_seconds ?? 4} сек.
-            </p>
+          <p className="mt-2 text-[10px] opacity-55">
+            {block.slide_interval_seconds ?? 4} сек.
+          </p>
+        </div>
+      ) : null}
+      {block.kind === "video" ? (
+        <div data-os-composition-slot="media" className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`} style={{ ...mediaStyle, ...itemStyle("media") }}>
+          <div className={`os-managed-media-frame relative grid place-items-center bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}>
+            {block.video_poster_url ? (
+              <img
+                src={block.video_poster_url}
+                alt=""
+                className={`os-managed-media h-full w-full ${mediaFit}`}
+              />
+            ) : null}
+            <span className="absolute text-4xl">▶</span>
           </div>
-        ) : null}
-        {block.kind === "video" ? (
-          <div
-            data-os-composition-slot="media"
-            className={`mx-auto mt-6 ${mediaSize} ${mediaFrame}`}
-            style={{ ...mediaStyle, ...itemStyle("media") }}
-          >
-            <div
-              className={`os-managed-media-frame relative grid place-items-center bg-black/80 text-center text-white ${mediaHeight} ${block.media_frame === "none" ? "" : "rounded-lg"}`}
-            >
-              {block.video_poster_url ? (
-                <img
-                  src={block.video_poster_url}
-                  alt=""
-                  className={`os-managed-media h-full w-full ${mediaFit}`}
-                />
-              ) : null}
-              <span className="absolute text-4xl">▶</span>
-            </div>
-          </div>
-        ) : null}
-        {block.kind === "cta" && block.button_label ? (
-          <span
-            data-os-composition-slot="action"
-            style={{ ...buttonStyle, ...itemStyle("action") }}
-            className="mt-6 inline-flex items-center rounded-md font-semibold"
-          >
-            {block.button_label}
-          </span>
-        ) : null}
+        </div>
+      ) : null}
+      {block.kind === "cta" && block.button_label ? (
+        <span data-os-composition-slot="action" style={{ ...buttonStyle, ...itemStyle("action") }} className="mt-6 inline-flex items-center rounded-md font-semibold">
+          {block.button_label}
+        </span>
+      ) : null}
       </div>
     </div>
   );
@@ -6737,8 +5108,7 @@ function VideoUrlEditor({
         </div>
       ) : invalid ? (
         <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[11px] leading-5 text-red-700">
-          Ссылка не распознана. Поддерживаются YouTube, Vimeo и прямые ссылки на
-          MP4, WebM или MOV.
+          Ссылка не распознана. Поддерживаются YouTube, Vimeo и прямые ссылки на MP4, WebM или MOV.
         </p>
       ) : (
         <p className="text-[11px] leading-5 text-[#716d65]">
@@ -6783,15 +5153,7 @@ function ImageEditor({
   onChange: (value: string) => void;
   onChoose: () => void;
 }) {
-  return (
-    <SiteEditorMediaField
-      label={label || t("Image")}
-      value={value}
-      disabled={disabled}
-      onChange={onChange}
-      onChoose={onChoose}
-    />
-  );
+  return <SiteEditorMediaField label={label || t("Image")} value={value} disabled={disabled} onChange={onChange} onChoose={onChoose} />;
 }
 
 function DelimitedItemsEditor({
@@ -6863,10 +5225,7 @@ function DelimitedItemsEditor({
                     disabled={disabled}
                     onChange={(event) => {
                       const nextParts = [...parts];
-                      nextParts[fieldIndex] = event.target.value.replace(
-                        /\n+/g,
-                        " ",
-                      );
+                      nextParts[fieldIndex] = event.target.value.replace(/\n+/g, " ");
                       const next = [...items];
                       next[index] = serialize(nextParts);
                       commit(next);
@@ -6883,10 +5242,7 @@ function DelimitedItemsEditor({
                 disabled={disabled || index === 0}
                 onClick={() => {
                   const next = [...items];
-                  [next[index - 1], next[index]] = [
-                    next[index],
-                    next[index - 1],
-                  ];
+                  [next[index - 1], next[index]] = [next[index], next[index - 1]];
                   commit(next);
                 }}
                 className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -6899,10 +5255,7 @@ function DelimitedItemsEditor({
                 disabled={disabled || index === items.length - 1}
                 onClick={() => {
                   const next = [...items];
-                  [next[index + 1], next[index]] = [
-                    next[index],
-                    next[index + 1],
-                  ];
+                  [next[index + 1], next[index]] = [next[index], next[index + 1]];
                   commit(next);
                 }}
                 className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -6963,9 +5316,7 @@ function SiteDesignSidebar({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9d3151]">
               Дизайн
             </p>
-            <h2 className="mt-1 text-xl font-semibold tracking-[-0.04em]">
-              Дизайн сайта
-            </h2>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.04em]">Дизайн сайта</h2>
             <p className="mt-2 text-[11px] leading-5 text-[#716d65]">
               Меняйте стиль здесь и сразу смотрите результат на странице слева.
             </p>
@@ -6981,21 +5332,14 @@ function SiteDesignSidebar({
 
         {premiumIsolated ? (
           <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-amber-900">
-            Этот Premium-шаблон использует собственную дизайн-систему.
-            Глобальные настройки 2.4 не меняют его внешний вид, поэтому BEMBI
-            остаётся изолированным.
+            Этот Premium-шаблон использует собственную дизайн-систему. Глобальные настройки 2.4 не меняют его внешний вид, поэтому BEMBI остаётся изолированным.
           </div>
         ) : (
           <div className="mt-5 grid gap-4">
-            <details
-              open
-              className="group rounded-2xl border border-black/8 bg-white p-4"
-            >
+            <details open className="group rounded-2xl border border-black/8 bg-white p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
                 <span>Цвета</span>
-                <span className="text-[#9d3151] transition group-open:rotate-45">
-                  +
-                </span>
+                <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
               </summary>
               <div className="mt-4 grid gap-4">
                 <div className="flex flex-wrap gap-2">
@@ -7017,39 +5361,18 @@ function SiteDesignSidebar({
                         className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-semibold transition disabled:opacity-40 ${selected ? "border-[#9d3151]/40 bg-[#fff3f6]" : "border-black/10 bg-white"}`}
                       >
                         <span className="flex -space-x-1">
-                          {[preset.surface, preset.accent, preset.dark].map(
-                            (color) => (
-                              <i
-                                key={color}
-                                className="h-5 w-5 rounded-full border-2 border-white"
-                                style={{ backgroundColor: color }}
-                              />
-                            ),
-                          )}
+                          {[preset.surface, preset.accent, preset.dark].map((color) => (
+                            <i key={color} className="h-5 w-5 rounded-full border-2 border-white" style={{ backgroundColor: color }} />
+                          ))}
                         </span>
                         {preset.name}
                       </button>
                     );
                   })}
                 </div>
-                <ColorEditor
-                  label="Основной"
-                  value={draft.theme_accent ?? "#9d3151"}
-                  disabled={designDisabled}
-                  onChange={(value) => onUpdate("theme_accent", value)}
-                />
-                <ColorEditor
-                  label="Тёмный"
-                  value={draft.theme_dark ?? "#321722"}
-                  disabled={designDisabled}
-                  onChange={(value) => onUpdate("theme_dark", value)}
-                />
-                <ColorEditor
-                  label="Фон"
-                  value={draft.theme_surface ?? "#fff7f5"}
-                  disabled={designDisabled}
-                  onChange={(value) => onUpdate("theme_surface", value)}
-                />
+                <ColorEditor label="Основной" value={draft.theme_accent ?? "#9d3151"} disabled={designDisabled} onChange={(value) => onUpdate("theme_accent", value)} />
+                <ColorEditor label="Тёмный" value={draft.theme_dark ?? "#321722"} disabled={designDisabled} onChange={(value) => onUpdate("theme_dark", value)} />
+                <ColorEditor label="Фон" value={draft.theme_surface ?? "#fff7f5"} disabled={designDisabled} onChange={(value) => onUpdate("theme_surface", value)} />
               </div>
             </details>
 
@@ -7061,8 +5384,7 @@ function SiteDesignSidebar({
             />
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[11px] leading-5 text-emerald-900">
-              ● Живой предпросмотр включён. Сохранение и публикация остаются
-              отдельными действиями.
+              ● Живой предпросмотр включён. Сохранение и публикация остаются отдельными действиями.
             </div>
           </div>
         )}
@@ -7131,29 +5453,18 @@ function GlobalDesignSystemEditor({
     `rounded-xl border px-3 py-2 text-[11px] font-semibold transition disabled:opacity-40 ${active ? "border-[#9d3151]/40 bg-[#fff3f6] text-[#7f2742]" : "border-black/10 bg-white text-[#4f4b45]"}`;
 
   return (
-    <div
-      className={`grid gap-4 ${compact ? "" : "rounded-2xl border border-[#9d3151]/15 bg-[#fff9fb] p-4"}`}
-    >
+    <div className={`grid gap-4 ${compact ? "" : "rounded-2xl border border-[#9d3151]/15 bg-[#fff9fb] p-4"}`}>
       {!compact ? (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8d2d4a]">
-            Global Design System 2.4
-          </p>
-          <p className="mt-1 text-[11px] leading-5 text-[#716d65]">
-            «Из шаблона» оставляет исходный характер шаблона.
-          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8d2d4a]">Global Design System 2.4</p>
+          <p className="mt-1 text-[11px] leading-5 text-[#716d65]">«Из шаблона» оставляет исходный характер шаблона.</p>
         </div>
       ) : null}
 
-      <details
-        open
-        className="group rounded-2xl border border-black/8 bg-white p-4"
-      >
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
           <span>Типографика</span>
-          <span className="text-[#9d3151] transition group-open:rotate-45">
-            +
-          </span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
         </summary>
         <div className="mt-4 grid gap-3">
           <CompactSelect
@@ -7181,9 +5492,7 @@ function GlobalDesignSystemEditor({
             onChange={(value) => patch("typography", "heading_font", value)}
           />
           <details className="rounded-xl bg-[#f7f5f0] p-3">
-            <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">
-              Дополнительно
-            </summary>
+            <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Дополнительно</summary>
             <div className="mt-3 grid gap-3">
               <CompactSelect
                 label="Насыщенность заголовков"
@@ -7196,9 +5505,7 @@ function GlobalDesignSystemEditor({
                   { value: "semibold", label: "Полужирная" },
                   { value: "bold", label: "Жирная" },
                 ]}
-                onChange={(value) =>
-                  patch("typography", "heading_weight", value)
-                }
+                onChange={(value) => patch("typography", "heading_weight", value)}
               />
               <CompactSelect
                 label="Интервал в заголовках"
@@ -7210,24 +5517,17 @@ function GlobalDesignSystemEditor({
                   { value: "normal", label: "Обычный" },
                   { value: "wide", label: "Свободный" },
                 ]}
-                onChange={(value) =>
-                  patch("typography", "heading_tracking", value)
-                }
+                onChange={(value) => patch("typography", "heading_tracking", value)}
               />
             </div>
           </details>
         </div>
       </details>
 
-      <details
-        open
-        className="group rounded-2xl border border-black/8 bg-white p-4"
-      >
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
           <span>Кнопки</span>
-          <span className="text-[#9d3151] transition group-open:rotate-45">
-            +
-          </span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
         </summary>
         <div className="mt-4 grid grid-cols-2 gap-2">
           {[
@@ -7236,21 +5536,11 @@ function GlobalDesignSystemEditor({
             ["soft", "Мягкие"],
             ["pill", "Капсула"],
           ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              disabled={disabled}
-              onClick={() => patch("buttons", "radius", value)}
-              className={quickButton(buttonRadius === value)}
-            >
-              {label}
-            </button>
+            <button key={value} type="button" disabled={disabled} onClick={() => patch("buttons", "radius", value)} className={quickButton(buttonRadius === value)}>{label}</button>
           ))}
         </div>
         <details className="mt-3 rounded-xl bg-[#f7f5f0] p-3">
-          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">
-            Дополнительно
-          </summary>
+          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Дополнительно</summary>
           <div className="mt-3">
             <CompactSelect
               label="Тень"
@@ -7268,109 +5558,38 @@ function GlobalDesignSystemEditor({
         </details>
       </details>
 
-      <details
-        open
-        className="group rounded-2xl border border-black/8 bg-white p-4"
-      >
+      <details open className="group rounded-2xl border border-black/8 bg-white p-4">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-bold">
           <span>Карточки</span>
-          <span className="text-[#9d3151] transition group-open:rotate-45">
-            +
-          </span>
+          <span className="text-[#9d3151] transition group-open:rotate-45">+</span>
         </summary>
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() => setGroup("cards", {})}
-            className={quickButton(cardPreset === "template")}
-          >
-            Из шаблона
-          </button>
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() =>
-              setGroup("cards", {
-                radius: "soft",
-                border: "none",
-                shadow: "none",
-              })
-            }
-            className={quickButton(cardPreset === "flat")}
-          >
-            Плоские
-          </button>
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() =>
-              setGroup("cards", {
-                radius: "soft",
-                border: "subtle",
-                shadow: "none",
-              })
-            }
-            className={quickButton(cardPreset === "outlined")}
-          >
-            С рамкой
-          </button>
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() =>
-              setGroup("cards", {
-                radius: "rounded",
-                border: "none",
-                shadow: "strong",
-              })
-            }
-            className={quickButton(cardPreset === "elevated")}
-          >
-            Объёмные
-          </button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", {})} className={quickButton(cardPreset === "template")}>Из шаблона</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "soft", border: "none", shadow: "none" })} className={quickButton(cardPreset === "flat")}>Плоские</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "soft", border: "subtle", shadow: "none" })} className={quickButton(cardPreset === "outlined")}>С рамкой</button>
+          <button type="button" disabled={disabled} onClick={() => setGroup("cards", { radius: "rounded", border: "none", shadow: "strong" })} className={quickButton(cardPreset === "elevated")}>Объёмные</button>
         </div>
         <details className="mt-3 rounded-xl bg-[#f7f5f0] p-3">
-          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">
-            Точная настройка
-          </summary>
+          <summary className="cursor-pointer text-[11px] font-semibold text-[#716d65]">Точная настройка</summary>
           <div className="mt-3 grid gap-3">
-            <CompactSelect
-              label="Форма"
-              value={current.cards?.radius ?? "template"}
-              disabled={disabled}
-              options={[
-                { value: "template", label: "Из шаблона" },
-                { value: "square", label: "Прямые" },
-                { value: "soft", label: "Мягкие" },
-                { value: "rounded", label: "Крупное скругление" },
-              ]}
-              onChange={(value) => patch("cards", "radius", value)}
-            />
-            <CompactSelect
-              label="Граница"
-              value={current.cards?.border ?? "template"}
-              disabled={disabled}
-              options={[
-                { value: "template", label: "Из шаблона" },
-                { value: "none", label: "Без границы" },
-                { value: "subtle", label: "Тонкая" },
-                { value: "strong", label: "Выразительная" },
-              ]}
-              onChange={(value) => patch("cards", "border", value)}
-            />
-            <CompactSelect
-              label="Тень"
-              value={current.cards?.shadow ?? "template"}
-              disabled={disabled}
-              options={[
-                { value: "template", label: "Из шаблона" },
-                { value: "none", label: "Без тени" },
-                { value: "soft", label: "Мягкая" },
-                { value: "strong", label: "Выразительная" },
-              ]}
-              onChange={(value) => patch("cards", "shadow", value)}
-            />
+            <CompactSelect label="Форма" value={current.cards?.radius ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "square", label: "Прямые" },
+              { value: "soft", label: "Мягкие" },
+              { value: "rounded", label: "Крупное скругление" },
+            ]} onChange={(value) => patch("cards", "radius", value)} />
+            <CompactSelect label="Граница" value={current.cards?.border ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "none", label: "Без границы" },
+              { value: "subtle", label: "Тонкая" },
+              { value: "strong", label: "Выразительная" },
+            ]} onChange={(value) => patch("cards", "border", value)} />
+            <CompactSelect label="Тень" value={current.cards?.shadow ?? "template"} disabled={disabled} options={[
+              { value: "template", label: "Из шаблона" },
+              { value: "none", label: "Без тени" },
+              { value: "soft", label: "Мягкая" },
+              { value: "strong", label: "Выразительная" },
+            ]} onChange={(value) => patch("cards", "shadow", value)} />
           </div>
         </details>
       </details>
@@ -7401,9 +5620,7 @@ function ColorEditor({
   onChange: (value: string) => void;
 }) {
   const normalized = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
-  const uniquePresets = [
-    ...new Set(presets.filter((color) => /^#[0-9a-f]{6}$/i.test(color))),
-  ];
+  const uniquePresets = [...new Set(presets.filter((color) => /^#[0-9a-f]{6}$/i.test(color)))];
   return (
     <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
       <p>{label}</p>
@@ -7460,45 +5677,15 @@ function SectionHeadingTypographyEditor({
   disabled: boolean;
   onChange: (changes: Partial<PublicSiteSystemSectionSettings>) => void;
 }) {
-  const legacySize =
-    settings.heading_size !== "template"
-      ? Number(settings.heading_size)
-      : undefined;
-  const legacyWeight =
-    settings.heading_weight === "regular"
-      ? 400
-      : settings.heading_weight === "medium"
-        ? 500
-        : settings.heading_weight === "semibold"
-          ? 600
-          : settings.heading_weight === "bold"
-            ? 700
-            : undefined;
+  const legacySize = settings.heading_size !== "template" ? Number(settings.heading_size) : undefined;
+  const legacyWeight = settings.heading_weight === "regular" ? 400 : settings.heading_weight === "medium" ? 500 : settings.heading_weight === "semibold" ? 600 : settings.heading_weight === "bold" ? 700 : undefined;
   return (
     <TypographyControls
       title="Заголовок блока"
       description={heading || "Без названия"}
-      value={
-        settings.heading_typography &&
-        Object.keys(settings.heading_typography).length
-          ? settings.heading_typography
-          : settings.heading_font !== "template" || legacySize || legacyWeight
-            ? {
-                font_family: settings.heading_font,
-                font_size: legacySize,
-                font_weight: legacyWeight,
-              }
-            : undefined
-      }
+      value={settings.heading_typography && Object.keys(settings.heading_typography).length ? settings.heading_typography : (settings.heading_font !== "template" || legacySize || legacyWeight ? { font_family: settings.heading_font, font_size: legacySize, font_weight: legacyWeight } : undefined)}
       disabled={disabled}
-      onChange={(heading_typography) =>
-        onChange({
-          heading_typography,
-          heading_font: "template",
-          heading_size: "template",
-          heading_weight: "template",
-        })
-      }
+      onChange={(heading_typography) => onChange({ heading_typography, heading_font: "template", heading_size: "template", heading_weight: "template" })}
     />
   );
 }
@@ -7542,8 +5729,7 @@ function SystemSectionSettingsEditor({
           Внешний вид системного раздела
         </p>
         <p className="mt-1 text-[11px] leading-5 text-[#716d65]">
-          Эти параметры одинаково работают в предпросмотре и на опубликованном
-          сайте.
+          Эти параметры одинаково работают в предпросмотре и на опубликованном сайте.
         </p>
       </div>
 
@@ -7813,19 +5999,14 @@ function BlockColorsEditor({
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
           {t("Block colors")}
         </p>
-        <span
-          className="flex -space-x-1"
-          aria-label={t("Current block colors")}
-        >
-          {[current.background, current.accent, current.text].map(
-            (color, index) => (
-              <i
-                key={`${color}-${index}`}
-                className="h-6 w-6 rounded-full border-2 border-white shadow-sm"
-                style={{ backgroundColor: color }}
-              />
-            ),
-          )}
+        <span className="flex -space-x-1" aria-label={t("Current block colors")}>
+          {[current.background, current.accent, current.text].map((color, index) => (
+            <i
+              key={`${color}-${index}`}
+              className="h-6 w-6 rounded-full border-2 border-white shadow-sm"
+              style={{ backgroundColor: color }}
+            />
+          ))}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -7872,11 +6053,7 @@ function BlockColorsEditor({
                   className="rounded-xl border border-black/10 bg-white p-2 text-left transition hover:-translate-y-0.5 hover:border-black/20 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <span className="mb-2 flex -space-x-1">
-                    {[
-                      combination.background,
-                      combination.accent,
-                      combination.text,
-                    ].map((color, index) => (
+                    {[combination.background, combination.accent, combination.text].map((color, index) => (
                       <i
                         key={`${combination.id}-${color}-${index}`}
                         className="h-5 w-5 rounded-full border-2 border-white shadow-sm"
@@ -7892,48 +6069,28 @@ function BlockColorsEditor({
             </div>
           </div>
           <p className="rounded-xl bg-white px-3 py-2 text-[11px] leading-5 text-[#716d65]">
-            {t(
-              "Click a ready combination, or press a color square to choose your own shade.",
-            )}
+            {t("Click a ready combination, or press a color square to choose your own shade.")}
           </p>
           <ColorEditor
             label={t("Block background")}
             value={current.background}
             disabled={disabled}
-            presets={[
-              defaults.background,
-              "#ffffff",
-              "#f7f3ee",
-              defaults.accent,
-              defaults.text,
-            ]}
-            onChange={(value) =>
-              onChange({ ...current, mode: "custom", background: value })
-            }
+            presets={[defaults.background, "#ffffff", "#f7f3ee", defaults.accent, defaults.text]}
+            onChange={(value) => onChange({ ...current, mode: "custom", background: value })}
           />
           <ColorEditor
             label={t("Block text")}
             value={current.text}
             disabled={disabled}
             presets={[defaults.text, "#17191f", "#321722", "#ffffff"]}
-            onChange={(value) =>
-              onChange({ ...current, mode: "custom", text: value })
-            }
+            onChange={(value) => onChange({ ...current, mode: "custom", text: value })}
           />
           <ColorEditor
             label={t("Block accent")}
             value={current.accent}
             disabled={disabled}
-            presets={[
-              defaults.accent,
-              "#9d3151",
-              "#c49a6c",
-              "#2f6d73",
-              "#17191f",
-            ]}
-            onChange={(value) =>
-              onChange({ ...current, mode: "custom", accent: value })
-            }
+            presets={[defaults.accent, "#9d3151", "#c49a6c", "#2f6d73", "#17191f"]}
+            onChange={(value) => onChange({ ...current, mode: "custom", accent: value })}
           />
         </>
       ) : (
@@ -7956,9 +6113,15 @@ function SocialLinksEditor({
   t: ReturnType<typeof useAdminI18n>["t"];
   onChange: (links: PublicSiteSocialLink[]) => void;
 }) {
-  function updateLink(id: string, key: "platform" | "url", value: string) {
+  function updateLink(
+    id: string,
+    key: "platform" | "url",
+    value: string,
+  ) {
     onChange(
-      links.map((link) => (link.id === id ? { ...link, [key]: value } : link)),
+      links.map((link) =>
+        link.id === id ? { ...link, [key]: value } : link,
+      ),
     );
   }
 
@@ -8058,12 +6221,7 @@ function serviceCardImage(
   service: PublicSiteService,
   index: number,
 ) {
-  if (
-    Object.prototype.hasOwnProperty.call(
-      content.service_card_images ?? {},
-      service.slug,
-    )
-  ) {
+  if (Object.prototype.hasOwnProperty.call(content.service_card_images ?? {}, service.slug)) {
     return content.service_card_images?.[service.slug] ?? "";
   }
   return content.service_image_urls?.[index] || "";
@@ -8071,8 +6229,7 @@ function serviceCardImage(
 
 function previewServicePrice(service: PublicSiteService) {
   if (service.pricing_model === "free") return "Бесплатно";
-  if (service.pricing_model === "quote" || service.price_minor === null)
-    return "По запросу";
+  if (service.pricing_model === "quote" || service.price_minor === null) return "По запросу";
   const amount = service.price_minor / 100;
   return `${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2)} ${service.currency}`;
 }
@@ -8106,48 +6263,24 @@ function ServicesSectionEditor({
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-4">
-        <p className="text-xs font-semibold text-[#4f3a12]">
-          Данные услуг берутся из единого каталога
-        </p>
-        <p className="mt-2 text-xs leading-5 text-[#716d65]">
-          Название, цена, длительность, порядок и доступность редактируются в
-          каталоге. Здесь настраивается только внешний вид карточек на сайте.
-        </p>
-        <Link
-          href="/admin/catalog"
-          className="mt-3 inline-flex rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white"
-        >
-          Открыть каталог услуг
-        </Link>
+        <p className="text-xs font-semibold text-[#4f3a12]">Данные услуг берутся из единого каталога</p>
+        <p className="mt-2 text-xs leading-5 text-[#716d65]">Название, цена, длительность, порядок и доступность редактируются в каталоге. Здесь настраивается только внешний вид карточек на сайте.</p>
+        <Link href="/admin/catalog" className="mt-3 inline-flex rounded-full bg-[#17191f] px-4 py-2 text-xs font-semibold text-white">Открыть каталог услуг</Link>
       </div>
 
       <CompactSelect
         label="Макет услуг"
         value={draft.services_layout ?? "cards"}
         disabled={disabled}
-        options={[
-          { value: "cards", label: "Карточки" },
-          { value: "list", label: "Компактный список" },
-        ]}
-        onChange={(value) =>
-          onUpdate("services_layout", value === "list" ? "list" : "cards")
-        }
+        options={[{ value: "cards", label: "Карточки" }, { value: "list", label: "Компактный список" }]}
+        onChange={(value) => onUpdate("services_layout", value === "list" ? "list" : "cards")}
       />
       <CompactSelect
         label="Количество колонок"
         value={String(draft.services_columns ?? 4)}
         disabled={disabled || draft.services_layout === "list"}
-        options={[
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-          { value: "4", label: "4" },
-        ]}
-        onChange={(value) =>
-          onUpdate(
-            "services_columns",
-            value === "2" ? 2 : value === "3" ? 3 : 4,
-          )
-        }
+        options={[{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]}
+        onChange={(value) => onUpdate("services_columns", value === "2" ? 2 : value === "3" ? 3 : 4)}
       />
       <CompactField
         label="Текст кнопки"
@@ -8155,67 +6288,35 @@ function ServicesSectionEditor({
         disabled={disabled}
         onChange={(value) => onUpdate("services_button_label", value)}
       />
-      <Toggle
-        label="Показывать описание"
-        checked={draft.services_show_description !== false}
-        disabled={disabled}
-        onChange={(value) => onUpdate("services_show_description", value)}
-      />
-      <Toggle
-        label="Показывать цену"
-        checked={draft.services_show_price !== false}
-        disabled={disabled}
-        onChange={(value) => onUpdate("services_show_price", value)}
-      />
-      <Toggle
-        label="Показывать длительность"
-        checked={draft.services_show_duration !== false}
-        disabled={disabled}
-        onChange={(value) => onUpdate("services_show_duration", value)}
-      />
+      <Toggle label="Показывать описание" checked={draft.services_show_description !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_description", value)} />
+      <Toggle label="Показывать цену" checked={draft.services_show_price !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_price", value)} />
+      <Toggle label="Показывать длительность" checked={draft.services_show_duration !== false} disabled={disabled} onChange={(value) => onUpdate("services_show_duration", value)} />
 
       <div className="grid gap-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
-          Изображения карточек
-        </p>
-        {services.length ? (
-          services.map((service, index) => (
-            <article
-              key={service.id}
-              className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"
-            >
-              <div>
-                <p className="text-sm font-semibold">{service.title}</p>
-                <p className="mt-1 text-[10px] text-[#716d65]">
-                  {previewServicePrice(service)} ·{" "}
-                  {previewServiceDuration(service) || "без длительности"}
-                </p>
-              </div>
-              <ImageEditor
-                label="Изображение услуги"
-                value={serviceCardImage(draft, service, index)}
-                disabled={disabled}
-                t={t}
-                onChange={(value) =>
-                  onUpdate("service_card_images", {
-                    ...(draft.service_card_images ?? {}),
-                    [service.slug]: value,
-                  })
-                }
-                onChoose={() => onChooseImage(service)}
-              />
-            </article>
-          ))
-        ) : (
-          <p className="rounded-2xl border border-dashed border-black/15 px-4 py-5 text-xs leading-6 text-[#716d65]">
-            В каталоге пока нет активных публичных услуг. Создайте услугу, и её
-            карточка появится здесь автоматически.
-          </p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">Изображения карточек</p>
+        {services.length ? services.map((service, index) => (
+          <article key={service.id} className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4">
+            <div>
+              <p className="text-sm font-semibold">{service.title}</p>
+              <p className="mt-1 text-[10px] text-[#716d65]">{previewServicePrice(service)} · {previewServiceDuration(service) || "без длительности"}</p>
+            </div>
+            <ImageEditor
+              label="Изображение услуги"
+              value={serviceCardImage(draft, service, index)}
+              disabled={disabled}
+              t={t}
+              onChange={(value) => onUpdate("service_card_images", { ...(draft.service_card_images ?? {}), [service.slug]: value })}
+              onChoose={() => onChooseImage(service)}
+            />
+          </article>
+        )) : (
+          <p className="rounded-2xl border border-dashed border-black/15 px-4 py-5 text-xs leading-6 text-[#716d65]">В каталоге пока нет активных публичных услуг. Создайте услугу, и её карточка появится здесь автоматически.</p>
         )}
       </div>
     </div>
   );
 }
+
 
 function PortfolioSectionEditor({
   projects,
@@ -8244,9 +6345,7 @@ function PortfolioSectionEditor({
           {t("Portfolio data comes from the shared Portfolio module.")}
         </p>
         <p className="mt-2 text-xs leading-5 text-[#716d65]">
-          {t(
-            "Categories and media are edited in Media; projects, order and visibility are edited in Portfolio. Here you configure only the public presentation.",
-          )}
+          {t("Categories and media are edited in Media; projects, order and visibility are edited in Portfolio. Here you configure only the public presentation.")}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Link
@@ -8262,8 +6361,7 @@ function PortfolioSectionEditor({
             {t("Open media library")}
           </Link>
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#716d65]">
-            {projects.length} {t("projects")} · {categoryCount}{" "}
-            {t("categories")}
+            {projects.length} {t("projects")} · {categoryCount} {t("categories")}
           </span>
         </div>
       </div>
@@ -8309,7 +6407,9 @@ function PortfolioSectionEditor({
         onChange={(value) =>
           onUpdate(
             "portfolio_card_aspect",
-            value === "square" || value === "landscape" || value === "portrait"
+            value === "square" ||
+              value === "landscape" ||
+              value === "portrait"
               ? value
               : "auto",
           )
@@ -8493,7 +6593,9 @@ function MembershipCardsEditor({
   ) => {
     serialize(
       memberships.map((membership, membershipIndex) =>
-        membershipIndex === index ? { ...membership, ...changes } : membership,
+        membershipIndex === index
+          ? { ...membership, ...changes }
+          : membership,
       ),
     );
   };
@@ -8502,8 +6604,7 @@ function MembershipCardsEditor({
     <div className="grid gap-3">
       <div className="rounded-2xl border border-[#9d3151]/15 bg-[#fff8fa] px-4 py-3 text-[11px] leading-5 text-[#716d65]">
         Каждый уровень клуба хранится одной карточкой: изображение, название,
-        условие участия, описание и кнопка. При перестановке всё перемещается
-        вместе.
+        условие участия, описание и кнопка. При перестановке всё перемещается вместе.
       </div>
 
       {memberships.map((membership, index) => (
@@ -8534,7 +6635,9 @@ function MembershipCardsEditor({
             value={membership.image}
             disabled={disabled}
             t={t}
-            onChange={(value) => updateMembership(index, { image: value })}
+            onChange={(value) =>
+              updateMembership(index, { image: value })
+            }
             onChoose={() => onChooseImage(index)}
           />
 
@@ -8542,14 +6645,18 @@ function MembershipCardsEditor({
             label="Название уровня или преимущества"
             value={membership.title}
             disabled={disabled}
-            onChange={(value) => updateMembership(index, { title: value })}
+            onChange={(value) =>
+              updateMembership(index, { title: value })
+            }
           />
 
           <CompactField
             label="Условие участия"
             value={membership.condition}
             disabled={disabled}
-            onChange={(value) => updateMembership(index, { condition: value })}
+            onChange={(value) =>
+              updateMembership(index, { condition: value })
+            }
           />
 
           <CompactField
@@ -8573,12 +6680,8 @@ function MembershipCardsEditor({
               { value: "#contact", label: "Контакты" },
               { value: "#services", label: "Услуги" },
             ]}
-            onTextChange={(value) =>
-              updateMembership(index, { buttonLabel: value })
-            }
-            onHrefChange={(value) =>
-              updateMembership(index, { buttonUrl: value })
-            }
+            onTextChange={(value) => updateMembership(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateMembership(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -8588,7 +6691,10 @@ function MembershipCardsEditor({
               disabled={disabled || index === 0}
               onClick={() => {
                 const next = [...memberships];
-                [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -8601,7 +6707,10 @@ function MembershipCardsEditor({
               disabled={disabled || index === memberships.length - 1}
               onClick={() => {
                 const next = [...memberships];
-                [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -8653,7 +6762,7 @@ function SafetyCardsEditor({
 
     return {
       icon: hasIcon ? parts[0] : "",
-      title: hasIcon ? parts[1] : (parts[0] ?? ""),
+      title: hasIcon ? parts[1] : parts[0] ?? "",
       description: (hasIcon ? parts.slice(2) : parts.slice(1)).join(" · "),
     };
   });
@@ -8720,9 +6829,7 @@ function SafetyCardsEditor({
             value={card.icon}
             disabled={disabled}
             onChange={(value) =>
-              updateCard(index, {
-                icon: Array.from(value).slice(0, 3).join(""),
-              })
+              updateCard(index, { icon: Array.from(value).slice(0, 3).join("") })
             }
           />
 
@@ -8752,7 +6859,10 @@ function SafetyCardsEditor({
               disabled={disabled || index === 0}
               onClick={() => {
                 const next = [...cards];
-                [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -8765,7 +6875,10 @@ function SafetyCardsEditor({
               disabled={disabled || index === cards.length - 1}
               onClick={() => {
                 const next = [...cards];
-                [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -8904,7 +7017,9 @@ function GiftCertificatesEditor({
             value={certificate.image}
             disabled={disabled}
             t={t}
-            onChange={(value) => updateCertificate(index, { image: value })}
+            onChange={(value) =>
+              updateCertificate(index, { image: value })
+            }
             onChoose={() => onChooseImage(index)}
           />
 
@@ -8912,14 +7027,18 @@ function GiftCertificatesEditor({
             label="Название"
             value={certificate.title}
             disabled={disabled}
-            onChange={(value) => updateCertificate(index, { title: value })}
+            onChange={(value) =>
+              updateCertificate(index, { title: value })
+            }
           />
 
           <CompactField
             label="Номинал или цена"
             value={certificate.amount}
             disabled={disabled}
-            onChange={(value) => updateCertificate(index, { amount: value })}
+            onChange={(value) =>
+              updateCertificate(index, { amount: value })
+            }
           />
 
           <CompactField
@@ -8943,12 +7062,8 @@ function GiftCertificatesEditor({
               { value: "#contact", label: "Контакты" },
               { value: "#services", label: "Услуги" },
             ]}
-            onTextChange={(value) =>
-              updateCertificate(index, { buttonLabel: value })
-            }
-            onHrefChange={(value) =>
-              updateCertificate(index, { buttonUrl: value })
-            }
+            onTextChange={(value) => updateCertificate(index, { buttonLabel: value })}
+            onHrefChange={(value) => updateCertificate(index, { buttonUrl: value })}
           />
 
           <div className="flex justify-end gap-2">
@@ -8958,7 +7073,10 @@ function GiftCertificatesEditor({
               disabled={disabled || index === 0}
               onClick={() => {
                 const next = [...certificates];
-                [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -8971,7 +7089,10 @@ function GiftCertificatesEditor({
               disabled={disabled || index === certificates.length - 1}
               onClick={() => {
                 const next = [...certificates];
-                [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -9074,7 +7195,9 @@ function TeamEditor({
           className="grid gap-3 rounded-2xl border border-black/8 bg-[#faf9f6] p-4"
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold">Сотрудник {index + 1}</p>
+            <p className="text-xs font-semibold">
+              Сотрудник {index + 1}
+            </p>
             <button
               type="button"
               disabled={disabled}
@@ -9131,7 +7254,10 @@ function TeamEditor({
               disabled={disabled || index === 0}
               onClick={() => {
                 const next = [...members];
-                [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                [next[index - 1], next[index]] = [
+                  next[index],
+                  next[index - 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -9144,7 +7270,10 @@ function TeamEditor({
               disabled={disabled || index === members.length - 1}
               onClick={() => {
                 const next = [...members];
-                [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                [next[index + 1], next[index]] = [
+                  next[index],
+                  next[index + 1],
+                ];
                 serialize(next);
               }}
               className="grid h-8 w-8 place-items-center rounded-full border border-black/10 disabled:opacity-25"
@@ -9203,9 +7332,7 @@ function ReviewsEditor({
   return (
     <div className="grid gap-3">
       <p className="text-xs leading-6 text-[#716d65]">
-        {t(
-          "Add real client reviews with an author, rating and optional source link.",
-        )}
+        {t("Add real client reviews with an author, rating and optional source link.")}
       </p>
       {reviews.map((review, index) => (
         <article
@@ -9348,24 +7475,8 @@ function ColumnCardsEditor({
               {t("Content card")} {index + 1}
             </p>
             <span className="flex gap-1">
-              <button
-                type="button"
-                aria-label={`${t("Move up")} · ${index + 1}`}
-                disabled={disabled || index === 0}
-                onClick={() => moveCard(index, -1)}
-                className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25"
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                aria-label={`${t("Move down")} · ${index + 1}`}
-                disabled={disabled || index === count - 1}
-                onClick={() => moveCard(index, 1)}
-                className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25"
-              >
-                ↓
-              </button>
+              <button type="button" aria-label={`${t("Move up")} · ${index + 1}`} disabled={disabled || index === 0} onClick={() => moveCard(index, -1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↑</button>
+              <button type="button" aria-label={`${t("Move down")} · ${index + 1}`} disabled={disabled || index === count - 1} onClick={() => moveCard(index, 1)} className="grid h-7 w-7 place-items-center rounded-lg border border-black/10 text-xs disabled:opacity-25">↓</button>
             </span>
           </div>
           <CompactField
@@ -9387,8 +7498,7 @@ function ColumnCardsEditor({
               disabled={disabled}
               onChange={(event) =>
                 updateCard(index, {
-                  media_type: event.target
-                    .value as PublicSiteColumnCard["media_type"],
+                  media_type: event.target.value as PublicSiteColumnCard["media_type"],
                 })
               }
               className="mt-2 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 py-3 text-sm"
@@ -9407,11 +7517,7 @@ function ColumnCardsEditor({
                 t={t}
                 onChange={(value) => updateCard(index, { media_url: value })}
                 onChoose={() =>
-                  onChooseImage(
-                    index,
-                    "media_url",
-                    `${t("Card image")} ${index + 1}`,
-                  )
+                  onChooseImage(index, "media_url", `${t("Card image")} ${index + 1}`)
                 }
               />
               <CompactField
@@ -9436,11 +7542,7 @@ function ColumnCardsEditor({
                 type="button"
                 disabled={disabled}
                 onClick={() =>
-                  onChooseImage(
-                    index,
-                    "video_url",
-                    `${t("Card video")} ${index + 1}`,
-                  )
+                  onChooseImage(index, "video_url", `${t("Card video")} ${index + 1}`)
                 }
                 className="rounded-xl border border-black/10 bg-white px-4 py-3 text-xs font-semibold disabled:opacity-40"
               >
@@ -9505,10 +7607,7 @@ function CustomBlockSettings({
     label: string,
   ) => void;
 }) {
-  const visual = publicSiteCustomBlockVisualCapabilities(
-    block.kind,
-    "standard",
-  );
+  const visual = publicSiteCustomBlockVisualCapabilities(block.kind, "standard");
   const patchInspector = (key: keyof PublicSiteCustomBlock, value: unknown) =>
     onChange(key, value as PublicSiteCustomBlock[typeof key]);
   const layoutFields = buildBlockLayoutInspectorFields({
@@ -9543,227 +7642,42 @@ function CustomBlockSettings({
     },
     onChange: patchInspector,
   });
-  const colorDefaults =
-    block.tone === "dark"
-      ? { background: siteDark, text: "#ffffff", accent: siteAccent }
-      : block.tone === "accent"
-        ? { background: siteAccent, text: "#ffffff", accent: siteDark }
-        : { background: siteSurface, text: siteDark, accent: siteAccent };
+  const colorDefaults = block.tone === "dark"
+    ? { background: siteDark, text: "#ffffff", accent: siteAccent }
+    : block.tone === "accent"
+      ? { background: siteAccent, text: "#ffffff", accent: siteDark }
+      : { background: siteSurface, text: siteDark, accent: siteAccent };
 
-  if (block.kind === "html_embed")
-    return (
-      <SharedEditorFieldList
-        fields={[
-          {
-            id: "visibility",
-            type: "toggle",
-            label: t("Show block on site"),
-            checked: block.is_visible !== false,
-            disabled,
-            onChange: (value) => onChange("is_visible", value),
-          },
-          {
-            id: "html-source",
-            type: "textarea",
-            label: "HTML",
-            rows: 8,
-            value: block.html_source ?? "",
-            disabled,
-            onChange: (value) =>
-              onChange(
-                "html_source",
-                value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH),
-              ),
-          },
-          {
-            id: "embed-url",
-            type: "url",
-            label: t("Embed URL"),
-            value: block.embed_url ?? "",
-            disabled,
-            onChange: (value) => onChange("embed_url", value.slice(0, 2048)),
-          },
-          {
-            id: "embed-title",
-            type: "text",
-            label: t("Embed title"),
-            value: block.embed_title ?? "",
-            disabled,
-            onChange: (value) => onChange("embed_title", value.slice(0, 160)),
-          },
-          {
-            id: "embed-height",
-            type: "number",
-            label: t("Embed height"),
-            value: block.embed_height ?? 420,
-            disabled,
-            onChange: (value) =>
-              onChange("embed_height", boundedPublicEmbedHeight(Number(value))),
-          },
-        ]}
-      />
-    );
+  if (block.kind === "html_embed") return <SharedEditorFieldList fields={[
+    { id: "visibility", type: "toggle", label: t("Show block on site"), checked: block.is_visible !== false, disabled, onChange: value => onChange("is_visible", value) },
+    { id: "html-source", type: "textarea", label: "HTML", rows: 8, value: block.html_source ?? "", disabled, onChange: value => onChange("html_source", value.slice(0, PUBLIC_SITE_HTML_SOURCE_MAX_LENGTH)) },
+    { id: "embed-url", type: "url", label: t("Embed URL"), value: block.embed_url ?? "", disabled, onChange: value => onChange("embed_url", value.slice(0, 2048)) },
+    { id: "embed-title", type: "text", label: t("Embed title"), value: block.embed_title ?? "", disabled, onChange: value => onChange("embed_title", value.slice(0, 160)) },
+    { id: "embed-height", type: "number", label: t("Embed height"), value: block.embed_height ?? 420, disabled, onChange: value => onChange("embed_height", boundedPublicEmbedHeight(Number(value))) },
+  ]} />;
 
-  if (block.kind === "leadsgate_form")
-    return (
-      <SharedEditorFieldList
-        fields={[
-          {
-            id: "visibility",
-            type: "toggle",
-            label: t("Show block on site"),
-            checked: block.is_visible !== false,
-            disabled,
-            onChange: (value) => onChange("is_visible", value),
-          },
-          {
-            id: "provider-note",
-            type: "notice",
-            text: "Live requests are disabled in the editor. OneStudio does not receive or store applicant information.",
-          },
-          {
-            id: "aid",
-            type: "text",
-            label: "Affiliate ID",
-            value: block.leadsgate_aid ?? "",
-            disabled,
-            onChange: (value) =>
-              onChange("leadsgate_aid", value.replace(/\\D/g, "").slice(0, 12)),
-          },
-          {
-            id: "title",
-            type: "textarea",
-            label: t("Heading"),
-            rows: 3,
-            value: block.title,
-            disabled,
-            onChange: (value) => onChange("title", value),
-          },
-          {
-            id: "text",
-            type: "textarea",
-            label: t("Text"),
-            rows: 3,
-            value: block.text,
-            disabled,
-            onChange: (value) => onChange("text", value),
-          },
-        ]}
-      />
-    );
+  if (block.kind === "leadsgate_form") return <SharedEditorFieldList fields={[
+    { id: "visibility", type: "toggle", label: t("Show block on site"), checked: block.is_visible !== false, disabled, onChange: value => onChange("is_visible", value) },
+    { id: "provider-note", type: "notice", text: "Live requests are disabled in the editor. OneStudio does not receive or store applicant information." },
+    { id: "aid", type: "text", label: "Affiliate ID", value: block.leadsgate_aid ?? "", disabled, onChange: value => onChange("leadsgate_aid", value.replace(/\\D/g, "").slice(0, 12)) },
+    { id: "title", type: "textarea", label: t("Heading"), rows: 3, value: block.title, disabled, onChange: value => onChange("title", value) },
+    { id: "text", type: "textarea", label: t("Text"), rows: 3, value: block.text, disabled, onChange: value => onChange("text", value) },
+  ]} />;
 
-  if (block.kind === "spacer")
-    return (
-      <>
-        <Toggle
-          label={t("Show block on site")}
-          checked={block.is_visible !== false}
-          disabled={disabled}
-          onChange={(value) => onChange("is_visible", value)}
-        />
-        <div className="grid gap-3 rounded-2xl border border-black/8 p-3">
-          <p className="text-xs leading-5 text-black/60">
-            {t("Spacer helper")}
-          </p>
-          <label className="text-xs font-semibold">
-            {t("Spacing size")}
-            <select
-              className="mt-2 w-full rounded-xl border p-3"
-              value={block.spacer_size ?? "normal"}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  "spacer_size",
-                  event.target.value as PublicSiteCustomBlock["spacer_size"],
-                )
-              }
-            >
-              <option value="compact">{t("Compact")}</option>
-              <option value="normal">{t("Normal")}</option>
-              <option value="airy">{t("Airy")}</option>
-            </select>
-          </label>
-          <Toggle
-            label={t("Show divider line")}
-            checked={block.show_divider === true}
-            disabled={disabled}
-            onChange={(value) => onChange("show_divider", value)}
-          />
-          {block.show_divider ? (
-            <>
-              <label className="text-xs font-semibold">
-                {t("Divider width")}
-                <select
-                  className="mt-2 w-full rounded-xl border p-3"
-                  value={block.content_width ?? "wide"}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onChange(
-                      "content_width",
-                      event.target
-                        .value as PublicSiteCustomBlock["content_width"],
-                    )
-                  }
-                >
-                  <option value="narrow">{t("Narrow")}</option>
-                  <option value="medium">{t("Medium")}</option>
-                  <option value="wide">{t("Wide")}</option>
-                  <option value="full">{t("Full")}</option>
-                </select>
-              </label>
-              <label className="text-xs font-semibold">
-                {t("Divider thickness")}
-                <select
-                  className="mt-2 w-full rounded-xl border p-3"
-                  value={block.divider_thickness ?? 1}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onChange(
-                      "divider_thickness",
-                      Number(
-                        event.target.value,
-                      ) as PublicSiteCustomBlock["divider_thickness"],
-                    )
-                  }
-                >
-                  <option value={1}>{t("1 px")}</option>
-                  <option value={2}>{t("2 px")}</option>
-                  <option value={3}>{t("3 px")}</option>
-                </select>
-              </label>
-              <label className="text-xs font-semibold">
-                {t("Divider color")}
-                <select
-                  className="mt-2 w-full rounded-xl border p-3"
-                  value={block.divider_color_mode ?? "template"}
-                  disabled={disabled}
-                  onChange={(event) =>
-                    onChange(
-                      "divider_color_mode",
-                      event.target
-                        .value as PublicSiteCustomBlock["divider_color_mode"],
-                    )
-                  }
-                >
-                  <option value="template">{t("Template")}</option>
-                  <option value="accent">{t("Accent")}</option>
-                  <option value="custom">{t("Custom")}</option>
-                </select>
-              </label>
-              {block.divider_color_mode === "custom" ? (
-                <ColorEditor
-                  label={t("Divider custom color")}
-                  value={block.divider_custom_color ?? "#9d3151"}
-                  disabled={disabled}
-                  presets={[siteAccent, siteDark]}
-                  onChange={(value) => onChange("divider_custom_color", value)}
-                />
-              ) : null}
-            </>
-          ) : null}
-        </div>
-      </>
-    );
+  if (block.kind === "spacer") return <>
+    <Toggle label={t("Show block on site")} checked={block.is_visible !== false} disabled={disabled} onChange={(value) => onChange("is_visible", value)} />
+    <div className="grid gap-3 rounded-2xl border border-black/8 p-3">
+      <p className="text-xs leading-5 text-black/60">{t("Spacer helper")}</p>
+      <label className="text-xs font-semibold">{t("Spacing size")}<select className="mt-2 w-full rounded-xl border p-3" value={block.spacer_size ?? "normal"} disabled={disabled} onChange={event => onChange("spacer_size", event.target.value as PublicSiteCustomBlock["spacer_size"])}><option value="compact">{t("Compact")}</option><option value="normal">{t("Normal")}</option><option value="airy">{t("Airy")}</option></select></label>
+      <Toggle label={t("Show divider line")} checked={block.show_divider === true} disabled={disabled} onChange={value => onChange("show_divider", value)} />
+      {block.show_divider ? <>
+        <label className="text-xs font-semibold">{t("Divider width")}<select className="mt-2 w-full rounded-xl border p-3" value={block.content_width ?? "wide"} disabled={disabled} onChange={event => onChange("content_width", event.target.value as PublicSiteCustomBlock["content_width"])}><option value="narrow">{t("Narrow")}</option><option value="medium">{t("Medium")}</option><option value="wide">{t("Wide")}</option><option value="full">{t("Full")}</option></select></label>
+        <label className="text-xs font-semibold">{t("Divider thickness")}<select className="mt-2 w-full rounded-xl border p-3" value={block.divider_thickness ?? 1} disabled={disabled} onChange={event => onChange("divider_thickness", Number(event.target.value) as PublicSiteCustomBlock["divider_thickness"])}><option value={1}>{t("1 px")}</option><option value={2}>{t("2 px")}</option><option value={3}>{t("3 px")}</option></select></label>
+        <label className="text-xs font-semibold">{t("Divider color")}<select className="mt-2 w-full rounded-xl border p-3" value={block.divider_color_mode ?? "template"} disabled={disabled} onChange={event => onChange("divider_color_mode", event.target.value as PublicSiteCustomBlock["divider_color_mode"])}><option value="template">{t("Template")}</option><option value="accent">{t("Accent")}</option><option value="custom">{t("Custom")}</option></select></label>
+        {block.divider_color_mode === "custom" ? <ColorEditor label={t("Divider custom color")} value={block.divider_custom_color ?? "#9d3151"} disabled={disabled} presets={[siteAccent, siteDark]} onChange={value => onChange("divider_custom_color", value)} /> : null}
+      </> : null}
+    </div>
+  </>;
 
   return (
     <>
@@ -9775,9 +7689,9 @@ function CustomBlockSettings({
       />
       {visual.layout ? (
         <div className="grid gap-3 rounded-2xl border border-[#9a742e]/20 bg-[#fbf7ee] p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f531f]">
-            Размеры и анимация
-          </p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f531f]">
+          Размеры и анимация
+        </p>
           <SharedEditorFieldList fields={layoutFields} />
         </div>
       ) : null}
@@ -9787,26 +7701,9 @@ function CustomBlockSettings({
         t={t}
         onChange={onChange}
       />
-      <CompactField
-        label={t("Eyebrow")}
-        value={block.eyebrow}
-        disabled={disabled}
-        onChange={(value) => onChange("eyebrow", value)}
-      />
-      <RichTextEditor
-        label={t("Heading")}
-        value={block.title}
-        disabled={disabled}
-        variant="heading"
-        onChange={(value) => onChange("title", value)}
-      />
-      <TypographyControls
-        title="Заголовок блока"
-        description={richTextPlainText(block.title) || "Без названия"}
-        value={block.title_typography}
-        disabled={disabled}
-        onChange={(value) => onChange("title_typography", value)}
-      />
+      <CompactField label={t("Eyebrow")} value={block.eyebrow} disabled={disabled} onChange={(value) => onChange("eyebrow", value)} />
+      <RichTextEditor label={t("Heading")} value={block.title} disabled={disabled} variant="heading" onChange={(value) => onChange("title", value)} />
+      <TypographyControls title="Заголовок блока" description={richTextPlainText(block.title) || "Без названия"} value={block.title_typography} disabled={disabled} onChange={(value) => onChange("title_typography", value)} />
       {block.kind === "features" ? (
         <DelimitedItemsEditor
           label={t("Feature cards")}
@@ -9820,12 +7717,7 @@ function CustomBlockSettings({
         />
       ) : block.kind === "columns" ? (
         <>
-          <RichTextEditor
-            label={t("Intro text")}
-            value={block.text}
-            disabled={disabled}
-            onChange={(value) => onChange("text", value)}
-          />
+          <RichTextEditor label={t("Intro text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
           <ColumnCardsEditor
             block={block}
             disabled={disabled}
@@ -9835,12 +7727,7 @@ function CustomBlockSettings({
           />
         </>
       ) : (
-        <RichTextEditor
-          label={t("Text")}
-          value={block.text}
-          disabled={disabled}
-          onChange={(value) => onChange("text", value)}
-        />
+        <RichTextEditor label={t("Text")} value={block.text} disabled={disabled} onChange={(value) => onChange("text", value)} />
       )}
       {block.kind === "columns" ? (
         <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
@@ -9861,9 +7748,7 @@ function CustomBlockSettings({
           </select>
         </label>
       ) : null}
-      {block.kind === "cta" ||
-      block.kind === "media_text" ||
-      block.preset_id === "pricing" ? (
+      {block.kind === "cta" || block.kind === "media_text" || block.preset_id === "pricing" ? (
         <SiteEditorActionField
           label={t("Button")}
           text={block.button_label}
@@ -9877,19 +7762,10 @@ function CustomBlockSettings({
           ]}
           appearance={{
             size: block.button_size ?? "medium",
-            backgroundColor:
-              block.button_background ??
-              (block.tone === "dark" || block.tone === "accent"
-                ? "#ffffff"
-                : colorDefaults.accent),
-            textColor:
-              block.button_text_color ??
-              (block.tone === "dark" || block.tone === "accent"
-                ? siteDark
-                : "#ffffff"),
+            backgroundColor: block.button_background ?? (block.tone === "dark" || block.tone === "accent" ? "#ffffff" : colorDefaults.accent),
+            textColor: block.button_text_color ?? (block.tone === "dark" || block.tone === "accent" ? siteDark : "#ffffff"),
             onSizeChange: (value) => onChange("button_size", value),
-            onBackgroundColorChange: (value) =>
-              onChange("button_background", value),
+            onBackgroundColorChange: (value) => onChange("button_background", value),
             onTextColorChange: (value) => onChange("button_text_color", value),
           }}
           onTextChange={(value) => onChange("button_label", value)}
@@ -9925,9 +7801,7 @@ function CustomBlockSettings({
           </label>
           {block.media_type === "calendar" ? (
             <p className="rounded-xl border border-[#9d3151]/20 bg-[#fff8fa] px-4 py-3 text-xs leading-6 text-[#77515d]">
-              {t(
-                "The live booking calendar will appear beside the text and use real services and availability.",
-              )}
+              {t("The live booking calendar will appear beside the text and use real services and availability.")}
             </p>
           ) : block.media_type === "video" ? (
             <>
@@ -10026,7 +7900,9 @@ function CustomBlockSettings({
             value={block.video_url ?? ""}
             disabled={disabled}
             onChange={(value) => onChange("video_url", value)}
-            onChoose={() => onChooseImage("video_url", t("Video from media"))}
+            onChoose={() =>
+              onChooseImage("video_url", t("Video from media"))
+            }
           />
           <ImageEditor
             label={t("Video cover")}
@@ -10034,7 +7910,9 @@ function CustomBlockSettings({
             disabled={disabled}
             t={t}
             onChange={(value) => onChange("video_poster_url", value)}
-            onChoose={() => onChooseImage("video_poster_url", t("Video cover"))}
+            onChoose={() =>
+              onChooseImage("video_poster_url", t("Video cover"))
+            }
           />
         </>
       ) : null}
@@ -10095,25 +7973,15 @@ function CanvasSectionPreview({
 }) {
   if (section === "services" && services.length) {
     const columns = draft.services_columns ?? 3;
-    const gridClass =
-      columns === 2
-        ? "sm:grid-cols-2"
-        : columns === 4
-          ? "sm:grid-cols-2 lg:grid-cols-4"
-          : "sm:grid-cols-3";
+    const gridClass = columns === 2 ? "sm:grid-cols-2" : columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
     return (
-      <div
-        className={`mt-7 grid gap-2 ${draft.services_layout === "list" ? "grid-cols-1" : gridClass}`}
-      >
+      <div className={`mt-7 grid gap-2 ${draft.services_layout === "list" ? "grid-cols-1" : gridClass}`}>
         {services.slice(0, 8).map((service, index) => {
           const image = serviceCardImage(draft, service, index);
           const price = previewServicePrice(service);
           const duration = previewServiceDuration(service);
           return (
-            <article
-              key={service.slug}
-              className={`os-site-card overflow-hidden rounded-2xl border border-white/12 bg-white/5 ${draft.services_layout === "list" ? "grid grid-cols-[120px_1fr]" : ""}`}
-            >
+            <article key={service.slug} className={`os-site-card overflow-hidden rounded-2xl border border-white/12 bg-white/5 ${draft.services_layout === "list" ? "grid grid-cols-[120px_1fr]" : ""}`}>
               {image ? (
                 <img
                   src={image}
@@ -10123,29 +7991,14 @@ function CanvasSectionPreview({
               ) : null}
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  {draft.services_show_duration !== false ? (
-                    <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">
-                      {duration}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
-                  {draft.services_show_price !== false ? (
-                    <span className="text-xs font-semibold text-[#f0cad5]">
-                      {price}
-                    </span>
-                  ) : null}
+                  {draft.services_show_duration !== false ? <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">{duration}</span> : <span />}
+                  {draft.services_show_price !== false ? <span className="text-xs font-semibold text-[#f0cad5]">{price}</span> : null}
                 </div>
                 <h4 className="mt-4 text-sm font-semibold">{service.title}</h4>
-                {draft.services_show_description !== false &&
-                service.description ? (
-                  <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-white/50">
-                    {service.description}
-                  </p>
+                {draft.services_show_description !== false && service.description ? (
+                  <p className="mt-2 line-clamp-2 text-[10px] leading-5 text-white/50">{service.description}</p>
                 ) : null}
-                <span className="mt-4 inline-flex text-[10px] font-semibold text-[#f0cad5]">
-                  {draft.services_button_label || "Подробнее"} →
-                </span>
+                <span className="mt-4 inline-flex text-[10px] font-semibold text-[#f0cad5]">{draft.services_button_label || "Подробнее"} →</span>
               </div>
             </article>
           );
@@ -10275,9 +8128,7 @@ function CanvasSectionPreview({
                     className="h-full w-full object-cover object-top"
                   />
                 ) : (
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">
-                    Добавьте фото
-                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте фото</span>
                 )}
               </div>
               <div className="p-4">
@@ -10307,22 +8158,11 @@ function CanvasSectionPreview({
     return (
       <div className="mt-7 rounded-2xl border border-black/8 bg-white p-5">
         {draft.booking_text ? (
-          <PublicRichText
-            value={draft.booking_text}
-            className="mb-4 text-xs leading-6 text-black/55"
-          />
+          <PublicRichText value={draft.booking_text} className="mb-4 text-xs leading-6 text-black/55" />
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            "Выберите услугу",
-            "Любой мастер",
-            "Выберите дату",
-            "Любое время",
-          ].map((label) => (
-            <span
-              key={label}
-              className="rounded-xl border border-black/10 px-3 py-3 text-[10px] text-[#4f4b45]"
-            >
+          {["Выберите услугу", "Любой мастер", "Выберите дату", "Любое время"].map((label) => (
+            <span key={label} className="rounded-xl border border-black/10 px-3 py-3 text-[10px] text-[#4f4b45]">
               {label}
             </span>
           ))}
@@ -10339,10 +8179,7 @@ function CanvasSectionPreview({
     return (
       <div className="mt-7 grid gap-2 sm:grid-cols-2">
         {reviews.map((review) => (
-          <blockquote
-            key={review.id}
-            className="os-site-card rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-[#2f2d29]"
-          >
+          <blockquote key={review.id} className="os-site-card rounded-2xl border border-black/8 bg-white/70 p-4 text-xs leading-6 text-[#2f2d29]">
             <span className="block text-[#9d3151]">
               {"★".repeat(review.rating)}
             </span>
@@ -10363,74 +8200,67 @@ function CanvasSectionPreview({
     const cards = membershipItems.length
       ? membershipItems
       : legacyBenefits.map((benefit) => `${benefit} · · · Вступить · #contact`);
-    const membershipImages = draft.membership_image_urls ?? [
-      draft.membership_image_url || "",
-    ];
+    const membershipImages =
+      draft.membership_image_urls
+      ?? [draft.membership_image_url || ""];
 
     return (
       <div className="mt-7">
         {draft.membership_text ? (
-          <PublicRichText
-            value={draft.membership_text}
-            className="mb-5 max-w-2xl text-xs leading-6 text-black/55"
-          />
+          <PublicRichText value={draft.membership_text} className="mb-5 max-w-2xl text-xs leading-6 text-black/55" />
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.length ? (
-            cards.map((item, index) => {
-              const [
-                title = "",
-                condition = "",
-                description = "",
-                buttonLabel = "Вступить",
-              ] = item.split("·").map((part) => part.trim());
-              return (
-                <article
-                  key={`${item}-${index}`}
-                  className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
-                >
-                  <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
-                    {membershipImages[index] || draft.membership_image_url ? (
-                      <img
-                        src={
-                          membershipImages[index] || draft.membership_image_url
-                        }
-                        alt={title}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">
-                        Добавьте изображение
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="text-sm font-semibold">{title}</h4>
-                    {condition ? (
-                      <p
-                        className="mt-2 text-[9px] font-semibold uppercase tracking-[0.12em]"
-                        style={{ color: draft.theme_accent ?? "#9d3151" }}
-                      >
-                        {condition}
-                      </p>
-                    ) : null}
-                    {description ? (
-                      <p className="mt-2 text-[10px] leading-5 text-black/50">
-                        {description}
-                      </p>
-                    ) : null}
-                    <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
-                      {buttonLabel || "Вступить"}
-                    </span>
-                  </div>
-                </article>
-              );
-            })
-          ) : (
-            <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
-              Добавьте первый уровень клуба справа
-            </div>
-          )}
+        {cards.length ? (
+          cards.map((item, index) => {
+            const [
+              title = "",
+              condition = "",
+              description = "",
+              buttonLabel = "Вступить",
+            ] = item.split("·").map((part) => part.trim());
+            return (
+              <article
+                key={`${item}-${index}`}
+                className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+              >
+                <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
+                  {membershipImages[index] || draft.membership_image_url ? (
+                    <img
+                      src={membershipImages[index] || draft.membership_image_url}
+                      alt={title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте изображение</span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h4 className="text-sm font-semibold">{title}</h4>
+                  {condition ? (
+                    <p
+                      className="mt-2 text-[9px] font-semibold uppercase tracking-[0.12em]"
+                      style={{ color: draft.theme_accent ?? "#9d3151" }}
+                    >
+                      {condition}
+                    </p>
+                  ) : null}
+                  {description ? (
+                    <p className="mt-2 text-[10px] leading-5 text-black/50">
+                      {description}
+                    </p>
+                  ) : null}
+                  <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
+                    {buttonLabel || "Вступить"}
+                  </span>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
+            Добавьте первый уровень клуба справа
+          </div>
+        )}
         </div>
       </div>
     );
@@ -10446,10 +8276,8 @@ function CanvasSectionPreview({
             const parts = item.split("·").map((part) => part.trim());
             const hasIcon = parts.length >= 3;
             const icon = hasIcon ? parts[0] : "";
-            const title = hasIcon ? parts[1] : (parts[0] ?? "");
-            const description = (
-              hasIcon ? parts.slice(2) : parts.slice(1)
-            ).join(" · ");
+            const title = hasIcon ? parts[1] : parts[0] ?? "";
+            const description = (hasIcon ? parts.slice(2) : parts.slice(1)).join(" · ");
 
             return (
               <article
@@ -10490,65 +8318,56 @@ function CanvasSectionPreview({
     return (
       <div className="mt-7">
         {draft.gift_text ? (
-          <PublicRichText
-            value={draft.gift_text}
-            className="mb-5 max-w-2xl text-xs leading-6 text-black/55"
-          />
+          <PublicRichText value={draft.gift_text} className="mb-5 max-w-2xl text-xs leading-6 text-black/55" />
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {giftItems.length ? (
-            giftItems.map((item, index) => {
-              const [
-                title = "",
-                amount = "",
-                description = "",
-                buttonLabel = "Выбрать",
-              ] = item.split("·").map((part) => part.trim());
-              return (
-                <article
-                  key={`${item}-${index}`}
-                  className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
-                >
-                  <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
-                    {giftImages[index] || draft.gift_image_url ? (
-                      <img
-                        src={giftImages[index] || draft.gift_image_url}
-                        alt={title}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">
-                        Добавьте изображение
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="text-sm font-semibold">{title}</h4>
-                    {amount ? (
-                      <p
-                        className="mt-2 text-lg font-semibold"
-                        style={{ color: draft.theme_accent ?? "#9d3151" }}
-                      >
-                        {amount}
-                      </p>
-                    ) : null}
-                    {description ? (
-                      <p className="mt-2 text-[10px] leading-5 text-black/50">
-                        {description}
-                      </p>
-                    ) : null}
-                    <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
-                      {buttonLabel || "Выбрать"}
-                    </span>
-                  </div>
-                </article>
-              );
-            })
-          ) : (
-            <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
-              Добавьте первый подарочный сертификат справа
-            </div>
-          )}
+        {giftItems.length ? (
+          giftItems.map((item, index) => {
+            const [title = "", amount = "", description = "", buttonLabel = "Выбрать"] =
+              item.split("·").map((part) => part.trim());
+            return (
+              <article
+                key={`${item}-${index}`}
+                className="os-site-card overflow-hidden rounded-2xl border border-black/8 bg-white/70"
+              >
+                <div className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-[#eadde0]">
+                  {giftImages[index] || draft.gift_image_url ? (
+                    <img
+                      src={giftImages[index] || draft.gift_image_url}
+                      alt={title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/35">Добавьте изображение</span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h4 className="text-sm font-semibold">{title}</h4>
+                  {amount ? (
+                    <p
+                      className="mt-2 text-lg font-semibold"
+                      style={{ color: draft.theme_accent ?? "#9d3151" }}
+                    >
+                      {amount}
+                    </p>
+                  ) : null}
+                  {description ? (
+                    <p className="mt-2 text-[10px] leading-5 text-black/50">
+                      {description}
+                    </p>
+                  ) : null}
+                  <span className="os-site-button mt-4 inline-flex rounded-full border border-black/10 px-3 py-2 text-[10px] font-semibold">
+                    {buttonLabel || "Выбрать"}
+                  </span>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-black/10 p-6 text-center text-[11px] text-black/40 sm:col-span-2 lg:col-span-3">
+            Добавьте первый подарочный сертификат справа
+          </div>
+        )}
         </div>
       </div>
     );
@@ -10604,9 +8423,7 @@ function CanvasSectionPreview({
     const facts = previewLines(draft.about_facts);
 
     return (
-      <div
-        className={`mt-7 grid gap-5 ${draft.about_image_url ? "sm:grid-cols-[0.9fr_1.1fr] sm:items-center" : ""}`}
-      >
+      <div className={`mt-7 grid gap-5 ${draft.about_image_url ? "sm:grid-cols-[0.9fr_1.1fr] sm:items-center" : ""}`}>
         {draft.about_image_url ? (
           <div className="overflow-hidden rounded-2xl bg-black/5">
             <img
@@ -10618,10 +8435,7 @@ function CanvasSectionPreview({
         ) : null}
         <div>
           {draft.about_text ? (
-            <PublicRichText
-              value={draft.about_text}
-              className="max-w-2xl text-xs leading-6 text-black/55"
-            />
+            <PublicRichText value={draft.about_text} className="max-w-2xl text-xs leading-6 text-black/55" />
           ) : null}
           {facts.length ? (
             <div className="mt-5 grid gap-2 sm:grid-cols-3">
@@ -10669,10 +8483,7 @@ function CanvasSectionPreview({
           <p>✉ {previewEmail}</p>
           <p>☎ {previewPhone}</p>
           {draft.contact_note ? (
-            <PublicRichText
-              value={draft.contact_note}
-              className="mt-3 border-t border-black/8 pt-3 leading-5"
-            />
+            <PublicRichText value={draft.contact_note} className="mt-3 border-t border-black/8 pt-3 leading-5" />
           ) : null}
           {draft.show_social_icons && draft.social_links?.length ? (
             <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.14em]">
@@ -10724,49 +8535,21 @@ function CanvasBlock({
       style={order === undefined ? undefined : { order }}
       className={`relative block w-full text-left outline-none transition ${muted ? "opacity-35 grayscale" : ""} ${active ? "ring-2 ring-inset ring-[#b58a36]" : "hover:ring-2 hover:ring-inset hover:ring-black/15"}`}
     >
-      {active ? (
-        <span className="absolute right-3 top-3 z-10 rounded-full bg-[#b58a36] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">
-          Edit
-        </span>
-      ) : null}
+      {active ? <span className="absolute right-3 top-3 z-10 rounded-full bg-[#b58a36] px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white">Edit</span> : null}
       {children}
     </button>
   );
 }
 
-function CompactField({
-  label,
-  value,
-  disabled,
-  multiline,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  disabled: boolean;
-  multiline?: boolean;
-  onChange: (value: string) => void;
-}) {
-  const className =
-    "mt-2 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 py-3 text-sm leading-6 outline-none focus:border-[#9a742e]";
+function CompactField({ label, value, disabled, multiline, onChange }: { label: string; value: string; disabled: boolean; multiline?: boolean; onChange: (value: string) => void }) {
+  const className = "mt-2 w-full rounded-xl border border-black/10 bg-[#faf9f6] px-3 py-3 text-sm leading-6 outline-none focus:border-[#9a742e]";
   return (
     <label className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#716d65]">
       {label}
       {multiline ? (
-        <textarea
-          rows={value.length > 80 ? 5 : 3}
-          className={className}
-          value={value}
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.value)}
-        />
+        <textarea rows={value.length > 80 ? 5 : 3} className={className} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
       ) : (
-        <input
-          className={className}
-          value={value}
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.value)}
-        />
+        <input className={className} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
       )}
     </label>
   );
@@ -10795,9 +8578,7 @@ function CompactSelect({
         onChange={(event) => onChange(event.target.value)}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
+          <option key={option.value} value={option.value}>{option.label}</option>
         ))}
       </select>
     </label>
@@ -10807,9 +8588,7 @@ function CompactSelect({
 function StatusCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[24px] border border-black/10 bg-white p-5 text-[#17191f] shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f5a52]">
-        {label}
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f5a52]">{label}</p>
       <p className="mt-2 break-all text-lg font-bold text-[#17191f]">{value}</p>
     </div>
   );
@@ -10840,9 +8619,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label
-      className={`text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65] ${wide ? "sm:col-span-2" : ""}`}
-    >
+    <label className={`text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6c65] ${wide ? "sm:col-span-2" : ""}`}>
       {label}
       {children}
     </label>
@@ -10894,9 +8671,7 @@ function SectionOrderRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white px-4 py-3">
-      <span className="text-black/30" aria-hidden="true">
-        ⋮⋮
-      </span>
+      <span className="text-black/30" aria-hidden="true">⋮⋮</span>
       <span className="min-w-0 flex-1 text-sm font-semibold">{label}</span>
       <button
         type="button"

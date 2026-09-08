@@ -68,6 +68,17 @@ test("APR guide preserves headings, rich text, sources, and crawlable internal l
   );
   assert.match(serialized, /do-personal-installment-loans-have-fees-en-2120/);
   assert.match(serialized, /CashPath is not a lender/);
+  assert.match(serialized, /Offer A might have a lower stated interest rate and an origination fee/);
+  assert.match(serialized, /Offer B might have a slightly higher stated interest rate and no comparable origination fee/);
+  for (const question of [
+    "Is the interest rate fixed or variable?",
+    "will any fee be deducted from the proceeds?",
+    "What is the payment amount, how often is it due, and how long is the repayment term?",
+    "What does the agreement say about early repayment?",
+    "Which company is actually providing the credit?",
+  ]) assert.match(serialized, new RegExp(question.replace(/[?]/g, "\\?")));
+  assert.match(serialized, /does not make credit decisions or determine APR, rates, fees, approval, or funding/);
+  assert.match(serialized, /general educational information only/);
   assert.doesNotMatch(
     serialized,
     /guaranteed approval|guaranteed funding|funding within|APR of \d+%/i,

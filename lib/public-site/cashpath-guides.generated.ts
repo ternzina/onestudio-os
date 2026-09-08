@@ -1,12 +1,12 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY.
  * Source: docs/cashpath/guides/*.md
- * Source SHA-256: c9c8a72f14b5fcfe88129f0769bb9f24c76bef97457f16632b9b670272246e7d
+ * Source SHA-256: 76437279e3d3ed388ae3ad8d9c50473b17c27040affaf9da2427cd918288be9b
  * Regenerate with: node scripts/generate-cashpath-guides.mjs
  */
 
 import type { PublicSitePage } from "./types.ts";
 
-export const CASH_PATH_GUIDES_SOURCE_SHA256 = "c9c8a72f14b5fcfe88129f0769bb9f24c76bef97457f16632b9b670272246e7d";
+export const CASH_PATH_GUIDES_SOURCE_SHA256 = "76437279e3d3ed388ae3ad8d9c50473b17c27040affaf9da2427cd918288be9b";
 
 export type CashPathGuide = PublicSitePage & { section_count: number; plain_text_word_count: number };
 
@@ -67,7 +67,7 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "kind": "text",
         "eyebrow": "",
         "title": "How APR helps you compare loan offers",
-        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR is most useful when you compare offers for a similar amount and a similar term. Put the offers side by side and review the APR, payment amount, number of payments, total repayment, and any listed fees. That makes differences easier to see before you commit.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"If you are using an online request service, an offer is still only a proposal until you review its disclosures. CashPath does not determine rates, fees, or approval. Use the offer documents themselves as the source of truth, and see our \"},{\"type\":\"a\",\"href\":\"/p/rates-fees\",\"children\":[{\"type\":\"text\",\"text\":\"Rates & Fees\"}]},{\"type\":\"text\",\"text\":\" page for a practical checklist of cost terms to compare.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Avoid comparing one number in isolation. APR can help you ask better questions, but the payment must still fit your actual budget and the agreement must make sense for your circumstances.\"}]}]}}",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR is most useful when you compare offers for a similar amount and a similar term. Put the offers side by side and review the APR, payment amount, number of payments, total repayment, and any listed fees. That makes differences easier to see before you commit.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"For example, Offer A might have a lower stated interest rate and an origination fee, while Offer B might have a slightly higher stated interest rate and no comparable origination fee. Looking at the interest rate alone cannot establish which offer has the lower overall borrowing cost. APR helps make otherwise comparable offers easier to evaluate, alongside the payment schedule and total repayment.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"If you are using an online request service, an offer is still only a proposal until you review its disclosures. CashPath does not determine rates, fees, or approval. Use the offer documents themselves as the source of truth, and see our \"},{\"type\":\"a\",\"href\":\"/p/rates-fees\",\"children\":[{\"type\":\"text\",\"text\":\"Rates & Fees\"}]},{\"type\":\"text\",\"text\":\" page for a practical checklist of cost terms to compare.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Avoid comparing one number in isolation. APR can help you ask better questions, but the payment must still fit your actual budget and the agreement must make sense for your circumstances.\"}]}]}}",
         "items": "",
         "button_label": "",
         "button_url": "",
@@ -103,7 +103,7 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "kind": "text",
         "eyebrow": "",
         "title": "Questions to ask before accepting a loan offer",
-        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Before you accept, make sure you can answer the following questions from the provider's current disclosures:\"}]},{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What is the APR and interest rate for this specific offer?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What fees may apply, and when can they be charged?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What will each scheduled payment be, and when is it due?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What is the total amount I could repay if I make all scheduled payments?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What happens if a payment is late or returned?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Is there a prepayment policy or another term I should understand before signing?\"}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"You may also want to compare the answers across more than one offer. The \"},{\"type\":\"a\",\"href\":\"/p/faq\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath FAQ\"}]},{\"type\":\"text\",\"text\":\" explains that available offers, terms, and eligibility are determined by participating providers, and that you are not required to accept an offer simply because you submitted a request.\"}]}]}}",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Before you accept, make sure you can answer the following questions from the provider's current disclosures:\"}]},{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What is the APR and interest rate for this specific offer?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Is the interest rate fixed or variable?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Are there origination or other upfront fees, and will any fee be deducted from the proceeds?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What is the payment amount, how often is it due, and how long is the repayment term?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What is the total amount scheduled to be repaid?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What fees may apply for late or returned payments?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"What does the agreement say about early repayment?\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Which company is actually providing the credit?\"}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"You may also want to compare the answers across more than one offer. The \"},{\"type\":\"a\",\"href\":\"/p/faq\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath FAQ\"}]},{\"type\":\"text\",\"text\":\" explains that available offers, terms, and eligibility are determined by participating providers, and that you are not required to accept an offer simply because you submitted a request.\"}]}]}}",
         "items": "",
         "button_label": "",
         "button_url": "",
@@ -127,7 +127,7 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "kind": "text",
         "eyebrow": "",
         "title": "The bottom line",
-        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR can make personal loan comparisons clearer because it provides a standardized annual cost measure. It is especially useful when you compare offers that differ in interest rates or required charges. Still, APR is one part of a larger decision.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Read the provider's disclosures, compare the payment and total repayment, and consider how the loan fits your budget. Do not rely on a single number or assume that an offer is right for you because it appears quickly online. A careful comparison can help you make a more informed choice.\"}]}]}}",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR can make personal loan comparisons clearer because it provides a standardized annual cost measure. It is especially useful when you compare offers that differ in interest rates or required charges. Still, APR is one part of a larger decision.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Read the provider's disclosures, compare the payment and total repayment, and consider how the loan fits your budget. Do not rely on a single number or assume that an offer is right for you because it appears quickly online. A careful comparison can help you make a more informed choice.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath is not a lender and does not make credit decisions or determine APR, rates, fees, approval, or funding. This guide is for general educational information only.\"}]}]}}",
         "items": "",
         "button_label": "",
         "button_url": "",
@@ -148,6 +148,6 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
       }
     ],
     "section_count": 10,
-    "plain_text_word_count": 1367
+    "plain_text_word_count": 1473
   }
 ];

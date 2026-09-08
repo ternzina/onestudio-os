@@ -40,6 +40,8 @@ Fees are only one part of the cost picture. A careful comparison also includes A
 
 APR is most useful when you compare offers for a similar amount and a similar term. Put the offers side by side and review the APR, payment amount, number of payments, total repayment, and any listed fees. That makes differences easier to see before you commit.
 
+For example, Offer A might have a lower stated interest rate and an origination fee, while Offer B might have a slightly higher stated interest rate and no comparable origination fee. Looking at the interest rate alone cannot establish which offer has the lower overall borrowing cost. APR helps make otherwise comparable offers easier to evaluate, alongside the payment schedule and total repayment.
+
 If you are using an online request service, an offer is still only a proposal until you review its disclosures. CashPath does not determine rates, fees, or approval. Use the offer documents themselves as the source of truth, and see our [Rates & Fees](/p/rates-fees) page for a practical checklist of cost terms to compare.
 
 Avoid comparing one number in isolation. APR can help you ask better questions, but the payment must still fit your actual budget and the agreement must make sense for your circumstances.
@@ -65,11 +67,13 @@ Save or print the offer disclosures if you need time to compare them. Taking a s
 Before you accept, make sure you can answer the following questions from the provider's current disclosures:
 
 - What is the APR and interest rate for this specific offer?
-- What fees may apply, and when can they be charged?
-- What will each scheduled payment be, and when is it due?
-- What is the total amount I could repay if I make all scheduled payments?
-- What happens if a payment is late or returned?
-- Is there a prepayment policy or another term I should understand before signing?
+- Is the interest rate fixed or variable?
+- Are there origination or other upfront fees, and will any fee be deducted from the proceeds?
+- What is the payment amount, how often is it due, and how long is the repayment term?
+- What is the total amount scheduled to be repaid?
+- What fees may apply for late or returned payments?
+- What does the agreement say about early repayment?
+- Which company is actually providing the credit?
 
 You may also want to compare the answers across more than one offer. The [CashPath FAQ](/p/faq) explains that available offers, terms, and eligibility are determined by participating providers, and that you are not required to accept an offer simply because you submitted a request.
 
@@ -86,6 +90,8 @@ There is no obligation to accept an offer through CashPath. Borrow only if you u
 APR can make personal loan comparisons clearer because it provides a standardized annual cost measure. It is especially useful when you compare offers that differ in interest rates or required charges. Still, APR is one part of a larger decision.
 
 Read the provider's disclosures, compare the payment and total repayment, and consider how the loan fits your budget. Do not rely on a single number or assume that an offer is right for you because it appears quickly online. A careful comparison can help you make a more informed choice.
+
+CashPath is not a lender and does not make credit decisions or determine APR, rates, fees, approval, or funding. This guide is for general educational information only.
 
 ## Sources and further reading
 
