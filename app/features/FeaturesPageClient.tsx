@@ -9,6 +9,7 @@ import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { getTranslations } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import styles from "./page.module.css";
+import { FEATURE_SEO } from "@/lib/seo/features";
 
 
 
@@ -68,6 +69,15 @@ export default function FeaturesPageClient() {
           </div>
         </div>
       </nav>
+      <section className={styles.catalogSection} aria-labelledby="feature-network-title">
+        <div className={styles.catalogInner}>
+          <p className={`${styles.catalogEyebrow} os-type-eyebrow`}><span />FEATURE NETWORK</p>
+          <h2 id="feature-network-title" className={`${styles.catalogTitle} os-type-h2`}>Explore the systems behind the site</h2>
+          <div className={styles.catalogGrid}>
+            {FEATURE_SEO.map((feature) => <Link className={styles.catalogGroup} href={feature.path} key={feature.path}><h3 className="os-type-eyebrow">{feature.eyebrow}</h3><p>{feature.h1}</p><span>Explore feature ↗</span></Link>)}
+          </div>
+        </div>
+      </section>
 
       <div id="capabilities" className={styles.anchorAlias} aria-hidden="true" />
 
