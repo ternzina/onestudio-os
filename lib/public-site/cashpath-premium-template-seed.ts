@@ -1,4 +1,5 @@
 import { CASH_PATH_FINAL_SEO_PAGES } from "./cashpath-final-seo-content.generated.ts";
+import { CASH_PATH_GUIDES } from "./cashpath-guides.generated.ts";
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSitePage } from "./types.ts";
 
 export function createCashPathPremiumTemplateSeed(): PublicSiteContent {
@@ -35,6 +36,9 @@ export function cashPathFullPageBlocks(slug: string): PublicSiteCustomBlock[] {
   return page ? page.blocks.map((block) => ({ ...block })) as PublicSiteCustomBlock[] : [];
 }
 
-const CASHPATH_PAGES: PublicSitePage[] = CASH_PATH_FINAL_SEO_PAGES.map((page) => ({
-  id: page.slug, type: "custom", slug: page.slug, nav_label: page.title, eyebrow: "CASHPATH", title: page.title, intro: page.intro, seo_title: page.seo_title, seo_description: page.seo_description, is_visible: true, show_in_navigation: ["about", "faq", "contact"].includes(page.slug), show_booking_cta: false, blocks: cashPathFullPageBlocks(page.slug),
-}));
+const CASHPATH_PAGES: PublicSitePage[] = [
+  ...CASH_PATH_FINAL_SEO_PAGES.map((page): PublicSitePage => ({
+    id: page.slug, type: "custom", slug: page.slug, nav_label: page.title, eyebrow: "CASHPATH", title: page.title, intro: page.intro, seo_title: page.seo_title, seo_description: page.seo_description, is_visible: true, show_in_navigation: ["about", "faq", "contact"].includes(page.slug), show_booking_cta: false, blocks: cashPathFullPageBlocks(page.slug),
+  })),
+  ...CASH_PATH_GUIDES.map((page): PublicSitePage => ({ ...page, blocks: page.blocks?.map((block) => ({ ...block })) })),
+];

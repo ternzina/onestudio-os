@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { CASH_PATH_FINAL_SEO_PAGES, CASH_PATH_FINAL_SEO_SOURCE_SHA256 } from "../lib/public-site/cashpath-final-seo-content.generated.ts";
+import { CASH_PATH_GUIDES } from "../lib/public-site/cashpath-guides.generated.ts";
 import { CASH_PATH_LEGACY_INTROS, createCashPathPremiumTemplateSeed } from "../lib/public-site/cashpath-premium-template-seed.ts";
 import { needsCashPathFullPageUpgrade, upgradeCashPathFullPages } from "../lib/public-site/cashpath-page-content-upgrade.ts";
 
@@ -31,7 +32,7 @@ test("CashPath generated corpus is current, complete, and matches its canonical 
 
 test("future CashPath tenants use every generated page and generated SEO metadata", () => {
   const seed = createCashPathPremiumTemplateSeed();
-  assert.equal(seed.pages?.length, 11);
+  assert.equal(seed.pages?.length, 12);
   for (const generated of CASH_PATH_FINAL_SEO_PAGES) {
     const page: NonNullable<typeof seed.pages>[number] | undefined = seed.pages?.find((candidate) => candidate.slug === generated.slug);
     assert.ok(page, `seed is missing ${generated.slug}`);
@@ -40,6 +41,13 @@ test("future CashPath tenants use every generated page and generated SEO metadat
     assert.equal(page.seo_title, generated.seo_title);
     assert.equal(page.seo_description, generated.seo_description);
     assert.deepEqual(page.blocks, generated.blocks);
+  }
+  for (const guide of CASH_PATH_GUIDES) {
+    const page = seed.pages?.find((candidate) => candidate.slug === guide.slug);
+    assert.ok(page, `seed is missing guide ${guide.slug}`);
+    assert.equal(page.title, guide.title);
+    assert.equal(page.seo_title, guide.seo_title);
+    assert.equal(page.seo_description, guide.seo_description);
   }
   const titles = CASH_PATH_FINAL_SEO_PAGES.map((page) => page.seo_title);
   const descriptions = CASH_PATH_FINAL_SEO_PAGES.map((page) => page.seo_description);
@@ -70,7 +78,7 @@ test("only exact untouched legacy placeholders receive the generated one-step up
   const seed = createCashPathPremiumTemplateSeed();
   const legacy = {
     ...seed,
-    pages: (seed.pages ?? []).map((page) => ({
+    pages: (seed.pages ?? []).filter((page) => expectedSlugs.includes(page.slug)).map((page) => ({
       ...page,
       seo_title: `Existing SEO ${page.slug}`,
       seo_description: `Existing description ${page.slug}`,
