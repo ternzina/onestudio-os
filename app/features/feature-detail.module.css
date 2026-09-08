@@ -1,0 +1,24 @@
+.page { min-height: 100vh; background: var(--os-public-color-ivory); color: var(--os-public-color-dark); }
+.hero { color: var(--os-public-color-cream); background: radial-gradient(ellipse 58% 70% at 76% 30%, rgba(255,107,53,.22), transparent 70%), var(--os-public-color-chocolate); padding: 0 var(--os-public-container-gutter) 110px; }
+.heroInner, .sections, .connection, .faq, .cta { width: var(--os-public-container-width); margin-inline: auto; }
+.heroInner { padding-top: 90px; max-width: 1180px; }
+.heroInner h1 { max-width: 850px; margin: 20px 0; }
+.intro { max-width: 680px; font-size: clamp(19px, 2vw, 25px); line-height: 1.5; color: #e7d8cf; }
+.heroLinks { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+.heroLinks a, .cta a { padding: 14px 20px; border: 1px solid rgba(255,214,194,.4); border-radius: 999px; color: inherit; }
+.sections { padding-block: 80px; }
+.section { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; padding-block: 60px; border-bottom: 1px solid rgba(46,35,30,.16); }
+.section h2 { margin: 14px 0 20px; }
+.section p, .faq p { max-width: 600px; font-size: 18px; line-height: 1.65; }
+.section ul { margin: 35px 0 0; padding: 0; list-style: none; }
+.section li { padding: 16px 0; border-top: 1px solid rgba(46,35,30,.16); font-weight: 600; }
+.connection, .faq { padding-block: 90px; }
+.connection h2 { max-width: 720px; margin: 16px 0 35px; }
+.linkGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.linkGrid a { padding: 18px; background: #fffaf6; border: 1px solid rgba(46,35,30,.14); border-radius: 12px; }
+.faq { border-top: 1px solid rgba(46,35,30,.16); }
+.faq div { max-width: 760px; padding: 22px 0; border-bottom: 1px solid rgba(46,35,30,.16); }
+.faq h3 { margin: 0 0 8px; }
+.cta { margin-bottom: 100px; padding: 60px; color: var(--os-public-color-cream); background: var(--os-public-color-dark); border-radius: 20px; }
+.cta h2 { max-width: 720px; margin: 0 0 30px; }
+@media (max-width: 760px) { .hero { padding-bottom: 70px; } .section { grid-template-columns: 1fr; gap: 18px; padding-block: 42px; } .linkGrid { grid-template-columns: 1fr; } .cta { padding: 34px 24px; margin-inline: var(--os-public-container-gutter); width: auto; } }
