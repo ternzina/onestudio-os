@@ -1,0 +1,12670 @@
+// Generated production registry data.
+// Production runtime data only.
+
+export const PUCK_EXPANDED_REGISTRY_DATA = [
+  {
+    "id": "RB_navigation_13",
+    "catalogKey": "pro-block:navigation-13",
+    "label": "Navigation 13",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-13",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-13",
+    "rendererSource": "@/components/blocks/navigation-13",
+    "componentName": "Navigation13",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_hero_16",
+    "catalogKey": "pro-block:hero-16",
+    "label": "Hero 16",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-16",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-16",
+    "rendererSource": "@/components/blocks/hero-16",
+    "componentName": "Hero16",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_showcase_4",
+    "catalogKey": "pro-block:showcase-4",
+    "label": "Showcase 4",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "showcase-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/showcase-4",
+    "rendererSource": "@/components/blocks/showcase-4",
+    "componentName": "Showcase4",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_features_1",
+    "catalogKey": "pro-block:features-1",
+    "label": "Features 1",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-1",
+    "rendererSource": "@/components/blocks/features-1",
+    "componentName": "Features1",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_how_it_works_4",
+    "catalogKey": "pro-block:how-it-works-4",
+    "label": "How It Works 4",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-4",
+    "rendererSource": "@/components/blocks/how-it-works-4",
+    "componentName": "HowItWorks4",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_about_1",
+    "catalogKey": "pro-block:about-1",
+    "label": "About 1",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "about-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/about-1",
+    "rendererSource": "@/components/blocks/about-1",
+    "componentName": "About1",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_social_proof_6",
+    "catalogKey": "pro-block:social-proof-6",
+    "label": "Social Proof 6",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-6",
+    "rendererSource": "@/components/blocks/social-proof-6",
+    "componentName": "SocialProof6",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_social_proof_3",
+    "catalogKey": "pro-block:social-proof-3",
+    "label": "Social Proof 3",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-3",
+    "rendererSource": "@/components/blocks/social-proof-3",
+    "componentName": "SocialProof3",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_contact_2",
+    "catalogKey": "pro-block:contact-2",
+    "label": "Contact 2",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-2",
+    "rendererSource": "@/components/blocks/contact-2",
+    "componentName": "Contact2",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_footer_3",
+    "catalogKey": "pro-block:footer-3",
+    "label": "Footer 3",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-3",
+    "rendererSource": "@/components/blocks/footer-3",
+    "componentName": "Footer3",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_hero_13",
+    "catalogKey": "pro-block:hero-13",
+    "label": "Hero 13",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-13",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-13",
+    "rendererSource": "@/components/blocks/hero-13",
+    "componentName": "Hero13",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_showcase_5",
+    "catalogKey": "pro-block:showcase-5",
+    "label": "Showcase 5",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "showcase-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/showcase-5",
+    "rendererSource": "@/components/blocks/showcase-5",
+    "componentName": "Showcase5",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_navigation_5",
+    "catalogKey": "pro-block:navigation-5",
+    "label": "Navigation 5",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-5",
+    "rendererSource": "@/components/blocks/navigation-5",
+    "componentName": "Navigation5",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_pixel_reveal",
+    "catalogKey": "component:pixel-reveal",
+    "label": "Pixel Reveal",
+    "taxonomy": "Animations",
+    "sourceTier": "PRO",
+    "officialSlug": "pixel-reveal",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/pixel-reveal",
+    "rendererSource": "@/components/react-bits/pixel-reveal",
+    "componentName": "PixelReveal",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "imageSrc": {
+        "kind": "string",
+        "maxLength": 2048,
+        "format": "url",
+        "editable": false
+      },
+      "width": {
+        "kind": "string",
+        "maxLength": 2000,
+        "editable": false
+      },
+      "height": {
+        "kind": "string",
+        "maxLength": 2000,
+        "editable": false
+      },
+      "gridSize": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000,
+        "editable": false
+      },
+      "duration": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000,
+        "editable": false
+      },
+      "autoTrigger": {
+        "kind": "boolean",
+        "editable": false
+      }
+    },
+    "defaults": {
+      "imageSrc": "/svg/placeholder.svg",
+      "width": "100%",
+      "height": "100%",
+      "gridSize": 20,
+      "duration": 1.6,
+      "autoTrigger": true
+    }
+  },
+  {
+    "id": "RB_portal",
+    "catalogKey": "component:portal",
+    "label": "Portal",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "portal",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/portal",
+    "rendererSource": "@/components/react-bits/portal",
+    "componentName": "Portal",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_lightspeed",
+    "catalogKey": "component:lightspeed",
+    "label": "Lightspeed",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "lightspeed",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/lightspeed",
+    "rendererSource": "@/components/react-bits/lightspeed",
+    "componentName": "Lightspeed",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": "full-surface",
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_light_droplets",
+    "catalogKey": "component:light-droplets",
+    "label": "Light Droplets",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "light-droplets",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/light-droplets",
+    "rendererSource": "@/components/react-bits/light-droplets",
+    "componentName": "LightDroplets",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": "full-surface",
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_frame_border",
+    "catalogKey": "component:frame-border",
+    "label": "Frame Border",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "frame-border",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/frame-border",
+    "rendererSource": "@/components/react-bits/frame-border",
+    "componentName": "FrameBorder",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": "full-surface",
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_flicker",
+    "catalogKey": "starter:flicker-tw",
+    "label": "Flicker",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "FREE",
+    "officialSlug": "flicker",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/flicker",
+    "rendererSource": "@/components/react-bits/flicker",
+    "componentName": "Flicker",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [
+      "RB_flicker"
+    ],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "glowColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "overlayColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "alpha": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "overlay": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "shape": {
+        "kind": "enum",
+        "values": [
+          "circle",
+          "square"
+        ]
+      },
+      "jitter": {
+        "kind": "boolean"
+      },
+      "mouseEffect": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "color": "#5A4B81",
+      "glowColor": "#FF9FFC",
+      "overlayColor": "#0a0a0a",
+      "alpha": 1,
+      "overlay": 1,
+      "shape": "circle",
+      "jitter": false,
+      "mouseEffect": false
+    }
+  },
+  {
+    "id": "RB_dot_shift",
+    "catalogKey": "component:dot-shift",
+    "label": "Dot Shift",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "dot-shift",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/dot-shift",
+    "rendererSource": "@/components/react-bits/dot-shift",
+    "componentName": "DotShift",
+    "host": null,
+    "definiteHeight": null,
+    "runtimeFamily": "full-surface",
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_control3_blur_highlight",
+    "catalogKey": "control-3:blur-highlight",
+    "label": "Blur Highlight",
+    "taxonomy": "Text Effects",
+    "sourceTier": "PRO",
+    "officialSlug": "blur-highlight",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/blur-highlight",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/blur-highlight",
+    "componentName": "ProductionBlurHighlight",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "align": "center",
+      "runtimeRisk": "observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "text": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "text": "Our cutting-edge technology transforms how businesses analyze data and make decisions. From real-time insights to predictive analytics, we deliver solutions that drive growth and innovation."
+    }
+  },
+  {
+    "id": "RB_control3_faq_4",
+    "catalogKey": "control-3:faq-4",
+    "label": "FAQ 4",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-4",
+    "rendererSource": "@/components/blocks/faq-4",
+    "componentName": "Faq4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "sourceCssVariable": {
+        "name": "--rb-section-min-h",
+        "value": "800px",
+        "provenance": "official-contract"
+      },
+      "runtimeRisk": "observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_control3_empty_state_3",
+    "catalogKey": "control-3:empty-state-3",
+    "label": "Empty State 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "empty-state-3",
+    "sourceKind": "component",
+    "physicalSource": "@/components/blocks/empty-state-3",
+    "rendererSource": "@/components/blocks/empty-state-3",
+    "componentName": "EmptyState3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "technical-definite",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "technicalHeight": {
+        "value": 640,
+        "provenance": "puck-technical"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_control6_text_scatter",
+    "catalogKey": "control-6:text-scatter-tw",
+    "label": "Text Scatter",
+    "taxonomy": "Text Effects",
+    "sourceTier": "PRO",
+    "officialSlug": "text-scatter",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/text-scatter",
+    "rendererSource": "@/components/react-bits/text-scatter",
+    "componentName": "TextScatter",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "text": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "text": "Bounce Back."
+    }
+  },
+  {
+    "id": "RB_control6_download_1",
+    "catalogKey": "control-6:download-1",
+    "label": "Download 1",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "download-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/download-1",
+    "rendererSource": "@/components/blocks/download-1",
+    "componentName": "Download1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_control6_card_2",
+    "catalogKey": "control-6:card-2",
+    "label": "Card 2",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-2",
+    "sourceKind": "component",
+    "physicalSource": "@/components/blocks/card-2",
+    "rendererSource": "@/components/blocks/card-2",
+    "componentName": "Card2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_click_stack",
+    "catalogKey": "component:click-stack",
+    "label": "Click Stack",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "click-stack",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/click-stack",
+    "rendererSource": "@/components/react-bits/click-stack",
+    "componentName": "ClickStack",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 500,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "cardColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "shadowOpacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      }
+    },
+    "defaults": {
+      "cardColor": "#ffffff",
+      "shadowOpacity": 0.3,
+      "opacity": 1
+    }
+  },
+  {
+    "id": "RB_batch1_credit_card",
+    "catalogKey": "component:credit-card",
+    "label": "Credit Card",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "credit-card",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/credit-card",
+    "rendererSource": "@/components/react-bits/credit-card",
+    "componentName": "CreditCard",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "runtimeRisk": "dom",
+      "responsiveFit": {
+        "mode": "contain",
+        "intrinsicWidth": {
+          "value": 384,
+          "provenance": "official-source"
+        }
+      }
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "rotationIntensity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "parallaxIntensity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "textColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "showShine": {
+        "kind": "boolean"
+      },
+      "showShadow": {
+        "kind": "boolean"
+      },
+      "hasTextShadow": {
+        "kind": "boolean"
+      },
+      "showActionButtons": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "rotationIntensity": 1,
+      "parallaxIntensity": 1,
+      "textColor": "#ffffff",
+      "showShine": true,
+      "showShadow": true,
+      "hasTextShadow": true,
+      "showActionButtons": false
+    }
+  },
+  {
+    "id": "RB_batch1_device",
+    "catalogKey": "component:device",
+    "label": "Device",
+    "taxonomy": "Animations",
+    "sourceTier": "PRO",
+    "officialSlug": "device",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/device",
+    "rendererSource": "@/components/react-bits/device",
+    "componentName": "Device",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "runtimeRisk": "dom",
+      "responsiveFit": {
+        "mode": "contain",
+        "intrinsicWidth": {
+          "value": 574,
+          "provenance": "official-source"
+        }
+      }
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "image": {
+        "kind": "string",
+        "maxLength": 2048,
+        "format": "url"
+      },
+      "scale": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "isScrollable": {
+        "kind": "boolean"
+      },
+      "enableParallax": {
+        "kind": "boolean"
+      },
+      "enableRotate": {
+        "kind": "boolean"
+      },
+      "autoAnimate": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80",
+      "scale": 1,
+      "isScrollable": false,
+      "enableParallax": true,
+      "enableRotate": true,
+      "autoAnimate": false
+    }
+  },
+  {
+    "id": "RB_batch1_page_flip",
+    "catalogKey": "component:page-flip",
+    "label": "Page Flip",
+    "taxonomy": "Carousel / Slider",
+    "sourceTier": "PRO",
+    "officialSlug": "page-flip",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/page-flip",
+    "rendererSource": "@/components/react-bits/page-flip",
+    "componentName": "PageFlip",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "pageColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "ease": {
+        "kind": "enum",
+        "values": [
+          "easeInOut",
+          "easeOut",
+          "circOut",
+          "backOut"
+        ]
+      },
+      "trigger": {
+        "kind": "enum",
+        "values": [
+          "click",
+          "hover"
+        ]
+      },
+      "closeOnLeave": {
+        "kind": "boolean"
+      },
+      "interactive": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "pageColor": "#f4f4f4",
+      "ease": "easeInOut",
+      "trigger": "click",
+      "closeOnLeave": true,
+      "interactive": true
+    }
+  },
+  {
+    "id": "RB_batch1_glitch_text",
+    "catalogKey": "component:glitch-text",
+    "label": "Glitch Text",
+    "taxonomy": "Text Effects",
+    "sourceTier": "PRO",
+    "officialSlug": "glitch-text",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/glitch-text",
+    "rendererSource": "@/components/react-bits/glitch-text",
+    "componentName": "GlitchText",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 320,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "text": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "textAlign": {
+        "kind": "enum",
+        "values": [
+          "left",
+          "center",
+          "right"
+        ]
+      },
+      "fadeIn": {
+        "kind": "boolean"
+      },
+      "autoFit": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "text": "Glitch Text",
+      "textAlign": "center",
+      "fadeIn": false,
+      "autoFit": true
+    }
+  },
+  {
+    "id": "RB_batch1_features_2",
+    "catalogKey": "pro-block:features-2",
+    "label": "Features 2",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-2",
+    "rendererSource": "@/components/blocks/features-2",
+    "componentName": "Features2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_waitlist_1",
+    "catalogKey": "pro-block:waitlist-1",
+    "label": "Waitlist 1",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "waitlist-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/waitlist-1",
+    "rendererSource": "@/components/blocks/waitlist-1",
+    "componentName": "Waitlist1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_social_proof_2",
+    "catalogKey": "pro-block:social-proof-2",
+    "label": "Social Proof 2",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-2",
+    "rendererSource": "@/components/blocks/social-proof-2",
+    "componentName": "SocialProof2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_showcase_2",
+    "catalogKey": "pro-block:showcase-2",
+    "label": "Showcase 2",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "showcase-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/showcase-2",
+    "rendererSource": "@/components/blocks/showcase-2",
+    "componentName": "Showcase2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_faq_3",
+    "catalogKey": "pro-block:faq-3",
+    "label": "FAQ 3",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-3",
+    "rendererSource": "@/components/blocks/faq-3",
+    "componentName": "FAQ3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_stats_2",
+    "catalogKey": "pro-block:stats-2",
+    "label": "Stats 2",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-2",
+    "rendererSource": "@/components/blocks/stats-2",
+    "componentName": "Stats2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_stats_3",
+    "catalogKey": "pro-block:stats-3",
+    "label": "Stats 3",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-3",
+    "rendererSource": "@/components/blocks/stats-3",
+    "componentName": "Stats3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_footer_5",
+    "catalogKey": "pro-block:footer-5",
+    "label": "Footer 5",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-5",
+    "rendererSource": "@/components/blocks/footer-5",
+    "componentName": "Footer5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_app_dialog_1",
+    "catalogKey": "pro-block:app-dialog-1",
+    "label": "App Dialog 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-1",
+    "rendererSource": "@/components/blocks/app-dialog-1",
+    "componentName": "AppDialog1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_empty_state_1",
+    "catalogKey": "pro-block:empty-state-1",
+    "label": "Empty State 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "empty-state-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/empty-state-1",
+    "rendererSource": "@/components/blocks/empty-state-1",
+    "componentName": "EmptyState1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_feedback_1",
+    "catalogKey": "pro-block:feedback-1",
+    "label": "Feedback 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "feedback-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/feedback-1",
+    "rendererSource": "@/components/blocks/feedback-1",
+    "componentName": "Feedback1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_comments_1",
+    "catalogKey": "pro-block:comments-1",
+    "label": "Comments 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "comments-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/comments-1",
+    "rendererSource": "@/components/blocks/comments-1",
+    "componentName": "Comments1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_onboarding_1",
+    "catalogKey": "pro-block:onboarding-1",
+    "label": "Onboarding 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-1",
+    "rendererSource": "@/components/blocks/onboarding-1",
+    "componentName": "Onboarding1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_command_menu_1",
+    "catalogKey": "pro-block:command-menu-1",
+    "label": "Command Menu 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-1",
+    "rendererSource": "@/components/blocks/command-menu-1",
+    "componentName": "CommandMenu1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_settings_form_1",
+    "catalogKey": "pro-block:settings-form-1",
+    "label": "Settings Form 1",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "settings-form-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/settings-form-1",
+    "rendererSource": "@/components/blocks/settings-form-1",
+    "componentName": "SettingsForm1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch1_app_dialog_2",
+    "catalogKey": "pro-block:app-dialog-2",
+    "label": "App Dialog 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-2",
+    "rendererSource": "@/components/blocks/app-dialog-2",
+    "componentName": "AppDialog2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_bending_marquee",
+    "catalogKey": "component:bending-marquee",
+    "label": "Bending Marquee",
+    "taxonomy": "Text Effects",
+    "sourceTier": "PRO",
+    "officialSlug": "bending-marquee",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/bending-marquee",
+    "rendererSource": "@/components/react-bits/bending-marquee",
+    "componentName": "BendingMarquee",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 520,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "resize-observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "bandColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "direction": {
+        "kind": "enum",
+        "values": [
+          "left",
+          "right"
+        ]
+      },
+      "pauseOnHover": {
+        "kind": "boolean"
+      },
+      "fit": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "color": "#fafafa",
+      "bandColor": "#111111",
+      "direction": "left",
+      "pauseOnHover": true,
+      "fit": true
+    }
+  },
+  {
+    "id": "RB_batch2_card_spread",
+    "catalogKey": "component:card-spread",
+    "label": "Card Spread",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-spread",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/card-spread",
+    "rendererSource": "@/components/react-bits/card-spread",
+    "componentName": "CardSpread",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 520,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "resize-observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "cardColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "shadow": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "restOpacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "fit": {
+        "kind": "boolean"
+      },
+      "interactive": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "cardColor": "#ffffff",
+      "shadow": 0.28,
+      "restOpacity": 1,
+      "fit": true,
+      "interactive": true
+    }
+  },
+  {
+    "id": "RB_batch2_circle_gallery",
+    "catalogKey": "component:circle-gallery",
+    "label": "Circle Gallery",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "circle-gallery",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/circle-gallery",
+    "rendererSource": "@/components/react-bits/circle-gallery",
+    "componentName": "CircleGallery",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "radiusPercent": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "itemScale": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "throwResistance": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "enableDrag": {
+        "kind": "boolean"
+      },
+      "showNumbers": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "radiusPercent": 38,
+      "itemScale": 0.85,
+      "throwResistance": 0.35,
+      "enableDrag": true,
+      "showNumbers": true
+    }
+  },
+  {
+    "id": "RB_batch2_skewed_carousel",
+    "catalogKey": "component:skewed-carousel",
+    "label": "Skewed Carousel",
+    "taxonomy": "Carousel / Slider",
+    "sourceTier": "PRO",
+    "officialSlug": "skewed-carousel",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/skewed-carousel",
+    "rendererSource": "@/components/react-bits/skewed-carousel",
+    "componentName": "SkewedCarousel",
+    "host": {
+      "profile": "flow",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "showTitles": {
+        "kind": "boolean"
+      },
+      "showControls": {
+        "kind": "boolean"
+      },
+      "showDots": {
+        "kind": "boolean"
+      },
+      "loop": {
+        "kind": "boolean"
+      },
+      "autoplay": {
+        "kind": "boolean"
+      },
+      "enableDrag": {
+        "kind": "boolean"
+      },
+      "enableKeyboard": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "showTitles": true,
+      "showControls": true,
+      "showDots": true,
+      "loop": false,
+      "autoplay": false,
+      "enableDrag": true,
+      "enableKeyboard": true
+    }
+  },
+  {
+    "id": "RB_batch2_tilted_tiles",
+    "catalogKey": "component:tilted-tiles",
+    "label": "Tilted Tiles",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "tilted-tiles",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/tilted-tiles",
+    "rendererSource": "@/components/react-bits/tilted-tiles",
+    "componentName": "TiltedTiles",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 520,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "alternate": {
+        "kind": "boolean"
+      },
+      "parallax": {
+        "kind": "boolean"
+      },
+      "pauseOnHover": {
+        "kind": "boolean"
+      },
+      "duration": {
+        "kind": "number",
+        "min": 0.5,
+        "max": 1000000,
+        "step": 0.5
+      }
+    },
+    "defaults": {
+      "alternate": true,
+      "parallax": true,
+      "pauseOnHover": false,
+      "duration": 25
+    }
+  },
+  {
+    "id": "RB_batch2_tumble_carousel",
+    "catalogKey": "component:tumble-carousel",
+    "label": "Tumble Carousel",
+    "taxonomy": "Carousel / Slider",
+    "sourceTier": "PRO",
+    "officialSlug": "tumble-carousel",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/tumble-carousel",
+    "rendererSource": "@/components/react-bits/tumble-carousel",
+    "componentName": "TumbleCarousel",
+    "host": {
+      "profile": "flow",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "showTitles": {
+        "kind": "boolean"
+      },
+      "showControls": {
+        "kind": "boolean"
+      },
+      "showCounter": {
+        "kind": "boolean"
+      },
+      "loop": {
+        "kind": "boolean"
+      },
+      "autoplay": {
+        "kind": "boolean"
+      },
+      "enableDrag": {
+        "kind": "boolean"
+      },
+      "enableKeyboard": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "showTitles": true,
+      "showControls": true,
+      "showCounter": true,
+      "loop": false,
+      "autoplay": false,
+      "enableDrag": true,
+      "enableKeyboard": true
+    }
+  },
+  {
+    "id": "RB_batch2_social_proof_4",
+    "catalogKey": "pro-block:social-proof-4",
+    "label": "Social Proof 4",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-4",
+    "rendererSource": "@/components/blocks/social-proof-4",
+    "componentName": "SocialProof4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_faq_5",
+    "catalogKey": "pro-block:faq-5",
+    "label": "FAQ 5",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-5",
+    "rendererSource": "@/components/blocks/faq-5",
+    "componentName": "Faq5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_stats_4",
+    "catalogKey": "pro-block:stats-4",
+    "label": "Stats 4",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-4",
+    "rendererSource": "@/components/blocks/stats-4",
+    "componentName": "Stats4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_about_8",
+    "catalogKey": "pro-block:about-8",
+    "label": "About 8",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "about-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/about-8",
+    "rendererSource": "@/components/blocks/about-8",
+    "componentName": "About8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_how_it_works_8",
+    "catalogKey": "pro-block:how-it-works-8",
+    "label": "How It Works 8",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-8",
+    "rendererSource": "@/components/blocks/how-it-works-8",
+    "componentName": "HowItWorks8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_showcase_6",
+    "catalogKey": "pro-block:showcase-6",
+    "label": "Showcase 6",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "showcase-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/showcase-6",
+    "rendererSource": "@/components/blocks/showcase-6",
+    "componentName": "Showcase6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_social_proof_5",
+    "catalogKey": "pro-block:social-proof-5",
+    "label": "Social Proof 5",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-5",
+    "rendererSource": "@/components/blocks/social-proof-5",
+    "componentName": "SocialProof5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_about_9",
+    "catalogKey": "pro-block:about-9",
+    "label": "About 9",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "about-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/about-9",
+    "rendererSource": "@/components/blocks/about-9",
+    "componentName": "About9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_app_dialog_4",
+    "catalogKey": "pro-block:app-dialog-4",
+    "label": "App Dialog 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-4",
+    "rendererSource": "@/components/blocks/app-dialog-4",
+    "componentName": "AppDialog4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_empty_state_2",
+    "catalogKey": "pro-block:empty-state-2",
+    "label": "Empty State 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "empty-state-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/empty-state-2",
+    "rendererSource": "@/components/blocks/empty-state-2",
+    "componentName": "EmptyState2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_feedback_2",
+    "catalogKey": "pro-block:feedback-2",
+    "label": "Feedback 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "feedback-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/feedback-2",
+    "rendererSource": "@/components/blocks/feedback-2",
+    "componentName": "Feedback2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_onboarding_2",
+    "catalogKey": "pro-block:onboarding-2",
+    "label": "Onboarding 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-2",
+    "rendererSource": "@/components/blocks/onboarding-2",
+    "componentName": "Onboarding2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_notifications_2",
+    "catalogKey": "pro-block:notifications-2",
+    "label": "Notifications 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "notifications-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/notifications-2",
+    "rendererSource": "@/components/blocks/notifications-2",
+    "componentName": "Notifications2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 620,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_support_2",
+    "catalogKey": "pro-block:support-2",
+    "label": "Support 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "support-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/support-2",
+    "rendererSource": "@/components/blocks/support-2",
+    "componentName": "Support2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_list_2",
+    "catalogKey": "pro-block:list-2",
+    "label": "List 2",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-2",
+    "rendererSource": "@/components/blocks/list-2",
+    "componentName": "List2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch2_mobile_2",
+    "catalogKey": "pro-block:mobile-2",
+    "label": "Mobile 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "mobile-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/mobile-2",
+    "rendererSource": "@/components/blocks/mobile-2",
+    "componentName": "Mobile2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 680,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_modal_cards",
+    "catalogKey": "component:modal-cards",
+    "label": "Modal Cards",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "modal-cards",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/modal-cards",
+    "rendererSource": "@/components/react-bits/modal-cards",
+    "componentName": "ModalCards",
+    "host": {
+      "profile": "flow",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "gradientColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "animationSpeed": {
+        "kind": "enum",
+        "values": [
+          "slow",
+          "normal",
+          "fast",
+          "none"
+        ]
+      },
+      "animationVariant": {
+        "kind": "enum",
+        "values": [
+          "scale",
+          "fade",
+          "slide"
+        ]
+      },
+      "closeOnBackdropClick": {
+        "kind": "boolean"
+      },
+      "closeOnEscape": {
+        "kind": "boolean"
+      },
+      "showCloseButton": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "gradientColor": "#6366f1",
+      "animationSpeed": "normal",
+      "animationVariant": "scale",
+      "closeOnBackdropClick": true,
+      "closeOnEscape": true,
+      "showCloseButton": true
+    }
+  },
+  {
+    "id": "RB_batch3_features_4",
+    "catalogKey": "pro-block:features-4",
+    "label": "Features 4",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-4",
+    "rendererSource": "@/components/blocks/features-4",
+    "componentName": "Features4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_features_5",
+    "catalogKey": "pro-block:features-5",
+    "label": "Features 5",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-5",
+    "rendererSource": "@/components/blocks/features-5",
+    "componentName": "Features5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_how_it_works_6",
+    "catalogKey": "pro-block:how-it-works-6",
+    "label": "How It Works 6",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-6",
+    "rendererSource": "@/components/blocks/how-it-works-6",
+    "componentName": "HowItWorks6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_faq_6",
+    "catalogKey": "pro-block:faq-6",
+    "label": "FAQ 6",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-6",
+    "rendererSource": "@/components/blocks/faq-6",
+    "componentName": "FAQ6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_waitlist_2",
+    "catalogKey": "pro-block:waitlist-2",
+    "label": "Waitlist 2",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "waitlist-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/waitlist-2",
+    "rendererSource": "@/components/blocks/waitlist-2",
+    "componentName": "Waitlist2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_app_dialog_3",
+    "catalogKey": "pro-block:app-dialog-3",
+    "label": "App Dialog 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-3",
+    "rendererSource": "@/components/blocks/app-dialog-3",
+    "componentName": "AppDialog3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_comments_2",
+    "catalogKey": "pro-block:comments-2",
+    "label": "Comments 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "comments-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/comments-2",
+    "rendererSource": "@/components/blocks/comments-2",
+    "componentName": "Comments2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_empty_state_4",
+    "catalogKey": "pro-block:empty-state-4",
+    "label": "Empty State 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "empty-state-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/empty-state-4",
+    "rendererSource": "@/components/blocks/empty-state-4",
+    "componentName": "EmptyState4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_feedback_3",
+    "catalogKey": "pro-block:feedback-3",
+    "label": "Feedback 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "feedback-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/feedback-3",
+    "rendererSource": "@/components/blocks/feedback-3",
+    "componentName": "Feedback3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_list_3",
+    "catalogKey": "pro-block:list-3",
+    "label": "List 3",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-3",
+    "rendererSource": "@/components/blocks/list-3",
+    "componentName": "List3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_mobile_3",
+    "catalogKey": "pro-block:mobile-3",
+    "label": "Mobile 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "mobile-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/mobile-3",
+    "rendererSource": "@/components/blocks/mobile-3",
+    "componentName": "Mobile3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 680,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_notifications_3",
+    "catalogKey": "pro-block:notifications-3",
+    "label": "Notifications 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "notifications-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/notifications-3",
+    "rendererSource": "@/components/blocks/notifications-3",
+    "componentName": "Notifications3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 620,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch3_support_3",
+    "catalogKey": "pro-block:support-3",
+    "label": "Support 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "support-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/support-3",
+    "rendererSource": "@/components/blocks/support-3",
+    "componentName": "Support3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_scroll_stack",
+    "catalogKey": "component:scroll-stack",
+    "label": "Scroll Stack",
+    "taxonomy": "Animations",
+    "sourceTier": "PRO",
+    "officialSlug": "scroll-stack",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/scroll-stack",
+    "rendererSource": "@/components/react-bits/scroll-stack",
+    "componentName": "ScrollStack",
+    "host": {
+      "profile": "flow",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "resize-observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "variant": {
+        "kind": "enum",
+        "values": [
+          "stack",
+          "deck",
+          "fade",
+          "flip",
+          "zoom",
+          "reveal"
+        ]
+      },
+      "scaleStep": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "dim": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "showProgress": {
+        "kind": "boolean"
+      },
+      "showCounter": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "variant": "stack",
+      "scaleStep": 0.07,
+      "dim": 0.28,
+      "showProgress": true,
+      "showCounter": true
+    }
+  },
+  {
+    "id": "RB_batch4_features_6",
+    "catalogKey": "pro-block:features-6",
+    "label": "Features 6",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-6",
+    "rendererSource": "@/components/blocks/features-6",
+    "componentName": "Features6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_how_it_works_5",
+    "catalogKey": "pro-block:how-it-works-5",
+    "label": "How It Works 5",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-5",
+    "rendererSource": "@/components/blocks/how-it-works-5",
+    "componentName": "HowItWorks5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_social_proof_8",
+    "catalogKey": "pro-block:social-proof-8",
+    "label": "Social Proof 8",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-8",
+    "rendererSource": "@/components/blocks/social-proof-8",
+    "componentName": "SocialProof8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_faq_7",
+    "catalogKey": "pro-block:faq-7",
+    "label": "FAQ 7",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-7",
+    "rendererSource": "@/components/blocks/faq-7",
+    "componentName": "FAQ7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_stats_6",
+    "catalogKey": "pro-block:stats-6",
+    "label": "Stats 6",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-6",
+    "rendererSource": "@/components/blocks/stats-6",
+    "componentName": "Stats6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_waitlist_3",
+    "catalogKey": "pro-block:waitlist-3",
+    "label": "Waitlist 3",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "waitlist-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/waitlist-3",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/waitlist-3",
+    "componentName": "AdaptedWaitlist3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "submittingLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Join the waitlist for early access.",
+      "description": "Be among the first to experience our new platform. Join our exclusive waitlist and get notified when we launch.",
+      "emailPlaceholder": "Enter your email",
+      "buttonLabel": "Join the waitlist",
+      "submittingLabel": "Joining..."
+    }
+  },
+  {
+    "id": "RB_batch4_app_dialog_5",
+    "catalogKey": "pro-block:app-dialog-5",
+    "label": "App Dialog 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-5",
+    "rendererSource": "@/components/blocks/app-dialog-5",
+    "componentName": "AppDialog5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_comments_3",
+    "catalogKey": "pro-block:comments-3",
+    "label": "Comments 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "comments-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/comments-3",
+    "rendererSource": "@/components/blocks/comments-3",
+    "componentName": "Comments3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_empty_state_5",
+    "catalogKey": "pro-block:empty-state-5",
+    "label": "Empty State 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "empty-state-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/empty-state-5",
+    "rendererSource": "@/components/blocks/empty-state-5",
+    "componentName": "EmptyState5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_feedback_4",
+    "catalogKey": "pro-block:feedback-4",
+    "label": "Feedback 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "feedback-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/feedback-4",
+    "rendererSource": "@/components/blocks/feedback-4",
+    "componentName": "Feedback4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_list_4",
+    "catalogKey": "pro-block:list-4",
+    "label": "List 4",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-4",
+    "rendererSource": "@/components/blocks/list-4",
+    "componentName": "List4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_mobile_4",
+    "catalogKey": "pro-block:mobile-4",
+    "label": "Mobile 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "mobile-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/mobile-4",
+    "rendererSource": "@/components/blocks/mobile-4",
+    "componentName": "Mobile4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 680,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_notifications_4",
+    "catalogKey": "pro-block:notifications-4",
+    "label": "Notifications 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "notifications-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/notifications-4",
+    "rendererSource": "@/components/blocks/notifications-4",
+    "componentName": "Notifications4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 620,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch4_support_4",
+    "catalogKey": "pro-block:support-4",
+    "label": "Support 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "support-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/support-4",
+    "rendererSource": "@/components/blocks/support-4",
+    "componentName": "Support4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_magic_transform",
+    "catalogKey": "starter:magic-transform-tw",
+    "label": "Magic Transform",
+    "taxonomy": "Animations",
+    "sourceTier": "FREE",
+    "officialSlug": "magic-transform",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/magic-transform",
+    "rendererSource": "@/components/react-bits/magic-transform",
+    "componentName": "MagicTransform",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "axisColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "paused": {
+        "kind": "boolean"
+      },
+      "documentDuration": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.1
+      }
+    },
+    "defaults": {
+      "axisColor": "#7C3AED",
+      "paused": false,
+      "documentDuration": 4
+    }
+  },
+  {
+    "id": "RB_batch5_circle_stack",
+    "catalogKey": "starter:circle-stack-tw",
+    "label": "Circle Stack",
+    "taxonomy": "Animations",
+    "sourceTier": "FREE",
+    "officialSlug": "circle-stack",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/circle-stack",
+    "rendererSource": "@/components/react-bits/circle-stack",
+    "componentName": "CircleStack",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "surfaceColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "borderColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "paused": {
+        "kind": "boolean"
+      },
+      "interval": {
+        "kind": "number",
+        "min": 0.2,
+        "max": 1000000,
+        "step": 0.1
+      }
+    },
+    "defaults": {
+      "surfaceColor": "#FFFFFF",
+      "borderColor": "#000000",
+      "paused": false,
+      "interval": 4
+    }
+  },
+  {
+    "id": "RB_batch5_faq_8",
+    "catalogKey": "pro-block:faq-8",
+    "label": "FAQ 8",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-8",
+    "rendererSource": "@/components/blocks/faq-8",
+    "componentName": "FAQ8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_faq_9",
+    "catalogKey": "pro-block:faq-9",
+    "label": "FAQ 9",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "faq-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/faq-9",
+    "rendererSource": "@/components/blocks/faq-9",
+    "componentName": "FAQ9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_stats_7",
+    "catalogKey": "pro-block:stats-7",
+    "label": "Stats 7",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-7",
+    "rendererSource": "@/components/blocks/stats-7",
+    "componentName": "Stats7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_stats_8",
+    "catalogKey": "pro-block:stats-8",
+    "label": "Stats 8",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "stats-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/stats-8",
+    "rendererSource": "@/components/blocks/stats-8",
+    "componentName": "Stats8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_features_8",
+    "catalogKey": "pro-block:features-8",
+    "label": "Features 8",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-8",
+    "rendererSource": "@/components/blocks/features-8",
+    "componentName": "Features8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_features_9",
+    "catalogKey": "pro-block:features-9",
+    "label": "Features 9",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-9",
+    "rendererSource": "@/components/blocks/features-9",
+    "componentName": "Features9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_features_11",
+    "catalogKey": "pro-block:features-11",
+    "label": "Features 11",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-11",
+    "rendererSource": "@/components/blocks/features-11",
+    "componentName": "Features11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_features_12",
+    "catalogKey": "pro-block:features-12",
+    "label": "Features 12",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "features-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/features-12",
+    "rendererSource": "@/components/blocks/features-12",
+    "componentName": "Features12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_command_menu_2",
+    "catalogKey": "pro-block:command-menu-2",
+    "label": "Command Menu 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-2",
+    "rendererSource": "@/components/blocks/command-menu-2",
+    "componentName": "CommandMenu2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_command_menu_3",
+    "catalogKey": "pro-block:command-menu-3",
+    "label": "Command Menu 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-3",
+    "rendererSource": "@/components/blocks/command-menu-3",
+    "componentName": "CommandMenu3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_comments_4",
+    "catalogKey": "pro-block:comments-4",
+    "label": "Comments 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "comments-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/comments-4",
+    "rendererSource": "@/components/blocks/comments-4",
+    "componentName": "Comments4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_comments_5",
+    "catalogKey": "pro-block:comments-5",
+    "label": "Comments 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "comments-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/comments-5",
+    "rendererSource": "@/components/blocks/comments-5",
+    "componentName": "Comments5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_notifications_5",
+    "catalogKey": "pro-block:notifications-5",
+    "label": "Notifications 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "notifications-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/notifications-5",
+    "rendererSource": "@/components/blocks/notifications-5",
+    "componentName": "Notifications5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 600,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_notifications_6",
+    "catalogKey": "pro-block:notifications-6",
+    "label": "Notifications 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "notifications-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/notifications-6",
+    "rendererSource": "@/components/blocks/notifications-6",
+    "componentName": "Notifications6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 600,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_support_5",
+    "catalogKey": "pro-block:support-5",
+    "label": "Support 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "support-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/support-5",
+    "rendererSource": "@/components/blocks/support-5",
+    "componentName": "Support5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 760,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch5_app_dialog_6",
+    "catalogKey": "pro-block:app-dialog-6",
+    "label": "App Dialog 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-dialog-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-dialog-6",
+    "rendererSource": "@/components/blocks/app-dialog-6",
+    "componentName": "AppDialog6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 600,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_navigation_2",
+    "catalogKey": "pro-block:navigation-2",
+    "label": "Navigation 2",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-2",
+    "rendererSource": "@/components/blocks/navigation-2",
+    "componentName": "Navigation2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "reactbits.pricing-3",
+    "catalogKey": "pro-block:pricing-3",
+    "label": "Pricing 3",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-3",
+    "rendererSource": "@/components/puck-site-editor/adapted/pricing-3",
+    "componentName": "AdaptedPricing3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "plans": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "description": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "price": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "suffix": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "limit": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "ctaLabel": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "plans": [
+        {
+          "title": "Free",
+          "description": "Get started with essential analytics. Perfect for personal projects and early-stage startups.",
+          "price": "Free",
+          "suffix": "/mo.",
+          "limit": "Up to 10K events/month",
+          "ctaLabel": "Get started"
+        },
+        {
+          "title": "Pro",
+          "description": "Advanced analytics and insights for growing teams. Scale with confidence.",
+          "price": "$49",
+          "suffix": "/mo.",
+          "limit": "Up to 500K events/month",
+          "ctaLabel": "See packages"
+        },
+        {
+          "title": "Enterprise",
+          "description": "Custom solutions with dedicated support for high-traffic applications.",
+          "price": "Custom",
+          "suffix": "",
+          "limit": "Unlimited events",
+          "ctaLabel": "Talk to sales"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch6_pricing_4",
+    "catalogKey": "pro-block:pricing-4",
+    "label": "Pricing 4",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-4",
+    "rendererSource": "@/components/blocks/pricing-4",
+    "componentName": "Pricing4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_contact_3",
+    "catalogKey": "pro-block:contact-3",
+    "label": "Contact 3",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-3",
+    "rendererSource": "@/components/blocks/contact-3",
+    "componentName": "Contact3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_card_3",
+    "catalogKey": "pro-block:card-3",
+    "label": "Card 3",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-3",
+    "rendererSource": "@/components/blocks/card-3",
+    "componentName": "Card3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_app_shell_1",
+    "catalogKey": "pro-block:app-shell-1",
+    "label": "App Shell 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-1",
+    "rendererSource": "@/components/blocks/app-shell-1",
+    "componentName": "AppShell1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_app_sidebar_1",
+    "catalogKey": "pro-block:app-sidebar-1",
+    "label": "App Sidebar 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-1",
+    "rendererSource": "@/components/blocks/app-sidebar-1",
+    "componentName": "AppSidebar1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_onboarding_3",
+    "catalogKey": "pro-block:onboarding-3",
+    "label": "Onboarding 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-3",
+    "rendererSource": "@/components/blocks/onboarding-3",
+    "componentName": "Onboarding3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_mobile_5",
+    "catalogKey": "pro-block:mobile-5",
+    "label": "Mobile 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "mobile-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/mobile-5",
+    "rendererSource": "@/components/blocks/mobile-5",
+    "componentName": "Mobile5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 680,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch6_list_5",
+    "catalogKey": "pro-block:list-5",
+    "label": "List 5",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-5",
+    "rendererSource": "@/components/blocks/list-5",
+    "componentName": "List5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_hero_6",
+    "catalogKey": "pro-block:hero-6",
+    "label": "Hero 6",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-6",
+    "rendererSource": "@/components/blocks/hero-6",
+    "componentName": "Hero6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_cta_4",
+    "catalogKey": "pro-block:cta-4",
+    "label": "CTA 4",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-4",
+    "rendererSource": "@/components/blocks/cta-4",
+    "componentName": "Cta4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_cta_6",
+    "catalogKey": "pro-block:cta-6",
+    "label": "CTA 6",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-6",
+    "rendererSource": "@/components/blocks/cta-6",
+    "componentName": "Cta6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_cta_7",
+    "catalogKey": "pro-block:cta-7",
+    "label": "CTA 7",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-7",
+    "rendererSource": "@/components/blocks/cta-7",
+    "componentName": "Cta7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_footer_6",
+    "catalogKey": "pro-block:footer-6",
+    "label": "Footer 6",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-6",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/footer-6",
+    "componentName": "AdaptedFooter6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "exploreLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "studioLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "communityLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "exploreLinks": [
+        {
+          "label": "Playground",
+          "href": "#"
+        },
+        {
+          "label": "Showcase",
+          "href": "#"
+        },
+        {
+          "label": "Docs",
+          "href": "#"
+        }
+      ],
+      "studioLinks": [
+        {
+          "label": "Experiments",
+          "href": "#"
+        },
+        {
+          "label": "Prototypes",
+          "href": "#"
+        }
+      ],
+      "communityLinks": [
+        {
+          "label": "Discussion",
+          "href": "#"
+        },
+        {
+          "label": "Events",
+          "href": "#"
+        },
+        {
+          "label": "Hackathons",
+          "href": "#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch7_footer_8",
+    "catalogKey": "pro-block:footer-8",
+    "label": "Footer 8",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-8",
+    "rendererSource": "@/components/blocks/footer-8",
+    "componentName": "Footer8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_footer_10",
+    "catalogKey": "pro-block:footer-10",
+    "label": "Footer 10",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/footer-10",
+    "componentName": "AdaptedFooter10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "lifecycleLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "productLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "supportLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "lifecycleLinks": [
+        {
+          "label": "Start",
+          "href": "#"
+        },
+        {
+          "label": "Plan",
+          "href": "#"
+        },
+        {
+          "label": "Ship",
+          "href": "#"
+        },
+        {
+          "label": "Measure",
+          "href": "#"
+        }
+      ],
+      "productLinks": [
+        {
+          "label": "Home",
+          "href": "#"
+        },
+        {
+          "label": "Platform",
+          "href": "#"
+        },
+        {
+          "label": "Pricing",
+          "href": "#"
+        },
+        {
+          "label": "Careers",
+          "href": "#"
+        }
+      ],
+      "supportLinks": [
+        {
+          "label": "Docs",
+          "href": "#"
+        },
+        {
+          "label": "Privacy",
+          "href": "#"
+        },
+        {
+          "label": "Terms",
+          "href": "#"
+        },
+        {
+          "label": "Contact",
+          "href": "#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch7_navigation_4",
+    "catalogKey": "pro-block:navigation-4",
+    "label": "Navigation 4",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-4",
+    "rendererSource": "@/components/blocks/navigation-4",
+    "componentName": "Navigation4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_navigation_6",
+    "catalogKey": "pro-block:navigation-6",
+    "label": "Navigation 6",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-6",
+    "rendererSource": "@/components/blocks/navigation-6",
+    "componentName": "Navigation6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_navigation_7",
+    "catalogKey": "pro-block:navigation-7",
+    "label": "Navigation 7",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-7",
+    "rendererSource": "@/components/blocks/navigation-7",
+    "componentName": "Navigation7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_navigation_8",
+    "catalogKey": "pro-block:navigation-8",
+    "label": "Navigation 8",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-8",
+    "rendererSource": "@/components/blocks/navigation-8",
+    "componentName": "Navigation8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_contact_4",
+    "catalogKey": "pro-block:contact-4",
+    "label": "Contact 4",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-4",
+    "rendererSource": "@/components/blocks/contact-4",
+    "componentName": "Contact4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_contact_5",
+    "catalogKey": "pro-block:contact-5",
+    "label": "Contact 5",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-5",
+    "rendererSource": "@/components/blocks/contact-5",
+    "componentName": "Contact5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "reactbits.contact-6",
+    "catalogKey": "pro-block:contact-6",
+    "label": "Contact 6",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-6",
+    "rendererSource": "@/components/puck-site-editor/adapted/contact-6",
+    "componentName": "AdaptedContact6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryActionLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Still wondering\nabout something?",
+      "description": "Drop us a line any time and a real person will get back to you within a business day.",
+      "primaryActionLabel": "hello@northwind.com"
+    }
+  },
+  {
+    "id": "RB_batch7_pricing_1",
+    "catalogKey": "pro-block:pricing-1",
+    "label": "Pricing 1",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-1",
+    "rendererSource": "@/components/blocks/pricing-1",
+    "componentName": "Pricing1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_pricing_5",
+    "catalogKey": "pro-block:pricing-5",
+    "label": "Pricing 5",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-5",
+    "rendererSource": "@/components/blocks/pricing-5",
+    "componentName": "Pricing5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_pricing_6",
+    "catalogKey": "pro-block:pricing-6",
+    "label": "Pricing 6",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-6",
+    "rendererSource": "@/components/blocks/pricing-6",
+    "componentName": "Pricing6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_card_4",
+    "catalogKey": "pro-block:card-4",
+    "label": "Card 4",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-4",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/card-4",
+    "componentName": "AdaptedCard4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "meetings": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "day": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "weekday": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "window": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "place": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "invited": {
+              "kind": "number",
+              "min": -1000000,
+              "max": 1000000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "meetings": [
+        {
+          "id": "roadmap",
+          "title": "Roadmap review",
+          "day": "14",
+          "weekday": "Mon",
+          "window": "09:30 – 10:15",
+          "place": "Studio A",
+          "invited": 7
+        },
+        {
+          "id": "standup",
+          "title": "Platform standup",
+          "day": "14",
+          "weekday": "Mon",
+          "window": "11:00 – 11:15",
+          "place": "Video call",
+          "invited": 8
+        },
+        {
+          "id": "design",
+          "title": "Design critique",
+          "day": "14",
+          "weekday": "Mon",
+          "window": "14:00 – 15:00",
+          "place": "Studio B",
+          "invited": 4
+        },
+        {
+          "id": "pricing",
+          "title": "Pricing working group",
+          "day": "15",
+          "weekday": "Tue",
+          "window": "10:00 – 10:50",
+          "place": "Video call",
+          "invited": 5
+        },
+        {
+          "id": "retro",
+          "title": "Sprint retrospective",
+          "day": "17",
+          "weekday": "Thu",
+          "window": "16:00 – 16:45",
+          "place": "Studio A",
+          "invited": 8
+        },
+        {
+          "id": "onsite",
+          "title": "Customer onsite prep",
+          "day": "18",
+          "weekday": "Fri",
+          "window": "08:30 – 09:00",
+          "place": "Video call",
+          "invited": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch7_card_5",
+    "catalogKey": "pro-block:card-5",
+    "label": "Card 5",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-5",
+    "rendererSource": "@/components/blocks/card-5",
+    "componentName": "Card5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_app_shell_2",
+    "catalogKey": "pro-block:app-shell-2",
+    "label": "App Shell 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-2",
+    "rendererSource": "@/components/blocks/app-shell-2",
+    "componentName": "AppShell2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_app_sidebar_2",
+    "catalogKey": "pro-block:app-sidebar-2",
+    "label": "App Sidebar 2",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-2",
+    "rendererSource": "@/components/blocks/app-sidebar-2",
+    "componentName": "AppSidebar2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_onboarding_4",
+    "catalogKey": "pro-block:onboarding-4",
+    "label": "Onboarding 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-4",
+    "rendererSource": "@/components/blocks/onboarding-4",
+    "componentName": "Onboarding4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_forms_1",
+    "catalogKey": "pro-block:forms-1",
+    "label": "Forms 1",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-1",
+    "rendererSource": "@/components/blocks/forms-1",
+    "componentName": "Forms1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 840,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch7_forms_2",
+    "catalogKey": "pro-block:forms-2",
+    "label": "Forms 2",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-2",
+    "rendererSource": "@/components/blocks/forms-2",
+    "componentName": "Forms2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_showcase_1",
+    "catalogKey": "pro-block:showcase-1",
+    "label": "Showcase 1",
+    "taxonomy": "Showcase / Gallery",
+    "sourceTier": "PRO",
+    "officialSlug": "showcase-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/showcase-1",
+    "rendererSource": "@/components/blocks/showcase-1",
+    "componentName": "Showcase1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_social_proof_9",
+    "catalogKey": "pro-block:social-proof-9",
+    "label": "Social Proof 9",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-9",
+    "rendererSource": "@/components/blocks/social-proof-9",
+    "componentName": "SocialProof9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_social_proof_11",
+    "catalogKey": "pro-block:social-proof-11",
+    "label": "Social Proof 11",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-11",
+    "rendererSource": "@/components/blocks/social-proof-11",
+    "componentName": "SocialProof11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_1",
+    "catalogKey": "pro-block:scheduling-1",
+    "label": "Scheduling 1",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-1",
+    "rendererSource": "@/components/blocks/scheduling-1",
+    "componentName": "Scheduling1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_2",
+    "catalogKey": "pro-block:scheduling-2",
+    "label": "Scheduling 2",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-2",
+    "rendererSource": "@/components/blocks/scheduling-2",
+    "componentName": "Scheduling2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_4",
+    "catalogKey": "pro-block:scheduling-4",
+    "label": "Scheduling 4",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-4",
+    "rendererSource": "@/components/blocks/scheduling-4",
+    "componentName": "Scheduling4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_5",
+    "catalogKey": "pro-block:scheduling-5",
+    "label": "Scheduling 5",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-5",
+    "rendererSource": "@/components/blocks/scheduling-5",
+    "componentName": "Scheduling5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_6",
+    "catalogKey": "pro-block:scheduling-6",
+    "label": "Scheduling 6",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-6",
+    "rendererSource": "@/components/blocks/scheduling-6",
+    "componentName": "Scheduling6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_scheduling_7",
+    "catalogKey": "pro-block:scheduling-7",
+    "label": "Scheduling 7",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-7",
+    "rendererSource": "@/components/blocks/scheduling-7",
+    "componentName": "Scheduling7",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_app_shell_3",
+    "catalogKey": "pro-block:app-shell-3",
+    "label": "App Shell 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-3",
+    "rendererSource": "@/components/blocks/app-shell-3",
+    "componentName": "AppShell3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_app_shell_5",
+    "catalogKey": "pro-block:app-shell-5",
+    "label": "App Shell 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-5",
+    "rendererSource": "@/components/blocks/app-shell-5",
+    "componentName": "AppShell5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_app_sidebar_3",
+    "catalogKey": "pro-block:app-sidebar-3",
+    "label": "App Sidebar 3",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-3",
+    "rendererSource": "@/components/blocks/app-sidebar-3",
+    "componentName": "AppSidebar3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_app_sidebar_4",
+    "catalogKey": "pro-block:app-sidebar-4",
+    "label": "App Sidebar 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-4",
+    "rendererSource": "@/components/blocks/app-sidebar-4",
+    "componentName": "AppSidebar4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_app_sidebar_5",
+    "catalogKey": "pro-block:app-sidebar-5",
+    "label": "App Sidebar 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-5",
+    "rendererSource": "@/components/blocks/app-sidebar-5",
+    "componentName": "AppSidebar5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_card_6",
+    "catalogKey": "pro-block:card-6",
+    "label": "Card 6",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-6",
+    "rendererSource": "@/components/blocks/card-6",
+    "componentName": "Card6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_card_7",
+    "catalogKey": "pro-block:card-7",
+    "label": "Card 7",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-7",
+    "rendererSource": "@/components/blocks/card-7",
+    "componentName": "Card7",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_forms_3",
+    "catalogKey": "pro-block:forms-3",
+    "label": "Forms 3",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-3",
+    "rendererSource": "@/components/blocks/forms-3",
+    "componentName": "Forms3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 1120,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch8_list_6",
+    "catalogKey": "pro-block:list-6",
+    "label": "List 6",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-6",
+    "rendererSource": "@/components/blocks/list-6",
+    "componentName": "List6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_cta_8",
+    "catalogKey": "pro-block:cta-8",
+    "label": "CTA 8 Cursor Reveal",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-8",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cta-8",
+    "componentName": "AdaptedCta8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "trialLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "word": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "buttonLabel": "Start creating",
+      "trialLabel": "Free for 14 days",
+      "word": "Horizon"
+    }
+  },
+  {
+    "id": "RB_batch9_hero_19",
+    "catalogKey": "pro-block:hero-19",
+    "label": "Hero 19 Pointer Parallax",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-19",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-19",
+    "rendererSource": "@/components/blocks/hero-19",
+    "componentName": "Hero19",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_contact_9",
+    "catalogKey": "pro-block:contact-9",
+    "label": "Contact 9 Photo Carousel",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-9",
+    "rendererSource": "@/components/blocks/contact-9",
+    "componentName": "Contact9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_how_it_works_1",
+    "catalogKey": "pro-block:how-it-works-1",
+    "label": "How It Works 1 Carousel",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-1",
+    "rendererSource": "@/components/blocks/how-it-works-1",
+    "componentName": "HowItWorks1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_hero_17",
+    "catalogKey": "pro-block:hero-17",
+    "label": "Hero 17 Image Grid",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-17",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-17",
+    "rendererSource": "@/components/blocks/hero-17",
+    "componentName": "Hero17",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_blog_6",
+    "catalogKey": "pro-block:blog-6",
+    "label": "Blog 6 Portfolio Grid",
+    "taxonomy": "Blog",
+    "sourceTier": "PRO",
+    "officialSlug": "blog-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/blog-6",
+    "rendererSource": "@/components/blocks/blog-6",
+    "componentName": "Blog6",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_ecommerce_7",
+    "catalogKey": "pro-block:ecommerce-7",
+    "label": "Ecommerce 7 Gallery",
+    "taxonomy": "Ecommerce",
+    "sourceTier": "PRO",
+    "officialSlug": "ecommerce-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/ecommerce-7",
+    "rendererSource": "@/components/blocks/ecommerce-7",
+    "componentName": "Ecommerce7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_cta_12",
+    "catalogKey": "pro-block:cta-12",
+    "label": "CTA 12 Blueprint Grid",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-12",
+    "rendererSource": "@/components/blocks/cta-12",
+    "componentName": "CTA12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch9_auth_3",
+    "catalogKey": "pro-block:auth-3",
+    "label": "Auth 3 Image Background",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "auth-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/auth-3",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/auth-3",
+    "componentName": "AdaptedAuth3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "newUserLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "createAccountLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "continueLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "dividerLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "googleLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "appleLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "githubLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "viewMoreLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helpPrompt": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helpLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "productTitle": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "productDescription": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Sign in",
+      "newUserLabel": "New user?",
+      "createAccountLabel": "Create an account",
+      "emailPlaceholder": "Email address",
+      "continueLabel": "Continue",
+      "dividerLabel": "Or",
+      "googleLabel": "Sign in with Google",
+      "appleLabel": "Sign in with Apple",
+      "githubLabel": "Sign in with GitHub",
+      "viewMoreLabel": "View more",
+      "helpPrompt": "Can't sign in?",
+      "helpLabel": "Get help",
+      "productTitle": "React Bits Pro",
+      "productDescription": "Beautiful, production-ready components for your next project."
+    }
+  },
+  {
+    "id": "RB_batch9_hero_12",
+    "catalogKey": "pro-block:hero-12",
+    "label": "Hero 12 Curved Background",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-12",
+    "rendererSource": "@/components/blocks/hero-12",
+    "componentName": "Hero12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_liquid_ascii",
+    "catalogKey": "component:liquid-ascii",
+    "label": "Liquid Ascii",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "liquid-ascii",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/liquid-ascii",
+    "rendererSource": "@/components/react-bits/liquid-ascii",
+    "componentName": "LiquidAscii",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "backgroundColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "flipRatio": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "fillHeight": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "autoWave": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "color": "#ffffff",
+      "backgroundColor": "#000000",
+      "flipRatio": 0.3,
+      "fillHeight": 0.4,
+      "opacity": 1,
+      "autoWave": true
+    }
+  },
+  {
+    "id": "RB_batch10_text_cube",
+    "catalogKey": "component:text-cube",
+    "label": "Text Cube",
+    "taxonomy": "Text Effects",
+    "sourceTier": "PRO",
+    "officialSlug": "text-cube",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/text-cube",
+    "rendererSource": "@/components/react-bits/text-cube",
+    "componentName": "TextCube",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "backgroundColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "followSpeed": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "fontWeight": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "breathe": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "depthFade": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      }
+    },
+    "defaults": {
+      "color": "#1a1a1a",
+      "backgroundColor": "#ffffff",
+      "followSpeed": 0.08,
+      "fontWeight": 100,
+      "breathe": 0.1,
+      "depthFade": 0.3,
+      "opacity": 1
+    }
+  },
+  {
+    "id": "RB_batch10_cursor_wave",
+    "catalogKey": "component:cursor-wave",
+    "label": "Cursor Wave",
+    "taxonomy": "Cursor / Pointer",
+    "sourceTier": "PRO",
+    "officialSlug": "cursor-wave",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/cursor-wave",
+    "rendererSource": "@/components/react-bits/cursor-wave",
+    "componentName": "CursorWave",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "backgroundColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "idleScale": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      }
+    },
+    "defaults": {
+      "backgroundColor": "#080808",
+      "idleScale": 0.09,
+      "opacity": 1
+    }
+  },
+  {
+    "id": "reactbits.social-proof-10",
+    "catalogKey": "pro-block:social-proof-10",
+    "label": "Social Proof 10",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-10",
+    "rendererSource": "@/components/blocks/social-proof-10",
+    "componentName": "SocialProof10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_social_proof_15",
+    "catalogKey": "pro-block:social-proof-15",
+    "label": "Social Proof 15",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-15",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-15",
+    "rendererSource": "@/components/blocks/social-proof-15",
+    "componentName": "SocialProof15",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_ecommerce_8",
+    "catalogKey": "pro-block:ecommerce-8",
+    "label": "Ecommerce 8",
+    "taxonomy": "Ecommerce",
+    "sourceTier": "PRO",
+    "officialSlug": "ecommerce-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/ecommerce-8",
+    "rendererSource": "@/components/blocks/ecommerce-8",
+    "componentName": "Ecommerce8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_gradient_carousel",
+    "catalogKey": "component:gradient-carousel",
+    "label": "Gradient Carousel",
+    "taxonomy": "Carousel / Slider",
+    "sourceTier": "PRO",
+    "officialSlug": "gradient-carousel",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/gradient-carousel",
+    "rendererSource": "@/components/react-bits/gradient-carousel",
+    "componentName": "GradientCarousel",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 620,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "frictionFactor": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "gradientSize": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "gradientIntensity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "enableKeyboard": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "frictionFactor": 0.92,
+      "gradientSize": 0.65,
+      "gradientIntensity": 0.7,
+      "enableKeyboard": true
+    }
+  },
+  {
+    "id": "RB_batch10_hero_4",
+    "catalogKey": "pro-block:hero-4",
+    "label": "Hero 4",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-4",
+    "rendererSource": "@/components/blocks/hero-4",
+    "componentName": "Hero4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_vortex",
+    "catalogKey": "component:vortex",
+    "label": "Vortex",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "vortex",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/vortex",
+    "rendererSource": "@/components/react-bits/vortex",
+    "componentName": "Vortex",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "particleColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "depth": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "centerX": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "centerY": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "enableCursorInteraction": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "particleColor": "#000000",
+      "depth": 1.7,
+      "centerX": 0.5,
+      "centerY": 0,
+      "opacity": 1,
+      "enableCursorInteraction": true
+    }
+  },
+  {
+    "id": "RB_batch10_glue_dots",
+    "catalogKey": "component:glue-dots",
+    "label": "Glue Dots",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "PRO",
+    "officialSlug": "glue-dots",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/glue-dots",
+    "rendererSource": "@/components/react-bits/glue-dots",
+    "componentName": "GlueDots",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "className": {
+        "kind": "string",
+        "maxLength": 2000,
+        "editable": false
+      },
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "backgroundColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "merge": {
+        "kind": "boolean"
+      },
+      "rippleOnPress": {
+        "kind": "boolean"
+      },
+      "cursorInteraction": {
+        "kind": "boolean"
+      },
+      "paused": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "className": "h-full w-full",
+      "color": "#ffffff",
+      "backgroundColor": "#0a0a0a",
+      "opacity": 1,
+      "merge": true,
+      "rippleOnPress": true,
+      "cursorInteraction": true,
+      "paused": false
+    }
+  },
+  {
+    "id": "RB_batch10_hero_9",
+    "catalogKey": "pro-block:hero-9",
+    "label": "Hero 9",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-9",
+    "rendererSource": "@/components/blocks/hero-9",
+    "componentName": "Hero9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_auth_2",
+    "catalogKey": "pro-block:auth-2",
+    "label": "Auth 2",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "auth-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/auth-2",
+    "rendererSource": "@/components/blocks/auth-2",
+    "componentName": "Auth2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_waitlist_4",
+    "catalogKey": "pro-block:waitlist-4",
+    "label": "Waitlist 4",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "waitlist-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/waitlist-4",
+    "rendererSource": "@/components/blocks/waitlist-4",
+    "componentName": "Waitlist4",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch10_hero_5",
+    "catalogKey": "pro-block:hero-5",
+    "label": "Hero 5",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-5",
+    "rendererSource": "@/components/blocks/hero-5",
+    "componentName": "Hero5",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch11_hero_8",
+    "catalogKey": "pro-block:hero-8",
+    "label": "Hero 8",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-8",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero/hero-8",
+    "componentName": "AdaptedHero8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "firstLeft": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "firstRight": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondLeft": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondRight": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "firstLeft": "Creating",
+      "firstRight": "Digital",
+      "secondLeft": "Building",
+      "secondRight": "Tomorrow",
+      "description": "We craft exceptional digital products that connect brands with their audiences. From concept to launch, our team delivers innovative solutions."
+    }
+  },
+  {
+    "id": "RB_batch11_hero_10",
+    "catalogKey": "pro-block:hero-10",
+    "label": "Hero 10",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero/hero-10",
+    "componentName": "AdaptedHero10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Build something extraordinary today",
+      "description": "Transform your ideas into reality with powerful tools designed for creators, founders, and dreamers.",
+      "buttonLabel": "Get started now"
+    }
+  },
+  {
+    "id": "RB_batch11_hero_11",
+    "catalogKey": "pro-block:hero-11",
+    "label": "Hero 11",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero/hero-11",
+    "componentName": "AdaptedHero11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "badge": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "announcement": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "mediaUrl": {
+        "kind": "string",
+        "maxLength": 2048,
+        "format": "url"
+      }
+    },
+    "defaults": {
+      "badge": "New",
+      "announcement": "See our latest features",
+      "heading": "Customer relationship magic.",
+      "description": "Powerful, flexible and data-driven. Build the exact CRM your business needs with tools designed for modern teams.",
+      "primaryButtonLabel": "Start for free",
+      "secondaryButtonLabel": "Talk to sales",
+      "mediaUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&h=800&fit=crop"
+    }
+  },
+  {
+    "id": "reactbits.hero-14",
+    "catalogKey": "pro-block:hero-14",
+    "label": "Hero 14",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-14",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-14",
+    "rendererSource": "@/components/puck-site-editor/adapted/hero-14",
+    "componentName": "AdaptedHero14",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "rating": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "reviews": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLine1": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLine2": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "linkLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "mediaUrl": {
+        "kind": "string",
+        "maxLength": 2048,
+        "format": "url"
+      }
+    },
+    "defaults": {
+      "rating": "5 stars",
+      "reviews": "3,000+ reviews",
+      "headingLine1": "Focus on work.",
+      "headingLine2": "We handle ops.",
+      "description": "Streamlined team expenses, automated invoicing, payroll management, and real-time reporting. All in one place.",
+      "emailPlaceholder": "What's your work email?",
+      "buttonLabel": "Get started for free",
+      "linkLabel": "Explore product",
+      "mediaUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=900&fit=crop"
+    }
+  },
+  {
+    "id": "RB_batch11_hero_15",
+    "catalogKey": "pro-block:hero-15",
+    "label": "Hero 15",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-15",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-15",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero-15",
+    "componentName": "AdaptedHero15",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "badge": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "intro": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "ctaLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "inputPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "footer": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "badge": "Free for 30 days: limited offer",
+      "heading": "Build your future",
+      "intro": "Acme is your personal AI Business Advisor.",
+      "description": "Monitor your metrics, forecasts, revenue and optimize your growth strategy: all in one place.",
+      "ctaLabel": "Get started",
+      "inputPlaceholder": "Ask me anything...",
+      "footer": "Track everything. Ask anything."
+    }
+  },
+  {
+    "id": "RB_batch11_hero_20",
+    "catalogKey": "pro-block:hero-20",
+    "label": "Hero 20",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-20",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-20",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero/hero-20",
+    "componentName": "AdaptedHero20",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "trustLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Answers, not dashboards.",
+      "description": "Meridian reads your product data and surfaces the few decisions that matter: every morning, for every team.",
+      "primaryButtonLabel": "Start free",
+      "secondaryButtonLabel": "See a live board",
+      "trustLabel": "Trusted by data teams at"
+    }
+  },
+  {
+    "id": "RB_batch11_pricing_13",
+    "catalogKey": "pro-block:pricing-13",
+    "label": "Pricing 13",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-13",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-13",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/pricing/pricing-13",
+    "componentName": "AdaptedPricing13",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "plans": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "badge": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "tagline": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "price": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            },
+            "seats": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "support": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "uptime": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "cta": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "lead": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "features": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "text": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "plans": [
+        {
+          "name": "Starter",
+          "badge": "",
+          "tagline": "For solo builders shipping a first product",
+          "price": 19,
+          "seats": "3 seats",
+          "support": "Community",
+          "uptime": "99.9%",
+          "cta": "Start with Starter",
+          "lead": "Everything you need to ship:",
+          "features": [
+            {
+              "text": "Unlimited releases"
+            },
+            {
+              "text": "2 environments"
+            },
+            {
+              "text": "Public changelog pages"
+            },
+            {
+              "text": "Slack notifications"
+            },
+            {
+              "text": "30-day release history"
+            }
+          ]
+        },
+        {
+          "name": "Growth",
+          "badge": "Recommended",
+          "tagline": "For teams making releases a routine",
+          "price": 49,
+          "seats": "25 seats",
+          "support": "Priority email",
+          "uptime": "99.95%",
+          "cta": "Start with Growth",
+          "lead": "Everything in Starter, plus:",
+          "features": [
+            {
+              "text": "Unlimited environments"
+            },
+            {
+              "text": "Approval workflows"
+            },
+            {
+              "text": "Scheduled release windows"
+            },
+            {
+              "text": "Rollback automation"
+            },
+            {
+              "text": "1-year release history"
+            }
+          ]
+        },
+        {
+          "name": "Scale",
+          "badge": "",
+          "tagline": "For orgs coordinating many teams",
+          "price": 129,
+          "seats": "Unlimited",
+          "support": "Dedicated engineer",
+          "uptime": "99.99% SLA",
+          "cta": "Talk to sales",
+          "lead": "Everything in Growth, plus:",
+          "features": [
+            {
+              "text": "SAML SSO and SCIM"
+            },
+            {
+              "text": "Org-wide release calendar"
+            },
+            {
+              "text": "Audit log export"
+            },
+            {
+              "text": "Custom data residency"
+            },
+            {
+              "text": "Unlimited history"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_contact_11",
+    "catalogKey": "pro-block:contact-11",
+    "label": "Contact 11",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/contact/contact-11",
+    "componentName": "AdaptedContact11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "desks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "email": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "avatar": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "desks": [
+        {
+          "label": "General enquiries",
+          "name": "Marta Iversen",
+          "email": "hello@framefield.studio",
+          "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80"
+        },
+        {
+          "label": "New business",
+          "name": "Theo Reyes",
+          "email": "new@framefield.studio",
+          "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80"
+        },
+        {
+          "label": "Press & partnerships",
+          "name": "Imogen Clarke",
+          "email": "press@framefield.studio",
+          "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80"
+        },
+        {
+          "label": "Careers",
+          "name": "Daniel Osei",
+          "email": "join@framefield.studio",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_social_proof_13",
+    "catalogKey": "pro-block:social-proof-13",
+    "label": "Social Proof 13",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-13",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-13",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/social-proof-13",
+    "componentName": "AdaptedSocialProof13",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "moreLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "eyebrow": "Global coverage",
+      "heading": "Wherever your customers pay, Meridian is already there.",
+      "description": "Local acquiring, settlement, and compliance handled in-region, so checkout feels native from São Paulo to Seoul.",
+      "moreLabel": "+170 more"
+    }
+  },
+  {
+    "id": "RB_batch11_social_proof_14",
+    "catalogKey": "pro-block:social-proof-14",
+    "label": "Social Proof 14",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-14",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-14",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/social-proof-14",
+    "componentName": "AdaptedSocialProof14",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "ratingValue": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "reviewsLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Notes we never asked anyone to write.",
+      "description": "Tempo keeps decisions, context, and momentum in one place. These arrived unprompted, from the first 2,400 teams to make the switch.",
+      "ratingValue": "4.9",
+      "reviewsLabel": "across 2,400+ reviews",
+      "buttonLabel": "Read every review"
+    }
+  },
+  {
+    "id": "RB_batch11_social_proof_16",
+    "catalogKey": "pro-block:social-proof-16",
+    "label": "Social Proof 16",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-16",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-16",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/social-proof-16",
+    "componentName": "AdaptedSocialProof16",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "featuredQuote": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "featuredName": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "featuredRole": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "companyLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "featuredQuote": "Cadence made our team feel ten people larger without adding a single meeting to the calendar.",
+      "featuredName": "Clara Weiss",
+      "featuredRole": "Head of Ops, Northstar",
+      "companyLabel": "In good company"
+    }
+  },
+  {
+    "id": "RB_batch11_about_10",
+    "catalogKey": "pro-block:about-10",
+    "label": "About 10",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "about-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/about-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/about-10",
+    "componentName": "AdaptedAbout10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLead": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingBrand": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "partnersLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "eyebrow": "The team behind the tools",
+      "headingLead": "We are ",
+      "headingBrand": "Meridian.",
+      "description": "Ninety-one people, eleven time zones, one shared habit. We sweat the details other tools skip.",
+      "buttonLabel": "Hear our story",
+      "partnersLabel": "Trusted by teams at"
+    }
+  },
+  {
+    "id": "RB_batch11_about_12",
+    "catalogKey": "pro-block:about-12",
+    "label": "About 12",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "about-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/about-12",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/about-12",
+    "componentName": "AdaptedAbout12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "quote": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "authorName": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "authorRole": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "eyebrow": "How we operate",
+      "quote": "A system feels calm when someone has already met its worst day.",
+      "authorName": "Mara Voss",
+      "authorRole": "Co-founder",
+      "description": "Our values are constraints we accept on purpose. They decide how we enter a company, what we refuse to build, and the shape of what we hand back."
+    }
+  },
+  {
+    "id": "RB_batch11_social_proof_12",
+    "catalogKey": "pro-block:social-proof-12",
+    "label": "Social Proof 12",
+    "taxonomy": "Social Proof / Testimonials",
+    "sourceTier": "PRO",
+    "officialSlug": "social-proof-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/social-proof-12",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/showcase/social-proof-12",
+    "componentName": "AdaptedSocialProof12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Members, in their own words",
+      "description": "Real stories from the people building a calmer practice with us.",
+      "buttonLabel": "Watch more stories"
+    }
+  },
+  {
+    "id": "RB_batch11_navigation_9",
+    "catalogKey": "pro-block:navigation-9",
+    "label": "Navigation 9",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-9",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/navigation-9",
+    "componentName": "AdaptedNavigation9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "links": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "links": [
+        {
+          "label": "Products",
+          "href": "#"
+        },
+        {
+          "label": "Platform",
+          "href": "#"
+        },
+        {
+          "label": "Pricing",
+          "href": "#"
+        },
+        {
+          "label": "Company",
+          "href": "#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_navigation_11",
+    "catalogKey": "pro-block:navigation-11",
+    "label": "Navigation 11",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-11",
+    "componentName": "AdaptedNavigation11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "sections": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "heading": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "cards": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "title": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "desc": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "img": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "sections": [
+        {
+          "label": "Overview",
+          "heading": "Overview",
+          "cards": [
+            {
+              "title": "100+ Lab Tests",
+              "desc": "A full panel reviewed by clinicians, refreshed every six months.",
+              "img": "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Member Portal",
+              "desc": "Track trends, flag changes, and annotate results over time.",
+              "img": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Coaching Calls",
+              "desc": "Quarterly sessions with a health coach matched to your goals.",
+              "img": "https://images.unsplash.com/photo-1573497491208-6b1acb260507?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Preventive Plans",
+              "desc": "Clear next steps tailored to what your numbers are saying.",
+              "img": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop"
+            }
+          ]
+        },
+        {
+          "label": "Stories",
+          "heading": "Stories",
+          "cards": [
+            {
+              "title": "From burnt out to steady",
+              "desc": "How Ana rebuilt her energy in six months of steady check-ins.",
+              "img": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "A founder's reset",
+              "desc": "Marcus on stopping the grind long enough to read his own labs.",
+              "img": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Finding the small flag",
+              "desc": "Why Priya credits Northwind with catching a marker early.",
+              "img": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Back to the trails",
+              "desc": "Dan's return to weekly 10ks after a year of chasing sleep.",
+              "img": "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop"
+            }
+          ]
+        },
+        {
+          "label": "Our Why",
+          "heading": "Our Why",
+          "cards": [
+            {
+              "title": "Quiet medicine",
+              "desc": "We believe in care that listens longer than it prescribes.",
+              "img": "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Whole-body view",
+              "desc": "One panel, read together, not scattered across specialists.",
+              "img": "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Research first",
+              "desc": "Peer-reviewed signals over whatever is loud this week.",
+              "img": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Built to last",
+              "desc": "A practice you stay with, not a subscription you churn from.",
+              "img": "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?q=80&w=800&auto=format&fit=crop"
+            }
+          ]
+        },
+        {
+          "label": "FAQs",
+          "heading": "FAQs",
+          "cards": [
+            {
+              "title": "How does billing work?",
+              "desc": "Monthly or annual, cancel anytime, no prorated surprises.",
+              "img": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Who reads my results?",
+              "desc": "A licensed clinician on the Northwind team, not a model.",
+              "img": "https://images.unsplash.com/photo-1550831107-1553da8c8464?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Does this replace doctors?",
+              "desc": "No. We're the panel between your annual visits.",
+              "img": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop"
+            },
+            {
+              "title": "Where is testing done?",
+              "desc": "At accredited partner labs in all 50 states.",
+              "img": "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "reactbits.navigation-12",
+    "catalogKey": "pro-block:navigation-12",
+    "label": "Navigation 12",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-12",
+    "rendererSource": "@/components/puck-site-editor/adapted/navigation-12",
+    "componentName": "AdaptedNavigation12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "links": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "links": [
+        {
+          "label": "Overview"
+        },
+        {
+          "label": "Product"
+        },
+        {
+          "label": "Customers"
+        },
+        {
+          "label": "Pricing"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_navigation_14",
+    "catalogKey": "pro-block:navigation-14",
+    "label": "Navigation 14",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-14",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-14",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/navigation/navigation-14",
+    "componentName": "AdaptedNavigation14",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "sections": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "items": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "iconToken": {
+                    "kind": "enum",
+                    "values": [
+                      "dashboard",
+                      "log",
+                      "radar",
+                      "trend",
+                      "workflow",
+                      "compass",
+                      "book",
+                      "file",
+                      "chart"
+                    ]
+                  },
+                  "title": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "description": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            },
+            "featuredTag": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "featuredTitle": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "featuredDescription": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "sections": [
+        {
+          "label": "Product",
+          "items": [
+            {
+              "iconToken": "dashboard",
+              "title": "Command center",
+              "description": "One operating view for every launch, owner, and deadline."
+            },
+            {
+              "iconToken": "log",
+              "title": "Decision logs",
+              "description": "Turn scattered updates into a searchable product memory."
+            },
+            {
+              "iconToken": "radar",
+              "title": "Signal review",
+              "description": "Rank feedback by source, volume, and revenue at stake."
+            }
+          ],
+          "featuredTag": "New",
+          "featuredTitle": "Vault Signals is GA",
+          "featuredDescription": "Cluster feedback from 40+ sources into themes your roadmap can act on."
+        },
+        {
+          "label": "Solutions",
+          "items": [
+            {
+              "iconToken": "trend",
+              "title": "For growth teams",
+              "description": "Catch conversion blockers before they cost you a quarter."
+            },
+            {
+              "iconToken": "workflow",
+              "title": "For operations",
+              "description": "Keep approvals, owners, and risk visible across workstreams."
+            },
+            {
+              "iconToken": "compass",
+              "title": "For founders",
+              "description": "Bring customer evidence into every roadmap and revenue call."
+            }
+          ],
+          "featuredTag": "Case study",
+          "featuredTitle": "How Relay cut churn 18%",
+          "featuredDescription": "Six months of Vault reviews distilled into one retention play."
+        },
+        {
+          "label": "Resources",
+          "items": [
+            {
+              "iconToken": "book",
+              "title": "Field notes",
+              "description": "Practical breakdowns from teams shipping complex products."
+            },
+            {
+              "iconToken": "file",
+              "title": "Playbooks",
+              "description": "Templates for launches, research reviews, and postmortems."
+            },
+            {
+              "iconToken": "chart",
+              "title": "Benchmarks",
+              "description": "How 400 teams structure customer intelligence at scale."
+            }
+          ],
+          "featuredTag": "Guide",
+          "featuredTitle": "The customer evidence stack",
+          "featuredDescription": "A field guide to instrumenting decisions, not just dashboards."
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_cta_10",
+    "catalogKey": "pro-block:cta-10",
+    "label": "CTA 10",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cta/cta-10",
+    "componentName": "AdaptedCta10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "mediaUrl": {
+        "kind": "string",
+        "maxLength": 2048,
+        "format": "url"
+      }
+    },
+    "defaults": {
+      "heading": "Stay in the loop",
+      "description": "Monthly field notes on what we're shipping, what we're learning, and the occasional deep dive — straight to your inbox, no fluff.",
+      "emailPlaceholder": "Enter your email address",
+      "buttonLabel": "Subscribe",
+      "mediaUrl": "https://images.unsplash.com/photo-1509475826633-fed577a2c71b?q=80&w=1200&auto=format&fit=crop"
+    }
+  },
+  {
+    "id": "RB_batch11_cta_13",
+    "catalogKey": "pro-block:cta-13",
+    "label": "CTA 13",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-13",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-13",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cta/cta-13",
+    "componentName": "AdaptedCta13",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingPrefix": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingEmphasis": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingSuffix": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helperText": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "loop": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "eyebrow": "The Foreword Panel",
+      "headingPrefix": "Put your ",
+      "headingEmphasis": "taste",
+      "headingSuffix": " to work.",
+      "description": "Foreword pairs discerning reviewers with unreleased products. Preview what's next, say what you really think, and get paid for the feedback that shapes it.",
+      "buttonLabel": "Request an invite",
+      "helperText": "Invites reviewed weekly · Panelists average $340/mo",
+      "loop": true
+    }
+  },
+  {
+    "id": "RB_batch11_cta_14",
+    "catalogKey": "pro-block:cta-14",
+    "label": "CTA 14",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-14",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-14",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cta/cta-14",
+    "componentName": "AdaptedCta14",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helperText": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "collaborationLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "liveLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "loop": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "eyebrow": "Braid SDK",
+      "heading": "Multiplayer, minus the rewrite.",
+      "description": "Drop Braid into your existing stack and ship presence, comments, and real-time sync in an afternoon. The state layer is already solved. You just render it.",
+      "primaryButtonLabel": "Start building",
+      "secondaryButtonLabel": "Read the docs",
+      "helperText": "Free up to 1,000 monthly active users",
+      "collaborationLabel": "Editing together",
+      "liveLabel": "3 people live",
+      "loop": true
+    }
+  },
+  {
+    "id": "RB_batch11_footer_7",
+    "catalogKey": "pro-block:footer-7",
+    "label": "Footer 7",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-7",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/footer-7",
+    "componentName": "AdaptedFooter7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "navigationLinks": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "navigationLinks": [
+        {
+          "label": "Work",
+          "href": "#"
+        },
+        {
+          "label": "Studio",
+          "href": "#"
+        },
+        {
+          "label": "Journal",
+          "href": "#"
+        },
+        {
+          "label": "Contact",
+          "href": "#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_footer_11",
+    "catalogKey": "pro-block:footer-11",
+    "label": "Footer 11",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/footer/footer-11",
+    "componentName": "AdaptedFooter11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "brandInitial": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "brandName": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "brandInitial": "A",
+      "brandName": "Aster",
+      "description": "Aster builds coordination software for distributed engineering teams. Product availability, pricing, and feature scope vary by region and plan; see the current service description for binding terms. Independent integrations are maintained by their respective authors."
+    }
+  },
+  {
+    "id": "RB_batch11_navigation_15",
+    "catalogKey": "pro-block:navigation-15",
+    "label": "Navigation 15",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navigation-15",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navigation-15",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/navigation-15",
+    "componentName": "AdaptedNavigation15",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "links": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "href": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "links": [
+        {
+          "label": "Work",
+          "href": "#"
+        },
+        {
+          "label": "Services",
+          "href": "#"
+        },
+        {
+          "label": "About",
+          "href": "#"
+        },
+        {
+          "label": "Journal",
+          "href": "#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_app_shell_6",
+    "catalogKey": "pro-block:app-shell-6",
+    "label": "App Shell 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-6",
+    "rendererSource": "@/components/blocks/app-shell-6",
+    "componentName": "AppShell6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch11_app_shell_8",
+    "catalogKey": "pro-block:app-shell-8",
+    "label": "App Shell 8",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-8",
+    "rendererSource": "@/components/blocks/app-shell-8",
+    "componentName": "AppShell8",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch11_app_sidebar_6",
+    "catalogKey": "pro-block:app-sidebar-6",
+    "label": "App Sidebar 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-6",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/app-ui/app-sidebar-6",
+    "componentName": "AdaptedAppSidebar6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "groups": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "items": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "label": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "iconToken": {
+                    "kind": "enum",
+                    "values": [
+                      "home",
+                      "inbox",
+                      "calendar",
+                      "tasks",
+                      "users",
+                      "document",
+                      "reports",
+                      "knowledge",
+                      "team",
+                      "bell",
+                      "settings",
+                      "help"
+                    ]
+                  },
+                  "current": {
+                    "kind": "boolean",
+                    "required": false
+                  },
+                  "badge": {
+                    "kind": "string",
+                    "maxLength": 2000,
+                    "required": false
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "groups": [
+        {
+          "label": "Today",
+          "items": [
+            {
+              "label": "Home",
+              "iconToken": "home",
+              "current": true
+            },
+            {
+              "label": "Inbox",
+              "iconToken": "inbox",
+              "badge": "6"
+            },
+            {
+              "label": "Schedule",
+              "iconToken": "calendar"
+            },
+            {
+              "label": "Tasks",
+              "iconToken": "tasks",
+              "badge": "4"
+            }
+          ]
+        },
+        {
+          "label": "Workspace",
+          "items": [
+            {
+              "label": "Customers",
+              "iconToken": "users"
+            },
+            {
+              "label": "Documents",
+              "iconToken": "document"
+            },
+            {
+              "label": "Reports",
+              "iconToken": "reports"
+            },
+            {
+              "label": "Knowledge base",
+              "iconToken": "knowledge"
+            },
+            {
+              "label": "Team",
+              "iconToken": "team"
+            }
+          ]
+        },
+        {
+          "label": "Account",
+          "items": [
+            {
+              "label": "Notifications",
+              "iconToken": "bell"
+            },
+            {
+              "label": "Settings",
+              "iconToken": "settings"
+            },
+            {
+              "label": "Help & support",
+              "iconToken": "help"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_app_sidebar_7",
+    "catalogKey": "pro-block:app-sidebar-7",
+    "label": "App Sidebar 7",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-sidebar-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-sidebar-7",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/app-ui/app-sidebar-7",
+    "componentName": "AdaptedAppSidebar7",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "groups": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "items": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "label": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "iconToken": {
+                    "kind": "enum",
+                    "values": [
+                      "board",
+                      "folder",
+                      "overview",
+                      "document",
+                      "users",
+                      "gauge",
+                      "reports",
+                      "security",
+                      "billing",
+                      "settings"
+                    ]
+                  },
+                  "current": {
+                    "kind": "boolean",
+                    "required": false
+                  },
+                  "badge": {
+                    "kind": "string",
+                    "maxLength": 2000,
+                    "required": false
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "groups": [
+        {
+          "label": "Favorites",
+          "items": [
+            {
+              "label": "Q3 pipeline review",
+              "iconToken": "board"
+            },
+            {
+              "label": "Renewals board",
+              "iconToken": "folder"
+            }
+          ]
+        },
+        {
+          "label": "Workspace",
+          "items": [
+            {
+              "label": "Overview",
+              "iconToken": "overview",
+              "current": true
+            },
+            {
+              "label": "Pipelines",
+              "iconToken": "board",
+              "badge": "9"
+            },
+            {
+              "label": "Projects",
+              "iconToken": "folder"
+            },
+            {
+              "label": "Documents",
+              "iconToken": "document"
+            },
+            {
+              "label": "Customers",
+              "iconToken": "users"
+            }
+          ]
+        },
+        {
+          "label": "Reporting",
+          "items": [
+            {
+              "label": "Performance",
+              "iconToken": "gauge"
+            },
+            {
+              "label": "Reports",
+              "iconToken": "reports"
+            },
+            {
+              "label": "Security",
+              "iconToken": "security"
+            }
+          ]
+        },
+        {
+          "label": "Account",
+          "items": [
+            {
+              "label": "Members",
+              "iconToken": "users"
+            },
+            {
+              "label": "Billing",
+              "iconToken": "billing"
+            },
+            {
+              "label": "Settings",
+              "iconToken": "settings"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch11_card_8",
+    "catalogKey": "pro-block:card-8",
+    "label": "Card 8",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-8",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cards/card-8",
+    "componentName": "AdaptedCard8",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "clearLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "downloadLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "clearLabel": "Clear",
+      "downloadLabel": "Download"
+    }
+  },
+  {
+    "id": "RB_batch11_card_9",
+    "catalogKey": "pro-block:card-9",
+    "label": "Card 9",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-9",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cards/card-9",
+    "componentName": "AdaptedCard9",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "initials": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "name": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "role": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "location": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "bio": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "followLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "followingLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "messageLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "initials": "SR",
+      "name": "Sam Rivera",
+      "role": "Product designer at Meridian",
+      "location": "Lisbon, Portugal",
+      "bio": "Works on the payments surface. Currently rewriting the checkout flow and writing about it as it happens.",
+      "followLabel": "Follow",
+      "followingLabel": "Following",
+      "messageLabel": "Message"
+    }
+  },
+  {
+    "id": "RB_batch11_list_1",
+    "catalogKey": "pro-block:list-1",
+    "label": "List 1",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-1",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/lists/list-1",
+    "componentName": "AdaptedList1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Store performance",
+      "description": "Compared with the preceding period"
+    }
+  },
+  {
+    "id": "RB_batch11_scroll_mask",
+    "catalogKey": "starter:scroll-mask-tw",
+    "label": "Scroll Mask",
+    "taxonomy": "Animations",
+    "sourceTier": "FREE",
+    "officialSlug": "scroll-mask",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/scroll-mask",
+    "rendererSource": "@/components/react-bits/scroll-mask",
+    "componentName": "ScrollMask",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "observer"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch11_rotating_cards",
+    "catalogKey": "starter:rotating-cards-tw",
+    "label": "Rotating Cards",
+    "taxonomy": "Cards",
+    "sourceTier": "FREE",
+    "officialSlug": "rotating-cards",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/rotating-cards",
+    "rendererSource": "@/components/react-bits/rotating-cards",
+    "componentName": "RotatingCards",
+    "host": {
+      "profile": "flow",
+      "width": "content",
+      "height": "intrinsic",
+      "align": "center",
+      "overflow": "source",
+      "responsiveFit": {
+        "mode": "contain",
+        "intrinsicWidth": {
+          "value": 880,
+          "provenance": "official-source"
+        }
+      },
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "cards": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "number",
+              "min": -1000000,
+              "max": 1000000
+            },
+            "content": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": false
+      }
+    },
+    "defaults": {
+      "cards": [
+        {
+          "id": 1,
+          "content": "1"
+        },
+        {
+          "id": 2,
+          "content": "2"
+        },
+        {
+          "id": 3,
+          "content": "3"
+        },
+        {
+          "id": 4,
+          "content": "4"
+        },
+        {
+          "id": 5,
+          "content": "5"
+        },
+        {
+          "id": 6,
+          "content": "6"
+        },
+        {
+          "id": 7,
+          "content": "7"
+        },
+        {
+          "id": 8,
+          "content": "8"
+        },
+        {
+          "id": 9,
+          "content": "9"
+        },
+        {
+          "id": 10,
+          "content": "10"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_hero_18",
+    "catalogKey": "pro-block:hero-18",
+    "label": "Hero 18",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-18",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-18",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/hero-18",
+    "componentName": "AdaptedHero18",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "loop": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "heading": "Every tool you use,\none keystroke away.",
+      "description": "Waypoint indexes your docs, repos, people, and actions into a single command bar that answers before you finish typing.",
+      "primaryButtonLabel": "Get Waypoint free",
+      "loop": true
+    }
+  },
+  {
+    "id": "RB_batch12_blog_1",
+    "catalogKey": "pro-block:blog-1",
+    "label": "Blog 1",
+    "taxonomy": "Blog",
+    "sourceTier": "PRO",
+    "officialSlug": "blog-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/blog-1",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/content/blog-1",
+    "componentName": "AdaptedBlog1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "listHeading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "articles": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "number",
+              "min": 1,
+              "max": 1000000,
+              "step": 1
+            },
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "date": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "category": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "image": {
+              "kind": "string",
+              "maxLength": 2048,
+              "format": "url"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "heading": "Blog",
+      "description": "Read our latest articles and insights on the latest trends and developments in the industry.",
+      "listHeading": "Latest Articles",
+      "articles": [
+        {
+          "id": 1,
+          "title": "How AI is Transforming Modern Design Workflows",
+          "date": "Dec 15, 2024",
+          "category": "Technology",
+          "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop"
+        },
+        {
+          "id": 2,
+          "title": "Announcing Our Series B Funding Round",
+          "date": "Dec 10, 2024",
+          "category": "News",
+          "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop"
+        },
+        {
+          "id": 3,
+          "title": "Building Accessible User Interfaces in 2025",
+          "date": "Dec 05, 2024",
+          "category": "Design",
+          "image": "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=600&h=400&fit=crop"
+        },
+        {
+          "id": 4,
+          "title": "New Partnership with Leading Tech Companies",
+          "date": "Nov 28, 2024",
+          "category": "Partnership",
+          "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop"
+        },
+        {
+          "id": 5,
+          "title": "The Future of Remote Work and Collaboration",
+          "date": "Nov 20, 2024",
+          "category": "Culture",
+          "image": "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop"
+        },
+        {
+          "id": 6,
+          "title": "Introducing Our New Mobile App Features",
+          "date": "Nov 15, 2024",
+          "category": "Product",
+          "image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_blog_2",
+    "catalogKey": "pro-block:blog-2",
+    "label": "Blog 2",
+    "taxonomy": "Blog",
+    "sourceTier": "PRO",
+    "officialSlug": "blog-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/blog-2",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/content/blog-2",
+    "componentName": "AdaptedBlog2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "articles": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "number",
+              "min": 1,
+              "max": 1000000,
+              "step": 1
+            },
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "excerpt": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "date": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "image": {
+              "kind": "string",
+              "maxLength": 2048,
+              "format": "url"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "heading": "Recently published",
+      "articles": [
+        {
+          "id": 1,
+          "title": "7 best expense management software in December 2025",
+          "excerpt": "Expense management software helps streamline your finance operations. See our picks for today's best options...",
+          "date": "Dec 12",
+          "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=150&fit=crop"
+        },
+        {
+          "id": 2,
+          "title": "The 7 best productivity alternatives in December 2025",
+          "excerpt": "Finding the right productivity tool is essential for modern teams. If you're looking for an alternative, see our...",
+          "date": "Dec 12",
+          "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop"
+        },
+        {
+          "id": 3,
+          "title": "What is a business card? How it works, key benefits, and best options for small businesses",
+          "excerpt": "A business card requires full monthly payment and has no preset limit. Learn how they work, key pros and cons,...",
+          "date": "Dec 12",
+          "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=200&h=150&fit=crop"
+        },
+        {
+          "id": 4,
+          "title": "The best instant or pre-approved business credit cards in December 2025",
+          "excerpt": "Discover the top instant or pre-approved business credit cards. Get the best options for business credit card...",
+          "date": "Dec 12",
+          "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=200&h=150&fit=crop"
+        },
+        {
+          "id": 5,
+          "title": "Economic order quantity (EOQ): Definition, formula, and examples",
+          "excerpt": "Economic order quantity (EOQ) is the optimal order quantity to minimize your total inventory costs. Learn how to...",
+          "date": "Dec 12",
+          "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&h=150&fit=crop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_ecommerce_1",
+    "catalogKey": "pro-block:ecommerce-1",
+    "label": "Ecommerce 1",
+    "taxonomy": "Ecommerce",
+    "sourceTier": "PRO",
+    "officialSlug": "ecommerce-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/ecommerce-1",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/content/ecommerce-1",
+    "componentName": "AdaptedEcommerce1",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "productName": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "brand": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "price": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "stockLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "backLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "views": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "src": {
+              "kind": "string",
+              "maxLength": 2048,
+              "format": "url"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "productName": "Runner Ash01",
+      "brand": "ARC ATHLETIC",
+      "price": "$184",
+      "stockLabel": "Low stock",
+      "backLabel": "Back",
+      "views": [
+        {
+          "src": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=80"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=1200&q=80"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1200&q=80"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=1200&q=80"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?w=1200&q=80"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=1200&q=80"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_ecommerce_2",
+    "catalogKey": "pro-block:ecommerce-2",
+    "label": "Ecommerce 2",
+    "taxonomy": "Ecommerce",
+    "sourceTier": "PRO",
+    "officialSlug": "ecommerce-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/ecommerce-2",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/content/ecommerce-2",
+    "componentName": "AdaptedEcommerce2",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "products": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "price": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "tag": {
+              "kind": "enum",
+              "values": [
+                "",
+                "Bestseller",
+                "New"
+              ]
+            },
+            "brand": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "colors": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "value": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            },
+            "chips": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "value": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            },
+            "image": {
+              "kind": "string",
+              "maxLength": 2048,
+              "format": "url"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "products": [
+        {
+          "name": "Slim Air Fryer 4qt",
+          "price": "$59.99",
+          "tag": "Bestseller",
+          "brand": "Hearth",
+          "colors": [
+            {
+              "value": "#111"
+            },
+            {
+              "value": "#e7e2d8"
+            },
+            {
+              "value": "#3f5c4a"
+            },
+            {
+              "value": "#8b3a2f"
+            }
+          ],
+          "chips": [
+            {
+              "value": "Fits-anywhere"
+            },
+            {
+              "value": "EverGood"
+            }
+          ],
+          "image": "https://images.unsplash.com/photo-1585515320310-259814833e62?w=1200&q=80"
+        },
+        {
+          "name": "2-Slice Slim Toaster",
+          "price": "$24.99",
+          "tag": "Bestseller",
+          "brand": "Hearth",
+          "colors": [
+            {
+              "value": "#111"
+            },
+            {
+              "value": "#e7e2d8"
+            },
+            {
+              "value": "#3f5c4a"
+            },
+            {
+              "value": "#8b3a2f"
+            }
+          ],
+          "chips": [
+            {
+              "value": "Fits-anywhere"
+            }
+          ],
+          "image": "https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=1200&q=80"
+        },
+        {
+          "name": "PRO Air Fryer 4qt",
+          "price": "$69.99",
+          "tag": "Bestseller",
+          "brand": "Hearth PRO",
+          "colors": [
+            {
+              "value": "#111"
+            },
+            {
+              "value": "#e7e2d8"
+            }
+          ],
+          "chips": [
+            {
+              "value": "EverGood"
+            },
+            {
+              "value": "Premium"
+            },
+            {
+              "value": "Fits-anywhere"
+            }
+          ],
+          "image": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&q=80"
+        },
+        {
+          "name": "XL Griddle with Tray",
+          "price": "$64.99",
+          "tag": "Bestseller",
+          "brand": "Hearth Kitchenware",
+          "colors": [
+            {
+              "value": "#111"
+            }
+          ],
+          "chips": [
+            {
+              "value": "Family size"
+            },
+            {
+              "value": "EverGood"
+            }
+          ],
+          "image": "https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=1200&q=80"
+        },
+        {
+          "name": "SmartCrisp 8qt Air Fryer",
+          "price": "$129.99",
+          "tag": "Bestseller",
+          "brand": "Hearth PRO",
+          "colors": [
+            {
+              "value": "#111"
+            },
+            {
+              "value": "#e7e2d8"
+            },
+            {
+              "value": "#8b3a2f"
+            }
+          ],
+          "chips": [
+            {
+              "value": "Family size"
+            },
+            {
+              "value": "EverGood"
+            },
+            {
+              "value": "Premium"
+            }
+          ],
+          "image": "https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=1200&q=80"
+        },
+        {
+          "name": "4-Slice Toaster",
+          "price": "$59.99",
+          "tag": "New",
+          "brand": "So Cozy by Hearth",
+          "colors": [
+            {
+              "value": "#111"
+            },
+            {
+              "value": "#e7e2d8"
+            },
+            {
+              "value": "#3f5c4a"
+            }
+          ],
+          "chips": [],
+          "image": "https://images.unsplash.com/photo-1586941962765-d3896cc85ac8?w=1200&q=80"
+        }
+      ]
+    }
+  },
+  {
+    "id": "reactbits.cta-9",
+    "catalogKey": "pro-block:cta-9",
+    "label": "CTA 9",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-9",
+    "rendererSource": "@/components/puck-site-editor/adapted/cta-9",
+    "componentName": "AdaptedCta9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "Ready to make the switch?",
+      "description": "Bring your workspace over in minutes — we’ll handle the heavy lifting.",
+      "buttonLabel": "Request a free migration"
+    }
+  },
+  {
+    "id": "RB_batch12_cta_11",
+    "catalogKey": "pro-block:cta-11",
+    "label": "CTA 11",
+    "taxonomy": "CTA",
+    "sourceTier": "PRO",
+    "officialSlug": "cta-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/cta-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cta/cta-11",
+    "componentName": "AdaptedCta11",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "primaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "secondaryButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helperText": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "loop": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "eyebrow": "Meridian · Revenue ops",
+      "heading": "Every payout, accounted for.",
+      "description": "Meridian reconciles revenue across processors, banks, and your ledger: automatically. Close the books in an afternoon, not a week.",
+      "primaryButtonLabel": "Start free trial",
+      "secondaryButtonLabel": "Book a demo",
+      "helperText": "14-day trial · No credit card · SOC 2 Type II",
+      "loop": true
+    }
+  },
+  {
+    "id": "RB_batch12_footer_12",
+    "catalogKey": "pro-block:footer-12",
+    "label": "Footer 12",
+    "taxonomy": "Content",
+    "sourceTier": "PRO",
+    "officialSlug": "footer-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/footer-12",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/footer/footer-12",
+    "componentName": "AdaptedFooter12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "brandInitial": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "brandLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "footerBrand": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "footerDescription": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "copyright": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "loop": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "brandInitial": "N",
+      "brandLabel": "Northline Dispatch",
+      "heading": "The briefing for teams that ship between meetings.",
+      "description": "Release notes, field memos, and the numbers that moved. One email, every other Friday.",
+      "emailLabel": "Work email",
+      "emailPlaceholder": "work@email.com",
+      "buttonLabel": "Subscribe",
+      "footerBrand": "Northline",
+      "footerDescription": "Logistics software for operators who move real things on real deadlines.",
+      "copyright": "© 2026 Northline Labs",
+      "loop": true
+    }
+  },
+  {
+    "id": "RB_batch12_navbar_1",
+    "catalogKey": "pro-block:navbar-1",
+    "label": "Navbar 1",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-1",
+    "rendererSource": "@/components/blocks/navbar-1",
+    "componentName": "Navbar1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_navbar_2",
+    "catalogKey": "pro-block:navbar-2",
+    "label": "Navbar 2",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-2",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/navigation/navbar-2",
+    "componentName": "AdaptedNavbar2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 400,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "sorts": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "filterOptions": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "rows": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "meta": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "sorts": [
+        {
+          "id": "recent",
+          "label": "Recently updated"
+        },
+        {
+          "id": "created",
+          "label": "Date created"
+        },
+        {
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "id": "owner",
+          "label": "Owner"
+        }
+      ],
+      "filterOptions": [
+        {
+          "text": "Assigned to me"
+        },
+        {
+          "text": "Due this week"
+        },
+        {
+          "text": "Blocked"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Payment retries",
+          "meta": "Sprint 24 · Nadia V."
+        },
+        {
+          "name": "Guest checkout polish",
+          "meta": "Sprint 24 · Marcus S."
+        },
+        {
+          "name": "Address autofill",
+          "meta": "Sprint 23 · Priya P."
+        },
+        {
+          "name": "Order summary copy",
+          "meta": "Sprint 23 · Tom P."
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_navbar_3",
+    "catalogKey": "pro-block:navbar-3",
+    "label": "Navbar 3",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-3",
+    "rendererSource": "@/components/blocks/navbar-3",
+    "componentName": "Navbar3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_navbar_4",
+    "catalogKey": "pro-block:navbar-4",
+    "label": "Navbar 4",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-4",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/navigation/navbar-4",
+    "componentName": "AdaptedNavbar4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "sections": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "items": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "iconToken": {
+                    "kind": "enum",
+                    "values": [
+                      "layers",
+                      "workflow",
+                      "boxes",
+                      "shield",
+                      "users",
+                      "newspaper",
+                      "book",
+                      "support"
+                    ]
+                  },
+                  "label": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  },
+                  "hint": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "sections": [
+        {
+          "label": "Product",
+          "items": [
+            {
+              "iconToken": "layers",
+              "label": "Platform",
+              "hint": "The workspace your team runs on"
+            },
+            {
+              "iconToken": "workflow",
+              "label": "Automations",
+              "hint": "Rules that move work forward"
+            },
+            {
+              "iconToken": "boxes",
+              "label": "Integrations",
+              "hint": "Connect the tools you already use"
+            },
+            {
+              "iconToken": "shield",
+              "label": "Security",
+              "hint": "Controls, audit logs and SSO"
+            }
+          ]
+        },
+        {
+          "label": "Company",
+          "items": [
+            {
+              "iconToken": "users",
+              "label": "About",
+              "hint": "Who we are and what we build"
+            },
+            {
+              "iconToken": "newspaper",
+              "label": "Blog",
+              "hint": "Product notes and engineering posts"
+            },
+            {
+              "iconToken": "book",
+              "label": "Careers",
+              "hint": "Nine open roles across four teams"
+            },
+            {
+              "iconToken": "support",
+              "label": "Support",
+              "hint": "Reach a human within one hour"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_navbar_5",
+    "catalogKey": "pro-block:navbar-5",
+    "label": "Navbar 5",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-5",
+    "rendererSource": "@/components/blocks/navbar-5",
+    "componentName": "Navbar5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_navbar_6",
+    "catalogKey": "pro-block:navbar-6",
+    "label": "Navbar 6",
+    "taxonomy": "Navigation",
+    "sourceTier": "PRO",
+    "officialSlug": "navbar-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/navbar-6",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/navigation/navbar-6",
+    "componentName": "AdaptedNavbar6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "notices": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "who": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "at": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "results": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "notices": [
+        {
+          "id": "n1",
+          "who": "Nadia V.",
+          "text": "requested review on Billing retry policy",
+          "at": "4m"
+        },
+        {
+          "id": "n2",
+          "who": "Deploy bot",
+          "text": "shipped web-app 24.6.1 to production",
+          "at": "26m"
+        },
+        {
+          "id": "n3",
+          "who": "Marcus S.",
+          "text": "left three comments on Checkout copy",
+          "at": "1h"
+        },
+        {
+          "id": "n4",
+          "who": "Harbor Coffee",
+          "text": "upgraded to the Scale plan",
+          "at": "3h"
+        }
+      ],
+      "results": [
+        {
+          "text": "Billing retry policy"
+        },
+        {
+          "text": "Checkout drop-off study"
+        },
+        {
+          "text": "Q3 pricing experiment"
+        },
+        {
+          "text": "Webhook signing keys"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_7",
+    "catalogKey": "pro-block:pricing-7",
+    "label": "Pricing 7",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-7",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/pricing/pricing-7",
+    "componentName": "AdaptedPricing7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "tiers": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "tagline": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "price": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "unit": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "highlights": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "text": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            },
+            "cta": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "popular": {
+              "kind": "boolean"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "tiers": [
+        {
+          "name": "Hobby",
+          "tagline": "Everything you need to explore",
+          "price": "$0",
+          "unit": "forever free",
+          "highlights": [
+            {
+              "text": "Up to 2 collaborators"
+            },
+            {
+              "text": "5 active projects"
+            },
+            {
+              "text": "10k API requests / month"
+            },
+            {
+              "text": "Community support"
+            }
+          ],
+          "cta": "Start free",
+          "popular": false
+        },
+        {
+          "name": "Studio",
+          "tagline": "For small teams shipping fast",
+          "price": "$29",
+          "unit": "per seat / month",
+          "highlights": [
+            {
+              "text": "Unlimited projects and views"
+            },
+            {
+              "text": "Branch-based previews"
+            },
+            {
+              "text": "Up to 15 collaborators"
+            },
+            {
+              "text": "250k API requests / month"
+            },
+            {
+              "text": "Shared component library"
+            },
+            {
+              "text": "Priority email support"
+            }
+          ],
+          "cta": "Start 14-day trial",
+          "popular": true
+        },
+        {
+          "name": "Business",
+          "tagline": "Governance and scale for orgs",
+          "price": "Let's talk",
+          "unit": "",
+          "highlights": [
+            {
+              "text": "Unlimited seats"
+            },
+            {
+              "text": "SSO / SAML and SCIM"
+            },
+            {
+              "text": "Custom data residency"
+            },
+            {
+              "text": "SOC 2 Type II + HIPAA BAA"
+            },
+            {
+              "text": "99.99% uptime SLA"
+            },
+            {
+              "text": "Named support engineer"
+            }
+          ],
+          "cta": "Contact sales",
+          "popular": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_8",
+    "catalogKey": "pro-block:pricing-8",
+    "label": "Pricing 8",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-8",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/pricing/pricing-8",
+    "componentName": "AdaptedPricing8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "headingLine1": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLine2": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "standardButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "enterpriseButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "monitoringTitle": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "incidentTitle": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "headingLine1": "Compare",
+      "headingLine2": "every plan",
+      "standardButtonLabel": "Start free",
+      "enterpriseButtonLabel": "Contact sales",
+      "monitoringTitle": "Monitoring",
+      "incidentTitle": "Incident Response"
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_9",
+    "catalogKey": "pro-block:pricing-9",
+    "label": "Pricing 9",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-9",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/pricing/pricing-9",
+    "componentName": "AdaptedPricing9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "eyebrow": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLine1": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingLine2": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "saveBadge": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "annualTitle": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "annualPrice": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "annualDescription": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "monthlyTitle": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "monthlyPrice": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "monthlyDescription": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "helperText": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "termsLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "cancelLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "eyebrow": "One plan, every feature",
+      "headingLine1": "Build without the",
+      "headingLine2": "invoice anxiety",
+      "description": "One flat subscription, every feature unlocked, no seat limits. Pick the cadence that fits your cash flow.",
+      "saveBadge": "Save 40%",
+      "annualTitle": "Annual · 14 days free",
+      "annualPrice": "$179",
+      "annualDescription": "$14.92 / month, billed yearly",
+      "monthlyTitle": "Monthly · 7 days free",
+      "monthlyPrice": "$24",
+      "monthlyDescription": "Per month, cancel anytime",
+      "helperText": "Your trial is fully featured. We'll send a reminder two days before it ends so you're never surprised by a charge.",
+      "termsLabel": "Terms & conditions",
+      "cancelLabel": "Cancel anytime",
+      "buttonLabel": "Start your free trial"
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_10",
+    "catalogKey": "pro-block:pricing-10",
+    "label": "Pricing 10",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/pricing-10",
+    "componentName": "AdaptedPricing10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "buttonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "runTiers": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "runs": {
+              "kind": "number",
+              "min": 0,
+              "max": 5000000,
+              "step": 1000
+            },
+            "monthly": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "seatTiers": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "seats": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            },
+            "monthly": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "runFeatures": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "seatFeatures": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "heading": "Pay for what you ship, nothing else",
+      "description": "Skip rigid tiers and surprise overage fees. Dial in the exact runs and seats your team needs, adjust any time, and only ever pay for the capacity you actually use.",
+      "buttonLabel": "Try it free for 14 days",
+      "runTiers": [
+        {
+          "runs": 5000,
+          "monthly": 0
+        },
+        {
+          "runs": 25000,
+          "monthly": 19
+        },
+        {
+          "runs": 100000,
+          "monthly": 49
+        },
+        {
+          "runs": 500000,
+          "monthly": 129
+        },
+        {
+          "runs": 1000000,
+          "monthly": 229
+        },
+        {
+          "runs": 5000000,
+          "monthly": 699
+        }
+      ],
+      "seatTiers": [
+        {
+          "seats": 1,
+          "monthly": 0
+        },
+        {
+          "seats": 3,
+          "monthly": 24
+        },
+        {
+          "seats": 10,
+          "monthly": 69
+        },
+        {
+          "seats": 25,
+          "monthly": 149
+        },
+        {
+          "seats": 50,
+          "monthly": 269
+        },
+        {
+          "seats": 100,
+          "monthly": 479
+        }
+      ],
+      "runFeatures": [
+        {
+          "text": "Unlimited workflows"
+        },
+        {
+          "text": "Webhooks & API triggers"
+        },
+        {
+          "text": "Run history for 90 days"
+        },
+        {
+          "text": "Priority execution queue"
+        },
+        {
+          "text": "Email & Slack alerts"
+        }
+      ],
+      "seatFeatures": [
+        {
+          "text": "SSO & role-based access"
+        },
+        {
+          "text": "Shared team workspaces"
+        },
+        {
+          "text": "Collaborative editing"
+        },
+        {
+          "text": "Audit logs & activity feed"
+        },
+        {
+          "text": "Priority support"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_12",
+    "catalogKey": "pro-block:pricing-12",
+    "label": "Pricing 12",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-12",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/pricing/pricing-12",
+    "componentName": "AdaptedPricing12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "features": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "assurances": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "iconToken": {
+              "kind": "enum",
+              "values": [
+                "shield",
+                "refresh",
+                "card"
+              ]
+            },
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "heading": "One plan. The whole studio.",
+      "description": "Every component, block, and template we ship, plus direct access to the team that builds them. No tiers to outgrow.",
+      "features": [
+        {
+          "text": "Every component, block, and template"
+        },
+        {
+          "text": "Unlimited projects and seats"
+        },
+        {
+          "text": "Lifetime updates while subscribed"
+        },
+        {
+          "text": "Private Slack channel with the team"
+        },
+        {
+          "text": "Design reviews on request"
+        },
+        {
+          "text": "Priority fixes within one business day"
+        },
+        {
+          "text": "Figma library with tokens synced"
+        },
+        {
+          "text": "Cancel or pause in one click"
+        }
+      ],
+      "assurances": [
+        {
+          "iconToken": "shield",
+          "label": "SOC 2 Type II certified"
+        },
+        {
+          "iconToken": "refresh",
+          "label": "14-day money-back guarantee"
+        },
+        {
+          "iconToken": "card",
+          "label": "No card required to browse"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_14",
+    "catalogKey": "pro-block:pricing-14",
+    "label": "Pricing 14",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-14",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-14",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/pricing/pricing-14",
+    "componentName": "AdaptedPricing14",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "addons": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "iconToken": {
+              "kind": "enum",
+              "values": [
+                "analytics",
+                "automation",
+                "support",
+                "security"
+              ]
+            },
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "blurb": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "price": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "addons": [
+        {
+          "id": "analytics",
+          "iconToken": "analytics",
+          "name": "Product analytics",
+          "blurb": "Funnels, retention curves, and session replay",
+          "price": 24
+        },
+        {
+          "id": "automation",
+          "iconToken": "automation",
+          "name": "Workflow automation",
+          "blurb": "Schedules, triggers, and outbound webhooks",
+          "price": 18
+        },
+        {
+          "id": "support",
+          "iconToken": "support",
+          "name": "Priority support",
+          "blurb": "One-hour response from a named engineer",
+          "price": 32
+        },
+        {
+          "id": "security",
+          "iconToken": "security",
+          "name": "Advanced security",
+          "blurb": "SAML SSO, SCIM, and audit log export",
+          "price": 40
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_pricing_15",
+    "catalogKey": "pro-block:pricing-15",
+    "label": "Pricing 15",
+    "taxonomy": "Pricing",
+    "sourceTier": "PRO",
+    "officialSlug": "pricing-15",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/pricing-15",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/pricing/pricing-15",
+    "componentName": "AdaptedPricing15",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "plans": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "monthly": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            },
+            "yearly": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            },
+            "description": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "cta": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "featured": {
+              "kind": "boolean"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "plans": [
+        {
+          "name": "Core",
+          "monthly": 15,
+          "yearly": 12,
+          "description": "Track spend across a single entity",
+          "cta": "Start with Core",
+          "featured": false
+        },
+        {
+          "name": "Plus",
+          "monthly": 39,
+          "yearly": 31,
+          "description": "Approvals and controls for teams",
+          "cta": "Start with Plus",
+          "featured": true
+        },
+        {
+          "name": "Prime",
+          "monthly": 79,
+          "yearly": 63,
+          "description": "Governance for multi-entity orgs",
+          "cta": "Talk to sales",
+          "featured": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_contact_7",
+    "catalogKey": "pro-block:contact-7",
+    "label": "Contact 7",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-7",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/contact-7",
+    "componentName": "AdaptedContact7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "headingLead": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingEmphasis": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingTail": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "firstNameLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "firstNamePlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "lastNameLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "lastNamePlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "emailPlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "companySizeLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "messageLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "messagePlaceholder": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "submitLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "headingLead": "Talk to the team that",
+      "headingEmphasis": "quiet",
+      "headingTail": "way.",
+      "description": "Send us a note and we will reply within a business day: no sales script, no follow-up drip, just a real conversation.",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "Enter your first name*",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Enter your last name*",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter email address*",
+      "companySizeLabel": "Company size",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Enter your message",
+      "submitLabel": "Send message"
+    }
+  },
+  {
+    "id": "RB_batch12_contact_8",
+    "catalogKey": "pro-block:contact-8",
+    "label": "Contact 8",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-8",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/contact/contact-8",
+    "componentName": "AdaptedContact8",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "headingLead": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingTail": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "expectations": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "text": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "reviewers": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "src": {
+              "kind": "string",
+              "maxLength": 2048,
+              "format": "url"
+            },
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "role": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "headingLead": "A quieter way to",
+      "headingTail": "run your operations",
+      "expectations": [
+        {
+          "text": "A calm, zero-pressure walkthrough of the platform"
+        },
+        {
+          "text": "A look at how teams like yours are using it today"
+        },
+        {
+          "text": "A quick tour of pricing, plans, and what's included"
+        },
+        {
+          "text": "Straight answers on setup, migration, and support"
+        }
+      ],
+      "reviewers": [
+        {
+          "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
+          "name": "Ana Mirov",
+          "role": "Head of Ops, Fernwood"
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=200&q=80",
+          "name": "Jules Park",
+          "role": "Founder, Coastline Co."
+        },
+        {
+          "src": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
+          "name": "Sam Oduya",
+          "role": "GM, Northlake Studio"
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_contact_10",
+    "catalogKey": "pro-block:contact-10",
+    "label": "Contact 10",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/contact/contact-10",
+    "componentName": "AdaptedContact10",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "headingLead": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "headingTail": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "benefits": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "description": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "headingLead": "Turn insights",
+      "headingTail": "into action",
+      "description": "Connect with a specialist to unify your research, reports, and feedback into one secure workflow, and see the outcomes that actually move the roadmap.",
+      "benefits": [
+        {
+          "title": "A strategic consultation",
+          "description": "Share your goals and constraints. We map how the platform fits your stack."
+        },
+        {
+          "title": "Tailored walkthrough",
+          "description": "See the workflows and capabilities most relevant to your team's priorities."
+        },
+        {
+          "title": "Enterprise readiness",
+          "description": "Discuss security, compliance, and scale with a specialist, not a script."
+        },
+        {
+          "title": "Proof of value",
+          "description": "Leave with benchmarks, pricing context, and a practical rollout path."
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_contact_12",
+    "catalogKey": "pro-block:contact-12",
+    "label": "Contact 12",
+    "taxonomy": "Contact",
+    "sourceTier": "PRO",
+    "officialSlug": "contact-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/contact-12",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/contact/contact-12",
+    "componentName": "AdaptedContact12",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "heading": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "description": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "responseValue": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "responseLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "heading": "How can we help?",
+      "description": "Whatever the question, there's a direct route to the right team. Pick a path: no ticket queues, no dead ends.",
+      "responseValue": "4 min",
+      "responseLabel": "median first reply, this quarter"
+    }
+  },
+  {
+    "id": "RB_batch12_app_shell_9",
+    "catalogKey": "pro-block:app-shell-9",
+    "label": "App Shell 9",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "app-shell-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/app-shell-9",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/advanced/app-ui/app-shell-9",
+    "componentName": "AdaptedAppShell9",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "chats": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "title": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "iconToken": {
+              "kind": "enum",
+              "values": [
+                "file",
+                "code",
+                "location",
+                "checklist",
+                "search",
+                "database"
+              ]
+            },
+            "model": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "count": {
+              "kind": "number",
+              "min": 0,
+              "max": 1000000,
+              "step": 1
+            },
+            "turns": {
+              "kind": "array",
+              "maxItems": 32,
+              "item": {
+                "kind": "object",
+                "properties": {
+                  "role": {
+                    "kind": "enum",
+                    "values": [
+                      "user",
+                      "assistant"
+                    ]
+                  },
+                  "text": {
+                    "kind": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "editable": false
+              },
+              "editable": true
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      }
+    },
+    "defaults": {
+      "chats": [
+        {
+          "id": "revenue",
+          "title": "Quarterly revenue summary",
+          "iconToken": "file",
+          "model": "Atlas 4",
+          "count": 12,
+          "turns": [
+            {
+              "role": "user",
+              "text": "Pull the headline numbers out of the Q3 close and tell me what actually moved."
+            },
+            {
+              "role": "assistant",
+              "text": "Revenue landed at 4.62m, up 8.4% on Q2. Almost all of the gain is expansion inside existing accounts rather than new logos, which came in flat at 41. Net retention is 114%, the best of the last four quarters."
+            },
+            {
+              "role": "user",
+              "text": "What is the risk in that number?"
+            },
+            {
+              "role": "assistant",
+              "text": "Concentration. The top six accounts now sit at 38% of ARR, up from 31% a year ago. Two of them renew in the same month, so a single bad renewal window would take more off the top line than the whole quarter's growth put back."
+            }
+          ]
+        },
+        {
+          "id": "auth",
+          "title": "Refactor auth middleware",
+          "iconToken": "code",
+          "model": "Atlas 4",
+          "count": 24,
+          "turns": [
+            {
+              "role": "user",
+              "text": "The session refresh runs on every request. Can it be cheaper?"
+            },
+            {
+              "role": "assistant",
+              "text": "Yes. Refresh only when the token is inside its last five minutes, and keep the decoded claims on the request so downstream handlers stop re-parsing. That takes the common path from one network call to none."
+            }
+          ]
+        },
+        {
+          "id": "lisbon",
+          "title": "Lisbon trip itinerary",
+          "iconToken": "location",
+          "model": "Wren",
+          "count": 8,
+          "turns": [
+            {
+              "role": "user",
+              "text": "Four days in Lisbon in October, no rental car."
+            },
+            {
+              "role": "assistant",
+              "text": "Base yourself in Príncipe Real so most of it is walkable. Day one Alfama and the viewpoints, day two Belém by tram, day three a train out to Sintra, day four the Time Out market and the riverside before your flight."
+            }
+          ]
+        },
+        {
+          "id": "launch",
+          "title": "Launch checklist draft",
+          "iconToken": "checklist",
+          "model": "Atlas 4",
+          "count": 5,
+          "turns": [
+            {
+              "role": "user",
+              "text": "What is still open before Thursday?"
+            },
+            {
+              "role": "assistant",
+              "text": "Three things: the pricing page copy is unreviewed, the status page has no incident template, and nobody owns the first-hour inbox. The rest is either done or does not block the announcement."
+            }
+          ]
+        },
+        {
+          "id": "vector",
+          "title": "Explain vector search",
+          "iconToken": "search",
+          "model": "Orbit",
+          "count": 9,
+          "turns": [
+            {
+              "role": "user",
+              "text": "Explain vector search without the marketing words."
+            },
+            {
+              "role": "assistant",
+              "text": "You turn each document into a list of numbers that encodes its meaning, then store them. A query becomes the same kind of list, and you return the documents whose lists point in a similar direction. It finds things that mean the same rather than things that spell the same."
+            }
+          ]
+        },
+        {
+          "id": "sql",
+          "title": "Optimise a slow SQL query",
+          "iconToken": "database",
+          "model": "Orbit",
+          "count": 16,
+          "turns": [
+            {
+              "role": "user",
+              "text": "This join takes eleven seconds. Where do I start?"
+            },
+            {
+              "role": "assistant",
+              "text": "Read the plan first. An eleven second join on this row count is almost always a sequential scan on the right-hand table because the join column is not indexed, or is indexed with a different collation than the one you are comparing against."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "RB_batch12_mobile_1",
+    "catalogKey": "pro-block:mobile-1",
+    "label": "Mobile 1",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "mobile-1",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/mobile-1",
+    "rendererSource": "@/components/blocks/mobile-1",
+    "componentName": "Mobile1",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 680,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_card_10",
+    "catalogKey": "pro-block:card-10",
+    "label": "Card 10",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-10",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cards/card-10",
+    "componentName": "AdaptedCard10",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "split": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "value": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "activity": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "name": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "when": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "amount": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "incoming": {
+              "kind": "boolean"
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "balanceLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "balanceValue": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "changeValue": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "balanceMeta": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "addButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "transferButtonLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "split": [
+        {
+          "label": "Pending",
+          "value": "$1,204.00"
+        },
+        {
+          "label": "Reserved",
+          "value": "$380.00"
+        }
+      ],
+      "activity": [
+        {
+          "id": "stripe",
+          "name": "Stripe payout",
+          "when": "Today, 09:14",
+          "amount": "+$4,820.00",
+          "incoming": true
+        },
+        {
+          "id": "aws",
+          "name": "Amazon Web Services",
+          "when": "Yesterday",
+          "amount": "−$612.40",
+          "incoming": false
+        },
+        {
+          "id": "payroll",
+          "name": "March payroll",
+          "when": "28 February",
+          "amount": "−$18,900.00",
+          "incoming": false
+        }
+      ],
+      "balanceLabel": "Available balance",
+      "balanceValue": "$46,318.52",
+      "changeValue": "+3.1%",
+      "balanceMeta": "against last month · Operating · USD",
+      "addButtonLabel": "Add money",
+      "transferButtonLabel": "Transfer"
+    }
+  },
+  {
+    "id": "RB_batch12_card_11",
+    "catalogKey": "pro-block:card-11",
+    "label": "Card 11",
+    "taxonomy": "Cards",
+    "sourceTier": "PRO",
+    "officialSlug": "card-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/card-11",
+    "rendererSource": "@/components/puck-site-editor/adapted-library/cards/card-11",
+    "componentName": "AdaptedCard11",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "lines": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "detail": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "amount": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "totals": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "object",
+          "properties": {
+            "id": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "label": {
+              "kind": "string",
+              "maxLength": 2000
+            },
+            "value": {
+              "kind": "string",
+              "maxLength": 2000
+            }
+          },
+          "editable": false
+        },
+        "editable": true
+      },
+      "invoiceLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "invoiceId": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "statusLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "metadata": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "totalLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "totalValue": {
+        "kind": "string",
+        "maxLength": 2000
+      },
+      "downloadLabel": {
+        "kind": "string",
+        "maxLength": 2000
+      }
+    },
+    "defaults": {
+      "lines": [
+        {
+          "id": "seats",
+          "label": "Team seats",
+          "detail": "24 × $18.00",
+          "amount": "$432.00"
+        },
+        {
+          "id": "storage",
+          "label": "Additional storage",
+          "detail": "250 GB × $0.40",
+          "amount": "$100.00"
+        },
+        {
+          "id": "support",
+          "label": "Priority support",
+          "detail": "1 month",
+          "amount": "$150.00"
+        }
+      ],
+      "totals": [
+        {
+          "id": "subtotal",
+          "label": "Subtotal",
+          "value": "$682.00"
+        },
+        {
+          "id": "tax",
+          "label": "VAT (23%)",
+          "value": "$156.86"
+        }
+      ],
+      "invoiceLabel": "Invoice",
+      "invoiceId": "INV-2024-0318",
+      "statusLabel": "Paid",
+      "metadata": "Meridian Fund · Issued 18 March · Due 1 April",
+      "totalLabel": "Total due",
+      "totalValue": "$838.86",
+      "downloadLabel": "Download PDF"
+    }
+  },
+  {
+    "id": "RB_batch12_list_7",
+    "catalogKey": "pro-block:list-7",
+    "label": "List 7",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-7",
+    "rendererSource": "@/components/blocks/list-7",
+    "componentName": "List7",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_list_8",
+    "catalogKey": "pro-block:list-8",
+    "label": "List 8",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-8",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-8",
+    "rendererSource": "@/components/blocks/list-8",
+    "componentName": "List8",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_list_9",
+    "catalogKey": "pro-block:list-9",
+    "label": "List 9",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-9",
+    "rendererSource": "@/components/blocks/list-9",
+    "componentName": "List9",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_list_10",
+    "catalogKey": "pro-block:list-10",
+    "label": "List 10",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-10",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-10",
+    "rendererSource": "@/components/blocks/list-10",
+    "componentName": "List10",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_list_11",
+    "catalogKey": "pro-block:list-11",
+    "label": "List 11",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-11",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-11",
+    "rendererSource": "@/components/blocks/list-11",
+    "componentName": "List11",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_list_12",
+    "catalogKey": "pro-block:list-12",
+    "label": "List 12",
+    "taxonomy": "Lists",
+    "sourceTier": "PRO",
+    "officialSlug": "list-12",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/list-12",
+    "rendererSource": "@/components/blocks/list-12",
+    "componentName": "List12",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_onboarding_5",
+    "catalogKey": "pro-block:onboarding-5",
+    "label": "Onboarding 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-5",
+    "rendererSource": "@/components/blocks/onboarding-5",
+    "componentName": "Onboarding5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_onboarding_6",
+    "catalogKey": "pro-block:onboarding-6",
+    "label": "Onboarding 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-6",
+    "rendererSource": "@/components/blocks/onboarding-6",
+    "componentName": "Onboarding6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_onboarding_7",
+    "catalogKey": "pro-block:onboarding-7",
+    "label": "Onboarding 7",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "onboarding-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/onboarding-7",
+    "rendererSource": "@/components/blocks/onboarding-7",
+    "componentName": "Onboarding7",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 640,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_forms_4",
+    "catalogKey": "pro-block:forms-4",
+    "label": "Forms 4",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-4",
+    "rendererSource": "@/components/blocks/forms-4",
+    "componentName": "Forms4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_forms_5",
+    "catalogKey": "pro-block:forms-5",
+    "label": "Forms 5",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-5",
+    "rendererSource": "@/components/blocks/forms-5",
+    "componentName": "Forms5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_forms_6",
+    "catalogKey": "pro-block:forms-6",
+    "label": "Forms 6",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "forms-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/forms-6",
+    "rendererSource": "@/components/blocks/forms-6",
+    "componentName": "Forms6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 1040,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_settings_form_2",
+    "catalogKey": "pro-block:settings-form-2",
+    "label": "Settings Form 2",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "settings-form-2",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/settings-form-2",
+    "rendererSource": "@/components/blocks/settings-form-2",
+    "componentName": "SettingsForm2",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_settings_form_3",
+    "catalogKey": "pro-block:settings-form-3",
+    "label": "Settings Form 3",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "settings-form-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/settings-form-3",
+    "rendererSource": "@/components/blocks/settings-form-3",
+    "componentName": "SettingsForm3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 800,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_settings_form_4",
+    "catalogKey": "pro-block:settings-form-4",
+    "label": "Settings Form 4",
+    "taxonomy": "Forms",
+    "sourceTier": "PRO",
+    "officialSlug": "settings-form-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/settings-form-4",
+    "rendererSource": "@/components/blocks/settings-form-4",
+    "componentName": "SettingsForm4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "reactbits.scheduling-3",
+    "catalogKey": "pro-block:scheduling-3",
+    "label": "Scheduling 3",
+    "taxonomy": "Scheduling",
+    "sourceTier": "PRO",
+    "officialSlug": "scheduling-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/scheduling-3",
+    "rendererSource": "@/components/blocks/scheduling-3",
+    "componentName": "Scheduling3",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 720,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_command_menu_4",
+    "catalogKey": "pro-block:command-menu-4",
+    "label": "Command Menu 4",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-4",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-4",
+    "rendererSource": "@/components/blocks/command-menu-4",
+    "componentName": "CommandMenu4",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 400,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_command_menu_5",
+    "catalogKey": "pro-block:command-menu-5",
+    "label": "Command Menu 5",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-5",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-5",
+    "rendererSource": "@/components/blocks/command-menu-5",
+    "componentName": "CommandMenu5",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 560,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_command_menu_6",
+    "catalogKey": "pro-block:command-menu-6",
+    "label": "Command Menu 6",
+    "taxonomy": "App UI",
+    "sourceTier": "PRO",
+    "officialSlug": "command-menu-6",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/command-menu-6",
+    "rendererSource": "@/components/blocks/command-menu-6",
+    "componentName": "CommandMenu6",
+    "host": {
+      "profile": "app-surface",
+      "width": "full",
+      "height": "source-min",
+      "sourceMinHeight": {
+        "value": 480,
+        "provenance": "official-source"
+      },
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_blog_3",
+    "catalogKey": "pro-block:blog-3",
+    "label": "Blog 3",
+    "taxonomy": "Blog",
+    "sourceTier": "PRO",
+    "officialSlug": "blog-3",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/blog-3",
+    "rendererSource": "@/components/blocks/blog-3",
+    "componentName": "Blog3",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "RB_batch12_how_it_works_9",
+    "catalogKey": "pro-block:how-it-works-9",
+    "label": "How It Works 9",
+    "taxonomy": "Features",
+    "sourceTier": "PRO",
+    "officialSlug": "how-it-works-9",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/how-it-works-9",
+    "rendererSource": "@/components/blocks/how-it-works-9",
+    "componentName": "HowItWorks9",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "overflow": "source",
+      "runtimeRisk": "dom"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  },
+  {
+    "id": "reactbits.glow-cursor",
+    "catalogKey": "current-free:glow-cursor",
+    "label": "Glow Cursor",
+    "taxonomy": "Cursor / Pointer",
+    "sourceTier": "FREE",
+    "officialSlug": "glow-cursor",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/GlowCursor",
+    "rendererSource": "@/components/react-bits/GlowCursor",
+    "componentName": "GlowCursor",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "secondaryColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "trailLength": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "trailWidth": {
+        "kind": "number",
+        "min": 0.1,
+        "max": 1000000,
+        "step": 0.1
+      },
+      "followSpeed": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "opacity": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "pulseSpeed": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.1
+      },
+      "idleFade": {
+        "kind": "boolean"
+      },
+      "blendMode": {
+        "kind": "enum",
+        "values": [
+          "screen",
+          "normal",
+          "plus-lighter"
+        ]
+      },
+      "enabled": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "color": "#67E8F9",
+      "secondaryColor": "#A78BFA",
+      "trailLength": 40,
+      "trailWidth": 8,
+      "followSpeed": 0.16,
+      "opacity": 1,
+      "pulseSpeed": 1.1,
+      "idleFade": true,
+      "blendMode": "screen",
+      "enabled": true
+    }
+  },
+  {
+    "id": "RB_free_particle_text",
+    "catalogKey": "current-free:particle-text",
+    "label": "Particle Text",
+    "taxonomy": "Text Effects",
+    "sourceTier": "FREE",
+    "officialSlug": "particle-text",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/ParticleText",
+    "rendererSource": "@/components/react-bits/ParticleText",
+    "componentName": "ParticleText",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "particleSize": {
+        "kind": "number",
+        "min": 0.6,
+        "max": 1000000,
+        "step": 0.1
+      },
+      "density": {
+        "kind": "number",
+        "min": 2,
+        "max": 1000000,
+        "step": 1
+      },
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "highlightColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "gatherDuration": {
+        "kind": "number",
+        "min": 1,
+        "max": 1000000,
+        "step": 100
+      },
+      "trigger": {
+        "kind": "enum",
+        "values": [
+          "mount",
+          "hover",
+          "click"
+        ]
+      },
+      "glow": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "particleSize": 2,
+      "density": 4,
+      "color": "#ffffff",
+      "highlightColor": "#8b5cf6",
+      "gatherDuration": 1600,
+      "trigger": "mount",
+      "glow": true
+    }
+  },
+  {
+    "id": "RB_free_magic_rings",
+    "catalogKey": "current-free:magic-rings",
+    "label": "Magic Rings",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "FREE",
+    "officialSlug": "magic-rings",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/MagicRings",
+    "rendererSource": "@/components/react-bits/MagicRings",
+    "componentName": "MagicRings",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "color": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "colorTwo": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "followMouse": {
+        "kind": "boolean"
+      },
+      "clickBurst": {
+        "kind": "boolean"
+      },
+      "alphaMode": {
+        "kind": "enum",
+        "values": [
+          "luminance",
+          "coverage"
+        ]
+      }
+    },
+    "defaults": {
+      "color": "#fc42ff",
+      "colorTwo": "#42fcff",
+      "followMouse": false,
+      "clickBurst": false,
+      "alphaMode": "luminance"
+    }
+  },
+  {
+    "id": "RB_free_strands",
+    "catalogKey": "current-free:strands",
+    "label": "Strands",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "FREE",
+    "officialSlug": "strands",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/Strands",
+    "rendererSource": "@/components/react-bits/Strands",
+    "componentName": "Strands",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "colors": {
+        "kind": "array",
+        "maxItems": 32,
+        "item": {
+          "kind": "string",
+          "maxLength": 32,
+          "format": "color",
+          "editable": false
+        },
+        "editable": false
+      },
+      "count": {
+        "kind": "number",
+        "min": -1000000,
+        "max": 1000000
+      },
+      "glass": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "colors": [
+        "#FF4242",
+        "#7C3AED",
+        "#06B6D4",
+        "#EAB308"
+      ],
+      "count": 3,
+      "glass": false
+    }
+  },
+  {
+    "id": "RB_free_splash_cursor",
+    "catalogKey": "current-free:splash-cursor",
+    "label": "Splash Cursor",
+    "taxonomy": "Cursor / Pointer",
+    "sourceTier": "FREE",
+    "officialSlug": "splash-cursor",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/SplashCursor",
+    "rendererSource": "@/components/react-bits/SplashCursor",
+    "componentName": "SplashCursor",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "COLOR": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "RAINBOW_MODE": {
+        "kind": "boolean"
+      },
+      "TRANSPARENT": {
+        "kind": "boolean"
+      },
+      "SHADING": {
+        "kind": "boolean"
+      }
+    },
+    "defaults": {
+      "COLOR": "#ff0000",
+      "RAINBOW_MODE": true,
+      "TRANSPARENT": true,
+      "SHADING": true
+    }
+  },
+  {
+    "id": "RB_free_floating_lines",
+    "catalogKey": "current-free:floating-lines",
+    "label": "Floating Lines",
+    "taxonomy": "Backgrounds",
+    "sourceTier": "FREE",
+    "officialSlug": "floating-lines",
+    "sourceKind": "component",
+    "physicalSource": "@/components/react-bits/FloatingLines",
+    "rendererSource": "@/components/react-bits/FloatingLines",
+    "componentName": "FloatingLines",
+    "host": {
+      "profile": "canvas",
+      "width": "full",
+      "height": "technical-definite",
+      "technicalHeight": {
+        "value": 480,
+        "provenance": "puck-technical"
+      },
+      "overflow": "clip",
+      "surfaceBackground": {
+        "value": "#000000",
+        "provenance": "official-demo"
+      },
+      "runtimeRisk": "webgl"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {
+      "backgroundColor": {
+        "kind": "string",
+        "maxLength": 32,
+        "format": "color"
+      },
+      "interactive": {
+        "kind": "boolean"
+      },
+      "parallax": {
+        "kind": "boolean"
+      },
+      "lightMode": {
+        "kind": "boolean"
+      },
+      "mixBlendMode": {
+        "kind": "enum",
+        "values": [
+          "screen",
+          "normal",
+          "multiply"
+        ]
+      }
+    },
+    "defaults": {
+      "backgroundColor": "#000000",
+      "interactive": true,
+      "parallax": true,
+      "lightMode": false,
+      "mixBlendMode": "screen"
+    }
+  },
+  {
+    "id": "RB_batch10_hero_7",
+    "catalogKey": "pro-block:hero-7",
+    "label": "Hero 7",
+    "taxonomy": "Hero",
+    "sourceTier": "PRO",
+    "officialSlug": "hero-7",
+    "sourceKind": "pro-block",
+    "physicalSource": "@/components/blocks/hero-7",
+    "rendererSource": "@/components/blocks/hero-7",
+    "componentName": "Hero7",
+    "host": {
+      "profile": "section",
+      "width": "full",
+      "height": "intrinsic",
+      "runtimeRisk": "none"
+    },
+    "definiteHeight": null,
+    "runtimeFamily": null,
+    "legacyIds": [],
+    "props": {},
+    "defaults": {}
+  }
+] as const;
+
+export const PUCK_BLOCKED_REGISTRY_BACKLOG = [
+  {
+    "id": "RB_batch1_circles",
+    "catalogKey": "component:circles",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch1_preloader",
+    "catalogKey": "component:preloader",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch1_parallax_pills",
+    "catalogKey": "component:parallax-pills",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch2_3d_text_reveal",
+    "catalogKey": "component:3d-text-reveal",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch2_speeding_text",
+    "catalogKey": "component:speeding-text",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch3_animated_list",
+    "catalogKey": "component:animated-list",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch3_center_flow",
+    "catalogKey": "component:center-flow",
+    "status": "BLOCKED_FIDELITY_UNPROVEN_DEMO_PRESET",
+    "reason": "BLOCKED_FIDELITY_UNPROVEN_DEMO_PRESET"
+  },
+  {
+    "id": "RB_batch3_hover_preview",
+    "catalogKey": "component:hover-preview",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch3_depth_card",
+    "catalogKey": "component:depth-card",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch3_user_cursor",
+    "catalogKey": "component:user-cursor",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch3_custom_cursor",
+    "catalogKey": "component:custom-cursor",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch3_showcase_7",
+    "catalogKey": "pro-block:showcase-7",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_ASSET"
+  },
+  {
+    "id": "RB_batch3_social_proof_7",
+    "catalogKey": "pro-block:social-proof-7",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_ASSET"
+  },
+  {
+    "id": "RB_batch3_stats_5",
+    "catalogKey": "pro-block:stats-5",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_ASSET"
+  },
+  {
+    "id": "RB_batch4_3d_letter_swap",
+    "catalogKey": "component:3d-letter-swap",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_comparison_slider",
+    "catalogKey": "component:comparison-slider",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_draggable_grid",
+    "catalogKey": "component:draggable-grid",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_parallax_cards",
+    "catalogKey": "component:parallax-cards",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_simple_graph",
+    "catalogKey": "component:simple-graph",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_staggered_text",
+    "catalogKey": "component:staggered-text",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_text_path",
+    "catalogKey": "component:text-path",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_features_7",
+    "catalogKey": "pro-block:features-7",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch4_showcase_8",
+    "catalogKey": "pro-block:showcase-8",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch5_neon_reveal",
+    "catalogKey": "starter:neon-reveal-tw",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch5_shader_waves",
+    "catalogKey": "starter:shader-waves-tw",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch5_dither_wave",
+    "catalogKey": "starter:dither-wave-tw",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch5_radial_liquid",
+    "catalogKey": "starter:radial-liquid-tw",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch5_chroma_waves",
+    "catalogKey": "starter:chroma-waves-tw",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch6_hero_1",
+    "catalogKey": "pro-block:hero-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_hero_2",
+    "catalogKey": "pro-block:hero-2",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_hero_3",
+    "catalogKey": "pro-block:hero-3",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_navigation_1",
+    "catalogKey": "pro-block:navigation-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_navigation_3",
+    "catalogKey": "pro-block:navigation-3",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_cta_1",
+    "catalogKey": "pro-block:cta-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_cta_2",
+    "catalogKey": "pro-block:cta-2",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_cta_3",
+    "catalogKey": "pro-block:cta-3",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_pricing_2",
+    "catalogKey": "pro-block:pricing-2",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_contact_1",
+    "catalogKey": "pro-block:contact-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_footer_1",
+    "catalogKey": "pro-block:footer-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_footer_2",
+    "catalogKey": "pro-block:footer-2",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_footer_4",
+    "catalogKey": "pro-block:footer-4",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch6_card_1",
+    "catalogKey": "pro-block:card-1",
+    "status": "BLOCKED_SOURCE_DIFF",
+    "reason": "BLOCKED_SOURCE_DIFF"
+  },
+  {
+    "id": "RB_batch9_cursor_wave",
+    "catalogKey": "component:cursor-wave",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch9_smooth_cursor",
+    "catalogKey": "component:smooth-cursor",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch9_gradient_carousel",
+    "catalogKey": "component:gradient-carousel",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch9_hero_4",
+    "catalogKey": "pro-block:hero-4",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch9_hero_5",
+    "catalogKey": "pro-block:hero-5",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_dither_cursor",
+    "catalogKey": "component:dither-cursor",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_glass_cursor",
+    "catalogKey": "component:glass-cursor",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_pixel_magnet",
+    "catalogKey": "component:pixel-magnet",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_chroma_blinds",
+    "catalogKey": "component:chroma-blinds",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_grid_rise",
+    "catalogKey": "component:grid-rise",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_halftone_vortex",
+    "catalogKey": "component:halftone-vortex",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_smooth_cursor",
+    "catalogKey": "component:smooth-cursor",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch10_infinite_gallery",
+    "catalogKey": "component:infinite-gallery",
+    "status": "BLOCKED_REQUIRED_DATA",
+    "reason": "BLOCKED_REQUIRED_DATA"
+  },
+  {
+    "id": "RB_batch10_parallax_carousel",
+    "catalogKey": "component:parallax-carousel",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_lenticular_carousel",
+    "catalogKey": "component:lenticular-carousel",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_reel_gallery",
+    "catalogKey": "component:reel-gallery",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_showcase_3",
+    "catalogKey": "pro-block:showcase-3",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_blinking_squares",
+    "catalogKey": "component:blinking-squares",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch10_aurora_beam",
+    "catalogKey": "component:aurora-beam",
+    "status": "BLOCKED_BROWSER_RUNTIME",
+    "reason": "BLOCKED_BROWSER_RUNTIME"
+  },
+  {
+    "id": "RB_batch11_social_proof_1",
+    "catalogKey": "pro-block:social-proof-1",
+    "status": "BLOCKED_REQUIRED_ASSET",
+    "reason": "BLOCKED_REQUIRED_ASSET"
+  },
+  {
+    "id": "RB_batch11_ecommerce_10",
+    "catalogKey": "pro-block:ecommerce-10",
+    "status": "BLOCKED_REQUIRED_ASSET",
+    "reason": "BLOCKED_REQUIRED_ASSET"
+  },
+  {
+    "id": "RB_batch11_navigation_10",
+    "catalogKey": "pro-block:navigation-10",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch11_app_shell_4",
+    "catalogKey": "pro-block:app-shell-4",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch11_app_shell_7",
+    "catalogKey": "pro-block:app-shell-7",
+    "status": "BLOCKED_PUCK_RENDER",
+    "reason": "BLOCKED_PUCK_RENDER"
+  },
+  {
+    "id": "RB_batch11_minimal_ripple",
+    "catalogKey": "starter:minimal-ripple-tw",
+    "status": "BLOCKED_GPU_RUNTIME",
+    "reason": "BLOCKED_GPU_RUNTIME"
+  },
+  {
+    "id": "RB_batch11_blinking_dots",
+    "catalogKey": "starter:blinking-dots-tw",
+    "status": "BLOCKED_GPU_RUNTIME",
+    "reason": "BLOCKED_GPU_RUNTIME"
+  },
+  {
+    "id": "reactbits.hero-24",
+    "catalogKey": "pro-block:hero-24",
+    "status": "DEV_ONLY",
+    "reason": "NOT_INSTALLED_IN_CURRENT_LAB_INVENTORY"
+  }
+] as const;

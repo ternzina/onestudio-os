@@ -1,0 +1,326 @@
+.shell {
+  position: relative;
+  min-height: 100vh;
+  background: #fff;
+  color: #171717;
+  --puck-color-surface: #fff;
+  --puck-color-surface-subtle: #fff;
+  --puck-color-surface-muted: #fff;
+  --puck-canvas-color-bg: #fff;
+  --puck-canvas-preview-color-bg: #fff;
+  --puck-color-border: #e7e5e4;
+  --puck-color-text: #171717;
+  --puck-canvas-color-text: #171717;
+  --editor-font-body: 16px;
+  --editor-font-label: 15px;
+  --editor-font-control: 16px;
+  --editor-font-heading: 16px;
+  --editor-font-helper: 14px;
+}
+
+/* Scoped to editor chrome; public render and block typography are untouched. */
+.shell :global(.puck-editor) { font-size: var(--editor-font-body); }
+.shell :global(.puck-editor button), .shell :global(.puck-editor a) { font-size: var(--editor-font-label); line-height: 1.4; }
+.shell :global(.puck-editor input), .shell :global(.puck-editor textarea), .shell :global(.puck-editor select) { font-size: var(--editor-font-control); line-height: 1.4; min-height: 38px; }
+.shell :global(.puck-editor label) { font-size: var(--editor-font-label); line-height: 1.4; }
+.shell :global(.puck-editor h2), .shell :global(.puck-editor h3) { font-size: var(--editor-font-heading); line-height: 1.4; }
+
+/* Product Library owns block insertion. In Puck 0.23 the nav wrapper contains
+   Nav > Nav-list > NavItem; the built-in Blocks/Hammer NavItem is first. */
+.shell :global([class*="PuckLayout-nav"] ul[class*="Nav-list"] > li[class*="NavItem"]:first-child) { display: none; }
+
+.dark {
+  background: #000;
+  color: #f8fafc;
+  --puck-color-surface: #000;
+  --puck-color-surface-subtle: #000;
+  --puck-color-surface-muted: #000;
+  --puck-canvas-color-bg: #000;
+  --puck-canvas-preview-color-bg: #000;
+  --puck-color-border: #334155;
+  --puck-color-text: #f8fafc;
+  --puck-canvas-color-text: #f8fafc;
+}
+
+.globalThemeToggle {
+  position: absolute;
+  z-index: 40;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #d6d3d1;
+  border-radius: 7px;
+  background: #fff;
+  color: #171717;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dark .globalThemeToggle {
+  border-color: #475569;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.shell :global([class*="PuckLayout-inner"]),
+.shell :global([class*="PuckCanvas_"]),
+.shell :global([class*="PuckCanvas-root"]) {
+  background-color: var(--puck-color-surface);
+}
+
+.shell :global([class*="PuckCanvas_"]) {
+  color: var(--puck-canvas-color-text);
+}
+
+.toolbar {
+  position: fixed;
+  inset: 0 0 auto;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 10px 60px 10px 16px;
+  border-bottom: 1px solid #e7e5e4;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.dark .toolbar {
+  border-color: #334155;
+  background: rgb(15 23 42 / 96%);
+  color: #f8fafc;
+}
+
+.toolbar strong {
+  margin-right: auto;
+  font-size: 14px;
+}
+
+.toolbar span {
+  color: #57534e;
+  min-height: 40px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.toolbar .saveStatus,
+.toolbar .publishStatus,
+.toolbar .driftStatus {
+  display: inline-flex;
+  align-items: center;
+  min-width: 190px;
+  color: #292524;
+  font-weight: 600;
+}
+
+.toolbar .driftStatus { color: #9a3412; }
+
+.toolbar .saveStatus[data-save-status="dirty"] { color: #9a3412; }
+.toolbar .saveStatus[data-save-status="saving"],
+.toolbar .publishStatus { color: #1d4ed8; }
+.toolbar .saveStatus[data-save-status="save-error"],
+.toolbar .publishStatus:has(+ [role="alert"]) { color: #b91c1c; }
+
+.toolbar button:disabled { cursor: not-allowed; opacity: 0.58; }
+
+.leaveBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 42%);
+}
+
+.leaveDialog {
+  width: min(100%, 420px);
+  padding: 24px;
+  border: 1px solid #e7e5e4;
+  border-radius: 14px;
+  background: #fff;
+  color: #171717;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 20%);
+}
+
+.leaveDialog h2 { margin: 0; font-size: 18px; }
+.leaveDialog p { margin: 8px 0 20px; font-size: 16px; }
+.leaveActions { display: flex; justify-content: flex-end; gap: 10px; }
+.leaveActions button { min-height: 42px; padding: 8px 14px; border: 1px solid #d6d3d1; border-radius: 8px; background: #fff; color: #171717; font-size: 16px; cursor: pointer; }
+.leaveActions button[data-primary="true"] { border-color: #171717; background: #171717; color: #fff; }
+
+.toolbar button[aria-pressed] { min-width: 104px; font-weight: 700; }
+
+/* Puck mounts headerActions inside its right-side tools row. Keep both mode
+ * controls stable and give the row room before viewport/actions consume it. */
+.shell :global([class*="PuckHeader-tools"]) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: max-content;
+  flex-shrink: 0;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.headerActions button {
+  min-width: 38px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.headerActions button[aria-pressed="false"] { border-color: #d6d3d1; background: #fff; color: #57534e; }
+
+.headerActions button[aria-pressed="true"] {
+  border-color: #1c1917;
+  background: #1c1917;
+  color: #fff;
+}
+
+.dark .headerActions button[aria-pressed="true"] {
+  border-color: #f8fafc;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.dark .toolbar span {
+  color: #cbd5e1;
+}
+
+.toolbar button,
+.toolbar a {
+  border: 1px solid #d6d3d1;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: white;
+  color: #1c1917;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toolbar button[data-primary="true"] {
+  border-color: #1c1917;
+  background: #1c1917;
+  color: white;
+}
+
+.toolbar button[data-publish-action="true"] {
+  border-color: #166534;
+  background: #166534;
+  color: white;
+}
+
+.dark .toolbar button,
+.dark .toolbar a {
+  border-color: #475569;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.dark .toolbar button[data-primary="true"] {
+  border-color: #f8fafc;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.editor {
+  height: 100vh;
+  margin-top: 58px;
+  background: var(--puck-canvas-color-bg);
+}
+
+.editableRoot {
+  min-height: 100dvh;
+  background: #fff;
+  color: #171717;
+  --puck-color-surface: #fff;
+  --puck-color-surface-subtle: #fff;
+  --puck-color-surface-muted: #fff;
+  --puck-canvas-color-bg: #fff;
+  --puck-canvas-preview-color-bg: #fff;
+  --puck-color-border: #e7e5e4;
+  --puck-color-text: #171717;
+  --puck-canvas-color-text: #171717;
+}
+
+.editableRootDark {
+  background: #000;
+  color: #f8fafc;
+  --puck-color-surface: #000;
+  --puck-color-surface-subtle: #000;
+  --puck-color-surface-muted: #000;
+  --puck-canvas-color-bg: #000;
+  --puck-canvas-preview-color-bg: #000;
+  --puck-color-border: #334155;
+  --puck-color-text: #f8fafc;
+  --puck-canvas-color-text: #f8fafc;
+}
+
+.editableRoot :global([class*="PuckLayout-inner"]),
+.editableRoot :global([class*="PuckCanvas_"]),
+.editableRoot :global([class*="PuckCanvas-root"]) {
+  background-color: var(--puck-color-surface);
+}
+
+.editableRoot :global([class*="PuckCanvas_"]) {
+  color: var(--puck-canvas-color-text);
+}
+
+/*
+ * Puck disables descendant hit testing so its block root remains the editor
+ * surface. Re-enable it only for canonical passive policies; the production
+ * firewall still reserves activation, focus, and source drag paths. The
+ * interactive branch restores the complete source event path in Interact
+ * mode. No global Puck descendant rule is removed.
+ */
+:global([data-puck-entry][data-puck-preview-mode="edit"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging])[data-puck-interaction-hover="passive-edit"] *),
+:global([data-puck-entry][data-puck-preview-mode="edit"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging])[data-puck-interaction-pointer-move="passive-edit"] *),
+:global([data-puck-entry][data-puck-preview-mode="interactive"]) .editableRoot :global([data-puck-component]:not([data-dnd-dragging]) *) {
+  pointer-events: auto !important;
+}
+
+:global(body):has(.editableRoot) {
+  background: #fff;
+}
+
+:global(body):has(.editableRootDark) {
+  background: #000;
+}
+
+.loading,
+.error {
+  margin: 40px auto;
+  max-width: 720px;
+  border-radius: 20px;
+  padding: 24px;
+  background: white;
+  color: #44403c;
+}
+.outlineSearch { padding: 10px 12px 0; }
+.searchRow { display: flex; align-items: center; gap: 6px; }
+.searchRow label, .searchControl label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.searchRow input { flex: 1; min-width: 0; }
+.searchRow button, .searchControl button { border: 0; background: transparent; color: inherit; font-size: 22px; cursor: pointer; padding: 4px 8px; }
+.searchResults { display: grid; gap: 4px; padding: 8px 0 10px; }
+.searchResults button { border: 1px solid var(--puck-color-border); border-radius: 6px; background: var(--puck-color-surface); padding: 7px 9px; text-align: left; cursor: pointer; }
+.searchResults button[aria-selected="true"], .searchResultActive { outline: 2px solid #6366f1; outline-offset: 1px; }
+.searchResults p { margin: 0; color: #71717a; font-size: 15px; }
+
+.error {
+  color: #991b1b;
+}

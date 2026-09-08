@@ -1,0 +1,341 @@
+.library {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: clip;
+  border-right: 1px solid #d6d3d1;
+  background: #fff;
+  color: #171717;
+}
+
+.darkLibrary {
+  border-color: #334155;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  flex: 0 0 auto;
+  border-bottom: 1px solid #e7e5e4;
+  padding: 14px 12px 12px;
+  background: inherit;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 5px 0 0;
+  color: #78716c;
+  font-size: 14px;
+}
+
+.search {
+  position: relative;
+  margin-top: 10px;
+}
+
+.search input {
+  width: 100%;
+  border: 1px solid #d6d3d1;
+  border-radius: 7px;
+  padding: 8px 30px 8px 9px;
+  background: #fff;
+  color: #171717;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  min-height: 38px;
+}
+
+.search input:focus-visible {
+  border-color: #64748b;
+  outline: 2px solid #cbd5e1;
+  outline-offset: 1px;
+}
+
+.darkLibrary .search input {
+  border-color: #475569;
+  background: #111827;
+  color: #f8fafc;
+}
+
+.search button {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #78716c;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.categories {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 8px 16px;
+}
+
+.category {
+  border-bottom: 1px solid #e7e5e4;
+  padding: 0 4px 10px;
+}
+
+.darkLibrary .category {
+  border-color: #334155;
+}
+
+.category + .category {
+  margin-top: 12px;
+}
+
+.category h3 {
+  margin: 0 0 8px;
+}
+
+.categoryToggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.categoryToggle:hover,
+.categoryToggle:focus-visible {
+  color: #0f172a;
+}
+
+.categoryMeta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #78716c;
+}
+
+.categoryMeta small {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.items {
+  padding: 0;
+}
+
+.libraryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 7px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  min-height: 72px;
+  align-items: flex-end;
+  margin: 0;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.card:hover,
+.card:focus-within {
+  border-color: #94a3b8;
+  box-shadow: 0 8px 16px rgb(15 23 42 / 9%);
+}
+
+.darkLibrary .card {
+  border-color: #334155;
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.darkLibrary .cardNumber,
+.darkLibrary .subtitle {
+  color: #94a3b8;
+}
+
+.card strong {
+  display: block;
+  padding-right: 28px;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.cardMain {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  border: 0;
+  border-radius: inherit;
+  padding: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cardNumber {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  color: #a8a29e;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.addButton {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: #171717;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.card:hover .addButton,
+.card:focus-within .addButton,
+.addButton:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.preview {
+  position: fixed;
+  z-index: 50;
+  top: 72px;
+  left: 324px;
+  width: min(640px, calc(100vw - 680px));
+  min-width: 360px;
+  overflow: clip;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 24%);
+}
+
+.darkPreview {
+  border-color: #475569;
+  background: #182235;
+  color: #f8fafc;
+}
+
+.previewHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.darkPreview .previewHead {
+  border-color: #334155;
+}
+
+.previewHead strong {
+  font-size: 12px;
+}
+
+.previewStage {
+  position: relative;
+  height: 390px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+/* overflow:hidden on an ancestor becomes the sticky scroll container for
+   viewport sources. The local ProductionPreviewViewport must own that realm. */
+.previewStage[data-production-preview-scroll-realm="local"] {
+  overflow: visible;
+}
+
+.darkPreview .previewStage {
+  background: #111827;
+}
+
+.previewMount {
+  position: relative;
+  width: 100%;
+}
+
+.previewMount[data-preview-kind="component"] {
+  display: block;
+  width: 100%;
+}
+
+.previewMount[data-production-preview-fill="direct"] {
+  height: 100%;
+}
+
+.previewMount[data-production-preview-fill="direct"] > * {
+  min-height: 100%;
+}
+
+.previewMount[data-preview-kind="component"] > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.empty {
+  margin: 0;
+  padding: 18px 12px;
+  color: #78716c;
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .preview {
+    left: 294px;
+    width: calc(100vw - 330px);
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 720px) {
+  .preview {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    min-width: 0;
+  }
+}

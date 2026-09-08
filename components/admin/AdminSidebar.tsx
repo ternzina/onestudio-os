@@ -13,13 +13,16 @@ export default function AdminSidebar() {
   const { t } = useAdminI18n();
   const { businessSlug } = useAdminModules();
   const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
-    if (stored === "true") setCollapsed(true);
+    setCollapsed(stored === "true");
+    setMounted(true);
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     document.documentElement.dataset.adminSidebar = collapsed
       ? "collapsed"
       : "expanded";
@@ -28,7 +31,7 @@ export default function AdminSidebar() {
     return () => {
       delete document.documentElement.dataset.adminSidebar;
     };
-  }, [collapsed]);
+  }, [collapsed, mounted]);
 
   const activeItems = [
     { href: "/admin", label: t("Overview"), icon: "⌂" },
@@ -70,7 +73,7 @@ export default function AdminSidebar() {
       <aside
         data-admin-sidebar
         className={`fixed inset-y-0 left-0 z-40 hidden w-[290px] overflow-y-auto border-r border-black/8 bg-[#fffdfa] px-5 py-6 shadow-[18px_0_70px_rgba(25,25,25,0.06)] transition-transform duration-300 lg:block ${
-          collapsed ? "-translate-x-full" : "translate-x-0"
+          mounted && collapsed ? "-translate-x-full" : "translate-x-0"
         }`}
       >
         <button
@@ -134,7 +137,7 @@ export default function AdminSidebar() {
         </div>
       </aside>
 
-      {collapsed ? (
+      {mounted && collapsed ? (
         <button
           type="button"
           onClick={() => setCollapsed(false)}

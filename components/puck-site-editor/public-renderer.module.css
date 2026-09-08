@@ -1,0 +1,83 @@
+.page {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+}
+
+/* The page boundary is a generic public-renderer safety default. A verified
+   official presentation may paint outside its source line, as in the demo. */
+.page[data-puck-visible-presentation="true"] {
+  overflow-x: visible;
+}
+
+/* Preview chrome follows the document theme without rewriting block props. */
+.page[data-puck-preview-theme="light"] {
+  background: #fff;
+  color: #171717;
+}
+
+.page[data-puck-preview-theme="dark"] {
+  background: #000;
+  color: #f8fafc;
+}
+
+.surface {
+  width: 100%;
+  height: auto;
+  max-width: var(--puck-block-max-width, none);
+  margin-inline: auto;
+  padding-block: var(--puck-block-padding, 0);
+  color: var(--puck-block-text, inherit);
+  background: var(--puck-block-background, transparent);
+  text-align: var(--puck-block-align, left);
+}
+
+/* Puck's AutoFrame portals source React into a different-document canvas while
+   R3F/Three.js still runs in the parent window realm. In that path Three.js
+   keeps the DPR-sized drawing buffer but cannot apply its logical CSS size via
+   the cross-realm instanceof HTMLCanvasElement check. Parent-sized production
+   hosts restore that CSS contract without touching ordinary HTML canvases. */
+.surface[data-puck-runtime-mode="library-preview"][data-production-presentation-geometry="fullSurface"] canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.surface[data-motion="none"] *,
+.surface[data-motion="none"] *::before,
+.surface[data-motion="none"] *::after {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+@media (max-width: 767px) {
+  .surface[data-mobile-hidden="true"] {
+    display: none;
+  }
+
+  .surface[data-mobile-width="full"] {
+    max-width: none;
+  }
+
+  .surface[data-mobile-width="narrow"] {
+    max-width: 42rem;
+  }
+}
+
+.sourceRootBackgroundBridge {
+  display: contents;
+}
+
+.sourceRootBackgroundBridge > * {
+  /* Tailwind bg-* utilities win at the source root; this rule is intentionally
+     opt-in and only wraps manifest entries with target: sourceRoot. */
+  background-color: var(--puck-source-background) !important;
+}
+
+/* Only the audited direct source root is normalized in authoring. This does
+   not reach nested panels/scroll realms and is absent from the public path. */
+[data-production-editor-viewport-height="natural"] > :global(.min-h-screen),
+[data-production-editor-viewport-height="natural"] > :global(.h-screen),
+[data-production-editor-viewport-height="natural"] > :global([class*="min-h-"]) {
+  height: auto !important;
+  min-height: 0 !important;
+}

@@ -1,0 +1,22 @@
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Scroll-driven sources retain their official local scroll contract in the
+   Library. The scene remains contained horizontally while the preview itself
+   owns the vertical runway. */
+.viewport[data-production-preview-scroll-realm="local"] {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
