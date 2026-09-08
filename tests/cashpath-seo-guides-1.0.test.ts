@@ -25,7 +25,7 @@ test("CashPath guide generator is current and emits the complete APR guide", () 
     stdio: "pipe",
   });
   const guide = apr();
-  assert.equal(CASH_PATH_GUIDES.length, 3);
+  assert.equal(CASH_PATH_GUIDES.length, 4);
   assert.equal(guide.nav_label, "What Is APR?");
   assert.equal(guide.title, "What Is APR on a Personal Loan?");
   assert.equal(guide.seo_title, "What Is APR on a Personal Loan? | CashPath");
@@ -119,9 +119,9 @@ test("missing-guide installer is CashPath-only, append-only, and idempotent", ()
     ],
     layout_order: ["custom:cashpath-request"],
   } as PublicSiteContent;
-  assert.equal(missingCashPathGuides(cashpath).length, 3);
+  assert.equal(missingCashPathGuides(cashpath).length, 4);
   const installed = installMissingCashPathGuides(cashpath);
-  assert.equal(installed.pages?.length, 4);
+  assert.equal(installed.pages?.length, 5);
   assert.equal(installed.pages?.[0], existing);
   assert.equal(installed.custom_blocks, cashpath.custom_blocks);
   assert.equal(installed.layout_order, cashpath.layout_order);

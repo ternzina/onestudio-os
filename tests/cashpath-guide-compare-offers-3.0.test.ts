@@ -16,10 +16,10 @@ function guide(slug: string) {
 }
 
 test("CashPath comparison guide has the complete registry, metadata, sources, links, and safe claims", () => {
-  assert.equal(CASH_PATH_GUIDES.length, 3);
-  assert.deepEqual(CASH_PATH_GUIDES.map((item) => item.slug), [guideOne, guideTwo, guideThree]);
-  assert.deepEqual(CASH_PATH_GUIDES.map((item) => item.id), [guideOne, guideTwo, guideThree]);
-  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 3);
+  assert.equal(CASH_PATH_GUIDES.length, 4);
+  assert.deepEqual(CASH_PATH_GUIDES.map((item) => item.slug), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
+  assert.deepEqual(CASH_PATH_GUIDES.map((item) => item.id), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
+  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 4);
   const third = guide(guideThree);
   assert.equal(third.nav_label, "Compare Loan Offers");
   assert.equal(third.title, "How to Compare Personal Loan Offers");
@@ -70,11 +70,11 @@ test("CashPath installer appends only Guide #3 when Guides #1 and #2 already exi
   } as unknown as PublicSiteContent;
   const beforeFirst = JSON.stringify(firstCopy);
   const beforeSecond = JSON.stringify(secondCopy);
-  assert.deepEqual(missingCashPathGuides(content).map((page) => page.slug), [guideThree]);
+  assert.deepEqual(missingCashPathGuides(content).map((page) => page.slug), [guideThree, "what-fees-can-personal-loans-include"]);
   const installed = installMissingCashPathGuides(content);
   assert.equal(JSON.stringify(installed.pages?.[0]), beforeFirst);
   assert.equal(JSON.stringify(installed.pages?.[1]), beforeSecond);
-  assert.deepEqual(installed.pages?.map((page) => page.slug), [guideOne, guideTwo, "about", guideThree]);
+  assert.deepEqual(installed.pages?.map((page) => page.slug), [guideOne, guideTwo, "about", guideThree, "what-fees-can-personal-loans-include"]);
   assert.equal(installed.custom_blocks, content.custom_blocks);
   assert.equal(installed.layout_order, content.layout_order);
   assert.equal(installMissingCashPathGuides(installed), installed);
@@ -82,7 +82,7 @@ test("CashPath installer appends only Guide #3 when Guides #1 and #2 already exi
 
 test("CashPath footer discovery stays registry-driven for visible, indexable guides", () => {
   const visible = CASH_PATH_GUIDES.filter((item) => item.is_visible !== false && item.seo_no_index !== true);
-  assert.deepEqual(visible.map((item) => item.nav_label), ["What Is APR?", "APR vs. Interest Rate", "Compare Loan Offers"]);
+  assert.deepEqual(visible.map((item) => item.nav_label), ["What Is APR?", "APR vs. Interest Rate", "Compare Loan Offers", "Personal Loan Fees"]);
   assert.equal(visible.filter((item) => item.slug === guideThree).length, 1);
   assert.equal({ ...guide(guideThree), is_visible: false }.is_visible !== false, false);
   assert.equal({ ...guide(guideThree), seo_no_index: true }.seo_no_index !== true, false);

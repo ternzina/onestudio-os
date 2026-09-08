@@ -14,9 +14,9 @@ function guide(slug: string) {
 }
 
 test("APR versus interest-rate guide is distinct, complete, and indexable", () => {
-  assert.equal(CASH_PATH_GUIDES.length, 3);
+  assert.equal(CASH_PATH_GUIDES.length, 4);
   assert.deepEqual(CASH_PATH_GUIDES.slice(0, 2).map((item) => item.slug), [firstSlug, secondSlug]);
-  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 3);
+  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 4);
   assert.ok(guide(firstSlug));
   const second = guide(secondSlug);
   assert.equal(second.title, "APR vs. Interest Rate: What’s the Difference?");
@@ -47,10 +47,10 @@ test("installer appends only the second guide when Guide #1 already exists", () 
     pages,
     custom_blocks: [{ id: "cashpath-request", kind: "leadsgate_form", eyebrow: "", title: "", text: "", items: "", button_label: "", button_url: "", tone: "light", leadsgate_aid: "4848", leadsgate_template: "wallet-lines" }],
   } as unknown as PublicSiteContent;
-  assert.deepEqual(missingCashPathGuides(content).map((page) => page.slug), [secondSlug, "how-to-compare-personal-loan-offers"]);
+  assert.deepEqual(missingCashPathGuides(content).map((page) => page.slug), [secondSlug, "how-to-compare-personal-loan-offers", "what-fees-can-personal-loans-include"]);
   const installed = installMissingCashPathGuides(content);
   assert.equal(installed.pages?.[0], pages[0]);
-  assert.deepEqual(installed.pages?.map((page) => page.slug), [firstSlug, secondSlug, "how-to-compare-personal-loan-offers"]);
+  assert.deepEqual(installed.pages?.map((page) => page.slug), [firstSlug, secondSlug, "how-to-compare-personal-loan-offers", "what-fees-can-personal-loans-include"]);
   assert.equal(installed.custom_blocks, content.custom_blocks);
   assert.equal(installMissingCashPathGuides(installed), installed);
 });
