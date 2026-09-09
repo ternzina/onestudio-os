@@ -11,7 +11,8 @@ const SIDEBAR_STORAGE_KEY = "onestudio-admin-sidebar-collapsed";
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { t } = useAdminI18n();
-  const { businessSlug } = useAdminModules();
+  const { businessSlug, enabledModules } = useAdminModules();
+  const analyticsEnabled = enabledModules?.has("analytics") ?? false;
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -45,6 +46,9 @@ export default function AdminSidebar() {
     { href: "/admin/calendar", label: t("Calendar"), icon: "▤" },
     { href: "/admin/integrations/google-calendar", label: t("Integrations"), icon: "↔" },
     { href: "/admin/payments", label: t("Payments"), icon: "¤" },
+    ...(analyticsEnabled
+      ? [{ href: "/admin/analytics", label: t("Analytics"), icon: "◫" }]
+      : []),
     { href: "/admin/notifications", label: t("Notifications"), icon: "✉" },
     { href: "/admin/media", label: t("Media"), icon: "◫" },
     { href: "/admin/portfolio", label: t("Portfolio"), icon: "◇" },
@@ -54,7 +58,6 @@ export default function AdminSidebar() {
     { href: "/admin/documents", label: t("Documents"), icon: "▧" },
     { href: "/admin/modules", label: t("Modules"), icon: "⌘" },
   ] as const;
-  const plannedItems = [t("Analytics")];
 
   return (
     <>
@@ -113,15 +116,6 @@ export default function AdminSidebar() {
               );
             })}
           </nav>
-
-          <div className="mt-6 rounded-[22px] border border-black/8 bg-[#eeebe3] p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a742e]">{t("Next product layers")}</p>
-            <div className="mt-3 grid gap-2">
-              {plannedItems.map((item) => (
-                <div key={item} className="rounded-xl bg-white/70 px-3 py-2 text-sm text-[#79766f]">{item}</div>
-              ))}
-            </div>
-          </div>
 
           <div className="mt-auto grid gap-2 pt-6">
             <Link href={businessSlug ? `/book/${businessSlug}` : "/book"} target="_blank" className="rounded-full bg-[#17191f] px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white">
