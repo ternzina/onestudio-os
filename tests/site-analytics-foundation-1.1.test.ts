@@ -17,6 +17,11 @@ const tracker = readFileSync(
   "utf8",
 );
 
+const neutralRoute = readFileSync(
+  "app/api/public/site-event/route.ts",
+  "utf8",
+);
+
 const layout = readFileSync(
   "app/site/[businessSlug]/layout.tsx",
   "utf8",
@@ -95,6 +100,24 @@ test("tracker uses anonymous in-memory sessions without browser storage", () => 
   assert.doesNotMatch(
     tracker,
     /sessionStorage|localStorage|document\.cookie/,
+  );
+});
+
+
+test("browser delivery uses a neutral first-party endpoint", () => {
+  assert.match(
+    tracker,
+    /\/api\/public\/site-event/,
+  );
+
+  assert.doesNotMatch(
+    tracker,
+    /\/api\/public\/analytics/,
+  );
+
+  assert.match(
+    neutralRoute,
+    /analyticsPost/,
   );
 });
 

@@ -213,7 +213,7 @@ export default function PublicSiteAnalyticsTracker({
       "";
 
     void fetch(
-      "/api/public/analytics",
+      "/api/public/site-event",
       {
         method: "POST",
         cache: "no-store",
