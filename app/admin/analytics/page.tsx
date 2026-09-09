@@ -15,8 +15,8 @@ export default function AdminAnalyticsPage() {
           <div className="rounded-[36px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.18)] sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">
               {locale === "ru"
-                ? "Аналитика 1.2"
-                : "Analytics 1.2"}
+                ? "Аналитика 1.3"
+                : "Analytics 1.3"}
             </p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>

@@ -187,6 +187,14 @@ export default function SiteAnalyticsPanel({
       null,
     );
 
+  const [
+    previousData,
+    setPreviousData,
+  ] =
+    useState<SiteAnalytics | null>(
+      null,
+    );
+
   const [loading, setLoading] =
     useState(true);
 
@@ -200,24 +208,97 @@ export default function SiteAnalyticsPanel({
       setLoading(true);
       setError("");
 
-      const result =
-        await supabase.rpc(
-          "get_admin_site_analytics",
-          {
-            p_business_id:
-              businessId,
-            p_start_date:
-              startDate,
-            p_end_date:
-              endDate,
-          },
+      const start =
+        new Date(
+          `${startDate}T12:00:00Z`,
         );
+
+      const end =
+        new Date(
+          `${endDate}T12:00:00Z`,
+        );
+
+      const periodDays =
+        Math.max(
+          1,
+          Math.round(
+            (
+              end.getTime() -
+              start.getTime()
+            ) /
+            86_400_000,
+          ) + 1,
+        );
+
+      const previousEnd =
+        new Date(start);
+
+      previousEnd.setUTCDate(
+        previousEnd.getUTCDate() - 1,
+      );
+
+      const previousStart =
+        new Date(previousEnd);
+
+      previousStart.setUTCDate(
+        previousStart.getUTCDate()
+        - (periodDays - 1),
+      );
+
+      const previousStartDate =
+        previousStart
+          .toISOString()
+          .slice(0, 10);
+
+      const previousEndDate =
+        previousEnd
+          .toISOString()
+          .slice(0, 10);
+
+      const [
+        result,
+        previousResult,
+      ] =
+        await Promise.all([
+          supabase.rpc(
+            "get_admin_site_analytics",
+            {
+              p_business_id:
+                businessId,
+
+              p_start_date:
+                startDate,
+
+              p_end_date:
+                endDate,
+            },
+          ),
+
+          supabase.rpc(
+            "get_admin_site_analytics",
+            {
+              p_business_id:
+                businessId,
+
+              p_start_date:
+                previousStartDate,
+
+              p_end_date:
+                previousEndDate,
+            },
+          ),
+        ]);
 
       if (!active) return;
 
-      if (result.error) {
+      if (
+        result.error ||
+        previousResult.error
+      ) {
         setError(
-          result.error.message,
+          result.error?.message ||
+          previousResult.error?.message ||
+          "site_analytics_compare_failed",
         );
 
         setLoading(false);
@@ -226,6 +307,12 @@ export default function SiteAnalyticsPanel({
 
       setData(
         normalize(result.data),
+      );
+
+      setPreviousData(
+        normalize(
+          previousResult.data,
+        ),
       );
 
       setLoading(false);
@@ -257,28 +344,103 @@ export default function SiteAnalyticsPanel({
       [data],
     );
 
-  const directVisits =
-    data?.sources
-      .filter(
-        row =>
-          row.source ===
-          "direct",
-      )
-      .reduce(
-        (total, row) =>
-          total +
-          row.visits,
-        0,
-      ) ?? 0;
+  const directShareFor =
+    (
+      analytics:
+        SiteAnalytics | null,
+    ) => {
+      if (
+        !analytics ||
+        analytics.summary.visits <= 0
+      ) {
+        return 0;
+      }
+
+      const directVisits =
+        analytics.sources
+          .filter(
+            row =>
+              row.source ===
+              "direct",
+          )
+          .reduce(
+            (total, row) =>
+              total +
+              row.visits,
+            0,
+          );
+
+      return Math.round(
+        directVisits
+        / analytics.summary.visits
+        * 100,
+      );
+    };
 
   const directShare =
-    data?.summary.visits
-      ? Math.round(
-          directVisits
-          / data.summary.visits
-          * 100,
-        )
-      : 0;
+    directShareFor(data);
+
+  const previousDirectShare =
+    directShareFor(
+      previousData,
+    );
+
+  const changeLabel =
+    (
+      current: number,
+      previous: number,
+    ) => {
+      if (
+        previous === 0 &&
+        current === 0
+      ) {
+        return "0%";
+      }
+
+      if (previous === 0) {
+        return ru
+          ? "новые"
+          : "new";
+      }
+
+      const change =
+        Math.round(
+          (
+            (
+              current -
+              previous
+            ) /
+            previous
+          ) *
+          100,
+        );
+
+      return `${
+        change > 0
+          ? "+"
+          : ""
+      }${change}%`;
+    };
+
+  const pointChangeLabel =
+    (
+      current: number,
+      previous: number,
+    ) => {
+      const difference =
+        current -
+        previous;
+
+      return `${
+        difference > 0
+          ? "+"
+          : ""
+      }${difference}${
+        ru
+          ? " п.п."
+          : " pp"
+      }`;
+    };
 
   const deviceLabel =
     (value: string) => {
@@ -315,7 +477,11 @@ export default function SiteAnalyticsPanel({
     );
   }
 
-  if (error || !data) {
+  if (
+    error ||
+    !data ||
+    !previousData
+  ) {
     return (
       <section className="rounded-[30px] border border-red-900/10 bg-red-50 p-7 text-base text-red-800">
         {ru
@@ -345,6 +511,13 @@ export default function SiteAnalyticsPanel({
           data.summary.page_views,
         ),
 
+      change:
+        changeLabel(
+          data.summary.page_views,
+          previousData.summary
+            .page_views,
+        ),
+
       hint:
         ru
           ? "Все реальные загрузки страниц"
@@ -360,6 +533,13 @@ export default function SiteAnalyticsPanel({
       value:
         String(
           data.summary.visits,
+        ),
+
+      change:
+        changeLabel(
+          data.summary.visits,
+          previousData.summary
+            .visits,
         ),
 
       hint:
@@ -379,6 +559,15 @@ export default function SiteAnalyticsPanel({
           .pages_per_visit
           .toFixed(2),
 
+      change:
+        changeLabel(
+          data.summary
+            .pages_per_visit,
+
+          previousData.summary
+            .pages_per_visit,
+        ),
+
       hint:
         ru
           ? "Средняя глубина просмотра"
@@ -393,6 +582,12 @@ export default function SiteAnalyticsPanel({
 
       value:
         `${directShare}%`,
+
+      change:
+        pointChangeLabel(
+          directShare,
+          previousDirectShare,
+        ),
 
       hint:
         ru
@@ -434,9 +629,15 @@ export default function SiteAnalyticsPanel({
               key={card.label}
               className="rounded-[26px] border border-black/8 bg-white p-6 shadow-[0_16px_45px_rgba(20,20,20,0.055)]"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.13em] text-[#9a742e]">
-                {card.label}
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold uppercase tracking-[0.13em] text-[#9a742e]">
+                  {card.label}
+                </p>
+
+                <span className="shrink-0 rounded-full border border-black/8 bg-[#faf8f3] px-2.5 py-1 text-[11px] font-semibold text-[#706c64]">
+                  {card.change}
+                </span>
+              </div>
 
               <p className="mt-3 text-4xl font-semibold tracking-[-0.055em]">
                 {card.value}
