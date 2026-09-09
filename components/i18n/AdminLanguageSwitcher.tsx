@@ -19,7 +19,7 @@ export default function AdminLanguageSwitcher({ theme = "light" }: { theme?: "li
           type="button"
           onClick={() => setLocale(item)}
           aria-pressed={locale === item}
-          className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition ${
+          className={`rounded-full px-4 py-2.5 text-[15px] font-semibold uppercase tracking-[0.06em] transition ${
             locale === item
               ? dark
                 ? "bg-white text-[#0b0d12]"

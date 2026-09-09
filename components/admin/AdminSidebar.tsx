@@ -34,6 +34,8 @@ export default function AdminSidebar() {
     };
   }, [collapsed, mounted]);
 
+  if (!mounted) return null;
+
   const activeItems = [
     { href: "/admin", label: t("Overview"), icon: "⌂" },
     { href: "/admin/workspace", label: t("Workspace"), icon: "◎" },
