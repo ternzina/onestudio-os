@@ -87,19 +87,19 @@ test("tracker uses anonymous in-memory sessions without browser storage", () => 
     /runtimeSessions/,
   );
 
-  assert.match(
+  assert.doesNotMatch(
     tracker,
-    /doNotTrack/,
-  );
-
-  assert.match(
-    tracker,
-    /globalPrivacyControl/,
+    /sessionStorage|localStorage|document\.cookie/,
   );
 
   assert.doesNotMatch(
     tracker,
-    /sessionStorage|localStorage|document\.cookie/,
+    /mounted\.current/,
+  );
+
+  assert.doesNotMatch(
+    tracker,
+    /navigator\.doNotTrack|globalPrivacyControl/,
   );
 });
 

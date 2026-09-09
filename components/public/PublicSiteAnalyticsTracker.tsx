@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useRef,
 } from "react";
 import { usePathname } from "next/navigation";
 
@@ -163,31 +162,7 @@ export default function PublicSiteAnalyticsTracker({
   const pathname =
     usePathname();
 
-  const mounted =
-    useRef(false);
-
   useEffect(() => {
-    mounted.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (!mounted.current) {
-      return;
-    }
-
-    const privacyNavigator =
-      navigator as Navigator & {
-        globalPrivacyControl?: boolean;
-      };
-
-    if (
-      navigator.doNotTrack === "1" ||
-      privacyNavigator
-        .globalPrivacyControl === true
-    ) {
-      return;
-    }
-
     const visiblePath =
       window.location.pathname ||
       pathname ||
