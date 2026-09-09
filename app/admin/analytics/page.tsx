@@ -5,7 +5,7 @@ import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import AnalyticsManager from "./AnalyticsManager";
 
 export default function AdminAnalyticsPage() {
-  const { t } = useAdminI18n();
+  const { locale, t } = useAdminI18n();
 
   return (
     <>
@@ -14,7 +14,9 @@ export default function AdminAnalyticsPage() {
         <section className="mx-auto w-full max-w-[1500px]">
           <div className="rounded-[36px] bg-[#17191f] p-7 text-white shadow-[0_28px_90px_rgba(20,20,20,0.18)] sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8b36a]">
-              {t("Analytics Core 1.0")}
+              {locale === "ru"
+                ? "Аналитика 1.2"
+                : "Analytics 1.2"}
             </p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
               <div>

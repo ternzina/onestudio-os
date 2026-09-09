@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import { supabase } from "@/lib/supabase";
+import SiteAnalyticsPanel from "./SiteAnalyticsPanel";
 import type { AdminMessage } from "@/lib/i18n/admin";
 import type { BookingSource, BookingStatus, BusinessRole } from "@/lib/modules/contracts";
 
@@ -322,6 +323,12 @@ export default function AnalyticsManager() {
           </p>
         ) : null}
       </section>
+
+      <SiteAnalyticsPanel
+        businessId={workspace.business_id}
+        startDate={analytics.period.start_date}
+        endDate={analytics.period.end_date}
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {summaryCards.map((card) => (
