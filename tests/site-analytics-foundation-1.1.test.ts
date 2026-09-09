@@ -17,6 +17,11 @@ const tracker = readFileSync(
   "utf8",
 );
 
+const analyticsClient = readFileSync(
+  "lib/public-site/analytics-client.ts",
+  "utf8",
+);
+
 const neutralRoute = readFileSync(
   "app/api/public/site-event/route.ts",
   "utf8",
@@ -81,15 +86,25 @@ test("gateway records privacy-safe traffic dimensions and protects storage", () 
   assert.match(route, /isLikelyBot/);
 });
 
-test("tracker uses anonymous in-memory sessions without browser storage", () => {
+test("tracker uses anonymous temporary per-tab sessions", () => {
   assert.match(
-    tracker,
+    analyticsClient,
     /runtimeSessions/,
   );
 
+  assert.match(
+    analyticsClient,
+    /sessionStorage/,
+  );
+
+  assert.match(
+    analyticsClient,
+    /SESSION_IDLE_MS/,
+  );
+
   assert.doesNotMatch(
-    tracker,
-    /sessionStorage|localStorage|document\.cookie/,
+    analyticsClient,
+    /localStorage|document\.cookie/,
   );
 
   assert.doesNotMatch(
@@ -106,12 +121,12 @@ test("tracker uses anonymous in-memory sessions without browser storage", () => 
 
 test("browser delivery uses a neutral first-party endpoint", () => {
   assert.match(
-    tracker,
+    analyticsClient,
     /\/api\/public\/site-event/,
   );
 
   assert.doesNotMatch(
-    tracker,
+    analyticsClient,
     /\/api\/public\/analytics/,
   );
 

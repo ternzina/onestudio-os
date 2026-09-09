@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  trackPublicPageView,
+  trackPublicSiteEvent,
+} from "@/lib/public-site/analytics-client";
 import type {
   AvailableSlotRecord,
   PublicBookingConfirmation,
@@ -298,6 +302,22 @@ export default function PublicBookingClient({
   };
 
   useEffect(() => {
+    const businessSlug =
+      initialContext.business.slug;
+
+    trackPublicPageView(
+      businessSlug,
+      window.location.pathname || "/",
+    );
+
+    trackPublicSiteEvent({
+      businessSlug,
+      eventName: "booking_started",
+      path: window.location.pathname || "/",
+    });
+  }, [initialContext.business.slug]);
+
+  useEffect(() => {
     const stored = window.localStorage.getItem("onestudio_public_booking_locale");
     if (stored === "ru" || stored === "en") setLocale(stored);
   }, []);
@@ -415,6 +435,13 @@ export default function PublicBookingClient({
     submitLock.current = true;
     setSubmitting(true);
     setError("");
+
+    trackPublicSiteEvent({
+      businessSlug: initialContext.business.slug,
+      eventName: "form_submit",
+      path: window.location.pathname || "/",
+    });
+
     const requestKey = requestKeyRef.current ?? crypto.randomUUID();
     requestKeyRef.current = requestKey;
 
@@ -458,6 +485,14 @@ export default function PublicBookingClient({
 
     const confirmationResult = payload.confirmation;
     requestKeyRef.current = null;
+
+    trackPublicSiteEvent({
+      businessSlug: initialContext.business.slug,
+      eventName: "booking_completed",
+      path: window.location.pathname || "/",
+      bookingId: confirmationResult.booking_id,
+    });
+
     setConfirmation(confirmationResult);
     await refreshGoogleCalendar(confirmationResult.booking_id);
   }

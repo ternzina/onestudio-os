@@ -42,6 +42,7 @@ type AnalyticsBody = {
   utmCampaign?: unknown;
   deviceClass?: unknown;
   locale?: unknown;
+  bookingId?: unknown;
 };
 
 function text(value: unknown, maximum: number) {
@@ -214,6 +215,12 @@ export async function POST(request: Request) {
         16,
       ).toLowerCase() || null;
 
+    const bookingId =
+      text(
+        body.bookingId,
+        36,
+      ).toLowerCase() || null;
+
     if (
       !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
         businessSlug,
@@ -228,7 +235,13 @@ export async function POST(request: Request) {
         "tablet",
         "mobile",
         "unknown",
-      ].includes(deviceClass)
+      ].includes(deviceClass) ||
+      (
+        bookingId !== null &&
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+          bookingId,
+        )
+      )
     ) {
       return NextResponse.json(
         {
@@ -341,6 +354,31 @@ export async function POST(request: Request) {
       });
     }
 
+    let canonicalBookingId:
+      string | null = null;
+
+    if (bookingId) {
+      const {
+        data: linkedBooking,
+        error: linkedBookingError,
+      } = await supabaseAdmin
+        .from("bookings")
+        .select("id")
+        .eq("id", bookingId)
+        .eq(
+          "business_id",
+          business.id,
+        )
+        .maybeSingle();
+
+      if (linkedBookingError) {
+        throw linkedBookingError;
+      }
+
+      canonicalBookingId =
+        linkedBooking?.id ?? null;
+    }
+
     const {
       data: analyticsModule,
       error: moduleError,
@@ -430,6 +468,8 @@ export async function POST(request: Request) {
           city,
           is_technical_host:
             isTechnicalHost,
+          booking_id:
+            canonicalBookingId,
           metadata: {},
         });
 

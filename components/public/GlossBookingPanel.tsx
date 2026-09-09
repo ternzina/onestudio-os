@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { trackPublicSiteEvent } from "@/lib/public-site/analytics-client";
 import type { PublicSiteService } from "@/lib/public-site/types";
 
 const weekdayLabels = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -255,6 +256,15 @@ export default function GlossBookingPanel({
     const query = new URLSearchParams();
     if (serviceSlug) query.set("service", serviceSlug);
     query.set("date", date);
+
+    if (businessSlug) {
+      trackPublicSiteEvent({
+        businessSlug,
+        eventName: "cta_click",
+        path: window.location.pathname || "/",
+      });
+    }
+
     router.push(`${bookingHref}${query.size ? `?${query.toString()}` : ""}`);
   }
 
