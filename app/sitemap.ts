@@ -23,6 +23,7 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
+import { JOURNAL_ARTICLES } from "@/lib/seo/journal-articles";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
 
 export const dynamic = "force-dynamic";
@@ -32,9 +33,26 @@ function platformMarketingEntries(): MetadataRoute.Sitemap {
     .map((template) => template.gallery.previewRoute)
     .filter((route): route is string => Boolean(route));
   const demoPaths = DEMOS.map((demo) => `/demos/${demo.slug}`);
-  return [...new Set([...PLATFORM_MARKETING_PATHS, ...SOLUTION_PATHS, ...demoPaths, ...catalogDemoPaths])].map((path) => ({
-    url: new URL(path, SITE_URL).toString(),
+  const articlePaths = new Set<string>(JOURNAL_ARTICLES.map((article) => article.path));
+  const marketingEntries = [
+    ...new Set([
+      ...PLATFORM_MARKETING_PATHS,
+      ...SOLUTION_PATHS,
+      ...demoPaths,
+      ...catalogDemoPaths,
+      ...articlePaths,
+    ]),
+  ]
+    .filter((path) => !articlePaths.has(path))
+    .map((path) => ({ url: new URL(path, SITE_URL).toString() }));
+  const journalEntries: MetadataRoute.Sitemap = JOURNAL_ARTICLES.map((article) => ({
+    url: new URL(article.path, SITE_URL).toString(),
+    lastModified: validDate(article.publishedAt),
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
+
+  return [...marketingEntries, ...journalEntries];
 }
 
 function validDate(value: string) {

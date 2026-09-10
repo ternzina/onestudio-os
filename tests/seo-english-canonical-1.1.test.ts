@@ -15,7 +15,7 @@ test("platform defaults to English while shared tenant default remains Russian",
 });
 
 test("marketing pages use English translations and self-referencing canonicals", async () => {
-  const paths = ["features", "components", "pricing", "website", "about", "faq", "blog", "contact"];
+  const paths = ["features", "components", "pricing", "website", "about", "faq", "journal", "contact"];
   for (const path of paths) {
     const source = await read(`../app/${path}/page.tsx`);
     assert.match(source, /platformMarketingLocale/);

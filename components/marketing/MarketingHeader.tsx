@@ -128,7 +128,7 @@ export default function MarketingHeader({
   const oneStudioItems: readonly NavigationItem[] = [
     { label: t.footer.links.about, href: "/about" },
     { label: t.footer.links.faq, href: "/faq" },
-    { label: t.footer.links.blog, href: "/blog" },
+    { label: t.footer.links.journal, href: "/journal" },
     { label: t.footer.links.contact, href: "/contact" },
   ];
   const productMenuId = `marketing-product-menu-${idPrefix}`;

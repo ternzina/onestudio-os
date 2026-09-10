@@ -42,7 +42,7 @@ export const common = {
       about: "About OneStudio",
       website: "Turnkey website",
       faq: "FAQ",
-      blog: "Journal",
+      journal: "Journal",
       contact: "Contact",
       privacy: "Privacy",
       terms: "Terms",
@@ -62,7 +62,7 @@ export const common = {
       title: "About OneStudio",
       description: "Why OneStudio connects your website, clients and daily work in one system.",
     },
-    blog: {
+    journal: {
       title: "Journal",
       description: "New components, design capabilities and OneStudio updates - concise and useful.",
     },

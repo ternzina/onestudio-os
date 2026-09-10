@@ -15,7 +15,7 @@ export function canonicalPlatformPaths() {
   const platform = source("app/_seo/platform.ts");
   const marketing = matches(platform.match(/PLATFORM_MARKETING_PATHS\s*=\s*\[(.*?)\]\s*as const/s)?.[1] ?? "", /["']([^"']+)["']/g);
   const solutions = ["/solutions", ...matches(source("lib/seo/solutions.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/solutions/${s}`)];
-  const journal = ["/blog", ...matches(source("lib/seo/journal-articles.ts"), /path:\s*["'](\/blog\/[^"']+)["']/g)];
+  const journal = ["/journal", ...matches(source("lib/seo/journal-articles.ts"), /path:\s*["'](\/journal\/[^"']+)["']/g)];
   const demos = ["/demos", ...matches(source("lib/demo-catalog.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/demos/${s}`)];
   const previewRoutes = matches(source("lib/public-site/premium-template-package-catalog.ts"), /["']route["']:\s*["'](\/demos\/[^"']+)["']/g);
   return [...new Set([...marketing, ...solutions, ...journal, ...demos, ...previewRoutes])];
@@ -32,10 +32,11 @@ const addPaths = (set, paths) => paths.forEach((path) => set.add(new URL(path, O
 export function platformUrlsForChangedFiles(files, paths = canonicalPlatformPaths()) {
   const result = new Set();
   const solutions = paths.filter((p) => p === "/solutions" || p.startsWith("/solutions/"));
-  const journal = paths.filter((p) => p === "/blog" || p.startsWith("/blog/"));
+  const journal = paths.filter((p) => p === "/journal" || p.startsWith("/journal/"));
   const demos = paths.filter((p) => p === "/demos" || p.startsWith("/demos/"));
   for (const file of files) {
     if (file === "app/page.tsx") addPaths(result, ["/"]);
+    if (file === "components/marketing/OneStudioJournalPreview.tsx") addPaths(result, ["/"]);
     if (file === "lib/seo/features.ts") addPaths(result, ["/features/online-booking", "/features/crm"]);
     if (file === "lib/seo/solutions.ts") addPaths(result, solutions);
     if (file === "lib/seo/journal-articles.ts") addPaths(result, journal);

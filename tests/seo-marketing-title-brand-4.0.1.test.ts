@@ -6,7 +6,7 @@ import { common } from "../lib/i18n/locales/en/common.ts";
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 const establishedTitles = {
   about: "About OneStudio",
-  blog: "Journal",
+  journal: "Journal",
   contact: "Contact",
   demos: "Templates",
   faq: "FAQ",

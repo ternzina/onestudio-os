@@ -49,7 +49,7 @@ export function OneStudioFooter({ lang }: { lang: Locale }) {
         { label: t.footer.links.about, href: "/about", kind: "route" },
         { label: t.footer.links.website, href: "/website", kind: "route" },
         { label: t.footer.links.faq, href: "/faq", kind: "route" },
-        { label: t.footer.links.blog, href: "/blog", kind: "route" },
+        { label: t.footer.links.journal, href: "/journal", kind: "route" },
       ],
     },
     {
