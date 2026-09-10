@@ -1,5 +1,8 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN", titleBefore: "Mehr Möglichkeiten", titleAccent: "dein Unternehmen zu zeigen.", lead: "Fertige Blöcke, interaktive Elemente und visuelle Effekte für deine OneStudio-Seiten.", catalogEyebrow: "BIBLIOTHEK", catalogTitle: "Wähle den passenden Baustein.", catalogLead: "Live-Vorschauen echter Komponenten aus der aktuellen OneStudio-Bibliothek.", categoryLabel: "Komponentenkategorien", all: "Alle", previewLabel: "Vorschau" }, categories: {
+export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN", titleBefore: "Mehr Möglichkeiten", titleAccent: "dein Unternehmen zu zeigen.", lead: "Fertige Blöcke, interaktive Elemente und visuelle Effekte für deine OneStudio-Seiten.", catalogEyebrow: "BIBLIOTHEK", catalogTitle: "Wähle den passenden Baustein.", catalogLead: "Live-Vorschauen echter Komponenten aus der aktuellen OneStudio-Bibliothek.", categoryLabel: "Komponentenkategorien", all: "Alle", previewLabel: "Vorschau",
+    openPreview: "Öffnen",
+    closePreview: "Schließen",
+  }, categories: {
     hero: "Hero",
     galleries: "Galerien",
     "social-proof": "Kundenstimmen",
@@ -26,4 +29,8 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     "circle-stack": { label: "Kreisstapel", description: "Ebenen runder Bilder heben sich nacheinander und zeigen das nächste Motiv." },
     "click-stack": { label: "Klick-Stapel", description: "Karten ordnen sich beim Klicken neu und schicken die vordere Karte nach hinten." },
     "text-cube": { label: "Textwürfel", description: "Ein dreidimensionaler Würfel aus wiederholtem Text dreht sich und folgt dem Zeiger." },
+    "vortex": { label: "Wirbel", description: "Ein Tunnel aus Ringen und Partikeln reagiert dezent auf die Zeigerbewegung." },
+    "flicker": { label: "Flimmerfeld", description: "Ein Feld leuchtender Punkte flimmert sanft und reagiert auf den Zeiger." },
+    "page-flip": { label: "Seitenblättern", description: "Interaktive Seiten lassen sich per Klick wie in einem digitalen Lookbook umblättern." },
+    "glitch-text": { label: "Glitch-Text", description: "Farbige Textebenen verschieben sich und reagieren auf die Zeigerbewegung." },
   } } as const;

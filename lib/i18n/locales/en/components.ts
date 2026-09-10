@@ -10,6 +10,8 @@ export const components = {
     categoryLabel: "Component categories",
     all: "All",
     previewLabel: "Preview",
+    openPreview: "Open",
+    closePreview: "Close",
   },
   categories: {
     hero: "Hero",
@@ -39,5 +41,10 @@ export const components = {
     "circle-stack": { label: "Circle stack", description: "Layered circular images lift in sequence to reveal the next frame." },
     "click-stack": { label: "Click stack", description: "Cards reshuffle on click, sending the front card to the back." },
     "text-cube": { label: "Text cube", description: "A three-dimensional cube of repeated text rotates and follows the pointer." },
+
+    "vortex": { label: "Vortex", description: "A tunnel of rings and particles with a subtle response to pointer movement." },
+    "flicker": { label: "Flicker field", description: "A field of luminous dots softly flickers and reacts to the pointer." },
+    "page-flip": { label: "Page flip", description: "Interactive pages turn on click like a compact digital lookbook." },
+    "glitch-text": { label: "Glitch text", description: "Layered colour channels shift through the text and respond to the pointer." },
   },
 } as const;

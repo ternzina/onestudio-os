@@ -1,5 +1,8 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "COMPOSANTS", titleBefore: "Plus de façons", titleAccent: "de présenter votre activité.", lead: "Blocs prêts à l’emploi, éléments interactifs et effets visuels pour vos pages OneStudio.", catalogEyebrow: "BIBLIOTHÈQUE", catalogTitle: "Choisissez le bon bloc.", catalogLead: "Aperçus en direct des composants réels de la bibliothèque OneStudio actuelle.", categoryLabel: "Catégories de composants", all: "Tous", previewLabel: "Aperçu" }, categories: {
+export const components = { ...englishComponents, page: { eyebrow: "COMPOSANTS", titleBefore: "Plus de façons", titleAccent: "de présenter votre activité.", lead: "Blocs prêts à l’emploi, éléments interactifs et effets visuels pour vos pages OneStudio.", catalogEyebrow: "BIBLIOTHÈQUE", catalogTitle: "Choisissez le bon bloc.", catalogLead: "Aperçus en direct des composants réels de la bibliothèque OneStudio actuelle.", categoryLabel: "Catégories de composants", all: "Tous", previewLabel: "Aperçu",
+    openPreview: "Ouvrir",
+    closePreview: "Fermer",
+  }, categories: {
     hero: "Hero",
     galleries: "Galeries",
     "social-proof": "Preuve sociale",
@@ -26,4 +29,8 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPOSANTS",
     "circle-stack": { label: "Pile de cercles", description: "Des couches d’images circulaires se soulèvent successivement pour révéler l’image suivante." },
     "click-stack": { label: "Pile au clic", description: "Les cartes se réorganisent au clic en envoyant la carte du dessus à l’arrière." },
     "text-cube": { label: "Cube de texte", description: "Un cube tridimensionnel de texte répété tourne et suit le curseur." },
+    "vortex": { label: "Vortex", description: "Un tunnel d’anneaux et de particules réagit subtilement au mouvement du pointeur." },
+    "flicker": { label: "Champ scintillant", description: "Un champ de points lumineux scintille doucement et réagit au pointeur." },
+    "page-flip": { label: "Feuilletage", description: "Des pages interactives se tournent au clic comme dans un petit lookbook numérique." },
+    "glitch-text": { label: "Texte glitch", description: "Des couches colorées se décalent dans le texte et réagissent au pointeur." },
   } } as const;
