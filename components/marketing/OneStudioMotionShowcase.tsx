@@ -44,7 +44,11 @@ export type ComponentCatalogItemId =
   | "blur-highlight"
   | "circle-stack"
   | "click-stack"
-  | "text-cube";
+  | "text-cube"
+  | "vortex"
+  | "flicker"
+  | "page-flip"
+  | "glitch-text";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -80,6 +84,10 @@ const loadBlurHighlight = () => import("@/components/react-bits/blur-highlight")
 const loadCircleStack = () => import("@/components/react-bits/circle-stack");
 const loadClickStack = () => import("@/components/react-bits/click-stack");
 const loadTextCube = () => import("@/components/react-bits/text-cube");
+const loadVortex = () => import("@/components/react-bits/vortex");
+const loadFlicker = () => import("@/components/react-bits/flicker");
+const loadPageFlip = () => import("@/components/react-bits/page-flip");
+const loadGlitchText = () => import("@/components/react-bits/glitch-text");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -161,6 +169,26 @@ const DynamicTextCube = dynamic(
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
+const DynamicVortex = dynamic(
+  loadVortex,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicFlicker = dynamic(
+  loadFlicker,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicPageFlip = dynamic(
+  loadPageFlip,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicGlitchText = dynamic(
+  loadGlitchText,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
 const circleGalleryImages = [
   "/images/demos/premium-studio/bright/portfolio-01.webp",
   "/images/demos/premium-studio/bright/portfolio-02.webp",
@@ -207,6 +235,14 @@ const clickStackItems = circleGalleryImages.slice(4, 10).map((src, index) => (
     className="h-full w-full select-none object-cover"
   />
 ));
+
+const pageFlipPages = Array.from({ length: 4 }, (_, index) => ({
+  id: `page-flip-${index + 1}`,
+  front: circleGalleryImages[index * 2],
+  back: circleGalleryImages[index * 2 + 1],
+  frontAlt: "",
+  backAlt: "",
+}));
 
 export const componentCatalogItems: readonly ComponentCatalogItem[] = [
   {
@@ -607,6 +643,114 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
       opacity: 0.95,
     }),
   },
+
+  {
+    id: "vortex",
+    slug: "vortex",
+    name: "Vortex",
+    categories: ["backgrounds", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-night.webp",
+    preload: loadVortex,
+    component: DynamicVortex,
+    getProps: (reducedMotion) => ({
+      discCount: 30,
+      particleCount: 1400,
+      particleColor: "#ffb38f",
+      discColor: "rgba(255, 244, 236, .18)",
+      discLineWidth: 1,
+      particleSize: 0.8,
+      depth: 1.35,
+      spread: 1.05,
+      speed: reducedMotion ? 0 : 0.18,
+      rotationDirection: 1,
+      centerX: 0.5,
+      centerY: 0.06,
+      fadeInThreshold: 0.025,
+      fadeOutThreshold: 0.46,
+      opacity: 0.92,
+      enableCursorInteraction: !reducedMotion,
+      cursorInfluence: 0.11,
+    }),
+  },
+  {
+    id: "flicker",
+    slug: "flicker",
+    name: "Flicker",
+    categories: ["backgrounds", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-dusk.webp",
+    preload: loadFlicker,
+    component: DynamicFlicker,
+    getProps: (reducedMotion) => ({
+      spacing: 20,
+      particleSize: 1.35,
+      colorPalette: ["#ff814a", "#ffd3bd", "#8f5bff", "#45c7ff"],
+      glowColor: "#ffb38f",
+      alpha: 0.94,
+      overlay: 0.34,
+      overlayColor: "#17100c",
+      minFrequency: 0.18,
+      maxFrequency: 0.72,
+      rate: reducedMotion ? 0 : 0.82,
+      shape: "circle",
+      jitter: true,
+      flickerChance: 0.68,
+      mouseEffect: !reducedMotion,
+    }),
+  },
+  {
+    id: "page-flip",
+    slug: "page-flip",
+    name: "Page Flip",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-04.webp",
+    preload: loadPageFlip,
+    component: DynamicPageFlip,
+    getProps: (reducedMotion) => ({
+      pages: pageFlipPages,
+      pageWidth: 150,
+      pageHeight: 218,
+      pageRadius: 8,
+      pageColor: "#f6ede6",
+      perspective: 1200,
+      spineShift: 76,
+      turnAngle: 180,
+      peekAngle: reducedMotion ? 0 : 12,
+      duration: reducedMotion ? 0.01 : 0.55,
+      stagger: reducedMotion ? 0 : 0.05,
+      ease: "easeInOut",
+      shadow: 0.34,
+      trigger: "click",
+      closeOnLeave: false,
+      interactive: true,
+    }),
+  },
+  {
+    id: "glitch-text",
+    slug: "glitch-text",
+    name: "Glitch Text",
+    categories: ["typography", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/emotional.webp",
+    preload: loadGlitchText,
+    component: DynamicGlitchText,
+    getProps: (reducedMotion) => ({
+      text: "CREATE | DIFFERENT",
+      colors: ["#ff814a", "#8f5bff", "#45c7ff"],
+      textColor: "#fff6ef",
+      fontSize: 70,
+      fontWeight: "750",
+      radius: reducedMotion ? 0 : 135,
+      letterSpacing: -2,
+      lineHeight: 1.05,
+      textAlign: "center",
+      fadeIn: !reducedMotion,
+      autoFit: true,
+    }),
+  },
+
 ];
 
 const HOME_SHOWCASE_IDS = [

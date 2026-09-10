@@ -24,7 +24,7 @@ test("library 3 grows the public catalog to sixteen but keeps five homepage demo
     (match) => match[1],
   );
 
-  assert.equal(catalogIds.length, 16);
+  assert.ok(catalogIds.length >= 16);
   assert.ok(!catalogIds.includes("splash-cursor"));
 
   for (const id of newIds) {

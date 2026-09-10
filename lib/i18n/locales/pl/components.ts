@@ -1,5 +1,8 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTY", titleBefore: "Więcej sposobów", titleAccent: "na pokazanie Twojej firmy.", lead: "Gotowe bloki, elementy interaktywne i efekty wizualne do stron tworzonych w OneStudio.", catalogEyebrow: "BIBLIOTEKA", catalogTitle: "Wybierz odpowiedni blok.", catalogLead: "Podglądy działających komponentów z aktualnej biblioteki OneStudio.", categoryLabel: "Kategorie komponentów", all: "Wszystkie", previewLabel: "Podgląd" }, categories: {
+export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTY", titleBefore: "Więcej sposobów", titleAccent: "na pokazanie Twojej firmy.", lead: "Gotowe bloki, elementy interaktywne i efekty wizualne do stron tworzonych w OneStudio.", catalogEyebrow: "BIBLIOTEKA", catalogTitle: "Wybierz odpowiedni blok.", catalogLead: "Podglądy działających komponentów z aktualnej biblioteki OneStudio.", categoryLabel: "Kategorie komponentów", all: "Wszystkie", previewLabel: "Podgląd",
+    openPreview: "Otwórz",
+    closePreview: "Zamknij",
+  }, categories: {
     hero: "Hero",
     galleries: "Galerie",
     "social-proof": "Opinie",
@@ -26,4 +29,8 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTY",
     "circle-stack": { label: "Stos okręgów", description: "Warstwy okrągłych obrazów unoszą się kolejno, odsłaniając następny kadr." },
     "click-stack": { label: "Stos na kliknięcie", description: "Karty zmieniają kolejność po kliknięciu, przenosząc pierwszą kartę na koniec." },
     "text-cube": { label: "Kostka tekstowa", description: "Trójwymiarowa kostka z powtarzanego tekstu obraca się i podąża za kursorem." },
+    "vortex": { label: "Wir", description: "Tunel pierścieni i cząstek subtelnie reaguje na ruch kursora." },
+    "flicker": { label: "Migoczące pole", description: "Pole świetlnych punktów delikatnie migocze i reaguje na kursor." },
+    "page-flip": { label: "Przewracanie stron", description: "Interaktywne strony przewracają się po kliknięciu jak mały cyfrowy album." },
+    "glitch-text": { label: "Tekst glitch", description: "Kolorowe warstwy tekstu przesuwają się i reagują na ruch kursora." },
   } } as const;

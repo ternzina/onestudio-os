@@ -1,10 +1,11 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
 import {
   ComponentCatalogPreview,
   componentCatalogItems,
+  type ComponentCatalogItem,
   type ComponentCategory,
 } from "@/components/marketing/OneStudioMotionShowcase";
 import { OneStudioFooter } from "@/components/marketing/OneStudioFooter";
@@ -50,10 +51,32 @@ export default function ComponentsPageClient() {
   const [lang, setLang] = useLocale();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [activeItem, setActiveItem] = useState<ComponentCatalogItem | null>(null);
   const deferredQuery = useDeferredValue(query);
   const t = getTranslations(lang).components.page;
   const searchPlaceholder = searchPlaceholders[lang];
   const categories = categoryDefinitions.filter((category) => availableCategories.has(category.id));
+
+  useEffect(() => {
+    if (!activeItem) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveItem(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeItem]);
+
   const filteredItems = useMemo(() => {
     const catalog = getTranslations(lang).components;
     const normalizedQuery = deferredQuery.trim().toLowerCase();
@@ -170,13 +193,73 @@ export default function ComponentsPageClient() {
                   <p className={styles.description}>
                     {getTranslations(lang).components.items[item.id].description}
                   </p>
-                  <code>{item.slug}</code>
+                  <div className={styles.cardFooter}>
+                    <code>{item.slug}</code>
+                    <button
+                      type="button"
+                      className={styles.previewButton}
+                      onClick={() => setActiveItem(item)}
+                    >
+                      <span>{t.openPreview}</span>
+                      <span aria-hidden="true">↗</span>
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
           </div>
         </div>
       </section>
+
+      {activeItem ? (
+        <div
+          className={styles.previewModal}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setActiveItem(null);
+            }
+          }}
+        >
+          <article
+            className={styles.previewModalPanel}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="component-preview-title"
+          >
+            <header className={styles.previewModalHeader}>
+              <div>
+                <p className={`${styles.modalCategory} os-type-micro`}>
+                  {activeItem.categories
+                    .map((category) => categoryLabel(category, lang))
+                    .join(" · ")}
+                </p>
+                <h2 id="component-preview-title">{activeItem.name}</h2>
+              </div>
+
+              <button
+                type="button"
+                className={styles.modalClose}
+                onClick={() => setActiveItem(null)}
+                aria-label={t.closePreview}
+                autoFocus
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </header>
+
+            <div className={styles.previewModalStage}>
+              <ComponentCatalogPreview item={activeItem} />
+            </div>
+
+            <footer className={styles.previewModalCopy}>
+              <p>
+                {getTranslations(lang).components.items[activeItem.id].description}
+              </p>
+              <code>{activeItem.slug}</code>
+            </footer>
+          </article>
+        </div>
+      ) : null}
 
       <OneStudioFooter lang={lang} />
     </main>

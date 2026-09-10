@@ -2,7 +2,10 @@ import { components as englishComponents } from "../en/components";
 
 export const components = {
   ...englishComponents,
-  page: { eyebrow: "КОМПОНЕНТИ", titleBefore: "Більше способів", titleAccent: "показати ваш бізнес.", lead: "Готові блоки, інтерактивні елементи та візуальні ефекти для сторінок OneStudio.", catalogEyebrow: "БІБЛІОТЕКА", catalogTitle: "Оберіть потрібний будівельний блок.", catalogLead: "Живі прев’ю реальних компонентів із поточної бібліотеки OneStudio.", categoryLabel: "Категорії компонентів", all: "Усі", previewLabel: "Попередній перегляд" },
+  page: { eyebrow: "КОМПОНЕНТИ", titleBefore: "Більше способів", titleAccent: "показати ваш бізнес.", lead: "Готові блоки, інтерактивні елементи та візуальні ефекти для сторінок OneStudio.", catalogEyebrow: "БІБЛІОТЕКА", catalogTitle: "Оберіть потрібний будівельний блок.", catalogLead: "Живі прев’ю реальних компонентів із поточної бібліотеки OneStudio.", categoryLabel: "Категорії компонентів", all: "Усі", previewLabel: "Попередній перегляд",
+    openPreview: "Відкрити",
+    closePreview: "Закрити",
+  },
   categories: {
     hero: "Перший екран",
     galleries: "Галереї",
@@ -31,5 +34,9 @@ export const components = {
     "circle-stack": { label: "Стос кіл", description: "Шари круглих зображень по черзі піднімаються та відкривають наступний кадр." },
     "click-stack": { label: "Стос за кліком", description: "Картки перебудовуються після кліку, відправляючи верхню картку назад." },
     "text-cube": { label: "Текстовий куб", description: "Об’ємний куб із повторюваного тексту обертається та слідує за курсором." },
+    "vortex": { label: "Вихор", description: "Тунель із кілець і частинок м’яко реагує на рух вказівника." },
+    "flicker": { label: "Мерехтливе поле", description: "Поле світних точок м’яко мерехтить і реагує на вказівник." },
+    "page-flip": { label: "Гортання сторінок", description: "Інтерактивні сторінки перегортаються кліком, як невеликий цифровий альбом." },
+    "glitch-text": { label: "Глітч-текст", description: "Кольорові шари тексту зміщуються та реагують на рух вказівника." },
   },
 } as const;

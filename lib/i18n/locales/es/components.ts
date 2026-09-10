@@ -1,5 +1,8 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Más formas", titleAccent: "de mostrar tu negocio.", lead: "Bloques listos, elementos interactivos y efectos visuales para las páginas que creas en OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Elige el bloque adecuado.", catalogLead: "Vistas previas en directo de componentes reales de la biblioteca actual de OneStudio.", categoryLabel: "Categorías de componentes", all: "Todos", previewLabel: "Vista previa" }, categories: {
+export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Más formas", titleAccent: "de mostrar tu negocio.", lead: "Bloques listos, elementos interactivos y efectos visuales para las páginas que creas en OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Elige el bloque adecuado.", catalogLead: "Vistas previas en directo de componentes reales de la biblioteca actual de OneStudio.", categoryLabel: "Categorías de componentes", all: "Todos", previewLabel: "Vista previa",
+    openPreview: "Abrir",
+    closePreview: "Cerrar",
+  }, categories: {
     hero: "Hero",
     galleries: "Galerías",
     "social-proof": "Prueba social",
@@ -26,4 +29,8 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES"
     "circle-stack": { label: "Pila de círculos", description: "Capas de imágenes circulares se elevan en secuencia para revelar la siguiente imagen." },
     "click-stack": { label: "Pila al hacer clic", description: "Las tarjetas se reordenan al hacer clic y envían la tarjeta frontal al fondo." },
     "text-cube": { label: "Cubo de texto", description: "Un cubo tridimensional de texto repetido gira y sigue al cursor." },
+    "vortex": { label: "Vórtice", description: "Un túnel de anillos y partículas responde suavemente al movimiento del puntero." },
+    "flicker": { label: "Campo parpadeante", description: "Un campo de puntos luminosos parpadea suavemente y responde al puntero." },
+    "page-flip": { label: "Pasar páginas", description: "Las páginas interactivas se pasan con un clic como en un pequeño catálogo digital." },
+    "glitch-text": { label: "Texto glitch", description: "Las capas de color del texto se desplazan y responden al movimiento del puntero." },
   } } as const;
