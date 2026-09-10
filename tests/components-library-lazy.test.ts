@@ -18,13 +18,24 @@ const styles = readFileSync(
 );
 
 test(
-  "component library preloads near the viewport and runs previews only while visible",
+  "component library preloads early and mounts live previews before they enter the viewport",
   () => {
     assert.match(showcase, /preload:\s*loadCircleGallery/);
     assert.match(showcase, /rootMargin:\s*"320px 0px"/);
-    assert.match(showcase, /intersectionRatio\s*>=\s*0\.12/);
-    assert.match(showcase, /loading="lazy"/);
+    assert.match(showcase, /rootMargin:\s*"140px 0px"/);
+    assert.match(showcase, /threshold:\s*0/);
     assert.match(showcase, /isVisible\s*\?\s*\(/);
+  },
+);
+
+test(
+  "component library has no visual loading poster or LIVE PREVIEW placeholder",
+  () => {
+    assert.doesNotMatch(showcase, /src=\{item\.poster\}/);
+    assert.doesNotMatch(showcase, /catalogPreviewPlaceholder/);
+    assert.doesNotMatch(showcase, />LIVE PREVIEW</);
+    assert.match(showcase, /function EffectLoading\(\) \{\s*return null;/);
+    assert.doesNotMatch(page, /loadingLabel=/);
   },
 );
 

@@ -155,7 +155,7 @@ export default function ComponentsPageClient() {
             {filteredItems.map((item, index) => (
               <article className={styles.card} key={item.id}>
                 <div className={styles.previewFrame}>
-                  <ComponentCatalogPreview item={item} loadingLabel={t.previewLabel} />
+                  <ComponentCatalogPreview item={item} />
                   <span className={`${styles.previewMeta} os-type-micro`}>
                     {t.previewLabel} · {String(index + 1).padStart(2, "0")}
                   </span>
