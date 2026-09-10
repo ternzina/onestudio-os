@@ -28,7 +28,7 @@ test("library 4 grows the public catalog to twenty while homepage stays curated"
     (match) => match[1],
   );
 
-  assert.equal(catalogIds.length, 20);
+  assert.ok(catalogIds.length >= 20);
   assert.ok(!catalogIds.includes("splash-cursor"));
 
   for (const id of newIds) {

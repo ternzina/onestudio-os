@@ -17,6 +17,7 @@ export const components = {
     interactive: "3D / Інтерактив",
   },
   items: {
+    ...englishComponents.items,
     gallery: { label: "Галерея", description: "Кругова галерея з перетягуванням та інерцією." },
     motion: { label: "Рух", description: "Похила сітка колонок із зображеннями, що рухаються під час прокручування." },
     waitlist: { label: "Лист очікування", description: "Форма раннього доступу поруч із живою стрічкою зображень." },

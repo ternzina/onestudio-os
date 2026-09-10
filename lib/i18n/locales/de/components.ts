@@ -12,6 +12,7 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     motion: "Bewegung & Effekte",
     interactive: "3D / Interaktiv",
   }, items: {
+    ...englishComponents.items,
     gallery: { label: "Galerie", description: "Ziehbare runde Galerie mit Trägheit." },
     motion: { label: "Bewegung", description: "Ein schräges Raster aus Bildspalten, das sich beim Scrollen bewegt." },
     waitlist: { label: "Warteliste", description: "Formular für frühen Zugang neben einem bewegten Bilder-Feed." },
