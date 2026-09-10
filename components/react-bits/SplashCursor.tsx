@@ -113,8 +113,10 @@ export default function SplashCursor({
       COLOR
     };
 
-    const { gl, ext } = getWebGLContext(canvas);
-    if (!gl || !ext) return;
+    const context = getWebGLContext(canvas);
+    if (!context) return;
+
+    const { gl, ext } = context;
 
     if (!ext.supportLinearFiltering) {
       config.DYE_RESOLUTION = 256;
@@ -138,7 +140,7 @@ export default function SplashCursor({
       }
 
       if (!gl) {
-        throw new Error('Unable to initialize WebGL.');
+        return null;
       }
 
       const isWebGL2 = 'drawBuffers' in gl;
@@ -185,7 +187,7 @@ export default function SplashCursor({
       }
 
       if (!formatRGBA || !formatRG || !formatR) {
-        throw new Error('Unable to initialize WebGL render texture formats.');
+        return null;
       }
 
       return {
@@ -1366,7 +1368,18 @@ export default function SplashCursor({
     : `fixed left-0 top-0 z-50 h-full w-full pointer-events-none${className ? ` ${className}` : ''}`;
 
   return (
-    <div ref={containerRef} className={hostClassName}>
+    <div
+      ref={containerRef}
+      className={hostClassName}
+      style={
+        contained
+          ? {
+              background:
+                "radial-gradient(circle at 30% 35%, rgba(255,129,74,.55), transparent 32%), radial-gradient(circle at 72% 62%, rgba(143,91,255,.55), transparent 38%), #160f0c",
+            }
+          : undefined
+      }
+    >
       <canvas
         ref={canvasRef}
         className={contained ? "pointer-events-none absolute inset-0 block h-full w-full" : "block h-full w-full"}

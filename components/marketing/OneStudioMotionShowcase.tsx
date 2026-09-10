@@ -743,7 +743,7 @@ export function ComponentCatalogPreview({
           objectFit: "cover",
           pointerEvents: "none",
           filter: "saturate(.78) brightness(.7)",
-          opacity: isVisible ? 0.18 : 0.58,
+          opacity: isVisible ? 0 : 0.58,
           transform: "scale(1.015)",
           transition: reducedMotion ? "none" : "opacity 220ms ease",
         }}
