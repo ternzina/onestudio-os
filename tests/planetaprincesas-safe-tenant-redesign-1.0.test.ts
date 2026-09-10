@@ -7,6 +7,10 @@ import {
   PLANETA_PRINCESAS_LAYOUT_ORDER,
 } from "../lib/public-site/planetaprincesas-tenant.ts";
 import { createVeloraPremiumTemplateSeed } from "../lib/public-site/velora-premium-template-seed.ts";
+import {
+  buildVeloraPageHref,
+  resolveVeloraPageSlug,
+} from "../lib/public-site/velora-navigation.ts";
 import { createPublicSiteMetadata } from "../lib/public-site/metadata.ts";
 import {
   resolveVeloraContent,
@@ -65,6 +69,65 @@ test("PLANETA PRINCESAS content is Spanish, complete and tenant-owned", () => {
   );
   for (const image of imageNames)
     assert.match(serialized, new RegExp(`/tenants/planetaprincesas/${image}\\.webp`));
+});
+
+test("VELORA page navigation stays on the current tenant origin", () => {
+  const tenantContent = createPlanetaPrincesasTenantContent();
+  const tenantPages = tenantContent.pages ?? [];
+  const tenantVelora = resolveVeloraContent(tenantContent);
+  const tenantOrigin = "https://planetaprincesas.com";
+  const espacios = tenantPages.find((page) => page.nav_label === "Espacios");
+  const experiencias = tenantPages.find(
+    (page) => page.nav_label === "Experiencias",
+  );
+  assert.ok(espacios);
+  assert.ok(experiencias);
+
+  const venuesSlug = resolveVeloraPageSlug(
+    tenantPages,
+    tenantVelora.customPages.venuesLabel,
+    "venues",
+  );
+  const packagesSlug = resolveVeloraPageSlug(
+    tenantPages,
+    tenantVelora.customPages.packagesLabel,
+    "packages",
+  );
+  const tenantPageHrefs = [
+    ...tenantPages.map((page) => buildVeloraPageHref("/", page.slug)),
+    buildVeloraPageHref("/", venuesSlug),
+    buildVeloraPageHref("/", packagesSlug),
+  ];
+
+  assert.equal(buildVeloraPageHref("/", espacios.slug), "/p/espacios");
+  assert.equal(
+    buildVeloraPageHref("/", experiencias.slug),
+    "/p/experiencias",
+  );
+  assert.equal(buildVeloraPageHref("/", venuesSlug), "/p/espacios");
+  assert.equal(buildVeloraPageHref("/", packagesSlug), "/p/experiencias");
+  for (const href of tenantPageHrefs) {
+    assert.doesNotMatch(href, /^\/\//);
+    assert.equal(new URL(href, tenantOrigin).origin, tenantOrigin);
+  }
+
+  const veloraSeed = createVeloraPremiumTemplateSeed("ru");
+  const veloraPages = veloraSeed.pages ?? [];
+  assert.deepEqual(
+    veloraPages.map((page) =>
+      buildVeloraPageHref("/demos/velora-event-venue", page.slug),
+    ),
+    [
+      "/demos/velora-event-venue/venues",
+      "/demos/velora-event-venue/packages",
+    ],
+  );
+  assert.deepEqual(
+    veloraPages.map((page) =>
+      buildVeloraPageHref("/site/velora-house", page.slug),
+    ),
+    ["/site/velora-house/p/venues", "/site/velora-house/p/packages"],
+  );
 });
 
 test("all twelve editorial assets are local, valid and reasonably sized WebP files", async () => {

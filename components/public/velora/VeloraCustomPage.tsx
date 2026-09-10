@@ -5,6 +5,7 @@ import PublicCustomBlock from "@/components/public/PublicCustomBlock";
 import PublicRichText from "@/components/public/PublicRichText";
 import { resolveVeloraContent } from "@/lib/public-site/velora-premium-template-content";
 import { buildVeloraAvailabilityHref } from "@/lib/public-site/velora-availability-selection";
+import { buildVeloraPageHref } from "@/lib/public-site/velora-navigation";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import type { PublicSiteData, PublicSitePage } from "@/lib/public-site/types";
 import {
@@ -32,10 +33,7 @@ export default function VeloraCustomPage({
   basePath: string;
 }) {
   const content = resolveVeloraContent(site.content);
-  const pageHref = (slug: string) =>
-    basePath.startsWith("/demos/")
-      ? `${basePath}/${slug}`
-      : `${basePath}/p/${slug}`;
+  const pageHref = (slug: string) => buildVeloraPageHref(basePath, slug);
   const currentLocale = site.business.locale;
   const primaryLocale = site.business.primary_locale;
   const currentSuffix = `/${currentLocale}`;
@@ -49,9 +47,7 @@ export default function VeloraCustomPage({
       : `${localizedRoot.replace(/\/$/, "")}/${locale}`;
   const localePageHref = (locale: string) => {
     const localizedBase = localeHref(locale);
-    return localizedBase.startsWith("/demos/")
-      ? `${localizedBase}/${page.slug}`
-      : `${localizedBase}/p/${page.slug}`;
+    return buildVeloraPageHref(localizedBase, page.slug);
   };
   const visiblePages =
     site.content.pages?.filter(

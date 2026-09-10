@@ -12,6 +12,10 @@ import {
 import type { PublicSiteData } from "@/lib/public-site/types";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import { safePublicActionHref } from "@/lib/public-site/editor-actions";
+import {
+  buildVeloraPageHref,
+  resolveVeloraPageSlug,
+} from "@/lib/public-site/velora-navigation";
 import type { VeloraNativeSectionId } from "@/lib/public-site/velora-premium-template-contract";
 import VeloraFooter from "./VeloraFooter";
 import {
@@ -79,10 +83,7 @@ export default function VeloraSite({
   const headingStyle = (section: VeloraNativeSectionId) => publicTypographyStyle(content.headingTypography[section]);
   const visible = (id: string) =>
     isTemplateNativeSectionVisible(site.content, VELORA_TEMPLATE_KEY, id);
-  const pageHref = (slug: string) =>
-    basePath.startsWith("/demos/")
-      ? `${basePath}/${slug}`
-      : `${basePath}/p/${slug}`;
+  const pageHref = (slug: string) => buildVeloraPageHref(basePath, slug);
   const currentLocale = site.business.locale;
   const labels = publicLabels(currentLocale, content.brand);
   const primaryLocale = site.business.primary_locale;
@@ -101,7 +102,17 @@ export default function VeloraSite({
         page.type === "custom" &&
         page.is_visible !== false &&
         page.show_in_navigation,
-    ) ?? [];
+      ) ?? [];
+  const venuesPageSlug = resolveVeloraPageSlug(
+    pages,
+    content.customPages.venuesLabel,
+    "venues",
+  );
+  const packagesPageSlug = resolveVeloraPageSlug(
+    pages,
+    content.customPages.packagesLabel,
+    "packages",
+  );
   const theme = {
     "--velora-bg": site.content.theme_dark ?? "#07101E",
     "--velora-elevated": content.plum,
@@ -225,7 +236,7 @@ export default function VeloraSite({
             </VeloraVenueReveal>
           ))}
         </div>
-        <Link className={styles.textLink} href={pageHref("venues")}>
+        <Link className={styles.textLink} href={pageHref(venuesPageSlug)}>
           {content.venuesPresentation.pageLabel} →
         </Link>
       </section>
@@ -327,7 +338,7 @@ export default function VeloraSite({
             </VeloraReveal>
           ))}
         </div>
-        <Link className={styles.textLink} href={pageHref("packages")}>
+        <Link className={styles.textLink} href={pageHref(packagesPageSlug)}>
           {content.packagesPresentation.pageLabel} →
         </Link>
       </section>
