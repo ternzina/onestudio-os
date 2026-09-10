@@ -21,4 +21,10 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES"
     "particle-text": { label: "Texto de partículas", description: "El texto se forma con partículas y responde al movimiento del puntero." },
     "card-spread": { label: "Abanico de tarjetas", description: "Un abanico interactivo de imágenes que se eleva y desplaza al pasar el cursor." },
     "bending-marquee": { label: "Marquesina curva", description: "Tipografía en movimiento sobre una cinta tridimensional curvada." },
+
+    "splash-cursor": { label: "Cursor líquido", description: "Un fluido de colores reacciona al movimiento del cursor dentro del bloque." },
+    "blur-highlight": { label: "Desenfoque y resaltado", description: "El texto aparece desde el desenfoque y las palabras elegidas reciben un resaltado animado." },
+    "circle-stack": { label: "Pila de círculos", description: "Capas de imágenes circulares se elevan en secuencia para revelar la siguiente imagen." },
+    "click-stack": { label: "Pila al hacer clic", description: "Las tarjetas se reordenan al hacer clic y envían la tarjeta frontal al fondo." },
+    "text-cube": { label: "Cubo de texto", description: "Un cubo tridimensional de texto repetido gira y sigue al cursor." },
   } } as const;

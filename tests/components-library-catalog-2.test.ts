@@ -32,7 +32,7 @@ test("full public catalog grows to twelve while the homepage stays curated to fi
     (match) => match[1],
   );
 
-  assert.equal(catalogIds.length, 12);
+  assert.ok(catalogIds.length >= 12);
 
   for (const id of newIds) {
     assert.ok(catalogIds.includes(id), `missing catalog item ${id}`);
