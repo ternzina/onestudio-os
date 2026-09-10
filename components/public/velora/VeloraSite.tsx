@@ -44,6 +44,28 @@ const title = (eyebrow: string, heading: string, text?: string, headingStyle?: C
   </VeloraReveal>
 );
 
+function publicLabels(locale: string, brand: string) {
+  const language = locale.split("-")[0];
+  if (language === "es") return {
+    skip: "Saltar al contenido",
+    navigation: "Navegación principal",
+    language: "Idioma",
+    facts: `${brand} en cifras`,
+  };
+  if (language === "en") return {
+    skip: "Skip to content",
+    navigation: "Main navigation",
+    language: "Language",
+    facts: `${brand} in numbers`,
+  };
+  return {
+    skip: "Перейти к содержанию",
+    navigation: "Главная навигация",
+    language: "Язык",
+    facts: `${brand} в цифрах`,
+  };
+}
+
 export default function VeloraSite({
   site,
   basePath,
@@ -62,6 +84,7 @@ export default function VeloraSite({
       ? `${basePath}/${slug}`
       : `${basePath}/p/${slug}`;
   const currentLocale = site.business.locale;
+  const labels = publicLabels(currentLocale, content.brand);
   const primaryLocale = site.business.primary_locale;
   const currentSuffix = `/${currentLocale}`;
   const localizedRoot =
@@ -95,15 +118,13 @@ export default function VeloraSite({
     hero: visible("hero") ? (
       <>
         <a className={styles.skip} href="#main-story">
-          {currentLocale === "en" ? "Skip to content" : "Перейти к содержанию"}
+          {labels.skip}
         </a>
         <VeloraStickyHeader className={styles.header}>
           <Link href={basePath} className={styles.logo}>
             {content.brand}
           </Link>
-          <nav
-            aria-label={currentLocale === "en" ? "Main navigation" : "Главная навигация"}
-          >
+          <nav aria-label={labels.navigation}>
             {content.navigation.map((item) => (
               <Link key={item.href} href={`${basePath}${item.href}`}>
                 {item.label}
@@ -115,7 +136,7 @@ export default function VeloraSite({
               </Link>
             ))}
           </nav>
-          <div className={styles.languageSwitch} aria-label="Language">
+          <div className={styles.languageSwitch} aria-label={labels.language}>
             {site.available_locales.map((locale) => (
               <Link
                 key={locale}
@@ -158,9 +179,7 @@ export default function VeloraSite({
       <section
         id="main-story"
         className={styles.facts}
-        aria-label={
-          currentLocale === "en" ? "VELORA in numbers" : "VELORA в цифрах"
-        }
+        aria-label={labels.facts}
       >
         {content.facts.map((item, index) => (
           <VeloraReveal key={item.label} delay={index * 0.08}>
@@ -553,6 +572,7 @@ export default function VeloraSite({
     <main
       className={styles.site}
       style={theme}
+      data-visual-variant={content.visualVariant}
       data-locale={currentLocale}
       lang={currentLocale}
     >

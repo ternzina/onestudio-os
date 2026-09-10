@@ -24,11 +24,18 @@ export default function VeloraFooter({
   localeLinks: LocaleLink[];
   currentLocale: string;
 }) {
-  const phoneHref = `tel:${contact.phone.replace(/[^\d+]/g, "")}`;
+  const hasContact = Boolean(
+    contact.address || contact.phone || contact.email || contact.hours,
+  );
+  const phoneHref = contact.phone
+    ? `tel:${contact.phone.replace(/[^\d+]/g, "")}`
+    : "";
   return (
     <footer className={styles.footer}>
       <div className={styles.footerGlow} aria-hidden="true" />
-      <div className={styles.footerGrid}>
+      <div
+        className={`${styles.footerGrid} ${hasContact ? "" : styles.footerGridCompact}`}
+      >
         <div className={styles.footerBrand}>
           <span>{footer.note}</span>
           <Link href={basePath}>{brand}</Link>
@@ -47,15 +54,19 @@ export default function VeloraFooter({
           ))}
         </nav>
 
-        <div className={styles.footerContact}>
-          <span>{footer.contactLabel}</span>
-          <address>
-            <p>{contact.address}</p>
-            <a href={phoneHref}>{contact.phone}</a>
-            <a href={`mailto:${contact.email}`}>{contact.email}</a>
-            <small>{contact.hours}</small>
-          </address>
-        </div>
+        {hasContact ? (
+          <div className={styles.footerContact}>
+            <span>{footer.contactLabel}</span>
+            <address>
+              {contact.address ? <p>{contact.address}</p> : null}
+              {contact.phone ? <a href={phoneHref}>{contact.phone}</a> : null}
+              {contact.email ? (
+                <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              ) : null}
+              {contact.hours ? <small>{contact.hours}</small> : null}
+            </address>
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.footerBottom}>

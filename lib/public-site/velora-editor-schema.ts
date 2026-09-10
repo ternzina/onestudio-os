@@ -330,10 +330,11 @@ export function buildVeloraInspectorFields(
   disabled: boolean,
   onChange: (next: VeloraContent, group: string) => void,
   onChooseMedia?: (target: PremiumTemplateEditorMediaTarget) => void,
+  originalContent: VeloraContent = DEFAULT_VELORA_CONTENT,
 ): EditorInspectorPlacedField[] {
   const fields = VELORA_EDITOR_SPECS[section].flatMap((spec) => {
     const value = String(at(content, spec.path) ?? "");
-    const originalValue = String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? "");
+    const originalValue = String(at(originalContent, spec.path) ?? "");
     const update = (next: string) =>
       onChange(
         setVeloraPath(content, spec.path, next),
@@ -380,7 +381,7 @@ export function buildVeloraInspectorFields(
       type: "media",
       label: spec.label,
       value,
-      originalValue: String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? ""),
+      originalValue: String(at(originalContent, spec.path) ?? ""),
       disabled,
       onChange: update,
       onChoose: () => onChooseMedia({
@@ -441,13 +442,14 @@ export function buildVeloraInspectorFields(
 export function resetVeloraSection(
   content: VeloraContent,
   section: VeloraNativeSectionId,
+  originalContent: VeloraContent = DEFAULT_VELORA_CONTENT,
 ) {
   let next = structuredClone(content);
   for (const spec of VELORA_EDITOR_SPECS[section])
     next = setVeloraPath(
       next,
       spec.path,
-      String(at(DEFAULT_VELORA_CONTENT, spec.path) ?? ""),
+      String(at(originalContent, spec.path) ?? ""),
     );
   if (headingSections.has(section)) {
     const headingTypography = { ...next.headingTypography };

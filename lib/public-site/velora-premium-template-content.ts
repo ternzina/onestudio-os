@@ -3,9 +3,11 @@ import type { VeloraNativeSectionId } from "./velora-premium-template-contract.t
 import { replaceTemplateContentPreservingEditorState } from "./template-native-section-state.ts";
 
 export const VELORA_TEMPLATE_KEY = "velora-event-venue" as const;
+export type VeloraVisualVariant = "planeta-princesas";
 export type VeloraItem = Record<string, string>;
 export type VeloraContent = {
   version: 1;
+  visualVariant?: VeloraVisualVariant;
   headingTypography: Partial<Record<VeloraNativeSectionId, PublicSiteTypography>>;
   brand: string;
   plum: string;
@@ -574,7 +576,7 @@ export function resolveVeloraContent(
   const raw = content?.template_content?.[VELORA_TEMPLATE_KEY];
   if (!isObject(raw)) return defaults;
   const source = raw as Partial<VeloraContent>;
-  const result = {
+  const result: VeloraContent = {
     ...defaults,
     brand: text(source.brand, defaults.brand),
     plum: text(source.plum, defaults.plum),
@@ -588,8 +590,15 @@ export function resolveVeloraContent(
       ? source.headingTypography as Partial<Record<VeloraNativeSectionId, PublicSiteTypography>>
       : {},
   };
+  if (source.visualVariant === "planeta-princesas")
+    result.visualVariant = source.visualVariant;
   for (const key of objectKeys)
     result[key] = mergeObject(defaults[key], source[key]);
+  if (source.visualVariant === "planeta-princesas" && isObject(source.contact)) {
+    for (const field of ["address", "phone", "email", "hours", "map", "mapAria"])
+      if (typeof source.contact[field] === "string")
+        result.contact[field] = source.contact[field];
+  }
   for (const key of listKeys)
     result[key] = mergeItems(defaults[key], source[key]);
   for (const [key, field] of imageSlots) {

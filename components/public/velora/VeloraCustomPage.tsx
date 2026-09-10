@@ -19,8 +19,8 @@ import {
 import VeloraFooter from "./VeloraFooter";
 import styles from "./Velora.module.css";
 
-const BUILTIN_VENUES_ID = "velora-venues";
-const BUILTIN_PACKAGES_ID = "velora-packages";
+const BUILTIN_VENUES_IDS = new Set(["velora-venues", "planeta-espacios"]);
+const BUILTIN_PACKAGES_IDS = new Set(["velora-packages", "planeta-experiencias"]);
 
 export default function VeloraCustomPage({
   site,
@@ -61,9 +61,9 @@ export default function VeloraCustomPage({
         item.show_in_navigation,
     ) ?? [];
   const items =
-    page.id === BUILTIN_VENUES_ID
+    BUILTIN_VENUES_IDS.has(page.id)
       ? content.venues
-      : page.id === BUILTIN_PACKAGES_ID
+      : BUILTIN_PACKAGES_IDS.has(page.id)
         ? content.packages
         : [];
   const theme = {
@@ -79,15 +79,15 @@ export default function VeloraCustomPage({
     "--velora-button-fg": content.buttonForeground,
   } as CSSProperties;
   const builtin =
-    page.id === BUILTIN_VENUES_ID || page.id === BUILTIN_PACKAGES_ID;
+    BUILTIN_VENUES_IDS.has(page.id) || BUILTIN_PACKAGES_IDS.has(page.id);
   const hero =
-    page.id === BUILTIN_VENUES_ID
+    BUILTIN_VENUES_IDS.has(page.id)
       ? {
           eyebrow: content.customPages.venuesEyebrow,
           title: content.customPages.venuesTitle,
           intro: content.customPages.venuesIntro,
         }
-      : page.id === BUILTIN_PACKAGES_ID
+      : BUILTIN_PACKAGES_IDS.has(page.id)
         ? {
             eyebrow: content.customPages.packagesEyebrow,
             title: content.customPages.packagesTitle,
@@ -95,21 +95,22 @@ export default function VeloraCustomPage({
           }
         : { eyebrow: page.eyebrow, title: page.title, intro: page.intro };
   const heroImage =
-    page.id === BUILTIN_VENUES_ID
+    BUILTIN_VENUES_IDS.has(page.id)
       ? content.venues[0].image
-      : page.id === BUILTIN_PACKAGES_ID
+      : BUILTIN_PACKAGES_IDS.has(page.id)
         ? content.packages[1].image
         : content.hero.image;
   const heroAlt =
-    page.id === BUILTIN_VENUES_ID
+    BUILTIN_VENUES_IDS.has(page.id)
       ? content.venues[0].alt
-      : page.id === BUILTIN_PACKAGES_ID
+      : BUILTIN_PACKAGES_IDS.has(page.id)
         ? content.packages[1].alt
         : content.hero.alt;
   return (
     <main
       className={`${styles.site} ${styles.customPage}`}
       style={theme}
+      data-visual-variant={content.visualVariant}
       data-locale={currentLocale}
       lang={currentLocale}
     >
@@ -120,7 +121,7 @@ export default function VeloraCustomPage({
         <Link className={styles.logo} href={basePath}>
           {content.brand}
         </Link>
-        <nav>
+        <nav aria-label={currentLocale.startsWith("es") ? "Navegación principal" : "Main navigation"}>
           <Link href={basePath}>{content.customPages.homeLabel}</Link>
           {visiblePages.map((item) => (
             <Link key={item.id} href={pageHref(item.slug)}>
@@ -128,7 +129,7 @@ export default function VeloraCustomPage({
             </Link>
           ))}
         </nav>
-        <div className={styles.languageSwitch} aria-label="Language">
+        <div className={styles.languageSwitch} aria-label={currentLocale.startsWith("es") ? "Idioma" : "Language"}>
           {site.available_locales.map((locale) => (
             <Link
               key={locale}
@@ -196,7 +197,7 @@ export default function VeloraCustomPage({
                 <Link
                   href={buildVeloraAvailabilityHref(
                     basePath,
-                    page.id === BUILTIN_VENUES_ID ? "venue" : "packageName",
+                    BUILTIN_VENUES_IDS.has(page.id) ? "venue" : "packageName",
                     item.name,
                   )}
                 >

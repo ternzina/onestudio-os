@@ -25,6 +25,10 @@ import {
   type VeloraNativeSectionId,
 } from "./velora-premium-template-contract.ts";
 import { createVeloraPremiumTemplateSeed } from "./velora-premium-template-seed.ts";
+import {
+  createPlanetaPrincesasTenantContent,
+  PLANETA_PRINCESAS_CONTENT,
+} from "./planetaprincesas-tenant.ts";
 
 const nativeToken = (sectionId: VeloraNativeSectionId) =>
   createPremiumTemplateNativeToken(VELORA_TEMPLATE_KEY, sectionId);
@@ -50,7 +54,7 @@ const normalizeLayout = (
 export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
   templateKey: VELORA_TEMPLATE_KEY,
   contract: VELORA_PREMIUM_TEMPLATE_CONTRACT,
-  restoreLabel: "Вернуть исходный VELORA",
+  restoreLabel: "Восстановить исходное оформление",
   initialSectionId: "hero",
   nativeToken,
   nativeSectionId,
@@ -75,23 +79,28 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
       VELORA_TEMPLATE_KEY,
       id,
     );
-    const resetContent = resetVeloraSection(resolveVeloraContent(content), id);
+    const resolvedContent = resolveVeloraContent(content);
+    const originalContent =
+      resolvedContent.visualVariant === "planeta-princesas"
+        ? PLANETA_PRINCESAS_CONTENT
+        : undefined;
+    const resetContent = resetVeloraSection(resolvedContent, id, originalContent);
     if (id === "hero") {
-      resetContent.plum = "#2D394F";
-      resetContent.muted = "#B7B4AE";
-      resetContent.secondary = "#7F96B8";
-      resetContent.border = "#6D5B39";
-      resetContent.warm = "#F2D59B";
-      resetContent.overlay = "#050912";
-      resetContent.buttonForeground = "#09111F";
+      resetContent.plum = originalContent?.plum ?? "#2D394F";
+      resetContent.muted = originalContent?.muted ?? "#B7B4AE";
+      resetContent.secondary = originalContent?.secondary ?? "#7F96B8";
+      resetContent.border = originalContent?.border ?? "#6D5B39";
+      resetContent.warm = originalContent?.warm ?? "#F2D59B";
+      resetContent.overlay = originalContent?.overlay ?? "#050912";
+      resetContent.buttonForeground = originalContent?.buttonForeground ?? "#09111F";
     }
     const next = withVeloraContent(
       id === "hero"
         ? {
             ...content,
-            theme_dark: "#07101E",
-            theme_accent: "#D6B56E",
-            theme_surface: "#F6F0E5",
+            theme_dark: originalContent ? "#100A1C" : "#07101E",
+            theme_accent: originalContent ? "#C7A76A" : "#D6B56E",
+            theme_surface: originalContent ? "#FBF7EF" : "#F6F0E5",
           }
         : content,
       resetContent,
@@ -107,7 +116,10 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
     );
   },
   restoreTemplate: (content) => {
-    const seed = createVeloraPremiumTemplateSeed();
+    const seed =
+      resolveVeloraContent(content).visualVariant === "planeta-princesas"
+        ? createPlanetaPrincesasTenantContent()
+        : createVeloraPremiumTemplateSeed();
     return {
       ...content,
       ...seed,
@@ -124,12 +136,18 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
     onChange,
     onChooseMedia,
   }) => {
+    const resolvedContent = resolveVeloraContent(content);
+    const originalContent =
+      resolvedContent.visualVariant === "planeta-princesas"
+        ? PLANETA_PRINCESAS_CONTENT
+        : undefined;
     const fields = buildVeloraInspectorFields(
-      resolveVeloraContent(content),
+      resolvedContent,
       sectionId,
       disabled,
       (next, group) => onChange(withVeloraContent(content, next), group),
       onChooseMedia,
+      originalContent,
     );
     if (sectionId !== "hero") return fields;
     const color = (
@@ -162,12 +180,12 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
         group: "media",
         type: "color",
         label: "Background elevated · slate",
-        value: resolveVeloraContent(content).plum,
+        value: resolvedContent.plum,
         disabled,
         onChange: (value) =>
           onChange(
             withVeloraContent(content, {
-              ...resolveVeloraContent(content),
+              ...resolvedContent,
               plum: value,
             }),
             "velora:palette:plum",
@@ -187,12 +205,12 @@ export const VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER = {
         group: "media" as const,
         type: "color" as const,
         label,
-        value: resolveVeloraContent(content)[key],
+        value: resolvedContent[key],
         disabled,
         onChange: (value: string) =>
           onChange(
             withVeloraContent(content, {
-              ...resolveVeloraContent(content),
+              ...resolvedContent,
               [key]: value,
             }),
             `velora:palette:${key}`,

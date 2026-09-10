@@ -568,8 +568,10 @@ export function VeloraAvailability({
     if (status === "sending") return;
     setStatus("sending");
     const data = new FormData(event.currentTarget);
-    const message =
-      locale === "en"
+    const language = locale.split("-")[0];
+    const message = language === "es"
+      ? `Fecha: ${data.get("date")}. Formato: ${data.get("eventType")}. Invitados: ${data.get("guests")}. Espacio: ${data.get("venue")}. Experiencia: ${data.get("package")}.`
+      : language === "en"
         ? `Date: ${data.get("date")}. Format: ${data.get("eventType")}. Guests: ${data.get("guests")}. Space: ${data.get("venue")}. Package: ${data.get("package")}.`
         : `Дата: ${data.get("date")}. Формат: ${data.get("eventType")}. Гостей: ${data.get("guests")}. Зал: ${data.get("venue")}. Пакет: ${data.get("package")}.`;
     try {
