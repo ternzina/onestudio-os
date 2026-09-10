@@ -16,7 +16,10 @@ export const components = {
     galleries: "Galleries",
     "social-proof": "Social Proof",
     forms: "Forms / Waitlist",
+    typography: "Text / Typography",
+    backgrounds: "Backgrounds",
     motion: "Motion & Effects",
+    interactive: "3D / Interactive",
   },
   items: {
     gallery: { label: "Gallery", description: "Draggable circular carousel with inertia." },
@@ -24,5 +27,12 @@ export const components = {
     waitlist: { label: "Waitlist", description: "An early-access form paired with a moving image feed." },
     hero: { label: "Hero", description: "A first screen with a visual scene, changing frames and a light trail." },
     "social-proof": { label: "Social proof", description: "A testimonial sequence with avatars and smooth state changes." },
+    "floating-lines": { label: "Floating lines", description: "Flowing light lines with parallax and pointer interaction." },
+    "magic-rings": { label: "Magic rings", description: "Shader rings with depth, hover response and click bursts." },
+    strands: { label: "Light strands", description: "Soft WebGL light strands with glow and a glass effect." },
+    "glow-cursor": { label: "Glow cursor", description: "An interactive luminous trail that follows the pointer inside the block." },
+    "particle-text": { label: "Particle text", description: "Typography that gathers from particles and responds to the pointer." },
+    "card-spread": { label: "Card spread", description: "An interactive fan of images that lifts and shifts on hover." },
+    "bending-marquee": { label: "Bending marquee", description: "Moving typography wrapped across a curved three-dimensional strip." },
   },
 } as const;

@@ -13,16 +13,34 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { getTranslations } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
-import type { CircleGalleryProps } from "./source/circle-gallery";
-import type { TiltedTilesProps } from "@/components/react-bits/tilted-tiles";
 import { SectionReveal } from "./SectionReveal";
 import styles from "./OneStudioMotionShowcase.module.css";
 
-type EffectProps = CircleGalleryProps | TiltedTilesProps | Record<string, never>;
+type EffectProps = Record<string, unknown>;
 
-export type ComponentCategory = "hero" | "galleries" | "social-proof" | "forms" | "motion";
+export type ComponentCategory =
+  | "hero"
+  | "galleries"
+  | "social-proof"
+  | "forms"
+  | "typography"
+  | "backgrounds"
+  | "motion"
+  | "interactive";
 
-export type ComponentCatalogItemId = "gallery" | "motion" | "waitlist" | "hero" | "social-proof";
+export type ComponentCatalogItemId =
+  | "gallery"
+  | "motion"
+  | "waitlist"
+  | "hero"
+  | "social-proof"
+  | "floating-lines"
+  | "magic-rings"
+  | "strands"
+  | "glow-cursor"
+  | "particle-text"
+  | "card-spread"
+  | "bending-marquee";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -51,6 +69,13 @@ const loadTiltedTiles = () => import("@/components/react-bits/tilted-tiles");
 const loadWaitlist1 = () => import("./motion-showcase/source/waitlist-1");
 const loadHero7 = () => import("./motion-showcase/source/hero-7");
 const loadSocialProof4 = () => import("./motion-showcase/source/social-proof-4");
+const loadFloatingLines = () => import("@/components/react-bits/FloatingLines");
+const loadMagicRings = () => import("@/components/react-bits/MagicRings");
+const loadStrands = () => import("@/components/react-bits/Strands");
+const loadGlowCursor = () => import("@/components/react-bits/GlowCursor");
+const loadParticleText = () => import("@/components/react-bits/ParticleText");
+const loadCardSpread = () => import("@/components/react-bits/card-spread");
+const loadBendingMarquee = () => import("@/components/react-bits/bending-marquee");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -74,6 +99,41 @@ const DynamicHero7 = dynamic(
 
 const DynamicSocialProof4 = dynamic(
   loadSocialProof4,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicFloatingLines = dynamic(
+  loadFloatingLines,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicMagicRings = dynamic(
+  loadMagicRings,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicStrands = dynamic(
+  loadStrands,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicGlowCursor = dynamic(
+  loadGlowCursor,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicParticleText = dynamic(
+  loadParticleText,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicCardSpread = dynamic(
+  loadCardSpread,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicBendingMarquee = dynamic(
+  loadBendingMarquee,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -101,6 +161,12 @@ const tiltedTilesImages = [
   "/images/demos/premium-studio/bright/emotional.webp",
   "/images/demos/premium-studio/bright/hero.webp",
 ];
+
+const cardSpreadCards = circleGalleryImages.slice(0, 7).map((src, index) => ({
+  id: `spread-${index + 1}`,
+  src,
+  alt: "",
+}));
 
 export const componentCatalogItems: readonly ComponentCatalogItem[] = [
   {
@@ -200,9 +266,223 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     component: DynamicSocialProof4,
     getProps: () => ({}),
   },
+  {
+    id: "floating-lines",
+    slug: "floating-lines",
+    name: "Floating Lines",
+    categories: ["backgrounds", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-night.webp",
+    preload: loadFloatingLines,
+    component: DynamicFloatingLines,
+    getProps: (reducedMotion) => ({
+      linesGradient: ["#ff814a", "#ffd3bd", "#8f5bff"],
+      enabledWaves: ["top", "middle", "bottom"],
+      lineCount: [5, 4, 3],
+      lineDistance: [5, 7, 8],
+      animationSpeed: reducedMotion ? 0 : 0.7,
+      interactive: !reducedMotion,
+      bendStrength: -0.35,
+      parallax: !reducedMotion,
+      parallaxStrength: 0.16,
+      backgroundColor: "#17100c",
+    }),
+  },
+  {
+    id: "magic-rings",
+    slug: "magic-rings",
+    name: "Magic Rings",
+    categories: ["backgrounds", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/emotional.webp",
+    preload: loadMagicRings,
+    component: DynamicMagicRings,
+    getProps: (reducedMotion) => ({
+      color: "#ff814a",
+      colorTwo: "#ffd3bd",
+      speed: reducedMotion ? 0 : 0.8,
+      ringCount: 7,
+      attenuation: 10,
+      lineThickness: 2.2,
+      opacity: 0.95,
+      noiseAmount: 0.045,
+      followMouse: !reducedMotion,
+      mouseInfluence: 0.12,
+      hoverScale: 1.08,
+      parallax: 0.04,
+      clickBurst: !reducedMotion,
+      alphaMode: "coverage",
+    }),
+  },
+  {
+    id: "strands",
+    slug: "strands",
+    name: "Strands",
+    categories: ["backgrounds", "motion"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-dusk.webp",
+    preload: loadStrands,
+    component: DynamicStrands,
+    getProps: (reducedMotion) => ({
+      colors: ["#ff814a", "#ffd3bd", "#8f5bff", "#45c7ff"],
+      count: 5,
+      speed: reducedMotion ? 0 : 0.35,
+      amplitude: 1,
+      waviness: 1.2,
+      thickness: 0.75,
+      glow: 2.2,
+      taper: 3,
+      spread: 1.05,
+      intensity: 0.7,
+      saturation: 1.3,
+      opacity: 1,
+      scale: 1.3,
+      glass: true,
+      refraction: 0.8,
+      dispersion: 0.8,
+      glassSize: 0.72,
+    }),
+  },
+  {
+    id: "glow-cursor",
+    slug: "glow-cursor",
+    name: "Glow Cursor",
+    categories: ["motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/hero.webp",
+    preload: loadGlowCursor,
+    component: DynamicGlowCursor,
+    getProps: (reducedMotion) => ({
+      color: "#ff9a6d",
+      secondaryColor: "#9f70ff",
+      trailLength: 36,
+      trailWidth: 9,
+      trailTaper: 0.82,
+      followSpeed: reducedMotion ? 0.95 : 0.18,
+      glowIntensity: 2.1,
+      glowSpread: 1.25,
+      brightness: 1.3,
+      opacity: 1,
+      pulseSpeed: reducedMotion ? 0 : 0.8,
+      noiseStrength: 0.02,
+      idleFade: true,
+      children: (
+        <div
+          style={{
+            display: "grid",
+            height: "100%",
+            placeItems: "center",
+            color: "rgba(255, 244, 236, .72)",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: ".18em",
+            pointerEvents: "none",
+          }}
+        >
+          MOVE CURSOR
+        </div>
+      ),
+    }),
+  },
+  {
+    id: "particle-text",
+    slug: "particle-text",
+    name: "Particle Text",
+    categories: ["typography", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-morning.webp",
+    preload: loadParticleText,
+    component: DynamicParticleText,
+    getProps: (reducedMotion) => ({
+      text: "OneStudio",
+      particleSize: 1.7,
+      density: 4,
+      color: "#fff5ee",
+      highlightColor: "#ff814a",
+      scatter: reducedMotion ? 0 : 120,
+      gatherDuration: reducedMotion ? 0 : 1200,
+      stagger: reducedMotion ? 0 : 260,
+      pointerRepel: reducedMotion ? 0 : 34,
+      repelRadius: 110,
+      idleDrift: reducedMotion ? 0 : 0.35,
+      trigger: "mount",
+      fontSize: "clamp(42px, 7vw, 80px)",
+      fontWeight: 720,
+      glow: true,
+    }),
+  },
+  {
+    id: "card-spread",
+    slug: "card-spread",
+    name: "Card Spread",
+    categories: ["galleries", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-04.webp",
+    preload: loadCardSpread,
+    component: DynamicCardSpread,
+    getProps: (reducedMotion) => ({
+      cards: cardSpreadCards,
+      cardWidth: 160,
+      cardHeight: 215,
+      cardRadius: 8,
+      radius: 380,
+      arc: 66,
+      shadow: 0.34,
+      lift: 20,
+      push: 3,
+      pushReach: 2,
+      stagger: reducedMotion ? 0 : 0.04,
+      fit: true,
+      maxScale: 0.88,
+      interactive: !reducedMotion,
+    }),
+  },
+  {
+    id: "bending-marquee",
+    slug: "bending-marquee",
+    name: "Bending Marquee",
+    categories: ["typography", "motion"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/equipment.webp",
+    preload: loadBendingMarquee,
+    component: DynamicBendingMarquee,
+    getProps: (reducedMotion) => ({
+      items: ["CREATE", "BOOK", "GROW"],
+      separator: "✦",
+      panelWidth: 300,
+      panelHeight: 300,
+      bend: 48,
+      depth: -170,
+      perspective: 760,
+      speed: reducedMotion ? 100000 : 14,
+      rows: 3,
+      rowGap: 14,
+      itemGap: 22,
+      bandPadding: 13,
+      fontSize: 24,
+      fontWeight: 700,
+      letterSpacing: 1.4,
+      color: "#fff5ee",
+      bandColor: "#24140d",
+      markSway: reducedMotion ? 0 : 10,
+      pauseOnHover: !reducedMotion,
+      fit: true,
+      maxScale: 0.94,
+    }),
+  },
 ];
 
-const showcaseItems = componentCatalogItems;
+const HOME_SHOWCASE_IDS = [
+  "gallery",
+  "motion",
+  "waitlist",
+  "hero",
+  "social-proof",
+] as const satisfies readonly ComponentCatalogItemId[];
+
+const showcaseItems = HOME_SHOWCASE_IDS
+  .map((id) => componentCatalogItems.find((item) => item.id === id))
+  .filter((item): item is ComponentCatalogItem => item !== undefined);
 
 function itemLabel(item: ComponentCatalogItem, lang: Locale) {
   return getTranslations(lang).components.items[item.id].label;

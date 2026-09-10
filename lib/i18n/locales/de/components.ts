@@ -1,2 +1,24 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN", titleBefore: "Mehr Möglichkeiten", titleAccent: "dein Unternehmen zu zeigen.", lead: "Fertige Blöcke, interaktive Elemente und visuelle Effekte für deine OneStudio-Seiten.", catalogEyebrow: "BIBLIOTHEK", catalogTitle: "Wähle den passenden Baustein.", catalogLead: "Live-Vorschauen echter Komponenten aus der aktuellen OneStudio-Bibliothek.", categoryLabel: "Komponentenkategorien", all: "Alle", previewLabel: "Vorschau" }, categories: { hero: "Hero", galleries: "Galerien", "social-proof": "Kundenstimmen", forms: "Formulare / Warteliste", motion: "Bewegung & Effekte" }, items: { gallery: { label: "Galerie", description: "Ziehbare runde Galerie mit Trägheit." }, motion: { label: "Bewegung", description: "Ein schräges Raster aus Bildspalten, das sich beim Scrollen bewegt." }, waitlist: { label: "Warteliste", description: "Formular für frühen Zugang neben einem bewegten Bilder-Feed." }, hero: { label: "Hero", description: "Erster Bildschirm mit visueller Szene, wechselnden Bildern und Lichtspur." }, "social-proof": { label: "Kundenstimmen", description: "Testimonial-Abfolge mit Avataren und weichen Zustandswechseln." } } } as const;
+export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN", titleBefore: "Mehr Möglichkeiten", titleAccent: "dein Unternehmen zu zeigen.", lead: "Fertige Blöcke, interaktive Elemente und visuelle Effekte für deine OneStudio-Seiten.", catalogEyebrow: "BIBLIOTHEK", catalogTitle: "Wähle den passenden Baustein.", catalogLead: "Live-Vorschauen echter Komponenten aus der aktuellen OneStudio-Bibliothek.", categoryLabel: "Komponentenkategorien", all: "Alle", previewLabel: "Vorschau" }, categories: {
+    hero: "Hero",
+    galleries: "Galerien",
+    "social-proof": "Kundenstimmen",
+    forms: "Formulare / Warteliste",
+    typography: "Text / Typografie",
+    backgrounds: "Hintergründe",
+    motion: "Bewegung & Effekte",
+    interactive: "3D / Interaktiv",
+  }, items: {
+    gallery: { label: "Galerie", description: "Ziehbare runde Galerie mit Trägheit." },
+    motion: { label: "Bewegung", description: "Ein schräges Raster aus Bildspalten, das sich beim Scrollen bewegt." },
+    waitlist: { label: "Warteliste", description: "Formular für frühen Zugang neben einem bewegten Bilder-Feed." },
+    hero: { label: "Hero", description: "Erster Bildschirm mit visueller Szene, wechselnden Bildern und Lichtspur." },
+    "social-proof": { label: "Kundenstimmen", description: "Testimonial-Abfolge mit Avataren und weichen Zustandswechseln." },
+    "floating-lines": { label: "Fließende Linien", description: "Fließende Lichtlinien mit Parallax-Effekt und Cursor-Reaktion." },
+    "magic-rings": { label: "Magische Ringe", description: "Shader-Ringe mit Tiefe, Hover-Reaktion und Impuls beim Klicken." },
+    strands: { label: "Lichtstränge", description: "Weiche farbige WebGL-Stränge mit Leuchten und Glaseffekt." },
+    "glow-cursor": { label: "Leuchtcursor", description: "Eine interaktive Lichtspur, die dem Cursor innerhalb des Blocks folgt." },
+    "particle-text": { label: "Partikeltext", description: "Text entsteht aus Partikeln und reagiert auf die Zeigerbewegung." },
+    "card-spread": { label: "Kartenfächer", description: "Ein interaktiver Bildfächer, der sich beim Hover anhebt und verschiebt." },
+    "bending-marquee": { label: "Gebogenes Laufband", description: "Bewegte Typografie auf einem dreidimensional gebogenen Band." },
+  } } as const;

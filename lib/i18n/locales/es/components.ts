@@ -1,2 +1,24 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Más formas", titleAccent: "de mostrar tu negocio.", lead: "Bloques listos, elementos interactivos y efectos visuales para las páginas que creas en OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Elige el bloque adecuado.", catalogLead: "Vistas previas en directo de componentes reales de la biblioteca actual de OneStudio.", categoryLabel: "Categorías de componentes", all: "Todos", previewLabel: "Vista previa" }, categories: { hero: "Hero", galleries: "Galerías", "social-proof": "Opiniones", forms: "Formularios / lista de espera", motion: "Movimiento y efectos" }, items: { gallery: { label: "Galería", description: "Carrusel circular arrastrable con inercia." }, motion: { label: "Movimiento", description: "Una cuadrícula inclinada de columnas de imágenes que se desplazan al hacer scroll." }, waitlist: { label: "Lista de espera", description: "Formulario de acceso anticipado junto a un feed de imágenes en movimiento." }, hero: { label: "Hero", description: "Primer bloque con una escena visual, fotogramas cambiantes y una estela de luz." }, "social-proof": { label: "Opiniones", description: "Secuencia de testimonios con avatares y cambios de estado suaves." } } } as const;
+export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Más formas", titleAccent: "de mostrar tu negocio.", lead: "Bloques listos, elementos interactivos y efectos visuales para las páginas que creas en OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Elige el bloque adecuado.", catalogLead: "Vistas previas en directo de componentes reales de la biblioteca actual de OneStudio.", categoryLabel: "Categorías de componentes", all: "Todos", previewLabel: "Vista previa" }, categories: {
+    hero: "Hero",
+    galleries: "Galerías",
+    "social-proof": "Prueba social",
+    forms: "Formularios / Lista de espera",
+    typography: "Texto / Tipografía",
+    backgrounds: "Fondos",
+    motion: "Movimiento y efectos",
+    interactive: "3D / Interactivo",
+  }, items: {
+    gallery: { label: "Galería", description: "Galería circular arrastrable con inercia." },
+    motion: { label: "Movimiento", description: "Una cuadrícula inclinada de columnas de imágenes que se mueve al desplazarse." },
+    waitlist: { label: "Lista de espera", description: "Un formulario de acceso anticipado junto a un feed de imágenes en movimiento." },
+    hero: { label: "Hero", description: "Una primera pantalla con escena visual, cambios de imagen y una estela luminosa." },
+    "social-proof": { label: "Prueba social", description: "Una secuencia de testimonios con avatares y transiciones suaves." },
+    "floating-lines": { label: "Líneas flotantes", description: "Líneas de luz fluidas con paralaje y reacción al cursor." },
+    "magic-rings": { label: "Anillos mágicos", description: "Anillos shader con profundidad, respuesta al pasar el cursor e impulso al hacer clic." },
+    strands: { label: "Hilos luminosos", description: "Suaves hilos WebGL de color con brillo y efecto de cristal." },
+    "glow-cursor": { label: "Cursor luminoso", description: "Una estela luminosa interactiva que sigue al cursor dentro del bloque." },
+    "particle-text": { label: "Texto de partículas", description: "El texto se forma con partículas y responde al movimiento del puntero." },
+    "card-spread": { label: "Abanico de tarjetas", description: "Un abanico interactivo de imágenes que se eleva y desplaza al pasar el cursor." },
+    "bending-marquee": { label: "Marquesina curva", description: "Tipografía en movimiento sobre una cinta tridimensional curvada." },
+  } } as const;

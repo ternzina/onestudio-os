@@ -1,2 +1,24 @@
 import { components as englishComponents } from "../en/components";
-export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Mais formas", titleAccent: "de mostrar o seu negócio.", lead: "Blocos prontos, elementos interativos e efeitos visuais para as páginas que cria no OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Escolha o bloco certo.", catalogLead: "Pré-visualizações de componentes reais da biblioteca atual do OneStudio.", categoryLabel: "Categorias de componentes", all: "Todos", previewLabel: "Pré-visualização" }, categories: { hero: "Hero", galleries: "Galerias", "social-proof": "Testemunhos", forms: "Formulários / lista de espera", motion: "Movimento e efeitos" }, items: { gallery: { label: "Galeria", description: "Carrossel circular arrastável com inércia." }, motion: { label: "Movimento", description: "Grelha inclinada de colunas de imagens que se deslocam ao fazer scroll." }, waitlist: { label: "Lista de espera", description: "Formulário de acesso antecipado junto a um feed de imagens em movimento." }, hero: { label: "Hero", description: "Primeiro ecrã com uma cena visual, imagens que mudam e um rasto de luz." }, "social-proof": { label: "Testemunhos", description: "Sequência de testemunhos com avatares e mudanças de estado suaves." } } } as const;
+export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Mais formas", titleAccent: "de mostrar o seu negócio.", lead: "Blocos prontos, elementos interativos e efeitos visuais para as páginas que cria no OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Escolha o bloco certo.", catalogLead: "Pré-visualizações de componentes reais da biblioteca atual do OneStudio.", categoryLabel: "Categorias de componentes", all: "Todos", previewLabel: "Pré-visualização" }, categories: {
+    hero: "Hero",
+    galleries: "Galerias",
+    "social-proof": "Prova social",
+    forms: "Formulários / Lista de espera",
+    typography: "Texto / Tipografia",
+    backgrounds: "Fundos",
+    motion: "Movimento e efeitos",
+    interactive: "3D / Interativo",
+  }, items: {
+    gallery: { label: "Galeria", description: "Galeria circular arrastável com inércia." },
+    motion: { label: "Movimento", description: "Uma grade inclinada de colunas de imagens que se move durante a rolagem." },
+    waitlist: { label: "Lista de espera", description: "Um formulário de acesso antecipado ao lado de um feed de imagens em movimento." },
+    hero: { label: "Hero", description: "Uma primeira tela com cena visual, imagens alternadas e rastro luminoso." },
+    "social-proof": { label: "Prova social", description: "Uma sequência de depoimentos com avatares e transições suaves." },
+    "floating-lines": { label: "Linhas flutuantes", description: "Linhas de luz fluidas com paralaxe e reação ao cursor." },
+    "magic-rings": { label: "Anéis mágicos", description: "Anéis shader com profundidade, resposta ao hover e impulso ao clique." },
+    strands: { label: "Fios luminosos", description: "Fios WebGL coloridos e suaves com brilho e efeito de vidro." },
+    "glow-cursor": { label: "Cursor luminoso", description: "Um rastro luminoso interativo que segue o cursor dentro do bloco." },
+    "particle-text": { label: "Texto de partículas", description: "O texto se forma com partículas e reage ao movimento do ponteiro." },
+    "card-spread": { label: "Leque de cartões", description: "Um leque interativo de imagens que sobe e se desloca ao passar o cursor." },
+    "bending-marquee": { label: "Faixa curva", description: "Tipografia em movimento sobre uma faixa tridimensional curvada." },
+  } } as const;
