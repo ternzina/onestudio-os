@@ -526,7 +526,7 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     slug: "splash-cursor",
     name: "Splash Cursor",
     categories: ["backgrounds", "motion", "interactive"],
-    adapterClass: "motionAdapter",
+    adapterClass: "splashAdapter",
     poster: "/images/demos/premium-studio/bright/scene-night.webp",
     preload: loadSplashCursor,
     component: DynamicSplashCursor,
@@ -735,6 +735,9 @@ export function ComponentCatalogPreview({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
         style={{
           position: "absolute",
           inset: 0,

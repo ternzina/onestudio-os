@@ -334,8 +334,66 @@
 
 .galleryAdapter,
 .motionAdapter,
-.textAdapter {
+.textAdapter,
+.splashAdapter {
   display: block;
+}
+
+.splashAdapter {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 32%, rgba(255, 111, 54, .92), transparent 27%),
+    radial-gradient(circle at 73% 30%, rgba(139, 83, 255, .82), transparent 31%),
+    radial-gradient(circle at 60% 76%, rgba(49, 191, 255, .68), transparent 29%),
+    radial-gradient(circle at 35% 70%, rgba(255, 77, 165, .58), transparent 34%),
+    #160f0c;
+}
+
+.splashAdapter::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from 20deg,
+      transparent,
+      rgba(255,255,255,.12),
+      transparent 28%,
+      rgba(255,129,74,.20),
+      transparent 58%,
+      rgba(143,91,255,.18),
+      transparent
+    );
+  filter: blur(28px);
+  animation: splashFallbackDrift 9s linear infinite;
+}
+
+.splashAdapter > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes splashFallbackDrift {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.12);
+  }
+
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splashAdapter::before {
+    animation: none;
+  }
 }
 
 .textAdapter > * {
