@@ -470,7 +470,9 @@ export async function POST(request: Request) {
             isTechnicalHost,
           booking_id:
             canonicalBookingId,
-          metadata: {},
+          metadata: {
+            funnel_contract: "1",
+          },
         });
 
     if (insertError) {
