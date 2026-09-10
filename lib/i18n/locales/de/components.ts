@@ -22,7 +22,6 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     "card-spread": { label: "Kartenfächer", description: "Ein interaktiver Bildfächer, der sich beim Hover anhebt und verschiebt." },
     "bending-marquee": { label: "Gebogenes Laufband", description: "Bewegte Typografie auf einem dreidimensional gebogenen Band." },
 
-    "splash-cursor": { label: "Flüssiger Cursor", description: "Farbige Flüssigkeit reagiert innerhalb des Blocks auf die Zeigerbewegung." },
     "blur-highlight": { label: "Unschärfe und Hervorhebung", description: "Text erscheint aus der Unschärfe, während ausgewählte Wörter animiert hervorgehoben werden." },
     "circle-stack": { label: "Kreisstapel", description: "Ebenen runder Bilder heben sich nacheinander und zeigen das nächste Motiv." },
     "click-stack": { label: "Klick-Stapel", description: "Karten ordnen sich beim Klicken neu und schicken die vordere Karte nach hinten." },

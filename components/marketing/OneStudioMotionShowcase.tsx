@@ -41,7 +41,6 @@ export type ComponentCatalogItemId =
   | "particle-text"
   | "card-spread"
   | "bending-marquee"
-  | "splash-cursor"
   | "blur-highlight"
   | "circle-stack"
   | "click-stack"
@@ -81,7 +80,6 @@ const loadGlowCursor = () => import("@/components/react-bits/GlowCursor");
 const loadParticleText = () => import("@/components/react-bits/ParticleText");
 const loadCardSpread = () => import("@/components/react-bits/card-spread");
 const loadBendingMarquee = () => import("@/components/react-bits/bending-marquee");
-const loadSplashCursor = () => import("@/components/react-bits/SplashCursor");
 const loadBlurHighlight = () => import("@/components/react-bits/blur-highlight");
 const loadCircleStack = () => import("@/components/react-bits/circle-stack");
 const loadClickStack = () => import("@/components/react-bits/click-stack");
@@ -144,11 +142,6 @@ const DynamicCardSpread = dynamic(
 
 const DynamicBendingMarquee = dynamic(
   loadBendingMarquee,
-  { ssr: false, loading: () => <EffectLoading /> },
-);
-
-const DynamicSplashCursor = dynamic(
-  loadSplashCursor,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -519,31 +512,6 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
       pauseOnHover: !reducedMotion,
       fit: true,
       maxScale: 0.94,
-    }),
-  },
-  {
-    id: "splash-cursor",
-    slug: "splash-cursor",
-    name: "Splash Cursor",
-    categories: ["backgrounds", "motion", "interactive"],
-    adapterClass: "splashAdapter",
-    poster: "/images/demos/premium-studio/bright/scene-night.webp",
-    preload: loadSplashCursor,
-    component: DynamicSplashCursor,
-    getProps: (reducedMotion) => ({
-      contained: true,
-      SIM_RESOLUTION: 64,
-      DYE_RESOLUTION: 512,
-      DENSITY_DISSIPATION: 3.2,
-      VELOCITY_DISSIPATION: 1.8,
-      PRESSURE_ITERATIONS: 12,
-      CURL: 4,
-      SPLAT_RADIUS: 0.24,
-      SPLAT_FORCE: reducedMotion ? 0 : 4200,
-      SHADING: !reducedMotion,
-      COLOR_UPDATE_SPEED: reducedMotion ? 0 : 8,
-      TRANSPARENT: true,
-      RAINBOW_MODE: true,
     }),
   },
   {

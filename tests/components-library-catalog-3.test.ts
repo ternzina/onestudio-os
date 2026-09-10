@@ -6,20 +6,15 @@ const showcase = readFileSync(
   "components/marketing/OneStudioMotionShowcase.tsx",
   "utf8",
 );
-const splash = readFileSync(
-  "components/react-bits/SplashCursor.tsx",
-  "utf8",
-);
 
 const newIds = [
-  "splash-cursor",
   "blur-highlight",
   "circle-stack",
   "click-stack",
   "text-cube",
 ] as const;
 
-test("library 3 grows the public catalog to seventeen but keeps five homepage demos", () => {
+test("library 3 grows the public catalog to sixteen but keeps five homepage demos", () => {
   const catalog = showcase.match(
     /export const componentCatalogItems:[\s\S]*?= \[([\s\S]*?)\n\];\n\nconst HOME_SHOWCASE_IDS/,
   );
@@ -29,7 +24,8 @@ test("library 3 grows the public catalog to seventeen but keeps five homepage de
     (match) => match[1],
   );
 
-  assert.equal(catalogIds.length, 17);
+  assert.equal(catalogIds.length, 16);
+  assert.ok(!catalogIds.includes("splash-cursor"));
 
   for (const id of newIds) {
     assert.ok(catalogIds.includes(id), `missing ${id}`);
@@ -53,19 +49,8 @@ test("library 3 grows the public catalog to seventeen but keeps five homepage de
   ]);
 });
 
-test("SplashCursor has an isolated contained mode and an explicit cleanup lifecycle", () => {
-  assert.match(splash, /contained\?: boolean/);
-  assert.match(splash, /contained \? container : window/);
-  assert.match(splash, /container\.getBoundingClientRect\(\)/);
-  assert.match(splash, /cancelAnimationFrame\(animationFrameId\)/);
-  assert.match(splash, /removeEventListener\('mousemove'/);
-  assert.match(splash, /WEBGL_lose_context/);
-  assert.match(splash, /contained \? "pointer-events-none absolute inset-0/);
-});
-
 test("all library 3 components keep explicit lazy loaders", () => {
   for (const loader of [
-    "loadSplashCursor",
     "loadBlurHighlight",
     "loadCircleStack",
     "loadClickStack",
@@ -73,9 +58,11 @@ test("all library 3 components keep explicit lazy loaders", () => {
   ]) {
     assert.match(showcase, new RegExp(`preload: ${loader}`));
   }
+
+  assert.doesNotMatch(showcase, /loadSplashCursor/);
 });
 
-test("all public locales include the five library 3 item labels", () => {
+test("all public locales include the four library 3 item labels", () => {
   const locales = ["ru", "en", "uk", "pl", "de", "es", "fr", "pt"];
 
   for (const locale of locales) {
@@ -83,6 +70,8 @@ test("all public locales include the five library 3 item labels", () => {
       `lib/i18n/locales/${locale}/components.ts`,
       "utf8",
     );
+
+    assert.ok(!source.includes('"splash-cursor":'));
 
     for (const id of newIds) {
       assert.ok(source.includes(`"${id}":`), `${locale} missing ${id}`);

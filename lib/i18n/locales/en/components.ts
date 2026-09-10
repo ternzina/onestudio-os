@@ -35,7 +35,6 @@ export const components = {
     "card-spread": { label: "Card spread", description: "An interactive fan of images that lifts and shifts on hover." },
     "bending-marquee": { label: "Bending marquee", description: "Moving typography wrapped across a curved three-dimensional strip." },
 
-    "splash-cursor": { label: "Splash cursor", description: "Colorful fluid reacts to pointer movement inside the block." },
     "blur-highlight": { label: "Blur highlight", description: "Text resolves from blur while selected words receive an animated highlight." },
     "circle-stack": { label: "Circle stack", description: "Layered circular images lift in sequence to reveal the next frame." },
     "click-stack": { label: "Click stack", description: "Cards reshuffle on click, sending the front card to the back." },
