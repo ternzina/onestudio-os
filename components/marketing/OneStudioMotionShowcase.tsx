@@ -30,6 +30,8 @@ export type ComponentCatalogItem = {
   name: string;
   categories: readonly ComponentCategory[];
   adapterClass: string;
+  poster: string;
+  preload: () => Promise<unknown>;
   component: ElementType;
   getProps: (reducedMotion: boolean) => EffectProps;
 };
@@ -44,28 +46,34 @@ function EffectLoading() {
   );
 }
 
+const loadCircleGallery = () => import("./source/circle-gallery");
+const loadTiltedTiles = () => import("@/components/react-bits/tilted-tiles");
+const loadWaitlist1 = () => import("./motion-showcase/source/waitlist-1");
+const loadHero7 = () => import("./motion-showcase/source/hero-7");
+const loadSocialProof4 = () => import("./motion-showcase/source/social-proof-4");
+
 const DynamicCircleGallery = dynamic(
-  () => import("./source/circle-gallery"),
+  loadCircleGallery,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
 const DynamicTiltedTiles = dynamic(
-  () => import("@/components/react-bits/tilted-tiles"),
+  loadTiltedTiles,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
 const DynamicWaitlist1 = dynamic(
-  () => import("./motion-showcase/source/waitlist-1"),
+  loadWaitlist1,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
 const DynamicHero7 = dynamic(
-  () => import("./motion-showcase/source/hero-7"),
+  loadHero7,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
 const DynamicSocialProof4 = dynamic(
-  () => import("./motion-showcase/source/social-proof-4"),
+  loadSocialProof4,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -101,6 +109,8 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     name: "Circle Gallery",
     categories: ["galleries"],
     adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-01.webp",
+    preload: loadCircleGallery,
     component: DynamicCircleGallery,
     getProps: (reducedMotion) => ({
       images: circleGalleryImages,
@@ -123,6 +133,8 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     name: "Tilted Tiles",
     categories: ["galleries", "motion"],
     adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-dusk.webp",
+    preload: loadTiltedTiles,
     component: DynamicTiltedTiles,
     getProps: (reducedMotion) => ({
       images: tiltedTilesImages,
@@ -161,6 +173,8 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     name: "Waitlist 1",
     categories: ["forms"],
     adapterClass: "waitlistAdapter",
+    poster: "/images/demos/premium-studio/bright/booking.webp",
+    preload: loadWaitlist1,
     component: DynamicWaitlist1,
     getProps: () => ({}),
   },
@@ -170,6 +184,8 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     name: "Hero 7",
     categories: ["hero"],
     adapterClass: "heroAdapter",
+    poster: "/images/demos/premium-studio/bright/hero.webp",
+    preload: loadHero7,
     component: DynamicHero7,
     getProps: () => ({}),
   },
@@ -179,6 +195,8 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     name: "Social Proof 4",
     categories: ["social-proof"],
     adapterClass: "socialProofAdapter",
+    poster: "/images/demos/premium-studio/bright/team-group.webp",
+    preload: loadSocialProof4,
     component: DynamicSocialProof4,
     getProps: () => ({}),
   },
@@ -198,7 +216,8 @@ export function ComponentCatalogPreview({
   loadingLabel?: string;
 }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
-  const [isActivated, setIsActivated] = useState(false);
+  const hasPreloadedRef = useRef(false);
+  const [isVisible, setIsVisible] = useState(false);
   const reducedMotion = useReducedMotion() ?? false;
   const Preview = item.component as ComponentType<EffectProps>;
 
@@ -207,32 +226,77 @@ export function ComponentCatalogPreview({
 
     if (!preview) return;
 
+    const preload = () => {
+      if (hasPreloadedRef.current) return;
+
+      hasPreloadedRef.current = true;
+      void item.preload().catch(() => undefined);
+    };
+
     if (!("IntersectionObserver" in window)) {
-      setIsActivated(true);
+      preload();
+      setIsVisible(true);
       return;
     }
 
-    const observer = new IntersectionObserver(
+    const preloadObserver = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
 
-        setIsActivated(true);
-        observer.disconnect();
+        preload();
+        preloadObserver.disconnect();
       },
       {
-        rootMargin: "160px 0px",
+        rootMargin: "320px 0px",
         threshold: 0,
       },
     );
 
-    observer.observe(preview);
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(Boolean(
+          entry?.isIntersecting
+          && entry.intersectionRatio >= 0.12
+        ));
+      },
+      {
+        rootMargin: "0px",
+        threshold: [0, 0.12, 0.35],
+      },
+    );
 
-    return () => observer.disconnect();
-  }, []);
+    preloadObserver.observe(preview);
+    visibilityObserver.observe(preview);
+
+    return () => {
+      preloadObserver.disconnect();
+      visibilityObserver.disconnect();
+    };
+  }, [item]);
 
   return (
     <div ref={previewRef} className={styles.catalogPreviewStage}>
-      {isActivated ? (
+      <img
+        src={item.poster}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          pointerEvents: "none",
+          filter: "saturate(.78) brightness(.7)",
+          opacity: isVisible ? 0.18 : 0.58,
+          transform: "scale(1.015)",
+          transition: reducedMotion ? "none" : "opacity 220ms ease",
+        }}
+      />
+
+      {isVisible ? (
         <motion.div
           className={`${styles.effectStage} ${styles[item.adapterClass as keyof typeof styles]}`}
           initial={reducedMotion ? false : { opacity: 0, y: 6 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
 import {
   ComponentCatalogPreview,
@@ -24,6 +24,17 @@ const categoryDefinitions: ReadonlyArray<{ id: ComponentCategory }> = [
   { id: "motion" },
 ];
 
+const searchPlaceholders: Record<Locale, string> = {
+  ru: "Найти компонент…",
+  en: "Search components…",
+  uk: "Знайти компонент…",
+  pl: "Szukaj komponentu…",
+  de: "Komponente suchen…",
+  es: "Buscar componente…",
+  fr: "Rechercher un composant…",
+  pt: "Pesquisar componente…",
+};
+
 const availableCategories = new Set(
   componentCatalogItems.flatMap((item) => item.categories),
 );
@@ -35,14 +46,33 @@ function categoryLabel(category: ComponentCategory, lang: Locale) {
 export default function ComponentsPageClient() {
   const [lang, setLang] = useLocale();
   const [filter, setFilter] = useState<Filter>("all");
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const t = getTranslations(lang).components.page;
+  const searchPlaceholder = searchPlaceholders[lang];
   const categories = categoryDefinitions.filter((category) => availableCategories.has(category.id));
-  const filteredItems = useMemo(
-    () => filter === "all"
+  const filteredItems = useMemo(() => {
+    const catalog = getTranslations(lang).components;
+    const normalizedQuery = deferredQuery.trim().toLowerCase();
+    const byCategory = filter === "all"
       ? componentCatalogItems
-      : componentCatalogItems.filter((item) => item.categories.includes(filter)),
-    [filter],
-  );
+      : componentCatalogItems.filter((item) => item.categories.includes(filter));
+
+    if (!normalizedQuery) return byCategory;
+
+    return byCategory.filter((item) => {
+      const copy = catalog.items[item.id];
+      const haystack = [
+        item.name,
+        item.slug,
+        copy.label,
+        copy.description,
+        ...item.categories.map((category) => catalog.categories[category]),
+      ].join(" ").toLowerCase();
+
+      return haystack.includes(normalizedQuery);
+    });
+  }, [deferredQuery, filter, lang]);
 
   return (
     <main className={`${styles.page} os-site`}>
@@ -71,6 +101,24 @@ export default function ComponentsPageClient() {
               <p className={`${styles.catalogLead} os-type-supporting`}>{t.catalogLead}</p>
             </div>
           </SectionReveal>
+
+          <div className={styles.libraryToolbar}>
+            <label className={styles.searchField}>
+              <span aria-hidden="true">⌕</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </label>
+            <span className={`${styles.resultCount} os-type-micro`} aria-live="polite">
+              {filteredItems.length} / {componentCatalogItems.length}
+            </span>
+          </div>
 
           <div className={styles.categoryBar} role="group" aria-label={t.categoryLabel}>
             <button
