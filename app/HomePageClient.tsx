@@ -10,13 +10,13 @@ import type { WorkflowCopy } from "@/components/marketing/OneStudioWorkflow";
 import { OneStudioCapabilities } from "@/components/marketing/OneStudioCapabilities";
 import { OneStudioTechnicalStrip } from "@/components/marketing/OneStudioTechnicalStrip";
 import { OneStudioLaunchSteps } from "@/components/marketing/OneStudioLaunchSteps";
-import { OneStudioJournalPreview } from "@/components/marketing/OneStudioJournalPreview";
+import { OneStudioGuidesPreview } from "@/components/marketing/OneStudioGuidesPreview";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
 import { OneStudioFooter } from "@/components/marketing/OneStudioFooter";
 import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { getTranslations } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
-import type { JournalArticleSummary } from "@/lib/seo/journal-articles";
+import type { GuideArticleSummary } from "@/lib/seo/guide-articles";
 
 function renderFeatureTitleLine(line: string, accentWord: string) {
   const accentStart = line.indexOf(accentWord);
@@ -33,9 +33,9 @@ function renderFeatureTitleLine(line: string, accentWord: string) {
 }
 
 export default function HomePageClient({
-  journalArticles,
+  guideArticles,
 }: {
-  journalArticles: readonly JournalArticleSummary[];
+  guideArticles: readonly GuideArticleSummary[];
 }) {
   const [lang, setLang] = useLocale();
   const t = getTranslations(lang);
@@ -127,7 +127,7 @@ export default function HomePageClient({
       <OneStudioDemoShowcase lang={lang} />
       <OneStudioCapabilities lang={lang} />
       <OneStudioTechnicalStrip lang={lang} />
-      <OneStudioJournalPreview articles={journalArticles} lang={lang} />
+      <OneStudioGuidesPreview articles={guideArticles} lang={lang} />
       <OneStudioLaunchSteps lang={lang} />
       <OneStudioFooter lang={lang} />
     </main>

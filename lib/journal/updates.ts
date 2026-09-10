@@ -11,7 +11,7 @@ import type { JournalUpdate } from "./update-types";
 
 const localizedHistory = { en, ru, uk, de, es, fr, pl, pt };
 
-/** Separate from JOURNAL_ARTICLES: these notes do not create article routes. */
+/** Separate from GUIDE_ARTICLES: these notes do not create article routes. */
 export const JOURNAL_UPDATES: Record<Locale, readonly JournalUpdate[]> = {
   en: en.entries,
   ru: ru.entries,

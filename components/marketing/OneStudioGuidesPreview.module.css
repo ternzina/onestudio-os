@@ -1,7 +1,7 @@
 .section {
   position: relative;
   overflow: hidden;
-  padding: clamp(84px, 10vw, 148px) 0;
+  padding: clamp(118px, 11vw, 184px) 0 clamp(126px, 12vw, 198px);
   background:
     radial-gradient(ellipse 55% 80% at 86% 18%, rgba(255, 107, 53, .16), transparent 68%),
     #21120d;
@@ -19,13 +19,6 @@
   content: "";
   transform: translateY(-50%);
   pointer-events: none;
-}
-
-.inner {
-  position: relative;
-  z-index: 1;
-  width: var(--os-public-container-width);
-  margin-inline: auto;
 }
 
 .header {
@@ -50,7 +43,7 @@
 }
 
 .header h2 {
-  max-width: 760px;
+  max-width: 1000px;
   margin: 0;
   color: var(--os-public-color-cream);
 }
@@ -58,9 +51,6 @@
 .monogram {
   padding-bottom: 8px;
   color: #8f7770;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: .16em;
 }
 
 .grid {
@@ -74,12 +64,14 @@
 
 .card {
   min-width: 0;
+  display: flex;
   background: rgba(29, 17, 12, .96);
 }
 
 .card > a {
   display: flex;
-  min-height: 390px;
+  width: 100%;
+  height: 100%;
   padding: clamp(24px, 3vw, 34px);
   flex-direction: column;
   color: inherit;
@@ -102,33 +94,20 @@
   justify-content: space-between;
   gap: 16px;
   color: #ff9a6d;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .09em;
-  text-transform: uppercase;
 }
 
 .meta time {
   color: #9d8c84;
-  font-weight: 520;
-  letter-spacing: .01em;
-  text-transform: none;
 }
 
 .card h3 {
   margin: 58px 0 0;
   color: var(--os-public-color-cream);
-  font-size: clamp(24px, 2.2vw, 33px);
-  font-weight: 520;
-  letter-spacing: -.045em;
-  line-height: 1.05;
 }
 
 .card p {
   margin: 17px 0 0;
   color: #ae9f97;
-  font-size: 14px;
-  line-height: 1.65;
 }
 
 .action {
@@ -139,10 +118,6 @@
   justify-content: space-between;
   gap: 16px;
   color: #d9cbc3;
-  font-size: 11px;
-  font-weight: 680;
-  letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .action b {
@@ -153,8 +128,6 @@
   border: 1px solid rgba(255, 249, 244, .22);
   border-radius: 50%;
   color: #ff9a6d;
-  font-size: 17px;
-  font-weight: 500;
 }
 
 .footer {
@@ -173,7 +146,6 @@
 
 .footer a span {
   color: #ff9a6d;
-  font-size: 17px;
 }
 
 @media (max-width: 960px) {
@@ -191,10 +163,6 @@
 }
 
 @media (max-width: 699px) {
-  .inner {
-    width: calc(100% - 36px);
-  }
-
   .monogram {
     display: none;
   }
@@ -214,4 +182,9 @@
   .card > a {
     transition: none;
   }
+}
+
+.accent {
+  color: var(--os-public-color-accent);
+  font: inherit;
 }

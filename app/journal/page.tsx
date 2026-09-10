@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { getJournalUiCopy } from "@/lib/i18n/journal";
 import { platformMarketingLocale } from "@/lib/i18n/config";
-import {
-  getJournalArticleSummaries,
-  getJournalCategories,
-} from "@/lib/seo/journal-articles";
 import JournalPageClient from "./JournalPageClient";
 
 const copy = getJournalUiCopy(platformMarketingLocale);
@@ -24,6 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function JournalPage() {
-  const articles = getJournalArticleSummaries();
-  return <JournalPageClient articles={articles} categories={getJournalCategories(articles)} />;
+  return <JournalPageClient />;
 }

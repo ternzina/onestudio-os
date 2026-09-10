@@ -1,6 +1,6 @@
 import HomePageClient from "./HomePageClient";
-import { getLatestJournalArticles } from "@/lib/seo/journal-articles";
+import { getLatestGuideArticles } from "@/lib/seo/guide-articles";
 
 export default function Home() {
-  return <HomePageClient journalArticles={getLatestJournalArticles(3)} />;
+  return <HomePageClient guideArticles={getLatestGuideArticles(3)} />;
 }

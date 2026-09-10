@@ -14,6 +14,7 @@ export const PLATFORM_MARKETING_PATHS = [
   "/about",
   "/faq",
   "/journal",
+  "/guides",
   "/contact",
 ] as const;
 

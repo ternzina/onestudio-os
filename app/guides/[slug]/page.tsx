@@ -3,33 +3,35 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/app/_seo/site";
 import {
-  JOURNAL_ARTICLES,
-  getJournalArticle,
-  type JournalArticle,
-  type JournalSubsection,
-} from "@/lib/seo/journal-articles";
+  GUIDE_ARTICLES,
+  GUIDE_CONTENT_LOCALE,
+  getGuideArticle,
+  type GuideArticle,
+  type GuideSubsection,
+} from "@/lib/seo/guide-articles";
+import { getGuidesUiCopy } from "@/lib/i18n/guides";
 import styles from "./page.module.css";
 
-type JournalArticlePageProps = {
+type GuideArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return JOURNAL_ARTICLES.map(({ slug }) => ({ slug }));
+  return GUIDE_ARTICLES.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
-}: JournalArticlePageProps): Promise<Metadata> {
-  const article = getJournalArticle((await params).slug);
+}: GuideArticlePageProps): Promise<Metadata> {
+  const article = getGuideArticle((await params).slug);
   if (!article) return { robots: { index: false, follow: false } };
 
   return {
     title: article.title,
     description: article.description,
-    keywords: [article.searchIntent, ...article.topics],
+    keywords: [article.searchIntent, ...(article.topics ?? [])],
     alternates: { canonical: new URL(article.path, SITE_URL).toString() },
     openGraph: {
       type: "article",
@@ -59,7 +61,7 @@ function renderList(items: readonly string[], ordered = false) {
   return ordered ? <ol>{children}</ol> : <ul>{children}</ul>;
 }
 
-function JournalSubsectionContent({ subsection }: { subsection: JournalSubsection }) {
+function GuideSubsectionContent({ subsection }: { subsection: GuideSubsection }) {
   return (
     <div className={styles.subsection}>
       <h3>{subsection.title}</h3>
@@ -72,10 +74,11 @@ function JournalSubsectionContent({ subsection }: { subsection: JournalSubsectio
   );
 }
 
-export default async function JournalArticlePage({ params }: JournalArticlePageProps) {
-  const article = getJournalArticle((await params).slug) as JournalArticle | undefined;
+export default async function GuideArticlePage({ params }: GuideArticlePageProps) {
+  const article = getGuideArticle((await params).slug) as GuideArticle | undefined;
   if (!article) notFound();
 
+  const copy = getGuidesUiCopy(GUIDE_CONTENT_LOCALE);
   const articleUrl = new URL(article.path, SITE_URL).toString();
   const schema = {
     "@context": "https://schema.org",
@@ -104,10 +107,10 @@ export default async function JournalArticlePage({ params }: JournalArticlePageP
 
   return (
     <main className={styles.page}>
-      <article className={styles.article}>
-        <Link href="/journal" className={styles.back}>← OneStudio Journal</Link>
+      <article className={styles.article} lang={GUIDE_CONTENT_LOCALE}>
+        <Link href="/guides" className={styles.back}>← {copy.backToGuides}</Link>
         <p className={styles.eyebrow}>
-          <span>{article.topics?.[0] ?? article.category}</span>
+          <span>{article.primaryCategory}</span>
           <time dateTime={article.publishedAt}>{article.publishedAt}</time>
         </p>
         <h1>{article.h1}</h1>
@@ -123,7 +126,7 @@ export default async function JournalArticlePage({ params }: JournalArticlePageP
             {section.list ? renderList(section.list) : null}
             {section.numberedList ? renderList(section.numberedList, true) : null}
             {section.subsections?.map((subsection) => (
-              <JournalSubsectionContent subsection={subsection} key={subsection.title} />
+              <GuideSubsectionContent subsection={subsection} key={subsection.title} />
             ))}
             {section.table ? (
               <div className={styles.tableWrap}>
@@ -158,7 +161,7 @@ export default async function JournalArticlePage({ params }: JournalArticlePageP
 
         {article.faq?.length ? (
           <section>
-            <h2>Questions businesses ask</h2>
+            <h2>{copy.faqTitle}</h2>
             {article.faq.map((item) => (
               <div className={styles.subsection} key={item.question}>
                 <h3>{item.question}</h3>
@@ -168,7 +171,7 @@ export default async function JournalArticlePage({ params }: JournalArticlePageP
           </section>
         ) : null}
 
-        <nav className={styles.related} aria-label="Related resources">
+        <nav className={styles.related} aria-label={copy.relatedLabel}>
           {article.relatedLinks.map((link) => <Link href={link.href} key={link.href}>{link.label} ↗</Link>)}
         </nav>
       </article>
