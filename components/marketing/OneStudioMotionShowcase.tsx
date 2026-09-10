@@ -61,11 +61,7 @@ export type ComponentCatalogItem = {
 const SHOWCASE_ROOT_MARGIN = "720px 0px";
 
 function EffectLoading() {
-  return (
-    <div className={styles.effectLoading} role="status" aria-live="polite">
-      <span className="os-type-micro">LIVE PREVIEW</span>
-    </div>
-  );
+  return null;
 }
 
 const loadCircleGallery = () => import("./source/circle-gallery");
@@ -631,10 +627,8 @@ function itemLabel(item: ComponentCatalogItem, lang: Locale) {
 
 export function ComponentCatalogPreview({
   item,
-  loadingLabel = "LIVE PREVIEW",
 }: {
   item: ComponentCatalogItem;
-  loadingLabel?: string;
 }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
   const hasPreloadedRef = useRef(false);
@@ -675,14 +669,11 @@ export function ComponentCatalogPreview({
 
     const visibilityObserver = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(Boolean(
-          entry?.isIntersecting
-          && entry.intersectionRatio >= 0.12
-        ));
+        setIsVisible(Boolean(entry?.isIntersecting));
       },
       {
-        rootMargin: "0px",
-        threshold: [0, 0.12, 0.35],
+        rootMargin: "140px 0px",
+        threshold: 0,
       },
     );
 
@@ -697,29 +688,6 @@ export function ComponentCatalogPreview({
 
   return (
     <div ref={previewRef} className={styles.catalogPreviewStage}>
-      <img
-        src={item.poster}
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-        onError={(event) => {
-          event.currentTarget.style.display = "none";
-        }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          pointerEvents: "none",
-          filter: "saturate(.78) brightness(.7)",
-          opacity: isVisible ? 0 : 0.58,
-          transform: "scale(1.015)",
-          transition: reducedMotion ? "none" : "opacity 220ms ease",
-        }}
-      />
-
       {isVisible ? (
         <motion.div
           className={`${styles.effectStage} ${styles[item.adapterClass as keyof typeof styles]}`}
@@ -729,11 +697,7 @@ export function ComponentCatalogPreview({
         >
           <Preview {...item.getProps(reducedMotion)} />
         </motion.div>
-      ) : (
-        <div className={styles.catalogPreviewPlaceholder} aria-label={loadingLabel}>
-          <span className="os-type-micro">{loadingLabel}</span>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
