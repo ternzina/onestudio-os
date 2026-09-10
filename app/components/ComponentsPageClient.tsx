@@ -21,7 +21,10 @@ const categoryDefinitions: ReadonlyArray<{ id: ComponentCategory }> = [
   { id: "galleries" },
   { id: "social-proof" },
   { id: "forms" },
+  { id: "typography" },
+  { id: "backgrounds" },
   { id: "motion" },
+  { id: "interactive" },
 ];
 
 const searchPlaceholders: Record<Locale, string> = {
