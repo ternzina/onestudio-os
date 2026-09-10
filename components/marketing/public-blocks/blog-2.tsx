@@ -5,29 +5,12 @@ import type { ReactNode } from "react";
 import BlogPreview from "@/components/blog-previews/BlogPreview";
 import type { BlogPreviewId } from "@/components/blog-previews/blog-preview-registry";
 import type { Locale } from "@/lib/i18n/config";
+import type { JournalUpdateTone } from "@/lib/journal/update-types";
 import styles from "./blog-2.module.css";
 import Link from "next/link";
 
 export type Blog2Lang = Locale;
-export type Blog2Tone =
-  | "aqua"
-  | "blue"
-  | "coral"
-  | "gold"
-  | "green"
-  | "indigo"
-  | "ink"
-  | "lavender"
-  | "lime"
-  | "mint"
-  | "night"
-  | "peach"
-  | "rose"
-  | "sand"
-  | "slate"
-  | "steel"
-  | "violet"
-  | "yellow";
+export type Blog2Tone = JournalUpdateTone;
 
 export type Blog2Article = {
   id: string;
@@ -42,6 +25,7 @@ export type Blog2Article = {
 };
 
 export type Blog2Props = {
+  headingId?: string;
   heading?: string;
   intro?: string;
   lang?: Blog2Lang;
@@ -87,6 +71,7 @@ function Blog2CardReveal({
 }
 
 export function Blog2({
+  headingId = "blog-2-heading",
   heading = "Recently published",
   intro,
   lang = "en",
@@ -97,12 +82,12 @@ export function Blog2({
   const sortedArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   return (
-    <section className={styles.catalog} aria-labelledby="blog-2-heading">
+    <section className={styles.catalog} aria-labelledby={headingId}>
       <div className={styles.container}>
         <div className={styles.catalogHeader}>
           <div>
             <motion.h2
-              id="blog-2-heading"
+              id={headingId}
               initial={reduced ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={reduced ? { duration: 0 } : { duration: 0.5 }}

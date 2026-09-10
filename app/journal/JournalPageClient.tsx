@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
 import { OneStudioFooter } from "@/components/marketing/OneStudioFooter";
+import { OneStudioUpdatesHistory } from "@/components/marketing/OneStudioUpdatesHistory";
 import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { formatJournalDate, getJournalUiCopy } from "@/lib/i18n/journal";
 import { useLocale } from "@/lib/i18n/use-locale";
@@ -128,6 +129,8 @@ export default function JournalPageClient({
           </SectionReveal>
         </div>
       </section>
+
+      <OneStudioUpdatesHistory lang={lang} />
 
       <OneStudioFooter lang={lang} />
     </main>
