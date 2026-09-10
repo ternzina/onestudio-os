@@ -21,4 +21,9 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPOSANTS",
     "particle-text": { label: "Texte en particules", description: "Le texte se rassemble à partir de particules et réagit au pointeur." },
     "card-spread": { label: "Éventail de cartes", description: "Un éventail interactif d’images qui se soulève et se décale au survol." },
     "bending-marquee": { label: "Ruban défilant courbé", description: "Une typographie animée sur un ruban tridimensionnel incurvé." },
+
+    "blur-highlight": { label: "Flou et surlignage", description: "Le texte sort du flou tandis que certains mots reçoivent un surlignage animé." },
+    "circle-stack": { label: "Pile de cercles", description: "Des couches d’images circulaires se soulèvent successivement pour révéler l’image suivante." },
+    "click-stack": { label: "Pile au clic", description: "Les cartes se réorganisent au clic en envoyant la carte du dessus à l’arrière." },
+    "text-cube": { label: "Cube de texte", description: "Un cube tridimensionnel de texte répété tourne et suit le curseur." },
   } } as const;

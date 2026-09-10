@@ -40,7 +40,11 @@ export type ComponentCatalogItemId =
   | "glow-cursor"
   | "particle-text"
   | "card-spread"
-  | "bending-marquee";
+  | "bending-marquee"
+  | "blur-highlight"
+  | "circle-stack"
+  | "click-stack"
+  | "text-cube";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -76,6 +80,10 @@ const loadGlowCursor = () => import("@/components/react-bits/GlowCursor");
 const loadParticleText = () => import("@/components/react-bits/ParticleText");
 const loadCardSpread = () => import("@/components/react-bits/card-spread");
 const loadBendingMarquee = () => import("@/components/react-bits/bending-marquee");
+const loadBlurHighlight = () => import("@/components/react-bits/blur-highlight");
+const loadCircleStack = () => import("@/components/react-bits/circle-stack");
+const loadClickStack = () => import("@/components/react-bits/click-stack");
+const loadTextCube = () => import("@/components/react-bits/text-cube");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -137,6 +145,26 @@ const DynamicBendingMarquee = dynamic(
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
+const DynamicBlurHighlight = dynamic(
+  loadBlurHighlight,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicCircleStack = dynamic(
+  loadCircleStack,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicClickStack = dynamic(
+  loadClickStack,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicTextCube = dynamic(
+  loadTextCube,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
 const circleGalleryImages = [
   "/images/demos/premium-studio/bright/portfolio-01.webp",
   "/images/demos/premium-studio/bright/portfolio-02.webp",
@@ -167,6 +195,22 @@ const cardSpreadCards = circleGalleryImages.slice(0, 7).map((src, index) => ({
   src,
   alt: "",
 }));
+
+const circleStackItems = circleGalleryImages.slice(1, 5).map((image, index) => ({
+  id: `circle-stack-${index + 1}`,
+  image,
+  alt: "",
+}));
+
+const clickStackItems = circleGalleryImages.slice(4, 10).map((src, index) => (
+  <img
+    key={`click-stack-${index + 1}`}
+    src={src}
+    alt=""
+    draggable={false}
+    className="h-full w-full select-none object-cover"
+  />
+));
 
 export const componentCatalogItems: readonly ComponentCatalogItem[] = [
   {
@@ -470,6 +514,103 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
       maxScale: 0.94,
     }),
   },
+  {
+    id: "blur-highlight",
+    slug: "blur-highlight",
+    name: "Blur Highlight",
+    categories: ["typography", "motion"],
+    adapterClass: "textAdapter",
+    poster: "/images/demos/premium-studio/bright/emotional.webp",
+    preload: loadBlurHighlight,
+    component: DynamicBlurHighlight,
+    getProps: (reducedMotion) => ({
+      children: "Turn attention into action.",
+      highlightedBits: ["attention", "action"],
+      highlightColor: "#ff814a",
+      blurAmount: reducedMotion ? 0 : 9,
+      inactiveOpacity: 0.24,
+      blurDelay: 0,
+      blurDuration: reducedMotion ? 0 : 0.7,
+      highlightDelay: reducedMotion ? 0 : 0.25,
+      highlightDuration: reducedMotion ? 0 : 0.8,
+      highlightDirection: "left",
+      viewportOptions: { once: false, amount: 0.3 },
+    }),
+  },
+  {
+    id: "circle-stack",
+    slug: "circle-stack",
+    name: "Circle Stack",
+    categories: ["galleries", "motion"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-03.webp",
+    preload: loadCircleStack,
+    component: DynamicCircleStack,
+    getProps: (reducedMotion) => ({
+      items: circleStackItems,
+      size: 210,
+      tilt: 62,
+      stackGap: 24,
+      interval: 2.4,
+      transitionDuration: reducedMotion ? 0 : 0.72,
+      paused: reducedMotion,
+      surfaceColor: "#fff5ee",
+      borderColor: "rgba(255, 129, 74, .62)",
+      borderWidth: 1,
+    }),
+  },
+  {
+    id: "click-stack",
+    slug: "click-stack",
+    name: "Click Stack",
+    categories: ["galleries", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-06.webp",
+    preload: loadClickStack,
+    component: DynamicClickStack,
+    getProps: (reducedMotion) => ({
+      items: clickStackItems,
+      cardWidth: 178,
+      cardHeight: 232,
+      spreadX: 16,
+      spreadY: -14,
+      duration: reducedMotion ? 0.01 : 0.32,
+      borderRadius: 12,
+      shadowBlur: 28,
+      shadowOpacity: 0.28,
+      visibleCount: 5,
+      depthScale: 0.055,
+      depthOpacity: 0.08,
+    }),
+  },
+  {
+    id: "text-cube",
+    slug: "text-cube",
+    name: "Text Cube",
+    categories: ["typography", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-dusk.webp",
+    preload: loadTextCube,
+    component: DynamicTextCube,
+    getProps: (reducedMotion) => ({
+      word: "OS",
+      cubeSize: 150,
+      rotationSpeed: reducedMotion ? 0 : 0.72,
+      followSpeed: reducedMotion ? 0.18 : 0.08,
+      density: 16,
+      fontSize: 17,
+      fontWeight: 650,
+      color: "#ffb38f",
+      backgroundColor: "#160f0c",
+      breathe: reducedMotion ? 0 : 0.055,
+      breatheSpeed: 1.6,
+      depthFade: 0.48,
+      perspective: 540,
+      autoRotateX: reducedMotion ? 0 : 0.24,
+      autoRotateY: reducedMotion ? 0 : 0.32,
+      opacity: 0.95,
+    }),
+  },
 ];
 
 const HOME_SHOWCASE_IDS = [
@@ -562,6 +703,9 @@ export function ComponentCatalogPreview({
         aria-hidden="true"
         loading="lazy"
         decoding="async"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
         style={{
           position: "absolute",
           inset: 0,
@@ -570,7 +714,7 @@ export function ComponentCatalogPreview({
           objectFit: "cover",
           pointerEvents: "none",
           filter: "saturate(.78) brightness(.7)",
-          opacity: isVisible ? 0.18 : 0.58,
+          opacity: isVisible ? 0 : 0.58,
           transform: "scale(1.015)",
           transition: reducedMotion ? "none" : "opacity 220ms ease",
         }}

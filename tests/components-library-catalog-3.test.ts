@@ -7,22 +7,14 @@ const showcase = readFileSync(
   "utf8",
 );
 
-const page = readFileSync(
-  "app/components/ComponentsPageClient.tsx",
-  "utf8",
-);
-
 const newIds = [
-  "floating-lines",
-  "magic-rings",
-  "strands",
-  "glow-cursor",
-  "particle-text",
-  "card-spread",
-  "bending-marquee",
+  "blur-highlight",
+  "circle-stack",
+  "click-stack",
+  "text-cube",
 ] as const;
 
-test("full public catalog grows to twelve while the homepage stays curated to five", () => {
+test("library 3 grows the public catalog to sixteen but keeps five homepage demos", () => {
   const catalog = showcase.match(
     /export const componentCatalogItems:[\s\S]*?= \[([\s\S]*?)\n\];\n\nconst HOME_SHOWCASE_IDS/,
   );
@@ -32,10 +24,11 @@ test("full public catalog grows to twelve while the homepage stays curated to fi
     (match) => match[1],
   );
 
-  assert.ok(catalogIds.length >= 12);
+  assert.equal(catalogIds.length, 16);
+  assert.ok(!catalogIds.includes("splash-cursor"));
 
   for (const id of newIds) {
-    assert.ok(catalogIds.includes(id), `missing catalog item ${id}`);
+    assert.ok(catalogIds.includes(id), `missing ${id}`);
   }
 
   const home = showcase.match(
@@ -56,13 +49,20 @@ test("full public catalog grows to twelve while the homepage stays curated to fi
   ]);
 });
 
-test("new library categories are exposed by the public filter", () => {
-  assert.match(page, /id: "backgrounds"/);
-  assert.match(page, /id: "typography"/);
-  assert.match(page, /id: "interactive"/);
+test("all library 3 components keep explicit lazy loaders", () => {
+  for (const loader of [
+    "loadBlurHighlight",
+    "loadCircleStack",
+    "loadClickStack",
+    "loadTextCube",
+  ]) {
+    assert.match(showcase, new RegExp(`preload: ${loader}`));
+  }
+
+  assert.doesNotMatch(showcase, /loadSplashCursor/);
 });
 
-test("all public locales include every new category and component", () => {
+test("all public locales include the four library 3 item labels", () => {
   const locales = ["ru", "en", "uk", "pl", "de", "es", "fr", "pt"];
 
   for (const locale of locales) {
@@ -71,15 +71,10 @@ test("all public locales include every new category and component", () => {
       "utf8",
     );
 
-    for (const category of ["backgrounds", "typography", "interactive"]) {
-      assert.ok(source.includes(`${category}:`), `${locale} missing ${category}`);
-    }
+    assert.ok(!source.includes('"splash-cursor":'));
 
     for (const id of newIds) {
-      assert.ok(
-        source.includes(`${id}:`) || source.includes(`"${id}":`),
-        `${locale} missing ${id}`,
-      );
+      assert.ok(source.includes(`"${id}":`), `${locale} missing ${id}`);
     }
   }
 });

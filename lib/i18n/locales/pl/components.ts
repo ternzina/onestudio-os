@@ -21,4 +21,9 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTY",
     "particle-text": { label: "Tekst z cząstek", description: "Tekst składa się z cząstek i reaguje na ruch wskaźnika." },
     "card-spread": { label: "Wachlarz kart", description: "Interaktywny wachlarz obrazów unoszących się po najechaniu." },
     "bending-marquee": { label: "Zakrzywiony pasek tekstowy", description: "Ruchoma typografia na trójwymiarowej zakrzywionej taśmie." },
+
+    "blur-highlight": { label: "Rozmycie i podświetlenie", description: "Tekst wyłania się z rozmycia, a wybrane słowa otrzymują animowane podświetlenie." },
+    "circle-stack": { label: "Stos okręgów", description: "Warstwy okrągłych obrazów unoszą się kolejno, odsłaniając następny kadr." },
+    "click-stack": { label: "Stos na kliknięcie", description: "Karty zmieniają kolejność po kliknięciu, przenosząc pierwszą kartę na koniec." },
+    "text-cube": { label: "Kostka tekstowa", description: "Trójwymiarowa kostka z powtarzanego tekstu obraca się i podąża za kursorem." },
   } } as const;
