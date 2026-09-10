@@ -12,7 +12,11 @@ import {
   resolveVeloraContent,
   VELORA_TEMPLATE_KEY,
 } from "../lib/public-site/velora-premium-template-content.ts";
-import { resetVeloraSection } from "../lib/public-site/velora-editor-schema.ts";
+import {
+  buildVeloraInspectorFields,
+  resetVeloraSection,
+} from "../lib/public-site/velora-editor-schema.ts";
+import type { EditorInspectorPlacedField } from "../lib/public-site/editor-spec.ts";
 import { VELORA_PREMIUM_TEMPLATE_EDITOR_ADAPTER } from "../lib/public-site/velora-premium-template-editor-adapter.ts";
 import type { PublicSiteData } from "../lib/public-site/types.ts";
 
@@ -135,6 +139,35 @@ test("Site Editor reset uses the tenant baseline without restoring VELORA", () =
   assert.equal(restored.brand_name, "PLANETA PRINCESAS");
   assert.equal(resolveVeloraContent(restored).hero.title, PLANETA_PRINCESAS_CONTENT.hero.title);
   assert.doesNotMatch(JSON.stringify(restored), /\/templates\/velora\//i);
+});
+
+test("VELORA inspector fields retain the tenant baseline as originalValue", () => {
+  const original = resolveVeloraContent(createPlanetaPrincesasTenantContent());
+  const edited = structuredClone(original);
+  edited.decor.title = "Borrador temporal";
+  edited.decor.image = "/tenants/planetaprincesas/borrador.webp";
+
+  const fields: EditorInspectorPlacedField[] = buildVeloraInspectorFields(
+    edited,
+    "decor",
+    false,
+    () => {},
+    () => {},
+    original,
+  );
+  const title = fields.find((field) => field.id === "title");
+  const image = fields.find((field) => field.id === "image");
+
+  assert.equal(title?.type, "textarea");
+  assert.equal(
+    title && "originalValue" in title ? title.originalValue : undefined,
+    original.decor.title,
+  );
+  assert.equal(image?.type, "media");
+  assert.equal(
+    image && "originalValue" in image ? image.originalValue : undefined,
+    original.decor.image,
+  );
 });
 
 test("Spanish SEO and Open Graph resolve to the tenant-owned hero", () => {

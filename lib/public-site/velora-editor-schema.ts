@@ -332,7 +332,7 @@ export function buildVeloraInspectorFields(
   onChooseMedia?: (target: PremiumTemplateEditorMediaTarget) => void,
   originalContent: VeloraContent = DEFAULT_VELORA_CONTENT,
 ): EditorInspectorPlacedField[] {
-  const fields = VELORA_EDITOR_SPECS[section].flatMap((spec) => {
+  const fields = VELORA_EDITOR_SPECS[section].flatMap<EditorInspectorPlacedField>((spec) => {
     const value = String(at(content, spec.path) ?? "");
     const originalValue = String(at(originalContent, spec.path) ?? "");
     const update = (next: string) =>
