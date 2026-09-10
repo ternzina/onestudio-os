@@ -258,6 +258,7 @@
   min-height: 34px;
   padding: 0 12px;
   align-items: center;
+  gap: 8px;
   border: 1px solid var(--os-public-color-border-light);
   border-radius: 999px;
   background: rgba(255, 255, 255, .3);
@@ -363,6 +364,20 @@
   backdrop-filter: blur(10px);
 }
 
+.variantBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 249, 244, .2);
+  border-radius: 999px;
+  background: rgba(19, 13, 10, .5);
+  color: var(--os-public-color-cream);
+  font-size: 9px;
+  backdrop-filter: blur(10px);
+}
+
 .cardBody {
   display: flex;
   min-height: 178px;
@@ -413,9 +428,22 @@
 .cardFooter {
   display: flex;
   margin-top: auto;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+}
+
+.cardFooterMeta {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.cardVariantCount {
+  color: var(--os-public-color-accent-strong);
+  font-size: 9px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 
 .previewButton {
@@ -458,15 +486,15 @@
 }
 
 .previewModalPanel {
-  display: grid;
+  display: flex;
   width: min(1180px, 100%);
   max-height: calc(100vh - 40px);
   overflow: hidden;
+  flex-direction: column;
   border: 1px solid rgba(255, 249, 244, .19);
   border-radius: 22px;
   background: var(--os-public-color-ivory);
   box-shadow: 0 34px 110px rgba(15, 9, 6, .42);
-  grid-template-rows: auto minmax(360px, 1fr) auto;
 }
 
 .previewModalHeader {
@@ -517,10 +545,73 @@
   background: #fff;
 }
 
+.variantRail {
+  display: flex;
+  min-width: 0;
+  padding: 11px 18px;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--os-public-color-border-light);
+  background: color-mix(in srgb, var(--os-public-color-ivory) 94%, white);
+}
+
+.variantRailLabel {
+  flex: 0 0 auto;
+  color: var(--os-public-color-muted-on-light);
+  text-transform: uppercase;
+}
+
+.variantButtons {
+  display: flex;
+  min-width: 0;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.variantButtons::-webkit-scrollbar {
+  display: none;
+}
+
+.variantButton,
+.variantButtonActive {
+  min-height: 34px;
+  padding: 0 12px;
+  flex: 0 0 auto;
+  border: 1px solid var(--os-public-color-border-light);
+  border-radius: 999px;
+  cursor: pointer;
+  font: 650 11px / 1 var(--os-public-font-family);
+  white-space: nowrap;
+}
+
+.variantButton {
+  background: rgba(255, 255, 255, .52);
+  color: var(--os-public-color-muted-on-light);
+}
+
+.variantButton:hover {
+  border-color: var(--os-public-color-accent-strong);
+  color: var(--os-public-color-dark);
+}
+
+.variantButtonActive {
+  border-color: var(--os-public-color-dark);
+  background: var(--os-public-color-dark);
+  color: var(--os-public-color-cream);
+}
+
+.variantButton:focus-visible,
+.variantButtonActive:focus-visible {
+  outline: 2px solid var(--os-public-color-accent-strong);
+  outline-offset: 2px;
+}
+
 .previewModalStage {
   position: relative;
-  min-height: 0;
+  min-height: 360px;
   overflow: hidden;
+  flex: 1 1 min(62vh, 650px);
   background: var(--os-public-color-surface);
 }
 
@@ -532,6 +623,17 @@
   justify-content: space-between;
   gap: 24px;
   border-top: 1px solid var(--os-public-color-border-light);
+}
+
+.previewModalCopy > div {
+  min-width: 0;
+}
+
+.activeVariantLabel {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--os-public-color-accent-strong);
+  text-transform: uppercase;
 }
 
 .previewModalCopy p {
@@ -647,7 +749,18 @@
   .previewModalPanel {
     max-height: calc(100vh - 20px);
     border-radius: 16px;
-    grid-template-rows: auto minmax(300px, 56vh) auto;
+  }
+
+  .variantRail {
+    padding: 10px 14px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .previewModalStage {
+    min-height: 300px;
+    flex-basis: 54vh;
   }
 
   .previewModalHeader {

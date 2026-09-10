@@ -12,6 +12,9 @@ export const components = {
     previewLabel: "Предпросмотр",
     openPreview: "Открыть",
     closePreview: "Закрыть",
+    componentsCountLabel: "Компоненты",
+    variantsCountLabel: "Варианты",
+    variantsHeading: "Варианты компонента",
   },
   categories: {
     hero: "Hero",

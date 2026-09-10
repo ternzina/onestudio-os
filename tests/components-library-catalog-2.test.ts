@@ -24,7 +24,7 @@ const newIds = [
 
 test("full public catalog grows to twelve while the homepage stays curated to five", () => {
   const catalog = showcase.match(
-    /export const componentCatalogItems:[\s\S]*?= \[([\s\S]*?)\n\];\n\nconst HOME_SHOWCASE_IDS/,
+    /export const componentCatalogItems:[\s\S]*?= \[([\s\S]*?)\n\];/,
   );
   assert.ok(catalog);
 

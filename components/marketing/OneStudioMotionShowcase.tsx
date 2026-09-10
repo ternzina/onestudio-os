@@ -1674,6 +1674,144 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
 
 ];
 
+
+export type ComponentCatalogFamily = {
+  id: string;
+  name: string;
+  itemIds: readonly ComponentCatalogItemId[];
+  items: readonly ComponentCatalogItem[];
+  defaultItem: ComponentCatalogItem;
+  categories: readonly ComponentCategory[];
+};
+
+const componentCatalogFamilySpecs = [
+  { id: "circle-gallery", name: "Circle Gallery", itemIds: ["gallery"] },
+  { id: "tilted-tiles", name: "Tilted Tiles", itemIds: ["motion"] },
+  { id: "waitlist-1", name: "Waitlist 1", itemIds: ["waitlist"] },
+  { id: "hero-7", name: "Hero 7", itemIds: ["hero"] },
+  { id: "social-proof-4", name: "Social Proof 4", itemIds: ["social-proof"] },
+  { id: "floating-lines", name: "Floating Lines", itemIds: ["floating-lines"] },
+  { id: "magic-rings", name: "Magic Rings", itemIds: ["magic-rings"] },
+  { id: "strands", name: "Strands", itemIds: ["strands"] },
+  { id: "glow-cursor", name: "Glow Cursor", itemIds: ["glow-cursor"] },
+  { id: "particle-text", name: "Particle Text", itemIds: ["particle-text"] },
+  { id: "card-spread", name: "Card Spread", itemIds: ["card-spread"] },
+  { id: "bending-marquee", name: "Bending Marquee", itemIds: ["bending-marquee"] },
+  { id: "blur-highlight", name: "Blur Highlight", itemIds: ["blur-highlight"] },
+  { id: "circle-stack", name: "Circle Stack", itemIds: ["circle-stack"] },
+  { id: "click-stack", name: "Click Stack", itemIds: ["click-stack"] },
+  { id: "text-cube", name: "Text Cube", itemIds: ["text-cube"] },
+
+  {
+    id: "vortex",
+    name: "Vortex",
+    itemIds: ["vortex", "vortex-gold", "vortex-blue"],
+  },
+  {
+    id: "flicker",
+    name: "Flicker",
+    itemIds: ["flicker", "flicker-mono", "flicker-rainbow"],
+  },
+  {
+    id: "page-flip",
+    name: "Page Flip",
+    itemIds: ["page-flip", "page-flip-dark"],
+  },
+  {
+    id: "glitch-text",
+    name: "Glitch Text",
+    itemIds: ["glitch-text", "glitch-text-soft"],
+  },
+  {
+    id: "cursor-wave",
+    name: "Cursor Wave",
+    itemIds: [
+      "cursor-wave-neon",
+      "cursor-wave-circles",
+      "cursor-wave-squares",
+      "cursor-wave-triangles",
+      "cursor-wave-peach",
+      "cursor-wave-minimal",
+    ],
+  },
+  {
+    id: "skewed-carousel",
+    name: "Skewed Carousel",
+    itemIds: [
+      "skewed-portrait",
+      "skewed-wide",
+      "skewed-loop",
+      "skewed-minimal",
+      "skewed-cinema",
+    ],
+  },
+  {
+    id: "tumble-carousel",
+    name: "Tumble Carousel",
+    itemIds: [
+      "tumble-square",
+      "tumble-portrait",
+      "tumble-loop",
+      "tumble-soft",
+      "tumble-bold",
+    ],
+  },
+  {
+    id: "rotating-cards",
+    name: "Rotating Cards",
+    itemIds: [
+      "rotating-orbit",
+      "rotating-gallery",
+      "rotating-compact",
+      "rotating-slow",
+    ],
+  },
+  {
+    id: "credit-card",
+    name: "Credit Card",
+    itemIds: [
+      "credit-aurora",
+      "credit-midnight",
+      "credit-peach",
+      "credit-forest",
+    ],
+  },
+] as const satisfies readonly {
+  id: string;
+  name: string;
+  itemIds: readonly ComponentCatalogItemId[];
+}[];
+
+export const componentCatalogFamilies: readonly ComponentCatalogFamily[] =
+  componentCatalogFamilySpecs.map((spec) => {
+    const items = spec.itemIds.map((itemId) =>
+      componentCatalogItems.find((item) => item.id === itemId),
+    );
+
+    if (items.some((item) => item === undefined)) {
+      throw new Error(`Component family ${spec.id} references a missing variant.`);
+    }
+
+    const resolvedItems = items as ComponentCatalogItem[];
+    const defaultItem = resolvedItems[0];
+
+    if (!defaultItem) {
+      throw new Error(`Component family ${spec.id} has no variants.`);
+    }
+
+    const categories = Array.from(
+      new Set(resolvedItems.flatMap((item) => item.categories)),
+    );
+
+    return {
+      ...spec,
+      items: resolvedItems,
+      defaultItem,
+      categories,
+    };
+  });
+
+
 const HOME_SHOWCASE_IDS = [
   "gallery",
   "motion",

@@ -2,6 +2,9 @@ import { components as englishComponents } from "../en/components";
 export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTY", titleBefore: "Więcej sposobów", titleAccent: "na pokazanie Twojej firmy.", lead: "Gotowe bloki, elementy interaktywne i efekty wizualne do stron tworzonych w OneStudio.", catalogEyebrow: "BIBLIOTEKA", catalogTitle: "Wybierz odpowiedni blok.", catalogLead: "Podglądy działających komponentów z aktualnej biblioteki OneStudio.", categoryLabel: "Kategorie komponentów", all: "Wszystkie", previewLabel: "Podgląd",
     openPreview: "Otwórz",
     closePreview: "Zamknij",
+    componentsCountLabel: "Komponenty",
+    variantsCountLabel: "Warianty",
+    variantsHeading: "Warianty komponentu",
   }, categories: {
     hero: "Hero",
     galleries: "Galerie",
