@@ -2,6 +2,9 @@ import { components as englishComponents } from "../en/components";
 export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES", titleBefore: "Más formas", titleAccent: "de mostrar tu negocio.", lead: "Bloques listos, elementos interactivos y efectos visuales para las páginas que creas en OneStudio.", catalogEyebrow: "BIBLIOTECA", catalogTitle: "Elige el bloque adecuado.", catalogLead: "Vistas previas en directo de componentes reales de la biblioteca actual de OneStudio.", categoryLabel: "Categorías de componentes", all: "Todos", previewLabel: "Vista previa",
     openPreview: "Abrir",
     closePreview: "Cerrar",
+    componentsCountLabel: "Componentes",
+    variantsCountLabel: "Variantes",
+    variantsHeading: "Variantes del componente",
   }, categories: {
     hero: "Hero",
     galleries: "Galerías",
@@ -12,6 +15,7 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES"
     motion: "Movimiento y efectos",
     interactive: "3D / Interactivo",
   }, items: {
+    ...englishComponents.items,
     gallery: { label: "Galería", description: "Galería circular arrastrable con inercia." },
     motion: { label: "Movimiento", description: "Una cuadrícula inclinada de columnas de imágenes que se mueve al desplazarse." },
     waitlist: { label: "Lista de espera", description: "Un formulario de acceso anticipado junto a un feed de imágenes en movimiento." },

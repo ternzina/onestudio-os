@@ -44,7 +44,8 @@ test(
   () => {
     assert.match(page, /useDeferredValue/);
     assert.match(page, /type="search"/);
-    assert.match(page, /filteredItems\.length/);
+    assert.match(page, /filteredFamilies\.length/);
+    assert.match(page, /filteredVariantCount/);
     assert.match(styles, /content-visibility:\s*auto/);
     assert.match(styles, /contain-intrinsic-size:/);
   },

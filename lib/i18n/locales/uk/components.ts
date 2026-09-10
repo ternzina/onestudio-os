@@ -5,6 +5,9 @@ export const components = {
   page: { eyebrow: "КОМПОНЕНТИ", titleBefore: "Більше способів", titleAccent: "показати ваш бізнес.", lead: "Готові блоки, інтерактивні елементи та візуальні ефекти для сторінок OneStudio.", catalogEyebrow: "БІБЛІОТЕКА", catalogTitle: "Оберіть потрібний будівельний блок.", catalogLead: "Живі прев’ю реальних компонентів із поточної бібліотеки OneStudio.", categoryLabel: "Категорії компонентів", all: "Усі", previewLabel: "Попередній перегляд",
     openPreview: "Відкрити",
     closePreview: "Закрити",
+    componentsCountLabel: "Компоненти",
+    variantsCountLabel: "Варіанти",
+    variantsHeading: "Варіанти компонента",
   },
   categories: {
     hero: "Перший екран",
@@ -17,6 +20,7 @@ export const components = {
     interactive: "3D / Інтерактив",
   },
   items: {
+    ...englishComponents.items,
     gallery: { label: "Галерея", description: "Кругова галерея з перетягуванням та інерцією." },
     motion: { label: "Рух", description: "Похила сітка колонок із зображеннями, що рухаються під час прокручування." },
     waitlist: { label: "Лист очікування", description: "Форма раннього доступу поруч із живою стрічкою зображень." },

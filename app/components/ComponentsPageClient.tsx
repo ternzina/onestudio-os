@@ -4,7 +4,8 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
 import {
   ComponentCatalogPreview,
-  componentCatalogItems,
+  componentCatalogFamilies,
+  type ComponentCatalogFamily,
   type ComponentCatalogItem,
   type ComponentCategory,
 } from "@/components/marketing/OneStudioMotionShowcase";
@@ -40,7 +41,12 @@ const searchPlaceholders: Record<Locale, string> = {
 };
 
 const availableCategories = new Set(
-  componentCatalogItems.flatMap((item) => item.categories),
+  componentCatalogFamilies.flatMap((family) => family.categories),
+);
+
+const totalVariantCount = componentCatalogFamilies.reduce(
+  (total, family) => total + family.items.length,
+  0,
 );
 
 function categoryLabel(category: ComponentCategory, lang: Locale) {
@@ -51,6 +57,7 @@ export default function ComponentsPageClient() {
   const [lang, setLang] = useLocale();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [activeFamily, setActiveFamily] = useState<ComponentCatalogFamily | null>(null);
   const [activeItem, setActiveItem] = useState<ComponentCatalogItem | null>(null);
   const deferredQuery = useDeferredValue(query);
   const t = getTranslations(lang).components.page;
@@ -58,13 +65,14 @@ export default function ComponentsPageClient() {
   const categories = categoryDefinitions.filter((category) => availableCategories.has(category.id));
 
   useEffect(() => {
-    if (!activeItem) return;
+    if (!activeFamily || !activeItem) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        setActiveFamily(null);
         setActiveItem(null);
       }
     };
@@ -75,30 +83,59 @@ export default function ComponentsPageClient() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeItem]);
+  }, [activeFamily, activeItem]);
 
-  const filteredItems = useMemo(() => {
+  const filteredFamilies = useMemo(() => {
     const catalog = getTranslations(lang).components;
     const normalizedQuery = deferredQuery.trim().toLowerCase();
+
     const byCategory = filter === "all"
-      ? componentCatalogItems
-      : componentCatalogItems.filter((item) => item.categories.includes(filter));
+      ? componentCatalogFamilies
+      : componentCatalogFamilies.filter((family) =>
+          family.categories.includes(filter),
+        );
 
     if (!normalizedQuery) return byCategory;
 
-    return byCategory.filter((item) => {
-      const copy = catalog.items[item.id];
-      const haystack = [
-        item.name,
-        item.slug,
-        copy.label,
-        copy.description,
-        ...item.categories.map((category) => catalog.categories[category]),
+    return byCategory.filter((family) => {
+      const familyText = [
+        family.name,
+        family.id,
+        ...family.categories.map((category) => catalog.categories[category]),
+        ...family.items.flatMap((item) => {
+          const copy = catalog.items[item.id];
+
+          return [
+            item.name,
+            item.slug,
+            copy.label,
+            copy.description,
+          ];
+        }),
       ].join(" ").toLowerCase();
 
-      return haystack.includes(normalizedQuery);
+      return familyText.includes(normalizedQuery);
     });
   }, [deferredQuery, filter, lang]);
+
+  const filteredVariantCount = useMemo(
+    () =>
+      filteredFamilies.reduce(
+        (total, family) => total + family.items.length,
+        0,
+      ),
+    [filteredFamilies],
+  );
+
+  const closePreview = () => {
+    setActiveFamily(null);
+    setActiveItem(null);
+  };
+
+  const openFamily = (family: ComponentCatalogFamily) => {
+    setActiveFamily(family);
+    setActiveItem(family.defaultItem);
+  };
 
   return (
     <main className={`${styles.page} os-site`}>
@@ -142,7 +179,9 @@ export default function ComponentsPageClient() {
               />
             </label>
             <span className={`${styles.resultCount} os-type-micro`} aria-live="polite">
-              {filteredItems.length} / {componentCatalogItems.length}
+              <span>{t.componentsCountLabel} · {filteredFamilies.length}</span>
+              <span aria-hidden="true">/</span>
+              <span>{t.variantsCountLabel} · {filteredVariantCount}</span>
             </span>
           </div>
 
@@ -154,10 +193,12 @@ export default function ComponentsPageClient() {
               onClick={() => setFilter("all")}
             >
               <span>{t.all}</span>
-              <small>{componentCatalogItems.length}</small>
+              <small>{componentCatalogFamilies.length}</small>
             </button>
             {categories.map((category) => {
-              const count = componentCatalogItems.filter((item) => item.categories.includes(category.id)).length;
+              const count = componentCatalogFamilies.filter((family) =>
+                family.categories.includes(category.id),
+              ).length;
 
               return (
                 <button
@@ -175,48 +216,73 @@ export default function ComponentsPageClient() {
           </div>
 
           <div className={styles.grid} key={filter}>
-            {filteredItems.map((item, index) => (
-              <article className={styles.card} key={item.id}>
-                <div className={styles.previewFrame}>
-                  <ComponentCatalogPreview item={item} />
-                  <span className={`${styles.previewMeta} os-type-micro`}>
-                    {t.previewLabel} · {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.cardHeading}>
-                    <p className={`${styles.cardCategory} os-type-micro`}>
-                      {item.categories.map((category) => categoryLabel(category, lang)).join(" · ")}
+            {filteredFamilies.map((family, index) => {
+              const item = family.defaultItem;
+
+              return (
+                <article className={styles.card} key={family.id}>
+                  <div className={styles.previewFrame}>
+                    <ComponentCatalogPreview item={item} />
+
+                    <span className={`${styles.previewMeta} os-type-micro`}>
+                      {t.previewLabel} · {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    {family.items.length > 1 ? (
+                      <span className={`${styles.variantBadge} os-type-micro`}>
+                        {t.variantsCountLabel} · {family.items.length}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardHeading}>
+                      <p className={`${styles.cardCategory} os-type-micro`}>
+                        {family.categories
+                          .map((category) => categoryLabel(category, lang))
+                          .join(" · ")}
+                      </p>
+                      <h3>{family.name}</h3>
+                    </div>
+
+                    <p className={styles.description}>
+                      {getTranslations(lang).components.items[item.id].description}
                     </p>
-                    <h3>{item.name}</h3>
+
+                    <div className={styles.cardFooter}>
+                      <div className={styles.cardFooterMeta}>
+                        <code>{family.id}</code>
+
+                        {family.items.length > 1 ? (
+                          <span className={`${styles.cardVariantCount} os-type-micro`}>
+                            {t.variantsCountLabel} · {family.items.length}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <button
+                        type="button"
+                        className={styles.previewButton}
+                        onClick={() => openFamily(family)}
+                      >
+                        <span>{t.openPreview}</span>
+                        <span aria-hidden="true">↗</span>
+                      </button>
+                    </div>
                   </div>
-                  <p className={styles.description}>
-                    {getTranslations(lang).components.items[item.id].description}
-                  </p>
-                  <div className={styles.cardFooter}>
-                    <code>{item.slug}</code>
-                    <button
-                      type="button"
-                      className={styles.previewButton}
-                      onClick={() => setActiveItem(item)}
-                    >
-                      <span>{t.openPreview}</span>
-                      <span aria-hidden="true">↗</span>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {activeItem ? (
+      {activeFamily && activeItem ? (
         <div
           className={styles.previewModal}
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setActiveItem(null);
+              closePreview();
             }
           }}
         >
@@ -233,13 +299,13 @@ export default function ComponentsPageClient() {
                     .map((category) => categoryLabel(category, lang))
                     .join(" · ")}
                 </p>
-                <h2 id="component-preview-title">{activeItem.name}</h2>
+                <h2 id="component-preview-title">{activeFamily.name}</h2>
               </div>
 
               <button
                 type="button"
                 className={styles.modalClose}
-                onClick={() => setActiveItem(null)}
+                onClick={closePreview}
                 aria-label={t.closePreview}
                 autoFocus
               >
@@ -247,14 +313,53 @@ export default function ComponentsPageClient() {
               </button>
             </header>
 
-            <div className={styles.previewModalStage}>
+            {activeFamily.items.length > 1 ? (
+              <div
+                className={styles.variantRail}
+                role="group"
+                aria-label={t.variantsHeading}
+              >
+                <span className={`${styles.variantRailLabel} os-type-micro`}>
+                  {t.variantsHeading}
+                </span>
+
+                <div className={styles.variantButtons}>
+                  {activeFamily.items.map((variant) => (
+                    <button
+                      type="button"
+                      key={variant.id}
+                      className={
+                        activeItem.id === variant.id
+                          ? styles.variantButtonActive
+                          : styles.variantButton
+                      }
+                      aria-pressed={activeItem.id === variant.id}
+                      onClick={() => setActiveItem(variant)}
+                    >
+                      {getTranslations(lang).components.items[variant.id].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div className={styles.previewModalStage} key={activeItem.id}>
               <ComponentCatalogPreview item={activeItem} />
             </div>
 
             <footer className={styles.previewModalCopy}>
-              <p>
-                {getTranslations(lang).components.items[activeItem.id].description}
-              </p>
+              <div>
+                {activeFamily.items.length > 1 ? (
+                  <span className={`${styles.activeVariantLabel} os-type-micro`}>
+                    {t.variantsCountLabel} · {getTranslations(lang).components.items[activeItem.id].label}
+                  </span>
+                ) : null}
+
+                <p>
+                  {getTranslations(lang).components.items[activeItem.id].description}
+                </p>
+              </div>
+
               <code>{activeItem.slug}</code>
             </footer>
           </article>
