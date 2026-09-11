@@ -102,21 +102,36 @@ for (const [locale, labels] of [
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     const pills = page.locator("[data-guide-category]");
     await expect(pills).toHaveText([...labels]);
-    const cards = page.locator("article");
-    const allLinks = await cards.locator("a").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    expect(allLinks).toHaveLength(3);
-    const filteredLinks: (string | null)[] = [];
+    const cards = page.locator('section[aria-labelledby="guides-library-heading"] article');
+    const collectAllLinks = async () => {
+      const loadMore = page.locator(
+        'section[aria-labelledby="guides-library-heading"] button:not([data-guide-category])',
+      );
+      while (await loadMore.count()) {
+        const before = await cards.count();
+        await loadMore.first().click();
+        await expect.poll(() => cards.count()).toBeGreaterThan(before);
+      }
+      return cards.locator("a").evaluateAll((links) =>
+        links.map((link) => link.getAttribute("href")).filter((href): href is string => href !== null),
+      );
+    };
+    const allLinks = await collectAllLinks();
+    expect(allLinks.length).toBeGreaterThan(0);
+    expect(new Set(allLinks).size).toBe(allLinks.length);
+    const filteredLinks: string[] = [];
     for (const category of taxonomy.slice(1)) {
       await page.locator(`[data-guide-category="${category}"]`).click();
       await expect(pills).toHaveCount(7);
       await expect(page.locator(`[data-guide-category="${category}"]`)).toHaveAttribute("aria-pressed", "true");
-      await expect(cards).toHaveCount(["booking", "crm", "marketing"].includes(category) ? 1 : 0);
-      filteredLinks.push(...await cards.locator("a").evaluateAll((links) => links.map((link) => link.getAttribute("href"))));
+      const categoryLinks = await collectAllLinks();
+      expect(new Set(categoryLinks).size).toBe(categoryLinks.length);
+      filteredLinks.push(...categoryLinks);
     }
-    expect(filteredLinks.sort()).toEqual(allLinks.sort());
+    expect(filteredLinks.sort()).toEqual([...allLinks].sort());
     expect(new Set(filteredLinks).size).toBe(allLinks.length);
     await page.locator('[data-guide-category="all"]').click();
-    await expect(cards).toHaveCount(3);
+    expect(await collectAllLinks()).toEqual(expect.arrayContaining(allLinks));
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
 }

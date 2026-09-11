@@ -37,6 +37,31 @@ const nextConfig: NextConfig = {
         destination: "/guides/beauty-salon-website-booking-guide",
         statusCode: 301,
       },
+      {
+        source: "/blog/client-notes-examples-service-business",
+        destination: "/guides/client-notes-examples-service-business",
+        statusCode: 301,
+      },
+      {
+        source: "/blog/appointment-booking-form-template",
+        destination: "/guides/appointment-booking-form-template",
+        statusCode: 301,
+      },
+      {
+        source: "/blog/client-database-template-service-business",
+        destination: "/guides/client-database-template-service-business",
+        statusCode: 301,
+      },
+      {
+        source: "/blog/appointment-reschedule-message-templates",
+        destination: "/guides/appointment-reschedule-message-templates",
+        statusCode: 301,
+      },
+      {
+        source: "/blog/client-reactivation-message-templates",
+        destination: "/guides/client-reactivation-message-templates",
+        statusCode: 301,
+      },
     ];
   },
   async headers() {
