@@ -163,16 +163,17 @@ test("history keeps semantic keys and never replays card entry on locale or poin
   assert.doesNotMatch(preview, /setHasActivated\(false\)|setIsNearViewport\(false\)/);
   assert.match(preview, /\{PreviewComponent \? \(/);
   assert.match(preview, /setPreviewComponent\(\(\) => memo\(component\)\)/);
-  assert.match(preview, /image\.loading = "eager"/);
-  assert.match(preview, /image\.decode\(\)/);
-  assert.match(preview, /Promise\.all\(ready\)/);
+  assert.doesNotMatch(preview, /mediaReady|setMediaReady|image\.loading|image\.decode|querySelectorAll/);
+  assert.match(preview, /if \(!shouldLoad \|\| PreviewComponent\) return/);
   const registry = loadTsx<object>("../components/blog-previews/blog-preview-registry.ts");
   const { default: Preview } = loadTsx<{ default: ComponentType<{ componentId: string; title: string }> }>("../components/blog-previews/BlogPreview.tsx", {
     "./blog-preview-registry": registry,
   });
   const html = renderToStaticMarkup(createElement(Preview, { componentId: "hero-12", title: "Hero 12" }));
-  assert.match(html, /data-preview-ready="false"/);
-  assert.match(html, /class="previewShell"/);
+  assert.match(html, /data-preview-loaded="false"/);
+  assert.doesNotMatch(html, /previewShell|shellLine|<img|<picture|<video|poster=/);
+  assert.doesNotMatch(preview, /PreviewShell|<img\b|<Image\b|<picture\b|<video\b|poster=/);
+  assert.doesNotMatch(read("../components/blog-previews/blog-preview.module.css"), /previewShell|shellLine|gradient\(|url\(/);
   assert.doesNotMatch(html, /data-preview-content/);
 });
 

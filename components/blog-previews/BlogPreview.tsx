@@ -38,17 +38,6 @@ function useNearViewport(ref: React.RefObject<HTMLDivElement | null>) {
   return isNearViewport;
 }
 
-function PreviewShell({ children }: { children?: ReactNode }) {
-  return (
-    <div className={styles.previewShell} aria-hidden="true">
-      <span className={styles.shellLine} />
-      <span className={styles.shellLine} />
-      <span className={styles.shellLine} />
-      {children}
-    </div>
-  );
-}
-
 type BlogPreviewErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
@@ -88,7 +77,6 @@ function BlogPreview({
   const [isActive, setIsActive] = useState(false);
   const [touchPinned, setTouchPinned] = useState(false);
   const [hasActivated, setHasActivated] = useState(false);
-  const [mediaReady, setMediaReady] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
 
   const shouldLoad = hasActivated || (isNearViewport && !definition.interactionOnly && reducedMotion !== true);
@@ -113,23 +101,6 @@ function BlogPreview({
       cancelled = true;
     };
   }, [PreviewComponent, componentId, definition, shouldLoad]);
-
-  useEffect(() => {
-    if (!PreviewComponent) return;
-    let cancelled = false;
-    const images = Array.from(frameRef.current?.querySelectorAll<HTMLImageElement>("img") ?? []);
-    // The component itself is lazy-loaded. Keep its initial poster until its
-    // images have decoded, without another image-level viewport loading cycle.
-    const ready = images.map((image) => {
-      image.loading = "eager";
-      image.decoding = "async";
-      return image.decode().catch(() => undefined);
-    });
-    void Promise.all(ready).then(() => {
-      if (!cancelled) setMediaReady(true);
-    });
-    return () => { cancelled = true; };
-  }, [PreviewComponent]);
 
   const activate = () => {
     setIsActive(true);
@@ -175,7 +146,7 @@ function BlogPreview({
       data-active={isActive ? "true" : "false"}
       data-interaction-only={definition.interactionOnly ? "true" : "false"}
       data-component-id={componentId}
-      data-preview-ready={mediaReady ? "true" : "false"}
+      data-preview-loaded={PreviewComponent ? "true" : "false"}
       data-source-path={definition.sourcePath}
       tabIndex={0}
       role="group"
@@ -189,12 +160,12 @@ function BlogPreview({
       onClickCapture={handlePreviewClickCapture}
     >
       <div className={styles.previewStage}>
-        {!mediaReady || loadFailed ? (
-          <PreviewShell>{loadFailed ? <span className={styles.shellFallback}>Preview unavailable</span> : null}</PreviewShell>
+        {loadFailed ? (
+          <span className={styles.previewError} data-preview-error>Preview unavailable</span>
         ) : null}
         {PreviewComponent ? (
           <BlogPreviewErrorBoundary
-            fallback={<PreviewShell><span className={styles.shellFallback}>Preview unavailable</span></PreviewShell>}
+            fallback={<span className={styles.previewError} data-preview-error>Preview unavailable</span>}
           >
             <div data-preview-content={componentId}>
               <PreviewComponent key={componentId} />
