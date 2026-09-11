@@ -9,14 +9,14 @@ export const common = {
   footer: {
     ...englishCommon.footer,
     navigationLabel: "Navigation OneStudio", brandDescription: "Site, design et outils pour votre projet.", product: "PRODUIT", oneStudio: "ONESTUDIO", information: "INFORMATIONS",
-    links: { features: "Fonctionnalités", solutions: "Solutions", templates: "Modèles", components: "Composants", pricing: "Tarifs", about: "À propos de OneStudio", website: "Site clé en main", faq: "FAQ", blog: "Journal", contact: "Contact", privacy: "Confidentialité", terms: "Conditions" }, copyright: "© OneStudio OS - Tous droits réservés",
+    links: { features: "Fonctionnalités", solutions: "Solutions", templates: "Modèles", components: "Composants", pricing: "Tarifs", about: "À propos de OneStudio", website: "Site clé en main", faq: "FAQ", journal: "Journal", contact: "Contact", privacy: "Confidentialité", terms: "Conditions" }, copyright: "© OneStudio OS - Tous droits réservés",
   },
   legal: { navigationLabel: "Navigation juridique", lastUpdated: "Dernière mise à jour" },
   metadata: {
     home: { title: "OneStudio OS - site, design et système professionnel", description: "Un site, du design et des modules opérationnels pour les entreprises de services." },
     components: { title: "Composants - OneStudio OS", description: "Une bibliothèque de composants, blocs et possibilités de design OneStudio." },
     about: { title: "À propos de OneStudio - OneStudio OS", description: "Pourquoi OneStudio relie votre site, vos clients et votre activité quotidienne dans un seul système." },
-    blog: { title: "Journal - OneStudio OS", description: "Nouveaux composants, possibilités de design et actualités OneStudio : l’essentiel, simplement." },
+    journal: { title: "Journal - OneStudio OS", description: "Nouveaux composants, possibilités de design et actualités OneStudio : l’essentiel, simplement." },
     contact: { title: "Contact - OneStudio", description: "Contactez OneStudio au sujet de la plateforme, des tarifs ou d’un site clé en main." },
     demos: { title: "Modèles - OneStudio", description: "Des designs de sites OneStudio prêts à l’emploi pour différents projets." },
     faq: { title: "FAQ - OneStudio OS", description: "Réponses sur le lancement, la personnalisation et l’utilisation de OneStudio." },

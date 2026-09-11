@@ -1,4 +1,4 @@
-import { blog as englishBlog } from "../en/blog";
+import { updates as englishUpdates } from "../en/updates.ts";
 const categories: Record<string, string> = { Site: "Sitio", Design: "Diseño", Interactive: "Interacción", Content: "Contenido", System: "Sistema", Effects: "Efectos", Testimonials: "Testimonios", Gallery: "Galería" };
 function localizeExcerpt(id: string) {
   if (id.startsWith("hero-")) return "Un hero expresivo con escena visual, mensaje claro y movimiento para páginas que necesitan crear ambiente desde el primer momento.";
@@ -18,4 +18,10 @@ function localizeExcerpt(id: string) {
   if (id === "footer-4") return "Un footer amplio con campo de registro, grupos de enlaces y un cierre contundente para completar el sitio.";
   return "Una composición clara con explicaciones breves para presentar un nuevo servicio o flujo de trabajo.";
 }
-export const blog = { ...englishBlog, languageLabel: "Idioma", navigationLabel: "Navegación principal", menuLabel: "Abrir menú", eyebrow: "DIARIO", title: "Novedades de OneStudio", lead: "Nuevos componentes, posibilidades de diseño y actualizaciones del sistema: breve y útil.", catalogTitle: "Últimas novedades", catalogLead: "Notas breves sobre lo que llega a la biblioteca y dónde puede ser útil.", updateCount: "41 entradas", componentsLabel: "componentes y posibilidades", dateNote: "fechas de publicación del diario", articleNoteLabel: "Nota del diario", nav: [["Inicio", "/"], ["FAQ", "/faq"], ["Funciones", "/features"], ["Demos", "/demos"], ["Sobre OneStudio", "/about"]], articles: englishBlog.articles.map((article) => ({ ...article, category: categories[article.category] ?? article.category, excerpt: localizeExcerpt(article.id) })) } as const;
+// Product history restored from 963ae06ccad8d54c5e75340dd634bb5edb7582f5; keep historical fields intact.
+export const updates = {
+  title: "Últimas novedades",
+  lead: "Notas breves sobre lo que llega a la biblioteca y dónde puede ser útil.",
+  noteLabel: "Nota del diario",
+  entries: englishUpdates.entries.map((entry) => ({ ...entry, category: categories[entry.category] ?? entry.category, excerpt: localizeExcerpt(entry.id) })),
+} as const;

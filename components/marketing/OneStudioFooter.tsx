@@ -3,6 +3,7 @@
 import Link from "next/link";
 import MarketingBrand from "@/components/marketing/MarketingBrand";
 import { getTranslations } from "@/lib/i18n";
+import { getGuidesUiCopy } from "@/lib/i18n/guides";
 import type { Locale } from "@/lib/i18n/config";
 import { SectionReveal } from "./SectionReveal";
 import styles from "./OneStudioFooter.module.css";
@@ -49,7 +50,8 @@ export function OneStudioFooter({ lang }: { lang: Locale }) {
         { label: t.footer.links.about, href: "/about", kind: "route" },
         { label: t.footer.links.website, href: "/website", kind: "route" },
         { label: t.footer.links.faq, href: "/faq", kind: "route" },
-        { label: t.footer.links.blog, href: "/blog", kind: "route" },
+        { label: t.footer.links.journal, href: "/journal", kind: "route" },
+        { label: getGuidesUiCopy(lang).navigationLabel, href: "/guides", kind: "route" },
       ],
     },
     {

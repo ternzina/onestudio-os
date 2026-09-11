@@ -7,7 +7,7 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 test("canonical platform sitemap covers public marketing surface once", async () => {
   const [platform, sitemap] = await Promise.all([read("../app/_seo/platform.ts"), read("../app/sitemap.ts")]);
-  for (const path of ["/", "/features", "/demos", "/components", "/pricing", "/website", "/about", "/faq", "/blog", "/contact"]) {
+  for (const path of ["/", "/features", "/demos", "/components", "/pricing", "/website", "/about", "/faq", "/journal", "/contact"]) {
     assert.match(platform, new RegExp(`\"${path.replace("/", "\\/")}\"`));
   }
   assert.match(sitemap, /\.\.\.platformMarketingEntries\(\)/);

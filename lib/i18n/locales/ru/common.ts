@@ -41,7 +41,7 @@ export const common = {
       about: "О OneStudio",
       website: "Сайт под ключ",
       faq: "FAQ",
-      blog: "Журнал",
+      journal: "Журнал",
       contact: "Контакты",
       privacy: "Privacy",
       terms: "Terms",
@@ -61,7 +61,7 @@ export const common = {
       title: "О OneStudio - OneStudio OS",
       description: "Зачем OneStudio связывает сайт, клиентов и ежедневную работу в одной системе.",
     },
-    blog: {
+    journal: {
       title: "Журнал - OneStudio OS",
       description: "Новые компоненты, дизайн-возможности и обновления OneStudio: коротко и по делу.",
     },

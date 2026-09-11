@@ -1,24 +1,9 @@
-export const blog = {
-  languageLabel: "Language",
-  navigationLabel: "Main navigation",
-  menuLabel: "Open menu",
-  eyebrow: "JOURNAL",
-  title: "New in OneStudio",
-  lead: "New components, design capabilities and system updates: concise, useful and easy to scan.",
-  catalogTitle: "Latest updates",
-  catalogLead: "Short notes on what has joined the library and where each piece can be useful.",
-  updateCount: "41 entries",
-  componentsLabel: "components and capabilities",
-  dateNote: "journal publication dates",
-  articleNoteLabel: "Journal note",
-  nav: [
-    ["Home", "/"],
-    ["FAQ", "/faq"],
-    ["Features", "/features"],
-    ["Demos", "/demos"],
-    ["About", "/about"],
-  ],
-  articles: [
+// Product history restored from 963ae06ccad8d54c5e75340dd634bb5edb7582f5; keep historical fields intact.
+export const updates = {
+  title: "Latest updates",
+  lead: "Short notes on what has joined the library and where each piece can be useful.",
+  noteLabel: "Journal note",
+  entries: [
     {
       id: "hero-7",
       componentId: "hero-7",

@@ -9,14 +9,14 @@ export const common = {
   footer: {
     ...englishCommon.footer,
     navigationLabel: "OneStudio-Navigation", brandDescription: "Website, Design und Tools für dein Projekt.", product: "PRODUKT", oneStudio: "ONESTUDIO", information: "INFORMATIONEN",
-    links: { features: "Funktionen", solutions: "Lösungen", templates: "Vorlagen", components: "Komponenten", pricing: "Preise", about: "Über OneStudio", website: "Website nach Maß", faq: "FAQ", blog: "Journal", contact: "Kontakt", privacy: "Datenschutz", terms: "Bedingungen" }, copyright: "© OneStudio OS - Alle Rechte vorbehalten",
+    links: { features: "Funktionen", solutions: "Lösungen", templates: "Vorlagen", components: "Komponenten", pricing: "Preise", about: "Über OneStudio", website: "Website nach Maß", faq: "FAQ", journal: "Journal", contact: "Kontakt", privacy: "Datenschutz", terms: "Bedingungen" }, copyright: "© OneStudio OS - Alle Rechte vorbehalten",
   },
   legal: { navigationLabel: "Rechtliche Navigation", lastUpdated: "Zuletzt aktualisiert" },
   metadata: {
     home: { title: "OneStudio OS - Website, Design und Business-System", description: "Website, Design und operative Module für Dienstleistungsunternehmen." },
     components: { title: "Komponenten - OneStudio OS", description: "Eine Bibliothek von OneStudio-Komponenten, Blöcken und Designmöglichkeiten." },
     about: { title: "Über OneStudio - OneStudio OS", description: "Warum OneStudio Website, Kunden und tägliche Arbeit in einem System verbindet." },
-    blog: { title: "Journal - OneStudio OS", description: "Neue Komponenten, Designmöglichkeiten und OneStudio-Updates: kurz und nützlich." },
+    journal: { title: "Journal - OneStudio OS", description: "Neue Komponenten, Designmöglichkeiten und OneStudio-Updates: kurz und nützlich." },
     contact: { title: "Kontakt - OneStudio", description: "Kontaktiere OneStudio zur Plattform, zu Tarifen oder zu einer Website nach Maß." },
     demos: { title: "Vorlagen - OneStudio", description: "Fertige OneStudio-Website-Designs für verschiedene Projekte." },
     faq: { title: "FAQ - OneStudio OS", description: "Antworten zum Start, zur Anpassung und zur Nutzung von OneStudio." },

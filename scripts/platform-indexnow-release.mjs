@@ -15,10 +15,10 @@ export function canonicalPlatformPaths() {
   const platform = source("app/_seo/platform.ts");
   const marketing = matches(platform.match(/PLATFORM_MARKETING_PATHS\s*=\s*\[(.*?)\]\s*as const/s)?.[1] ?? "", /["']([^"']+)["']/g);
   const solutions = ["/solutions", ...matches(source("lib/seo/solutions.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/solutions/${s}`)];
-  const journal = ["/blog", ...matches(source("lib/seo/journal-articles.ts"), /path:\s*["'](\/blog\/[^"']+)["']/g)];
+  const guides = ["/guides", ...matches(source("lib/guides/content/en/articles.ts"), /path:\s*["'](\/guides\/[^"']+)["']/g)];
   const demos = ["/demos", ...matches(source("lib/demo-catalog.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/demos/${s}`)];
   const previewRoutes = matches(source("lib/public-site/premium-template-package-catalog.ts"), /["']route["']:\s*["'](\/demos\/[^"']+)["']/g);
-  return [...new Set([...marketing, ...solutions, ...journal, ...demos, ...previewRoutes])];
+  return [...new Set([...marketing, ...solutions, ...guides, ...demos, ...previewRoutes])];
 }
 
 export function normalizePlatformUrls(urls) {
@@ -32,13 +32,15 @@ const addPaths = (set, paths) => paths.forEach((path) => set.add(new URL(path, O
 export function platformUrlsForChangedFiles(files, paths = canonicalPlatformPaths()) {
   const result = new Set();
   const solutions = paths.filter((p) => p === "/solutions" || p.startsWith("/solutions/"));
-  const journal = paths.filter((p) => p === "/blog" || p.startsWith("/blog/"));
+  const guides = paths.filter((p) => p === "/guides" || p.startsWith("/guides/"));
   const demos = paths.filter((p) => p === "/demos" || p.startsWith("/demos/"));
   for (const file of files) {
     if (file === "app/page.tsx") addPaths(result, ["/"]);
+    if (file === "components/marketing/OneStudioGuidesPreview.tsx") addPaths(result, ["/"]);
     if (file === "lib/seo/features.ts") addPaths(result, ["/features/online-booking", "/features/crm"]);
     if (file === "lib/seo/solutions.ts") addPaths(result, solutions);
-    if (file === "lib/seo/journal-articles.ts") addPaths(result, journal);
+    if (file === "lib/seo/guide-articles.ts" || file.startsWith("lib/guides/") || file.startsWith("app/guides/") || /^lib\/i18n\/locales\/[^/]+\/guides\.ts$/.test(file)) addPaths(result, ["/", ...guides]);
+    if (file.startsWith("lib/journal/") || /^lib\/i18n\/locales\/[^/]+\/(updates|journal)\.ts$/.test(file)) addPaths(result, ["/journal"]);
     if (["lib/demo-catalog.ts", "lib/public-site/template-catalog.ts", "lib/public-site/premium-template-package-catalog.ts"].includes(file)) addPaths(result, demos);
     if (file === "lib/i18n/locales/en/common.ts") addPaths(result, [...paths, "/privacy", "/terms"]);
     if (file === "app/_seo/platform.ts" || /^app\/(layout|opengraph-image|twitter-image)\./.test(file)) addPaths(result, paths);

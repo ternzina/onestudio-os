@@ -9,14 +9,14 @@ export const common = {
   footer: {
     ...englishCommon.footer,
     navigationLabel: "Nawigacja OneStudio", brandDescription: "Strona, design i narzędzia dla Twojego projektu.", product: "PRODUKT", oneStudio: "ONESTUDIO", information: "INFORMACJE",
-    links: { features: "Funkcje", solutions: "Rozwiązania", templates: "Szablony", components: "Komponenty", pricing: "Cennik", about: "O OneStudio", website: "Strona pod klucz", faq: "FAQ", blog: "Dziennik", contact: "Kontakt", privacy: "Prywatność", terms: "Warunki" }, copyright: "© OneStudio OS - wszelkie prawa zastrzeżone",
+    links: { features: "Funkcje", solutions: "Rozwiązania", templates: "Szablony", components: "Komponenty", pricing: "Cennik", about: "O OneStudio", website: "Strona pod klucz", faq: "FAQ", journal: "Dziennik", contact: "Kontakt", privacy: "Prywatność", terms: "Warunki" }, copyright: "© OneStudio OS - wszelkie prawa zastrzeżone",
   },
   legal: { navigationLabel: "Nawigacja prawna", lastUpdated: "Ostatnia aktualizacja" },
   metadata: {
     home: { title: "OneStudio OS - strona, design i system biznesowy", description: "Strona, design i moduły operacyjne dla firm usługowych." },
     components: { title: "Komponenty - OneStudio OS", description: "Biblioteka komponentów, bloków i możliwości designu OneStudio." },
     about: { title: "O OneStudio - OneStudio OS", description: "Dlaczego OneStudio łączy stronę, klientów i codzienną pracę w jednym systemie." },
-    blog: { title: "Dziennik - OneStudio OS", description: "Nowe komponenty, możliwości designu i aktualizacje OneStudio: krótko i konkretnie." },
+    journal: { title: "Dziennik - OneStudio OS", description: "Nowe komponenty, możliwości designu i aktualizacje OneStudio: krótko i konkretnie." },
     contact: { title: "Kontakt - OneStudio", description: "Skontaktuj się z OneStudio w sprawie platformy, planów lub strony pod klucz." },
     demos: { title: "Szablony - OneStudio", description: "Gotowe projekty stron OneStudio dla różnych projektów." },
     faq: { title: "FAQ - OneStudio OS", description: "Odpowiedzi o uruchamianiu, dostosowywaniu i korzystaniu z OneStudio." },

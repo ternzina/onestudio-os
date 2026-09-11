@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { type Locale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n";
+import { getGuidesUiCopy } from "@/lib/i18n/guides";
 import LanguageSwitcher from "./LanguageSwitcher";
 import MarketingBrand from "./MarketingBrand";
 
@@ -128,7 +129,8 @@ export default function MarketingHeader({
   const oneStudioItems: readonly NavigationItem[] = [
     { label: t.footer.links.about, href: "/about" },
     { label: t.footer.links.faq, href: "/faq" },
-    { label: t.footer.links.blog, href: "/blog" },
+    { label: t.footer.links.journal, href: "/journal" },
+    { label: getGuidesUiCopy(lang).navigationLabel, href: "/guides" },
     { label: t.footer.links.contact, href: "/contact" },
   ];
   const productMenuId = `marketing-product-menu-${idPrefix}`;

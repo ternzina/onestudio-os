@@ -1,4 +1,4 @@
-import { blog as englishBlog } from "../en/blog";
+import { updates as englishUpdates } from "../en/updates.ts";
 const categories: Record<string, string> = { Site: "Site", Design: "Design", Interactive: "Interação", Content: "Conteúdo", System: "Sistema", Effects: "Efeitos", Testimonials: "Testemunhos", Gallery: "Galeria" };
 function localizeExcerpt(id: string) {
   if (id.startsWith("hero-")) return "Um hero expressivo com cena visual, mensagem clara e movimento, para páginas que precisam de criar ambiente desde o primeiro instante.";
@@ -18,4 +18,10 @@ function localizeExcerpt(id: string) {
   if (id === "footer-4") return "Um rodapé amplo com campo de inscrição, grupos de links e um final forte para fechar o site.";
   return "Uma composição clara com explicações breves para apresentar um novo serviço ou processo de trabalho.";
 }
-export const blog = { ...englishBlog, languageLabel: "Idioma", navigationLabel: "Navegação principal", menuLabel: "Abrir menu", eyebrow: "DIÁRIO", title: "Novidades do OneStudio", lead: "Novos componentes, possibilidades de design e atualizações do sistema: de forma breve e útil.", catalogTitle: "Atualizações recentes", catalogLead: "Notas curtas sobre o que chegou à biblioteca e onde pode ser útil.", updateCount: "41 entradas", componentsLabel: "componentes e possibilidades", dateNote: "datas de publicação do diário", articleNoteLabel: "Nota do diário", nav: [["Início", "/"], ["FAQ", "/faq"], ["Funcionalidades", "/features"], ["Demos", "/demos"], ["Sobre o OneStudio", "/about"]], articles: englishBlog.articles.map((article) => ({ ...article, category: categories[article.category] ?? article.category, excerpt: localizeExcerpt(article.id) })) } as const;
+// Product history restored from 963ae06ccad8d54c5e75340dd634bb5edb7582f5; keep historical fields intact.
+export const updates = {
+  title: "Atualizações recentes",
+  lead: "Notas curtas sobre o que chegou à biblioteca e onde pode ser útil.",
+  noteLabel: "Nota do diário",
+  entries: englishUpdates.entries.map((entry) => ({ ...entry, category: categories[entry.category] ?? entry.category, excerpt: localizeExcerpt(entry.id) })),
+} as const;

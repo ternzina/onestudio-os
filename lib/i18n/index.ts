@@ -1,8 +1,6 @@
 import { normalizeLocale, type Locale } from "./config";
 import { about as ruAbout } from "./locales/ru/about";
 import { about as enAbout } from "./locales/en/about";
-import { blog as ruBlog } from "./locales/ru/blog";
-import { blog as enBlog } from "./locales/en/blog";
 import { common as ruCommon } from "./locales/ru/common";
 import { common as enCommon } from "./locales/en/common";
 import { components as ruComponents } from "./locales/ru/components";
@@ -24,7 +22,6 @@ import { pricing as enPricing } from "./locales/en/pricing";
 import { website as ruWebsite } from "./locales/ru/website";
 import { website as enWebsite } from "./locales/en/website";
 import { about as ukAbout } from "./locales/uk/about";
-import { blog as ukBlog } from "./locales/uk/blog";
 import { common as ukCommon } from "./locales/uk/common";
 import { components as ukComponents } from "./locales/uk/components";
 import { contact as ukContact } from "./locales/uk/contact";
@@ -36,7 +33,6 @@ import { legal as ukLegal } from "./locales/uk/legal";
 import { pricing as ukPricing } from "./locales/uk/pricing";
 import { website as ukWebsite } from "./locales/uk/website";
 import { about as plAbout } from "./locales/pl/about";
-import { blog as plBlog } from "./locales/pl/blog";
 import { common as plCommon } from "./locales/pl/common";
 import { components as plComponents } from "./locales/pl/components";
 import { contact as plContact } from "./locales/pl/contact";
@@ -48,7 +44,6 @@ import { legal as plLegal } from "./locales/pl/legal";
 import { pricing as plPricing } from "./locales/pl/pricing";
 import { website as plWebsite } from "./locales/pl/website";
 import { about as deAbout } from "./locales/de/about";
-import { blog as deBlog } from "./locales/de/blog";
 import { common as deCommon } from "./locales/de/common";
 import { components as deComponents } from "./locales/de/components";
 import { contact as deContact } from "./locales/de/contact";
@@ -60,7 +55,6 @@ import { legal as deLegal } from "./locales/de/legal";
 import { pricing as dePricing } from "./locales/de/pricing";
 import { website as deWebsite } from "./locales/de/website";
 import { about as esAbout } from "./locales/es/about";
-import { blog as esBlog } from "./locales/es/blog";
 import { common as esCommon } from "./locales/es/common";
 import { components as esComponents } from "./locales/es/components";
 import { contact as esContact } from "./locales/es/contact";
@@ -72,7 +66,6 @@ import { legal as esLegal } from "./locales/es/legal";
 import { pricing as esPricing } from "./locales/es/pricing";
 import { website as esWebsite } from "./locales/es/website";
 import { about as frAbout } from "./locales/fr/about";
-import { blog as frBlog } from "./locales/fr/blog";
 import { common as frCommon } from "./locales/fr/common";
 import { components as frComponents } from "./locales/fr/components";
 import { contact as frContact } from "./locales/fr/contact";
@@ -84,7 +77,6 @@ import { legal as frLegal } from "./locales/fr/legal";
 import { pricing as frPricing } from "./locales/fr/pricing";
 import { website as frWebsite } from "./locales/fr/website";
 import { about as ptAbout } from "./locales/pt/about";
-import { blog as ptBlog } from "./locales/pt/blog";
 import { common as ptCommon } from "./locales/pt/common";
 import { components as ptComponents } from "./locales/pt/components";
 import { contact as ptContact } from "./locales/pt/contact";
@@ -98,7 +90,6 @@ import { website as ptWebsite } from "./locales/pt/website";
 
 const ruTranslations = {
   about: ruAbout,
-  blog: ruBlog,
   common: ruCommon,
   components: ruComponents,
   contact: ruContact,
@@ -123,7 +114,6 @@ export type Translations = Widen<typeof ruTranslations>;
 
 const enTranslations: Translations = {
   about: enAbout,
-  blog: enBlog,
   common: enCommon,
   components: enComponents,
   contact: enContact,
@@ -139,12 +129,12 @@ const enTranslations: Translations = {
 const localeTranslations: Record<Locale, Translations> = {
   ru: ruTranslations,
   en: enTranslations,
-  uk: { about: ukAbout, blog: ukBlog, common: ukCommon, components: ukComponents, contact: ukContact, demos: ukDemos, faq: ukFaq, features: ukFeatures, home: ukHome, legal: ukLegal, pricing: ukPricing, website: ukWebsite },
-  pl: { about: plAbout, blog: plBlog, common: plCommon, components: plComponents, contact: plContact, demos: plDemos, faq: plFaq, features: plFeatures, home: plHome, legal: plLegal, pricing: plPricing, website: plWebsite },
-  de: { about: deAbout, blog: deBlog, common: deCommon, components: deComponents, contact: deContact, demos: deDemos, faq: deFaq, features: deFeatures, home: deHome, legal: deLegal, pricing: dePricing, website: deWebsite },
-  es: { about: esAbout, blog: esBlog, common: esCommon, components: esComponents, contact: esContact, demos: esDemos, faq: esFaq, features: esFeatures, home: esHome, legal: esLegal, pricing: esPricing, website: esWebsite },
-  fr: { about: frAbout, blog: frBlog, common: frCommon, components: frComponents, contact: frContact, demos: frDemos, faq: frFaq, features: frFeatures, home: frHome, legal: frLegal, pricing: frPricing, website: frWebsite },
-  pt: { about: ptAbout, blog: ptBlog, common: ptCommon, components: ptComponents, contact: ptContact, demos: ptDemos, faq: ptFaq, features: ptFeatures, home: ptHome, legal: ptLegal, pricing: ptPricing, website: ptWebsite },
+  uk: { about: ukAbout, common: ukCommon, components: ukComponents, contact: ukContact, demos: ukDemos, faq: ukFaq, features: ukFeatures, home: ukHome, legal: ukLegal, pricing: ukPricing, website: ukWebsite },
+  pl: { about: plAbout, common: plCommon, components: plComponents, contact: plContact, demos: plDemos, faq: plFaq, features: plFeatures, home: plHome, legal: plLegal, pricing: plPricing, website: plWebsite },
+  de: { about: deAbout, common: deCommon, components: deComponents, contact: deContact, demos: deDemos, faq: deFaq, features: deFeatures, home: deHome, legal: deLegal, pricing: dePricing, website: deWebsite },
+  es: { about: esAbout, common: esCommon, components: esComponents, contact: esContact, demos: esDemos, faq: esFaq, features: esFeatures, home: esHome, legal: esLegal, pricing: esPricing, website: esWebsite },
+  fr: { about: frAbout, common: frCommon, components: frComponents, contact: frContact, demos: frDemos, faq: frFaq, features: frFeatures, home: frHome, legal: frLegal, pricing: frPricing, website: frWebsite },
+  pt: { about: ptAbout, common: ptCommon, components: ptComponents, contact: ptContact, demos: ptDemos, faq: ptFaq, features: ptFeatures, home: ptHome, legal: ptLegal, pricing: ptPricing, website: ptWebsite },
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

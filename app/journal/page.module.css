@@ -1,0 +1,94 @@
+.page {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--os-public-color-ivory);
+  color: var(--os-public-color-dark);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: clamp(78px, 10vw, 144px);
+  background:
+    radial-gradient(ellipse 58% 90% at 82% 44%, rgba(255, 107, 53, .2), transparent 72%),
+    var(--os-public-color-chocolate);
+  color: var(--os-public-color-cream);
+}
+
+.hero::before {
+  position: absolute;
+  inset: 0;
+  opacity: .2;
+  background-image: radial-gradient(rgba(255, 185, 130, .42) .7px, transparent .8px);
+  background-size: 24px 24px;
+  content: "";
+  mask-image: radial-gradient(ellipse at 74% 46%, black, transparent 72%);
+  pointer-events: none;
+}
+
+.hero::after {
+  position: absolute;
+  right: -14%;
+  bottom: -68%;
+  width: min(68vw, 860px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 129, 74, .2);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: var(--os-public-container-width);
+  margin-inline: auto;
+}
+
+.heroInner {
+  padding-top: clamp(76px, 9vw, 132px);
+}
+
+.eyebrow {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  gap: 12px;
+  color: #ff9a6d;
+}
+
+.eyebrow span {
+  display: block;
+  width: 35px;
+  height: 1px;
+  flex: 0 0 35px;
+  background: var(--os-public-color-accent);
+}
+
+.heroTitle {
+  display: grid;
+  max-width: 990px;
+  margin: 28px 0 0;
+  gap: 24px;
+}
+
+.heroTitle > span {
+  display: block;
+}
+
+.journalName {
+  color: #d6c5bb;
+  font-size: clamp(16px, 1.6vw, 22px);
+  font-weight: 520;
+  letter-spacing: .02em;
+}
+
+.heroTitle :global(.os-type-h1) {
+  color: var(--os-public-color-cream);
+}
+
+.heroLead {
+  max-width: 700px;
+  margin: 34px 0 0;
+  color: #c8b9b0;
+}

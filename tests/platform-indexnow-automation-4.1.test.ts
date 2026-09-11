@@ -8,7 +8,8 @@ test("platform URL mapping uses current public registries", async () => {
   assert.deepEqual(platformUrlsForChangedFiles(["app/page.tsx"]), ["https://onestudioos.com/"]);
   assert.deepEqual(platformUrlsForChangedFiles(["lib/seo/features.ts"]), ["https://onestudioos.com/features/crm", "https://onestudioos.com/features/online-booking"]);
   assert.ok(platformUrlsForChangedFiles(["lib/seo/solutions.ts"]).includes("https://onestudioos.com/solutions"));
-  assert.ok(platformUrlsForChangedFiles(["lib/seo/journal-articles.ts"]).includes("https://onestudioos.com/blog"));
+  assert.ok(platformUrlsForChangedFiles(["lib/seo/guide-articles.ts"]).includes("https://onestudioos.com/guides"));
+  assert.ok(platformUrlsForChangedFiles(["lib/seo/guide-articles.ts"]).every((url: string) => !url.includes("/blog")));
   assert.ok(platformUrlsForChangedFiles(["lib/demo-catalog.ts"]).some((url: string) => url.includes("/demos/")));
   assert.ok(canonicalPlatformPaths().includes("/demos/bloom-floral-studio"));
   assert.deepEqual(platformUrlsForChangedFiles(["app/admin/site/page.tsx", "components/puck-site-editor/editor.tsx"]), []);

@@ -13,10 +13,8 @@ export const PLATFORM_MARKETING_PATHS = [
   "/website",
   "/about",
   "/faq",
-  "/blog",
-  "/blog/how-online-booking-works-for-service-businesses",
-  "/blog/website-builder-with-crm-guide",
-  "/blog/beauty-salon-website-booking-guide",
+  "/journal",
+  "/guides",
   "/contact",
 ] as const;
 

@@ -1,4 +1,4 @@
-import { blog as englishBlog } from "../en/blog";
+import { updates as englishUpdates } from "../en/updates.ts";
 const categories: Record<string, string> = { Site: "Strona", Design: "Design", Interactive: "Interakcja", Content: "Treść", System: "System", Effects: "Efekty", Testimonials: "Opinie", Gallery: "Galeria" };
 function localizeExcerpt(id: string) {
   if (id.startsWith("hero-")) return "Wyrazisty hero z wizualną sceną, mocnym komunikatem i ruchem: dla stron, które chcą od razu zbudować nastrój.";
@@ -18,4 +18,10 @@ function localizeExcerpt(id: string) {
   if (id === "footer-4") return "Duża stopka z polem zapisu, grupami linków i mocnym finałem tworzy pełne zakończenie strony.";
   return "Czytelna kompozycja z krótkimi objaśnieniami do przedstawienia nowej usługi lub procesu pracy.";
 }
-export const blog = { ...englishBlog, languageLabel: "Język", navigationLabel: "Główna nawigacja", menuLabel: "Otwórz menu", eyebrow: "DZIENNIK", title: "Nowości w OneStudio", lead: "Nowe komponenty, możliwości designu i aktualizacje systemu: krótko i konkretnie.", catalogTitle: "Najnowsze aktualizacje", catalogLead: "Krótkie notatki o tym, co pojawiło się w bibliotece i gdzie może się przydać.", updateCount: "41 wpisów", componentsLabel: "komponentów i możliwości", dateNote: "dat publikacji w dzienniku", articleNoteLabel: "Notatka dziennika", nav: [["Główna", "/"], ["FAQ", "/faq"], ["Funkcje", "/features"], ["Demo", "/demos"], ["O OneStudio", "/about"]], articles: englishBlog.articles.map((article) => ({ ...article, category: categories[article.category] ?? article.category, excerpt: localizeExcerpt(article.id) })) } as const;
+// Product history restored from 963ae06ccad8d54c5e75340dd634bb5edb7582f5; keep historical fields intact.
+export const updates = {
+  title: "Najnowsze aktualizacje",
+  lead: "Krótkie notatki o tym, co pojawiło się w bibliotece i gdzie może się przydać.",
+  noteLabel: "Notatka dziennika",
+  entries: englishUpdates.entries.map((entry) => ({ ...entry, category: categories[entry.category] ?? entry.category, excerpt: localizeExcerpt(entry.id) })),
+} as const;
