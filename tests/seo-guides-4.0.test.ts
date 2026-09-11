@@ -142,3 +142,20 @@ test("existing Guide articles retain their useful internal links", () => {
   assert.match(bySlug.get("website-builder-with-crm-guide")!.sections.flatMap((section) => section.paragraphs).join(" "), /\/features\/crm/);
   assert.match(bySlug.get("beauty-salon-website-booking-guide")!.sections.flatMap((section) => section.paragraphs).join(" "), /\/solutions\/beauty-salon-website/);
 });
+
+test("first expanded Guides batch is registered with its approved primary categories", () => {
+  const expectedBatch = [
+    ["client-notes-examples-service-business", "CRM"],
+    ["appointment-booking-form-template", "Booking"],
+    ["client-database-template-service-business", "CRM"],
+    ["appointment-reschedule-message-templates", "Booking"],
+    ["client-reactivation-message-templates", "Marketing"],
+  ] as const;
+  for (const [slug, primaryCategory] of expectedBatch) {
+    const article = getGuideArticle(slug);
+    assert.ok(article, `missing ${slug}`);
+    assert.equal(article.primaryCategory, primaryCategory);
+    assert.equal(article.path, `/guides/${slug}`);
+    assert.ok(article.sections.length >= 3);
+  }
+});
