@@ -16,7 +16,6 @@ export function OneStudioUpdatesHistory({ lang }: { lang: Locale }) {
         headingId="journal-updates-heading"
         heading={copy.title}
         intro={copy.lead}
-        articleNoteLabel={copy.noteLabel}
         articles={updates}
         lang={lang}
       />

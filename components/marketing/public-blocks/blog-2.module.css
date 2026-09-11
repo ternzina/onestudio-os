@@ -76,13 +76,6 @@
   border-radius: 25px;
   background: rgba(255, 255, 255, .66);
   box-shadow: 0 16px 42px rgba(74, 50, 31, .055);
-  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-}
-
-.cardLink:hover {
-  border-color: #d5c5b6;
-  box-shadow: 0 24px 55px rgba(74, 50, 31, .11);
-  transform: translateY(-5px);
 }
 
 .cover {
@@ -135,41 +128,6 @@
   line-height: 1.64;
 }
 
-.cardFoot {
-  display: flex;
-  margin-top: auto;
-  padding-top: 25px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  color: #a28e80;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
-.arrow {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border: 1px solid #d7c9bc;
-  border-radius: 50%;
-  color: var(--os-public-color-dark);
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-  transition: background .25s ease, color .25s ease, transform .25s ease;
-}
-
-.cardLink:hover .arrow {
-  background: var(--os-public-color-dark);
-  color: var(--os-public-color-cream);
-  transform: rotate(6deg);
-}
-
 @media (max-width: 1179px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -201,8 +159,4 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .arrow {
-    transition: none;
-  }
 }

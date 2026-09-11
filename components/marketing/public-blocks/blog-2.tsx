@@ -6,7 +6,6 @@ import type { BlogPreviewId } from "@/components/blog-previews/blog-preview-regi
 import type { Locale } from "@/lib/i18n/config";
 import type { JournalUpdateTone } from "@/lib/journal/update-types";
 import styles from "./blog-2.module.css";
-import Link from "next/link";
 
 export type Blog2Lang = Locale;
 export type Blog2Tone = JournalUpdateTone;
@@ -29,7 +28,6 @@ export type Blog2Props = {
   intro?: string;
   lang?: Blog2Lang;
   articles?: readonly Blog2Article[];
-  articleNoteLabel?: string;
 };
 
 export function Blog2({
@@ -38,7 +36,6 @@ export function Blog2({
   intro,
   lang = "en",
   articles = [],
-  articleNoteLabel = "Journal note",
 }: Blog2Props = {}) {
   const reduced = useReducedMotion();
   const sortedArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
@@ -67,32 +64,15 @@ export function Blog2({
             {/* Locale changes update copy in place, never the preview identity. */}
             {sortedArticles.map((article) => (
               <article className={styles.revealItem} key={article.id} data-update-id={article.id}>
-                {article.href ? <Link href={article.href} className={`${styles.card} ${styles.cardLink}`} aria-label={`Read ${article.title}`}>
+                <div className={styles.card}>
                   <div className={styles.cover}>
                     <BlogPreview key={article.componentId} componentId={article.componentId} title={article.title} />
                   </div>
                   <div className={styles.cardBody}>
                     <div className={styles.meta}><span>{article.category}</span><time dateTime={article.publishedAt}>{article.date}</time></div>
                     <h3>{article.title}</h3><p>{article.excerpt}</p>
-                    <div className={styles.cardFoot}><span>{articleNoteLabel}</span><span className={styles.arrow} aria-hidden="true">↗</span></div>
                   </div>
-                </Link> : <div className={styles.card}>
-                  <div className={styles.cover}>
-                    <BlogPreview key={article.componentId} componentId={article.componentId} title={article.title} />
-                  </div>
-
-                  <div className={styles.cardBody}>
-                    <div className={styles.meta}>
-                      <span>{article.category}</span>
-                      <time dateTime={article.publishedAt}>{article.date}</time>
-                    </div>
-                    <h3>{article.title}</h3>
-                    <p>{article.excerpt}</p>
-                    <div className={styles.cardFoot}>
-                      <span>{articleNoteLabel}</span>
-                    </div>
-                  </div>
-                </div>}
+                </div>
               </article>
             ))}
           </div>

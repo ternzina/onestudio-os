@@ -124,7 +124,11 @@ function renderGuides(locale: Locale = "en", articles = getLatestGuideArticles(3
   return renderToStaticMarkup(createElement(Guides, { articles, categories: getGuideCategories() }));
 }
 
-test("Journal update without href has neither arrow nor link affordance", () => {
+test("Journal history cards have no actions or link affordances", () => {
+  const cardsSource = read("../components/marketing/public-blocks/blog-2.tsx");
+  const cardStyles = read("../components/marketing/public-blocks/blog-2.module.css");
+  assert.doesNotMatch(cardsSource, /next\/link|<Link|cardFoot|styles\.arrow|cardLink/);
+  assert.doesNotMatch(cardStyles, /cardLink|cardFoot|\.arrow|\.card:hover|cursor:\s*pointer/);
   const { Blog2 } = blog as { Blog2: ComponentType<import("../components/marketing/public-blocks/blog-2.tsx").Blog2Props> };
   const update = history.JOURNAL_UPDATES.en[0];
   const html = renderToStaticMarkup(createElement(Blog2, {
@@ -133,15 +137,13 @@ test("Journal update without href has neither arrow nor link affordance", () => 
       { ...update, id: "with-href", href: "/journal/linked-update" },
     ],
   }));
-  const card = (id: string) => html.match(new RegExp(`<article[^>]*data-update-id="${id}"[\\s\\S]*?</article>`))?.[0] ?? "";
+  assert.equal((html.match(/<article\b/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /<a\b|href=|class="arrow"|↗|cardFoot|Journal note|Заметка журнала|cardLink/);
+  assert.match(html, /data-component-id="hero-7"/);
 
-  const withoutHref = card("without-href");
-  assert.match(withoutHref, /<div class="card">/);
-  assert.doesNotMatch(withoutHref, /<a\b|href=|class="arrow"|↗/);
-
-  const withHref = card("with-href");
-  assert.match(withHref, /<a[^>]*href="\/journal\/linked-update"/);
-  assert.match(withHref, /class="arrow"[^>]*>↗/);
+  const journal = renderJournal();
+  assert.equal((journal.match(/<article\b/g) ?? []).length, 41);
+  assert.doesNotMatch(journal, /<article[^>]*data-update-id[\s\S]*?<a\b|↗|Journal note|Заметка журнала|cardLink/);
 });
 
 test("Guides renders the fixed taxonomy even with zero or changing article counts", () => {
