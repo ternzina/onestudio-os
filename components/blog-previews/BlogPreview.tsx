@@ -3,6 +3,7 @@
 import { useReducedMotion } from "motion/react";
 import {
   Component,
+  memo,
   useEffect,
   useRef,
   useState,
@@ -21,7 +22,12 @@ function useNearViewport(ref: React.RefObject<HTMLDivElement | null>) {
     if (!element || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsNearViewport(entry.isIntersecting),
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        // Load once on approach; scrolling away must never reset a live preview.
+        setIsNearViewport(true);
+        observer.disconnect();
+      },
       { rootMargin: "280px 0px", threshold: 0 },
     );
     observer.observe(element);
@@ -67,7 +73,7 @@ class BlogPreviewErrorBoundary extends Component<
   }
 }
 
-export default function BlogPreview({
+function BlogPreview({
   componentId,
   title,
 }: {
@@ -81,13 +87,14 @@ export default function BlogPreview({
   const [PreviewComponent, setPreviewComponent] = useState<BlogPreviewComponent | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [touchPinned, setTouchPinned] = useState(false);
-  const [activationKey, setActivationKey] = useState(0);
+  const [hasActivated, setHasActivated] = useState(false);
+  const [mediaReady, setMediaReady] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
 
-  const shouldMount = isActive || (isNearViewport && !definition.interactionOnly && reducedMotion !== true);
+  const shouldLoad = hasActivated || (isNearViewport && !definition.interactionOnly && reducedMotion !== true);
 
   useEffect(() => {
-    if (!shouldMount || PreviewComponent) return;
+    if (!shouldLoad || PreviewComponent) return;
 
     let cancelled = false;
     Promise.resolve()
@@ -96,7 +103,7 @@ export default function BlogPreview({
         if (typeof component !== "function") {
           throw new Error(`Blog preview ${componentId} has no default component export`);
         }
-        if (!cancelled) setPreviewComponent(() => component);
+        if (!cancelled) setPreviewComponent(() => memo(component));
       })
       .catch(() => {
         if (!cancelled) setLoadFailed(true);
@@ -105,19 +112,28 @@ export default function BlogPreview({
     return () => {
       cancelled = true;
     };
-  }, [PreviewComponent, definition.loader, shouldMount]);
+  }, [PreviewComponent, componentId, definition, shouldLoad]);
 
   useEffect(() => {
     if (!PreviewComponent) return;
-    frameRef.current?.querySelectorAll<HTMLImageElement>("img").forEach((image) => {
-      image.loading = "lazy";
+    let cancelled = false;
+    const images = Array.from(frameRef.current?.querySelectorAll<HTMLImageElement>("img") ?? []);
+    // The component itself is lazy-loaded. Keep its initial poster until its
+    // images have decoded, without another image-level viewport loading cycle.
+    const ready = images.map((image) => {
+      image.loading = "eager";
       image.decoding = "async";
+      return image.decode().catch(() => undefined);
     });
-  }, [PreviewComponent, activationKey]);
+    void Promise.all(ready).then(() => {
+      if (!cancelled) setMediaReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [PreviewComponent]);
 
   const activate = () => {
     setIsActive(true);
-    setActivationKey((key) => key + 1);
+    setHasActivated(true);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -125,7 +141,7 @@ export default function BlogPreview({
       const nextPinned = !touchPinned;
       setTouchPinned(nextPinned);
       setIsActive(nextPinned);
-      if (nextPinned) setActivationKey((key) => key + 1);
+      if (nextPinned) setHasActivated(true);
       return;
     }
     activate();
@@ -152,9 +168,6 @@ export default function BlogPreview({
     if (target.closest("a, form, button")) event.preventDefault();
   };
 
-  const renderKey = isActive ? `active-${activationKey}` : "viewport-preview";
-  const isBusy = shouldMount && !PreviewComponent && !loadFailed;
-
   return (
     <div
       ref={frameRef}
@@ -162,6 +175,7 @@ export default function BlogPreview({
       data-active={isActive ? "true" : "false"}
       data-interaction-only={definition.interactionOnly ? "true" : "false"}
       data-component-id={componentId}
+      data-preview-ready={mediaReady ? "true" : "false"}
       data-source-path={definition.sourcePath}
       tabIndex={0}
       role="group"
@@ -175,13 +189,16 @@ export default function BlogPreview({
       onClickCapture={handlePreviewClickCapture}
     >
       <div className={styles.previewStage}>
-        {isBusy ? <PreviewShell /> : null}
-        {loadFailed ? <PreviewShell><span className={styles.shellFallback}>Preview unavailable</span></PreviewShell> : null}
-        {PreviewComponent && shouldMount ? (
+        {!mediaReady || loadFailed ? (
+          <PreviewShell>{loadFailed ? <span className={styles.shellFallback}>Preview unavailable</span> : null}</PreviewShell>
+        ) : null}
+        {PreviewComponent ? (
           <BlogPreviewErrorBoundary
             fallback={<PreviewShell><span className={styles.shellFallback}>Preview unavailable</span></PreviewShell>}
           >
-            <PreviewComponent key={renderKey} />
+            <div data-preview-content={componentId}>
+              <PreviewComponent key={componentId} />
+            </div>
           </BlogPreviewErrorBoundary>
         ) : null}
       </div>
@@ -191,3 +208,5 @@ export default function BlogPreview({
     </div>
   );
 }
+
+export default memo(BlogPreview);

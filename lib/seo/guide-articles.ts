@@ -36,11 +36,9 @@ export function getGuideArticleSummaries(
   );
 }
 
-export function getGuideCategories(
-  articles: readonly GuideArticleSummary[] = getGuideArticleSummaries(),
-) {
-  const available = new Set(articles.map((article) => article.primaryCategory));
-  return GUIDE_CATEGORY_ORDER.filter((category) => available.has(category));
+/** Editorial taxonomy is fixed, including categories with no published guides. */
+export function getGuideCategories() {
+  return GUIDE_CATEGORY_ORDER;
 }
 
 export function getLatestGuideArticles(limit = 3) {

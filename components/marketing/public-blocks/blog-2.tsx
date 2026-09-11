@@ -1,7 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import BlogPreview from "@/components/blog-previews/BlogPreview";
 import type { BlogPreviewId } from "@/components/blog-previews/blog-preview-registry";
 import type { Locale } from "@/lib/i18n/config";
@@ -33,43 +32,6 @@ export type Blog2Props = {
   articleNoteLabel?: string;
 };
 
-const pageVariants = {
-  enter: { opacity: 0, x: 28 },
-  center: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -28 },
-};
-
-function Blog2CardReveal({
-  children,
-  index,
-}: {
-  children: ReactNode;
-  index: number;
-}) {
-  const reduced = useReducedMotion();
-  const entrances = [
-    { x: -90, y: 55, rotate: -2.5 },
-    { x: 75, y: 125, rotate: 2.5 },
-    { x: 120, y: 70, rotate: 1.5 },
-  ];
-
-  return (
-    <motion.article
-      className={styles.revealItem}
-      initial={reduced ? false : { opacity: 0, ...entrances[index % entrances.length] }}
-      whileInView={reduced ? undefined : { opacity: 1, x: 0, y: 0, rotate: 0 }}
-      viewport={{ once: true, amount: 0.14 }}
-      transition={{
-        duration: 1.05,
-        delay: index * 0.08,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-    >
-      {children}
-    </motion.article>
-  );
-}
-
 export function Blog2({
   headingId = "blog-2-heading",
   heading = "Recently published",
@@ -82,7 +44,7 @@ export function Blog2({
   const sortedArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   return (
-    <section className={styles.catalog} aria-labelledby={headingId}>
+    <section className={styles.catalog} aria-labelledby={headingId} lang={lang}>
       <div className={styles.container}>
         <div className={styles.catalogHeader}>
           <div>
@@ -101,50 +63,40 @@ export function Blog2({
         </div>
 
         <div className={styles.catalogRule}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={lang}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={reduced ? { duration: 0 } : { duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className={styles.grid}>
-                {sortedArticles.map((article, index) => (
-                  <Blog2CardReveal index={index} key={article.id}>
-                    {article.href ? <Link href={article.href} className={styles.card} aria-label={`Read ${article.title}`}>
-                      <div className={styles.cover}>
-                        <BlogPreview componentId={article.componentId} title={article.title} />
-                      </div>
-                      <div className={styles.cardBody}>
-                        <div className={styles.meta}><span>{article.category}</span><time dateTime={article.publishedAt}>{article.date}</time></div>
-                        <h3>{article.title}</h3><p>{article.excerpt}</p>
-                        <div className={styles.cardFoot}><span>{articleNoteLabel}</span><span className={styles.arrow} aria-hidden="true">↗</span></div>
-                      </div>
-                    </Link> : <div className={styles.card}>
-                      <div className={styles.cover}>
-                        <BlogPreview componentId={article.componentId} title={article.title} />
-                      </div>
+          <div className={styles.grid}>
+            {/* Locale changes update copy in place, never the preview identity. */}
+            {sortedArticles.map((article) => (
+              <article className={styles.revealItem} key={article.id} data-update-id={article.id}>
+                {article.href ? <Link href={article.href} className={styles.card} aria-label={`Read ${article.title}`}>
+                  <div className={styles.cover}>
+                    <BlogPreview key={article.componentId} componentId={article.componentId} title={article.title} />
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.meta}><span>{article.category}</span><time dateTime={article.publishedAt}>{article.date}</time></div>
+                    <h3>{article.title}</h3><p>{article.excerpt}</p>
+                    <div className={styles.cardFoot}><span>{articleNoteLabel}</span><span className={styles.arrow} aria-hidden="true">↗</span></div>
+                  </div>
+                </Link> : <div className={styles.card}>
+                  <div className={styles.cover}>
+                    <BlogPreview key={article.componentId} componentId={article.componentId} title={article.title} />
+                  </div>
 
-                      <div className={styles.cardBody}>
-                        <div className={styles.meta}>
-                          <span>{article.category}</span>
-                          <time dateTime={article.publishedAt}>{article.date}</time>
-                        </div>
-                        <h3>{article.title}</h3>
-                        <p>{article.excerpt}</p>
-                        <div className={styles.cardFoot}>
-                          <span>{articleNoteLabel}</span>
-                          <span className={styles.arrow} aria-hidden="true">↗</span>
-                        </div>
-                      </div>
-                    </div>}
-                  </Blog2CardReveal>
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
+                  <div className={styles.cardBody}>
+                    <div className={styles.meta}>
+                      <span>{article.category}</span>
+                      <time dateTime={article.publishedAt}>{article.date}</time>
+                    </div>
+                    <h3>{article.title}</h3>
+                    <p>{article.excerpt}</p>
+                    <div className={styles.cardFoot}>
+                      <span>{articleNoteLabel}</span>
+                      <span className={styles.arrow} aria-hidden="true">↗</span>
+                    </div>
+                  </div>
+                </div>}
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

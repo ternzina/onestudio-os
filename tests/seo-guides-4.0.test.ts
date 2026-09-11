@@ -30,7 +30,7 @@ test("Guide registry remains the single scalable source of canonical articles", 
     Object.keys(summaries[0]).sort(),
     ["category", "excerpt", "path", "primaryCategory", "publishedAt", "slug", "title", "topics"],
   );
-  assert.deepEqual(getGuideCategories(summaries), ["Booking", "CRM", "Marketing"]);
+  assert.deepEqual(getGuideCategories(), GUIDE_CATEGORY_ORDER);
   for (const article of summaries) assert.ok(GUIDE_CATEGORY_ORDER.includes(article.primaryCategory));
 });
 

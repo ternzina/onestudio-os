@@ -25,5 +25,5 @@ export const metadata: Metadata = {
 
 export default function GuidesPage() {
   const articles = getGuideArticleSummaries();
-  return <GuidesPageClient articles={articles} categories={getGuideCategories(articles)} />;
+  return <GuidesPageClient articles={articles} categories={getGuideCategories()} />;
 }

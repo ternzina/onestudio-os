@@ -74,6 +74,7 @@ export default function GuidesPageClient({
             <div className={styles.filters} aria-label={copy.libraryTitle}>
               <button
                 type="button"
+                data-guide-category="all"
                 className={selectedCategory === null ? styles.filterActive : undefined}
                 aria-pressed={selectedCategory === null}
                 onClick={() => chooseCategory(null)}
@@ -84,6 +85,7 @@ export default function GuidesPageClient({
                 <button
                   type="button"
                   key={category}
+                  data-guide-category={category.toLowerCase()}
                   className={selectedCategory === category ? styles.filterActive : undefined}
                   aria-pressed={selectedCategory === category}
                   onClick={() => chooseCategory(category)}

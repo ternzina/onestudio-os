@@ -45,7 +45,9 @@
 
 .previewShell {
   display: flex;
-  position: relative;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   width: 1000px;
   height: 760px;
   padding: 150px 180px;

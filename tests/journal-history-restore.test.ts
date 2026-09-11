@@ -80,7 +80,7 @@ function loadTsx<T>(path: string, dependencies: Record<string, unknown> = {}): T
   const loadedModule = { exports: {} };
   const localRequire = (id: string) => {
     if (id in dependencies) return dependencies[id];
-    if (id.endsWith(".module.css")) return new Proxy({}, { get: (_, key) => String(key) });
+    if (id.endsWith(".module.css")) return { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) };
     if (["react", "react/jsx-runtime", "motion/react", "next/link"].includes(id)) return require(id);
     throw new Error(`Unmapped test dependency: ${id}`);
   };
@@ -121,8 +121,60 @@ function renderGuides(locale: Locale = "en", articles = getLatestGuideArticles(3
     ...shell,
     "@/lib/i18n/use-locale": { useLocale: () => [locale, () => {}] },
   });
-  return renderToStaticMarkup(createElement(Guides, { articles, categories: getGuideCategories(articles) }));
+  return renderToStaticMarkup(createElement(Guides, { articles, categories: getGuideCategories() }));
 }
+
+test("Guides renders the fixed taxonomy even with zero or changing article counts", () => {
+  const ids = ["all", "business", "websites", "booking", "crm", "marketing", "seo"];
+  assert.deepEqual(getGuideCategories().map((category) => category.toLowerCase()), ids.slice(1));
+  const articles = getLatestGuideArticles(3);
+  for (const locale of Object.keys(archive.locales) as Locale[]) {
+    const copy = guidesCopy.getGuidesUiCopy(locale);
+    assert.deepEqual(Object.keys(copy.categoryLabels), getGuideCategories());
+    for (const content of [[], articles.slice(0, 1), articles]) {
+      const html = renderGuides(locale, content);
+      assert.deepEqual([...html.matchAll(/data-guide-category="([^"]+)"/g)].map((match) => match[1]), ids);
+      for (const label of [copy.allCategories, ...getGuideCategories().map((key) => copy.categoryLabels[key])]) {
+        assert.ok(html.includes(`>${label}</button>`), `${locale}: missing ${label}`);
+      }
+    }
+  }
+  for (const [locale, labels] of [
+    ["ru", ["Все", "Бизнес", "Сайты", "Бронирование", "CRM", "Маркетинг", "SEO"]],
+    ["en", ["All", "Business", "Websites", "Booking", "CRM", "Marketing", "SEO"]],
+  ] as const) {
+    const copy = guidesCopy.getGuidesUiCopy(locale);
+    assert.deepEqual([copy.allCategories, ...getGuideCategories().map((key) => copy.categoryLabels[key])], labels);
+  }
+  assert.match(read("../lib/seo/guide-articles.ts"), /function getGuideCategories\(\) \{\s*return GUIDE_CATEGORY_ORDER;/);
+  assert.match(read("../app/guides/page.tsx"), /categories=\{getGuideCategories\(\)\}/);
+});
+
+test("history keeps semantic keys and never replays card entry on locale or pointer changes", () => {
+  const cards = read("../components/marketing/public-blocks/blog-2.tsx");
+  const preview = read("../components/blog-previews/BlogPreview.tsx");
+  assert.match(cards, /key=\{article\.id\}/);
+  assert.match(cards, /BlogPreview key=\{article\.componentId\}/);
+  assert.doesNotMatch(cards, /key=\{lang\}|AnimatePresence|motion\.article|Blog2CardReveal/);
+  assert.match(preview, /<PreviewComponent key=\{componentId\}/);
+  assert.doesNotMatch(preview, /activationKey|renderKey|shouldMount|setIsNearViewport\(entry\.isIntersecting\)/);
+  assert.match(preview, /setIsNearViewport\(true\);\s*observer\.disconnect\(\)/);
+  assert.match(preview, /setHasActivated\(true\)/);
+  assert.doesNotMatch(preview, /setHasActivated\(false\)|setIsNearViewport\(false\)/);
+  assert.match(preview, /\{PreviewComponent \? \(/);
+  assert.match(preview, /setPreviewComponent\(\(\) => memo\(component\)\)/);
+  assert.match(preview, /image\.loading = "eager"/);
+  assert.match(preview, /image\.decode\(\)/);
+  assert.match(preview, /Promise\.all\(ready\)/);
+  const registry = loadTsx<object>("../components/blog-previews/blog-preview-registry.ts");
+  const { default: Preview } = loadTsx<{ default: ComponentType<{ componentId: string; title: string }> }>("../components/blog-previews/BlogPreview.tsx", {
+    "./blog-preview-registry": registry,
+  });
+  const html = renderToStaticMarkup(createElement(Preview, { componentId: "hero-12", title: "Hero 12" }));
+  assert.match(html, /data-preview-ready="false"/);
+  assert.match(html, /class="previewShell"/);
+  assert.doesNotMatch(html, /data-preview-content/);
+});
 
 test("Journal displays only the full product history; Guides has its own catalogue", () => {
   const journal = renderJournal();
