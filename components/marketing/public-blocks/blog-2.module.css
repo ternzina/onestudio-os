@@ -79,7 +79,7 @@
   transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
-.card:hover {
+.cardLink:hover {
   border-color: #d5c5b6;
   box-shadow: 0 24px 55px rgba(74, 50, 31, .11);
   transform: translateY(-5px);
@@ -164,7 +164,7 @@
   transition: background .25s ease, color .25s ease, transform .25s ease;
 }
 
-.card:hover .arrow {
+.cardLink:hover .arrow {
   background: var(--os-public-color-dark);
   color: var(--os-public-color-cream);
   transform: rotate(6deg);

@@ -67,7 +67,7 @@ export function Blog2({
             {/* Locale changes update copy in place, never the preview identity. */}
             {sortedArticles.map((article) => (
               <article className={styles.revealItem} key={article.id} data-update-id={article.id}>
-                {article.href ? <Link href={article.href} className={styles.card} aria-label={`Read ${article.title}`}>
+                {article.href ? <Link href={article.href} className={`${styles.card} ${styles.cardLink}`} aria-label={`Read ${article.title}`}>
                   <div className={styles.cover}>
                     <BlogPreview key={article.componentId} componentId={article.componentId} title={article.title} />
                   </div>
@@ -90,7 +90,6 @@ export function Blog2({
                     <p>{article.excerpt}</p>
                     <div className={styles.cardFoot}>
                       <span>{articleNoteLabel}</span>
-                      <span className={styles.arrow} aria-hidden="true">↗</span>
                     </div>
                   </div>
                 </div>}

@@ -124,6 +124,26 @@ function renderGuides(locale: Locale = "en", articles = getLatestGuideArticles(3
   return renderToStaticMarkup(createElement(Guides, { articles, categories: getGuideCategories() }));
 }
 
+test("Journal update without href has neither arrow nor link affordance", () => {
+  const { Blog2 } = blog as { Blog2: ComponentType<import("../components/marketing/public-blocks/blog-2.tsx").Blog2Props> };
+  const update = history.JOURNAL_UPDATES.en[0];
+  const html = renderToStaticMarkup(createElement(Blog2, {
+    articles: [
+      { ...update, id: "without-href" },
+      { ...update, id: "with-href", href: "/journal/linked-update" },
+    ],
+  }));
+  const card = (id: string) => html.match(new RegExp(`<article[^>]*data-update-id="${id}"[\\s\\S]*?</article>`))?.[0] ?? "";
+
+  const withoutHref = card("without-href");
+  assert.match(withoutHref, /<div class="card">/);
+  assert.doesNotMatch(withoutHref, /<a\b|href=|class="arrow"|↗/);
+
+  const withHref = card("with-href");
+  assert.match(withHref, /<a[^>]*href="\/journal\/linked-update"/);
+  assert.match(withHref, /class="arrow"[^>]*>↗/);
+});
+
 test("Guides renders the fixed taxonomy even with zero or changing article counts", () => {
   const ids = ["all", "business", "websites", "booking", "crm", "marketing", "seo"];
   assert.deepEqual(getGuideCategories().map((category) => category.toLowerCase()), ids.slice(1));
