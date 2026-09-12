@@ -1,3 +1,15 @@
+export type SolutionDetailSection = {
+  title: string;
+  paragraphs?: string[];
+  bullets?: string[];
+  steps?: string[];
+};
+
+export type SolutionInternalLink = {
+  label: string;
+  href: string;
+};
+
 export type Solution = {
   slug: string;
   title: string;
@@ -8,7 +20,9 @@ export type Solution = {
   problem: string;
   workflow: string[];
   capabilities: string[];
-  demo: { name: string; href: string; image: string; alt: string };
+  demo?: { name: string; href: string; image: string; alt: string };
+  detailSections?: SolutionDetailSection[];
+  internalLinks?: SolutionInternalLink[];
   setup: string[];
   faqs: Array<{ q: string; a: string }>;
   related: string[];
