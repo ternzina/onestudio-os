@@ -15,7 +15,8 @@ export function canonicalPlatformPaths() {
   const platform = source("app/_seo/platform.ts");
   const marketing = matches(platform.match(/PLATFORM_MARKETING_PATHS\s*=\s*\[(.*?)\]\s*as const/s)?.[1] ?? "", /["']([^"']+)["']/g);
   const solutions = ["/solutions", ...matches(source("lib/seo/solutions.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/solutions/${s}`)];
-  const guides = ["/guides", ...matches(source("lib/guides/content/en/articles.ts"), /path:\s*["'](\/guides\/[^"']+)["']/g)];
+  const guideSourceFiles = ["lib/guides/content/en/articles.ts", "lib/guides/content/en/articles-2026-09-12.ts"];
+  const guides = ["/guides", ...guideSourceFiles.flatMap((file) => matches(source(file), /["']?path["']?\s*:\s*["'](\/guides\/[^"']+)["']/g))];
   const demos = ["/demos", ...matches(source("lib/demo-catalog.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/demos/${s}`)];
   const previewRoutes = matches(source("lib/public-site/premium-template-package-catalog.ts"), /["']route["']:\s*["'](\/demos\/[^"']+)["']/g);
   return [...new Set([...marketing, ...solutions, ...guides, ...demos, ...previewRoutes])];

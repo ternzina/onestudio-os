@@ -82,27 +82,13 @@ export default async function GuideArticlePage({ params }: GuideArticlePageProps
   const articleUrl = new URL(article.path, SITE_URL).toString();
   const schema = {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Article",
-        headline: article.title,
-        description: article.description,
-        datePublished: article.publishedAt,
-        url: articleUrl,
-        mainEntityOfPage: articleUrl,
-        publisher: { "@type": "Organization", name: "OneStudio OS" },
-      },
-      ...(article.faq?.length
-        ? [{
-            "@type": "FAQPage",
-            mainEntity: article.faq.map((item) => ({
-              "@type": "Question",
-              name: item.question,
-              acceptedAnswer: { "@type": "Answer", text: item.answer },
-            })),
-          }]
-        : []),
-    ],
+    "@type": "Article",
+    headline: article.title,
+    description: article.description,
+    datePublished: article.publishedAt,
+    url: articleUrl,
+    mainEntityOfPage: articleUrl,
+    publisher: { "@type": "Organization", name: "OneStudio OS" },
   };
 
   return (

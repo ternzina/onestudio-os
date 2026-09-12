@@ -8,6 +8,7 @@ import {
   getGuideArticleSummaries,
   getGuideCategories,
   sortGuideArticles,
+  type GuideSection,
 } from "../lib/seo/guide-articles.ts";
 
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
@@ -72,6 +73,10 @@ test("Guide routes use summaries for the index and full registry data for articl
   assert.match(articleRoute, /getGuideArticle/);
   assert.match(articleRoute, /canonical: new URL\(article\.path, SITE_URL\)/);
   assert.match(articleRoute, /datePublished: article\.publishedAt/);
+  assert.match(articleRoute, /"@type": "Article"/);
+  assert.doesNotMatch(articleRoute, /"@type": "FAQPage"/);
+  assert.doesNotMatch(articleRoute, /"@type": "QAPage"/);
+  assert.match(articleRoute, /article\.faq\.map/);
   assert.match(articleRoute, /section\.numberedList/);
   assert.match(articleRoute, /section\.table/);
   assert.match(articleRoute, /section\.subsections/);
@@ -80,10 +85,10 @@ test("Guide routes use summaries for the index and full registry data for articl
 
   assert.match(redirects, /source: "\/blog"[\s\S]*destination: "\/journal"[\s\S]*statusCode: 301/);
 
-  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => "subsections" in section && section.subsections.length > 0)));
-  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => "numberedList" in section && section.numberedList.length > 0)));
-  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => "table" in section && section.table.rows.length > 0)));
-  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => "template" in section && section.template.content.length > 0)));
+  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => ((section as GuideSection).subsections?.length ?? 0) > 0)));
+  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => ((section as GuideSection).numberedList?.length ?? 0) > 0)));
+  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => ((section as GuideSection).table?.rows.length ?? 0) > 0)));
+  assert.ok(GUIDE_ARTICLES.some((article) => article.sections.some((section) => ((section as GuideSection).template?.content.length ?? 0) > 0)));
 });
 
 test("sitemap and IndexNow discover every Guide article without a manual article list", async () => {
@@ -104,6 +109,7 @@ test("sitemap and IndexNow discover every Guide article without a manual article
   assert.doesNotMatch(sitemap, /\/blog/);
   assert.match(indexNow, /\/guides/);
   assert.match(indexNow, /lib\/seo\/guide-articles\.ts/);
+  assert.match(indexNow, /articles-2026-09-12\.ts/);
   assert.doesNotMatch(indexNow, /\/blog/);
 });
 
@@ -151,6 +157,24 @@ test("first expanded Guides batch is registered with its approved primary catego
     ["appointment-reschedule-message-templates", "Booking"],
     ["client-reactivation-message-templates", "Marketing"],
   ] as const;
+  for (const [slug, primaryCategory] of expectedBatch) {
+    const article = getGuideArticle(slug);
+    assert.ok(article, `missing ${slug}`);
+    assert.equal(article.primaryCategory, primaryCategory);
+    assert.equal(article.path, `/guides/${slug}`);
+    assert.ok(article.sections.length >= 3);
+  }
+});
+
+test("website copy, confirmation and mini-session Guides batch is registered", () => {
+  const expectedBatch = [
+    ["service-business-about-us-page-template", "Websites"],
+    ["photography-mini-session-booking", "Booking"],
+    ["booking-confirmation-page-checklist", "Booking"],
+    ["service-business-homepage-copy-template", "Websites"],
+    ["service-business-faq-page-template", "Websites"],
+  ] as const;
+
   for (const [slug, primaryCategory] of expectedBatch) {
     const article = getGuideArticle(slug);
     assert.ok(article, `missing ${slug}`);
