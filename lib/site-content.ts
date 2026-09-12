@@ -75,7 +75,7 @@ export type WebsiteProcessStep = {
   description: string;
 };
 
-export type WebsitePortfolioKey = "sisters-studio" | "bembi" | "noir-frame" | "velora-house" | "cashpath";
+export type WebsitePortfolioKey = "sisters-studio" | "bembi" | "noir-frame" | "velora-house" | "cashpath" | "cooking-kids" | "shuruqhost";
 
 export type WebsitePortfolioCard = Readonly<{
   key: WebsitePortfolioKey;
@@ -86,10 +86,12 @@ export type WebsitePortfolioCard = Readonly<{
 
 export const websitePortfolioCards: readonly WebsitePortfolioCard[] = [
   { key: "sisters-studio", name: "Sisters Studio", url: "https://sistersstudio.pl/", previewImage: "/images/portfolio/sisters-studio.png" },
-  { key: "bembi", name: "Bembi", url: "https://bembi.biz/", previewImage: "/images/portfolio/bembi.png" },
-  { key: "noir-frame", name: "NOIR FRAME — Premium Photo Studio", url: "https://joowy.net/", previewImage: "/images/demos/premium-studio/bright/hero.webp" },
-  { key: "velora-house", name: "VELORA HOUSE", url: "https://planetaprincesas.com/", previewImage: "/templates/velora/hero-cinematic.webp" },
+  { key: "bembi", name: "Babys Games", url: "https://babysgames.com/", previewImage: "/images/portfolio/bembi.png" },
+  { key: "noir-frame", name: "Joowy", url: "https://joowy.net/", previewImage: "/images/demos/premium-studio/bright/hero.webp" },
+  { key: "velora-house", name: "Planeta Princesas", url: "https://planetaprincesas.com/", previewImage: "/templates/velora/hero-cinematic.webp" },
   { key: "cashpath", name: "CashPath", url: "https://cashpath.org/", previewImage: "/templates/cashpath/hero-woman-wide-v2.png" },
+  { key: "cooking-kids", name: "Cooking Kids", url: "https://cooking-kids.com/", previewImage: null },
+  { key: "shuruqhost", name: "ShuruqHost", url: "https://shuruqhost.com/", previewImage: null },
 ];
 
 export type WebsiteContent = {

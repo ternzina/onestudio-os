@@ -42,7 +42,7 @@ export const website = {
   showcase: {
     eyebrow: "PORTFOLIO",
     title: "Our work",
-    lead: "Websites created and launched with OneStudio.",
+    lead: "Selected websites and projects from our portfolio.",
   },
   portfolio: {
     "sisters-studio": { projectType: "Client project", cta: "Open site", description: null, alt: null },
@@ -50,5 +50,7 @@ export const website = {
     "noir-frame": { projectType: "OneStudio Original", cta: "Open site", description: "A premium photo studio with a portfolio viewer, 3D tour and before/after.", alt: "Bright NOIR FRAME photo studio" },
     "velora-house": { projectType: "OneStudio Original", cta: "Open site", description: "Weddings, private dinners and corporate events across three distinctive halls.", alt: "VELORA HOUSE event hall at night" },
     cashpath: { projectType: "Client project", cta: "Open site", description: "A clear, consumer-first personal loan options website.", alt: "CashPath personal loan options website" },
+    "cooking-kids": { projectType: "Client project", cta: "Open site", description: null, alt: null },
+    shuruqhost: { projectType: "Client project", cta: "Open site", description: null, alt: null },
   },
 } as const;
