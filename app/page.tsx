@@ -1,6 +1,10 @@
 import HomePageClient from "./HomePageClient";
-import { getLatestGuideArticles } from "@/lib/seo/guide-articles";
+import { platformMarketingLocale } from "@/lib/i18n/config";
+import { listPublishedGuideArticleSummaries } from "@/lib/guides/repository";
 
-export default function Home() {
-  return <HomePageClient guideArticles={getLatestGuideArticles(3)} />;
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const guideArticles = await listPublishedGuideArticleSummaries(platformMarketingLocale);
+  return <HomePageClient guideArticles={guideArticles.slice(0, 3)} />;
 }

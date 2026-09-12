@@ -16,7 +16,7 @@ import { OneStudioFooter } from "@/components/marketing/OneStudioFooter";
 import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { getTranslations } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
-import type { GuideArticleSummary } from "@/lib/seo/guide-articles";
+import type { GuideArticleSummary } from "@/lib/guides/types";
 
 function renderFeatureTitleLine(line: string, accentWord: string) {
   const accentStart = line.indexOf(accentWord);

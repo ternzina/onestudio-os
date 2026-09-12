@@ -2,13 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "@/app/_seo/site";
-import {
-  GUIDE_ARTICLES,
-  GUIDE_CONTENT_LOCALE,
-  getGuideArticle,
-  type GuideArticle,
-  type GuideSubsection,
-} from "@/lib/seo/guide-articles";
+import { platformMarketingLocale } from "@/lib/i18n/config";
+import { getPublishedGuideArticle } from "@/lib/guides/repository";
+import type { GuideSubsection } from "@/lib/guides/types";
 import { getGuidesUiCopy } from "@/lib/i18n/guides";
 import styles from "./page.module.css";
 
@@ -16,16 +12,12 @@ type GuideArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return GUIDE_ARTICLES.map(({ slug }) => ({ slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: GuideArticlePageProps): Promise<Metadata> {
-  const article = getGuideArticle((await params).slug);
+  const article = await getPublishedGuideArticle((await params).slug, platformMarketingLocale);
   if (!article) return { robots: { index: false, follow: false } };
 
   return {
@@ -75,10 +67,10 @@ function GuideSubsectionContent({ subsection }: { subsection: GuideSubsection })
 }
 
 export default async function GuideArticlePage({ params }: GuideArticlePageProps) {
-  const article = getGuideArticle((await params).slug) as GuideArticle | undefined;
+  const article = await getPublishedGuideArticle((await params).slug, platformMarketingLocale);
   if (!article) notFound();
 
-  const copy = getGuidesUiCopy(GUIDE_CONTENT_LOCALE);
+  const copy = getGuidesUiCopy(platformMarketingLocale);
   const articleUrl = new URL(article.path, SITE_URL).toString();
   const schema = {
     "@context": "https://schema.org",
@@ -93,7 +85,7 @@ export default async function GuideArticlePage({ params }: GuideArticlePageProps
 
   return (
     <main className={styles.page}>
-      <article className={styles.article} lang={GUIDE_CONTENT_LOCALE}>
+      <article className={styles.article} lang={platformMarketingLocale}>
         <Link href="/guides" className={styles.back}>← {copy.backToGuides}</Link>
         <p className={styles.eyebrow}>
           <span>{article.primaryCategory}</span>

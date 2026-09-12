@@ -10,7 +10,7 @@ import { useLocale } from "@/lib/i18n/use-locale";
 import type {
   GuideArticleSummary,
   GuideCategory,
-} from "@/lib/seo/guide-articles";
+} from "@/lib/guides/types";
 import styles from "./page.module.css";
 
 const PAGE_SIZE = 9;

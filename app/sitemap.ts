@@ -23,17 +23,19 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
-import { GUIDE_ARTICLES } from "@/lib/seo/guide-articles";
+import { listPublishedGuideSitemapEntries } from "@/lib/guides/repository";
+import { platformMarketingLocale } from "@/lib/i18n/config";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
 
 export const dynamic = "force-dynamic";
 
-function platformMarketingEntries(): MetadataRoute.Sitemap {
+async function platformMarketingEntries(): Promise<MetadataRoute.Sitemap> {
   const catalogDemoPaths = getPublicDemoTemplateChoices()
     .map((template) => template.gallery.previewRoute)
     .filter((route): route is string => Boolean(route));
   const demoPaths = DEMOS.map((demo) => `/demos/${demo.slug}`);
-  const articlePaths = new Set<string>(GUIDE_ARTICLES.map((article) => article.path));
+  const guideEntries = await listPublishedGuideSitemapEntries(platformMarketingLocale);
+  const articlePaths = new Set<string>(guideEntries.map((article) => article.path));
   const marketingEntries = [
     ...new Set([
       ...PLATFORM_MARKETING_PATHS,
@@ -45,14 +47,14 @@ function platformMarketingEntries(): MetadataRoute.Sitemap {
   ]
     .filter((path) => !articlePaths.has(path))
     .map((path) => ({ url: new URL(path, SITE_URL).toString() }));
-  const guideEntries: MetadataRoute.Sitemap = GUIDE_ARTICLES.map((article) => ({
+  const guideSitemapEntries: MetadataRoute.Sitemap = guideEntries.map((article) => ({
     url: new URL(article.path, SITE_URL).toString(),
     lastModified: validDate(article.publishedAt),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  return [...marketingEntries, ...guideEntries];
+  return [...marketingEntries, ...guideSitemapEntries];
 }
 
 function validDate(value: string) {
@@ -216,5 +218,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const publicSites = await listPublicSiteSeoPaths();
   const workspacePages = await platformWorkspaceEntries(publicSites);
 
-  return [...platformMarketingEntries(), ...workspacePages];
+  return [...await platformMarketingEntries(), ...workspacePages];
 }
