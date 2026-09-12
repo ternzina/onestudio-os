@@ -50,7 +50,7 @@ export const website = {
     "noir-frame": { projectType: "OneStudio Original", cta: "Open site", description: "A premium photo studio with a portfolio viewer, 3D tour and before/after.", alt: "Bright NOIR FRAME photo studio" },
     "velora-house": { projectType: "OneStudio Original", cta: "Open site", description: "Weddings, private dinners and corporate events across three distinctive halls.", alt: "VELORA HOUSE event hall at night" },
     cashpath: { projectType: "Client project", cta: "Open site", description: "A clear, consumer-first personal loan options website.", alt: "CashPath personal loan options website" },
-    "cooking-kids": { projectType: "Client project", cta: "Open site", description: null, alt: null },
-    shuruqhost: { projectType: "Client project", cta: "Open site", description: null, alt: null },
+    "cooking-kids": { projectType: "Website", cta: "Open site", description: null, alt: null },
+    shuruqhost: { projectType: "Website", cta: "Open site", description: null, alt: null },
   },
 } as const;
