@@ -56,7 +56,7 @@ test("Guide ordering is stable and a fourth article does not break the index mod
   );
 });
 
-test("Guide routes use summaries for the index and full registry data for articles", async () => {
+test("Guide routes use database summaries and full repository data for articles", async () => {
   const [index, client, articleRoute, redirects] = await Promise.all([
     read("../app/guides/page.tsx"),
     read("../app/guides/GuidesPageClient.tsx"),
@@ -64,13 +64,14 @@ test("Guide routes use summaries for the index and full registry data for articl
     read("../next.config.ts"),
   ]);
 
-  assert.match(index, /getGuideArticleSummaries/);
-  assert.match(index, /getGuideCategories/);
+  assert.match(index, /listPublishedGuideArticleSummaries/);
+  assert.match(index, /GUIDE_CATEGORY_ORDER/);
   assert.doesNotMatch(client, /GUIDE_ARTICLES|BlogPreview|\.sections/);
   assert.match(client, /PAGE_SIZE/);
   assert.match(client, /article\.publishedAt/);
-  assert.match(articleRoute, /GUIDE_ARTICLES\.map/);
-  assert.match(articleRoute, /getGuideArticle/);
+  assert.match(articleRoute, /getPublishedGuideArticle/);
+  assert.match(articleRoute, /dynamic = "force-dynamic"/);
+  assert.doesNotMatch(articleRoute, /dynamicParams\s*=\s*false|generateStaticParams/);
   assert.match(articleRoute, /canonical: new URL\(article\.path, SITE_URL\)/);
   assert.match(articleRoute, /datePublished: article\.publishedAt/);
   assert.match(articleRoute, /"@type": "Article"/);
@@ -102,8 +103,8 @@ test("sitemap and IndexNow discover every Guide article without a manual article
   assert.match(platform, /"\/journal"/);
   assert.doesNotMatch(platform, /"\/blog(?:\/|")/);
   for (const article of GUIDE_ARTICLES) assert.doesNotMatch(platform, new RegExp(article.slug));
-  assert.match(sitemap, /import \{ GUIDE_ARTICLES \}/);
-  assert.match(sitemap, /GUIDE_ARTICLES\.map\(\(article\)/);
+  assert.match(sitemap, /listPublishedGuideSitemapEntries/);
+  assert.match(sitemap, /guideEntries\.map\(\(article\)/);
   assert.match(sitemap, /article\.path/);
   assert.match(sitemap, /article\.publishedAt/);
   assert.doesNotMatch(sitemap, /\/blog/);
@@ -125,7 +126,8 @@ test("homepage uses Guides while navigation keeps both Journal and Guides", asyn
     read("../lib/i18n/locales/ru/common.ts"),
   ]);
 
-  assert.match(page, /getLatestGuideArticles\(3\)/);
+  assert.match(page, /listPublishedGuideArticleSummaries/);
+  assert.match(page, /guideArticles\.slice\(0, 3\)/);
   assert.match(homeClient, /OneStudioGuidesPreview/);
   assert.match(preview, /articles\.slice\(0, 3\)/);
   assert.match(preview, /article\.publishedAt/);

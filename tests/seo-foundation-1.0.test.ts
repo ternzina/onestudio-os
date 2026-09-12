@@ -10,7 +10,7 @@ test("canonical platform sitemap covers public marketing surface once", async ()
   for (const path of ["/", "/features", "/demos", "/components", "/pricing", "/website", "/about", "/faq", "/journal", "/contact"]) {
     assert.match(platform, new RegExp(`\"${path.replace("/", "\\/")}\"`));
   }
-  assert.match(sitemap, /\.\.\.platformMarketingEntries\(\)/);
+  assert.match(sitemap, /\.\.\.await platformMarketingEntries\(\)/);
   assert.match(sitemap, /new Set\(/);
   assert.doesNotMatch(sitemap, /url: SITE_URL\.toString\(\)/);
   assert.doesNotMatch(sitemap.slice(sitemap.indexOf("function platformMarketingEntries"), sitemap.indexOf("function validDate")), /new Date\(\)/);

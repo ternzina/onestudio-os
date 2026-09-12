@@ -169,7 +169,7 @@ test("Guides renders the fixed taxonomy even with zero or changing article count
     assert.deepEqual([copy.allCategories, ...getGuideCategories().map((key) => copy.categoryLabels[key])], labels);
   }
   assert.match(read("../lib/seo/guide-articles.ts"), /function getGuideCategories\(\) \{\s*return GUIDE_CATEGORY_ORDER;/);
-  assert.match(read("../app/guides/page.tsx"), /categories=\{getGuideCategories\(\)\}/);
+  assert.match(read("../app/guides/page.tsx"), /categories=\{GUIDE_CATEGORY_ORDER\}/);
 });
 
 test("history keeps semantic keys and never replays card entry on locale or pointer changes", () => {
@@ -249,7 +249,8 @@ test("homepage renders only three Guides, with global typography and the request
     assert.match(html, /os-public-content-guide/);
   }
   assert.doesNotMatch(read("../components/marketing/OneStudioGuidesPreview.module.css"), /font-size:|font-weight:|letter-spacing:|line-height:/);
-  assert.match(read("../app/page.tsx"), /getLatestGuideArticles\(3\)/);
+  assert.match(read("../app/page.tsx"), /listPublishedGuideArticleSummaries/);
+  assert.match(read("../app/page.tsx"), /guideArticles\.slice\(0, 3\)/);
   for (const path of ["../app/page.tsx", "../app/HomePageClient.tsx", "../components/marketing/OneStudioGuidesPreview.tsx"]) {
     assert.doesNotMatch(read(path), /JOURNAL_UPDATES|getJournalUpdates|OneStudioUpdatesHistory/);
   }
@@ -302,7 +303,10 @@ test("guide pages render canonical metadata, Article/FAQ schemas and all rich co
   }>("../app/guides/[slug]/page.tsx", {
     "next/navigation": { notFound: () => { throw new Error("404"); } },
     "@/app/_seo/site": { SITE_URL: new URL("https://onestudioos.com") },
-    "@/lib/seo/guide-articles": guidesRegistry,
+    "@/lib/i18n/config": { platformMarketingLocale: "en" },
+    "@/lib/guides/repository": {
+      getPublishedGuideArticle: async (slug: string) => guidesRegistry.getGuideArticle(slug),
+    },
     "@/lib/i18n/guides": guidesCopy,
   });
   let content = "";
@@ -314,7 +318,7 @@ test("guide pages render canonical metadata, Article/FAQ schemas and all rich co
     assert.match(html, /"@type":"Article"/);
     assert.match(html, /href="\/guides"/);
     assert.doesNotMatch(html, /\/journal\//);
-    if ("faq" in article) assert.match(html, /"@type":"FAQPage"/);
+    assert.doesNotMatch(html, /"@type":"FAQPage"|"@type":"QAPage"/);
     content += html;
   }
   for (const tag of ["h2", "h3", "ul", "ol", "table", "pre", "code"]) assert.ok(content.includes(`<${tag}`));
@@ -332,7 +336,10 @@ test("platform sitemap renders canonical guide URLs and excludes legacy article 
     "@/lib/public-site/domain-resolution": { requestHostname: () => "onestudioos.com" },
     "@/lib/public-site/metadata": {},
     "@/lib/public-site/premium-route-metadata": {},
-    "@/lib/seo/guide-articles": guidesRegistry,
+    "@/lib/guides/repository": {
+      listPublishedGuideSitemapEntries: async () => GUIDE_ARTICLES.map((article) => ({ path: article.path, publishedAt: article.publishedAt })),
+    },
+    "@/lib/i18n/config": { platformMarketingLocale: "en" },
     "@/lib/seo/solutions": { SOLUTION_PATHS: [] },
   });
   const urls = (await sitemap()).map((entry) => entry.url);
