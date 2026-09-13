@@ -95,7 +95,7 @@ test("catalog cards open a large live preview without editor integration", () =>
   assert.match(page, /aria-modal="true"/);
   assert.match(page, /event\.key === "Escape"/);
   assert.match(page, /document\.body\.style\.overflow = "hidden"/);
-  assert.match(page, /ComponentCatalogPreview item=\{activeItem\}/);
+  assert.match(page, /PublicComponentPreview variant=\{activeItem\}/);
   assert.doesNotMatch(page, /\/editor/);
 });
 

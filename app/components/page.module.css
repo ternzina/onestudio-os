@@ -5,6 +5,43 @@
   color: var(--os-public-color-dark);
 }
 
+.registryPreviewStage,
+.registryPreviewFallback {
+  width: 100%;
+  min-height: 100%;
+}
+
+.registryPreviewStage {
+  display: grid;
+  position: relative;
+  overflow: hidden;
+  place-items: center;
+}
+
+.registryPreviewCanvas {
+  overflow: hidden;
+  background: var(--os-public-color-surface);
+}
+
+.registryPreviewCanvas > * {
+  max-width: none;
+}
+
+.registryPreviewFallback {
+  display: grid;
+  padding: 22px;
+  place-content: center;
+  gap: 8px;
+  color: var(--os-public-color-cream);
+  background: linear-gradient(135deg, #26140c, #61402e);
+  text-align: center;
+}
+
+.registryPreviewFallback span,
+.registryPreviewFallback small {
+  color: #d8c5b8;
+}
+
 .hero {
   position: relative;
   overflow: hidden;

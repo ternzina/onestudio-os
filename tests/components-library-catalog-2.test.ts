@@ -11,6 +11,7 @@ const page = readFileSync(
   "app/components/ComponentsPageClient.tsx",
   "utf8",
 );
+const publicCatalog = readFileSync("lib/public-component-catalog.ts", "utf8");
 
 const newIds = [
   "floating-lines",
@@ -57,9 +58,10 @@ test("full public catalog grows to twelve while the homepage stays curated to fi
 });
 
 test("new library categories are exposed by the public filter", () => {
-  assert.match(page, /id: "backgrounds"/);
-  assert.match(page, /id: "typography"/);
-  assert.match(page, /id: "interactive"/);
+  assert.match(page, /PUBLIC_COMPONENT_CATEGORIES/);
+  assert.match(publicCatalog, /"Backgrounds"/);
+  assert.match(publicCatalog, /"Typography"/);
+  assert.match(publicCatalog, /"Interactive"/);
 });
 
 test("all public locales include every new category and component", () => {

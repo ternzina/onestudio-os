@@ -6,6 +6,10 @@ const showcase = readFileSync(
   "components/marketing/OneStudioMotionShowcase.tsx",
   "utf8",
 );
+const sharedPreview = readFileSync(
+  "components/marketing/SharedComponentVisualPreview.tsx",
+  "utf8",
+);
 
 const page = readFileSync(
   "app/components/ComponentsPageClient.tsx",
@@ -21,10 +25,10 @@ test(
   "component library preloads early and mounts live previews before they enter the viewport",
   () => {
     assert.match(showcase, /preload:\s*loadCircleGallery/);
-    assert.match(showcase, /rootMargin:\s*"320px 0px"/);
-    assert.match(showcase, /rootMargin:\s*"140px 0px"/);
-    assert.match(showcase, /threshold:\s*0/);
-    assert.match(showcase, /isVisible\s*\?\s*\(/);
+    assert.match(showcase, /SharedComponentVisualPreview/);
+    assert.match(sharedPreview, /rootMargin:\s*"320px 0px"/);
+    assert.match(sharedPreview, /rootMargin:\s*"140px 0px"/);
+    assert.match(sharedPreview, /isVisible\s*\?\s*\(/);
   },
 );
 

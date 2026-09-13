@@ -14,6 +14,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { getTranslations } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import { SectionReveal } from "./SectionReveal";
+import { SharedComponentVisualPreview } from "./SharedComponentVisualPreview";
 import styles from "./OneStudioMotionShowcase.module.css";
 
 type EffectProps = Record<string, unknown>;
@@ -1833,75 +1834,12 @@ export function ComponentCatalogPreview({
 }: {
   item: ComponentCatalogItem;
 }) {
-  const previewRef = useRef<HTMLDivElement | null>(null);
-  const hasPreloadedRef = useRef(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const reducedMotion = useReducedMotion() ?? false;
-  const Preview = item.component as ComponentType<EffectProps>;
-
-  useEffect(() => {
-    const preview = previewRef.current;
-
-    if (!preview) return;
-
-    const preload = () => {
-      if (hasPreloadedRef.current) return;
-
-      hasPreloadedRef.current = true;
-      void item.preload().catch(() => undefined);
-    };
-
-    if (!("IntersectionObserver" in window)) {
-      preload();
-      setIsVisible(true);
-      return;
-    }
-
-    const preloadObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-
-        preload();
-        preloadObserver.disconnect();
-      },
-      {
-        rootMargin: "320px 0px",
-        threshold: 0,
-      },
-    );
-
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(Boolean(entry?.isIntersecting));
-      },
-      {
-        rootMargin: "140px 0px",
-        threshold: 0,
-      },
-    );
-
-    preloadObserver.observe(preview);
-    visibilityObserver.observe(preview);
-
-    return () => {
-      preloadObserver.disconnect();
-      visibilityObserver.disconnect();
-    };
-  }, [item]);
-
   return (
-    <div ref={previewRef} className={styles.catalogPreviewStage}>
-      {isVisible ? (
-        <motion.div
-          className={`${styles.effectStage} ${styles[item.adapterClass as keyof typeof styles]}`}
-          initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reducedMotion ? { duration: 0 } : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Preview {...item.getProps(reducedMotion)} />
-        </motion.div>
-      ) : null}
-    </div>
+    <SharedComponentVisualPreview
+      preview={item}
+      hostClassName={styles.catalogPreviewStage}
+      stageClassName={`${styles.effectStage} ${styles[item.adapterClass as keyof typeof styles]}`}
+    />
   );
 }
 
