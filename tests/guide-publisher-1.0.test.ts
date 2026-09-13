@@ -230,6 +230,23 @@ test("DB-published Guide IndexNow URLs include only changed platform surfaces", 
   assert.throws(() => guidePublicationIndexNowUrls(["valid-guide"], "https://bembi.biz"));
 });
 
+
+test("Publisher uses documented Vercel env run syntax for DB IndexNow", () => {
+  const publisher = readFileSync(
+    new URL("../scripts/guide-publisher.mjs", import.meta.url),
+    "utf8",
+  );
+  const submitBlock = publisher.match(
+    /function submitPublishedGuideIndexNow\(slugs\) \{[\s\S]*?function printGuideIndexNowResult/,
+  )?.[0] ?? "";
+  assert.match(submitBlock, /"env", "run"/);
+  assert.match(submitBlock, /"-e", "production"/);
+  assert.match(submitBlock, /VERCEL_ORG_ID/);
+  assert.match(submitBlock, /VERCEL_PROJECT_ID/);
+  assert.doesNotMatch(submitBlock, /"--project"/);
+  assert.doesNotMatch(submitBlock, /"--non-interactive"/);
+});
+
 test("Publisher notifies IndexNow only after live verification and exposes a retry command", () => {
   const source = readFileSync(new URL("../scripts/guide-publisher.mjs", import.meta.url), "utf8");
   const publishStart = source.indexOf('if (command === "publish")');
@@ -238,8 +255,10 @@ test("Publisher notifies IndexNow only after live verification and exposes a ret
   assert.ok(retryStart > publishStart);
   const publishBlock = source.slice(publishStart, retryStart);
   assert.match(publishBlock, /await waitForPublished\(slugs, expected\);[\s\S]*submitPublishedGuideIndexNow\(slugs\)/);
-  assert.match(source, /--project", VERCEL_PROJECT/);
-  assert.match(source, /--non-interactive/);
+  assert.match(source, /VERCEL_ORG_ID/);
+  assert.match(source, /VERCEL_PROJECT_ID/);
+  assert.doesNotMatch(source, /"--project"/);
+  assert.doesNotMatch(source, /"--non-interactive"/);
   assert.match(source, /Guide publication remains live/);
   assert.doesNotMatch(source, /vercel@latest", "--prod/);
 });

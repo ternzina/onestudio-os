@@ -20,8 +20,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_PROJECT_REF = "mmdjptpvofmjgrvgusma";
 const PLATFORM_ORIGIN = "https://onestudioos.com";
 const DEFAULT_LOCALE = "en";
-const VERCEL_SCOPE = "onestudioos";
-const VERCEL_PROJECT = "onestudio-os";
+const VERCEL_ORG_ID = "team_3WWjQbCTDKMxCtUwAZzEPYtZ";
+const VERCEL_PROJECT_ID = "prj_FHof1waLZckf0uSKH0bz5cX5VpLL";
 
 function usage() {
   console.log(`Guide Publisher 1.0
@@ -294,9 +294,6 @@ function submitPublishedGuideIndexNow(slugs) {
     "npx",
     [
       "vercel@latest",
-      "--scope", VERCEL_SCOPE,
-      "--project", VERCEL_PROJECT,
-      "--non-interactive",
       "env", "run",
       "-e", "production",
       "--",
@@ -308,6 +305,7 @@ function submitPublishedGuideIndexNow(slugs) {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, VERCEL_ORG_ID, VERCEL_PROJECT_ID },
     },
   );
   const stdout = (result.stdout ?? "").trim();
