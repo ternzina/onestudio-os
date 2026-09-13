@@ -10,6 +10,7 @@ import {
   buildImportDraftsSql,
   buildPublishSql,
   buildUnpublishSql,
+  guidePublicationIndexNowUrls,
   loadDraftsFromManifest,
   parseGuideMarkdown,
   validateGuideDrafts,
@@ -19,6 +20,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_PROJECT_REF = "mmdjptpvofmjgrvgusma";
 const PLATFORM_ORIGIN = "https://onestudioos.com";
 const DEFAULT_LOCALE = "en";
+const VERCEL_SCOPE = "onestudioos";
+const VERCEL_PROJECT = "onestudio-os";
 
 function usage() {
   console.log(`Guide Publisher 1.0
@@ -29,6 +32,7 @@ Usage:
   npm run guides:publisher -- import --manifest=publisher.json
   npm run guides:publisher -- publish --manifest=publisher.json
   npm run guides:publisher -- publish slug-one slug-two
+  npm run guides:publisher -- indexnow slug-one slug-two
   npm run guides:publisher -- status slug
   npm run guides:publisher -- unpublish slug
 
@@ -36,7 +40,9 @@ Safety:
   - validate never writes
   - import always writes draft only
   - publish is a separate command
-  - import/publish/unpublish require clean main == origin/main
+  - publish notifies IndexNow after live route/sitemap verification
+  - IndexNow failure never rolls back published content; retry with the indexnow command
+  - import/publish/indexnow/unpublish require clean main == origin/main
   - writes require the linked OneStudio Supabase project ${EXPECTED_PROJECT_REF}
 `);
 }
@@ -281,6 +287,45 @@ async function waitForPublished(slugs, expected = new Map()) {
   throw new Error(`Live verification failed: ${lastError}`);
 }
 
+
+function submitPublishedGuideIndexNow(slugs) {
+  const urls = guidePublicationIndexNowUrls(slugs, PLATFORM_ORIGIN);
+  const result = spawnSync(
+    "npx",
+    [
+      "vercel@latest",
+      "--scope", VERCEL_SCOPE,
+      "--project", VERCEL_PROJECT,
+      "--non-interactive",
+      "env", "run",
+      "-e", "production",
+      "--",
+      "node", "scripts/platform-indexnow-release.mjs",
+      "--submit-only", "--urls", ...urls,
+    ],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
+  const stdout = (result.stdout ?? "").trim();
+  const stderr = (result.stderr ?? "").trim();
+  if (stdout) console.log(stdout);
+  if (stderr) console.error(stderr);
+  return { ok: result.status === 0, urls, status: result.status };
+}
+
+function printGuideIndexNowResult(result) {
+  console.log(`INDEXNOW: ${result.ok ? "SUBMITTED" : "FAILED"}`);
+  console.log(`INDEXNOW_URLS: ${result.urls.length}`);
+  result.urls.forEach((url) => console.log(`INDEXNOW_URL: ${url}`));
+  if (!result.ok) {
+    console.log("WARN: Guide publication remains live. Retry with guides:publisher -- indexnow <slug...>");
+  }
+}
+
 async function main() {
   const [command, ...argv] = process.argv.slice(2);
   if (!command || command === "help" || command === "--help") {
@@ -325,11 +370,34 @@ async function main() {
     runSupabaseSql(buildPublishSql(slugs, { locale, publishedAt }));
     const expected = new Map((validation?.articles ?? []).map((article) => [article.slug, article.h1]));
     await waitForPublished(slugs, expected);
+    const indexNowResult = flags["skip-indexnow"]
+      ? { ok: true, urls: guidePublicationIndexNowUrls(slugs, PLATFORM_ORIGIN), skipped: true }
+      : submitPublishedGuideIndexNow(slugs);
     console.log("RESULT: PASS");
     console.log(`PUBLISHED: ${slugs.join(", ")}`);
     console.log("VERCEL_DEPLOY: NOT REQUIRED");
     console.log("GIT_COMMIT: NOT REQUIRED");
     console.log("SITEMAP: VERIFIED");
+    if (indexNowResult.skipped) {
+      console.log("INDEXNOW: SKIPPED");
+      console.log(`INDEXNOW_URLS: ${indexNowResult.urls.length}`);
+    } else {
+      printGuideIndexNowResult(indexNowResult);
+    }
+    return;
+  }
+
+  if (command === "indexnow") {
+    const { slugs } = slugsFrom(positional, flags);
+    const guard = assertWriteGuard();
+    console.log("===== GUIDE PUBLISHER INDEXNOW =====");
+    console.log(`MAIN: ${guard.head}`);
+    console.log(`COUNT: ${slugs.length}`);
+    await waitForPublished(slugs);
+    const indexNowResult = submitPublishedGuideIndexNow(slugs);
+    printGuideIndexNowResult(indexNowResult);
+    if (!indexNowResult.ok) throw new Error("IndexNow retry failed; published content was not changed");
+    console.log("RESULT: PASS");
     return;
   }
 

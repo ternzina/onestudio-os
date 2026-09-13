@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   buildImportDraftsSql,
   buildPublishSql,
   buildUnpublishSql,
   cleanInlineMarkdown,
+  guidePublicationIndexNowUrls,
   parseGuideMarkdown,
   validateGuideDrafts,
 } from "../lib/guides/publisher/core.mjs";
@@ -208,4 +210,36 @@ test("Unpublish is reversible and does not delete Guide content", () => {
   assert.match(sql, /translation_status = 'draft'/);
   assert.match(sql, /a\.original_locale = 'en'/);
   assert.doesNotMatch(sql, /DELETE\s+FROM/i);
+});
+
+test("DB-published Guide IndexNow URLs include only changed platform surfaces", () => {
+  assert.deepEqual(
+    guidePublicationIndexNowUrls([
+      "google-business-profile-service-area",
+      "service-area-page-template",
+      "google-business-profile-service-area",
+    ]),
+    [
+      "https://onestudioos.com/",
+      "https://onestudioos.com/guides",
+      "https://onestudioos.com/guides/google-business-profile-service-area",
+      "https://onestudioos.com/guides/service-area-page-template",
+    ],
+  );
+  assert.throws(() => guidePublicationIndexNowUrls(["../bad"]));
+  assert.throws(() => guidePublicationIndexNowUrls(["valid-guide"], "https://bembi.biz"));
+});
+
+test("Publisher notifies IndexNow only after live verification and exposes a retry command", () => {
+  const source = readFileSync(new URL("../scripts/guide-publisher.mjs", import.meta.url), "utf8");
+  const publishStart = source.indexOf('if (command === "publish")');
+  const retryStart = source.indexOf('if (command === "indexnow")');
+  assert.ok(publishStart > 0);
+  assert.ok(retryStart > publishStart);
+  const publishBlock = source.slice(publishStart, retryStart);
+  assert.match(publishBlock, /await waitForPublished\(slugs, expected\);[\s\S]*submitPublishedGuideIndexNow\(slugs\)/);
+  assert.match(source, /--project", VERCEL_PROJECT/);
+  assert.match(source, /--non-interactive/);
+  assert.match(source, /Guide publication remains live/);
+  assert.doesNotMatch(source, /vercel@latest", "--prod/);
 });

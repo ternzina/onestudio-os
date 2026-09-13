@@ -152,6 +152,22 @@ The same parent article can later receive rows such as:
 
 The translation row is imported as `draft`, reviewed, and can be moved to `published` independently. Locale-prefixed public routes and hreflang remain a separate later phase.
 
-## Current limitation
+## DB-aware IndexNow
 
-DB-only publication is automatically reflected in the dynamic Guide routes and sitemap. The existing Git-diff-based IndexNow release script cannot discover a DB-only publication by itself. IndexNow automation should be added as a small follow-up after Publisher 1.0 is accepted; it is deliberately not hidden inside the first production write path.
+After a successful database publication, Publisher first verifies every live Guide route and the dynamic sitemap. It then notifies IndexNow without running a Vercel deployment.
+
+For a batch of newly published Guides, Publisher submits only the platform surfaces that actually changed:
+
+- `https://onestudioos.com/`;
+- `https://onestudioos.com/guides`;
+- each newly published `https://onestudioos.com/guides/<slug>` URL.
+
+The existing `scripts/platform-indexnow-release.mjs --submit-only` implementation remains the single IndexNow sender. Publisher runs that sender with the `onestudio-os` production environment through Vercel CLI, so `INDEXNOW_KEY` is not copied into the repository or exposed in `NEXT_PUBLIC_*` variables.
+
+IndexNow is intentionally post-publication and non-transactional. A temporary IndexNow/Vercel/API failure does **not** unpublish or roll back valid Guide content. Publisher reports `INDEXNOW: FAILED` and the notification can be retried without changing Guide content:
+
+```bash
+npm run guides:publisher -- indexnow guide-slug-one guide-slug-two
+```
+
+For controlled troubleshooting, automatic notification can be skipped on the publication command with `--skip-indexnow`, then retried later with the command above.
