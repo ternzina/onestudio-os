@@ -12,7 +12,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy:seo": "node scripts/platform-indexnow-release.mjs"
+    "deploy:seo": "node scripts/platform-indexnow-release.mjs",
+    "guides:publisher": "node scripts/guide-publisher.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1082.0",

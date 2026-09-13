@@ -1,0 +1,48 @@
+{
+  "articles": [
+    {
+      "file": "./2026-09-12-google-business-profile-service-area-final-v1.md",
+      "primaryCategory": "SEO",
+      "topics": ["SEO", "Marketing", "Business"],
+      "excerpt": "Choose the right Google Business Profile service-area setup, hide addresses correctly, and keep local coverage accurate.",
+      "relatedLinks": [
+        { "label": "Service Area Page Template", "href": "/guides/service-area-page-template" },
+        { "label": "Service Page Template", "href": "/guides/service-page-template-service-businesses" },
+        { "label": "Google Business Profile Services", "href": "/guides/google-business-profile-services" }
+      ]
+    },
+    {
+      "file": "./2026-09-12-google-business-profile-services-final-v1.md",
+      "primaryCategory": "SEO",
+      "topics": ["SEO", "Marketing", "Business"],
+      "excerpt": "Set up Google Business Profile services with clear names, descriptions and pricing that match the real website and booking journey.",
+      "relatedLinks": [
+        { "label": "Service Page Template", "href": "/guides/service-page-template-service-businesses" },
+        { "label": "Service Area Page Template", "href": "/guides/service-area-page-template" },
+        { "label": "Google Business Profile Service Area", "href": "/guides/google-business-profile-service-area" }
+      ]
+    },
+    {
+      "file": "./2026-09-12-service-page-template-service-businesses-final-v1.md",
+      "primaryCategory": "Websites",
+      "topics": ["Websites", "SEO", "Marketing"],
+      "excerpt": "Build one service page around one customer decision with clear scope, pricing logic, proof, FAQs and a next step.",
+      "relatedLinks": [
+        { "label": "Service Area Page Template", "href": "/guides/service-area-page-template" },
+        { "label": "Google Business Profile Services", "href": "/guides/google-business-profile-services" },
+        { "label": "Online Booking", "href": "/features/online-booking" }
+      ]
+    },
+    {
+      "file": "./2026-09-12-service-area-page-template-final-v1.md",
+      "primaryCategory": "SEO",
+      "topics": ["SEO", "Websites", "Marketing"],
+      "excerpt": "Create fewer, stronger service-area pages with real local proof, honest coverage, useful scheduling details and a clear next step.",
+      "relatedLinks": [
+        { "label": "Service Page Template", "href": "/guides/service-page-template-service-businesses" },
+        { "label": "Google Business Profile Service Area", "href": "/guides/google-business-profile-service-area" },
+        { "label": "Google Business Profile Services", "href": "/guides/google-business-profile-services" }
+      ]
+    }
+  ]
+}

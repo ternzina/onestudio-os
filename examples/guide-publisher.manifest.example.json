@@ -1,0 +1,14 @@
+{
+  "articles": [
+    {
+      "file": "./2026-09-11-booking-page-best-practices-final-v1.md",
+      "primaryCategory": "Booking",
+      "topics": ["Booking", "Marketing", "Websites"],
+      "excerpt": "Audit a booking page for service clarity, real availability, mobile friction, confirmation, and measurable conversion.",
+      "relatedLinks": [
+        { "label": "Online Booking", "href": "/features/online-booking" },
+        { "label": "Appointment Booking Form Template", "href": "/guides/appointment-booking-form-template" }
+      ]
+    }
+  ]
+}
