@@ -63,11 +63,11 @@ test("fifty variants are grouped into twenty-five families", () => {
   assert.deepEqual(new Set(assigned), new Set(variantIds));
 });
 
-test("public grid renders families and modal switches variants", () => {
-  assert.match(page, /componentCatalogFamilies/);
+test("public grid renders manifest families and modal switches variants", () => {
+  assert.match(page, /publicComponentCatalog/);
   assert.match(page, /filteredFamilies\.map/);
   assert.match(page, /openFamily\(family\)/);
-  assert.match(page, /activeFamily\.items\.map/);
+  assert.match(page, /activeFamily\.variants\.map/);
   assert.match(page, /setActiveItem\(variant\)/);
   assert.doesNotMatch(page, /filteredItems\.map/);
 });

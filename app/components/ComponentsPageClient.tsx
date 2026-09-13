@@ -2,32 +2,22 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import MarketingHeader from "@/components/marketing/MarketingHeader";
-import {
-  ComponentCatalogPreview,
-  componentCatalogFamilies,
-  type ComponentCatalogFamily,
-  type ComponentCatalogItem,
-  type ComponentCategory,
-} from "@/components/marketing/OneStudioMotionShowcase";
 import { OneStudioFooter } from "@/components/marketing/OneStudioFooter";
 import { SectionReveal } from "@/components/marketing/SectionReveal";
 import { type Locale } from "@/lib/i18n/config";
 import { getTranslations } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
+import {
+  PUBLIC_COMPONENT_CATEGORIES,
+  publicComponentCatalog,
+  type PublicComponentCategory,
+  type PublicComponentFamily,
+  type PublicComponentVariant,
+} from "@/lib/public-component-catalog";
+import PublicComponentPreview from "./PublicComponentPreview";
 import styles from "./page.module.css";
 
-type Filter = "all" | ComponentCategory;
-
-const categoryDefinitions: ReadonlyArray<{ id: ComponentCategory }> = [
-  { id: "hero" },
-  { id: "galleries" },
-  { id: "social-proof" },
-  { id: "forms" },
-  { id: "typography" },
-  { id: "backgrounds" },
-  { id: "motion" },
-  { id: "interactive" },
-];
+type Filter = "all" | PublicComponentCategory;
 
 const searchPlaceholders: Record<Locale, string> = {
   ru: "Найти компонент…",
@@ -40,29 +30,27 @@ const searchPlaceholders: Record<Locale, string> = {
   pt: "Pesquisar componente…",
 };
 
-const availableCategories = new Set(
-  componentCatalogFamilies.flatMap((family) => family.categories),
-);
-
-const totalVariantCount = componentCatalogFamilies.reduce(
-  (total, family) => total + family.items.length,
+const totalVariantCount = publicComponentCatalog.reduce(
+  (total, family) => total + family.variants.length,
   0,
 );
 
-function categoryLabel(category: ComponentCategory, lang: Locale) {
-  return getTranslations(lang).components.categories[category];
+function categoryLabel(category: PublicComponentCategory) {
+  return category;
 }
 
 export default function ComponentsPageClient() {
   const [lang, setLang] = useLocale();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
-  const [activeFamily, setActiveFamily] = useState<ComponentCatalogFamily | null>(null);
-  const [activeItem, setActiveItem] = useState<ComponentCatalogItem | null>(null);
+  const [activeFamily, setActiveFamily] = useState<PublicComponentFamily | null>(null);
+  const [activeItem, setActiveItem] = useState<PublicComponentVariant | null>(null);
   const deferredQuery = useDeferredValue(query);
   const t = getTranslations(lang).components.page;
   const searchPlaceholder = searchPlaceholders[lang];
-  const categories = categoryDefinitions.filter((category) => availableCategories.has(category.id));
+  const categories = PUBLIC_COMPONENT_CATEGORIES.filter((category) =>
+    publicComponentCatalog.some((family) => family.category === category),
+  );
 
   useEffect(() => {
     if (!activeFamily || !activeItem) return;
@@ -86,14 +74,11 @@ export default function ComponentsPageClient() {
   }, [activeFamily, activeItem]);
 
   const filteredFamilies = useMemo(() => {
-    const catalog = getTranslations(lang).components;
     const normalizedQuery = deferredQuery.trim().toLowerCase();
 
     const byCategory = filter === "all"
-      ? componentCatalogFamilies
-      : componentCatalogFamilies.filter((family) =>
-          family.categories.includes(filter),
-        );
+      ? publicComponentCatalog
+      : publicComponentCatalog.filter((family) => family.category === filter);
 
     if (!normalizedQuery) return byCategory;
 
@@ -101,27 +86,18 @@ export default function ComponentsPageClient() {
       const familyText = [
         family.name,
         family.id,
-        ...family.categories.map((category) => catalog.categories[category]),
-        ...family.items.flatMap((item) => {
-          const copy = catalog.items[item.id];
-
-          return [
-            item.name,
-            item.slug,
-            copy.label,
-            copy.description,
-          ];
-        }),
+        family.category,
+        ...family.variants.flatMap((variant) => [variant.label, variant.officialSlug, variant.taxonomy]),
       ].join(" ").toLowerCase();
 
       return familyText.includes(normalizedQuery);
     });
-  }, [deferredQuery, filter, lang]);
+  }, [deferredQuery, filter]);
 
   const filteredVariantCount = useMemo(
     () =>
       filteredFamilies.reduce(
-        (total, family) => total + family.items.length,
+        (total, family) => total + family.variants.length,
         0,
       ),
     [filteredFamilies],
@@ -132,9 +108,9 @@ export default function ComponentsPageClient() {
     setActiveItem(null);
   };
 
-  const openFamily = (family: ComponentCatalogFamily) => {
+  const openFamily = (family: PublicComponentFamily) => {
     setActiveFamily(family);
-    setActiveItem(family.defaultItem);
+    setActiveItem(family.defaultVariant);
   };
 
   return (
@@ -193,22 +169,20 @@ export default function ComponentsPageClient() {
               onClick={() => setFilter("all")}
             >
               <span>{t.all}</span>
-              <small>{componentCatalogFamilies.length}</small>
+              <small>{publicComponentCatalog.length}</small>
             </button>
             {categories.map((category) => {
-              const count = componentCatalogFamilies.filter((family) =>
-                family.categories.includes(category.id),
-              ).length;
+              const count = publicComponentCatalog.filter((family) => family.category === category).length;
 
               return (
                 <button
                   type="button"
-                  className={filter === category.id ? styles.categoryActive : ""}
-                  aria-pressed={filter === category.id}
-                  onClick={() => setFilter(category.id)}
-                  key={category.id}
+                  className={filter === category ? styles.categoryActive : ""}
+                  aria-pressed={filter === category}
+                  onClick={() => setFilter(category)}
+                  key={category}
                 >
-                  <span>{categoryLabel(category.id, lang)}</span>
+                  <span>{categoryLabel(category)}</span>
                   <small>{count}</small>
                 </button>
               );
@@ -217,20 +191,20 @@ export default function ComponentsPageClient() {
 
           <div className={styles.grid} key={filter}>
             {filteredFamilies.map((family, index) => {
-              const item = family.defaultItem;
+              const item = family.defaultVariant;
 
               return (
                 <article className={styles.card} key={family.id}>
                   <div className={styles.previewFrame}>
-                    <ComponentCatalogPreview item={item} />
+                    <PublicComponentPreview variant={item} />
 
                     <span className={`${styles.previewMeta} os-type-micro`}>
                       {t.previewLabel} · {String(index + 1).padStart(2, "0")}
                     </span>
 
-                    {family.items.length > 1 ? (
+                    {family.variants.length > 1 ? (
                       <span className={`${styles.variantBadge} os-type-micro`}>
-                        {t.variantsCountLabel} · {family.items.length}
+                        {t.variantsCountLabel} · {family.variants.length}
                       </span>
                     ) : null}
                   </div>
@@ -238,24 +212,22 @@ export default function ComponentsPageClient() {
                   <div className={styles.cardBody}>
                     <div className={styles.cardHeading}>
                       <p className={`${styles.cardCategory} os-type-micro`}>
-                        {family.categories
-                          .map((category) => categoryLabel(category, lang))
-                          .join(" · ")}
+                        {categoryLabel(family.category)}
                       </p>
                       <h3>{family.name}</h3>
                     </div>
 
                     <p className={styles.description}>
-                      {getTranslations(lang).components.items[item.id].description}
+                      {item.taxonomy} · {item.sourceTier}
                     </p>
 
                     <div className={styles.cardFooter}>
                       <div className={styles.cardFooterMeta}>
                         <code>{family.id}</code>
 
-                        {family.items.length > 1 ? (
+                        {family.variants.length > 1 ? (
                           <span className={`${styles.cardVariantCount} os-type-micro`}>
-                            {t.variantsCountLabel} · {family.items.length}
+                            {t.variantsCountLabel} · {family.variants.length}
                           </span>
                         ) : null}
                       </div>
@@ -295,9 +267,7 @@ export default function ComponentsPageClient() {
             <header className={styles.previewModalHeader}>
               <div>
                 <p className={`${styles.modalCategory} os-type-micro`}>
-                  {activeItem.categories
-                    .map((category) => categoryLabel(category, lang))
-                    .join(" · ")}
+                  {categoryLabel(activeFamily.category)}
                 </p>
                 <h2 id="component-preview-title">{activeFamily.name}</h2>
               </div>
@@ -313,7 +283,7 @@ export default function ComponentsPageClient() {
               </button>
             </header>
 
-            {activeFamily.items.length > 1 ? (
+            {activeFamily.variants.length > 1 ? (
               <div
                 className={styles.variantRail}
                 role="group"
@@ -324,7 +294,7 @@ export default function ComponentsPageClient() {
                 </span>
 
                 <div className={styles.variantButtons}>
-                  {activeFamily.items.map((variant) => (
+                  {activeFamily.variants.map((variant) => (
                     <button
                       type="button"
                       key={variant.id}
@@ -336,7 +306,7 @@ export default function ComponentsPageClient() {
                       aria-pressed={activeItem.id === variant.id}
                       onClick={() => setActiveItem(variant)}
                     >
-                      {getTranslations(lang).components.items[variant.id].label}
+                      {variant.label}
                     </button>
                   ))}
                 </div>
@@ -344,23 +314,23 @@ export default function ComponentsPageClient() {
             ) : null}
 
             <div className={styles.previewModalStage} key={activeItem.id}>
-              <ComponentCatalogPreview item={activeItem} />
+              <PublicComponentPreview variant={activeItem} />
             </div>
 
             <footer className={styles.previewModalCopy}>
               <div>
-                {activeFamily.items.length > 1 ? (
+                {activeFamily.variants.length > 1 ? (
                   <span className={`${styles.activeVariantLabel} os-type-micro`}>
-                    {t.variantsCountLabel} · {getTranslations(lang).components.items[activeItem.id].label}
+                    {t.variantsCountLabel} · {activeItem.label}
                   </span>
                 ) : null}
 
                 <p>
-                  {getTranslations(lang).components.items[activeItem.id].description}
+                  {activeItem.taxonomy} · {activeItem.sourceTier}
                 </p>
               </div>
 
-              <code>{activeItem.slug}</code>
+              <code>{activeItem.officialSlug}</code>
             </footer>
           </article>
         </div>
