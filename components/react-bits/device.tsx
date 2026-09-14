@@ -30,6 +30,9 @@ export interface DeviceProps {
   /** Auto-animate with simulated cursor movement */
   autoAnimate?: boolean;
 
+  /** Auto-animation phase step per frame. Default preserves original motion. */
+  autoAnimateSpeed?: number;
+
   /** Additional CSS classes for the wrapper */
   className?: string;
 
@@ -48,6 +51,7 @@ const Device = React.forwardRef<HTMLDivElement, DeviceProps>(
       enableRotate = true,
       rotateStrength = 3,
       autoAnimate = false,
+      autoAnimateSpeed = 0.005,
       className,
       children,
     },
@@ -94,7 +98,7 @@ const Device = React.forwardRef<HTMLDivElement, DeviceProps>(
 
       let time = 0;
       const animate = () => {
-        time += 0.005;
+        time += autoAnimateSpeed;
 
         const mouseX = Math.sin(time) * 0.8;
         const mouseY = Math.sin(time * 1.3) * 0.6;
@@ -122,6 +126,7 @@ const Device = React.forwardRef<HTMLDivElement, DeviceProps>(
       };
     }, [
       autoAnimate,
+      autoAnimateSpeed,
       enableParallax,
       enableRotate,
       parallaxStrength,

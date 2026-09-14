@@ -79,5 +79,11 @@ export const components = {
     "flicker-rainbow": { label: "Радужное мерцание", description: "Цветная сетка мерцающих частиц смешивает тёплые и холодные оттенки." },
     "page-flip-dark": { label: "Тёмное листание", description: "Тёмный цифровой альбом с более чёткими страницами и глубокой тенью перелистывания." },
     "glitch-text-soft": { label: "Мягкий глитч-текст", description: "Пастельные цветовые слои текста мягко расходятся вокруг курсора." },
+    "glue-dots": { label: "Glue Dots", description: "Мягкие точки сливаются, притягиваются к курсору и расходятся волнами." },
+    "device": { label: "Device", description: "Аккуратный макет телефона с лёгким параллаксом и наклоном при наведении." },
+    "gradient-carousel": { label: "Gradient Carousel", description: "Объёмная фотогалерея с градиентом, который меняется вместе с активной карточкой." },
+    "liquid-ascii": { label: "Liquid ASCII", description: "Жидкое ASCII-поле изгибается и течёт вслед за движением курсора." },
+    "magic-transform": { label: "Magic Transform", description: "Документы проходят через визуальный трансформер и превращаются в структурированные результаты." },
+    "text-scatter": { label: "Text Scatter", description: "Буквы разлетаются от курсора и пружинят обратно на свои места." },
   },
 } as const;

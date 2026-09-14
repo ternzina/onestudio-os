@@ -37,4 +37,10 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     "flicker": { label: "Flimmerfeld", description: "Ein Feld leuchtender Punkte flimmert sanft und reagiert auf den Zeiger." },
     "page-flip": { label: "Seitenblättern", description: "Interaktive Seiten lassen sich per Klick wie in einem digitalen Lookbook umblättern." },
     "glitch-text": { label: "Glitch-Text", description: "Farbige Textebenen verschieben sich und reagieren auf die Zeigerbewegung." },
+    "glue-dots": { label: "Glue Dots", description: "Weiche Punkte verschmelzen, folgen dem Zeiger und erzeugen Wellen." },
+    "device": { label: "Device", description: "Ein hochwertiges Smartphone-Mockup mit dezentem Parallax- und Neigungseffekt." },
+    "gradient-carousel": { label: "Gradient Carousel", description: "Eine räumliche Bildergalerie mit einem Farbverlauf, der der aktiven Karte folgt." },
+    "liquid-ascii": { label: "Liquid ASCII", description: "Ein fließendes ASCII-Feld reagiert auf die Bewegung des Zeigers." },
+    "magic-transform": { label: "Magic Transform", description: "Dokumente laufen durch einen visuellen Transformer und werden zu strukturierten Ergebnissen." },
+    "text-scatter": { label: "Text Scatter", description: "Buchstaben weichen dem Zeiger aus und federn an ihren Platz zurück." },
   } } as const;

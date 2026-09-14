@@ -37,4 +37,10 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPONENTES"
     "flicker": { label: "Campo cintilante", description: "Um campo de pontos luminosos cintila suavemente e reage ao ponteiro." },
     "page-flip": { label: "Virar páginas", description: "Páginas interativas viram com um clique como num pequeno catálogo digital." },
     "glitch-text": { label: "Texto glitch", description: "Camadas coloridas do texto deslocam-se e reagem ao movimento do ponteiro." },
+    "glue-dots": { label: "Glue Dots", description: "Pontos suaves se unem, seguem o cursor e criam ondas." },
+    "device": { label: "Device", description: "Um mockup de telefone refinado com paralaxe e inclinação suave no hover." },
+    "gradient-carousel": { label: "Gradient Carousel", description: "Um carrossel de imagens com profundidade e gradiente que acompanha o cartão ativo." },
+    "liquid-ascii": { label: "Liquid ASCII", description: "Um campo ASCII líquido se curva e flui ao redor do cursor." },
+    "magic-transform": { label: "Magic Transform", description: "Documentos atravessam um transformador visual e viram resultados estruturados." },
+    "text-scatter": { label: "Text Scatter", description: "As letras se afastam do cursor e voltam com efeito elástico." },
   } } as const;

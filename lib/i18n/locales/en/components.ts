@@ -79,5 +79,11 @@ export const components = {
     "flicker-rainbow": { label: "Flicker rainbow", description: "A colourful flicker grid mixing warm and cool luminous particles." },
     "page-flip-dark": { label: "Page flip dark", description: "A darker digital lookbook with sharper pages and a deeper page-turn shadow." },
     "glitch-text-soft": { label: "Glitch text soft", description: "A softer pastel glitch treatment that separates text layers around the pointer." },
+    "glue-dots": { label: "Glue Dots", description: "Soft dots merge, pull and ripple under the pointer." },
+    "device": { label: "Device", description: "A polished phone mockup with subtle parallax and hover rotation." },
+    "gradient-carousel": { label: "Gradient Carousel", description: "A tactile image carousel with depth and a colour field that follows the active card." },
+    "liquid-ascii": { label: "Liquid ASCII", description: "A fluid ASCII field that bends and flows around the pointer." },
+    "magic-transform": { label: "Magic Transform", description: "Documents stream through a transformer and emerge as structured result chips." },
+    "text-scatter": { label: "Text Scatter", description: "Letters scatter away from the pointer and spring back into place." },
   },
 } as const;
