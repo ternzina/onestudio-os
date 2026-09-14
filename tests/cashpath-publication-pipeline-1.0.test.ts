@@ -12,6 +12,14 @@ import {
 import { CASH_PATH_GUIDES } from "../lib/public-site/cashpath-guides.generated.ts";
 import type { PublicSiteContent } from "../lib/public-site/types.ts";
 
+const batchOneSlugs = [
+  "personal-loan-for-car-lease-buyout",
+  "personal-loan-for-insurance-deductible",
+  "personal-loan-vs-sba-disaster-loan",
+  "appliance-financing-personal-loan-vs-store-bnpl-rent-to-own",
+  "personal-loan-for-dental-work",
+];
+
 const fixture = (body: string) => `---
 slug: parser-fixture
 nav_label: Parser fixture
@@ -118,4 +126,38 @@ test("editor exposes a separate, explicit sync-to-draft release gate", () => {
   assert.match(editor, /guide\.nav_label/);
   assert.match(editor, /installMissingCashPathGuides\(draft\)/);
   assert.doesNotMatch(editor, /Sync and publish/);
+});
+
+test("QA-approved batch one occupies only orders 99 through 103 and syncs as missing drafts", () => {
+  const batch = CASH_PATH_GUIDES.filter((guide) => batchOneSlugs.includes(guide.slug));
+  assert.deepEqual(batch.map((guide) => guide.slug), batchOneSlugs);
+  assert.deepEqual(
+    batch.map((guide) => guide.id),
+    batchOneSlugs,
+  );
+  assert.equal(batch.length, 5);
+  for (const [index, slug] of batchOneSlugs.entries()) {
+    const source = readFileSync(
+      new URL(`../docs/cashpath/guides/${slug}.md`, import.meta.url),
+      "utf8",
+    );
+    assert.match(source, new RegExp(`^slug: ${slug}$`, "m"));
+    assert.match(source, new RegExp(`^order: ${99 + index}$`, "m"));
+  }
+
+  const emptyCashPath = {
+    template_id: "cashpath",
+    seo_title: "CashPath",
+    seo_description: "",
+    pages: [],
+  } as unknown as PublicSiteContent;
+  assert.deepEqual(
+    missingCashPathGuides(emptyCashPath)
+      .filter((guide) => batchOneSlugs.includes(guide.slug))
+      .map((guide) => guide.slug),
+    batchOneSlugs,
+  );
+  const installed = installMissingCashPathGuides(emptyCashPath);
+  assert.equal(installed.pages?.filter((page) => batchOneSlugs.includes(page.slug)).length, 5);
+  assert.equal(installMissingCashPathGuides(installed), installed);
 });
