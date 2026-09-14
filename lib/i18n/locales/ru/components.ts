@@ -87,5 +87,6 @@ export const components = {
     "text-scatter": { label: "Text Scatter", description: "Буквы разлетаются от курсора и пружинят обратно на свои места." },
     "modal-cards": { label: "Modal Cards", description: "Интерактивные карточки раскрываются в модальное окно с подробным содержанием." },
     "scroll-mask": { label: "Scroll Mask", description: "Изображение раскрывается при прокрутке через мягкую маску и лёгкий зум." },
+    "dot-shift": { label: "Dot Shift", description: "Шейдерные точки плавно движутся и собираются в мягкое цифровое поле." },
   },
 } as const;

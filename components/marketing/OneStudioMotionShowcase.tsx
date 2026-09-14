@@ -86,7 +86,8 @@ export type ComponentCatalogItemId =
   | "magic-transform"
   | "text-scatter"
   | "modal-cards"
-  | "scroll-mask";
+  | "scroll-mask"
+  | "dot-shift";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -139,6 +140,7 @@ const loadMagicTransform = () => import("@/components/react-bits/magic-transform
 const loadTextScatter = () => import("@/components/react-bits/text-scatter");
 const loadModalCards = () => import("@/components/react-bits/modal-cards");
 const loadScrollMask = () => import("@/components/react-bits/scroll-mask");
+const loadDotShift = () => import("@/components/react-bits/dot-shift");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -302,6 +304,11 @@ const DynamicModalCards = dynamic(
 
 const DynamicScrollMask = dynamic(
   loadScrollMask,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicDotShift = dynamic(
+  loadDotShift,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -1967,6 +1974,26 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     }),
   },
 
+  {
+    id: "dot-shift",
+    slug: "dot-shift",
+    name: "Dot Shift",
+    categories: ["motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-07.webp",
+    preload: loadDotShift,
+    component: DynamicDotShift,
+    getProps: (reducedMotion) => ({
+      speed: reducedMotion ? 0 : 0.42,
+      scale: 0.72,
+      color: "#d6b4ff",
+      size: 0.64,
+      blur: 0.42,
+      dpr: [1, 1.25] as [number, number],
+      className: "h-full min-h-[260px] w-full rounded-2xl",
+    }),
+  },
+
 ];
 
 
@@ -2080,6 +2107,7 @@ const componentCatalogFamilySpecs = [
   { id: "text-scatter", name: "Text Scatter", itemIds: ["text-scatter"] },
   { id: "modal-cards", name: "Modal Cards", itemIds: ["modal-cards"] },
   { id: "scroll-mask", name: "Scroll Mask", itemIds: ["scroll-mask"] },
+  { id: "dot-shift", name: "Dot Shift", itemIds: ["dot-shift"] },
 ] as const satisfies readonly {
   id: string;
   name: string;

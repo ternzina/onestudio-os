@@ -45,4 +45,5 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     "text-scatter": { label: "Text Scatter", description: "Buchstaben weichen dem Zeiger aus und federn an ihren Platz zurück." },
     "modal-cards": { label: "Modal Cards", description: "Interaktive Karten öffnen sich als fokussierte Detailansicht im Modal." },
     "scroll-mask": { label: "Scroll Mask", description: "Ein Bild wird beim Scrollen mit weicher Maske und leichtem Zoom enthüllt." },
+    "dot-shift": { label: "Dot Shift", description: "Shader-Punkte bewegen sich fließend und formen ein weiches digitales Feld." },
   } } as const;

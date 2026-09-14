@@ -121,6 +121,7 @@ export interface DotShiftProps {
   color?: string;
   size?: number;
   blur?: number;
+  dpr?: number | [number, number];
   className?: string;
 }
 
@@ -130,6 +131,7 @@ const DotShift: React.FC<DotShiftProps> = ({
   color = "#FF9FFC",
   size = 0.6,
   blur = 0.5,
+  dpr = [1, 2],
   className = "",
 }) => {
   return (
@@ -137,7 +139,7 @@ const DotShift: React.FC<DotShiftProps> = ({
       <Canvas
         orthographic
         camera={{ position: [0, 0, 1], zoom: 1 }}
-        dpr={[1, 2]}
+        dpr={dpr}
         gl={{
           alpha: true,
           antialias: true,

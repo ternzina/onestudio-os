@@ -50,5 +50,6 @@ export const components = {
     "text-scatter": { label: "Text Scatter", description: "Літери розлітаються від курсора й пружно повертаються на місце." },
     "modal-cards": { label: "Modal Cards", description: "Інтерактивні картки розкриваються в модальне вікно з детальним вмістом." },
     "scroll-mask": { label: "Scroll Mask", description: "Зображення розкривається під час прокрутки через м’яку маску та легкий зум." },
+    "dot-shift": { label: "Dot Shift", description: "Шейдерні точки плавно рухаються й формують м’яке цифрове поле." },
   },
 } as const;

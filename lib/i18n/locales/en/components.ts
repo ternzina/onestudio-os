@@ -87,5 +87,6 @@ export const components = {
     "text-scatter": { label: "Text Scatter", description: "Letters scatter away from the pointer and spring back into place." },
     "modal-cards": { label: "Modal Cards", description: "Interactive cards expand into a focused modal story without leaving the page." },
     "scroll-mask": { label: "Scroll Mask", description: "An image reveal driven by scroll, with soft iris and zoom motion." },
+    "dot-shift": { label: "Dot Shift", description: "Animated shader dots drift and reshape into a soft digital field." },
   },
 } as const;
