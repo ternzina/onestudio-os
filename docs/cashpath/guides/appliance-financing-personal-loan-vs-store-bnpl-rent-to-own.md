@@ -1,8 +1,9 @@
 ---
 slug: appliance-financing-personal-loan-vs-store-bnpl-rent-to-own
-order: 102
+order: 1
 nav_label: Appliance Financing
 eyebrow: PERSONAL LOAN GUIDE
+category: Life & Emergency Expenses
 seo_title: "Appliance Financing: Personal Loan vs. Store Financing, BNPL, and Rent-to-Own | CashPath"
 seo_description: "Compare appliance financing options before checkout. Learn how store promotions, BNPL, rent-to-own, credit cards, and personal loans differ in total cost, payment timing, deferred interest, and ownership."
 ---

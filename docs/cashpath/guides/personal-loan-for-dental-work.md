@@ -1,8 +1,9 @@
 ---
 slug: personal-loan-for-dental-work
-order: 103
+order: 43
 nav_label: Dental Work
 eyebrow: PERSONAL LOAN GUIDE
+category: Loan Basics
 seo_title: "Personal Loan for Dental Work vs. Payment Plans and Medical Credit Cards | CashPath"
 seo_description: "Compare a personal loan with dental-office payment plans and medical credit cards. Learn how to verify your treatment cost, insurance estimate, deferred-interest terms, and true financing gap before borrowing."
 ---

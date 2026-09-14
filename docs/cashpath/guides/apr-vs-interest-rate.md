@@ -3,6 +3,7 @@ slug: apr-vs-interest-rate
 order: 2
 nav_label: APR vs. Interest Rate
 eyebrow: PERSONAL LOAN GUIDE
+category: Compare Borrowing Options
 seo_title: "APR vs. Interest Rate on a Personal Loan | CashPath"
 seo_description: "Learn how APR differs from a personal loan interest rate, why fees matter, and which numbers to compare before accepting an offer."
 ---

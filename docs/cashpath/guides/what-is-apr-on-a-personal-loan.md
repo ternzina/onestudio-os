@@ -1,8 +1,9 @@
 ---
 slug: what-is-apr-on-a-personal-loan
-order: 1
+order: 89
 nav_label: What Is APR?
 eyebrow: PERSONAL LOAN GUIDE
+category: Loan Basics
 seo_title: "What Is APR on a Personal Loan? | CashPath"
 seo_description: "Learn what APR means on a personal loan, how it differs from the interest rate, which fees can affect costs, and how to compare loan offers."
 ---

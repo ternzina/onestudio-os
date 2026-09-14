@@ -1,8 +1,9 @@
 ---
 slug: home-ev-charger-installation-financing
-order: 106
+order: 21
 nav_label: EV Charger Financing
 eyebrow: PERSONAL LOAN GUIDE
+category: Home, Auto & Major Purchases
 seo_title: "EV Charger Financing in 2026: Compare Installation Payment Options | CashPath"
 seo_description: "Financing a home EV charger? Learn how to verify the full installed price, check current utility rebates, and compare vehicle add-ons, installer financing, and personal loans."
 ---

@@ -1,8 +1,9 @@
 ---
 slug: solar-panel-financing-personal-loan-vs-solar-loan-lease-ppa
-order: 105
+order: 80
 nav_label: Solar Financing
 eyebrow: PERSONAL LOAN GUIDE
+category: Home, Auto & Major Purchases
 seo_title: "Solar Financing in 2026: Loan vs. Lease, PPA, or Home Equity | CashPath"
 seo_description: "Compare solar financing in 2026. Learn how to separate cash price from financed price, check dealer fees, compare loans with leases and PPAs, and verify current incentives."
 ---

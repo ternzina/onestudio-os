@@ -18,6 +18,7 @@ const outputFile = path.resolve(
 );
 const check = process.argv.includes("--check");
 const richTextPrefix = "__osrt1__:";
+const CASH_PATH_GUIDE_CATEGORIES = ["Loan Basics", "Credit & Approval", "Compare Borrowing Options", "Debt & Repayment", "Life & Emergency Expenses", "Home, Auto & Major Purchases", "Rights & Safety"];
 
 function fail(message) {
   console.error(`CashPath guide generator: ${message}`);
@@ -116,9 +117,11 @@ function parseFrontmatter(source, file) {
     "eyebrow",
     "seo_title",
     "seo_description",
+    "category",
   ]) {
     if (!values[key]) fail(`Missing ${key} in ${file}`);
   }
+  if (!CASH_PATH_GUIDE_CATEGORIES.includes(values.category)) fail(`${file} has invalid category`);
   return { values, body: match[2].trim() };
 }
 
@@ -235,6 +238,7 @@ function parseGuide(source, file) {
     show_booking_cta: false,
     seo_title: values.seo_title,
     seo_description: values.seo_description,
+    category: values.category,
     seo_no_index: false,
     blocks,
     section_count: sections.length,
@@ -278,15 +282,17 @@ const sourceSha256 = crypto
   .createHash("sha256")
   .update(source.map(({ file, content }) => `${file}\n${content}`).join("\n"))
   .digest("hex");
-const guides = source
+const parsedGuides = source
   .map(({ file, content }) => parseGuide(content, file))
-  .sort((left, right) => left.guide_order - right.guide_order)
-  .map(({ guide_order, ...guide }) => guide);
+  .sort((left, right) => left.guide_order - right.guide_order);
+if (new Set(parsedGuides.map((guide) => guide.guide_order)).size !== parsedGuides.length)
+  fail("Duplicate guide order");
+const guides = parsedGuides.map(({ guide_order, ...guide }) => guide);
 if (new Set(guides.map((guide) => guide.slug)).size !== guides.length)
   fail("Duplicate guide slug");
 
 const banner = `/* AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY.\n * Source: docs/cashpath/guides/*.md\n * Source SHA-256: ${sourceSha256}\n * Regenerate with: node scripts/generate-cashpath-guides.mjs\n */`;
-const output = `${banner}\n\nimport type { PublicSitePage } from "./types.ts";\n\nexport const CASH_PATH_GUIDES_SOURCE_SHA256 = ${JSON.stringify(sourceSha256)};\n\nexport type CashPathGuide = PublicSitePage & { section_count: number; plain_text_word_count: number };\n\nexport const CASH_PATH_GUIDES: CashPathGuide[] = ${JSON.stringify(guides, null, 2)};\n`;
+const output = `${banner}\n\nimport type { PublicSitePage } from "./types.ts";\n\nexport const CASH_PATH_GUIDES_SOURCE_SHA256 = ${JSON.stringify(sourceSha256)};\nexport const CASH_PATH_GUIDE_CATEGORIES = ${JSON.stringify(CASH_PATH_GUIDE_CATEGORIES)} as const;\n\nexport type CashPathGuideCategory = (typeof CASH_PATH_GUIDE_CATEGORIES)[number];\nexport type CashPathGuide = PublicSitePage & { category: CashPathGuideCategory; section_count: number; plain_text_word_count: number };\n\nexport const CASH_PATH_GUIDES: CashPathGuide[] = ${JSON.stringify(guides, null, 2)};\n`;
 
 if (check) {
   if (

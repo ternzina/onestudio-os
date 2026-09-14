@@ -1,8 +1,9 @@
 ---
 slug: personal-loan-for-car-lease-buyout
-order: 99
+order: 40
 nav_label: Lease Buyout
 eyebrow: PERSONAL LOAN GUIDE
+category: Home, Auto & Major Purchases
 seo_title: "Personal Loan for a Car Lease Buyout: What to Compare | CashPath"
 seo_description: "Learn how a personal loan may be used for a car lease buyout, how it differs from secured buyout financing, and what to verify before choosing."
 ---

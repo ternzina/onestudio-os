@@ -1,8 +1,9 @@
 ---
 slug: what-fees-can-personal-loans-include
-order: 4
+order: 85
 nav_label: Personal Loan Fees
 eyebrow: PERSONAL LOAN GUIDE
+category: Loan Basics
 seo_title: "Personal Loan Fees: What Can They Include? | CashPath"
 seo_description: "Learn which fees may appear with a personal loan, including origination, documentation, insurance, and late fees, and how to review loan costs."
 ---

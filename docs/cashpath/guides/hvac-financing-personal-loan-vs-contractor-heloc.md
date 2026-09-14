@@ -1,8 +1,9 @@
 ---
 slug: hvac-financing-personal-loan-vs-contractor-heloc
-order: 104
+order: 26
 nav_label: HVAC Financing
 eyebrow: PERSONAL LOAN GUIDE
+category: Home, Auto & Major Purchases
 seo_title: "HVAC Financing: Personal Loan vs. Contractor Financing or HELOC | CashPath"
 seo_description: "Compare HVAC financing before you borrow. Learn how to verify the installed cost, check warranties and rebates, and compare contractor financing, personal loans, and HELOCs."
 ---

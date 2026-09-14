@@ -1,8 +1,9 @@
 ---
 slug: personal-loan-for-insurance-deductible
-order: 100
+order: 49
 nav_label: Insurance Deductible
 eyebrow: PERSONAL LOAN GUIDE
+category: Loan Basics
 seo_title: "Personal Loan for an Insurance Deductible: What to Check First | CashPath"
 seo_description: "Learn how to confirm a home or auto insurance deductible, separate it from other uncovered costs, compare payment options, and borrow only for the verified claim gap if needed."
 ---

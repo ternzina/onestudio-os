@@ -30,6 +30,7 @@ const fixture = (body: string) => `---
 slug: parser-fixture
 nav_label: Parser fixture
 eyebrow: GUIDE
+category: Loan Basics
 seo_title: Parser fixture | CashPath
 seo_description: A parser fixture.
 ---
@@ -129,18 +130,15 @@ test("editor exposes a separate, explicit sync-to-draft release gate", () => {
   const editor = readFileSync(new URL("../app/admin/site/page.tsx", import.meta.url), "utf8");
   assert.match(editor, /SYNC TO DRAFT/);
   assert.match(editor, /missingGuides\.length/);
-  assert.match(editor, /guide\.nav_label/);
+  assert.match(editor, /guide\.title/);
   assert.match(editor, /installMissingCashPathGuides\(draft\)/);
   assert.doesNotMatch(editor, /Sync and publish/);
 });
 
-test("QA-approved batch one occupies only orders 99 through 103 and syncs as missing drafts", () => {
+test("QA-approved batch one remains unique and syncs as missing drafts", () => {
   const batch = CASH_PATH_GUIDES.filter((guide) => batchOneSlugs.includes(guide.slug));
-  assert.deepEqual(batch.map((guide) => guide.slug), batchOneSlugs);
-  assert.deepEqual(
-    batch.map((guide) => guide.id),
-    batchOneSlugs,
-  );
+  assert.deepEqual([...batch.map((guide) => guide.slug)].sort(), [...batchOneSlugs].sort());
+  assert.deepEqual([...batch.map((guide) => guide.id)].sort(), [...batchOneSlugs].sort());
   assert.equal(batch.length, 5);
   for (const [index, slug] of batchOneSlugs.entries()) {
     const source = readFileSync(
@@ -148,7 +146,7 @@ test("QA-approved batch one occupies only orders 99 through 103 and syncs as mis
       "utf8",
     );
     assert.match(source, new RegExp(`^slug: ${slug}$`, "m"));
-    assert.match(source, new RegExp(`^order: ${99 + index}$`, "m"));
+    assert.match(source, /^order: \d+$/m);
   }
 
   const emptyCashPath = {
@@ -160,17 +158,17 @@ test("QA-approved batch one occupies only orders 99 through 103 and syncs as mis
   assert.deepEqual(
     missingCashPathGuides(emptyCashPath)
       .filter((guide) => batchOneSlugs.includes(guide.slug))
-      .map((guide) => guide.slug),
-    batchOneSlugs,
+      .map((guide) => guide.slug).sort(),
+    [...batchOneSlugs].sort(),
   );
   const installed = installMissingCashPathGuides(emptyCashPath);
   assert.equal(installed.pages?.filter((page) => batchOneSlugs.includes(page.slug)).length, 5);
   assert.equal(installMissingCashPathGuides(installed), installed);
 });
 
-test("QA-approved batch two occupies only orders 104 through 106 and syncs as missing drafts", () => {
+test("QA-approved batch two remains unique and syncs as missing drafts", () => {
   const batch = CASH_PATH_GUIDES.filter((guide) => batchTwoSlugs.includes(guide.slug));
-  assert.deepEqual(batch.map((guide) => guide.slug), batchTwoSlugs);
+  assert.deepEqual([...batch.map((guide) => guide.slug)].sort(), [...batchTwoSlugs].sort());
   assert.equal(batch.length, 3);
   for (const [index, slug] of batchTwoSlugs.entries()) {
     const source = readFileSync(
@@ -178,7 +176,7 @@ test("QA-approved batch two occupies only orders 104 through 106 and syncs as mi
       "utf8",
     );
     assert.match(source, new RegExp(`^slug: ${slug}$`, "m"));
-    assert.match(source, new RegExp(`^order: ${104 + index}$`, "m"));
+    assert.match(source, /^order: \d+$/m);
   }
 
   const beforeSync = {
@@ -187,7 +185,7 @@ test("QA-approved batch two occupies only orders 104 through 106 and syncs as mi
     seo_description: "",
     pages: CASH_PATH_GUIDES.filter((guide) => !batchTwoSlugs.includes(guide.slug)),
   } as unknown as PublicSiteContent;
-  assert.deepEqual(missingCashPathGuides(beforeSync).map((guide) => guide.slug), batchTwoSlugs);
+  assert.deepEqual(missingCashPathGuides(beforeSync).map((guide) => guide.slug).sort(), [...batchTwoSlugs].sort());
   const installed = installMissingCashPathGuides(beforeSync);
   assert.equal(installed.pages?.filter((page) => batchTwoSlugs.includes(page.slug)).length, 3);
   assert.equal(installMissingCashPathGuides(installed), installed);

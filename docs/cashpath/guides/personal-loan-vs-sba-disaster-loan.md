@@ -1,8 +1,9 @@
 ---
 slug: personal-loan-vs-sba-disaster-loan
-order: 101
+order: 73
 nav_label: SBA Disaster Loan
 eyebrow: PERSONAL LOAN GUIDE
+category: Compare Borrowing Options
 seo_title: "Personal Loan vs. SBA Disaster Loan: What to Check After a Disaster | CashPath"
 seo_description: "Compare an SBA home or personal-property disaster loan with an ordinary personal loan, including declaration eligibility, insurance coordination, collateral, timing, terms, and the verified recovery gap."
 ---

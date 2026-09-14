@@ -1,4 +1,4 @@
-import { CASH_PATH_GUIDES } from "./cashpath-guides.generated.ts";
+import { CASH_PATH_GUIDES, type CashPathGuide } from "./cashpath-guides.generated.ts";
 import type { PublicSiteContent, PublicSitePage } from "./types.ts";
 
 const clone = (page: PublicSitePage): PublicSitePage => ({
@@ -18,7 +18,7 @@ export function missingCashPathGuides(
 /** Guides may be linked publicly only when their installed page is public too. */
 export function eligibleCashPathGuideLinks(
   content: PublicSiteContent,
-): PublicSitePage[] {
+): CashPathGuide[] {
   if (content.template_id !== "cashpath") return [];
   const pagesBySlug = new Map((content.pages ?? []).map((page) => [page.slug, page]));
   return CASH_PATH_GUIDES.filter((guide) => {

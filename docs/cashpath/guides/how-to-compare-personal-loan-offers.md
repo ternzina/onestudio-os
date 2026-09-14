@@ -1,8 +1,9 @@
 ---
 slug: how-to-compare-personal-loan-offers
-order: 3
+order: 24
 nav_label: Compare Loan Offers
 eyebrow: PERSONAL LOAN GUIDE
+category: Compare Borrowing Options
 seo_title: "How to Compare Personal Loan Offers | CashPath"
 seo_description: "Learn how to compare personal loan offers by reviewing APR, interest rate, fees, payment amount, loan term, and lender disclosures before deciding."
 ---
