@@ -83,3 +83,12 @@ test("CashPath public SEO routes use clean category, canonical, breadcrumb, and 
     assert.equal(cashPathGuideCategoryPath(category.slug), `/p/guides/${category.slug}`);
   }
 });
+
+test("CashPath category metadata is guarded by the resolved tenant", () => {
+  const categoryPage = readFileSync(new URL("../app/site/[businessSlug]/p/guides/[categorySlug]/page.tsx", import.meta.url), "utf8");
+  assert.match(categoryPage, /const \{ businessSlug, categorySlug \} = await params/);
+  assert.match(categoryPage, /getPublicSite\(businessSlug\)/);
+  assert.match(categoryPage, /!category \|\| !site \|\| site\.content\.template_id !== "cashpath"/);
+  assert.match(categoryPage, /robots: \{ index: false, follow: false \}/);
+  assert.doesNotMatch(categoryPage, /if \(!category\) return \{ title: "Page not found", robots: \{ index: false \} \}/);
+});

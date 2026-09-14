@@ -15,10 +15,18 @@ type CategoryPageProps = {
 };
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const { categorySlug } = await params;
+  const { businessSlug, categorySlug } = await params;
   const category = getCashPathGuideCategoryBySlug(categorySlug);
-  if (!category) return { title: "Page not found", robots: { index: false } };
-  const context = await getPublicSiteRequestContext();
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
+  if (!category || !site || site.content.template_id !== "cashpath") {
+    return {
+      title: "Page not found",
+      robots: { index: false, follow: false },
+    };
+  }
   const origin = context.origin || "https://cashpath.org";
   const canonical = new URL(cashPathGuideCategoryPath(category.slug), origin).toString();
   return {
