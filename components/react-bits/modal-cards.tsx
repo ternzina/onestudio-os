@@ -37,6 +37,8 @@ export interface ModalCardsProps {
   closeOnBackdropClick?: boolean;
   /** Close modal when pressing Escape key (default: true) */
   closeOnEscape?: boolean;
+  /** Lock document body scroll while the card modal is open */
+  lockBodyScroll?: boolean;
   /** Show close button in modal (default: true) */
   showCloseButton?: boolean;
   /** Aria label for modal accessibility */
@@ -96,6 +98,7 @@ const ModalCards = ({
   animationVariant = "scale",
   closeOnBackdropClick = true,
   closeOnEscape = true,
+  lockBodyScroll = true,
   showCloseButton = true,
   ariaLabel = "Card details modal",
   backdropGradientPosition = "50% 10%",
@@ -135,16 +138,15 @@ const ModalCards = ({
   }, []);
 
   useEffect(() => {
-    if (selectedCard) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!selectedCard || !lockBodyScroll) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
     };
-  }, [selectedCard]);
+  }, [selectedCard, lockBodyScroll]);
 
   useEffect(() => {
     if (!closeOnEscape || !selectedCard) return;
