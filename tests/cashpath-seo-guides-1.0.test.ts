@@ -150,11 +150,8 @@ test("CashPath footers discover only a visible and indexable installed guide", a
     ),
   ]);
   for (const source of [home, customPage]) {
-    assert.match(source, /CASH_PATH_GUIDES/);
+    assert.match(source, /eligibleCashPathGuideLinks/);
     assert.match(source, /guide\.slug/);
-    assert.match(source, /is_visible !== false/);
-    assert.match(source, /seo_no_index !== true/);
     assert.match(source, /guide\.nav_label/);
-    assert.doesNotMatch(source, /hasAprGuide/);
   }
 });

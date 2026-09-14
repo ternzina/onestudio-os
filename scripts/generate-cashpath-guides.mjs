@@ -4,10 +4,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const inputDirectory = path.join(root, "docs/cashpath/guides");
-const outputFile = path.join(
+const argumentValue = (name) => {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : null;
+};
+const inputDirectory = path.resolve(
   root,
-  "lib/public-site/cashpath-guides.generated.ts",
+  argumentValue("--input-dir") || "docs/cashpath/guides",
+);
+const outputFile = path.resolve(
+  root,
+  argumentValue("--output-file") || "lib/public-site/cashpath-guides.generated.ts",
 );
 const check = process.argv.includes("--check");
 const richTextPrefix = "__osrt1__:";
@@ -119,6 +126,7 @@ function parseGuide(source, file) {
   const { values, body } = parseFrontmatter(source, file);
   const lines = body.split(/\r?\n/);
   if (!lines[0]?.startsWith("# ")) fail(`${file} must begin with an H1`);
+  validateSupportedMarkdown(lines, file);
   const title = lines[0].slice(2).trim();
   const sections = [];
   let introLines = [];
@@ -137,6 +145,7 @@ function parseGuide(source, file) {
     const nodes = [];
     let paragraph = [];
     let bullets = [];
+    let numbered = [];
     const flushParagraph = () => {
       const text = paragraph.join(" ").trim();
       if (text) nodes.push({ type: "p", children: inlineNodes(text) });
@@ -153,21 +162,40 @@ function parseGuide(source, file) {
         });
       bullets = [];
     };
+    const flushNumbered = () => {
+      if (numbered.length)
+        nodes.push({
+          type: "ol",
+          children: numbered.map((item) => ({
+            type: "li",
+            children: inlineNodes(item),
+          })),
+        });
+      numbered = [];
+    };
     for (const raw of sectionLines) {
       const line = raw.trim();
       if (!line) {
         flushParagraph();
         flushBullets();
-      } else if (line.startsWith("- ")) {
+        flushNumbered();
+      } else if (/^[-+*]\s+/.test(line)) {
         flushParagraph();
-        bullets.push(line.slice(2).trim());
+        flushNumbered();
+        bullets.push(line.replace(/^[-+*]\s+/, "").trim());
+      } else if (/^\d+\.\s+/.test(line)) {
+        flushParagraph();
+        flushBullets();
+        numbered.push(line.replace(/^\d+\.\s+/, "").trim());
       } else {
         flushBullets();
+        flushNumbered();
         paragraph.push(line);
       }
     }
     flushParagraph();
     flushBullets();
+    flushNumbered();
     return nodes;
   };
 
@@ -212,6 +240,28 @@ function parseGuide(source, file) {
     section_count: sections.length,
     plain_text_word_count: words,
   };
+}
+
+function validateSupportedMarkdown(lines, file) {
+  for (const [index, raw] of lines.entries()) {
+    const lineNumber = index + 1;
+    const line = raw.trim();
+    if (!line) continue;
+    const unsupported =
+      /^#{3,}\s/.test(line) ||
+      (index > 0 && /^#\s/.test(line)) ||
+      /^```/.test(line) ||
+      /^>/.test(line) ||
+      /^!\[/.test(line) ||
+      /^\s{2,}([-+*]|\d+\.)\s+/.test(raw) ||
+      /^\|.*\|\s*$/.test(line) ||
+      /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line) ||
+      /`/.test(line) ||
+      /<\/?[a-z][^>]*>/i.test(line);
+    if (unsupported) {
+      fail(`${file}:${lineNumber} uses unsupported Markdown; supported content is H1/H2, paragraphs, flat lists, and safe inline links/emphasis`);
+    }
+  }
 }
 
 if (!fs.existsSync(inputDirectory)) fail("Guide source directory is missing");

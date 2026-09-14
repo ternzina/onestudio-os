@@ -66,5 +66,15 @@ export default async function LocalizedCustomPage({
     );
   }
 
-  return <PublicCustomPageRuntime site={site} page={page} />;
+  return (
+    <PublicCustomPageRuntime
+      site={site}
+      page={page}
+      basePath={
+        context.cleanUrls
+          ? `/${normalizedLocale}`
+          : `/site/${businessSlug}/${normalizedLocale}`
+      }
+    />
+  );
 }

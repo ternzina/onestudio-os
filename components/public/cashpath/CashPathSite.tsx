@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import PublicCustomBlock from "@/components/public/PublicCustomBlock";
-import { CASH_PATH_GUIDES } from "@/lib/public-site/cashpath-guides.generated";
+import { eligibleCashPathGuideLinks } from "@/lib/public-site/cashpath-guides";
 import type { PremiumTemplatePublicHomeRendererProps } from "@/lib/public-site/premium-template-runtime-adapter";
 import styles from "./CashPathSite.module.css";
 
@@ -28,7 +28,7 @@ export default function CashPathSite({ site, basePath }: PremiumTemplatePublicHo
   const form = site.content.custom_blocks?.find((block) => block.kind === "leadsgate_form");
   const scroll = () => document.getElementById("request")?.scrollIntoView({ behavior: "smooth" });
   const page = (slug: string) => `${basePath === "/" ? "" : basePath}/p/${slug}`;
-  const guideLinks = CASH_PATH_GUIDES.filter((guide) => (site.content.pages ?? []).some((page) => page.slug === guide.slug && page.is_visible !== false && page.seo_no_index !== true)).map((guide) => [guide.nav_label, guide.slug] as [string, string]);
+  const guideLinks = eligibleCashPathGuideLinks(site.content).map((guide) => [guide.nav_label, guide.slug] as [string, string]);
   const reveal = { reducedMotion, distance: isMobile ? 40 : 64, duration: isMobile ? 0.8 : 1 };
   const stagger = (delay: number) => ({ initial: reducedMotion ? false : { opacity: 0, y: 28 }, whileInView: reducedMotion ? undefined : { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.32 }, transition: { duration: isMobile ? 0.8 : 0.95, delay: reducedMotion ? 0 : delay, ease: [0.16, 1, 0.3, 1] as const } });
   return <main className={styles.site}>

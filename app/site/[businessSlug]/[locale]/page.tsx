@@ -77,7 +77,14 @@ export default async function LocalizedPublicSitePage({
   return (
     <>
       <PublicSiteStructuredData site={site} />
-      <PublicSiteTemplateRuntime site={site} basePath={`/site/${businessSlug}/${normalizedLocale}`} />
+      <PublicSiteTemplateRuntime
+        site={site}
+        basePath={
+          context.cleanUrls
+            ? `/${normalizedLocale}`
+            : `/site/${businessSlug}/${normalizedLocale}`
+        }
+      />
     </>
   );
 }

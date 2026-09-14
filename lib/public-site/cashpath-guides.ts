@@ -15,6 +15,18 @@ export function missingCashPathGuides(
   return CASH_PATH_GUIDES.filter((guide) => !existingSlugs.has(guide.slug));
 }
 
+/** Guides may be linked publicly only when their installed page is public too. */
+export function eligibleCashPathGuideLinks(
+  content: PublicSiteContent,
+): PublicSitePage[] {
+  if (content.template_id !== "cashpath") return [];
+  const pagesBySlug = new Map((content.pages ?? []).map((page) => [page.slug, page]));
+  return CASH_PATH_GUIDES.filter((guide) => {
+    const page = pagesBySlug.get(guide.slug);
+    return page?.type === "custom" && page.is_visible !== false && page.seo_no_index !== true;
+  });
+}
+
 /** Draft-only, append-only installer for newly introduced CashPath guides. */
 export function installMissingCashPathGuides(
   content: PublicSiteContent,

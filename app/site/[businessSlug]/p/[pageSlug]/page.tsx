@@ -35,7 +35,10 @@ export async function generateMetadata({
 
 export default async function CustomPage({ params }: CustomPageProps) {
   const { businessSlug, pageSlug } = await params;
-  const site = await getPublicSite(businessSlug);
+  const [site, context] = await Promise.all([
+    getPublicSite(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
   const page = site?.content.pages?.find(
     (item) =>
       item.type === "custom" &&
@@ -44,5 +47,11 @@ export default async function CustomPage({ params }: CustomPageProps) {
   );
 
   if (!site || !page) notFound();
-  return <PublicCustomPageRuntime site={site} page={page} />;
+  return (
+    <PublicCustomPageRuntime
+      site={site}
+      page={page}
+      basePath={context.cleanUrls ? "/" : `/site/${businessSlug}`}
+    />
+  );
 }
