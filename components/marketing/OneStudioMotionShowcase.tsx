@@ -78,7 +78,16 @@ export type ComponentCatalogItemId =
   | "flicker-mono"
   | "flicker-rainbow"
   | "page-flip-dark"
-  | "glitch-text-soft";
+  | "glitch-text-soft"
+  | "glue-dots"
+  | "device"
+  | "gradient-carousel"
+  | "liquid-ascii"
+  | "magic-transform"
+  | "text-scatter"
+  | "modal-cards"
+  | "scroll-mask"
+  | "dot-shift";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -123,6 +132,15 @@ const loadSkewedCarousel = () => import("@/components/react-bits/skewed-carousel
 const loadTumbleCarousel = () => import("@/components/react-bits/tumble-carousel");
 const loadRotatingCards = () => import("@/components/react-bits/rotating-cards");
 const loadCreditCard = () => import("@/components/react-bits/credit-card");
+const loadGlueDots = () => import("@/components/react-bits/glue-dots");
+const loadDevice = () => import("@/components/react-bits/device");
+const loadGradientCarousel = () => import("@/components/react-bits/gradient-carousel");
+const loadLiquidAscii = () => import("@/components/react-bits/liquid-ascii");
+const loadMagicTransform = () => import("@/components/react-bits/magic-transform");
+const loadTextScatter = () => import("@/components/react-bits/text-scatter");
+const loadModalCards = () => import("@/components/react-bits/modal-cards");
+const loadScrollMask = () => import("@/components/react-bits/scroll-mask");
+const loadDotShift = () => import("@/components/react-bits/dot-shift");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -246,6 +264,51 @@ const DynamicRotatingCards = dynamic(
 
 const DynamicCreditCard = dynamic(
   loadCreditCard,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicGlueDots = dynamic(
+  loadGlueDots,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicDevice = dynamic(
+  loadDevice,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicGradientCarousel = dynamic(
+  loadGradientCarousel,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicLiquidAscii = dynamic(
+  loadLiquidAscii,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicMagicTransform = dynamic(
+  loadMagicTransform,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicTextScatter = dynamic(
+  loadTextScatter,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicModalCards = dynamic(
+  loadModalCards,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicScrollMask = dynamic(
+  loadScrollMask,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicDotShift = dynamic(
+  loadDotShift,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -1672,6 +1735,265 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     }),
   },
 
+
+  {
+    id: "glue-dots",
+    slug: "glue-dots",
+    name: "Glue Dots",
+    categories: ["backgrounds", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-night.webp",
+    preload: loadGlueDots,
+    component: DynamicGlueDots,
+    getProps: (reducedMotion) => ({
+      columns: 13,
+      rows: 8,
+      fill: true,
+      inset: 8,
+      dotRadius: 8,
+      blur: 6,
+      contrast: 24,
+      merge: true,
+      tension: 0.08,
+      damping: 0.82,
+      travelDelay: 0.05,
+      bounce: reducedMotion ? 0 : 11,
+      decay: 2.8,
+      frequency: 11,
+      spread: 0.18,
+      rippleOnPress: !reducedMotion,
+      cursorInteraction: !reducedMotion,
+      cursorRadius: 150,
+      cursorPull: 17,
+      cursorSwell: 0.2,
+      color: "#ffd0bc",
+      backgroundColor: "#17100c",
+      opacity: 0.94,
+      paused: reducedMotion,
+      dpr: 1.5,
+    }),
+  },
+  {
+    id: "device",
+    slug: "device",
+    name: "Device",
+    categories: ["hero", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/hero.webp",
+    preload: loadDevice,
+    component: DynamicDevice,
+    getProps: (reducedMotion) => ({
+      image: circleGalleryImages[0],
+      scale: 0.22,
+      isScrollable: false,
+      enableParallax: !reducedMotion,
+      parallaxStrength: 18,
+      enableRotate: !reducedMotion,
+      rotateStrength: 4.2,
+      autoAnimate: !reducedMotion,
+      autoAnimateSpeed: 0.018,
+    }),
+  },
+  {
+    id: "gradient-carousel",
+    slug: "gradient-carousel",
+    name: "Gradient Carousel",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-02.webp",
+    preload: loadGradientCarousel,
+    component: DynamicGradientCarousel,
+    getProps: () => ({
+      images: circleGalleryImages.slice(0, 8),
+      maxRotationDegrees: 24,
+      maxDepthPx: 110,
+      minScale: 0.9,
+      cardGap: 18,
+      frictionFactor: 0.91,
+      wheelSensitivity: 0.35,
+      dragSensitivity: 1,
+      backgroundBlur: 24,
+      gradientSize: 0.58,
+      gradientIntensity: 0.58,
+      enableKeyboard: false,
+      cardAspectRatio: 4 / 5,
+      initialIndex: 2,
+    }),
+  },
+  {
+    id: "liquid-ascii",
+    slug: "liquid-ascii",
+    name: "Liquid ASCII",
+    categories: ["backgrounds", "typography", "motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/scene-dusk.webp",
+    preload: loadLiquidAscii,
+    component: DynamicLiquidAscii,
+    getProps: (reducedMotion) => ({
+      width: "100%",
+      height: "100%",
+      speed: reducedMotion ? 0 : 0.62,
+      cellSize: 13,
+      gravity: -18,
+      flipRatio: 0.28,
+      pressureIters: 22,
+      separationIters: 2,
+      overRelaxation: 1.35,
+      fillHeight: 0.43,
+      cursorRadius: 0.22,
+      cursorForce: reducedMotion ? 0 : 48,
+      characters: " ·:-~=+*#%@",
+      color: "#ffd8c7",
+      backgroundColor: "#130d0a",
+      fontFamily: "monospace",
+      opacity: 0.96,
+      autoWave: !reducedMotion,
+    }),
+  },
+  {
+    id: "magic-transform",
+    slug: "magic-transform",
+    name: "Magic Transform",
+    categories: ["motion", "interactive"],
+    adapterClass: "motionAdapter",
+    poster: "/images/demos/premium-studio/bright/booking.webp",
+    preload: loadMagicTransform,
+    component: DynamicMagicTransform,
+    getProps: (reducedMotion) => ({
+      width: "100%",
+      height: "100%",
+      documentDuration: reducedMotion ? 100000 : 3.4,
+      documentWidth: 108,
+      documentHeight: 142,
+      documentGap: 18,
+      axisColor: "#ff9a6d",
+      backgroundColor: "transparent",
+      centerSize: 44,
+      particleCount: reducedMotion ? 0 : 18,
+      paused: reducedMotion,
+    }),
+  },
+  {
+    id: "text-scatter",
+    slug: "text-scatter",
+    name: "Text Scatter",
+    categories: ["typography", "motion", "interactive"],
+    adapterClass: "textAdapter",
+    poster: "/images/demos/premium-studio/bright/emotional.webp",
+    preload: loadTextScatter,
+    component: DynamicTextScatter,
+    getProps: (reducedMotion) => ({
+      text: "CREATE DIFFERENT",
+      as: "h2",
+      velocity: reducedMotion ? 0 : 90,
+      rotation: reducedMotion ? 0 : 36,
+      scale: reducedMotion ? 1 : 1.08,
+      returnAfter: reducedMotion ? 0 : 0.15,
+      duration: reducedMotion ? 0.01 : 0.72,
+      className: "text-center text-4xl font-semibold tracking-[-0.04em]",
+    }),
+  },
+
+
+  {
+    id: "modal-cards",
+    slug: "modal-cards",
+    name: "Modal Cards",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-05.webp",
+    preload: loadModalCards,
+    component: DynamicModalCards,
+    getProps: (reducedMotion) => ({
+      cards: [
+        {
+          id: "editorial",
+          imageUrl: circleGalleryImages[1],
+          title: "Editorial",
+          description: "Open the card to reveal a focused story view.",
+          gradientColor: "#ff814a",
+        },
+        {
+          id: "motion",
+          imageUrl: circleGalleryImages[4],
+          title: "Motion",
+          description: "A compact gallery that expands without leaving the page.",
+          gradientColor: "#8f5bff",
+        },
+        {
+          id: "detail",
+          imageUrl: circleGalleryImages[6],
+          title: "Detail",
+          description: "Use modal cards for portfolios, cases, products or stories.",
+          gradientColor: "#45c7ff",
+        },
+      ],
+      gradientColor: "#ff814a",
+      animationSpeed: reducedMotion ? "none" : "fast",
+      animationVariant: "scale",
+      closeOnBackdropClick: true,
+      closeOnEscape: false,
+      lockBodyScroll: false,
+      showCloseButton: true,
+      ariaLabel: "Component preview card details",
+      backdropGradientPosition: "50% 14%",
+    }),
+  },
+
+
+  {
+    id: "scroll-mask",
+    slug: "scroll-mask",
+    name: "Scroll Mask",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-03.webp",
+    preload: loadScrollMask,
+    component: DynamicScrollMask,
+    getProps: (reducedMotion) => ({
+      variant: "iris",
+      src: circleGalleryImages[2],
+      alt: "Scroll Mask preview",
+      word: "REVEAL",
+      scrollLength: 0.25,
+      settle: 0.28,
+      smooth: reducedMotion ? 0 : 0.03,
+      feather: 7,
+      stagger: 0.12,
+      columns: 7,
+      originX: 50,
+      originY: 48,
+      angle: 108,
+      zoom: reducedMotion ? 1 : 1.14,
+      fit: "cover",
+      radius: 16,
+      overlay: 0.08,
+      background: "#130d0a",
+      revealContent: false,
+      calm: reducedMotion,
+    }),
+  },
+
+  {
+    id: "dot-shift",
+    slug: "dot-shift",
+    name: "Dot Shift",
+    categories: ["motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-07.webp",
+    preload: loadDotShift,
+    component: DynamicDotShift,
+    getProps: (reducedMotion) => ({
+      speed: reducedMotion ? 0 : 0.42,
+      scale: 0.72,
+      color: "#d6b4ff",
+      size: 0.64,
+      blur: 0.42,
+      dpr: [1, 1.25] as [number, number],
+      className: "h-full min-h-[260px] w-full rounded-2xl",
+    }),
+  },
+
 ];
 
 
@@ -1776,6 +2098,16 @@ const componentCatalogFamilySpecs = [
       "credit-forest",
     ],
   },
+
+  { id: "glue-dots", name: "Glue Dots", itemIds: ["glue-dots"] },
+  { id: "device", name: "Device", itemIds: ["device"] },
+  { id: "gradient-carousel", name: "Gradient Carousel", itemIds: ["gradient-carousel"] },
+  { id: "liquid-ascii", name: "Liquid ASCII", itemIds: ["liquid-ascii"] },
+  { id: "magic-transform", name: "Magic Transform", itemIds: ["magic-transform"] },
+  { id: "text-scatter", name: "Text Scatter", itemIds: ["text-scatter"] },
+  { id: "modal-cards", name: "Modal Cards", itemIds: ["modal-cards"] },
+  { id: "scroll-mask", name: "Scroll Mask", itemIds: ["scroll-mask"] },
+  { id: "dot-shift", name: "Dot Shift", itemIds: ["dot-shift"] },
 ] as const satisfies readonly {
   id: string;
   name: string;
