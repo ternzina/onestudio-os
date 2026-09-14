@@ -85,5 +85,6 @@ export const components = {
     "liquid-ascii": { label: "Liquid ASCII", description: "Жидкое ASCII-поле изгибается и течёт вслед за движением курсора." },
     "magic-transform": { label: "Magic Transform", description: "Документы проходят через визуальный трансформер и превращаются в структурированные результаты." },
     "text-scatter": { label: "Text Scatter", description: "Буквы разлетаются от курсора и пружинят обратно на свои места." },
+    "modal-cards": { label: "Modal Cards", description: "Интерактивные карточки раскрываются в модальное окно с подробным содержанием." },
   },
 } as const;

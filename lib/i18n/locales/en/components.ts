@@ -85,5 +85,6 @@ export const components = {
     "liquid-ascii": { label: "Liquid ASCII", description: "A fluid ASCII field that bends and flows around the pointer." },
     "magic-transform": { label: "Magic Transform", description: "Documents stream through a transformer and emerge as structured result chips." },
     "text-scatter": { label: "Text Scatter", description: "Letters scatter away from the pointer and spring back into place." },
+    "modal-cards": { label: "Modal Cards", description: "Interactive cards expand into a focused modal story without leaving the page." },
   },
 } as const;

@@ -84,7 +84,8 @@ export type ComponentCatalogItemId =
   | "gradient-carousel"
   | "liquid-ascii"
   | "magic-transform"
-  | "text-scatter";
+  | "text-scatter"
+  | "modal-cards";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -135,6 +136,7 @@ const loadGradientCarousel = () => import("@/components/react-bits/gradient-caro
 const loadLiquidAscii = () => import("@/components/react-bits/liquid-ascii");
 const loadMagicTransform = () => import("@/components/react-bits/magic-transform");
 const loadTextScatter = () => import("@/components/react-bits/text-scatter");
+const loadModalCards = () => import("@/components/react-bits/modal-cards");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -288,6 +290,11 @@ const DynamicMagicTransform = dynamic(
 
 const DynamicTextScatter = dynamic(
   loadTextScatter,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicModalCards = dynamic(
+  loadModalCards,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -1873,6 +1880,52 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     }),
   },
 
+
+  {
+    id: "modal-cards",
+    slug: "modal-cards",
+    name: "Modal Cards",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-05.webp",
+    preload: loadModalCards,
+    component: DynamicModalCards,
+    getProps: (reducedMotion) => ({
+      cards: [
+        {
+          id: "editorial",
+          imageUrl: circleGalleryImages[1],
+          title: "Editorial",
+          description: "Open the card to reveal a focused story view.",
+          gradientColor: "#ff814a",
+        },
+        {
+          id: "motion",
+          imageUrl: circleGalleryImages[4],
+          title: "Motion",
+          description: "A compact gallery that expands without leaving the page.",
+          gradientColor: "#8f5bff",
+        },
+        {
+          id: "detail",
+          imageUrl: circleGalleryImages[6],
+          title: "Detail",
+          description: "Use modal cards for portfolios, cases, products or stories.",
+          gradientColor: "#45c7ff",
+        },
+      ],
+      gradientColor: "#ff814a",
+      animationSpeed: reducedMotion ? "none" : "fast",
+      animationVariant: "scale",
+      closeOnBackdropClick: true,
+      closeOnEscape: false,
+      lockBodyScroll: false,
+      showCloseButton: true,
+      ariaLabel: "Component preview card details",
+      backdropGradientPosition: "50% 14%",
+    }),
+  },
+
 ];
 
 
@@ -1984,6 +2037,7 @@ const componentCatalogFamilySpecs = [
   { id: "liquid-ascii", name: "Liquid ASCII", itemIds: ["liquid-ascii"] },
   { id: "magic-transform", name: "Magic Transform", itemIds: ["magic-transform"] },
   { id: "text-scatter", name: "Text Scatter", itemIds: ["text-scatter"] },
+  { id: "modal-cards", name: "Modal Cards", itemIds: ["modal-cards"] },
 ] as const satisfies readonly {
   id: string;
   name: string;

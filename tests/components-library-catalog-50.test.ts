@@ -51,7 +51,7 @@ test("public component catalog reaches fifty while homepage remains curated", ()
   );
 
   assert.ok(catalogIds.length >= 50);
-  assert.equal(new Set(catalogIds).size, 56);
+  assert.equal(new Set(catalogIds).size, catalogIds.length);
   assert.ok(!catalogIds.includes("splash-cursor"));
 
   for (const id of newIds) {

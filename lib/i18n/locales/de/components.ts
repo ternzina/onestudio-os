@@ -43,4 +43,5 @@ export const components = { ...englishComponents, page: { eyebrow: "KOMPONENTEN"
     "liquid-ascii": { label: "Liquid ASCII", description: "Ein fließendes ASCII-Feld reagiert auf die Bewegung des Zeigers." },
     "magic-transform": { label: "Magic Transform", description: "Dokumente laufen durch einen visuellen Transformer und werden zu strukturierten Ergebnissen." },
     "text-scatter": { label: "Text Scatter", description: "Buchstaben weichen dem Zeiger aus und federn an ihren Platz zurück." },
+    "modal-cards": { label: "Modal Cards", description: "Interaktive Karten öffnen sich als fokussierte Detailansicht im Modal." },
   } } as const;
