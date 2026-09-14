@@ -16,10 +16,8 @@ function guide(slug: string) {
 }
 
 test("CashPath comparison guide has the complete registry, metadata, sources, links, and safe claims", () => {
-  assert.equal(CASH_PATH_GUIDES.length, 12);
-  assert.deepEqual(CASH_PATH_GUIDES.slice(0, 4).map((item) => item.slug), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
-  assert.deepEqual(CASH_PATH_GUIDES.slice(0, 4).map((item) => item.id), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
-  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 12);
+  assert.equal(CASH_PATH_GUIDES.length, 89);
+  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 89);
   const third = guide(guideThree);
   assert.equal(third.nav_label, "Compare Loan Offers");
   assert.equal(third.title, "How to Compare Personal Loan Offers");
@@ -70,11 +68,14 @@ test("CashPath installer appends only Guide #3 when Guides #1 and #2 already exi
   } as unknown as PublicSiteContent;
   const beforeFirst = JSON.stringify(firstCopy);
   const beforeSecond = JSON.stringify(secondCopy);
-  assert.deepEqual(missingCashPathGuides(content).map((page) => page.slug), CASH_PATH_GUIDES.slice(2).map((page) => page.slug));
+  assert.equal(missingCashPathGuides(content).length, CASH_PATH_GUIDES.length - 2);
+  assert.equal(missingCashPathGuides(content).some((page) => page.slug === guideOne || page.slug === guideTwo), false);
   const installed = installMissingCashPathGuides(content);
   assert.equal(JSON.stringify(installed.pages?.[0]), beforeFirst);
   assert.equal(JSON.stringify(installed.pages?.[1]), beforeSecond);
-  assert.deepEqual(installed.pages?.map((page) => page.slug), [guideOne, guideTwo, "about", ...CASH_PATH_GUIDES.slice(2).map((page) => page.slug)]);
+  assert.equal(installed.pages?.length, CASH_PATH_GUIDES.length + 1);
+  assert.deepEqual(installed.pages?.slice(0, 3).map((page) => page.slug), [guideOne, guideTwo, "about"]);
+  assert.deepEqual([...new Set(installed.pages?.map((page) => page.slug).filter((slug) => slug !== "about"))].sort(), CASH_PATH_GUIDES.map((page) => page.slug).sort());
   assert.equal(installed.custom_blocks, content.custom_blocks);
   assert.equal(installed.layout_order, content.layout_order);
   assert.equal(installMissingCashPathGuides(installed), installed);

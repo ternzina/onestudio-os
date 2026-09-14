@@ -128,8 +128,14 @@ async function platformWorkspaceEntries(
             changeFrequency: "weekly" as const,
             priority: entry.is_primary ? 0.75 : 0.65,
           }));
+          const cashPathHub: MetadataRoute.Sitemap = site.content.template_id === "cashpath" ? [{
+            url: new URL(publicCustomPagePath(entry.business_slug, "guides", pathLocale), SITE_URL).toString(),
+            lastModified,
+            changeFrequency: "weekly" as const,
+            priority: entry.is_primary ? 0.8 : 0.7,
+          }] : [];
 
-          return [home, ...pages, ...premiumPages];
+          return [home, ...pages, ...premiumPages, ...cashPathHub];
         }),
     )
   ).flat();
@@ -192,8 +198,14 @@ async function customDomainEntries(
           changeFrequency: "weekly" as const,
           priority: entry.is_primary ? 0.8 : 0.7,
         }));
+        const cashPathHub: MetadataRoute.Sitemap = site.content.template_id === "cashpath" ? [{
+          url: new URL(cleanPublicPagePath("guides", pathLocale, true), origin).toString(),
+          lastModified,
+          changeFrequency: "weekly" as const,
+          priority: entry.is_primary ? 0.8 : 0.7,
+        }] : [];
 
-        return [home, ...pages, ...premiumPages];
+        return [home, ...pages, ...premiumPages, ...cashPathHub];
       }),
     )
   ).flat();
