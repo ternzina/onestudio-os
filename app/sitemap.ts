@@ -23,6 +23,7 @@ import {
   publicSitePath,
 } from "@/lib/public-site/metadata";
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
+import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "@/lib/public-site/cashpath-guide-categories";
 import { listPublishedGuideSitemapEntries } from "@/lib/guides/repository";
 import { platformMarketingLocale } from "@/lib/i18n/config";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
@@ -60,6 +61,15 @@ async function platformMarketingEntries(): Promise<MetadataRoute.Sitemap> {
 function validDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+function uniqueSitemapEntries(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const seen = new Set<string>();
+  return entries.filter((entry) => {
+    if (seen.has(entry.url)) return false;
+    seen.add(entry.url);
+    return true;
+  });
 }
 
 async function platformWorkspaceEntries(
@@ -134,8 +144,14 @@ async function platformWorkspaceEntries(
             changeFrequency: "weekly" as const,
             priority: entry.is_primary ? 0.8 : 0.7,
           }] : [];
+          const cashPathCategoryHubs: MetadataRoute.Sitemap = site.content.template_id === "cashpath" ? CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => ({
+            url: new URL(`${publicCustomPagePath(entry.business_slug, "guides", pathLocale)}/${category.slug}`, SITE_URL).toString(),
+            lastModified,
+            changeFrequency: "weekly" as const,
+            priority: entry.is_primary ? 0.75 : 0.65,
+          })) : [];
 
-          return [home, ...pages, ...premiumPages, ...cashPathHub];
+          return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs];
         }),
     )
   ).flat();
@@ -204,8 +220,14 @@ async function customDomainEntries(
           changeFrequency: "weekly" as const,
           priority: entry.is_primary ? 0.8 : 0.7,
         }] : [];
+        const cashPathCategoryHubs: MetadataRoute.Sitemap = site.content.template_id === "cashpath" ? CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => ({
+          url: new URL(`${cleanPublicPagePath("guides", pathLocale, true)}/${category.slug}`, origin).toString(),
+          lastModified,
+          changeFrequency: "weekly" as const,
+          priority: entry.is_primary ? 0.75 : 0.65,
+        })) : [];
 
-        return [home, ...pages, ...premiumPages, ...cashPathHub];
+        return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs];
       }),
     )
   ).flat();
@@ -224,11 +246,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     if (!origin || !resolution) return [];
-    return customDomainEntries(origin, resolution.business_slug);
+    return uniqueSitemapEntries(await customDomainEntries(origin, resolution.business_slug));
   }
 
   const publicSites = await listPublicSiteSeoPaths();
   const workspacePages = await platformWorkspaceEntries(publicSites);
 
-  return [...await platformMarketingEntries(), ...workspacePages];
+  return uniqueSitemapEntries([...await platformMarketingEntries(), ...workspacePages]);
 }

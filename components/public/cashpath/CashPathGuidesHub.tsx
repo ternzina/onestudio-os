@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { eligibleCashPathGuideLinks } from "@/lib/public-site/cashpath-guides";
-import { CASH_PATH_GUIDE_CATEGORIES } from "@/lib/public-site/cashpath-guides.generated";
+import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "@/lib/public-site/cashpath-guide-categories";
 import type { PublicSiteData } from "@/lib/public-site/types";
+
+const START_HERE_SLUGS = [
+  "how-to-compare-personal-loan-offers",
+  "what-is-apr-on-a-personal-loan",
+  "apr-vs-interest-rate",
+  "what-fees-can-personal-loans-include",
+] as const;
 
 export default function CashPathGuidesHub({
   site,
@@ -13,6 +20,9 @@ export default function CashPathGuidesHub({
   const pageHref = (slug: string) =>
     `${basePath === "/" ? "" : basePath}/p/${slug}`;
   const guides = eligibleCashPathGuideLinks(site.content);
+  const startHere = START_HERE_SLUGS.map((slug) => guides.find((guide) => guide.slug === slug)).filter(
+    (guide): guide is (typeof guides)[number] => Boolean(guide),
+  );
   return (
     <main className="min-h-screen bg-[#f7f5ef] text-[#182b29]">
       <header className="border-b border-[#182b29]/10 px-5 py-6">
@@ -40,29 +50,24 @@ export default function CashPathGuidesHub({
           </p>
         </div>
       </section>
-      <nav
-        aria-label="Guide categories"
-        className="mx-auto flex max-w-6xl flex-wrap gap-3 px-5 py-8"
-      >
-        {CASH_PATH_GUIDE_CATEGORIES.map((category) => (
-          <a
-            key={category}
-            href={`#${category.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`}
-            className="rounded-full border border-[#182b29]/15 px-4 py-2 text-sm font-semibold"
-          >
-            {category}
-          </a>
-        ))}
+      <section className="mx-auto max-w-6xl px-5 py-10">
+        <h2 className="font-serif text-3xl">Start here</h2>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {startHere.map((guide) => <Link key={guide.slug} href={pageHref(guide.slug)} className="rounded-2xl border border-[#182b29]/10 bg-white p-5 font-semibold hover:border-[#167a6a]">{guide.nav_label || guide.title}</Link>)}
+        </div>
+      </section>
+      <nav aria-label="Guide categories" className="mx-auto flex max-w-6xl flex-wrap gap-3 px-5 pb-10">
+        {CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => <Link key={category.slug} href={`${pageHref("guides")}/${category.slug}`} className="rounded-full border border-[#182b29]/15 px-4 py-2 text-sm font-semibold">{category.name}</Link>)}
       </nav>
       <div className="mx-auto max-w-6xl space-y-16 px-5 pb-20">
-        {CASH_PATH_GUIDE_CATEGORIES.map((category) => {
-          const items = guides.filter((guide) => guide.category === category);
+        {CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => {
+          const items = guides.filter((guide) => guide.category === category.name);
           return items.length ? (
             <section
-              key={category}
-              id={category.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}
+              key={category.slug}
+              id={category.slug}
             >
-              <h2 className="font-serif text-3xl">{category}</h2>
+              <div className="flex flex-wrap items-baseline justify-between gap-3"><h2 className="font-serif text-3xl">{category.name}</h2><Link className="font-semibold text-[#167a6a]" href={`${pageHref("guides")}/${category.slug}`}>Browse category →</Link></div>
               <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                 {items.map((guide) => (
                   <article

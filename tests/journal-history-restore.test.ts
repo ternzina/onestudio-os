@@ -336,6 +336,7 @@ test("platform sitemap renders canonical guide URLs and excludes legacy article 
     "@/lib/public-site/domain-resolution": { requestHostname: () => "onestudioos.com" },
     "@/lib/public-site/metadata": {},
     "@/lib/public-site/premium-route-metadata": {},
+    "@/lib/public-site/cashpath-guide-categories": { CASH_PATH_GUIDE_CATEGORY_REGISTRY: [] },
     "@/lib/guides/repository": {
       listPublishedGuideSitemapEntries: async () => GUIDE_ARTICLES.map((article) => ({ path: article.path, publishedAt: article.publishedAt })),
     },
