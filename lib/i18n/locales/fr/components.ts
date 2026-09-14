@@ -44,4 +44,5 @@ export const components = { ...englishComponents, page: { eyebrow: "COMPOSANTS",
     "magic-transform": { label: "Magic Transform", description: "Des documents traversent un transformateur visuel et deviennent des résultats structurés." },
     "text-scatter": { label: "Text Scatter", description: "Les lettres s’écartent du pointeur puis reviennent avec un effet ressort." },
     "modal-cards": { label: "Modal Cards", description: "Des cartes interactives s’ouvrent dans une vue modale détaillée." },
+    "scroll-mask": { label: "Scroll Mask", description: "L’image se révèle au défilement avec un masque doux et un léger zoom." },
   } } as const;

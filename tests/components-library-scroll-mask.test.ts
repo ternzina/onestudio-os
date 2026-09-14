@@ -6,12 +6,8 @@ const showcase = readFileSync(
   "components/marketing/OneStudioMotionShowcase.tsx",
   "utf8",
 );
-const modal = readFileSync(
-  "components/react-bits/modal-cards.tsx",
-  "utf8",
-);
 
-test("Modal Cards is the thirty-second public component family", () => {
+test("Scroll Mask is present as a public component family", () => {
   const catalogStart = showcase.indexOf(
     "export const componentCatalogItems: readonly ComponentCatalogItem[] = [",
   );
@@ -37,23 +33,27 @@ test("Modal Cards is the thirty-second public component family", () => {
     (match) => match[1],
   );
 
-  assert.ok(variantIds.length >= 57);
-  assert.ok(familyIds.length >= 32);
-  assert.ok(variantIds.includes("modal-cards"));
-  assert.ok(familyIds.includes("modal-cards"));
+  assert.ok(variantIds.length >= 58);
+  assert.ok(familyIds.length >= 33);
+  assert.ok(variantIds.includes("scroll-mask"));
+  assert.ok(familyIds.includes("scroll-mask"));
 });
 
-test("Modal Cards preview does not steal the outer library scroll lock", () => {
-  assert.match(modal, /lockBodyScroll\?: boolean/);
-  assert.match(showcase, /lockBodyScroll: false/);
-  assert.match(showcase, /closeOnEscape: false/);
-});
-
-test("Modal Cards uses local demo media in the public catalog", () => {
-  const start = showcase.indexOf('id: "modal-cards"');
+test("Scroll Mask catalog preview uses local demo media", () => {
+  const start = showcase.indexOf('id: "scroll-mask"');
   const end = showcase.indexOf("\n  },", start);
   const block = showcase.slice(start, end);
 
   assert.match(block, /circleGalleryImages\[/);
   assert.doesNotMatch(block, /https?:\/\//);
+});
+
+test("Scroll Mask preview uses a compact scroll runway", () => {
+  const start = showcase.indexOf('id: "scroll-mask"');
+  const end = showcase.indexOf("\n  },", start);
+  const block = showcase.slice(start, end);
+
+  assert.match(block, /scrollLength: 0\.25/);
+  assert.match(block, /variant: "iris"/);
+  assert.match(block, /settle: 0\.28/);
 });

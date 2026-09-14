@@ -49,5 +49,6 @@ export const components = {
     "magic-transform": { label: "Magic Transform", description: "Документи проходять крізь візуальний трансформер і стають структурованими результатами." },
     "text-scatter": { label: "Text Scatter", description: "Літери розлітаються від курсора й пружно повертаються на місце." },
     "modal-cards": { label: "Modal Cards", description: "Інтерактивні картки розкриваються в модальне вікно з детальним вмістом." },
+    "scroll-mask": { label: "Scroll Mask", description: "Зображення розкривається під час прокрутки через м’яку маску та легкий зум." },
   },
 } as const;

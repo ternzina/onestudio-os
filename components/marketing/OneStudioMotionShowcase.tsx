@@ -85,7 +85,8 @@ export type ComponentCatalogItemId =
   | "liquid-ascii"
   | "magic-transform"
   | "text-scatter"
-  | "modal-cards";
+  | "modal-cards"
+  | "scroll-mask";
 
 export type ComponentCatalogItem = {
   id: ComponentCatalogItemId;
@@ -137,6 +138,7 @@ const loadLiquidAscii = () => import("@/components/react-bits/liquid-ascii");
 const loadMagicTransform = () => import("@/components/react-bits/magic-transform");
 const loadTextScatter = () => import("@/components/react-bits/text-scatter");
 const loadModalCards = () => import("@/components/react-bits/modal-cards");
+const loadScrollMask = () => import("@/components/react-bits/scroll-mask");
 
 const DynamicCircleGallery = dynamic(
   loadCircleGallery,
@@ -295,6 +297,11 @@ const DynamicTextScatter = dynamic(
 
 const DynamicModalCards = dynamic(
   loadModalCards,
+  { ssr: false, loading: () => <EffectLoading /> },
+);
+
+const DynamicScrollMask = dynamic(
+  loadScrollMask,
   { ssr: false, loading: () => <EffectLoading /> },
 );
 
@@ -1926,6 +1933,40 @@ export const componentCatalogItems: readonly ComponentCatalogItem[] = [
     }),
   },
 
+
+  {
+    id: "scroll-mask",
+    slug: "scroll-mask",
+    name: "Scroll Mask",
+    categories: ["galleries", "motion", "interactive"],
+    adapterClass: "galleryAdapter",
+    poster: "/images/demos/premium-studio/bright/portfolio-03.webp",
+    preload: loadScrollMask,
+    component: DynamicScrollMask,
+    getProps: (reducedMotion) => ({
+      variant: "iris",
+      src: circleGalleryImages[2],
+      alt: "Scroll Mask preview",
+      word: "REVEAL",
+      scrollLength: 0.25,
+      settle: 0.28,
+      smooth: reducedMotion ? 0 : 0.03,
+      feather: 7,
+      stagger: 0.12,
+      columns: 7,
+      originX: 50,
+      originY: 48,
+      angle: 108,
+      zoom: reducedMotion ? 1 : 1.14,
+      fit: "cover",
+      radius: 16,
+      overlay: 0.08,
+      background: "#130d0a",
+      revealContent: false,
+      calm: reducedMotion,
+    }),
+  },
+
 ];
 
 
@@ -2038,6 +2079,7 @@ const componentCatalogFamilySpecs = [
   { id: "magic-transform", name: "Magic Transform", itemIds: ["magic-transform"] },
   { id: "text-scatter", name: "Text Scatter", itemIds: ["text-scatter"] },
   { id: "modal-cards", name: "Modal Cards", itemIds: ["modal-cards"] },
+  { id: "scroll-mask", name: "Scroll Mask", itemIds: ["scroll-mask"] },
 ] as const satisfies readonly {
   id: string;
   name: string;
