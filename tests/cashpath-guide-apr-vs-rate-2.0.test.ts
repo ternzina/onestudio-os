@@ -14,9 +14,9 @@ function guide(slug: string) {
 }
 
 test("APR versus interest-rate guide is distinct, complete, and indexable", () => {
-  assert.equal(CASH_PATH_GUIDES.length, 9);
+  assert.equal(CASH_PATH_GUIDES.length, 12);
   assert.deepEqual(CASH_PATH_GUIDES.slice(0, 2).map((item) => item.slug), [firstSlug, secondSlug]);
-  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 9);
+  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 12);
   assert.ok(guide(firstSlug));
   const second = guide(secondSlug);
   assert.equal(second.title, "APR vs. Interest Rate: What’s the Difference?");

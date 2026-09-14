@@ -20,6 +20,12 @@ const batchOneSlugs = [
   "personal-loan-for-dental-work",
 ];
 
+const batchTwoSlugs = [
+  "hvac-financing-personal-loan-vs-contractor-heloc",
+  "solar-panel-financing-personal-loan-vs-solar-loan-lease-ppa",
+  "home-ev-charger-installation-financing",
+];
+
 const fixture = (body: string) => `---
 slug: parser-fixture
 nav_label: Parser fixture
@@ -159,5 +165,30 @@ test("QA-approved batch one occupies only orders 99 through 103 and syncs as mis
   );
   const installed = installMissingCashPathGuides(emptyCashPath);
   assert.equal(installed.pages?.filter((page) => batchOneSlugs.includes(page.slug)).length, 5);
+  assert.equal(installMissingCashPathGuides(installed), installed);
+});
+
+test("QA-approved batch two occupies only orders 104 through 106 and syncs as missing drafts", () => {
+  const batch = CASH_PATH_GUIDES.filter((guide) => batchTwoSlugs.includes(guide.slug));
+  assert.deepEqual(batch.map((guide) => guide.slug), batchTwoSlugs);
+  assert.equal(batch.length, 3);
+  for (const [index, slug] of batchTwoSlugs.entries()) {
+    const source = readFileSync(
+      new URL(`../docs/cashpath/guides/${slug}.md`, import.meta.url),
+      "utf8",
+    );
+    assert.match(source, new RegExp(`^slug: ${slug}$`, "m"));
+    assert.match(source, new RegExp(`^order: ${104 + index}$`, "m"));
+  }
+
+  const beforeSync = {
+    template_id: "cashpath",
+    seo_title: "CashPath",
+    seo_description: "",
+    pages: CASH_PATH_GUIDES.filter((guide) => !batchTwoSlugs.includes(guide.slug)),
+  } as unknown as PublicSiteContent;
+  assert.deepEqual(missingCashPathGuides(beforeSync).map((guide) => guide.slug), batchTwoSlugs);
+  const installed = installMissingCashPathGuides(beforeSync);
+  assert.equal(installed.pages?.filter((page) => batchTwoSlugs.includes(page.slug)).length, 3);
   assert.equal(installMissingCashPathGuides(installed), installed);
 });

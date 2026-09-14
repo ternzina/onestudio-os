@@ -16,10 +16,10 @@ function guide(slug: string) {
 }
 
 test("CashPath comparison guide has the complete registry, metadata, sources, links, and safe claims", () => {
-  assert.equal(CASH_PATH_GUIDES.length, 9);
+  assert.equal(CASH_PATH_GUIDES.length, 12);
   assert.deepEqual(CASH_PATH_GUIDES.slice(0, 4).map((item) => item.slug), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
   assert.deepEqual(CASH_PATH_GUIDES.slice(0, 4).map((item) => item.id), [guideOne, guideTwo, guideThree, "what-fees-can-personal-loans-include"]);
-  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 9);
+  assert.equal(new Set(CASH_PATH_GUIDES.map((item) => item.slug)).size, 12);
   const third = guide(guideThree);
   assert.equal(third.nav_label, "Compare Loan Offers");
   assert.equal(third.title, "How to Compare Personal Loan Offers");
