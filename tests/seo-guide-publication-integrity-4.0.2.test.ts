@@ -173,19 +173,14 @@ test("Guide publication metadata stays canonical, distinct, and publishable", ()
     }
 
     assert.ok(article.sections.length > 0, `${article.slug}: at least one content section is required`);
+    assert.equal(
+      new Set(article.sections.map((section) => section.title.trim().toLowerCase())).size,
+      article.sections.length,
+      `${article.slug}: section titles must be unique`,
+    );
     for (const section of article.sections) {
-      const typedSection: GuideArticle["sections"][number] = section;
       assert.ok(section.title.trim().length > 0, `${article.slug}: section title must not be empty`);
-      const hasRenderableContent =
-        section.paragraphs.length > 0 ||
-        (typedSection.checklist?.length ?? 0) > 0 ||
-        (typedSection.list?.length ?? 0) > 0 ||
-        (typedSection.numberedList?.length ?? 0) > 0 ||
-        (typedSection.subsections?.length ?? 0) > 0 ||
-        Boolean(typedSection.table) ||
-        Boolean(typedSection.template) ||
-        (typedSection.links?.length ?? 0) > 0;
-      assert.ok(hasRenderableContent, `${article.slug}/${section.title}: section needs renderable content`);
+      assert.ok(section.paragraphs.length > 0, `${article.slug}/${section.title}: paragraphs are required`);
       for (const paragraph of section.paragraphs) {
         assert.ok(paragraph.trim().length > 0, `${article.slug}/${section.title}: paragraph must not be empty`);
       }

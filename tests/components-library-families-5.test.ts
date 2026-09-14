@@ -37,7 +37,7 @@ function familySource() {
   return showcase.slice(start, end);
 }
 
-test("fifty-six variants are grouped into thirty-one families", () => {
+test("fifty variants are grouped into twenty-five families", () => {
   const variantIds = [
     ...catalogSource().matchAll(/\n    id: "([^"]+)"/g),
   ].map((match) => match[1]);
@@ -54,12 +54,12 @@ test("fifty-six variants are grouped into thirty-one families", () => {
     [...match[1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]),
   );
 
-  assert.ok(variantIds.length >= 50);
-  assert.equal(new Set(variantIds).size, variantIds.length);
-  assert.ok(familyIds.length >= 25);
-  assert.equal(new Set(familyIds).size, familyIds.length);
-  assert.ok(assigned.length >= 50);
-  assert.equal(new Set(assigned).size, assigned.length);
+  assert.equal(variantIds.length, 50);
+  assert.equal(new Set(variantIds).size, 50);
+  assert.equal(familyIds.length, 25);
+  assert.equal(new Set(familyIds).size, 25);
+  assert.equal(assigned.length, 50);
+  assert.equal(new Set(assigned).size, 50);
   assert.deepEqual(new Set(assigned), new Set(variantIds));
 });
 

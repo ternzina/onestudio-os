@@ -68,7 +68,7 @@ test("Guide CMS migration seeds the exact 13 EN Guides and no fake translations"
       related_links: row.related_links,
       faq: row.faq,
     })),
-    GUIDE_ARTICLES.slice(0, 13).map((article) => ({
+    GUIDE_ARTICLES.map((article) => ({
       canonical_slug: article.slug,
       primary_category: article.primaryCategory,
       topics: article.topics,
@@ -144,7 +144,7 @@ test("repository normalizes every seeded Guide without losing rich content", asy
     platform_guide_article_locales: { data: locales, error: null },
   }));
   const normalized = await repository.listPublishedGuideArticles("en");
-  assert.equal(normalized.length, GUIDE_ARTICLES.length);
+  assert.equal(normalized.length, 13);
   for (const article of GUIDE_ARTICLES as readonly GuideArticle[]) {
     const result = normalized.find((candidate) => candidate.slug === article.slug);
     assert.ok(result);
@@ -161,7 +161,7 @@ test("repository falls back to static EN content only when the DB query fails", 
     platform_guide_article_locales: errorResult,
   }));
 
-  assert.equal((await repository.listPublishedGuideArticles("en")).length, GUIDE_ARTICLES.length);
+  assert.equal((await repository.listPublishedGuideArticles("en")).length, 13);
   assert.equal((await repository.getPublishedGuideArticle(GUIDE_ARTICLES[0].slug, "en"))?.slug, GUIDE_ARTICLES[0].slug);
   assert.deepEqual(await repository.listPublishedGuideArticles("ru"), []);
 });

@@ -38,18 +38,8 @@ test("Guide publication integrity: identities, taxonomy, dates and public conten
     assert.ok(article.topics?.includes(article.primaryCategory));
     assert.ok(article.topics && new Set(article.topics).size === article.topics.length);
     assert.ok(article.sections.length > 0 && article.relatedLinks.length > 0);
-    for (const section of article.sections) {
-      const hasRenderableContent =
-        section.paragraphs.some((paragraph) => paragraph.trim()) ||
-        (section.checklist?.some((item) => item.trim()) ?? false) ||
-        (section.list?.some((item) => item.trim()) ?? false) ||
-        (section.numberedList?.some((item) => item.trim()) ?? false) ||
-        (section.subsections?.length ?? 0) > 0 ||
-        Boolean(section.table) ||
-        Boolean(section.template) ||
-        (section.links?.length ?? 0) > 0;
-      assert.ok(hasRenderableContent, `${article.slug}/${section.title} has no renderable content`);
-    }
+    unique(article.sections.map((section) => section.title), `${article.slug} section title`);
+    for (const section of article.sections) assert.ok(section.paragraphs.some((paragraph) => paragraph.trim()));
     assert.match(article.publishedAt, /^\d{4}-\d{2}-\d{2}$/);
     const parsed = new Date(`${article.publishedAt}T00:00:00.000Z`);
     assert.equal(parsed.toISOString().slice(0, 10), article.publishedAt, `${article.slug} has an invalid date`);

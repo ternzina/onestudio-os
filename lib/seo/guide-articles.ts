@@ -1,19 +1,10 @@
 import { EN_GUIDE_ARTICLES } from "../guides/content/en/articles.ts";
 import { EN_GUIDE_ARTICLES_2026_09_12 } from "../guides/content/en/articles-2026-09-12.ts";
-import { EN_GUIDE_ARTICLES_RECONCILED } from "../guides/content/en/articles-reconciled.ts";
 import { GUIDE_CATEGORY_ORDER, type GuideArticle, type GuideArticleSummary } from "../guides/types.ts";
 export * from "../guides/types.ts";
 
 export const GUIDE_CONTENT_LOCALE = "en" as const;
-/**
- * Git bootstrap/fallback for the published English registry. Supabase remains
- * the runtime source whenever it is available.
- */
-export const GUIDE_ARTICLES = [
-  ...EN_GUIDE_ARTICLES,
-  ...EN_GUIDE_ARTICLES_2026_09_12,
-  ...EN_GUIDE_ARTICLES_RECONCILED,
-];
+export const GUIDE_ARTICLES = [...EN_GUIDE_ARTICLES, ...EN_GUIDE_ARTICLES_2026_09_12];
 
 type GuideArticleSource = Pick<GuideArticle, "slug" | "path" | "title" | "publishedAt" | "category" | "excerpt" | "topics" | "primaryCategory">;
 
