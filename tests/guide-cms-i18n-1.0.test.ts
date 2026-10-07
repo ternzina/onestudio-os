@@ -100,6 +100,7 @@ function fakeQuery(result: FakeResult) {
   builder.lte = chain;
   builder.order = chain;
   builder.limit = chain;
+  builder.range = chain;
   builder.then = (resolve: (value: FakeResult) => unknown, reject?: (reason: unknown) => unknown) =>
     Promise.resolve(result).then(resolve, reject);
   return builder;
@@ -114,6 +115,37 @@ function fakeClient(rows: Record<string, FakeResult>): GuideRepositoryClient {
 }
 
 const emptyResult = { data: [], error: null };
+
+test("catalog and sitemap page beyond 1000 Guides without body payloads or oversized ID filters", async () => {
+  const seed = migrationSeed()[0];
+  const parents = Array.from({ length: 1250 }, (_, i) => ({ ...seed,
+    id: `parent-${i}`, canonical_slug: `guide-${i}` }));
+  const locales = parents.map((parent, i) => ({ ...seed,
+    article_id: parent.id, slug: `guide-${i}`, translation_status: "published" }));
+  const selected: string[] = [];
+  const client = {
+    from(table: string) {
+      let rows: Record<string, unknown>[] = table === "platform_guide_articles" ? parents : locales;
+      const query = {
+        select(columns: string) { selected.push(columns); return query; },
+        eq(key: string, value: string) { rows = rows.filter((row) => row[key] === value); return query; },
+        lte(key: string, value: string) { rows = rows.filter((row) => String(row[key]) <= value); return query; },
+        order() { return query; },
+        in() { throw new Error("Catalog queries must not serialize all parent IDs"); },
+        range(from: number, to: number) { rows = rows.slice(from, to + 1); return query; },
+        then(resolve: (value: FakeResult) => unknown) { return Promise.resolve({ data: rows, error: null }).then(resolve); },
+      };
+      return query;
+    },
+  } as unknown as GuideRepositoryClient;
+  const repository = createGuideRepository(client);
+  const summaries = await repository.listPublishedGuideArticleSummaries("en");
+  const sitemap = await repository.listPublishedGuideSitemapEntries("en");
+  assert.equal(summaries.length, 1250);
+  assert.equal(sitemap.length, 1250);
+  assert.equal(new Set(summaries.map((article) => article.slug)).size, 1250);
+  assert.ok(selected.every((columns) => !/sections|related_links|faq/.test(columns)));
+});
 
 test("worksheet tables retain blank cells without hiding the published Guide", async () => {
   const seed = migrationSeed()[0];
