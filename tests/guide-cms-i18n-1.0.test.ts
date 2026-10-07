@@ -115,6 +115,32 @@ function fakeClient(rows: Record<string, FakeResult>): GuideRepositoryClient {
 
 const emptyResult = { data: [], error: null };
 
+test("worksheet tables retain blank cells without hiding the published Guide", async () => {
+  const seed = migrationSeed()[0];
+  const sections = [{ title: "Migration worksheet", paragraphs: [], table: {
+    headers: ["Task", "Owner"], rows: [["Map redirects", ""], ["Test booking", " "]],
+  } }];
+  const parent = { ...seed, id: "worksheet-parent" };
+  const locale = { ...seed, article_id: parent.id, sections, translation_status: "published" };
+  const repository = createGuideRepository(fakeClient({
+    platform_guide_articles: { data: [parent], error: null },
+    platform_guide_article_locales: { data: [locale], error: null },
+  }));
+  const articles = await repository.listPublishedGuideArticles("en");
+  assert.equal(articles.length, 1);
+  assert.deepEqual(articles[0].sections, sections);
+  for (const badCell of [null, 42, "[[Unsafe|//other.example/path]]"]) {
+    const invalid = { ...locale, sections: [{ ...sections[0], table: {
+      headers: ["Task", "Owner"], rows: [["Map redirects", badCell]],
+    } }] };
+    const badRepository = createGuideRepository(fakeClient({
+      platform_guide_articles: { data: [parent], error: null },
+      platform_guide_article_locales: { data: [invalid], error: null },
+    }));
+    assert.deepEqual(await badRepository.listPublishedGuideArticles("en"), []);
+  }
+});
+
 test("repository normalizes every seeded Guide without losing rich content", async () => {
   const parents = GUIDE_ARTICLES.map((article, index) => ({
     id: `parent-${index}`,
