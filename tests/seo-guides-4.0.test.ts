@@ -67,7 +67,8 @@ test("Guide routes use database summaries and full repository data for articles"
   assert.match(index, /listPublishedGuideArticleSummaries/);
   assert.match(index, /GUIDE_CATEGORY_ORDER/);
   assert.doesNotMatch(client, /GUIDE_ARTICLES|BlogPreview|\.sections/);
-  assert.match(client, /PAGE_SIZE/);
+  assert.match(client, /filteredArticles\.map/);
+  assert.doesNotMatch(client, /visibleCount|filteredArticles\.slice/);
   assert.match(client, /article\.publishedAt/);
   assert.match(articleRoute, /getPublishedGuideArticle/);
   assert.match(articleRoute, /dynamic = "force-dynamic"/);

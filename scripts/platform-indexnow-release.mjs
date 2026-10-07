@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { LOCALIZED_DEMO_PATHS } from "../lib/seo/demo-metadata.ts";
 
 export const PLATFORM_HOST = "onestudioos.com";
 const ORIGIN = `https://${PLATFORM_HOST}`;
@@ -19,7 +20,7 @@ export function canonicalPlatformPaths() {
   const guides = ["/guides", ...guideSourceFiles.flatMap((file) => matches(source(file), /["']?path["']?\s*:\s*["'](\/guides\/[^"']+)["']/g))];
   const demos = ["/demos", ...matches(source("lib/demo-catalog.ts"), /slug:\s*["']([^"']+)["']/g).map((s) => `/demos/${s}`)];
   const previewRoutes = matches(source("lib/public-site/premium-template-package-catalog.ts"), /["']route["']:\s*["'](\/demos\/[^"']+)["']/g);
-  return [...new Set([...marketing, ...solutions, ...guides, ...demos, ...previewRoutes])];
+  return [...new Set([...marketing, ...solutions, ...guides, ...demos, ...previewRoutes, ...LOCALIZED_DEMO_PATHS, "/demos/velora-event-venue/en"])];
 }
 
 export function normalizePlatformUrls(urls) {
@@ -43,6 +44,9 @@ export function platformUrlsForChangedFiles(files, paths = canonicalPlatformPath
     if (file === "lib/seo/guide-articles.ts" || file.startsWith("lib/guides/") || file.startsWith("app/guides/") || /^lib\/i18n\/locales\/[^/]+\/guides\.ts$/.test(file)) addPaths(result, ["/", ...guides]);
     if (file.startsWith("lib/journal/") || /^lib\/i18n\/locales\/[^/]+\/(updates|journal)\.ts$/.test(file)) addPaths(result, ["/journal"]);
     if (["lib/demo-catalog.ts", "lib/public-site/template-catalog.ts", "lib/public-site/premium-template-package-catalog.ts"].includes(file)) addPaths(result, demos);
+    if (file === "lib/seo/demo-metadata.ts") addPaths(result, demos);
+    const localizedDemo = file.match(/^app\/demos\/([^/]+)\/\[\[\.\.\.templatePath\]\]\/page\.tsx$/)?.[1];
+    if (localizedDemo) addPaths(result, demos.filter((path) => path === `/demos/${localizedDemo}` || path.startsWith(`/demos/${localizedDemo}/`)));
     if (file === "lib/i18n/locales/en/common.ts") addPaths(result, [...paths, "/privacy", "/terms"]);
     if (file === "app/_seo/platform.ts" || /^app\/(layout|opengraph-image|twitter-image)\./.test(file)) addPaths(result, paths);
     const route = file.match(/^app\/(.+)\/page\.tsx$/)?.[1];

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createDemoMetadata } from "@/lib/seo/demo-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
@@ -25,17 +26,7 @@ export async function generateMetadata({
   const { templatePath = [] } = await params;
   const locale = resolveLocale(templatePath);
   if (!locale) notFound();
-  return locale === "en"
-    ? {
-        title: "VOW FILMS — cinematic wedding films across Europe",
-        description:
-          "Editorial wedding films built from real voices, atmosphere and the quiet moments in between.",
-      }
-    : {
-        title: "VOW FILMS — кинематографичные свадебные фильмы в Европе",
-        description:
-          "Свадебные фильмы из живых голосов, атмосферы и тихих моментов, которые обычно остаются за кадром.",
-      };
+  return createDemoMetadata("vow-films", locale);
 }
 
 export default async function VowDemoPage({

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createDemoMetadata } from "@/lib/seo/demo-metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PublicSiteTemplateRuntime from "@/components/public/PublicSiteTemplateRuntime";
@@ -25,15 +26,7 @@ export async function generateMetadata({
   const { templatePath = [] } = await params;
   const locale = resolveLocale(templatePath);
   if (!locale) notFound();
-  return locale === "en"
-    ? {
-        title: "LUMÉA Beauty Studio",
-        description: "Independent beauty studio for hair, skin, brows, lashes and slow care rituals with convenient online booking.",
-      }
-    : {
-        title: "LUMÉA Beauty Studio — салон красоты",
-        description: "Независимая beauty studio: волосы, уход за кожей, брови, ресницы и slow beauty ритуалы. Онлайн-запись в LUMÉA.",
-      };
+  return createDemoMetadata("lumea-beauty", locale);
 }
 
 export default async function LumeaDemoPage({

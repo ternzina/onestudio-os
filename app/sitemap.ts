@@ -26,6 +26,7 @@ import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metad
 import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "@/lib/public-site/cashpath-guide-categories";
 import { listPublishedGuideSitemapEntries } from "@/lib/guides/repository";
 import { platformMarketingLocale } from "@/lib/i18n/config";
+import { LOCALIZED_DEMO_PATHS } from "@/lib/seo/demo-metadata";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +44,8 @@ async function platformMarketingEntries(): Promise<MetadataRoute.Sitemap> {
       ...SOLUTION_PATHS,
       ...demoPaths,
       ...catalogDemoPaths,
+      ...LOCALIZED_DEMO_PATHS,
+      "/demos/velora-event-venue/en",
       ...articlePaths,
     ]),
   ]
