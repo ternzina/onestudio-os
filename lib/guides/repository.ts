@@ -42,6 +42,7 @@ type QueryBuilder = PromiseLike<QueryResult<unknown>> & {
   lte(column: string, value: string): QueryBuilder;
   order(column: string, options?: { ascending?: boolean }): QueryBuilder;
   limit(count: number): QueryBuilder;
+  range(from: number, to: number): QueryBuilder;
 };
 
 export type GuideRepositoryClient = {
@@ -330,7 +331,7 @@ function normalizeArticle(parent: NormalizedParent, value: RawLocaleRow): GuideA
   };
 }
 
-function sortPublishedArticles(articles: readonly GuideArticle[]): GuideArticle[] {
+function sortPublishedArticles<T extends { publishedAt: string; slug: string }>(articles: readonly T[]): T[] {
   return [...articles].sort(
     (left, right) =>
       right.publishedAt.localeCompare(left.publishedAt) ||
@@ -366,11 +367,21 @@ async function readRows<T>(query: QueryBuilder): Promise<T[]> {
   return Array.isArray(result.data) ? (result.data as T[]) : [];
 }
 
+async function readPagedRows<T>(query: () => QueryBuilder): Promise<T[]> {
+  const rows: T[] = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await readRows<T>(query().range(offset, offset + pageSize - 1));
+    rows.push(...page);
+    if (page.length < pageSize) return rows;
+  }
+}
+
 export function createGuideRepository(client?: GuideRepositoryClient) {
   async function listPublishedGuideArticles(locale: Locale): Promise<GuideArticle[]> {
     try {
       const dbClient = client ?? createPublicGuideClient();
-      const parents = (await readRows<RawParentRow>(
+      const parents = (await readPagedRows<RawParentRow>(() =>
         dbClient
           .from(PARENT_TABLE)
           .select("id,canonical_slug,primary_category,topics,publication_status,published_at")
@@ -384,13 +395,12 @@ export function createGuideRepository(client?: GuideRepositoryClient) {
 
       if (!parents.length) return [];
 
-      const locales = await readRows<RawLocaleRow>(
+      const locales = await readPagedRows<RawLocaleRow>(() =>
         dbClient
           .from(LOCALE_TABLE)
           .select("article_id,locale,slug,category,title,h1,description,excerpt,search_intent,sections,related_links,faq,translation_status")
           .eq("locale", locale)
           .eq("translation_status", "published")
-          .in("article_id", parents.map((parent) => parent.id))
           .order("slug", { ascending: true }),
       );
       const localeByArticle = new Map<string, RawLocaleRow>();
@@ -413,7 +423,41 @@ export function createGuideRepository(client?: GuideRepositoryClient) {
   }
 
   async function listPublishedGuideArticleSummaries(locale: Locale): Promise<GuideArticleSummary[]> {
-    return summarize(await listPublishedGuideArticles(locale));
+    try {
+      const dbClient = client ?? createPublicGuideClient();
+      const parents = (await readPagedRows<RawParentRow>(() => dbClient
+        .from(PARENT_TABLE)
+        .select("id,canonical_slug,primary_category,topics,publication_status,published_at")
+        .eq("publication_status", "published")
+        .lte("published_at", todayUtc())
+        .order("id", { ascending: true }),
+      )).map(normalizeParent).filter((parent): parent is NormalizedParent => Boolean(parent));
+      if (!parents.length) return [];
+      const parentById = new Map(parents.map((parent) => [parent.id, parent]));
+      const rows = await readPagedRows<RawLocaleRow>(() => dbClient
+        .from(LOCALE_TABLE)
+        .select("article_id,locale,slug,category,title,h1,description,excerpt,search_intent,translation_status")
+        .eq("locale", locale)
+        .eq("translation_status", "published")
+        .order("slug", { ascending: true }),
+      );
+      const summaries: GuideArticleSummary[] = [];
+      for (const row of rows) {
+        const parent = parentById.get(nonEmptyString(row.article_id) ?? "");
+        const slug = slugString(row.slug);
+        const title = safeGuideText(row.title);
+        const category = safeGuideText(row.category);
+        const excerpt = safeGuideText(row.excerpt);
+        if (!parent || row.locale !== locale || row.translation_status !== "published" ||
+          !slug || !title || !category || !excerpt || !safeGuideText(row.h1) ||
+          !safeGuideText(row.description) || !safeGuideText(row.search_intent)) continue;
+        summaries.push({ slug, path: `/guides/${slug}`, title, category, excerpt,
+          primaryCategory: parent.primaryCategory, topics: parent.topics, publishedAt: parent.publishedAt });
+      }
+      return sortPublishedArticles(summaries);
+    } catch {
+      return summarize(fallbackArticles(locale));
+    }
   }
 
   async function getPublishedGuideArticle(slug: string, locale: Locale): Promise<GuideArticle | undefined> {
@@ -449,7 +493,7 @@ export function createGuideRepository(client?: GuideRepositoryClient) {
   }
 
   async function listPublishedGuideSitemapEntries(locale: Locale) {
-    return (await listPublishedGuideArticles(locale)).map(({ path, publishedAt }) => ({
+    return (await listPublishedGuideArticleSummaries(locale)).map(({ path, publishedAt }) => ({
       path,
       publishedAt,
     }));
