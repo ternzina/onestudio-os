@@ -149,17 +149,19 @@ function normalizeLinks(value: unknown): GuideLink[] | null {
   return links.every((link): link is GuideLink => Boolean(link)) ? links : null;
 }
 
-function stringArray(value: unknown): string[] | null {
+function stringArray(value: unknown, allowEmpty = false): string[] | null {
   if (!Array.isArray(value)) return null;
-  const strings = value.map(safeGuideText);
-  return strings.every((item): item is string => Boolean(item)) ? strings : null;
+  const strings = value.map((item) =>
+    allowEmpty && typeof item === "string" && !item.trim() ? item : safeGuideText(item),
+  );
+  return strings.every((item): item is string => item !== null) ? strings : null;
 }
 
 function normalizeTable(value: unknown): GuideTable | null {
   if (!isRecord(value)) return null;
   const headers = stringArray(value.headers);
   const rows = Array.isArray(value.rows)
-    ? value.rows.map(stringArray)
+    ? value.rows.map((row) => stringArray(row, true))
     : null;
   if (!headers?.length || !rows || !rows.every((row): row is string[] => Boolean(row))) return null;
 
