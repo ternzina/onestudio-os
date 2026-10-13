@@ -146,19 +146,7 @@ async function platformWorkspaceEntries(
             priority: entry.is_primary ? 0.75 : 0.65,
           })) : [];
 
-          const cashPathWorksheet: MetadataRoute.Sitemap =
-          site.content.template_id === "cashpath" &&
-          entry.is_primary &&
-          entry.business_slug === "cashpath-909c00c9"
-            ? [{
-                url: new URL(CASH_PATH_LOAN_WORKSHEET_PATH, origin).toString(),
-                lastModified,
-                changeFrequency: "monthly",
-                priority: 0.8,
-              }]
-            : [];
-
-        return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs, ...cashPathWorksheet];
+          return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs];
         }),
     )
   ).flat();
@@ -234,7 +222,22 @@ async function customDomainEntries(
           priority: entry.is_primary ? 0.75 : 0.65,
         })) : [];
 
-        return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs];
+        // This code-owned route belongs only in CashPath's canonical-domain
+        // sitemap. Do not reuse the older database content date as its lastmod.
+        const cashPathWorksheet: MetadataRoute.Sitemap =
+          site.content.template_id === "cashpath" &&
+          site.content.seo_no_index !== true &&
+          entry.is_primary &&
+          entry.business_slug === "cashpath-909c00c9" &&
+          new URL(origin).hostname === "cashpath.org"
+            ? [{
+                url: new URL(CASH_PATH_LOAN_WORKSHEET_PATH, origin).toString(),
+                changeFrequency: "monthly",
+                priority: 0.8,
+              }]
+            : [];
+
+        return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs, ...cashPathWorksheet];
       }),
     )
   ).flat();
