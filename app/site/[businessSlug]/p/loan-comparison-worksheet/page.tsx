@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CashPathLoanWorksheet from "@/components/public/cashpath/CashPathLoanWorksheet";
 import { getPublicSite } from "@/lib/public-site/data";
+import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
 import { CASH_PATH_LOAN_WORKSHEET_PATH } from "@/lib/public-site/cashpath-loan-worksheet";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function LoanComparisonWorksheetPage({ params }: PageProps) {
   const { businessSlug } = await params;
-  if (!(await isCashPathWorkspace(businessSlug))) notFound();
-  return <CashPathLoanWorksheet />;
+  const [allowed, context] = await Promise.all([
+    isCashPathWorkspace(businessSlug),
+    getPublicSiteRequestContext(),
+  ]);
+  if (!allowed) notFound();
+  return (
+    <CashPathLoanWorksheet
+      basePath={context.cleanUrls ? "/" : "/site/" + businessSlug}
+    />
+  );
 }
