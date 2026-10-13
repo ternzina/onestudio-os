@@ -23,6 +23,7 @@ const BUSINESS_WINDOW_SECONDS = 10 * 60;
 const EVENT_NAMES = new Set([
   "page_view",
   "cta_click",
+  "leadsgate_form_ready",
   "form_submit",
   "booking_started",
   "booking_completed",
@@ -226,6 +227,7 @@ export async function POST(request: Request) {
         businessSlug,
       ) ||
       !EVENT_NAMES.has(eventName) ||
+      (eventName === "leadsgate_form_ready" && businessSlug !== "cashpath") ||
       !/^[A-Za-z0-9_-]{8,96}$/.test(
         sessionId,
       ) ||

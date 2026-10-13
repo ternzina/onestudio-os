@@ -4,6 +4,7 @@ import PublicCustomPageRuntime from "@/components/public/PublicCustomPageRuntime
 import { getPublicSite } from "@/lib/public-site/data";
 import { createPublicPageMetadata } from "@/lib/public-site/metadata";
 import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
+import { publishedCashPathGuidePage } from "@/lib/public-site/cashpath-guides";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,12 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page, null, context);
+  return createPublicPageMetadata(
+    site,
+    publishedCashPathGuidePage(site.content, page),
+    null,
+    context,
+  );
 }
 
 export default async function CustomPage({ params }: CustomPageProps) {
@@ -47,10 +53,11 @@ export default async function CustomPage({ params }: CustomPageProps) {
   );
 
   if (!site || !page) notFound();
+  const resolvedPage = publishedCashPathGuidePage(site.content, page);
   return (
     <PublicCustomPageRuntime
       site={site}
-      page={page}
+      page={resolvedPage}
       basePath={context.cleanUrls ? "/" : `/site/${businessSlug}`}
     />
   );

@@ -94,6 +94,12 @@ Interest rate and APR answer different questions. Start by comparing APR with AP
 
 CashPath is not a lender and does not make credit decisions or determine APR, interest rates, fees, approval, or funding. This guide is for general educational information only.
 
+## When the comparison is not like for like
+
+An APR comparison can mislead when the offers differ substantially in amount, repayment term, payment schedule, or the charges included in their disclosures. Record each offer’s own APR and interest rate, then compare the fees, payment, term, and total scheduled repayment shown in that offer. Do not convert one figure into another or assume that APR includes every possible charge. The provider’s current disclosure is the source for that specific offer.
+
+For a broader checklist that puts these figures together, see [How to Compare Personal Loan Offers](/p/how-to-compare-personal-loan-offers).
+
 ## Sources and further reading
 
 - [Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?](https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/)

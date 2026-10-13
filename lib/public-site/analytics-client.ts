@@ -3,6 +3,7 @@
 export type PublicSiteAnalyticsEventName =
   | "page_view"
   | "cta_click"
+  | "leadsgate_form_ready"
   | "form_submit"
   | "booking_started"
   | "booking_completed"

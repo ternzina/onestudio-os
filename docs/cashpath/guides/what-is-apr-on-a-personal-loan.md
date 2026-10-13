@@ -95,6 +95,12 @@ Read the provider's disclosures, compare the payment and total repayment, and co
 
 CashPath is not a lender and does not make credit decisions or determine APR, rates, fees, approval, or funding. This guide is for general educational information only.
 
+## Read APR with the rest of the offer
+
+APR is a standardized annualized cost measure, not a monthly payment, a guarantee of the total dollar cost in every situation, or a substitute for the agreement. Check the disclosed APR alongside the amount financed, payment schedule, term, finance charge, and any other fees or charges identified in the offer. If an offer does not make clear what a number represents, ask the provider before comparing it.
+
+For a practical side-by-side process, see [How to Compare Personal Loan Offers](/p/how-to-compare-personal-loan-offers); for common charge types, see [What Fees Can Personal Loans Include?](/p/what-fees-can-personal-loans-include).
+
 ## Sources and further reading
 
 - [Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?](https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/)

@@ -371,6 +371,10 @@ Yes. Keep the final agreement, disclosures, payment schedule, provider contact i
 
 No. Regulation Z requirements depend on the type of credit and transaction, and disclosures are provided as applicable. Do not assume every product uses an identical form.
 
+## Save the version you reviewed
+
+Keep a copy of the agreement and the disclosures that applied when you decided. If a later screen, email, or phone explanation seems different, pause and ask the provider to identify which written term controls before accepting. A checklist can help you spot questions, but it does not replace the actual agreement or legal advice about your circumstances. For a side-by-side review before signing, use [How to Compare Personal Loan Offers](/p/how-to-compare-personal-loan-offers).
+
 ## Sources and further reading
 
 - [CFPB — Regulation Z §1026.18, Content of Disclosures](https://www.consumerfinance.gov/rules-policy/regulations/1026/18/)

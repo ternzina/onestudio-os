@@ -1,12 +1,12 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY.
  * Source: docs/cashpath/guides/*.md
- * Source SHA-256: 01a4f20b4582d07707b1fd7135ee6c422a02f1667a19e54a6e2e405674df431c
+ * Source SHA-256: 138591473466c5bb2d56188478de7f2ac94add4485ab5ee83af9cab8729401ae
  * Regenerate with: node scripts/generate-cashpath-guides.mjs
  */
 
 import type { PublicSitePage } from "./types.ts";
 
-export const CASH_PATH_GUIDES_SOURCE_SHA256 = "01a4f20b4582d07707b1fd7135ee6c422a02f1667a19e54a6e2e405674df431c";
+export const CASH_PATH_GUIDES_SOURCE_SHA256 = "138591473466c5bb2d56188478de7f2ac94add4485ab5ee83af9cab8729401ae";
 export const CASH_PATH_GUIDE_CATEGORIES = ["Loan Basics","Credit & Approval","Compare Borrowing Options","Debt & Repayment","Life & Emergency Expenses","Home, Auto & Major Purchases","Rights & Safety"] as const;
 
 export type CashPathGuideCategory = (typeof CASH_PATH_GUIDE_CATEGORIES)[number];
@@ -545,6 +545,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "apr-vs-interest-rate-11",
         "kind": "text",
         "eyebrow": "",
+        "title": "When the comparison is not like for like",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"An APR comparison can mislead when the offers differ substantially in amount, repayment term, payment schedule, or the charges included in their disclosures. Record each offer’s own APR and interest rate, then compare the fees, payment, term, and total scheduled repayment shown in that offer. Do not convert one figure into another or assume that APR includes every possible charge. The provider’s current disclosure is the source for that specific offer.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"For a broader checklist that puts these figures together, see \"},{\"type\":\"a\",\"href\":\"/p/how-to-compare-personal-loan-offers\",\"children\":[{\"type\":\"text\",\"text\":\"How to Compare Personal Loan Offers\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "apr-vs-interest-rate-12",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and further reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-personal-installment-loan-en-2114/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is a personal installment loan?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Do personal installment loans have fees?\"}]}]}]}]}}",
         "items": "",
@@ -554,8 +566,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 11,
-    "plain_text_word_count": 1317
+    "section_count": 12,
+    "plain_text_word_count": 1412
   },
   {
     "id": "are-personal-loan-proceeds-taxable",
@@ -5716,10 +5728,34 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "button_url": "",
         "tone": "light",
         "is_visible": true
+      },
+      {
+        "id": "how-much-personal-loan-payment-can-i-afford-27",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Keep lender screening separate from your household budget",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Debt-to-income ratio (DTI) is one measure a lender may use: monthly debt payments divided by gross monthly income. It does not include every household expense, and a lender’s screening measure is not a personal budget or a guarantee of approval. The CFPB notes that different loan products and lenders use different DTI limits. For your own budget, also account for take-home income, housing, utilities, food, transportation, irregular expenses, and a cushion before deciding whether a payment is manageable.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"See the CFPB’s \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/\",\"children\":[{\"type\":\"text\",\"text\":\"definition of debt-to-income ratio\"}]},{\"type\":\"text\",\"text\":\" for what the measure means. To compare the complete terms, see \"},{\"type\":\"a\",\"href\":\"/p/how-to-compare-personal-loan-offers\",\"children\":[{\"type\":\"text\",\"text\":\"How to Compare Personal Loan Offers\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-much-personal-loan-payment-can-i-afford-28",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Sources and further reading",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is a debt-to-income ratio?\"}]}]}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
       }
     ],
-    "section_count": 26,
-    "plain_text_word_count": 1692
+    "section_count": 28,
+    "plain_text_word_count": 1815
   },
   {
     "id": "how-personal-loan-payments-work",
@@ -6349,6 +6385,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "how-to-compare-personal-loan-offers-14",
         "kind": "text",
         "eyebrow": "",
+        "title": "A quick comparison worksheet",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Use the same set of fields for each offer, taken from its current written disclosure. If a field is missing, mark it “not stated” and ask the provider instead of estimating it:\"}]},{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Provider and the date of the offer\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Amount requested, amount offered, and net proceeds you would receive\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"APR and interest rate, including whether the rate can change\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Each fee, when it is charged, and whether it is deducted from proceeds\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Payment amount, frequency, first due date, and number of payments\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Total scheduled repayment, if the provider discloses it\"}]},{\"type\":\"li\",\"children\":[{\"type\":\"text\",\"text\":\"Late, returned-payment, and early-payoff terms\"}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Compare figures on the same basis. APRs are more useful side by side when offers have comparable amounts and repayment terms; a lower APR by itself does not establish that the payment fits your budget. For help evaluating a payment against your expenses, see \"},{\"type\":\"a\",\"href\":\"/p/how-much-personal-loan-payment-can-i-afford\",\"children\":[{\"type\":\"text\",\"text\":\"How Much Personal Loan Payment Can You Afford?\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-compare-personal-loan-offers-15",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and further reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-personal-installment-loan-en-2114/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is a personal installment loan?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Do personal installment loans have fees?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/articles/what-know-about-advance-fee-loans\",\"children\":[{\"type\":\"text\",\"text\":\"Federal Trade Commission: What To Know About Advance-Fee Loans\"}]}]}]}]}}",
         "items": "",
@@ -6358,8 +6406,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 14,
-    "plain_text_word_count": 1520
+    "section_count": 15,
+    "plain_text_word_count": 1671
   },
   {
     "id": "how-to-stop-automatic-loan-payments-without-canceling-debt",
@@ -6561,6 +6609,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "how-to-stop-automatic-loan-payments-without-canceling-debt-16",
         "kind": "text",
         "eyebrow": "",
+        "title": "Distinguish stopping a debit from changing the debt",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Tell the lender or servicer if you revoke payment authorization, contact your bank or credit union about any stop-payment process that applies, and separately arrange how you will make any payment that remains due. Keep confirmation of each request and check the account after the scheduled date. A blocked transfer does not itself change the balance, due date, or other agreement terms.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB Regulation E describes stop-payment and revoked-authorization rules for preauthorized transfers. How the process applies can depend on the payment method and facts; use the \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/rules-policy/regulations/1005/10/\",\"children\":[{\"type\":\"text\",\"text\":\"regulation and official interpretation\"}]},{\"type\":\"text\",\"text\":\" and ask your financial institution about its procedures.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "how-to-stop-automatic-loan-payments-without-canceling-debt-17",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and Further Reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/rules-policy/regulations/1005/10/\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB Regulation E § 1005.10 — Preauthorized transfers\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/how-can-i-stop-a-payday-lender-from-electronically-taking-money-out-of-my-bank-or-credit-union-account-en-1605/\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB — How can I stop a payday lender from electronically taking money from my account?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://cashpath.org/p/about\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath — About\"}]}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"em\",\"children\":[{\"type\":\"text\",\"text\":\"Last reviewed: September 10, 2026.\"}]}]}]}}",
         "items": "",
@@ -6570,8 +6630,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 16,
-    "plain_text_word_count": 1583
+    "section_count": 17,
+    "plain_text_word_count": 1690
   },
   {
     "id": "hvac-financing-personal-loan-vs-contractor-heloc",
@@ -9193,6 +9253,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "personal-loan-agreement-checklist-32",
         "kind": "text",
         "eyebrow": "",
+        "title": "Save the version you reviewed",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Keep a copy of the agreement and the disclosures that applied when you decided. If a later screen, email, or phone explanation seems different, pause and ask the provider to identify which written term controls before accepting. A checklist can help you spot questions, but it does not replace the actual agreement or legal advice about your circumstances. For a side-by-side review before signing, use \"},{\"type\":\"a\",\"href\":\"/p/how-to-compare-personal-loan-offers\",\"children\":[{\"type\":\"text\",\"text\":\"How to Compare Personal Loan Offers\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "personal-loan-agreement-checklist-33",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and further reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/rules-policy/regulations/1026/18/\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB — Regulation Z §1026.18, Content of Disclosures\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/rules-policy/regulations/1005/10/\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB — Regulation E §1005.10, Preauthorized Transfers\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://cashpath.org/p/about\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath — About\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://cashpath.org/p/rates-fees\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath — Rates & Fees\"}]}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"em\",\"children\":[{\"type\":\"text\",\"text\":\"Last reviewed: September 10, 2026.\"}]}]}]}}",
         "items": "",
@@ -9202,8 +9274,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 32,
-    "plain_text_word_count": 2347
+    "section_count": 33,
+    "plain_text_word_count": 2423
   },
   {
     "id": "personal-loan-charge-off-vs-collections",
@@ -16500,10 +16572,34 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "button_url": "",
         "tone": "light",
         "is_visible": true
+      },
+      {
+        "id": "personal-loan-hardship-payment-assistance-23",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Keep a record of the request and the answer",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Write down the date you contacted the servicer, the department or representative, the options described, any deadline, and what you were told to keep paying while a request is reviewed. Ask for proposed changes and their effect on interest, fees, due dates, and credit reporting in writing. Until the servicer confirms a change, do not assume a payment has been paused or reduced.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The CFPB’s \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/consumer-tools/unexpected-job-loss/\",\"children\":[{\"type\":\"text\",\"text\":\"unexpected job loss guidance\"}]},{\"type\":\"text\",\"text\":\" recommends contacting lenders and companies promptly when income changes; the options described depend on the product and company. It is general guidance, not a promise that a personal-loan servicer must offer a particular hardship plan.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "personal-loan-hardship-payment-assistance-24",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Sources and further reading",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/consumer-tools/unexpected-job-loss/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Unexpected job loss\"}]}]}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
       }
     ],
-    "section_count": 22,
-    "plain_text_word_count": 3014
+    "section_count": 24,
+    "plain_text_word_count": 3138
   },
   {
     "id": "personal-loan-on-disability-ssi-ssdi",
@@ -16965,6 +17061,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "personal-loan-payoff-amount-vs-current-balance-16",
         "kind": "text",
         "eyebrow": "",
+        "title": "Confirm what the quoted amount covers",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Ask the lender or servicer for a payoff figure tied to a specific good-through date. Confirm where to send it, how long processing takes, whether another scheduled payment could still be drafted, and how to verify that the account shows paid in full afterward. Do not reuse an old quote after its date or infer the final amount from a balance shown in an app.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The CFPB’s explanation of payoff amounts is specifically about mortgages and secured-dwelling rules. It illustrates why a dated payoff figure can differ from a displayed balance, but it does not establish the requirements or terms for an unsecured personal loan. For a personal loan, ask its actual lender or servicer and review that loan’s agreement.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "personal-loan-payoff-amount-vs-current-balance-17",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and Further Reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-payoff-amount-and-is-it-the-same-as-my-current-balance-en-205/\",\"children\":[{\"type\":\"text\",\"text\":\"CFPB — What is a payoff amount and is it the same as my current balance? (mortgage context, reviewed Aug. 28, 2026)\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://cashpath.org/p/rates-fees\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath — Rates & Fees\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://cashpath.org/p/about\",\"children\":[{\"type\":\"text\",\"text\":\"CashPath — About\"}]}]}]},{\"type\":\"p\",\"children\":[{\"type\":\"em\",\"children\":[{\"type\":\"text\",\"text\":\"Last reviewed: September 10, 2026.\"}]}]}]}}",
         "items": "",
@@ -16974,8 +17082,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 16,
-    "plain_text_word_count": 1436
+    "section_count": 17,
+    "plain_text_word_count": 1562
   },
   {
     "id": "personal-loan-prequalification-vs-preapproval",
@@ -23408,10 +23516,34 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "button_url": "",
         "tone": "light",
         "is_visible": true
+      },
+      {
+        "id": "someone-took-out-personal-loan-in-my-name-18",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Start with official recovery steps",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Use a verified contact channel for the creditor, preserve notices and account records, and keep copies of reports and dispute submissions. Do not send identity documents or account details in response to an unexpected call or message until you have independently verified the recipient. A credit freeze can help prevent new accounts from being opened, but it does not by itself resolve an account that already exists.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"The \"},{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/stolen-identity-get-help-identitytheftgov\",\"children\":[{\"type\":\"text\",\"text\":\"FTC IdentityTheft.gov recovery guide\"}]},{\"type\":\"text\",\"text\":\" provides a personalized recovery plan. The CFPB explains \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/how-can-i-spot-identity-theft-en-1359/\",\"children\":[{\"type\":\"text\",\"text\":\"how to spot identity theft\"}]},{\"type\":\"text\",\"text\":\", including unfamiliar accounts on credit reports. Follow the steps that apply to your situation and the relevant official process.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "someone-took-out-personal-loan-in-my-name-19",
+        "kind": "text",
+        "eyebrow": "",
+        "title": "Sources and further reading",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/stolen-identity-get-help-identitytheftgov\",\"children\":[{\"type\":\"text\",\"text\":\"Federal Trade Commission: Stolen identity? Get help at IdentityTheft.gov\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/how-can-i-spot-identity-theft-en-1359/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: How can I spot identity theft?\"}]}]}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
       }
     ],
-    "section_count": 17,
-    "plain_text_word_count": 2449
+    "section_count": 19,
+    "plain_text_word_count": 2583
   },
   {
     "id": "unexpected-live-check-loan-in-mail",
@@ -24237,6 +24369,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "what-fees-can-personal-loans-include-15",
         "kind": "text",
         "eyebrow": "",
+        "title": "Compare fees with both cash received and repayment cost",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"For every disclosed fee, note whether it is optional, when it is charged, whether it reduces the amount you receive, and whether the provider includes it in the APR disclosure. Then compare the offer’s net proceeds, scheduled payments, term, and total repayment where stated. Two offers with similar headline rates can still leave you with different cash in hand or different obligations.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"Do not assume a label alone tells you whether a charge is permitted, included in APR, or refundable. The specific disclosures and agreement control. The CFPB’s \"},{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"overview of fees on personal installment loans\"}]},{\"type\":\"text\",\"text\":\" is a useful starting point; see \"},{\"type\":\"a\",\"href\":\"/p/how-to-compare-personal-loan-offers\",\"children\":[{\"type\":\"text\",\"text\":\"How to Compare Personal Loan Offers\"}]},{\"type\":\"text\",\"text\":\" for the complete comparison.\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "what-fees-can-personal-loans-include-16",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and further reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Do personal installment loans have fees?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-a-personal-installment-loan-en-2114/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is a personal installment loan?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://consumer.ftc.gov/articles/what-know-about-advance-fee-loans\",\"children\":[{\"type\":\"text\",\"text\":\"Federal Trade Commission: What To Know About Advance-Fee Loans\"}]}]}]}]}}",
         "items": "",
@@ -24246,8 +24390,8 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 15,
-    "plain_text_word_count": 1473
+    "section_count": 16,
+    "plain_text_word_count": 1593
   },
   {
     "id": "what-happens-if-you-miss-a-personal-loan-payment",
@@ -25061,6 +25205,18 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "id": "what-is-apr-on-a-personal-loan-10",
         "kind": "text",
         "eyebrow": "",
+        "title": "Read APR with the rest of the offer",
+        "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"APR is a standardized annualized cost measure, not a monthly payment, a guarantee of the total dollar cost in every situation, or a substitute for the agreement. Check the disclosed APR alongside the amount financed, payment schedule, term, finance charge, and any other fees or charges identified in the offer. If an offer does not make clear what a number represents, ask the provider before comparing it.\"}]},{\"type\":\"p\",\"children\":[{\"type\":\"text\",\"text\":\"For a practical side-by-side process, see \"},{\"type\":\"a\",\"href\":\"/p/how-to-compare-personal-loan-offers\",\"children\":[{\"type\":\"text\",\"text\":\"How to Compare Personal Loan Offers\"}]},{\"type\":\"text\",\"text\":\"; for common charge types, see \"},{\"type\":\"a\",\"href\":\"/p/what-fees-can-personal-loans-include\",\"children\":[{\"type\":\"text\",\"text\":\"What Fees Can Personal Loans Include?\"}]},{\"type\":\"text\",\"text\":\".\"}]}]}}",
+        "items": "",
+        "button_label": "",
+        "button_url": "",
+        "tone": "light",
+        "is_visible": true
+      },
+      {
+        "id": "what-is-apr-on-a-personal-loan-11",
+        "kind": "text",
+        "eyebrow": "",
         "title": "Sources and further reading",
         "text": "__osrt1__:{\"version\":1,\"root\":{\"type\":\"root\",\"children\":[{\"type\":\"ul\",\"children\":[{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-loan-interest-rate-and-the-apr-en-733/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: What is the difference between a loan interest rate and the APR?\"}]}]},{\"type\":\"li\",\"children\":[{\"type\":\"a\",\"href\":\"https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/\",\"children\":[{\"type\":\"text\",\"text\":\"Consumer Financial Protection Bureau: Do personal installment loans have fees?\"}]}]}]}]}}",
         "items": "",
@@ -25070,7 +25226,7 @@ export const CASH_PATH_GUIDES: CashPathGuide[] = [
         "is_visible": true
       }
     ],
-    "section_count": 10,
-    "plain_text_word_count": 1473
+    "section_count": 11,
+    "plain_text_word_count": 1571
   }
 ];

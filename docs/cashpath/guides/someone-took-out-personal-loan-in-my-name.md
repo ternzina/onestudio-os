@@ -364,3 +364,14 @@ Start with IdentityTheft.gov, freeze your credit, review your reports, and work 
 If you later choose to explore a legitimate personal-loan request after your identity and credit file are secure, compare any provider's disclosures carefully. CashPath is not a lender and does not guarantee a match, approval, amount, APR, fees, funding, or timing.
 
 _Last reviewed: September 11, 2026._
+
+## Start with official recovery steps
+
+Use a verified contact channel for the creditor, preserve notices and account records, and keep copies of reports and dispute submissions. Do not send identity documents or account details in response to an unexpected call or message until you have independently verified the recipient. A credit freeze can help prevent new accounts from being opened, but it does not by itself resolve an account that already exists.
+
+The [FTC IdentityTheft.gov recovery guide](https://consumer.ftc.gov/stolen-identity-get-help-identitytheftgov) provides a personalized recovery plan. The CFPB explains [how to spot identity theft](https://www.consumerfinance.gov/ask-cfpb/how-can-i-spot-identity-theft-en-1359/), including unfamiliar accounts on credit reports. Follow the steps that apply to your situation and the relevant official process.
+
+## Sources and further reading
+
+- [Federal Trade Commission: Stolen identity? Get help at IdentityTheft.gov](https://consumer.ftc.gov/stolen-identity-get-help-identitytheftgov)
+- [Consumer Financial Protection Bureau: How can I spot identity theft?](https://www.consumerfinance.gov/ask-cfpb/how-can-i-spot-identity-theft-en-1359/)
