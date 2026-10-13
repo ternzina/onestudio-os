@@ -240,8 +240,12 @@ export default function CashPathLoanWorksheet({ basePath }: { basePath: string }
         </div>
 
         <p className={styles.printDisclaimer}>
-          CashPath.org · Free educational worksheet. CashPath is not a lender.
-          Always verify terms with the provider&apos;s final written disclosures.
+          CashPath.org · Free educational worksheet. CashPath is an educational
+          and advertising-supported referral website, not a lender. This
+          worksheet does not require a credit application or provide individual
+          financial or legal advice, verify offers, determine eligibility, or
+          promise a lending outcome. Always verify terms with the provider&apos;s
+          final written disclosures.
         </p>
         <div className={styles.decisions}>
           <h3>Questions to ask before accepting an offer</h3>
