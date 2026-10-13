@@ -56,6 +56,24 @@ export default function CashPathGuidesHub({
           {startHere.map((guide) => <Link key={guide.slug} href={pageHref(guide.slug)} className="rounded-2xl border border-[#182b29]/10 bg-white p-5 font-semibold hover:border-[#167a6a]">{guide.nav_label || guide.title}</Link>)}
         </div>
       </section>
+      <section className="mx-auto max-w-6xl px-5 pb-10">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-2xl border border-[#b9d4c9] bg-[#e8f1e9] p-6 sm:flex-row sm:items-center sm:p-8">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#176b59]">Free interactive and printable tool</p>
+            <h2 className="mt-2 font-serif text-3xl">Personal Loan Comparison Worksheet</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#425d52]">
+              Record APR, fees, money received, payment schedules, and important terms for up to three
+              written offers. No account required. Print or save as PDF without submitting your figures.
+            </p>
+          </div>
+          <Link
+            href={pageHref("loan-comparison-worksheet")}
+            className="shrink-0 rounded-xl bg-[#187c6a] px-5 py-3 font-semibold text-white hover:bg-[#0e5d4f]"
+          >
+            Open free worksheet →
+          </Link>
+        </div>
+      </section>
       <nav aria-label="Guide categories" className="mx-auto flex max-w-6xl flex-wrap gap-3 px-5 pb-10">
         {CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => <Link key={category.slug} href={`${pageHref("guides")}/${category.slug}`} className="rounded-full border border-[#182b29]/15 px-4 py-2 text-sm font-semibold">{category.name}</Link>)}
       </nav>
