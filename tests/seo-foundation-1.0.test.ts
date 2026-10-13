@@ -18,9 +18,11 @@ test("canonical platform sitemap covers public marketing surface once", async ()
 
 test("sitemap uses canonical demo catalogs and excludes new-site", async () => {
   const sitemap = await read("../app/sitemap.ts");
-  assert.match(sitemap, /getPublicDemoTemplateChoices/);
-  assert.match(sitemap, /gallery\.previewRoute/);
-  assert.match(sitemap, /DEMOS\.map/);
+  const demoPaths = await read("../lib/seo/demo-sitemap.ts");
+  assert.match(sitemap, /publicDemoPaths\(\)/);
+  assert.match(demoPaths, /getPublicDemoTemplateChoices/);
+  assert.match(demoPaths, /gallery\.previewRoute/);
+  assert.match(demoPaths, /DEMOS\.map/);
   assert.doesNotMatch(sitemap, /[\"']\/new-site(?:[\"']|\/)/);
 });
 

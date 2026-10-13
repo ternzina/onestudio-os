@@ -17,16 +17,18 @@ import type {
 export default function PublicPortfolioPage({
   site,
   page,
+  basePath,
 }: {
   site: PublicSiteData;
   page: PublicSitePage;
+  basePath?: string;
 }) {
   const { business, company, content, portfolio, capabilities } = site;
   const localized = business.locale === business.primary_locale
     ? null
     : business.locale;
-  const homeHref = publicSitePath(business.slug, localized);
-  const pageHref = publicSitePagePath(business.slug, page.slug, localized);
+  const homeHref = basePath ?? publicSitePath(business.slug, localized);
+  const pageHref = basePath ? `${basePath}/${page.slug}` : publicSitePagePath(business.slug, page.slug, localized);
   const bookingHref = `/book/${business.slug}`;
 
   return (

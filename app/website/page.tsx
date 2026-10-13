@@ -1,12 +1,11 @@
-import type { Metadata } from "next";
-import { platformMarketingLocale } from "@/lib/i18n/config";
-import { getTranslations } from "@/lib/i18n";
+import { createPageMetadata } from "@/app/_seo/site";
 import WebsitePageClient from "./WebsitePageClient";
 
-export const metadata: Metadata = {
-  ...getTranslations(platformMarketingLocale).common.metadata.website,
-  alternates: { canonical: "/website" },
-};
+export const metadata = createPageMetadata({
+  title: "Turnkey websites and our work",
+  description: "Explore websites from the OneStudio OS portfolio. We design, configure and launch your business website with a fixed project price agreed before work begins.",
+  path: "/website",
+});
 
 export default function WebsitePage() {
   return <WebsitePageClient />;

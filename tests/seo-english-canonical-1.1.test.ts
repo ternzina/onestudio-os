@@ -15,12 +15,16 @@ test("platform defaults to English while shared tenant default remains Russian",
 });
 
 test("marketing pages use English translations and self-referencing canonicals", async () => {
-  const paths = ["features", "components", "pricing", "website", "about", "faq", "journal", "contact"];
+  const paths = ["features", "components", "pricing", "about", "faq", "journal", "contact"];
   for (const path of paths) {
     const source = await read(`../app/${path}/page.tsx`);
     assert.match(source, /platformMarketingLocale/);
     assert.match(source, new RegExp(`canonical: \\"/${path}\\"`));
     assert.doesNotMatch(source, /canonical: [\"']\/[\"']/);
   }
+  const website = await read("../app/website/page.tsx");
+  assert.match(website, /createPageMetadata\(/);
+  assert.match(website, /title: "Turnkey websites and our work"/);
+  assert.match(website, /path: "\/website"/);
   assert.match(await read("../app/_seo/platform.ts"), /locale: "en_US"/);
 });
