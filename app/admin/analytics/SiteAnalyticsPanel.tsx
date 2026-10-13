@@ -33,6 +33,7 @@ type PageRow = {
 type SourceRow = {
   source: string;
   medium: string;
+  evidence?: string;
   page_views: number;
   visits: number;
 };
@@ -360,8 +361,7 @@ export default function SiteAnalyticsPanel({
         analytics.sources
           .filter(
             row =>
-              row.source ===
-              "direct",
+              row.source === "direct" || row.source === "unknown",
           )
           .reduce(
             (total, row) =>
@@ -466,6 +466,33 @@ export default function SiteAnalyticsPanel({
         ? "Неизвестно"
         : "Unknown";
     };
+
+  const channelLabel = (value: string) => {
+    const names: Record<string, [string, string]> = {
+      unknown: ["Не определён", "Unknown"],
+      direct: ["Не определён", "Unknown"],
+      organic_search: ["Поиск", "Search"],
+      paid_search: ["Платный поиск (по метке)", "Tagged paid search"],
+      paid_social: ["Платные соцсети (по метке)", "Tagged paid social"],
+      ai_referral: ["ИИ-поиск", "AI referral"],
+      social: ["Социальная сеть", "Social"],
+      email: ["Email", "Email"],
+      referral: ["Ссылка с другого сайта", "Referring website"],
+      tagged: ["UTM-метка", "UTM tagged"],
+      click_tagged: ["Метка перехода (тип)", "Click marker"],
+    };
+    return names[value]?.[ru ? 0 : 1] ?? value;
+  };
+
+  const evidenceLabel = (value: string) => {
+    const names: Record<string, [string, string]> = {
+      none: ["без данных", "no referrer"],
+      utm: ["UTM", "UTM"],
+      referrer: ["адрес перехода", "referrer"],
+      click_marker: ["тип метки", "marker type"],
+    };
+    return names[value]?.[ru ? 0 : 1] ?? value;
+  };
 
   if (loading) {
     return (
@@ -577,8 +604,8 @@ export default function SiteAnalyticsPanel({
     {
       label:
         ru
-          ? "Прямой трафик"
-          : "Direct traffic",
+          ? "Источник не установлен"
+          : "Unknown source", 
 
       value:
         `${directShare}%`,
@@ -591,8 +618,8 @@ export default function SiteAnalyticsPanel({
 
       hint:
         ru
-          ? "Без внешнего источника"
-          : "No external source",
+          ? "Вход без достоверной метки или адреса источника"
+          : "No reliable source signal was received", 
     },
   ];
 
@@ -791,25 +818,19 @@ export default function SiteAnalyticsPanel({
                   {data.sources.map(
                     row => (
                       <div
-                        key={`${row.source}:${row.medium}`}
+                        key={`${row.source}:${row.medium}:${row.evidence ?? ""}`}
                         className="flex items-center justify-between gap-5 rounded-2xl bg-[#f8f6f1] px-4 py-4"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-base font-semibold">
-                            {row.source
-                              === "direct"
-                              ? (
-                                ru
-                                  ? "Прямой переход"
-                                  : "Direct"
-                              )
+                            {row.source === "direct" || row.source === "unknown"
+                              ? (ru ? "Источник неизвестен" : "Unknown source")
                               : row.source}
                           </p>
 
                           <p className="mt-1 text-sm text-[#77736a]">
-                            {
-                              row.medium
-                            }
+                            {channelLabel(row.medium)}
+                            {row.evidence ? " · " + evidenceLabel(row.evidence) : ""}
                           </p>
                         </div>
 

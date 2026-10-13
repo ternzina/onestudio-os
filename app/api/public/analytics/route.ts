@@ -8,6 +8,8 @@ import {
   hostnameWithoutPort,
   isTechnicalPlatformHostname,
 } from "@/lib/domains/normalize";
+import { isAllowedCashPathAnalyticsEvent, isCashPathBusinessSlug } from "@/lib/public-site/cashpath-analytics";
+import { classifyCashPathTraffic, CASH_PATH_CLICK_MARKERS } from "@/lib/public-site/cashpath-traffic-attribution";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +25,7 @@ const BUSINESS_WINDOW_SECONDS = 10 * 60;
 const EVENT_NAMES = new Set([
   "page_view",
   "cta_click",
+  "leadsgate_form_ready",
   "form_submit",
   "booking_started",
   "booking_completed",
@@ -40,6 +43,9 @@ type AnalyticsBody = {
   utmSource?: unknown;
   utmMedium?: unknown;
   utmCampaign?: unknown;
+  // The optional click identifier name, never its unique value.
+  clickMarkerType?: unknown;
+  landingPath?: unknown;
   deviceClass?: unknown;
   locale?: unknown;
   bookingId?: unknown;
@@ -205,6 +211,14 @@ export async function POST(request: Request) {
     const utmCampaign =
       text(body.utmCampaign, 240) || null;
 
+    const clickMarkerType = text(body.clickMarkerType, 32).toLowerCase();
+    const acceptedClickMarkerType = CASH_PATH_CLICK_MARKERS.find((key) => key === clickMarkerType) || null;
+    // Only a pathname is retained, with no search parameters, fragments or PII.
+    const rawLandingPath = text(body.landingPath, 512);
+    const landingPath = rawLandingPath.startsWith("/")
+      ? rawLandingPath.split(/[?#]/, 1)[0]
+      : null;
+
     const deviceClass =
       text(body.deviceClass, 16) ||
       "unknown";
@@ -226,6 +240,7 @@ export async function POST(request: Request) {
         businessSlug,
       ) ||
       !EVENT_NAMES.has(eventName) ||
+      !isAllowedCashPathAnalyticsEvent(eventName, businessSlug) ||
       !/^[A-Za-z0-9_-]{8,96}$/.test(
         sessionId,
       ) ||
@@ -442,6 +457,16 @@ export async function POST(request: Request) {
         160,
       ) || null;
 
+    const cashPath = isCashPathBusinessSlug(businessSlug);
+    const attribution = cashPath
+      ? classifyCashPathTraffic({
+          referrerHost,
+          utmSource,
+          utmMedium,
+          clickMarkerType: acceptedClickMarkerType,
+        })
+      : null;
+
     const { error: insertError } =
       await supabaseAdmin
         .from(
@@ -470,6 +495,15 @@ export async function POST(request: Request) {
             isTechnicalHost,
           booking_id:
             canonicalBookingId,
+          ...(attribution
+            ? {
+                traffic_source: attribution.trafficSource,
+                traffic_channel: attribution.trafficChannel,
+                attribution_evidence: attribution.attributionEvidence,
+                click_marker_type: acceptedClickMarkerType,
+                landing_path: landingPath || path.split(/[?#]/, 1)[0],
+              }
+            : {}),
           metadata: {
             funnel_contract: "1",
           },
