@@ -57,7 +57,12 @@ begin
   with
   real_page_views as (
     select
-      event.*,
+      event.session_id,
+      event.path,
+      event.device_class,
+      event.country_code,
+      event.city,
+      event.occurred_at,
       (
         event.occurred_at
         at time zone v_business.timezone
