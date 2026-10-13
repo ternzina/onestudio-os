@@ -8,6 +8,7 @@ import {
   hostnameWithoutPort,
   isTechnicalPlatformHostname,
 } from "@/lib/domains/normalize";
+import { isAllowedCashPathAnalyticsEvent } from "@/lib/public-site/cashpath-analytics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -227,7 +228,7 @@ export async function POST(request: Request) {
         businessSlug,
       ) ||
       !EVENT_NAMES.has(eventName) ||
-      (eventName === "leadsgate_form_ready" && businessSlug !== "cashpath") ||
+      !isAllowedCashPathAnalyticsEvent(eventName, businessSlug) ||
       !/^[A-Za-z0-9_-]{8,96}$/.test(
         sessionId,
       ) ||

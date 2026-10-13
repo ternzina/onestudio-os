@@ -14,7 +14,7 @@ with cashpath_events as (
     e.occurred_at
   from public.site_analytics_events e
   join public.businesses b on b.id = e.business_id
-  where b.slug = 'cashpath'
+  where b.slug = 'cashpath-909c00c9'
     and e.occurred_at >= now() - interval '30 days'
 ),
 per_session as (

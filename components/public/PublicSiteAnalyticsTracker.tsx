@@ -12,6 +12,10 @@ import {
   trackPublicPageView,
   trackPublicSiteEvent,
 } from "@/lib/public-site/analytics-client";
+import {
+  isCashPathBusinessSlug,
+  isCashPathRequestLabel,
+} from "@/lib/public-site/cashpath-analytics";
 
 export default function PublicSiteAnalyticsTracker({
   businessSlug,
@@ -47,10 +51,9 @@ export default function PublicSiteAnalyticsTracker({
           "a[href]",
         );
 
-      if (businessSlug === "cashpath") {
+      if (isCashPathBusinessSlug(businessSlug)) {
         const action = target?.closest("a[href], button");
-        const label = action?.textContent?.replace(/\s+/g, " ").trim().toLowerCase();
-        if (label?.replace(/[→←➜➔]/g, "").trim() === "start your request") {
+        if (isCashPathRequestLabel(action?.textContent)) {
           trackPublicSiteEvent({
             businessSlug,
             eventName: "cta_click",
@@ -102,7 +105,7 @@ export default function PublicSiteAnalyticsTracker({
   }, [businessSlug]);
 
   useEffect(() => {
-    if (businessSlug !== "cashpath") return;
+    if (!isCashPathBusinessSlug(businessSlug)) return;
 
     const formBlock = document.querySelector<HTMLElement>(
       '[data-public-custom-block-id="cashpath-request"]',
@@ -134,7 +137,7 @@ export default function PublicSiteAnalyticsTracker({
     recordProviderReady();
 
     return () => observer.disconnect();
-  }, [businessSlug]);
+  }, [businessSlug, pathname]);
 
   return null;
 }
