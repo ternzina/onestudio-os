@@ -111,7 +111,8 @@ function formatUS(value: number): string {
   });
 }
 
-export default function CashPathLoanWorksheet() {
+export default function CashPathLoanWorksheet({ basePath }: { basePath: string }) {
+  const pageHref = (slug: string) => (basePath === "/" ? "" : basePath) + "/p/" + slug;
   const [offers, setOffers] = useState<Offer[]>(() =>
     LETTERS.map(() => ({ ...EMPTY_OFFER })),
   );
@@ -128,12 +129,12 @@ export default function CashPathLoanWorksheet() {
   return (
     <main className={styles.page}>
       <div className={styles.navigation}>
-        <Link href="/" className={styles.logo} aria-label="CashPath home">
+        <Link href={basePath} className={styles.logo} aria-label="CashPath home">
           Cash<span>Path</span>
         </Link>
         <nav aria-label="Site navigation">
-          <Link href="/p/guides">Guides</Link>
-          <Link href="/p/how-to-compare-personal-loan-offers">Comparison guide</Link>
+          <Link href={pageHref("guides")}>Guides</Link>
+          <Link href={pageHref("how-to-compare-personal-loan-offers")}>Comparison guide</Link>
         </nav>
       </div>
 
@@ -260,7 +261,7 @@ export default function CashPathLoanWorksheet() {
         </p>
         <p>
           Read the CashPath{" "}
-          <Link href="/p/how-to-compare-personal-loan-offers">
+          <Link href={pageHref("how-to-compare-personal-loan-offers")}>
             step-by-step loan comparison guide
           </Link>
           . For independent explanations, see the{" "}
@@ -282,8 +283,8 @@ export default function CashPathLoanWorksheet() {
           lender&apos;s final disclosures.
         </p>
         <div className={styles.footer}>
-          <Link href="/p/guides">Browse CashPath guides</Link>
-          <Link href="/p/advertiser-disclosure">Advertiser disclosure</Link>
+          <Link href={pageHref("guides")}>Browse CashPath guides</Link>
+          <Link href={pageHref("advertiser-disclosure")}>Advertiser disclosure</Link>
           <span>{CASH_PATH_LOAN_WORKSHEET_PATH}</span>
         </div>
       </section>
