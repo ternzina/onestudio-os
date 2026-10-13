@@ -240,6 +240,12 @@
 }
 .checkCard span { font-size: .77rem; color: #61736b; }
 .checkCard strong { font-size: 1.1rem; }
+.printDisclaimer {
+  color: #586b60;
+  font-size: .77rem;
+  margin: 1.35rem .5rem 0;
+  line-height: 1.55;
+}
 .decisions { margin: 2rem .5rem .2rem; }
 .decisions ul {
   list-style: disc;
@@ -321,6 +327,7 @@
   .checkCard { flex: 1; padding: 4px 7px; }
   .checkCard span { font-size: 7pt; }
   .checkCard strong { font-size: 9pt; }
+  .printDisclaimer { font-size: 7pt; color: #222; margin: 3mm 0 0; }
   .decisions { margin: 5mm 0; break-inside: avoid; }
   .decisions h3 { font-size: 10pt; }
   .decisions ul { margin-top: 2mm; line-height: 1.45; font-size: 8pt; }
