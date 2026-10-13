@@ -12,6 +12,10 @@ test("platform URL mapping uses current public registries", async () => {
   assert.ok(platformUrlsForChangedFiles(["lib/seo/guide-articles.ts"]).every((url: string) => !url.includes("/blog")));
   assert.ok(platformUrlsForChangedFiles(["lib/demo-catalog.ts"]).some((url: string) => url.includes("/demos/")));
   assert.ok(canonicalPlatformPaths().includes("/demos/bloom-floral-studio"));
+  assert.ok(canonicalPlatformPaths().includes("/demos/gloss-nail-studio/portfolio"));
+  assert.ok(!canonicalPlatformPaths().includes("/demos/cashpath"));
+  assert.ok(platformUrlsForChangedFiles(["lib/seo/demo-sitemap.ts"]).includes("https://onestudioos.com/demos/velora-event-venue/en/venues"));
+  assert.ok(platformUrlsForChangedFiles(["app/demos/vow-films/[[...templatePath]]/page.tsx"]).includes("https://onestudioos.com/demos/vow-films/en/films"));
   assert.deepEqual(platformUrlsForChangedFiles(["app/admin/site/page.tsx", "components/puck-site-editor/editor.tsx"]), []);
 });
 

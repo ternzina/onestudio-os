@@ -2,8 +2,7 @@ import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
 import { PLATFORM_MARKETING_PATHS } from "./_seo/platform";
 import { SITE_URL } from "./_seo/site";
-import { DEMOS } from "@/lib/demo-catalog";
-import { getPublicDemoTemplateChoices } from "@/lib/public-site/template-catalog";
+import { publicDemoPaths } from "@/lib/seo/demo-sitemap";
 import { isCanonicalPlatformHostname, isTechnicalPlatformHostname } from "@/lib/domains/normalize";
 import {
   getFreshPublicSite,
@@ -26,26 +25,18 @@ import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metad
 import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "@/lib/public-site/cashpath-guide-categories";
 import { listPublishedGuideSitemapEntries } from "@/lib/guides/repository";
 import { platformMarketingLocale } from "@/lib/i18n/config";
-import { LOCALIZED_DEMO_PATHS } from "@/lib/seo/demo-metadata";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
 
 export const dynamic = "force-dynamic";
 
 async function platformMarketingEntries(): Promise<MetadataRoute.Sitemap> {
-  const catalogDemoPaths = getPublicDemoTemplateChoices()
-    .map((template) => template.gallery.previewRoute)
-    .filter((route): route is string => Boolean(route));
-  const demoPaths = DEMOS.map((demo) => `/demos/${demo.slug}`);
   const guideEntries = await listPublishedGuideSitemapEntries(platformMarketingLocale);
   const articlePaths = new Set<string>(guideEntries.map((article) => article.path));
   const marketingEntries = [
     ...new Set([
       ...PLATFORM_MARKETING_PATHS,
       ...SOLUTION_PATHS,
-      ...demoPaths,
-      ...catalogDemoPaths,
-      ...LOCALIZED_DEMO_PATHS,
-      "/demos/velora-event-venue/en",
+      ...publicDemoPaths(),
       ...articlePaths,
     ]),
   ]
