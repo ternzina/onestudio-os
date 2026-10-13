@@ -12,6 +12,10 @@ import {
   trackPublicPageView,
   trackPublicSiteEvent,
 } from "@/lib/public-site/analytics-client";
+import {
+  isCashPathBusinessSlug,
+  isCashPathRequestLabel,
+} from "@/lib/public-site/cashpath-analytics";
 
 export default function PublicSiteAnalyticsTracker({
   businessSlug,
@@ -46,6 +50,18 @@ export default function PublicSiteAnalyticsTracker({
         target?.closest(
           "a[href]",
         );
+
+      if (isCashPathBusinessSlug(businessSlug)) {
+        const action = target?.closest("a[href], button");
+        if (isCashPathRequestLabel(action?.textContent)) {
+          trackPublicSiteEvent({
+            businessSlug,
+            eventName: "cta_click",
+            path: window.location.pathname || "/",
+          });
+          return;
+        }
+      }
 
       if (!anchor) {
         return;
@@ -87,6 +103,41 @@ export default function PublicSiteAnalyticsTracker({
       );
     };
   }, [businessSlug]);
+
+  useEffect(() => {
+    if (!isCashPathBusinessSlug(businessSlug)) return;
+
+    const formBlock = document.querySelector<HTMLElement>(
+      '[data-public-custom-block-id="cashpath-request"]',
+    );
+    if (!formBlock) return;
+
+    let recorded = false;
+    const recordProviderReady = () => {
+      const target = formBlock.querySelector<HTMLElement>("#_lg_form_");
+      if (!target || target.childElementCount === 0 || recorded) return;
+      recorded = true;
+      trackPublicSiteEvent({
+        businessSlug,
+        eventName: "leadsgate_form_ready",
+        path: window.location.pathname || "/",
+      });
+      observer.disconnect();
+    };
+
+    const observer = new MutationObserver(() => {
+      recordProviderReady();
+    });
+    observer.observe(formBlock, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["id"],
+    });
+    recordProviderReady();
+
+    return () => observer.disconnect();
+  }, [businessSlug, pathname]);
 
   return null;
 }
