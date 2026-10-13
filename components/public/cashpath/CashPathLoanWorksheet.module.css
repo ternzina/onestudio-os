@@ -318,8 +318,8 @@
     background: none; color: #111; height: 16pt;
   }
   .table input::placeholder { color: transparent; }
-  thead { display: table-header-group; }
-  tr { break-inside: avoid; page-break-inside: avoid; }
+  .table thead { display: table-header-group; }
+  .table tr { break-inside: avoid; page-break-inside: avoid; }
   .checks { padding: 5px; margin-top: 7mm; background: white; border: 1px solid #aaa; break-inside: avoid; }
   .checkHeading h3 { font-size: 10pt; }
   .checkHeading p { font-size: 7.5pt; margin-top: 2px; }
