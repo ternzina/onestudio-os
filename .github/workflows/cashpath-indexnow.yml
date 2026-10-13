@@ -1,0 +1,70 @@
+name: CashPath IndexNow after production
+
+on:
+  push:
+    branches: [main]
+  deployment_status:
+  repository_dispatch:
+    types: [vercel.deployment.success, vercel.deployment.promoted]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Read-only check; do not submit URLs or update the ledger"
+        type: boolean
+        required: false
+        default: false
+  pull_request:
+    paths:
+      - '.github/workflows/cashpath-indexnow.yml'
+      - 'scripts/cashpath-indexnow-release.py'
+      - 'tests/test_cashpath_indexnow.py'
+      - 'app/api/public/cashpath-indexnow-release/**'
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test tenant isolation, change detection and duplicate prevention
+        run: python3 -m unittest discover -s tests -p 'test_cashpath_indexnow.py' -v
+
+  notify:
+    if: >-
+      github.repository == 'ternzina/onestudio-os' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+       (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' &&
+        (github.event.deployment.production_environment == true || github.event.deployment.environment == 'Production')) ||
+       github.event_name == 'repository_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: cashpath-indexnow-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Verify regression suite before any external write
+        run: python3 -m unittest discover -s tests -p 'test_cashpath_indexnow.py' -v
+      - name: Wait for CashPath production and notify only changed pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run == true && 'true' || 'false' }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            python3 scripts/cashpath-indexnow-release.py --dry-run
+          else
+            python3 scripts/cashpath-indexnow-release.py
+          fi
