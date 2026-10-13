@@ -1,5 +1,8 @@
 "use client";
 
+import { isCashPathBusinessSlug } from "./cashpath-analytics";
+import { detectCashPathClickMarker } from "./cashpath-traffic-attribution";
+
 export type PublicSiteAnalyticsEventName =
   | "page_view"
   | "cta_click"
@@ -16,6 +19,9 @@ type Attribution = {
   utmSource: string;
   utmMedium: string;
   utmCampaign: string;
+  // First landing path and marker *name*, never a full URL or click ID.
+  landingPath?: string;
+  clickMarkerType?: string;
 };
 
 type AnalyticsSession = {
@@ -107,6 +113,8 @@ function currentAttribution(): Attribution {
       params.get("utm_medium") || "",
     utmCampaign:
       params.get("utm_campaign") || "",
+    landingPath: window.location.pathname || "/",
+    clickMarkerType: detectCashPathClickMarker(params),
   };
 }
 
@@ -321,6 +329,14 @@ export function trackPublicSiteEvent(
     utmCampaign:
       session.attribution
         .utmCampaign,
+    ...(isCashPathBusinessSlug(businessSlug)
+      ? {
+          landingPath:
+            session.attribution.landingPath || currentPath(),
+          clickMarkerType:
+            session.attribution.clickMarkerType || "",
+        }
+      : {}),
     deviceClass:
       deviceClass(),
     locale,
