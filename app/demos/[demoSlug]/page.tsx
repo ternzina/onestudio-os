@@ -11,7 +11,9 @@ export async function generateMetadata({ params }: { params: Promise<{ demoSlug:
   const demo = getDemo(demoSlug);
   if (!demo) return { title: "Demo not found", robots: { index: false } };
   const title = `${demo.name} — ${demo.title.en} demo`;
-  const description = demo.description.en;
+  const description = demo.slug === "lumiere"
+    ? "Preview the Lumière beauty salon website demo by OneStudio OS, with services, specialist profiles and an online booking experience for salon clients."
+    : demo.description.en;
   return {
     title, description, alternates: { canonical: `/demos/${demo.slug}` }, robots: { index: true, follow: true },
     openGraph: { type: "website", url: `/demos/${demo.slug}`, siteName: "OneStudio OS", title, description, images: [{ url: "/opengraph-image", alt: "OneStudio OS" }] },
