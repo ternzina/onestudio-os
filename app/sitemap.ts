@@ -23,6 +23,7 @@ import {
 } from "@/lib/public-site/metadata";
 import { premiumPublicSitemapPaths } from "@/lib/public-site/premium-route-metadata";
 import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "@/lib/public-site/cashpath-guide-categories";
+import { CASH_PATH_LOAN_WORKSHEET_PATH } from "@/lib/public-site/cashpath-loan-worksheet";
 import { listPublishedGuideSitemapEntries } from "@/lib/guides/repository";
 import { platformMarketingLocale } from "@/lib/i18n/config";
 import { SOLUTION_PATHS } from "@/lib/seo/solutions";
@@ -145,7 +146,19 @@ async function platformWorkspaceEntries(
             priority: entry.is_primary ? 0.75 : 0.65,
           })) : [];
 
-          return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs];
+          const cashPathWorksheet: MetadataRoute.Sitemap =
+          site.content.template_id === "cashpath" &&
+          entry.is_primary &&
+          entry.business_slug === "cashpath-909c00c9"
+            ? [{
+                url: new URL(CASH_PATH_LOAN_WORKSHEET_PATH, origin).toString(),
+                lastModified,
+                changeFrequency: "monthly",
+                priority: 0.8,
+              }]
+            : [];
+
+        return [home, ...pages, ...premiumPages, ...cashPathHub, ...cashPathCategoryHubs, ...cashPathWorksheet];
         }),
     )
   ).flat();

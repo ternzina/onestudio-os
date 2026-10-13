@@ -1,0 +1,334 @@
+.page {
+  min-height: 100vh;
+  background: #f7f5ef;
+  color: #182b29;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 1180px;
+  padding: 1.4rem 1.2rem;
+  margin: 0 auto;
+}
+.navigation nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: .87rem;
+  font-weight: 650;
+}
+.navigation a:hover, .footer a:hover, .sources a:hover {
+  text-decoration: underline;
+}
+.logo {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.045em;
+}
+.logo span {
+  color: #187c6a;
+}
+.intro {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 3.5rem 1.2rem 2.5rem;
+}
+.eyebrow {
+  color: #146b5d;
+  letter-spacing: .15em;
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.intro h1 {
+  max-width: 850px;
+  font-size: clamp(2.7rem, 6vw, 5.15rem);
+  line-height: 1.06;
+  letter-spacing: -.045em;
+  font-family: Georgia, serif;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+.lead {
+  max-width: 760px;
+  margin-top: 1.6rem;
+  line-height: 1.75;
+  font-size: 1.13rem;
+  color: #47605d;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  flex-wrap: wrap;
+  margin-top: 1.8rem;
+}
+.primaryButton, .secondaryButton {
+  cursor: pointer;
+  padding: .8rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 750;
+  font-size: .95rem;
+}
+.primaryButton {
+  background: #187c6a;
+  color: white;
+}
+.primaryButton:hover {
+  background: #105f51;
+}
+.secondaryButton {
+  background: white;
+  border: 1px solid #bfd0c9;
+}
+.toggle {
+  display: inline-flex;
+  gap: .55rem;
+  align-items: center;
+  font-weight: 600;
+  font-size: .91rem;
+  padding: .5rem;
+}
+.toggle input {
+  width: 17px;
+  height: 17px;
+  accent-color: #187c6a;
+}
+.privacy {
+  background: #e8eee9;
+  border-radius: 12px;
+  padding: .85rem 1rem;
+  max-width: 780px;
+  font-size: .88rem;
+  line-height: 1.65;
+  margin-top: 2rem;
+  color: #374f47;
+}
+.sheet {
+  max-width: 1180px;
+  margin: 0 auto 2rem;
+  padding: 2rem 1.15rem;
+  background: white;
+  border: 1px solid #e0e7df;
+  box-shadow: 0 12px 40px rgba(32, 45, 42, .05);
+  border-radius: 18px;
+}
+.sheetTitle {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: .5rem .7rem 1.6rem;
+  align-items: flex-end;
+}
+.sheetTitle h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(1.55rem, 3.7vw, 2.4rem);
+  line-height: 1.25;
+  margin-top: .5rem;
+}
+.sheetTitle > p {
+  max-width: 360px;
+  line-height: 1.6;
+  color: #61716c;
+  font-size: .87rem;
+}
+.scrollTable {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e1e8e3;
+  border-radius: 12px;
+}
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 850px;
+  table-layout: fixed;
+}
+.table th, .table td {
+  border-bottom: 1px solid #e1e8e3;
+  border-right: 1px solid #e1e8e3;
+  text-align: left;
+  vertical-align: middle;
+  padding: .8rem;
+}
+.table th:last-child, .table td:last-child {
+  border-right: 0;
+}
+.table thead th {
+  color: #123d35;
+  background: #eaf5ee;
+  font-size: .93rem;
+  font-weight: 800;
+}
+.table .labelColumn {
+  width: 30%;
+}
+.fieldLabel {
+  width: 30%;
+  background: #fafcfb;
+  font-size: .86rem;
+  line-height: 1.3;
+  font-weight: 750;
+}
+.fieldLabel span {
+  display: block;
+  color: #697671;
+  line-height: 1.4;
+  font-size: .75rem;
+  margin-top: .3rem;
+  font-weight: 400;
+}
+.groupRow th {
+  background: #e8eee9;
+  color: #285a4c;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-size: .75rem;
+  font-weight: 800;
+  padding: .68rem .9rem;
+}
+.table input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 6px;
+  border: 1px solid #ccd9d2;
+  background: white;
+  color: #172b26;
+  padding: .65rem .6rem;
+  font-size: .85rem;
+  text-overflow: ellipsis;
+}
+.table input::placeholder { color: #88958e; }
+.table input:focus-visible, .primaryButton:focus-visible, .secondaryButton:focus-visible {
+  outline: 3px solid #6caea0;
+  outline-offset: 2px;
+}
+.checks {
+  border: 1px solid #dce6de;
+  background: #f5f9f6;
+  border-radius: 12px;
+  margin-top: 1.3rem;
+  padding: 1.3rem;
+}
+.checkHeading h3, .decisions h3 {
+  font-size: 1.23rem;
+  font-weight: 800;
+}
+.checkHeading p {
+  line-height: 1.55;
+  margin-top: .45rem;
+  font-size: .88rem;
+  color: #5c6b63;
+}
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+  margin-top: 1.2rem;
+}
+.checkCard {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  border: 1px solid #d8e4dc;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+}
+.checkCard span { font-size: .77rem; color: #61736b; }
+.checkCard strong { font-size: 1.1rem; }
+.printDisclaimer {
+  color: #586b60;
+  font-size: .77rem;
+  margin: 1.35rem .5rem 0;
+  line-height: 1.55;
+}
+.decisions { margin: 2rem .5rem .2rem; }
+.decisions ul {
+  list-style: disc;
+  padding-left: 1.45rem;
+  margin-top: .8rem;
+  line-height: 1.75;
+  color: #49615a;
+}
+.sources {
+  max-width: 1120px;
+  margin: 2rem auto 0;
+  padding: 0 1.2rem 5rem;
+}
+.sources h2 {
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.sources p {
+  max-width: 950px;
+  line-height: 1.75;
+  font-size: .98rem;
+  color: #475e56;
+  margin-top: .8rem;
+}
+.sources a { text-decoration: underline; text-underline-offset: 3px; color: #146b5d; }
+.sources .disclosure { font-size: .86rem; color: #63736b; margin-top: 1.5rem; }
+.footer {
+  border-top: 1px solid #dae2da;
+  margin-top: 2.5rem;
+  padding-top: 1.3rem;
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: .82rem;
+  color: #5a7166;
+}
+.footer span { margin-left: auto; }
+@media (max-width: 700px) {
+  .navigation { align-items: flex-start; }
+  .navigation nav { justify-content: flex-end; font-size: .79rem; }
+  .intro { padding-top: 2rem; }
+  .sheetTitle { display: block; }
+  .sheetTitle > p { margin-top: .7rem; }
+  .checkGrid { grid-template-columns: 1fr; }
+  .sheet { padding: .85rem; border-radius: 12px; }
+  .footer span { margin-left: 0; }
+}
+@media print {
+  @page { size: letter landscape; margin: 11mm; }
+  .page { background: white !important; color: #111 !important; font-family: Arial, sans-serif; }
+  .navigation, .actions, .privacy, .sources { display: none !important; }
+  .intro { padding: 0 0 6mm; margin: 0; max-width: none; }
+  .intro h1 { font-size: 25pt; margin: 1mm 0 1mm; }
+  .intro .lead { font-size: 9pt; margin-top: 2mm; line-height: 1.3; }
+  .eyebrow { color: #111; font-size: 8pt; }
+  .sheet { padding: 0; margin: 0; max-width: none; border: 0; box-shadow: none; }
+  .sheetTitle { display: none; }
+  .scrollTable { overflow: visible !important; border: 0; border-radius: 0; }
+  .table { min-width: 0; width: 100%; font-size: 8pt; table-layout: fixed; }
+  .table th, .table td { padding: 3px 5px; border: 1px solid #bbb; }
+  .table thead th { background: #e8eee9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .table .labelColumn, .fieldLabel { width: 30%; }
+  .fieldLabel { font-size: 7.6pt; background: white; }
+  .fieldLabel span { font-size: 6.5pt; margin-top: 1px; }
+  .groupRow th { padding: 4px 5px; background: #eee !important; font-size: 7pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .table input {
+    font-size: 8pt; padding: 2px 0; border: 0; border-bottom: 1px solid #aaa;
+    background: none; color: #111; height: 16pt;
+  }
+  .table input::placeholder { color: transparent; }
+  .table thead { display: table-header-group; }
+  .table tr { break-inside: avoid; page-break-inside: avoid; }
+  .checks { padding: 5px; margin-top: 7mm; background: white; border: 1px solid #aaa; break-inside: avoid; }
+  .checkHeading h3 { font-size: 10pt; }
+  .checkHeading p { font-size: 7.5pt; margin-top: 2px; }
+  .checkGrid { display: flex; gap: 4mm; margin-top: 3mm; }
+  .checkCard { flex: 1; padding: 4px 7px; }
+  .checkCard span { font-size: 7pt; }
+  .checkCard strong { font-size: 9pt; }
+  .printDisclaimer { font-size: 7pt; color: #222; margin: 3mm 0 0; }
+  .decisions { margin: 5mm 0; break-inside: avoid; }
+  .decisions h3 { font-size: 10pt; }
+  .decisions ul { margin-top: 2mm; line-height: 1.45; font-size: 8pt; }
+}
