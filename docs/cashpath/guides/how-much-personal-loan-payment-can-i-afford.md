@@ -294,3 +294,13 @@ Affordability starts with the household budget, not the lender's maximum amount.
 Build a realistic monthly cash-flow plan. Include irregular expenses and leave a cushion. Then compare the payment, APR, fees, term, and total repayment of any actual offer.
 
 A loan payment should solve a problem without quietly creating a new one.
+
+## Keep lender screening separate from your household budget
+
+Debt-to-income ratio (DTI) is one measure a lender may use: monthly debt payments divided by gross monthly income. It does not include every household expense, and a lender’s screening measure is not a personal budget or a guarantee of approval. The CFPB notes that different loan products and lenders use different DTI limits. For your own budget, also account for take-home income, housing, utilities, food, transportation, irregular expenses, and a cushion before deciding whether a payment is manageable.
+
+See the CFPB’s [definition of debt-to-income ratio](https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/) for what the measure means. To compare the complete terms, see [How to Compare Personal Loan Offers](/p/how-to-compare-personal-loan-offers).
+
+## Sources and further reading
+
+- [Consumer Financial Protection Bureau: What is a debt-to-income ratio?](https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/)

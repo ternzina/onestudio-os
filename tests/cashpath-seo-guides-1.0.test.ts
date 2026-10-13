@@ -33,7 +33,7 @@ test("CashPath guide generator is current and emits the complete APR guide", () 
     guide.seo_description,
     "Learn what APR means on a personal loan, how it differs from the interest rate, which fees can affect costs, and how to compare loan offers.",
   );
-  assert.equal(guide.section_count, 10);
+  assert.equal(guide.section_count, 11);
   assert.ok(
     guide.plain_text_word_count >= 1200 && guide.plain_text_word_count <= 1600,
   );
@@ -54,6 +54,7 @@ test("APR guide preserves headings, rich text, sources, and crawlable internal l
       "Questions to ask before accepting a loan offer",
       "Is the lowest APR always the best choice?",
       "The bottom line",
+      "Read APR with the rest of the offer",
       "Sources and further reading",
     ],
   );

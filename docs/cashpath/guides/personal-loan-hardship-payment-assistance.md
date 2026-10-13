@@ -401,3 +401,13 @@ If you are considering a **new** personal loan for another permitted purpose, Ca
 CashPath does not guarantee a provider response, approval, APR, fees, funding, refinancing, consolidation savings, hardship approval, or any particular payment outcome.
 
 _Last reviewed: September 11, 2026._
+
+## Keep a record of the request and the answer
+
+Write down the date you contacted the servicer, the department or representative, the options described, any deadline, and what you were told to keep paying while a request is reviewed. Ask for proposed changes and their effect on interest, fees, due dates, and credit reporting in writing. Until the servicer confirms a change, do not assume a payment has been paused or reduced.
+
+The CFPB’s [unexpected job loss guidance](https://www.consumerfinance.gov/consumer-tools/unexpected-job-loss/) recommends contacting lenders and companies promptly when income changes; the options described depend on the product and company. It is general guidance, not a promise that a personal-loan servicer must offer a particular hardship plan.
+
+## Sources and further reading
+
+- [Consumer Financial Protection Bureau: Unexpected job loss](https://www.consumerfinance.gov/consumer-tools/unexpected-job-loss/)

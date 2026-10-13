@@ -8,6 +8,7 @@ import {
   publicCustomPagePath,
 } from "@/lib/public-site/metadata";
 import { getPublicSiteRequestContext } from "@/lib/public-site/request-context";
+import { publishedCashPathGuidePage } from "@/lib/public-site/cashpath-guides";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,12 @@ export async function generateMetadata({
     return { title: "Page not found", robots: { index: false } };
   }
 
-  return createPublicPageMetadata(site, page, locale, context);
+  return createPublicPageMetadata(
+    site,
+    publishedCashPathGuidePage(site.content, page),
+    locale,
+    context,
+  );
 }
 
 export default async function LocalizedCustomPage({
@@ -66,10 +72,12 @@ export default async function LocalizedCustomPage({
     );
   }
 
+  const resolvedPage = publishedCashPathGuidePage(site.content, page);
+
   return (
     <PublicCustomPageRuntime
       site={site}
-      page={page}
+      page={resolvedPage}
       basePath={
         context.cleanUrls
           ? `/${normalizedLocale}`

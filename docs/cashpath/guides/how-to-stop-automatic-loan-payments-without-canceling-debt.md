@@ -244,6 +244,12 @@ The automatic debit can stop while the debt continues. Treat those as two separa
 
 If you are still exploring personal-loan options, CashPath can help you start a request that may continue into a participating-provider process. CashPath is not a lender and cannot change an existing provider's payment authorization, due date, or servicing terms.
 
+## Distinguish stopping a debit from changing the debt
+
+Tell the lender or servicer if you revoke payment authorization, contact your bank or credit union about any stop-payment process that applies, and separately arrange how you will make any payment that remains due. Keep confirmation of each request and check the account after the scheduled date. A blocked transfer does not itself change the balance, due date, or other agreement terms.
+
+CFPB Regulation E describes stop-payment and revoked-authorization rules for preauthorized transfers. How the process applies can depend on the payment method and facts; use the [regulation and official interpretation](https://www.consumerfinance.gov/rules-policy/regulations/1005/10/) and ask your financial institution about its procedures.
+
 ## Sources and Further Reading
 
 - [CFPB Regulation E § 1005.10 — Preauthorized transfers](https://www.consumerfinance.gov/rules-policy/regulations/1005/10/)

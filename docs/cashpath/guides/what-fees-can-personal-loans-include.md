@@ -110,6 +110,12 @@ Fee structures vary. Read the disclosures, understand each fee's purpose and tim
 
 CashPath is not a lender and does not determine loan fees, APR, interest rates, approval, or funding. This guide is general educational information only.
 
+## Compare fees with both cash received and repayment cost
+
+For every disclosed fee, note whether it is optional, when it is charged, whether it reduces the amount you receive, and whether the provider includes it in the APR disclosure. Then compare the offer’s net proceeds, scheduled payments, term, and total repayment where stated. Two offers with similar headline rates can still leave you with different cash in hand or different obligations.
+
+Do not assume a label alone tells you whether a charge is permitted, included in APR, or refundable. The specific disclosures and agreement control. The CFPB’s [overview of fees on personal installment loans](https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/) is a useful starting point; see [How to Compare Personal Loan Offers](/p/how-to-compare-personal-loan-offers) for the complete comparison.
+
 ## Sources and further reading
 
 - [Consumer Financial Protection Bureau: Do personal installment loans have fees?](https://www.consumerfinance.gov/ask-cfpb/do-personal-installment-loans-have-fees-en-2120/)

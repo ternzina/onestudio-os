@@ -252,6 +252,12 @@ CashPath cannot calculate a provider's payoff amount from a public webpage.
 
 If a personal loan is still worth exploring, CashPath can help you start a request that may continue into a participating-provider process. CashPath is not a lender and does not control payoff calculations, fees, APRs, or servicing.
 
+## Confirm what the quoted amount covers
+
+Ask the lender or servicer for a payoff figure tied to a specific good-through date. Confirm where to send it, how long processing takes, whether another scheduled payment could still be drafted, and how to verify that the account shows paid in full afterward. Do not reuse an old quote after its date or infer the final amount from a balance shown in an app.
+
+The CFPB’s explanation of payoff amounts is specifically about mortgages and secured-dwelling rules. It illustrates why a dated payoff figure can differ from a displayed balance, but it does not establish the requirements or terms for an unsecured personal loan. For a personal loan, ask its actual lender or servicer and review that loan’s agreement.
+
 ## Sources and Further Reading
 
 - [CFPB — What is a payoff amount and is it the same as my current balance? (mortgage context, reviewed Aug. 28, 2026)](https://www.consumerfinance.gov/ask-cfpb/what-is-a-payoff-amount-and-is-it-the-same-as-my-current-balance-en-205/)

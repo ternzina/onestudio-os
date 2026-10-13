@@ -1,6 +1,20 @@
 import { CASH_PATH_GUIDES, type CashPathGuide } from "./cashpath-guides.generated.ts";
 import type { PublicSiteContent, PublicSitePage } from "./types.ts";
 
+/** Guides whose reviewed copy is managed in the CashPath guide source files. */
+export const CASH_PATH_GEO_V1_GUIDE_SLUGS = new Set([
+  "how-to-compare-personal-loan-offers",
+  "apr-vs-interest-rate",
+  "personal-loan-agreement-checklist",
+  "how-much-personal-loan-payment-can-i-afford",
+  "personal-loan-hardship-payment-assistance",
+  "someone-took-out-personal-loan-in-my-name",
+  "personal-loan-payoff-amount-vs-current-balance",
+  "how-to-stop-automatic-loan-payments-without-canceling-debt",
+  "what-fees-can-personal-loans-include",
+  "what-is-apr-on-a-personal-loan",
+]);
+
 const clone = (page: PublicSitePage): PublicSitePage => ({
   ...page,
   blocks: page.blocks?.map((block) => ({ ...block })),
@@ -8,6 +22,42 @@ const clone = (page: PublicSitePage): PublicSitePage => ({
 
 export function cashPathGuideForSlug(slug: string): CashPathGuide | undefined {
   return CASH_PATH_GUIDES.find((guide) => guide.slug === slug);
+}
+
+/** Uses the reviewed source copy for the ten published GEO v1 guides only. */
+export function publishedCashPathGuidePage(
+  content: PublicSiteContent,
+  page: PublicSitePage,
+): PublicSitePage {
+  if (content.template_id !== "cashpath" || !CASH_PATH_GEO_V1_GUIDE_SLUGS.has(page.slug)) {
+    return page;
+  }
+
+  const source = cashPathGuideForSlug(page.slug);
+  if (!source) return page;
+  const sourceBlocks = source.blocks ?? [];
+  const persistedBlocks = page.blocks ?? [];
+  const sourceBlockIds = new Set(sourceBlocks.map((block) => block.id));
+  const persistedBlocksById = new Map(persistedBlocks.map((block) => [block.id, block]));
+  const reviewedBlocks = sourceBlocks.map((block) => {
+    const persisted = persistedBlocksById.get(block.id);
+    return persisted?.is_visible === undefined
+      ? block
+      : { ...block, is_visible: persisted.is_visible };
+  });
+  const additionalPersistedBlocks = persistedBlocks.filter(
+    (block) => !sourceBlockIds.has(block.id),
+  );
+
+  return {
+    ...page,
+    eyebrow: source.eyebrow,
+    title: source.title,
+    intro: source.intro,
+    seo_title: source.seo_title,
+    seo_description: source.seo_description,
+    blocks: [...reviewedBlocks, ...additionalPersistedBlocks],
+  };
 }
 
 /** Returns guides that are absent by slug; existing customer pages always win. */

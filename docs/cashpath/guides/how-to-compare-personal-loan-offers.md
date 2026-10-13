@@ -104,6 +104,20 @@ Compare like with like. Read APR, rate, fees, payment, term, and total repayment
 
 CashPath is not a lender and does not make credit decisions or determine APR, interest rates, fees, approval, or funding. This guide is general educational information only.
 
+## A quick comparison worksheet
+
+Use the same set of fields for each offer, taken from its current written disclosure. If a field is missing, mark it “not stated” and ask the provider instead of estimating it:
+
+- Provider and the date of the offer
+- Amount requested, amount offered, and net proceeds you would receive
+- APR and interest rate, including whether the rate can change
+- Each fee, when it is charged, and whether it is deducted from proceeds
+- Payment amount, frequency, first due date, and number of payments
+- Total scheduled repayment, if the provider discloses it
+- Late, returned-payment, and early-payoff terms
+
+Compare figures on the same basis. APRs are more useful side by side when offers have comparable amounts and repayment terms; a lower APR by itself does not establish that the payment fits your budget. For help evaluating a payment against your expenses, see [How Much Personal Loan Payment Can You Afford?](/p/how-much-personal-loan-payment-can-i-afford).
+
 ## Sources and further reading
 
 - [Consumer Financial Protection Bureau: What is a personal installment loan?](https://www.consumerfinance.gov/ask-cfpb/what-is-a-personal-installment-loan-en-2114/)
