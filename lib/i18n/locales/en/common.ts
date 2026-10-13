@@ -80,7 +80,7 @@ export const common = {
     },
     features: {
       title: "Features",
-      description: "Website, booking, clients and working tools in OneStudio.",
+      description: "Explore OneStudio OS features for service businesses: website design, online booking, client records, payments, reminders and connected daily workflows.",
     },
     components: {
       title: "Components",

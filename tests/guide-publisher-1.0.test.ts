@@ -84,6 +84,18 @@ const knownPaths = new Set([
   "/guides/appointment-booking-form-template",
 ]);
 
+test("Publisher blocks new metadata that exceeds the search-copy budgets", () => {
+  const draft = parseGuideMarkdown(sample, options);
+  const longTitle = validateGuideDrafts([{ ...draft, title: "a".repeat(66) }], { knownPaths });
+  assert.equal(longTitle.ok, false);
+  assert.ok(longTitle.errors.some((error) => error.includes("SEO title must be at most 65")));
+  const longDescription = validateGuideDrafts([{ ...draft, description: "a".repeat(161) }], { knownPaths });
+  assert.equal(longDescription.ok, false);
+  assert.ok(longDescription.errors.some((error) => error.includes("meta description must be at most 160")));
+  const boundary = validateGuideDrafts([{ ...draft, title: "a".repeat(65), description: "a".repeat(160) }], { knownPaths });
+  assert.equal(boundary.ok, true, boundary.errors.join("\n"));
+});
+
 test("Publisher parses Ready-to-Publish metadata and rich Guide content", () => {
   const draft = parseGuideMarkdown(sample, options);
   assert.equal(draft.slug, "booking-page-best-practices");

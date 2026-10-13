@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "@/app/_seo/site";
 import { platformMarketingLocale } from "@/lib/i18n/config";
 import { getPublishedGuideArticle } from "@/lib/guides/repository";
+import { getGuideSeoFields } from "@/lib/guides/metadata";
 import type { GuideSubsection } from "@/lib/guides/types";
 import { getGuidesUiCopy } from "@/lib/i18n/guides";
 import styles from "./page.module.css";
@@ -19,19 +20,25 @@ export async function generateMetadata({
 }: GuideArticlePageProps): Promise<Metadata> {
   const article = await getPublishedGuideArticle((await params).slug, platformMarketingLocale);
   if (!article) return { robots: { index: false, follow: false } };
+  const seo = getGuideSeoFields(article);
 
   return {
-    title: article.title,
-    description: article.description,
+    title: { absolute: seo.title },
+    description: seo.description,
     keywords: [article.searchIntent, ...(article.topics ?? [])],
     alternates: { canonical: new URL(article.path, SITE_URL).toString() },
     openGraph: {
       type: "article",
       url: article.path,
-      title: article.title,
-      description: article.description,
+      title: seo.title,
+      description: seo.description,
       publishedTime: article.publishedAt,
       siteName: "OneStudio OS",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
     },
     robots: { index: true, follow: true },
   };
