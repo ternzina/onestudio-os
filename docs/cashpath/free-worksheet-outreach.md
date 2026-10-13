@@ -6,6 +6,16 @@ Canonical URL **after production approval**: https://cashpath.org/p/loan-compari
 
 **Status**: Code prepared in PR #33, not yet live. Do not submit or claim the resource is public until a real browser confirms HTTP 200 on the canonical domain and the interactive + print functions.
 
+## Previous outreach (different resource)
+
+- **APEF Financial Literacy Resource Library**: one application was already submitted for
+  `https://cashpath.org/p/how-to-compare-personal-loan-offers` in the previous outreach effort.
+  **Pending editorial decision; not a verified backlink.** Do not submit a duplicate until the
+  original status is checked.
+- Individualized draft pitches to Fiscal Tiger and Family Money Map exist in the prior
+  local outreach report; they were **not** sent because free/noncommercial author rules
+  needed clarification.
+
 ## The resource editors can actually evaluate
 
 - Completely free financial-education worksheet for comparing **2 or 3 written U.S. personal loan offers**.
