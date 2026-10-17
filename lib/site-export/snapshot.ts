@@ -234,6 +234,10 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
       worksheetCallout: cashpath && page.slug === "how-to-compare-personal-loan-offers",
     });
   }
+  const clippedTitles = exportPages.filter((page) => page.seoTitle.length === 70).length;
+  if (clippedTitles > 0) {
+    warnings.push(warning("seo_title_clipped", `В опубликованных данных ${clippedTitles} SEO-заголовков имеют длину ровно 70 символов и могут быть обрезаны. Экспорт сохраняет их как в базе и не дописывает текст.`));
+  }
 
   const guides: GuideCard[] = exportPages.filter((page) => page.categoryName && page.categorySlug && !page.noIndex).map((page) => ({
     slug: page.slug,

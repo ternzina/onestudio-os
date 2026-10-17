@@ -94,6 +94,32 @@ test("CashPath public home payload omits guide bodies", () => {
   assert.equal(JSON.stringify(slim).includes("Appliance Financing"), false);
 });
 
+test("published SEO replaces the repository seed and private company email stays out", async () => {
+  const content = createCashPathPremiumTemplateSeed();
+  const about = content.pages?.find((page) => page.slug === "about");
+  assert.ok(about);
+  about.seo_description = "Published description that is not the seed.";
+  about.seo_title = `${"Published title ".repeat(6)}end`.slice(0, 70);
+  const exported = await buildSiteExport(siteFrom(content, {
+    company: { display_name: "CashPath", email: "hidden-person@example.com", phone: "+1-555-0100" },
+  }), "next", { canonicalOrigin: "https://cashpath.org", projectRoot: process.cwd() });
+  const text = (filePath: string) => {
+    const file = exported.files.find((item) => item.path === filePath);
+    assert.ok(file, filePath);
+    return Buffer.isBuffer(file.body) ? file.body.toString("utf8") : file.body;
+  };
+  const aboutFile = text("data/pages/about.json");
+  assert.match(aboutFile, /Published title/);
+  assert.doesNotMatch(aboutFile, /Online Personal Loan Request Service/);
+  assert.match(aboutFile, /Published description that is not the seed/);
+  const joined = exported.files.map((file) => Buffer.isBuffer(file.body) ? "" : file.body).join("\n");
+  assert.equal(joined.includes("hidden-person@example.com"), false);
+  assert.equal(joined.includes("555-0100"), false);
+  assert.equal(exported.snapshot.warnings.some((item) => item.code === "seo_title_clipped"), true);
+  assert.match(text("data/site.json"), /seoKeywords/);
+  assert.match(text("app/page.tsx"), /socialMetadata/);
+});
+
 test("guide categories do not import the guide corpus", () => {
   const source = readFileSync("lib/public-site/cashpath-guide-categories.ts", "utf8");
   assert.doesNotMatch(source, /cashpath-guides\.generated/);

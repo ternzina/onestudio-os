@@ -14,7 +14,12 @@ const FAQ = [
 function documentShell(snapshot: SiteSnapshot, options: { title: string; description: string; path: string; noIndex: boolean; body: string; jsonLd?: unknown }): string {
   const canonical = absoluteUrl(snapshot.canonicalOrigin, options.path);
   const robots = options.noIndex || snapshot.noIndex ? "noindex, nofollow" : "index, follow";
-  const icon = snapshot.faviconPath ? `<link rel="icon" href="${escapeHtml(snapshot.faviconPath)}">` : "";
+  const icon = snapshot.faviconPath ? `<link rel="icon" href="${escapeHtml(absoluteUrl(snapshot.canonicalOrigin, snapshot.faviconPath))}">` : "";
+  const keywords = snapshot.seoKeywords ? `<meta name="keywords" content="${escapeHtml(snapshot.seoKeywords)}">` : "";
+  const image = snapshot.heroImagePath ? absoluteUrl(snapshot.canonicalOrigin, snapshot.heroImagePath) : "";
+  const imageMeta = image
+    ? `<meta property="og:image" content="${escapeHtml(image)}">\n<meta property="og:image:alt" content="${escapeHtml(options.title)}">\n<meta name="twitter:image" content="${escapeHtml(image)}">`
+    : "";
   return `<!doctype html>
 <html lang="${escapeHtml(snapshot.locale)}">
 <head>
@@ -22,12 +27,20 @@ function documentShell(snapshot: SiteSnapshot, options: { title: string; descrip
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(options.title)}</title>
 <meta name="description" content="${escapeHtml(options.description)}">
+${keywords}
 <link rel="canonical" href="${escapeHtml(canonical)}">
+<link rel="alternate" hrefLang="${escapeHtml(snapshot.locale)}" href="${escapeHtml(canonical)}">
 <meta name="robots" content="${robots}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${escapeHtml(options.title)}">
 <meta property="og:description" content="${escapeHtml(options.description)}">
 <meta property="og:url" content="${escapeHtml(canonical)}">
+<meta property="og:site_name" content="${escapeHtml(snapshot.brandName)}">
+<meta property="og:locale" content="${escapeHtml(snapshot.locale.replace("-", "_"))}">
+${imageMeta}
+<meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}">
+<meta name="twitter:title" content="${escapeHtml(options.title)}">
+<meta name="twitter:description" content="${escapeHtml(options.description)}">
 ${icon}
 <link rel="stylesheet" href="/assets/site.css">
 ${jsonLdScript(options.jsonLd)}

@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import GuidesHub from "../../../components/GuidesHub";
-import { readSite } from "../../../lib/site";
+import { readSite, socialMetadata } from "../../../lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = readSite();
   if (site.templateId !== "cashpath") return { title: "Not found", robots: { index: false, follow: false } };
-  return {
-    title: { absolute: "Personal Loan Guides & Financial Education | CashPath" },
+  return socialMetadata({
+    title: "Personal Loan Guides & Financial Education | CashPath",
     description: "Educational personal loan guides from CashPath.",
-    alternates: { canonical: "/p/guides" },
-    robots: site.noIndex ? { index: false, follow: false } : { index: true, follow: true },
-  };
+    path: "/p/guides",
+    noIndex: site.noIndex,
+  });
 }
 
 export default function Page() {
