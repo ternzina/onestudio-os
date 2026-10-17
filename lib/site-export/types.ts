@@ -59,6 +59,14 @@ export type ExportAsset = {
   bytes: Buffer;
 };
 
+export type HeroSources = {
+  width: number;
+  height: number;
+  type: "image/webp";
+  sizes: "100vw";
+  srcset: string;
+};
+
 export type SiteSnapshot = {
   templateId: string;
   brandName: string;
@@ -71,6 +79,7 @@ export type SiteSnapshot = {
   noIndex: boolean;
   faviconPath: string;
   heroImagePath: string;
+  heroSources: HeroSources | null;
   hero: { eyebrow: string; title: string; text: string };
   form: { aid: string; template: "wallet-lines"; eyebrow: string; title: string; text: string } | null;
   pages: ExportPage[];

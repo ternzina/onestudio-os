@@ -85,10 +85,49 @@ test("CashPath export keeps URLs, SEO, guides, and drops the shared article corp
   assert.match(text("app/globals.css"), /grid-template-columns:1fr 1fr/);
   assert.match(home, /REQUEST OPTIONS/);
   assert.match(home, /Start your request/);
+  assert.match(home, /"type":"image\/webp"/);
+  assert.match(home, /hero-woman-wide-v2-640\.webp 640w/);
+  assert.match(home, /hero-woman-wide-v2-1774\.webp 1774w/);
+  assert.match(home, /"sizes":"100vw"/);
+  assert.match(home, /hero-woman-wide-v2\.png/);
+  assert.match(text("components/HomePage.tsx"), /fetchPriority="high"/);
+  assert.match(text("components/HomePage.tsx"), /<source type=\{sources\.type\} srcSet=\{sources\.srcset\} sizes=\{sources\.sizes\} \/>/);
+  assert.match(text("app/page.tsx"), /imageSrcSet=\{site\.heroSources\.srcset\}/);
+  assert.match(text("app/page.tsx"), /fetchPriority="high"/);
+  const png = exported.files.find((file) => file.path.endsWith("hero-woman-wide-v2.png"));
+  const webp = exported.files.filter((file) => file.path.includes("hero-woman-wide-v2-") && file.path.endsWith(".webp"));
+  assert.ok(png && Buffer.isBuffer(png.body));
+  assert.equal(webp.length, 5);
+  assert.ok(webp.every((file) => Buffer.isBuffer(file.body) && file.body.length > 0 && file.body.length < (png.body as Buffer).length));
   const notes = text("EXPORT-NOTES.md");
   assert.match(notes, /DNS/);
   assert.match(text(".env.example"), /LEADSGATE_AID=/);
   assert.equal(exported.files.some((file) => file.path === ".env"), false);
+});
+
+test("CashPath static export preloads the responsive hero", async () => {
+  const content = createCashPathPremiumTemplateSeed();
+  const exported = await buildSiteExport(siteFrom(content, {
+    business: { id: "cashpath-909c00c9", slug: "cashpath-909c00c9", name: "CashPath", locale: "en", primary_locale: "en", currency: "USD", timezone: "America/New_York" },
+    company: { display_name: "CashPath" },
+  }), "static", { canonicalOrigin: "https://cashpath.org", projectRoot: process.cwd() });
+  const text = (filePath: string) => {
+    const file = exported.files.find((item) => item.path === filePath);
+    assert.ok(file, filePath);
+    return Buffer.isBuffer(file.body) ? file.body.toString("utf8") : file.body;
+  };
+  const home = text("index.html");
+  assert.match(home, /<link rel="preload" as="image" imagesrcset="[^"]*hero-woman-wide-v2-640\.webp 640w[^"]*" imagesizes="100vw" type="image\/webp" fetchpriority="high">/);
+  assert.match(home, /<picture><source type="image\/webp" srcset="[^"]*hero-woman-wide-v2-1774\.webp 1774w" sizes="100vw"><img src="\/media\/\d+-hero-woman-wide-v2\.png" alt="" width="1774" height="887" fetchpriority="high"><\/picture>/);
+  assert.match(home, /property="og:image" content="https:\/\/cashpath\.org\/media\/\d+-hero-woman-wide-v2\.png"/);
+  assert.match(home, /class="form-kicker"/);
+  assert.match(text("assets/site.js"), /class="short-form"/);
+  assert.match(text("assets/site.css"), /\.short-form button,\[data-short-form\] button\{[^}]*background:#187c6a/);
+  assert.equal(exported.files.filter((file) => file.path.endsWith(".webp")).length, 5);
+  const article = exported.files.find((file) => file.path === "p/about/index.html");
+  assert.ok(article);
+  const articleHtml = Buffer.isBuffer(article.body) ? article.body.toString("utf8") : article.body;
+  assert.equal(articleHtml.includes("imagesrcset"), false);
 });
 
 test("CashPath public home payload omits guide bodies", () => {

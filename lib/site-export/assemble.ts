@@ -115,6 +115,7 @@ export async function buildSiteExport(site: PublicSiteData, format: ExportFormat
     faviconPath: snapshot.faviconPath,
     heroImagePath: snapshot.heroImagePath,
     shareImagePath: snapshot.heroImagePath,
+    heroSources: snapshot.heroSources,
     hero: snapshot.hero,
     form: snapshot.form,
     homeHtml: snapshot.homeHtml,

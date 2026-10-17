@@ -4,6 +4,7 @@ import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "../public-site/cashpath-guide
 import { safePublicEmbedUrl } from "../public-site/safe-html.ts";
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteData, PublicSitePage } from "../public-site/types.ts";
 import { absoluteUrl, escapeHtml, plainText, richToHtml } from "./html.ts";
+import { attachResponsiveHero } from "./responsive-hero.ts";
 import type { ExportAsset, ExportPage, ExportWarning, GuideCard, SiteSnapshot } from "./types.ts";
 
 const SECRET_KEY = /secret|password|service_role|private_key|api[_-]?key|access_token|refresh_token|authorization|supabase/i;
@@ -297,6 +298,7 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
     || assetMap.get(content.hero_image_url || "")
     || assetMap.get(content.seo_image_url || "")
     || "";
+  const heroSources = await attachResponsiveHero(assets, heroImage, warnings);
   const favicon = assetMap.get("/templates/cashpath/favicon.svg") || assetMap.get(content.favicon_url || "") || "";
 
   const snapshot: SiteSnapshot = {
@@ -311,6 +313,7 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
     noIndex: content.seo_no_index === true,
     faviconPath: favicon ? `/${favicon}` : "",
     heroImagePath: heroImage ? `/${heroImage}` : "",
+    heroSources,
     hero: {
       eyebrow: plainText(content.hero_eyebrow),
       title: plainText(content.hero_title) || brandName,

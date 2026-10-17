@@ -11,12 +11,15 @@ const FAQ = [
   ["Who determines rates and fees?", "The provider determines rates, fees, and other terms."],
 ];
 
-function documentShell(snapshot: SiteSnapshot, options: { title: string; description: string; path: string; noIndex: boolean; body: string; jsonLd?: unknown }): string {
+function documentShell(snapshot: SiteSnapshot, options: { title: string; description: string; path: string; noIndex: boolean; body: string; jsonLd?: unknown; preloadHero?: boolean }): string {
   const canonical = absoluteUrl(snapshot.canonicalOrigin, options.path);
   const robots = options.noIndex || snapshot.noIndex ? "noindex, nofollow" : "index, follow";
   const icon = snapshot.faviconPath ? `<link rel="icon" href="${escapeHtml(absoluteUrl(snapshot.canonicalOrigin, snapshot.faviconPath))}">` : "";
   const keywords = snapshot.seoKeywords ? `<meta name="keywords" content="${escapeHtml(snapshot.seoKeywords)}">` : "";
   const image = snapshot.heroImagePath ? absoluteUrl(snapshot.canonicalOrigin, snapshot.heroImagePath) : "";
+  const preload = options.preloadHero && snapshot.heroSources
+    ? `<link rel="preload" as="image" imagesrcset="${escapeHtml(snapshot.heroSources.srcset)}" imagesizes="${escapeHtml(snapshot.heroSources.sizes)}" type="${escapeHtml(snapshot.heroSources.type)}" fetchpriority="high">`
+    : "";
   const imageMeta = image
     ? `<meta property="og:image" content="${escapeHtml(image)}">\n<meta property="og:image:alt" content="${escapeHtml(options.title)}">\n<meta name="twitter:image" content="${escapeHtml(image)}">`
     : "";
@@ -25,6 +28,7 @@ function documentShell(snapshot: SiteSnapshot, options: { title: string; descrip
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+${preload}
 <title>${escapeHtml(options.title)}</title>
 <meta name="description" content="${escapeHtml(options.description)}">
 ${keywords}
@@ -58,8 +62,17 @@ function footer(snapshot: SiteSnapshot): string {
   return `<footer class="footer"><div><a class="brand" href="/">Cash<span>Path</span><i></i></a><p>CashPath is not a lender and does not make credit decisions.</p></div>${column("Explore", links.explore)}${column("Information", links.info)}<small>© ${new Date().getFullYear()} CashPath.</small></footer>`;
 }
 
+function heroMarkup(snapshot: SiteSnapshot): string {
+  if (!snapshot.heroImagePath) return "";
+  const sources = snapshot.heroSources;
+  const dimensions = sources ? ` width="${sources.width}" height="${sources.height}"` : "";
+  const image = `<img src="${escapeHtml(snapshot.heroImagePath)}" alt=""${dimensions} fetchpriority="high">`;
+  if (!sources) return image;
+  return `<picture><source type="${escapeHtml(sources.type)}" srcset="${escapeHtml(sources.srcset)}" sizes="${escapeHtml(sources.sizes)}">${image}</picture>`;
+}
+
 function cashpathHome(snapshot: SiteSnapshot): string {
-  const image = snapshot.heroImagePath ? `<img src="${escapeHtml(snapshot.heroImagePath)}" alt="">` : "";
+  const image = heroMarkup(snapshot);
   const form = snapshot.form ? `<div class="form"><section><div><p class="form-kicker">${escapeHtml(snapshot.form.eyebrow)}</p><h2>${escapeHtml(snapshot.form.title)}</h2><p>${escapeHtml(snapshot.form.text)}</p><div data-leadsgate-aid="${escapeHtml(snapshot.form.aid)}" data-leadsgate-template="wallet-lines"></div></div></section></div>` : "";
   const faq = FAQ.map(([question, answer], index) => `<article data-faq><button type="button">${escapeHtml(question)}<span>${index === 0 ? "−" : "+"}</span></button><p data-answer ${index === 0 ? "" : "hidden"}>${escapeHtml(answer)}</p></article>`).join("");
   return `<main class="site">
@@ -272,6 +285,7 @@ export function renderStaticSite(snapshot: SiteSnapshot, projectRoot: string): E
       description: snapshot.seoDescription,
       path: "/",
       noIndex: snapshot.noIndex,
+      preloadHero: true,
       body: cashpathHome(snapshot),
       jsonLd: homeJsonLd(snapshot),
     }));

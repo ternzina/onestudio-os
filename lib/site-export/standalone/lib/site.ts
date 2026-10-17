@@ -12,6 +12,7 @@ export type ExportedSite = {
   faviconPath: string;
   heroImagePath: string;
   shareImagePath: string;
+  heroSources: { width: number; height: number; type: "image/webp"; sizes: "100vw"; srcset: string } | null;
   hero: { eyebrow: string; title: string; text: string };
   form: { aid: string; template: "wallet-lines"; eyebrow: string; title: string; text: string } | null;
   homeHtml: string;
