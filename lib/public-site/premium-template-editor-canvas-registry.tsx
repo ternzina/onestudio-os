@@ -2,6 +2,7 @@
 
 import { createElement, type ComponentType } from "react";
 import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
+import { cashPathPublicHomeSite } from "./cashpath-public-payload.ts";
 import { getPremiumTemplatePublicRuntime } from "./premium-template-runtime-registry.ts";
 import type { PublicSiteContent, PublicSiteData } from "./types";
 
@@ -41,7 +42,8 @@ export function getPremiumTemplateEditorCanvasRenderer(
   if (!runtime) return undefined;
   const PublicHomeRenderer = runtime.publicHomeRenderer;
   return function RegistryBackedPremiumTemplateEditorCanvas({ content, basePath, site }) {
-    return <PublicHomeRenderer site={site ? { ...site, content } : previewSite(content)} basePath={basePath} />;
+    const full = site ? { ...site, content } : previewSite(content);
+    return <PublicHomeRenderer site={cashPathPublicHomeSite(full)} basePath={basePath} />;
   };
 }
 

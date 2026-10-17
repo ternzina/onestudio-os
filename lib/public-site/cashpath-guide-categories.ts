@@ -1,19 +1,5 @@
-import {
-  CASH_PATH_GUIDE_CATEGORIES,
-  type CashPathGuideCategory,
-} from "./cashpath-guides.generated.ts";
-
-export type CashPathGuideCategoryDefinition = {
-  name: CashPathGuideCategory;
-  slug: string;
-  pageTitle: string;
-  seoTitle: string;
-  description: string;
-  intro: string;
-};
-
-/** The single source of category metadata for CashPath guide navigation and SEO. */
-export const CASH_PATH_GUIDE_CATEGORY_REGISTRY = [
+/** Category metadata stays independent of the guide corpus so public routes do not load every article. */
+const CASH_PATH_GUIDE_CATEGORY_REGISTRY = [
   {
     name: "Loan Basics",
     slug: "loan-basics",
@@ -70,7 +56,20 @@ export const CASH_PATH_GUIDE_CATEGORY_REGISTRY = [
     description: "Educational guides about borrower rights, safety, and financial scams.",
     intro: "Read educational guides about financial safety, consumer rights, and questions to help you recognize and avoid common risks.",
   },
-] as const satisfies readonly CashPathGuideCategoryDefinition[];
+] as const;
+
+export { CASH_PATH_GUIDE_CATEGORY_REGISTRY };
+
+export type CashPathGuideCategory = (typeof CASH_PATH_GUIDE_CATEGORY_REGISTRY)[number]["name"];
+
+export type CashPathGuideCategoryDefinition = {
+  name: CashPathGuideCategory;
+  slug: string;
+  pageTitle: string;
+  seoTitle: string;
+  description: string;
+  intro: string;
+};
 
 const categoriesByName = new Map<CashPathGuideCategory, CashPathGuideCategoryDefinition>(
   CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => [category.name, category]),
@@ -90,12 +89,4 @@ export function getCashPathGuideCategoryBySlug(slug: string) {
 export function cashPathGuideCategoryPath(categorySlug: string, locale?: string | null) {
   const prefix = locale ? `/${encodeURIComponent(locale)}` : "";
   return `${prefix}/p/guides/${encodeURIComponent(categorySlug)}`;
-}
-
-// Ensures the editorial generator and navigation registry cannot drift apart.
-if (
-  CASH_PATH_GUIDE_CATEGORY_REGISTRY.length !== CASH_PATH_GUIDE_CATEGORIES.length ||
-  CASH_PATH_GUIDE_CATEGORIES.some((category) => !categoriesByName.has(category))
-) {
-  throw new Error("CashPath category registry is out of sync with generated guides");
 }

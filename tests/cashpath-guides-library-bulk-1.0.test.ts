@@ -5,6 +5,7 @@ import {
   CASH_PATH_GUIDES,
   CASH_PATH_GUIDE_CATEGORIES,
 } from "../lib/public-site/cashpath-guides.generated.ts";
+import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "../lib/public-site/cashpath-guide-categories.ts";
 import {
   eligibleCashPathGuideLinks,
   installMissingCashPathGuides,
@@ -17,6 +18,10 @@ test("bulk registry has 89 unique categorized guides and a 77-guide release gate
   assert.equal(new Set(CASH_PATH_GUIDES.map((_, i) => i)).size, 89);
   for (const guide of CASH_PATH_GUIDES)
     assert.ok(CASH_PATH_GUIDE_CATEGORIES.includes(guide.category));
+  assert.deepEqual(
+    CASH_PATH_GUIDE_CATEGORY_REGISTRY.map((category) => category.name).sort(),
+    [...CASH_PATH_GUIDE_CATEGORIES].sort(),
+  );
   const existing = CASH_PATH_GUIDES.slice(0, 12);
   const draft = { template_id: "cashpath", pages: existing } as any;
   assert.equal(missingCashPathGuides(draft).length, 77);
