@@ -24,6 +24,7 @@ import { isRichTextValue, richTextPlainText } from "@/lib/public-site/rich-text"
 import { publicSiteButtonStyle } from "@/lib/public-site/button-style";
 import { publicTypographyStyle } from "@/lib/public-site/typography";
 import ClientPublishDialog from "@/components/dashboard/ClientPublishDialog";
+import SiteExportDialog from "@/components/admin/SiteExportDialog";
 import { useAdminI18n } from "@/components/i18n/AdminI18nProvider";
 import type {
   PublicSiteContent,
@@ -668,6 +669,7 @@ export default function AdminSitePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [publishReviewOpen, setPublishReviewOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [publishHiddenWarningOpen, setPublishHiddenWarningOpen] = useState(false);
   const [publicDomain, setPublicDomain] = useState<ClientDomainRecord | null>(null);
   const [indexNowConfigured, setIndexNowConfigured] = useState(false);
@@ -1486,6 +1488,14 @@ export default function AdminSitePage() {
             ) : null}
             <button
               type="button"
+              onClick={() => setExportOpen(true)}
+              disabled={!canConfigure}
+              className="rounded-full border border-black/15 bg-white px-5 py-3 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea] disabled:opacity-55"
+            >
+              Экспорт сайта
+            </button>
+            <button
+              type="button"
               onClick={() => void saveDraft()}
               disabled={saving || !canConfigure}
               className="rounded-full border border-black/15 bg-white px-5 py-3 text-xs font-bold text-[#17191f] shadow-sm transition hover:bg-[#f4f1ea] disabled:opacity-55"
@@ -1909,6 +1919,7 @@ export default function AdminSitePage() {
           }}
         />
       ) : null}
+      {exportOpen && editor ? <SiteExportDialog businessId={editor.business.id} locale={selectedLocale || editor.site.primary_locale} defaultOrigin={publicDomain?.status === "active" && publicDomain.domain ? `https://${publicDomain.domain}` : editor.business.slug === "cashpath-909c00c9" ? "https://cashpath.org" : ""} onClose={() => setExportOpen(false)} /> : null}
       {publishHiddenWarningOpen ? <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl"><p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700">Поиск Google и Bing</p><h2 className="mt-2 text-2xl font-semibold">Сайт скрыт от Google и Bing</h2><p className="mt-3 text-sm leading-6 text-[#5f5a53]">Он будет доступен по прямой ссылке, но поисковым системам будет указано не индексировать его.</p><div className="mt-6 flex flex-wrap justify-end gap-3"><button type="button" onClick={() => setPublishHiddenWarningOpen(false)} className="rounded-xl border border-black/10 px-4 py-3 text-sm font-semibold">Вернуться и включить индексацию</button><button type="button" onClick={publishHidden} disabled={saving} className="rounded-xl bg-[#17191f] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40">Опубликовать скрытым</button></div></div></div> : null}
     </main>
   );

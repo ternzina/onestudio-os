@@ -1,6 +1,7 @@
 import PublicBusinessSite from "@/components/public/PublicBusinessSite";
 import PublicPremiumActionStyles from "@/components/public/PublicPremiumActionStyles";
 import HomeExperience from "@/app/demos/premium-kids-center/HomeExperience";
+import { cashPathPublicHomeSite } from "@/lib/public-site/cashpath-public-payload";
 import { getPremiumTemplatePublicRuntime } from "@/lib/public-site/premium-template-runtime-registry";
 import { resolveSiteTemplateKey } from "@/lib/public-site/template-registry";
 import type { PublicSiteData } from "@/lib/public-site/types";
@@ -23,7 +24,7 @@ export default function PublicSiteTemplateRuntime({
     return (
       <>
         <PublicPremiumActionStyles content={site.content} templateKey={templateKey!} />
-        <PremiumHomeRenderer site={site} basePath={basePath} />
+        <PremiumHomeRenderer site={templateKey === "cashpath" ? cashPathPublicHomeSite(site) : site} basePath={basePath} />
       </>
     );
   }
