@@ -4,6 +4,7 @@ import { CASH_PATH_GUIDE_CATEGORY_REGISTRY } from "../public-site/cashpath-guide
 import { safePublicEmbedUrl } from "../public-site/safe-html.ts";
 import type { PublicSiteContent, PublicSiteCustomBlock, PublicSiteData, PublicSitePage } from "../public-site/types.ts";
 import { absoluteUrl, escapeHtml, plainText, richToHtml } from "./html.ts";
+import { restoreClippedNavLabel, restoreClippedSeoTitle } from "./clipped-title.ts";
 import { attachResponsiveHero } from "./responsive-hero.ts";
 import type { ExportAsset, ExportPage, ExportWarning, GuideCard, SiteSnapshot } from "./types.ts";
 
@@ -211,6 +212,7 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
   if (form) warnings.push(warning("leadsgate_provider", "Форма заявки открывает виджет провайдера apichannels.com в браузере. Запросы не проходят через OneStudio OS."));
 
   const exportPages: ExportPage[] = [];
+  let restoredTitles = 0;
   for (const page of pages) {
     if (!SAFE_SLUG.test(page.slug) || RESERVED.has(page.slug)) {
       warnings.push(warning("page_skipped", `Страница «${page.slug}» пропущена: адрес зарезервирован или небезопасен.`));
@@ -222,15 +224,18 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
       return rendered ? [{ id: block.id, title: rendered.title, bodyHtml: rendered.bodyHtml }] : [];
     });
     const toc = blocks.filter((block) => block.title.length > 0).map((block) => ({ id: block.id, label: block.title }));
+    const heading = plainText(page.title) || page.nav_label || page.slug;
+    const restoredSeo = restoreClippedSeoTitle(page.seo_title || "", heading, brandName);
+    if (restoredSeo.restored) restoredTitles += 1;
     exportPages.push({
       slug: page.slug,
       path: page.type === "portfolio" ? `/${page.slug}` : `/p/${page.slug}`,
       kind: page.type === "portfolio" ? "portfolio" : "custom",
-      title: plainText(page.title) || page.nav_label || page.slug,
-      navLabel: page.nav_label || plainText(page.title) || page.slug,
+      title: heading,
+      navLabel: restoreClippedNavLabel(page.nav_label || "", heading, restoredSeo.restored),
       eyebrow: plainText(page.eyebrow),
       introHtml: richToHtml(page.intro),
-      seoTitle: page.seo_title || `${page.nav_label || page.slug} | ${brandName}`,
+      seoTitle: restoredSeo.seoTitle || page.seo_title || `${page.nav_label || page.slug} | ${brandName}`,
       seoDescription: page.seo_description || plainText(page.intro),
       noIndex: page.seo_no_index === true || content.seo_no_index === true,
       categoryName,
@@ -241,9 +246,12 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
       worksheetCallout: cashpath && page.slug === "how-to-compare-personal-loan-offers",
     });
   }
+  if (restoredTitles > 0) {
+    warnings.push(warning("seo_title_restored", `Экспорт собрал ${restoredTitles} обрезанных SEO-заголовков заново из полного названия той же страницы. Видимый заголовок не укорачивался, база не изменялась.`));
+  }
   const clippedTitles = exportPages.filter((page) => page.seoTitle.length === 70).length;
   if (clippedTitles > 0) {
-    warnings.push(warning("seo_title_clipped", `В опубликованных данных ${clippedTitles} SEO-заголовков имеют длину ровно 70 символов и могут быть обрезаны. Экспорт сохраняет их как в базе и не дописывает текст.`));
+    warnings.push(warning("seo_title_clipped", `После восстановления осталось ${clippedTitles} SEO-заголовков длиной 70 символов: у этих страниц в снимке нет более полного названия. Экспорт не дописывает их по чужому источнику и не записывает в базу.`));
   }
 
   const guides: GuideCard[] = exportPages.filter((page) => page.categoryName && page.categorySlug && !page.noIndex).map((page) => ({

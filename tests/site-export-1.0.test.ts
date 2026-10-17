@@ -165,6 +165,48 @@ test("published SEO replaces the repository seed and private company email stays
   assert.match(text("app/page.tsx"), /socialMetadata/);
 });
 
+test("exporter rebuilds a clipped SEO title from the page heading", async () => {
+  const heading = "Appliance Financing: Compare a Personal Loan, Store Financing, BNPL, and Rent-to-Own";
+  const clipped = "Appliance Financing: Personal Loan vs. Store Financing, BNPL, and Rent";
+  assert.equal(clipped.length, 70);
+  const prefixedHeading = "Personal Loan for Moving Expenses: Build the Relocation Budget Before You Borrow";
+  const prefixed = prefixedHeading.slice(0, 70);
+  const content = {
+    template_id: "generic",
+    brand_name: "Example",
+    hero_title: "Hello",
+    seo_title: "Example",
+    seo_description: "Description",
+    pages: [
+      { id: "guide", type: "custom", slug: "appliance-guide", nav_label: "Appliance Financing", title: heading, intro: "Intro", seo_title: clipped, seo_description: "Description", is_visible: true, show_in_navigation: true, show_booking_cta: false, blocks: [] },
+      { id: "payments", type: "custom", slug: "payments", nav_label: prefixedHeading.slice(0, 52), title: prefixedHeading, intro: "Intro", seo_title: prefixed, seo_description: "Description", is_visible: true, show_in_navigation: true, show_booking_cta: false, blocks: [] },
+      { id: "about", type: "custom", slug: "about-example", nav_label: "About", title: "About", intro: "Intro", seo_title: `${"Published title ".repeat(6)}`.slice(0, 70), seo_description: "Description", is_visible: true, show_in_navigation: true, show_booking_cta: false, blocks: [] },
+    ],
+  } as unknown as PublicSiteData["content"];
+  const exported = await buildSiteExport(siteFrom(content), "static", { canonicalOrigin: "https://example.com", projectRoot: process.cwd() });
+  const text = (filePath: string) => {
+    const file = exported.files.find((item) => item.path === filePath);
+    assert.ok(file, filePath);
+    return Buffer.isBuffer(file.body) ? file.body.toString("utf8") : file.body;
+  };
+  const appliance = text("p/appliance-guide/index.html");
+  const restored = `${heading} | Example`;
+  assert.match(appliance, new RegExp(`<title>${restored}</title>`));
+  assert.match(appliance, new RegExp(`property="og:title" content="${restored}"`));
+  assert.match(appliance, new RegExp(`<h1>${heading}</h1>`));
+  assert.doesNotMatch(appliance, /BNPL, and Rent</);
+  assert.equal(exported.snapshot.pages.find((page) => page.slug === "appliance-guide")?.navLabel, heading);
+  const payments = text("p/payments/index.html");
+  assert.match(payments, new RegExp(`<title>${prefixedHeading} \\| Example</title>`));
+  assert.match(payments, new RegExp(`<h1>${prefixedHeading}</h1>`));
+  assert.equal(exported.snapshot.pages.find((page) => page.slug === "payments")?.navLabel, prefixedHeading);
+  const about = text("p/about-example/index.html");
+  assert.match(about, /<title>Published title/);
+  assert.match(about, /<h1>About<\/h1>/);
+  assert.equal(exported.snapshot.warnings.some((item) => item.code === "seo_title_restored"), true);
+  assert.equal(exported.snapshot.warnings.some((item) => item.code === "seo_title_clipped"), true);
+});
+
 test("guide categories do not import the guide corpus", () => {
   const source = readFileSync("lib/public-site/cashpath-guide-categories.ts", "utf8");
   assert.doesNotMatch(source, /cashpath-guides\.generated/);
