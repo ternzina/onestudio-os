@@ -198,7 +198,13 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
 
   const formBlock = content.custom_blocks?.find((block) => block.kind === "leadsgate_form" && block.is_visible !== false);
   const form = formBlock && /^\d{1,12}$/.test(formBlock.leadsgate_aid ?? "")
-    ? { aid: formBlock.leadsgate_aid as string, template: "wallet-lines" as const }
+    ? {
+        aid: formBlock.leadsgate_aid as string,
+        template: "wallet-lines" as const,
+        eyebrow: formBlock.eyebrow || "",
+        title: formBlock.title || "",
+        text: formBlock.text || "",
+      }
     : null;
   if (cashpath && !form) warnings.push(warning("leadsgate_missing", "Форма заявки CashPath не найдена в контенте.", true));
   if (form) warnings.push(warning("leadsgate_provider", "Форма заявки открывает виджет провайдера apichannels.com в браузере. Запросы не проходят через OneStudio OS."));

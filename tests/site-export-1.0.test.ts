@@ -78,7 +78,13 @@ test("CashPath export keeps URLs, SEO, guides, and drops the shared article corp
   assert.equal(sitemap.includes("onestudioos.com"), false);
   const form = text("components/LeadsGateForm.tsx");
   assert.match(form, /apichannels\.com\/form\/applicationInit\.js/);
+  assert.match(form, /className="short-form"/);
   assert.doesNotMatch(form, /onestudio|supabase|\/api\/public/);
+  assert.match(text("components/HomePage.tsx"), /form-kicker/);
+  assert.match(text("app/globals.css"), /\.short-form button,\[data-short-form\] button\{[^}]*background:#187c6a/);
+  assert.match(text("app/globals.css"), /grid-template-columns:1fr 1fr/);
+  assert.match(home, /REQUEST OPTIONS/);
+  assert.match(home, /Start your request/);
   const notes = text("EXPORT-NOTES.md");
   assert.match(notes, /DNS/);
   assert.match(text(".env.example"), /LEADSGATE_AID=/);

@@ -72,8 +72,8 @@ export default function LeadsGateForm({ aid }: { aid: string }) {
     return <form className="short-form" onSubmit={submit} noValidate>
       <p>$200 to $5,000 for any reason</p>
       <label>Loan amount<select aria-label="Loan amount" value={values.requested_amount} onChange={(event) => setValues({ ...values, requested_amount: event.target.value })}><option value="500">$200 - $500</option><option value="1000">$500 - $1,000</option><option value="2000">$1,000 - $2,500</option><option value="2500">$2,500 - $5,000</option></select></label>
-      <label>Email address<input aria-label="Email address" type="email" value={values.email} onChange={(event) => setValues({ ...values, email: event.target.value })} /></label>
-      <label>Last 4 digits of SSN<input aria-label="Last 4 digits of SSN" inputMode="numeric" maxLength={4} value={values.last4ssn} onChange={(event) => setValues({ ...values, last4ssn: event.target.value.replace(/\D/g, "").slice(0, 4) })} /></label>
+      <label>Email address<input aria-label="Email address" type="email" placeholder="you@example.com" autoComplete="email" value={values.email} onChange={(event) => setValues({ ...values, email: event.target.value })} /></label>
+      <label>Last 4 digits of SSN<input aria-label="Last 4 digits of SSN" inputMode="numeric" autoComplete="off" maxLength={4} placeholder="0000" value={values.last4ssn} onChange={(event) => setValues({ ...values, last4ssn: event.target.value.replace(/\D/g, "").slice(0, 4) })} /></label>
       <button type="submit">Get Started</button>
       {error ? <p role="alert">{error}</p> : null}
       <p>Your request continues through our secure participating-provider form. CashPath is not a lender.</p>

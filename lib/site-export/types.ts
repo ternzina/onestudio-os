@@ -72,7 +72,7 @@ export type SiteSnapshot = {
   faviconPath: string;
   heroImagePath: string;
   hero: { eyebrow: string; title: string; text: string };
-  form: { aid: string; template: "wallet-lines" } | null;
+  form: { aid: string; template: "wallet-lines"; eyebrow: string; title: string; text: string } | null;
   pages: ExportPage[];
   guides: GuideCard[];
   categories: ExportCategory[];

@@ -60,7 +60,7 @@ function footer(snapshot: SiteSnapshot): string {
 
 function cashpathHome(snapshot: SiteSnapshot): string {
   const image = snapshot.heroImagePath ? `<img src="${escapeHtml(snapshot.heroImagePath)}" alt="">` : "";
-  const form = snapshot.form ? `<div class="form"><div data-leadsgate-aid="${escapeHtml(snapshot.form.aid)}" data-leadsgate-template="wallet-lines"></div></div>` : "";
+  const form = snapshot.form ? `<div class="form"><section><div><p class="form-kicker">${escapeHtml(snapshot.form.eyebrow)}</p><h2>${escapeHtml(snapshot.form.title)}</h2><p>${escapeHtml(snapshot.form.text)}</p><div data-leadsgate-aid="${escapeHtml(snapshot.form.aid)}" data-leadsgate-template="wallet-lines"></div></div></section></div>` : "";
   const faq = FAQ.map(([question, answer], index) => `<article data-faq><button type="button">${escapeHtml(question)}<span>${index === 0 ? "−" : "+"}</span></button><p data-answer ${index === 0 ? "" : "hidden"}>${escapeHtml(answer)}</p></article>`).join("");
   return `<main class="site">
 <header class="header"><a class="brand" href="/">Cash<span>Path</span><i></i></a><button class="menu" type="button" data-menu-toggle>☰</button><nav data-menu><a href="#how">How It Works</a><a href="/p/faq">FAQ</a><a href="/p/about">About</a><button type="button" data-scroll="request">Start Your Request</button></nav></header>
@@ -165,6 +165,21 @@ export function staticStyles(projectRoot: string): string {
 .generic{font-family:Arial,sans-serif;background:#f7f5ef;color:#182b29;min-height:100vh}
 .generic-hero{padding:72px 5vw}
 @media(max-width:800px){.article-grid{grid-template-columns:1fr}.toc{position:static}}
+.form{background:#fff;color:#24302d}
+.form section :is(h2,p){margin-bottom:0}
+.form-kicker{margin:0;color:#24302d;font-weight:600;letter-spacing:.18em}
+.form section>div>p:not(.form-kicker){margin:0;color:rgba(0,0,0,.65)}
+.short-form,[data-short-form]{display:grid;gap:16px;margin:0}
+.short-form > p,[data-short-form] > p{margin:0}
+.short-form label,[data-short-form] label{display:grid;gap:8px;margin:0;color:#24302d;font:600 14px/20px Arial,sans-serif}
+.short-form :is(input,select),[data-short-form] :is(input,select){width:100%;box-sizing:border-box;margin:0;border:1px solid rgba(0,0,0,.15);border-radius:12px;background:#fff;padding:12px 16px;color:#24302d;font:16px/24px Arial,sans-serif;outline:none}
+.short-form :is(input,select):focus,[data-short-form] :is(input,select):focus{box-shadow:0 0 0 2px #187c6a}
+.short-form button,[data-short-form] button{width:100%;align-self:end;box-sizing:border-box;border:0;border-radius:12px;background:#187c6a;color:#fff;padding:12px 20px;font:700 16px/24px Arial,sans-serif;cursor:pointer}
+.short-form button:hover,[data-short-form] button:hover{background:#126657}
+.short-form [role="alert"],[data-short-form] [data-error]{margin:0;color:#9f2d25}
+.short-form [data-error]:empty,[data-short-form] [data-error]:empty{display:none}
+.short-form > p:last-child,[data-short-form] > p:last-child{color:rgba(0,0,0,.6)}
+@media(min-width:640px){.short-form,[data-short-form]{grid-template-columns:1fr 1fr}.short-form > p,[data-short-form] > p{grid-column:1 / -1}}
 `;
 }
 
@@ -185,7 +200,7 @@ export const STATIC_JS = `(() => {
   const mount = document.querySelector("[data-leadsgate-aid]");
   if (mount && /^\\d{1,12}$/.test(mount.getAttribute("data-leadsgate-aid") || "")) {
     const aid = mount.getAttribute("data-leadsgate-aid");
-    mount.innerHTML = '<form data-short-form><p>$200 to $5,000 for any reason</p><label>Loan amount<select name="requested_amount"><option value="500">$200 - $500</option><option value="1000">$500 - $1,000</option><option value="2000" selected>$1,000 - $2,500</option><option value="2500">$2,500 - $5,000</option></select></label><label>Email address<input name="email" type="email" autocomplete="email"></label><label>Last 4 digits of SSN<input name="last4ssn" inputmode="numeric" maxlength="4" autocomplete="off"></label><button type="submit">Get Started</button><p data-error role="alert"></p><p>Your request continues through our secure participating-provider form. CashPath is not a lender.</p></form><div data-provider hidden></div>';
+    mount.innerHTML = '<form class="short-form" data-short-form><p>$200 to $5,000 for any reason</p><label>Loan amount<select name="requested_amount" aria-label="Loan amount"><option value="500">$200 - $500</option><option value="1000">$500 - $1,000</option><option value="2000" selected>$1,000 - $2,500</option><option value="2500">$2,500 - $5,000</option></select></label><label>Email address<input name="email" type="email" placeholder="you@example.com" autocomplete="email" aria-label="Email address"></label><label>Last 4 digits of SSN<input name="last4ssn" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" aria-label="Last 4 digits of SSN"></label><button type="submit">Get Started</button><p data-error role="alert"></p><p>Your request continues through our secure participating-provider form. CashPath is not a lender.</p></form><div data-provider hidden></div>';
     const form = mount.querySelector("[data-short-form]");
     form?.addEventListener("submit", (event) => {
       event.preventDefault();

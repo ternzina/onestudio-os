@@ -13,7 +13,7 @@ export type ExportedSite = {
   heroImagePath: string;
   shareImagePath: string;
   hero: { eyebrow: string; title: string; text: string };
-  form: { aid: string; template: "wallet-lines" } | null;
+  form: { aid: string; template: "wallet-lines"; eyebrow: string; title: string; text: string } | null;
   homeHtml: string;
 };
 
