@@ -62,6 +62,17 @@ function footer(snapshot: SiteSnapshot): string {
   return `<footer class="footer"><div><a class="brand" href="/">Cash<span>Path</span><i></i></a><p>CashPath is not a lender and does not make credit decisions.</p></div>${column("Explore", links.explore)}${column("Information", links.info)}<small>© ${new Date().getFullYear()} CashPath.</small></footer>`;
 }
 
+function pageFooter(snapshot: SiteSnapshot): string {
+  const footerData = snapshot.pageFooter;
+  if (!footerData) return "";
+  if (footerData.variant === "links") {
+    if (!footerData.links.length) return "";
+    return `<footer class="generic-footer">${footerData.links.map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`).join("")}</footer>`;
+  }
+  const column = (title: string, links: Array<{ label: string; href: string }>) => `<div><b>${escapeHtml(title)}</b><div class="links">${links.map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`).join("")}</div></div>`;
+  return `<footer class="page-footer"><div class="page-footer-grid"><div><a class="page-footer-brand" href="/">Cash<span>Path</span></a><p>${escapeHtml(footerData.statement)}</p></div>${footerData.columns.map((columnData) => column(columnData.title, columnData.links)).join("")}</div></footer>`;
+}
+
 function heroMarkup(snapshot: SiteSnapshot): string {
   if (!snapshot.heroImagePath) return "";
   const sources = snapshot.heroSources;
@@ -103,7 +114,7 @@ function article(snapshot: SiteSnapshot, page: ExportPage): string {
   const related = page.related.length ? `<section class="related"><h2>Related guides</h2><div>${page.related.map((item) => `<a href="${escapeHtml(item.path)}">${escapeHtml(item.title)}</a>`).join("")}</div></section>` : "";
   const posting = pageJsonLd(snapshot, page);
   const jsonLd = posting ? { "@context": "https://schema.org", "@graph": [posting, ...(crumbs ? [crumbs] : [])] } : crumbs;
-  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><nav><a href="/">Home</a><a href="/p/faq">FAQ</a><a href="/p/about">About</a><a class="button" href="/#request">Start Your Request</a></nav></header><section class="article-hero">${crumbNav}<p class="eyebrow">${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.title)}</h1><div class="intro">${page.introHtml}</div></section><section class="article-grid">${toc}<article>${callout}${blocks}${related}</article></section>${footer(snapshot)}</main>`;
+  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><nav><a href="/">Home</a><a href="/p/faq">FAQ</a><a href="/p/about">About</a><a class="button" href="/#request">Start Your Request</a></nav></header><section class="article-hero">${crumbNav}<p class="eyebrow">${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.title)}</h1><div class="intro">${page.introHtml}</div></section><section class="article-grid">${toc}<article>${callout}${blocks}${related}</article></section>${pageFooter(snapshot)}</main>`;
   return documentShell(snapshot, { title: page.seoTitle, description: page.seoDescription, path: page.path, noIndex: page.noIndex, body, jsonLd });
 }
 
@@ -118,7 +129,7 @@ function guidesHub(snapshot: SiteSnapshot): string {
     if (!items.length) return "";
     return `<section><h2>${escapeHtml(category.name)}</h2><div class="cards">${items.map((guide) => `<article><h3>${escapeHtml(guide.title)}</h3><p>${escapeHtml(guide.description)}</p><a href="${escapeHtml(guide.path)}">Read guide →</a></article>`).join("")}</div></section>`;
   }).join("");
-  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><a href="/">Home</a></header><section class="article-hero"><p class="eyebrow">CashPath Guides</p><h1>Personal Loan Guides &amp; Financial Education</h1><p>CashPath provides educational information and is not a lender. Explore guides to compare borrowing options, understand terms, and prepare questions before making a decision.</p></section><section class="article-grid"><div></div><article><h2>Start here</h2><div class="cards">${start}</div><p><a href="/p/loan-comparison-worksheet">Open the free worksheet →</a></p>${categories}</article></section>${footer(snapshot)}</main>`;
+  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><a href="/">Home</a></header><section class="article-hero"><p class="eyebrow">CashPath Guides</p><h1>Personal Loan Guides &amp; Financial Education</h1><p>CashPath provides educational information and is not a lender. Explore guides to compare borrowing options, understand terms, and prepare questions before making a decision.</p></section><section class="article-grid"><div></div><article><h2>Start here</h2><div class="cards">${start}</div><p><a href="/p/loan-comparison-worksheet">Open the free worksheet →</a></p>${categories}</article></section></main>`;
   return documentShell(snapshot, {
     title: "Personal Loan Guides & Financial Education | CashPath",
     description: "Educational personal loan guides from CashPath.",
@@ -131,7 +142,7 @@ function guidesHub(snapshot: SiteSnapshot): string {
 
 function categoryHub(snapshot: SiteSnapshot, category: SiteSnapshot["categories"][number]): string {
   const items = snapshot.guides.filter((guide) => guide.categorySlug === category.slug);
-  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><a href="/">Home</a></header><section class="article-hero"><nav class="crumbs"><a href="/">Home</a> / <a href="/p/guides">Guides</a> / <span>${escapeHtml(category.name)}</span></nav><p class="eyebrow">CashPath Guides</p><h1>${escapeHtml(category.title)}</h1><p>${escapeHtml(category.intro)}</p><p>${items.length} guides</p></section><section class="article-grid"><div></div><article><div class="cards">${items.map((guide) => `<article><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.description)}</p><a href="${escapeHtml(guide.path)}">Read guide →</a></article>`).join("")}</div><a href="/p/guides">Browse all guides →</a></article></section>${footer(snapshot)}</main>`;
+  const body = `<main class="article"><header class="article-bar"><a class="brand" href="/">Cash<span>Path</span></a><a href="/">Home</a></header><section class="article-hero"><nav class="crumbs"><a href="/">Home</a> / <a href="/p/guides">Guides</a> / <span>${escapeHtml(category.name)}</span></nav><p class="eyebrow">CashPath Guides</p><h1>${escapeHtml(category.title)}</h1><p>${escapeHtml(category.intro)}</p><p>${items.length} guides</p></section><section class="article-grid"><div></div><article><div class="cards">${items.map((guide) => `<article><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.description)}</p><a href="${escapeHtml(guide.path)}">Read guide →</a></article>`).join("")}</div><a href="/p/guides">Browse all guides →</a></article></section></main>`;
   return documentShell(snapshot, {
     title: category.seoTitle,
     description: category.description,
@@ -210,6 +221,17 @@ export function staticStyles(projectRoot: string): string {
   }
 }
 @keyframes cashpath-reveal{to{opacity:1;transform:none}}
+.page-footer{background:#182b29;color:#f7f5ef;padding:48px 20px;font-family:Arial,sans-serif}
+.page-footer-grid{display:grid;gap:40px;max-width:80rem;margin:0 auto}
+.page-footer-brand{color:#f7f5ef;font:600 24px/32px Arial,sans-serif;text-decoration:none}
+.page-footer-brand span{color:#c8ef22}
+.page-footer p{margin:16px 0 0;max-width:none;color:rgba(255,255,255,.7);font:14px/24px Arial,sans-serif}
+.page-footer b{color:#f7f5ef;font:700 16px/1.2 Arial,sans-serif;letter-spacing:0;text-transform:none}
+.page-footer .links{display:grid;gap:8px;margin-top:16px}
+.page-footer .links a{color:rgba(255,255,255,.75);font:14px/20px Arial,sans-serif;text-decoration:none}
+.generic-footer{padding:32px 5vw;font-family:Arial,sans-serif}
+.generic-footer a{color:inherit}
+@media(min-width:640px){.page-footer-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 `;
 }
 

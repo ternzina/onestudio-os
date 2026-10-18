@@ -16,6 +16,14 @@ export type ExportedSite = {
   hero: { eyebrow: string; title: string; text: string };
   form: { aid: string; template: "wallet-lines"; eyebrow: string; title: string; text: string } | null;
   homeHtml: string;
+  pageFooter: {
+    variant: "cashpath";
+    statement: string;
+    columns: Array<{ title: string; links: Array<{ label: string; href: string }> }>;
+  } | {
+    variant: "links";
+    links: Array<{ label: string; href: string }>;
+  } | null;
 };
 
 export function readSite(): ExportedSite {

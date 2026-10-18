@@ -333,6 +333,7 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
     categories,
     includeGuides: cashpath,
     includeWorksheet: cashpath,
+    pageFooter: null,
     homeHtml: "",
     assets,
     warnings,
@@ -342,8 +343,26 @@ export async function buildSiteSnapshot(site: PublicSiteData, options: BuildSnap
     ],
     usingDraft: options.usingDraft === true,
   };
+  snapshot.pageFooter = pageFooterFor(snapshot);
   snapshot.homeHtml = rewriteAssets(genericHomeHtml(snapshot), assetMap);
   return snapshot;
+}
+
+function pageFooterFor(snapshot: SiteSnapshot): SiteSnapshot["pageFooter"] {
+  if (snapshot.templateId === "cashpath") {
+    const links = cashPathFooter(snapshot);
+    const href = (slug: string) => slug === "guides" ? "/p/guides" : `/p/${slug}`;
+    return {
+      variant: "cashpath",
+      statement: "CashPath is not a lender and does not make credit decisions.",
+      columns: [
+        { title: "Explore", links: links.explore.map(([label, slug]) => ({ label, href: href(slug) })) },
+        { title: "Information", links: links.info.map(([label, slug]) => ({ label, href: href(slug) })) },
+      ],
+    };
+  }
+  const contact = snapshot.pages.find((page) => page.slug === "contact");
+  return contact ? { variant: "links", links: [{ label: "Contact", href: contact.path }] } : null;
 }
 
 function genericHomeHtml(snapshot: SiteSnapshot): string {

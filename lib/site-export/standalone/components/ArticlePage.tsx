@@ -1,4 +1,5 @@
 import JsonLd from "./JsonLd";
+import PageFooter from "./PageFooter";
 import type { ExportedPage } from "../lib/pages";
 import { absoluteUrl, readSite } from "../lib/site";
 
@@ -42,5 +43,6 @@ export default function ArticlePage({ page }: { page: ExportedPage }) {
         {page.related.length ? <section className="related"><h2>Related guides</h2><div className="cards">{page.related.map((item) => <a key={item.slug} href={item.path}>{item.title}</a>)}</div></section> : null}
       </article>
     </section>
+    <PageFooter />
   </main>;
 }

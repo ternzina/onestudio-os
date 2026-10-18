@@ -119,6 +119,7 @@ export async function buildSiteExport(site: PublicSiteData, format: ExportFormat
     hero: snapshot.hero,
     form: snapshot.form,
     homeHtml: snapshot.homeHtml,
+    pageFooter: snapshot.pageFooter,
   };
   if (format === "static") {
     files.push(...renderStaticSite(snapshot, options.projectRoot || process.cwd()));

@@ -91,6 +91,17 @@ test("CashPath export keeps URLs, SEO, guides, and drops the shared article corp
   assert.match(text("app/globals.css"), /cubic-bezier\(0\.16,1,0\.3,1\)/);
   assert.match(text("app/globals.css"), /animation-delay:\.1s/);
   assert.match(text("app/globals.css"), /prefers-reduced-motion: no-preference/);
+  assert.equal((text("components/HomePage.tsx").match(/<footer/g) || []).length, 1);
+  assert.doesNotMatch(text("components/HomePage.tsx"), /page-footer/);
+  assert.match(text("components/ArticlePage.tsx"), /<PageFooter \/>/);
+  assert.doesNotMatch(text("components/GuidesHub.tsx"), /PageFooter|page-footer/);
+  assert.doesNotMatch(text("components/CategoryHub.tsx"), /PageFooter|page-footer/);
+  assert.match(text("components/PageFooter.tsx"), /className="page-footer"/);
+  assert.match(text("app/globals.css"), /\.page-footer\{background:#182b29/);
+  assert.match(text("app/globals.css"), /\.page-footer-brand span\{color:#c8ef22\}/);
+  assert.match(text("data/site.json"), /"variant":"cashpath"/);
+  assert.match(text("data/site.json"), /"href":"\/p\/about"/);
+  assert.match(text("data/site.json"), /"href":"\/p\/do-not-sell-share"/);
   assert.match(text("components/HomePage.tsx"), /className="reveal"/);
   assert.match(text("components/HomePage.tsx"), /className="trust stagger"/);
   assert.match(text("components/HomePage.tsx"), /prefers-reduced-motion: reduce/);
@@ -148,6 +159,19 @@ test("CashPath static export preloads the responsive hero", async () => {
   assert.ok(article);
   const articleHtml = Buffer.isBuffer(article.body) ? article.body.toString("utf8") : article.body;
   assert.equal(articleHtml.includes("imagesrcset"), false);
+  assert.match(articleHtml, /<footer class="page-footer">/);
+  assert.match(articleHtml, /page-footer-brand/);
+  assert.match(articleHtml, /href="\/p\/privacy-policy"/);
+  assert.equal((articleHtml.match(/<footer/g) || []).length, 1);
+  const guides = text("p/guides/index.html");
+  assert.equal(guides.includes("<footer"), false);
+  const category = exported.files.find((file) => file.path === "p/guides/loan-basics/index.html");
+  assert.ok(category);
+  const categoryHtml = Buffer.isBuffer(category.body) ? category.body.toString("utf8") : category.body;
+  assert.equal(categoryHtml.includes("<footer"), false);
+  assert.equal((home.match(/<footer/g) || []).length, 1);
+  assert.match(home, /class="footer"/);
+  assert.doesNotMatch(home, /page-footer/);
 });
 
 test("CashPath public home payload omits guide bodies", () => {

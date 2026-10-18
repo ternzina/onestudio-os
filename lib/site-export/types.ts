@@ -67,6 +67,17 @@ export type HeroSources = {
   srcset: string;
 };
 
+export type PageFooterLink = { label: string; href: string };
+
+export type PageFooter = {
+  variant: "cashpath";
+  statement: string;
+  columns: Array<{ title: string; links: PageFooterLink[] }>;
+} | {
+  variant: "links";
+  links: PageFooterLink[];
+};
+
 export type SiteSnapshot = {
   templateId: string;
   brandName: string;
@@ -87,6 +98,7 @@ export type SiteSnapshot = {
   categories: ExportCategory[];
   includeGuides: boolean;
   includeWorksheet: boolean;
+  pageFooter: PageFooter | null;
   homeHtml: string;
   assets: ExportAsset[];
   warnings: ExportWarning[];
