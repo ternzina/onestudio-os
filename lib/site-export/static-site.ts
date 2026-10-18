@@ -78,14 +78,14 @@ function cashpathHome(snapshot: SiteSnapshot): string {
   return `<main class="site">
 <header class="header"><a class="brand" href="/">Cash<span>Path</span><i></i></a><button class="menu" type="button" data-menu-toggle>☰</button><nav data-menu><a href="#how">How It Works</a><a href="/p/faq">FAQ</a><a href="/p/about">About</a><button type="button" data-scroll="request">Start Your Request</button></nav></header>
 <section id="top" class="hero"><div class="heroCopy"><p class="eyebrow">${escapeHtml(snapshot.hero.eyebrow)}</p><h1>${escapeHtml(snapshot.hero.title)}</h1><p>${escapeHtml(snapshot.hero.text)}</p><button type="button" data-scroll="request">Start your request →</button><div class="mini"><span>Online request</span><span>Review before accepting</span></div></div><div class="route">${image}<svg viewBox="0 0 500 500"><path d="M40 430C110 330 175 410 220 280S350 90 470 70" /></svg></div></section>
-<section id="request" class="request"><div><p class="eyebrow">START YOUR REQUEST</p><h2>Explore your options.</h2><p>Complete a secure request to be considered by participating providers.</p></div>${form}</section>
-<section class="trust"><div><b>01</b><span>Online request</span></div><div><b>02</b><span>No obligation to accept</span></div><div><b>03</b><span>Review terms first</span></div><div><b>04</b><span>Available offers vary</span></div></section>
-<section id="how" class="section"><p class="eyebrow">HOW IT WORKS</p><h2>Three simple steps.</h2><div class="steps"><article><b>01</b><h3>Request</h3><p>Submit your online request.</p></article><article><b>02</b><h3>Connect</h3><p>You may be connected with providers.</p></article><article><b>03</b><h3>Review</h3><p>Read terms before deciding.</p></article></div></section>
-<section class="options"><p class="eyebrow">YOU STAY IN CONTROL</p><h2>Clear choices, your decision.</h2><div class="optionCards"><article><h3>Review before deciding</h3><p>See the provider's terms before accepting.</p></article><article><h3>No obligation to accept</h3><p>A request does not require you to take an offer.</p></article><article><h3>CashPath isn't the lender</h3><p>Rates, fees and credit decisions are determined by the provider.</p></article></div></section>
-<section id="faq" class="section faq"><p class="eyebrow">FAQ</p><h2>Questions, answered clearly.</h2>${faq}</section>
-<aside class="responsible">Borrowing comes with costs. Review all rates, fees and repayment terms before accepting an offer, and borrow only what you can reasonably repay. <a href="/p/responsible-lending">Responsible Lending →</a></aside>
-<section class="final"><p class="eyebrow">WHEN YOU'RE READY</p><h2>Ready to explore your options?</h2><button type="button" data-scroll="request">Start Your Request →</button></section>
-${footer(snapshot)}
+<div class="reveal"><section id="request" class="request"><div><p class="eyebrow">START YOUR REQUEST</p><h2>Explore your options.</h2><p>Complete a secure request to be considered by participating providers.</p></div>${form}</section></div>
+<div class="reveal"><section class="trust stagger"><div><b>01</b><span>Online request</span></div><div><b>02</b><span>No obligation to accept</span></div><div><b>03</b><span>Review terms first</span></div><div><b>04</b><span>Available offers vary</span></div></section></div>
+<div class="reveal"><section id="how" class="section"><p class="eyebrow">HOW IT WORKS</p><h2>Three simple steps.</h2><div class="steps stagger"><article><b>01</b><h3>Request</h3><p>Submit your online request.</p></article><article><b>02</b><h3>Connect</h3><p>You may be connected with providers.</p></article><article><b>03</b><h3>Review</h3><p>Read terms before deciding.</p></article></div></section></div>
+<div class="reveal"><section class="options"><p class="eyebrow">YOU STAY IN CONTROL</p><h2>Clear choices, your decision.</h2><div class="optionCards stagger"><article><h3>Review before deciding</h3><p>See the provider's terms before accepting.</p></article><article><h3>No obligation to accept</h3><p>A request does not require you to take an offer.</p></article><article><h3>CashPath isn't the lender</h3><p>Rates, fees and credit decisions are determined by the provider.</p></article></div></section></div>
+<div class="reveal"><section id="faq" class="section faq"><p class="eyebrow">FAQ</p><h2>Questions, answered clearly.</h2>${faq}</section></div>
+<div class="reveal"><aside class="responsible">Borrowing comes with costs. Review all rates, fees and repayment terms before accepting an offer, and borrow only what you can reasonably repay. <a href="/p/responsible-lending">Responsible Lending →</a></aside></div>
+<div class="reveal"><section class="final"><p class="eyebrow">WHEN YOU'RE READY</p><h2>Ready to explore your options?</h2><button type="button" data-scroll="request">Start Your Request →</button></section></div>
+<div class="reveal">${footer(snapshot)}</div>
 </main>`;
 }
 
@@ -192,7 +192,24 @@ export function staticStyles(projectRoot: string): string {
 .short-form [role="alert"],[data-short-form] [data-error]{margin:0;color:#9f2d25}
 .short-form [data-error]:empty,[data-short-form] [data-error]:empty{display:none}
 .short-form > p:last-child,[data-short-form] > p:last-child{color:rgba(0,0,0,.6)}
+.short-form-action{display:flex;align-items:flex-end}
+.short-form-action > button{width:100%}
 @media(min-width:640px){.short-form,[data-short-form]{grid-template-columns:1fr 1fr}.short-form > p,[data-short-form] > p{grid-column:1 / -1}}
+.site :is(h1,h2,h3,p){margin:0}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal{opacity:0;transform:translateY(64px)}
+  .reveal.is-shown{animation:cashpath-reveal 1s cubic-bezier(0.16,1,0.3,1) forwards}
+  .stagger > *{opacity:0;transform:translateY(28px)}
+  .stagger.is-shown > *{animation:cashpath-reveal .95s cubic-bezier(0.16,1,0.3,1) forwards}
+  .stagger.is-shown > *:nth-child(2){animation-delay:.1s}
+  .stagger.is-shown > *:nth-child(3){animation-delay:.2s}
+  .stagger.is-shown > *:nth-child(4){animation-delay:.3s}
+  @media (max-width:640px){
+    .reveal{transform:translateY(40px)}
+    .reveal.is-shown,.stagger.is-shown > *{animation-duration:.8s}
+  }
+}
+@keyframes cashpath-reveal{to{opacity:1;transform:none}}
 `;
 }
 
@@ -213,7 +230,7 @@ export const STATIC_JS = `(() => {
   const mount = document.querySelector("[data-leadsgate-aid]");
   if (mount && /^\\d{1,12}$/.test(mount.getAttribute("data-leadsgate-aid") || "")) {
     const aid = mount.getAttribute("data-leadsgate-aid");
-    mount.innerHTML = '<form class="short-form" data-short-form><p>$200 to $5,000 for any reason</p><label>Loan amount<select name="requested_amount" aria-label="Loan amount"><option value="500">$200 - $500</option><option value="1000">$500 - $1,000</option><option value="2000" selected>$1,000 - $2,500</option><option value="2500">$2,500 - $5,000</option></select></label><label>Email address<input name="email" type="email" placeholder="you@example.com" autocomplete="email" aria-label="Email address"></label><label>Last 4 digits of SSN<input name="last4ssn" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" aria-label="Last 4 digits of SSN"></label><button type="submit">Get Started</button><p data-error role="alert"></p><p>Your request continues through our secure participating-provider form. CashPath is not a lender.</p></form><div data-provider hidden></div>';
+    mount.innerHTML = '<form class="short-form" data-short-form><p>$200 to $5,000 for any reason</p><label>Loan amount<select name="requested_amount" aria-label="Loan amount"><option value="500">$200 - $500</option><option value="1000">$500 - $1,000</option><option value="2000" selected>$1,000 - $2,500</option><option value="2500">$2,500 - $5,000</option></select></label><label>Email address<input name="email" type="email" placeholder="you@example.com" autocomplete="email" aria-label="Email address"></label><label>Last 4 digits of SSN<input name="last4ssn" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" aria-label="Last 4 digits of SSN"></label><div class="short-form-action"><button type="submit">Get Started</button></div><p data-error role="alert"></p><p>Your request continues through our secure participating-provider form. CashPath is not a lender.</p></form><div data-provider hidden></div>';
     const form = mount.querySelector("[data-short-form]");
     form?.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -268,6 +285,28 @@ export const STATIC_JS = `(() => {
         const node = results.querySelector('[data-total="' + index + '"]');
         if (node) node.textContent = value === null ? "Equal-payment total: Not calculated" : "Equal-payment total: $" + value.toFixed(2) + ". This is not an APR calculation.";
       }
+    });
+  }
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reveals = document.querySelectorAll(".reveal");
+  const showReveal = (node) => {
+    node.classList.add("is-shown");
+    node.querySelectorAll(".stagger").forEach((item) => item.classList.add("is-shown"));
+  };
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    reveals.forEach(showReveal);
+  } else {
+    reveals.forEach((node) => {
+      const height = node.getBoundingClientRect().height || 1;
+      const threshold = height > window.innerHeight ? Math.min(0.32, (window.innerHeight * 0.32) / height) : 0.32;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          showReveal(entry.target);
+          observer.unobserve(entry.target);
+        });
+      }, { threshold });
+      observer.observe(node);
     });
   }
 })();
